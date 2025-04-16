@@ -14,6 +14,10 @@ margin-top: 20px;
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
   }
+
+  @media (max-width: 768px) {
+    margin:0;
+}
 `;
 
 /** Title at the top of the form */
@@ -52,13 +56,26 @@ export const Column = styled.div`
   .toggle-column{
   display: flex;
   flex-direction: space-between;
+  align-items: center;
+  justify-content: space-between;
   }
+
+  @media (max-width: 990px) {
+  width: 100%;
+}
 `;
 
 /** Wrapper for a single field */
 export const FieldWrapper = styled.div`
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 990px) {
+  .toggle-wrapper{
+    display: flex;
+    flex-direction: row;
+  }
+  }
 `;
 
 /** Labels for inputs */
@@ -103,6 +120,10 @@ export const TextArea = styled.textarea`
 /** Price input with smaller max-width */
 export const PriceInput = styled(Input)`
   max-width: 200px;
+
+  @media(max-width: 990px){
+    max-width: 100%;
+  }
 `;
 
 /** Wrapper for sets of checkboxes with a title */
@@ -163,6 +184,11 @@ export const UploadArea = styled.div`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  @media (max-width: 990px) {
+    width: 85%;
+    margin-left: 0;
   }
 `;
 

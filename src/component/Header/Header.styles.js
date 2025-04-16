@@ -14,13 +14,22 @@ export const HeaderContainer = styled.header`
   border-radius: 10px;
   margin-left: 40px;
   border-bottom: 1px solid #e0e0e0;
-  z-index: 998; /* Just behind the sidebar's 999 if it overlaps */
+  z-index: 990; /* Just behind the sidebar's 999 if it overlaps */
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    width: calc(100% - 50px); /* Adjust width for smaller screens */
+  }
 `;
 
 export const Title = styled.h1`
   font-size: 20px;
   margin: 0;
   color: #333;
+
+  @media (max-width: 768px) {
+    margin-left: 40px;
+  }
 `;
 
 export const SearchWrapper = styled.div`

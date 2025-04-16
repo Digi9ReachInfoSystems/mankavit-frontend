@@ -3,11 +3,11 @@ import styled from "styled-components";
 
 
 export const DashboardWrapper = styled.div`
-position: fixed;
-top:120px;
+// position: fixed;
+// top:120px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
     height: 100vh;
     background-color: ${theme.colors.backgrounGrey};
@@ -15,10 +15,28 @@ top:120px;
     font-size: 24px;
     font-weight: bold;
     text-align: center;
-    margin-left: 60px;
+    margin-left: 40px;
+
+    @media (max-width: 768px) {
+      margin-left:0;
+}
   `;
 
-  export const DashboardTitle = styled.h1`
-    margin: 0;
-    padding: 0;
+
+  export const DashboardContent = styled.div`
+
+    display: flex;  
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    padding: 20px 0 ;
+  `;
+  export const Application = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    padding: 20px 0 ;
   `;

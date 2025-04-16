@@ -241,9 +241,9 @@ export default function AddCourse() {
             </UploadArea>
           </Column>
 
-          <Column style={{ width: "150px" }} className="toggle-column">
-            <FieldWrapper>
-              <Label>Is KYC Required?</Label>
+          <Column className="toggle-column">
+            <FieldWrapper style={{flexDirection: "row", alignItems: "center"}}>
+              <Label style={{marginBottom: "0px"}}>Is KYC Required?</Label>
               <ToggleSwitch
                 type="checkbox"
                 checked={isKYCRequired}

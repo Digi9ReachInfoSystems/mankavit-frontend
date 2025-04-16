@@ -14,6 +14,10 @@ export const Container = styled.div`
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
   }
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
 `;
 
 // Title of the form
@@ -48,6 +52,10 @@ export const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 990px) {
+    width: 100%;
+  }
 `;
 
 // Label for inputs
@@ -96,10 +104,15 @@ export const UploadArea = styled.div`
   text-align: center;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
-  width: 20%;
+  width: 85%;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  @media (max-width: 990px) {
+    width: 85%;
+    margin: 0 auto;
   }
 `;
 

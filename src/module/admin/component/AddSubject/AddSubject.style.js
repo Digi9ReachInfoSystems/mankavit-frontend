@@ -16,6 +16,10 @@ margin-top: 20px;
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
   }
+
+  @media (max-width: 768px) {
+    margin:0;
+  }
 `;
 
 /** Title at the top of the form */
@@ -31,6 +35,7 @@ export const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(3)};
+  
 `;
 
 /** A row that divides into two columns (on desktop) */
@@ -50,6 +55,10 @@ export const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 990px) {
+    width: 100%;
+  }
 
   
 `;
@@ -160,6 +169,11 @@ margin-left: 60px;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  @media (max-width: 990px) {
+    width: 85%;
+    margin-left: 0;
   }
 `;
 

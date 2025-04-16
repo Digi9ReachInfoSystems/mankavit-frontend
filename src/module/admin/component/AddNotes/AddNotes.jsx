@@ -127,13 +127,12 @@ export default function AddNote() {
               />
             </UploadArea>
           </Column>
-        </FormRow>
+        {/* </FormRow>
 
-        {/* Row 3: Is Downloadable Toggle */}
-        <FormRow>
-          <Column style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <FieldWrapper style={{ marginBottom: 0 }}>
-              <Label htmlFor="isDownloadable">Is it downloadable?</Label>
+        <FormRow> */}
+          <Column style={{ display: "flex", alignItems: "center", gap: "10px", }}>
+            <FieldWrapper style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+              <Label htmlFor="isDownloadable" style={{ marginBottom: 0}}>Is it downloadable?</Label>
               <ToggleSwitch
                 id="isDownloadable"
                 type="checkbox"
