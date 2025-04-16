@@ -1,16 +1,26 @@
 import React from "react";
 import {
-    DashboardWrapper,
-    DashboardTitle
+  DashboardWrapper,
+  DashboardContent,
+  Application
+//   DashboardTitle
 } from "./Dashboard.style";
-const Dashboard = () => {
-    return (
-        <DashboardWrapper>
-            <DashboardTitle>
-                Dashboard
-            </DashboardTitle>
-        </DashboardWrapper>
-    )
-};  
+import Stats from "../../component/Stats/Stats";
+import ApplicationsGraph from "../../component/ApplicationGraph/ApplicationGraph";
 
-export default Dashboard
+const Dashboard = () => {
+  return (
+    <DashboardWrapper>
+      <DashboardContent>
+        {/* <DashboardTitle>Dashboard Overview</DashboardTitle> */}
+        <Stats />
+
+      </DashboardContent>
+      <Application> 
+        <ApplicationsGraph />
+      </Application>
+    </DashboardWrapper>
+  );
+};
+
+export default Dashboard;

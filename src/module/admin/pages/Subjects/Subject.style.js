@@ -14,6 +14,16 @@ justify-content: center;
   padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
+
+    @media (max-width: 990px) {
+  width: 90%;
+}
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    margin-top: 0;
+    padding: ${(props) => props.theme.spacing(1)};
+  }
 `;
 
 // Top header row with left title and right sort selector
@@ -30,6 +40,11 @@ export const Title = styled.h3`
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.colors.black};
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-left: 0;
+  }
 `;
 
 // Sort section on the right (e.g., "Sort by: Name")
@@ -192,6 +207,10 @@ export const ButtonContainer = styled.div`
   margin-bottom: ${(props) => props.theme.spacing(2)};
   margin-top: ${(props) => props.theme.spacing(4)};
  margin-right:10px;
+
+ @media (max-width: 768px) {
+ margin: 10px 5px;
+}
   `;
 
 export const CreateButton = styled.button`

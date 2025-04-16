@@ -12,7 +12,18 @@ justify-content: center;
   padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
+
+  @media (max-width: 990px) {
+  width: 90%;
+}
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    margin-top: 0;
+    padding: ${(props) => props.theme.spacing(1)};
+  }
 `;
+
 
 export const HeaderRow = styled.div`
   display: flex;
@@ -26,6 +37,11 @@ export const Title = styled.h3`
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.colors.black};
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-left: 0;
+  }
 `;
 
 export const SortByContainer = styled.div`
