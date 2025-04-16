@@ -5,7 +5,7 @@ const theme = {
      secondary: "#fdfdfd",
      grey:"#dedede",
      backgrounGrey:"#f3f3f3",
-     black:"#000000",
+     black:"#0c0d19",
     },
     fonts: {
       body: "'DM Sans', sans-serif",

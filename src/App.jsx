@@ -5,11 +5,21 @@ import GlobalStyle from './theme/GlobalStyle'
 import theme from './theme/Theme'
 import './App.css'
 import BaseLayout from './component/BaseLayout/BaseLayout'
-import Dashboard from './module/admin/Dashboard/Dashboard'
-import Homepage from './module/admin/Homepage/Homepage'
+import Dashboard from './module/admin/pages/Dashboard/Dashboard'
+import Homepage from './module/admin/pages/Homepage/Homepage'
 import Login from './pages/Login/Login'
 import OtpLogin from './pages/OtpLogin/OtpLogin'
 import Test from './pages/Test/Test'
+import Course from './module/admin/pages/Course/Course'
+import StudentsTable from './module/admin/pages/StudentManagement/StudentManagement'
+import StudentManagement from './module/admin/pages/StudentManagement/StudentManagement'
+import Payment from './module/admin/pages/Payment/Payment'
+import Subjects from './module/admin/pages/Subjects/Subject'
+import AddSubject from './module/admin/component/AddSubject/AddSubject'
+import NotesManagement from './module/admin/pages/Notes/Notes'
+import CoursesTable from './module/admin/pages/Course/Course'
+import AddCourse from './module/admin/component/AddCourse/AddCourse'
+import AddNote from './module/admin/component/AddNotes/AddNotes'
 
 function App() {
 
@@ -31,7 +41,15 @@ function App() {
 
           <Route path="/admin" element={<BaseLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="homepage" element={<Homepage />} />
+            <Route path="web-management/home" element={<Homepage />} />
+            <Route path="course-management" element={<Course />} />
+            <Route path="courses/create" element={<AddCourse />} />
+            <Route path="student-management" element={<StudentManagement />} />
+            <Route path="payment-management" element={<Payment />} />
+            <Route path="subject-management" element={<Subjects />} />
+            <Route path="subjects/create" element={<AddSubject />} />
+            <Route path="notes-management" element={<NotesManagement />} />
+            <Route path="notes/create" element={<AddNote />} />
           </Route>
         </Routes>
       </Router>
