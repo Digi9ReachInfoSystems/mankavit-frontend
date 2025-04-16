@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import theme from "../../theme/Theme";
 export const HeaderContainer = styled.header`
-  position: fixed;
+  position: relative;
 //   top: 0;
-  left: 250px; 
-  width: calc(100% - 370px);
+  // left: 250px; 
+  width: calc(100% - 80px);
   height: 60px; 
   display: flex;
   align-items: center;
@@ -12,7 +12,7 @@ export const HeaderContainer = styled.header`
   background-color: ${theme.colors.secondary};
   padding: 16px 24px;
   border-radius: 10px;
-  margin-left: 60px;
+  margin-left: 40px;
   border-bottom: 1px solid #e0e0e0;
   z-index: 998; /* Just behind the sidebar's 999 if it overlaps */
 `;

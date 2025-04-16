@@ -10,34 +10,21 @@ import {
 } from "./Sidebar.style";
 
 const Sidebar = () => {
-  // Menu item data structure for better organization and reusability
+  // Menu item data structure
   const menuItems = [
-    {
-      path: "/dashboard",
-      label: "Dashboard",
-    },
-    {
-      label: "Courses Management",
-    },
-    {
-      label: "Student Management",
-    },
-    {
-      label: "Mock Test",
-    },
-    {
-      label: "Payment",
-    },
-    {
-      label: "Web Management",
-    },
-    {
-      path: "/homepage",
-      label: "Homepage",
-    },
+    { path: "/admin", label: "Dashboard" },
+    { path: "/admin/student-management", label: "Student Management" },
+    { label: "Mock Test" }, // No path, will render as plain text
+    { path: "/admin/payment-management", label: "Payment" },
   ];
-
-  const whyMankavitItems = [
+  const courseManagementItems = [
+    { path: "/admin/course-management", label: "Courses" },
+    { path: "/admin/subject-management", label: "Subjects" }, // Changed to object with path
+    { path: "/admin/notes-management", label: "Notes" }       // Changed to object with path
+  ];
+  const webmanagement = [
+    { path: "/admin/web-management/home", label: "Home page" },
+    "Why Mankavit",
     "About us",
     "Testimonial",
     "Achievement",
@@ -49,6 +36,8 @@ const Sidebar = () => {
     "FAQs",
   ];
 
+
+
   const appManagementItems = [
     "Homepage",
     "Courses",
@@ -56,41 +45,55 @@ const Sidebar = () => {
     "FAQs",
   ];
 
-  // Component for rendering a menu item with optional NavLink
-  const renderMenuItem = ({ path, label }) => (
+  // Render menu item with NavLink if path exists
+  const renderMenuItem = ({ path, label }, index) => (
     path ? (
       <NavLink
         to={path}
         style={{ textDecoration: "none", color: "inherit" }}
-        activeclassname="active"
-        key={label}
+        activeClassName="active"
+        key={index}
       >
         <MenuItem>{label}</MenuItem>
       </NavLink>
     ) : (
-      <MenuItem key={label}>{label}</MenuItem>
+      <MenuItem key={index}>{label}</MenuItem>
     )
   );
 
-  // Component for rendering a section with title and indented items
+  // Render a section with title and items
   const renderSection = (title, items, hasMarginTop = true) => (
-    <>
+    <React.Fragment key={title}>
       <MenuItem style={hasMarginTop ? { marginTop: theme.spacing(3) } : null}>
         {title}
       </MenuItem>
-      {items.map((item) => (
-        <IndentedItem key={item}>{item}</IndentedItem>
+      {items.map((item, index) => (
+        typeof item === "object" && item.path ? (
+          <NavLink
+            to={item.path}
+            style={{ textDecoration: "none", color: "inherit" }}
+            activeClassName="active"
+            key={`${title}-${index}`}
+          >
+            <IndentedItem>{item.label}</IndentedItem>
+          </NavLink>
+        ) : (
+          <IndentedItem key={`${title}-${index}`}>
+            {typeof item === "object" ? item.label : item}
+          </IndentedItem>
+        )
       ))}
-    </>
+    </React.Fragment>
   );
 
   return (
     <SidebarContainer>
       <SidebarTitle>Mankavit</SidebarTitle>
-
       <MenuList>
-        {menuItems.map(renderMenuItem)}
-        {renderSection("Why Mankavit", whyMankavitItems)}
+        {menuItems.map((item, index) => renderMenuItem(item, index))}
+        
+        {renderSection("Course Management", courseManagementItems)}
+        {renderSection("Web management", webmanagement)}
         {renderSection("App Management", appManagementItems)}
       </MenuList>
     </SidebarContainer>

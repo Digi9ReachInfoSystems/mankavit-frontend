@@ -20,12 +20,12 @@ const Header = () => {
     <HeaderContainer>
       <Title>Dashboard</Title>
 
-      <SearchWrapper>
+      {/* <SearchWrapper>
         <SearchInput
           type="text"
           placeholder="Search candidate, vacancy, etc"
         />
-      </SearchWrapper>
+      </SearchWrapper> */}
 
       <UserInfoWrapper>
         <UserDetails>
