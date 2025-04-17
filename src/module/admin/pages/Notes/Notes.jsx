@@ -130,8 +130,9 @@ export default function NotesManagement() {
   /* Current page for pagination */
   const [currentPage, setCurrentPage] = useState(1);
 
-  const TOTAL_ENTRIES = mockData.length;
+  const TOTAL_ENTRIES = initialData.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+  
 
   /* Slice data for the current page */
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

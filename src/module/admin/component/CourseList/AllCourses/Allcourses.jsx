@@ -9,7 +9,7 @@ import {
 } from './AllCourses.styles';
 
 const AllCourses = () => {
-  const data = Array(5).fill(null).map((_, index) => ({
+  const data = Array(10).fill(null).map((_, index) => ({
     key: index,
     courseName: 'CLAT Coaching',
     internalName: 'Anuja Admin',
@@ -18,6 +18,9 @@ const AllCourses = () => {
     studentsEnrolled: 12,
     price: '₹599.00',
   }));
+  const ITEMS_PER_PAGE = 5;
+
+
 
   return (
     <TableWrapper>
@@ -32,7 +35,7 @@ const AllCourses = () => {
           </TableHead>
         </thead>
         <tbody>
-          {data.map((row, index) => (
+          {data.slice(0, ITEMS_PER_PAGE).map((row, index) => (
             <TableRow key={index}>
               <TableCell>{row.courseName}</TableCell>
               <TableCell>{row.internalName}</TableCell>
