@@ -1,4 +1,5 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { NavLink } from "react-router-dom";
 import theme from "../../theme/Theme";
 
 export const SidebarContainer = styled.div`
@@ -8,7 +9,7 @@ export const SidebarContainer = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  scrollbar-width: none; /* For Firefox */
+  scrollbar-width: none;
   border-right: 1px solid #e0e0e0;
   padding: ${theme.spacing(3)};
   z-index: 999;
@@ -19,6 +20,7 @@ export const SidebarContainer = styled.div`
     left: 0;
     transform: ${({ isOpen }) => (isOpen ? "translateX(0)" : "translateX(-100%)")};
     transition: transform 0.3s ease-in-out;
+    height: 100vh;
   }
 
   @media (max-width: 990px) {
@@ -54,7 +56,7 @@ export const MenuItem = styled.li`
   padding: ${theme.spacing(1)} ${theme.spacing(2)};
   border-radius: 4px;
   color: ${theme.colors.test};
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 
   &:hover {
     color: ${theme.colors.secondary};
@@ -67,6 +69,43 @@ export const IndentedItem = styled(MenuItem)`
   font-size: 0.9em;
 `;
 
+// ✅ Styled NavLink for menu items (with active styling)
+export const StyledNavLink = styled(NavLink).attrs(() => ({
+  activeClassName: "active",
+}))`
+  text-decoration: none;
+  color: inherit;
+
+  & > li {
+    list-style: none;
+  }
+
+  display: block;
+  padding: ${theme.spacing(1)} ${theme.spacing(2)};
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: ${theme.spacing(2)};
+  color: ${theme.colors.test};
+  transition: background-color 0.2s, color 0.2s;
+
+  ${({ $indented }) =>
+    $indented &&
+    css`
+      margin-left: ${theme.spacing(4)};
+      font-size: 0.9em;
+    `}
+
+  &.active {
+    color: ${theme.colors.secondary};
+    background: linear-gradient(to right, #0dcaf0, #007bff);
+  }
+
+  &:hover {
+    color: ${theme.colors.secondary};
+    background: linear-gradient(to right, #0dcaf0, #007bff);
+  }
+`;
+
 export const HamburgerIcon = styled.div`
   display: none;
 
@@ -76,10 +115,8 @@ export const HamburgerIcon = styled.div`
     top: 26px;
     left: 16px;
     z-index: 998;
-    // background-color: white;
     padding: 8px;
     border-radius: 4px;
-    // box-shadow: 0 0 5px rgba(0,0,0,0.1);
     cursor: pointer;
   }
 `;
@@ -101,6 +138,7 @@ export const DropdownIcon = styled.span`
   margin-left: auto;
   display: flex;
   align-items: center;
+
   svg {
     font-size: 14px;
   }

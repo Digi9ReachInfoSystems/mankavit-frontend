@@ -36,12 +36,15 @@ const mockData = Array.from({ length: 10 }, (_, index) => ({
   price: 599,
 }));
 
-const TOTAL_ENTRIES = 100;
+// const TOTAL_ENTRIES = 100;
 const ITEMS_PER_PAGE = 10;
 
 export default function CoursesTable() {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
+
+  const TOTAL_ENTRIES = mockData.length;
+  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
 
   // Slicing data for current page (if you actually had 100 items, you'd slice them accordingly)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -49,7 +52,6 @@ export default function CoursesTable() {
   const currentItems = mockData.slice(startIndex, endIndex);
 
   // Generate page numbers (in a real scenario, you’d base it on total data length)
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
   const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
 
   const handlePageChange = (page) => {
@@ -66,7 +68,7 @@ export default function CoursesTable() {
       <HeaderRow>
         <Title>See All Course <span style={{ color: "#6d6e75",
             fontSize: "12px",
-            fontWeight: "400" }}>(14/24)</span></Title>
+            fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
         <SortByContainer>
           <SortLabel>Sort by:</SortLabel>
           <SortSelect value="Name" onChange={() => {}}>
@@ -123,7 +125,7 @@ export default function CoursesTable() {
           Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from {TOTAL_ENTRIES}
         </PageInfo>
         <Pagination>
-          {pages.slice(0, 5).map((page) => (
+          {pages.map((page) => (
             <PageButton
               key={page}
               className={page === currentPage ? "active" : ""}

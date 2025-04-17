@@ -121,7 +121,7 @@ const initialData = [
   },
 ];
 
-const TOTAL_ENTRIES = 100;
+// const TOTAL_ENTRIES = 100;
 const ITEMS_PER_PAGE = 10;
 
 export default function NotesManagement() {
@@ -130,14 +130,16 @@ export default function NotesManagement() {
   /* Current page for pagination */
   const [currentPage, setCurrentPage] = useState(1);
 
+  const TOTAL_ENTRIES = mockData.length;
+  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+
   /* Slice data for the current page */
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = notesData.slice(startIndex, endIndex);
 
   /* Total pages based on total data length (100 in this example) */
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
 
   /* Handler for pagination */
   const handlePageChange = (page) => {
@@ -165,7 +167,7 @@ export default function NotesManagement() {
       <HeaderRow>
         <Title>See All Notes <span style={{ color: "#6d6e75",
             fontSize: "12px",
-            fontWeight: "400" }}>(14/24)</span></Title>
+            fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
         <SortByContainer>
           <SortLabel>Sort by:</SortLabel>
           <SortSelect value="Name" onChange={() => {}}>
@@ -247,7 +249,7 @@ export default function NotesManagement() {
           {TOTAL_ENTRIES}
         </PageInfo>
         <Pagination>
-          {pages.slice(0, 5).map((page) => (
+          {pages.map((page) => (
             <PageButton
               key={page}
               className={page === currentPage ? "active" : ""}

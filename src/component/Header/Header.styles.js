@@ -5,12 +5,12 @@ export const HeaderContainer = styled.header`
 //   top: 0;
   // left: 250px; 
   width: calc(100% - 80px);
-  height: 60px; 
+  height: 50px; 
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: ${theme.colors.secondary};
-  padding: 16px 24px;
+  padding: 10px 20px;
   border-radius: 10px;
   margin-left: 40px;
   border-bottom: 1px solid #e0e0e0;

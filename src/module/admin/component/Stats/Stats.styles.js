@@ -11,7 +11,7 @@ export const StatCard = styled.div`
   flex: 1;
 //   min-width: 200px;
 width: 100%;
-  padding: 20px;
+  padding: 15px;
   border-radius: 16px;
   background: #fff;
   color: #000;
@@ -36,7 +36,7 @@ export const StatTitle = styled.div`
 `;
 
 export const StatValue = styled.h2`
-  margin-top: 10px;
+  margin-top: 0px;
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0;

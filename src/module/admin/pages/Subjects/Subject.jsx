@@ -99,11 +99,14 @@ const mockData = [
   },
 ];
 
-const TOTAL_ENTRIES = 100;       // e.g. total number of subjects
+// const TOTAL_ENTRIES = 100;       // e.g. total number of subjects
 const ITEMS_PER_PAGE = 10;
 
 export default function Subjects() {
   const [currentPage, setCurrentPage] = useState(1);
+
+  const TOTAL_ENTRIES = mockData.length;
+  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
 
   // Figure out which items to show for current page
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -111,8 +114,7 @@ export default function Subjects() {
   const currentItems = mockData.slice(startIndex, endIndex);
 
   // In a real app, you'd set totalPages based on the actual total data length
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -129,7 +131,7 @@ export default function Subjects() {
       <HeaderRow>
         <Title>See All Subjects  <span style={{ color: "#6d6e75",
             fontSize: "12px",
-            fontWeight: "400" }}>(14/24)</span></Title>
+            fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
         <SortByContainer>
           <SortLabel>Sort by:</SortLabel>
           <SortSelect value="Name" onChange={() => {}}>
@@ -185,7 +187,7 @@ export default function Subjects() {
           {TOTAL_ENTRIES}
         </PageInfo>
         <Pagination>
-          {pages.slice(0, 5).map((page) => (
+          {pages.map((page) => (
             <PageButton
               key={page}
               className={page === currentPage ? "active" : ""}
