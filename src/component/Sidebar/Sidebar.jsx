@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import theme from "../../theme/Theme";
 import {
@@ -11,11 +11,13 @@ import {
   HamburgerIcon,
   Backdrop,
   DropdownIcon,
+  StyledNavLink,
 } from "./Sidebar.style";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [openSections, setOpenSections] = useState({}); // To handle collapsible sections
+  const [openSections, setOpenSections] = useState({});
+  const location = useLocation();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -57,17 +59,18 @@ const Sidebar = () => {
 
   const renderMenuItem = ({ path, label }, index) =>
     path ? (
-      <NavLink
+      <StyledNavLink
         to={path}
-        style={{ textDecoration: "none", color: "inherit" }}
         key={index}
         onClick={() => setIsOpen(false)}
+        end={path === "/admin"} // 👈 important for exact match
       >
-        <MenuItem>{label}</MenuItem>
-      </NavLink>
+        {label}
+      </StyledNavLink>
     ) : (
       <MenuItem key={index}>{label}</MenuItem>
     );
+  
 
   const renderSection = (title, items, hasMarginTop = true) => {
     const isExpanded = openSections[title];
@@ -93,14 +96,14 @@ const Sidebar = () => {
         {isExpanded &&
           items.map((item, index) =>
             typeof item === "object" && item.path ? (
-              <NavLink
+              <StyledNavLink
                 to={item.path}
-                style={{ textDecoration: "none", color: "inherit" }}
                 key={`${title}-${index}`}
                 onClick={() => setIsOpen(false)}
+                $indented
               >
-                <IndentedItem>{item.label}</IndentedItem>
-              </NavLink>
+                {item.label}
+              </StyledNavLink>
             ) : (
               <IndentedItem key={`${title}-${index}`}>
                 {typeof item === "object" ? item.label : item}

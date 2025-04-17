@@ -18,8 +18,9 @@ export const Header = styled.div`
 
 export const Title = styled.h3`
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 400;
   margin: 0;
+  color: #0C0D19;
 `;
 
 export const DateSelector = styled.div`
@@ -31,19 +32,21 @@ export const DateSelector = styled.div`
   align-items: center;
   gap: 0.4rem;
   cursor: pointer;
+  color: #6D6E75;
 `;
 
 export const LegendContainer = styled.div`
   display: flex;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 `;
 
 export const LegendItem = styled.div`
   display: flex;
   align-items: center;
   font-size: 0.85rem;
-  color: #333;
+  font-weight: 400;
+  color: #6D6E75;
   gap: 0.4rem;
 `;
 
@@ -51,5 +54,5 @@ export const LegendDot = styled.div`
   width: 12px;
   height: 12px;
   background-color: ${(props) => props.color || "#000"};
-  border-radius: 50%;
+  border-radius: 3px;
 `;

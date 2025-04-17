@@ -9,7 +9,7 @@ export const DashboardWrapper = styled.div`
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    height: 100vh;
+    // height: 100vh;
     background-color: ${theme.colors.backgrounGrey};
     color: ${theme.colors.primary};
     font-size: 24px;
@@ -30,13 +30,24 @@ export const DashboardWrapper = styled.div`
     align-items: flex-start;
     justify-content: center;
     width: 100%;
-    padding: 20px 0 ;
+    padding: 10px 0 ;
   `;
   export const Application = styled.div`
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    // flex-direction: row;
+    grid-template-columns: 1fr 1fr;
     align-items: flex-start;
     justify-content: center;
     width: 100%;
-    padding: 20px 0 ;
+    padding-bottom: 10px ;
+    gap: 20px;
+  `;
+
+  export const Courses = styled.div`
+display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: 10px;
+    gap: 20px;
   `;

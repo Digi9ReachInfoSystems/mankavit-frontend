@@ -21,7 +21,7 @@ import {
   PageButton,
   ButtonContainer,
   CreateButton
-} from "../StudentManagement/StudentManagement.style"; // or wherever you placed the styles
+} from "../StudentManagement/StudentManagement.style"; // adjust path if needed
 import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 
 // Example mock data to demonstrate table rows
@@ -128,114 +128,115 @@ const mockData = [
   },
 ];
 
-const TOTAL_ENTRIES = 100;       // e.g. total no. of students in DB
 const ITEMS_PER_PAGE = 10;
 
 export default function StudentManagement() {
-  // Current page state
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Calculate what items to display on this page
+  const TOTAL_ENTRIES = mockData.length;
+  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = mockData.slice(startIndex, endIndex);
-
-  // For demonstration, totalPages is based on 100 total entries
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
+  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
+
   return (
     <>
-    <ButtonContainer>
-            <CreateButton>+ Add Student</CreateButton>
-          </ButtonContainer>
-      
-    <Container>
-      {/* Header with title and sort by */}
-      <HeaderRow>
-        <Title>See All Students <span style={{
-        color: "#6d6e75",
-        fontSize: "12px",
-        fontWeight: "400"
+      <ButtonContainer>
+        <CreateButton>+ Add Student</CreateButton>
+      </ButtonContainer>
 
-        }}>(14/24)</span></Title>
-        <SortByContainer>
-          <SortLabel>Sort by:</SortLabel>
-          <SortSelect value="Name" onChange={() => {}}>
-            <option value="Name">Name</option>
-            <option value="Status">Status</option>
-            <option value="KYCStatus">KYC Status</option>
-          </SortSelect>
-        </SortByContainer>
-      </HeaderRow>
-
-      {/* Table */}
-      <TableWrapper>
-        <StyledTable>
-          <TableHead>
-            <TableRow>
-              <TableHeader>#</TableHeader>
-              <TableHeader>Student Name</TableHeader>
-              <TableHeader>Contact Details</TableHeader>
-              <TableHeader>Subject Enrolled</TableHeader>
-              <TableHeader>Last Active</TableHeader>
-              <TableHeader>KYC Status</TableHeader>
-              <TableHeader>Status</TableHeader>
-              <TableHeader>Actions</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {currentItems.map((item, index) => (
-              <TableRow key={item.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>
-                  {item.phone}
-                  <br />
-                  {item.email}
-                </TableCell>
-                <TableCell>
-                  {item.subjectsEnrolled}
-                  <a href="#view">View</a>
-                </TableCell>
-                <TableCell>{item.lastActive}</TableCell>
-                <TableCell>{item.kycStatus}</TableCell>
-                <TableCell>{item.status}</TableCell>
-                <TableCell>
-                  <ActionsContainer>
-                    <FiEdit title="Edit" />
-                    <FiTrash title="Delete" />
-                    <FiEye title="View Details" />
-                  </ActionsContainer>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </StyledTable>
-      </TableWrapper>
-
-      {/* Pagination info and controls */}
-      <BottomRow>
-        <PageInfo>
-          Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from {TOTAL_ENTRIES}
-        </PageInfo>
-        <Pagination>
-          {pages.slice(0, 5).map((page) => (
-            <PageButton
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={page === currentPage ? "active" : ""}
+      <Container>
+        <HeaderRow>
+          <Title>
+            See All Students{" "}
+            <span
+              style={{
+                color: "#6d6e75",
+                fontSize: "12px",
+                fontWeight: "400",
+              }}
             >
-              {page}
-            </PageButton>
-          ))}
-        </Pagination>
-      </BottomRow>
-    </Container>
+              ({currentItems.length}/{TOTAL_ENTRIES})
+            </span>
+          </Title>
+          <SortByContainer>
+            <SortLabel>Sort by:</SortLabel>
+            <SortSelect value="Name" onChange={() => {}}>
+              <option value="Name">Name</option>
+              <option value="Status">Status</option>
+              <option value="KYCStatus">KYC Status</option>
+            </SortSelect>
+          </SortByContainer>
+        </HeaderRow>
+
+        <TableWrapper>
+          <StyledTable>
+            <TableHead>
+              <TableRow>
+                <TableHeader>#</TableHeader>
+                <TableHeader>Student Name</TableHeader>
+                <TableHeader>Contact Details</TableHeader>
+                <TableHeader>Subject Enrolled</TableHeader>
+                <TableHeader>Last Active</TableHeader>
+                <TableHeader>KYC Status</TableHeader>
+                <TableHeader>Status</TableHeader>
+                <TableHeader>Actions</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {currentItems.map((item, index) => (
+                <TableRow key={item.id}>
+                  <TableCell>{startIndex + index + 1}</TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.phone}
+                    <br />
+                    {item.email}
+                  </TableCell>
+                  <TableCell>
+                    {item.subjectsEnrolled}
+                    <a href="#view">View</a>
+                  </TableCell>
+                  <TableCell>{item.lastActive}</TableCell>
+                  <TableCell>{item.kycStatus}</TableCell>
+                  <TableCell>{item.status}</TableCell>
+                  <TableCell>
+                    <ActionsContainer>
+                      <FiEdit title="Edit" />
+                      <FiTrash title="Delete" />
+                      <FiEye title="View Details" />
+                    </ActionsContainer>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </StyledTable>
+        </TableWrapper>
+
+        <BottomRow>
+          <PageInfo>
+            Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from {TOTAL_ENTRIES}
+          </PageInfo>
+          <Pagination>
+            {pages.map((page) => (
+              <PageButton
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={page === currentPage ? "active" : ""}
+              >
+                {page}
+              </PageButton>
+            ))}
+          </Pagination>
+        </BottomRow>
+      </Container>
     </>
   );
 }
