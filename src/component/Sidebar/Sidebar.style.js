@@ -1,19 +1,37 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { NavLink } from "react-router-dom";
 import theme from "../../theme/Theme";
 
 export const SidebarContainer = styled.div`
-  width: 250px;               /* Fixed width consistent with the screenshot */
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #f9fafc;  /* A light background (adjust if you prefer) */
+  width: 250px;
+  height: 95vh;
+  background-color: #f9fafc;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;           /* Scroll if menu items exceed screen height */
+  overflow-y: auto;
+  scrollbar-width: none;
   border-right: 1px solid #e0e0e0;
-  z-index: 999;
   padding: ${theme.spacing(3)};
+  z-index: 999;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: ${({ isOpen }) => (isOpen ? "translateX(0)" : "translateX(-100%)")};
+    transition: transform 0.3s ease-in-out;
+    height: 100vh;
+  }
+
+  @media (max-width: 990px) {
+    width: 200px;
+  }
+
+  @media (min-width: 769px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
 `;
 
 export const SidebarTitle = styled.h2`
@@ -32,42 +50,96 @@ export const MenuList = styled.ul`
 `;
 
 export const MenuItem = styled.li`
-  display: flex;
   font-size: 16px;
-  align-items: center;
   margin-bottom: ${theme.spacing(2)};
   cursor: pointer;
   padding: ${theme.spacing(1)} ${theme.spacing(2)};
   border-radius: 4px;
   color: ${theme.colors.test};
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 
   &:hover {
     color: ${theme.colors.secondary};
-    background:linear-gradient(to right, #0dcaf0, #007bff);
-  }
-`;
-
-export const Checkbox = styled.span`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 1px solid ${theme.colors.test};
-  margin-right: ${theme.spacing(2)};
-  position: relative;
-
-  &::after {
-    content: ${props => (props.checked ? "'✓'" : "''")};
-    position: absolute;
-    top: -3px;
-    left: 2px;
-    color: ${theme.colors.primary};
-    font-size: 14px;
+    background: linear-gradient(to right, #0dcaf0, #007bff);
   }
 `;
 
 export const IndentedItem = styled(MenuItem)`
   margin-left: ${theme.spacing(4)};
   font-size: 0.9em;
+`;
+
+// ✅ Styled NavLink for menu items (with active styling)
+export const StyledNavLink = styled(NavLink).attrs(() => ({
+  activeClassName: "active",
+}))`
+  text-decoration: none;
+  color: inherit;
+
+  & > li {
+    list-style: none;
+  }
+
+  display: block;
+  padding: ${theme.spacing(1)} ${theme.spacing(2)};
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: ${theme.spacing(2)};
   color: ${theme.colors.test};
+  transition: background-color 0.2s, color 0.2s;
+
+  ${({ $indented }) =>
+    $indented &&
+    css`
+      margin-left: ${theme.spacing(4)};
+      font-size: 0.9em;
+    `}
+
+  &.active {
+    color: ${theme.colors.secondary};
+    background: linear-gradient(to right, #0dcaf0, #007bff);
+  }
+
+  &:hover {
+    color: ${theme.colors.secondary};
+    background: linear-gradient(to right, #0dcaf0, #007bff);
+  }
+`;
+
+export const HamburgerIcon = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: absolute;
+    top: 26px;
+    left: 16px;
+    z-index: 998;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+`;
+
+export const Backdrop = styled.div`
+  @media (max-width: 768px) {
+    display: ${({ isOpen }) => (isOpen ? "block" : "none")};
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 998;
+  }
+`;
+
+export const DropdownIcon = styled.span`
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+
+  svg {
+    font-size: 14px;
+  }
 `;

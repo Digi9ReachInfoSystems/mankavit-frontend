@@ -1,5 +1,6 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import theme from "../../theme/Theme";
 import {
   SidebarContainer,
@@ -7,37 +8,42 @@ import {
   MenuList,
   MenuItem,
   IndentedItem,
+  HamburgerIcon,
+  Backdrop,
+  DropdownIcon,
+  StyledNavLink,
 } from "./Sidebar.style";
 
 const Sidebar = () => {
-  // Menu item data structure for better organization and reusability
+  const [isOpen, setIsOpen] = useState(false);
+  const [openSections, setOpenSections] = useState({});
+  const location = useLocation();
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const toggleSection = (section) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
   const menuItems = [
-    {
-      path: "/dashboard",
-      label: "Dashboard",
-    },
-    {
-      label: "Courses Management",
-    },
-    {
-      label: "Student Management",
-    },
-    {
-      label: "Mock Test",
-    },
-    {
-      label: "Payment",
-    },
-    {
-      label: "Web Management",
-    },
-    {
-      path: "/homepage",
-      label: "Homepage",
-    },
+    { path: "/admin", label: "Dashboard" },
+    { path: "/admin/student-management", label: "Student Management" },
+    { label: "Mock Test" },
+    { path: "/admin/payment-management", label: "Payment" },
   ];
 
-  const whyMankavitItems = [
+  const courseManagementItems = [
+    { path: "/admin/course-management", label: "Courses" },
+    { path: "/admin/subject-management", label: "Subjects" },
+    { path: "/admin/notes-management", label: "Notes" },
+  ];
+
+  const webmanagement = [
+    { path: "/admin/web-management/home", label: "Home page" },
+    "Why Mankavit",
     "About us",
     "Testimonial",
     "Achievement",
@@ -49,51 +55,83 @@ const Sidebar = () => {
     "FAQs",
   ];
 
-  const appManagementItems = [
-    "Homepage",
-    "Courses",
-    "Live Classes",
-    "FAQs",
-  ];
+  const appManagementItems = ["Homepage", "Courses", "Live Classes", "FAQs"];
 
-  // Component for rendering a menu item with optional NavLink
-  const renderMenuItem = ({ path, label }) => (
+  const renderMenuItem = ({ path, label }, index) =>
     path ? (
-      <NavLink
+      <StyledNavLink
         to={path}
-        style={{ textDecoration: "none", color: "inherit" }}
-        activeclassname="active"
-        key={label}
+        key={index}
+        onClick={() => setIsOpen(false)}
+        end={path === "/admin"} // 👈 important for exact match
       >
-        <MenuItem>{label}</MenuItem>
-      </NavLink>
+        {label}
+      </StyledNavLink>
     ) : (
-      <MenuItem key={label}>{label}</MenuItem>
-    )
-  );
+      <MenuItem key={index}>{label}</MenuItem>
+    );
+  
 
-  // Component for rendering a section with title and indented items
-  const renderSection = (title, items, hasMarginTop = true) => (
-    <>
-      <MenuItem style={hasMarginTop ? { marginTop: theme.spacing(3) } : null}>
-        {title}
-      </MenuItem>
-      {items.map((item) => (
-        <IndentedItem key={item}>{item}</IndentedItem>
-      ))}
-    </>
-  );
+  const renderSection = (title, items, hasMarginTop = true) => {
+    const isExpanded = openSections[title];
+
+    return (
+      <React.Fragment key={title}>
+        <MenuItem
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            cursor: "pointer",
+            ...(hasMarginTop ? { marginTop: theme.spacing(3) } : {}),
+          }}
+          onClick={() => toggleSection(title)}
+        >
+          {title}
+          <DropdownIcon>
+            {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+          </DropdownIcon>
+        </MenuItem>
+
+        {isExpanded &&
+          items.map((item, index) =>
+            typeof item === "object" && item.path ? (
+              <StyledNavLink
+                to={item.path}
+                key={`${title}-${index}`}
+                onClick={() => setIsOpen(false)}
+                $indented
+              >
+                {item.label}
+              </StyledNavLink>
+            ) : (
+              <IndentedItem key={`${title}-${index}`}>
+                {typeof item === "object" ? item.label : item}
+              </IndentedItem>
+            )
+          )}
+      </React.Fragment>
+    );
+  };
 
   return (
-    <SidebarContainer>
-      <SidebarTitle>Mankavit</SidebarTitle>
+    <>
+      <HamburgerIcon onClick={toggleSidebar}>
+        <FaBars size={24} />
+      </HamburgerIcon>
 
-      <MenuList>
-        {menuItems.map(renderMenuItem)}
-        {renderSection("Why Mankavit", whyMankavitItems)}
-        {renderSection("App Management", appManagementItems)}
-      </MenuList>
-    </SidebarContainer>
+      <Backdrop isOpen={isOpen} onClick={() => setIsOpen(false)} />
+
+      <SidebarContainer isOpen={isOpen}>
+        <SidebarTitle>Mankavit</SidebarTitle>
+        <MenuList>
+          {menuItems.map((item, index) => renderMenuItem(item, index))}
+          {renderSection("Course Management", courseManagementItems)}
+          {renderSection("Web management", webmanagement)}
+          {renderSection("App Management", appManagementItems)}
+        </MenuList>
+      </SidebarContainer>
+    </>
   );
 };
 

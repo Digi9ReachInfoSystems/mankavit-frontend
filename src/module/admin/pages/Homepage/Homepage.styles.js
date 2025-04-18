@@ -1,4 +1,4 @@
-import theme from "../../../theme/Theme";
+import theme from "../../../../theme/Theme";
 import styled from "styled-components";
 
 export const ContainerWrapper = styled.div`
