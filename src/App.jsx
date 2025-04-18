@@ -22,6 +22,7 @@ import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
 import AddCourse from './module/admin/component/AddCourse/AddCourse'
 import AddNote from './module/admin/component/AddNotes/AddNotes'
+import LandingPage from './LandingPage/Pages/LandingMainPage/LangingPage'
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/loginOtp" element={<OtpLogin />} />
           <Route path='/signup' element={<SignUp/>} />
           <Route path="/signupOtp" element={<OtpSignup/>} />
+          <Route path="/" element={<LandingPage />} />
 
 
           <Route path="/user" element={<Test />} >
