@@ -88,3 +88,22 @@ export const getUserDetails = async (id) => {
         throw error;
     }
 };
+export const verifySignupOtp = async (data) => {
+    try {
+        const response = await api.post("/user/verify-otp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const resendSignupOtp = async (data) => {
+    try {
+        const response = await api.post("/user/resend-otp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

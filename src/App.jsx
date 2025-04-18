@@ -10,6 +10,8 @@ import Homepage from './module/admin/Homepage/Homepage'
 import Login from './pages/Login/Login'
 import OtpLogin from './pages/OtpLogin/OtpLogin'
 import Test from './pages/Test/Test'
+import SignUp from './pages/Signup/Signup'
+import OtpSignup from './pages/OtpSignup/OtpSignup'
 
 function App() {
 
@@ -20,10 +22,12 @@ function App() {
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
+          <Route path='/signup' element={<SignUp/>} />
+          <Route path="/signupOtp" element={<OtpSignup/>} />
 
 
           <Route path="/user" element={<Test />} >
-          
+
           </Route>
 
 
