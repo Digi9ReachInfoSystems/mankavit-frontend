@@ -20,6 +20,7 @@ import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
 import AddCourse from './module/admin/component/AddCourse/AddCourse'
 import AddNote from './module/admin/component/AddNotes/AddNotes'
+import Footer from './module/admin/component/Footer/Footer'
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
+          <Route path="/footer" element={<Footer />} />
 
 
           <Route path="/user" element={<Test />} >
