@@ -10,6 +10,8 @@ import Homepage from './module/admin/pages/Homepage/Homepage'
 import Login from './pages/Login/Login'
 import OtpLogin from './pages/OtpLogin/OtpLogin'
 import Test from './pages/Test/Test'
+import SignUp from './pages/Signup/Signup'
+import OtpSignup from './pages/OtpSignup/OtpSignup'
 import Course from './module/admin/pages/Course/Course'
 import StudentsTable from './module/admin/pages/StudentManagement/StudentManagement'
 import StudentManagement from './module/admin/pages/StudentManagement/StudentManagement'
@@ -20,6 +22,7 @@ import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
 import AddCourse from './module/admin/component/AddCourse/AddCourse'
 import AddNote from './module/admin/component/AddNotes/AddNotes'
+import LandingPage from './LandingPage/Pages/LandingMainPage/LangingPage'
 import Footer from './module/admin/component/Footer/Footer'
 
 function App() {
@@ -31,11 +34,14 @@ function App() {
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
+          <Route path='/signup' element={<SignUp/>} />
+          <Route path="/signupOtp" element={<OtpSignup/>} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/footer" element={<Footer />} />
 
 
           <Route path="/user" element={<Test />} >
-          
+
           </Route>
 
 
