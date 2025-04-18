@@ -10,6 +10,8 @@ import Homepage from './module/admin/pages/Homepage/Homepage'
 import Login from './pages/Login/Login'
 import OtpLogin from './pages/OtpLogin/OtpLogin'
 import Test from './pages/Test/Test'
+import SignUp from './pages/Signup/Signup'
+import OtpSignup from './pages/OtpSignup/OtpSignup'
 import Course from './module/admin/pages/Course/Course'
 import StudentsTable from './module/admin/pages/StudentManagement/StudentManagement'
 import StudentManagement from './module/admin/pages/StudentManagement/StudentManagement'
@@ -30,10 +32,12 @@ function App() {
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
+          <Route path='/signup' element={<SignUp/>} />
+          <Route path="/signupOtp" element={<OtpSignup/>} />
 
 
           <Route path="/user" element={<Test />} >
-          
+
           </Route>
 
 

@@ -18,6 +18,7 @@ import {
 } from './Login.styles';
 import { loginUser, loginWithOtp } from '../../api/authApi';
 import { clearCookies } from '../../utils/cookiesService';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -26,11 +27,12 @@ const Login = () => {
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [loging, setLogin] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         try {
-            clearCookies(); 
+            clearCookies();
             e.preventDefault();
             setLogin(true);
             const emailRegex = /\S+@\S+\.\S+/;
@@ -48,10 +50,10 @@ const Login = () => {
                 // (60s * 60m * 24h * 7days = 604800 seconds)
                 document.cookie = `accessToken=${accessToken}; path=/; max-age=604800;`;
                 document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800;`;
-                    document.cookie = `userId=${userId}; path=/; max-age=604800;`;
-                if(userResponse.user.role === 'user'){
+                document.cookie = `userId=${userId}; path=/; max-age=604800;`;
+                if (userResponse.user.role === 'user') {
                     navigate('/user');
-                }if(userResponse.user.role === 'admin'){
+                } if (userResponse.user.role === 'admin') {
                     navigate('/admin');
                 }
             } else {
@@ -85,14 +87,14 @@ const Login = () => {
             const resepose = await loginWithOtp({ email });
             if (resepose.success === true) {
                 clearCookies();
-                navigate('/loginOtp',{state: { email: email }});
+                navigate('/loginOtp', { state: { email: email } });
             }
         } catch (error) {
             if (error?.response?.data?.success == false) {
                 setShowError(true);
                 setErrorMessage(error.response.data.message);
             }
-        }finally{
+        } finally {
             setLogin(false);
         }
         // Add your OTP login logic here (e.g., API call)
@@ -124,13 +126,29 @@ const Login = () => {
                         loginPhone ? <></> :
                             <>
                                 <Label htmlFor='Password'>Password</Label>
-                                <Input
-                                    type="password"
-                                    placeholder="Password"
-                                    id='Password'
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
+                                <div style={{ position: 'relative' }}>
+                                    <Input
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="Password"
+                                        id='Password'
+                                        value={password}
+                                        required
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        style={{ paddingRight: '40px' }} // extra space for icon
+                                    />
+                                    <span
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            right: '10px',
+                                            transform: 'translateY(-50%)',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </span>
+                                </div>
                             </>
                     }
 

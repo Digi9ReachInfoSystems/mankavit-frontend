@@ -31,7 +31,7 @@ api.interceptors.response.use(
 
             try {
                 // Call the updateAccessToken() function to get a new token
-               await updateAccessToken();
+                await updateAccessToken();
 
                 // Update the token in local storage
                 const cookies = getCookiesData();
@@ -59,7 +59,7 @@ api.interceptors.request.use(
         //   if (config.url === '/secure-endpoint' && config.data) {
         if (config.data) {
             if (typeof config.data === "string") {
-                if(config.data.includes('"dataEncrypted":"true"')){
+                if (config.data.includes('"dataEncrypted":"true"')) {
                     return config;
                 }
             }
