@@ -52,7 +52,7 @@ const Sidebar = () => {
     "Recorded Class",
     "Notification",
     "Static Page",
-    "FAQs",
+    { path: "/admin/web-management/faq", label: "FAQs" },
   ];
 
   const appManagementItems = ["Homepage", "Courses", "Live Classes", "FAQs"];
@@ -63,17 +63,24 @@ const Sidebar = () => {
         to={path}
         key={index}
         onClick={() => setIsOpen(false)}
-        end={path === "/admin"} // 👈 important for exact match
+        end={path === "/admin"}
+        $isDropdownChild={false} // main menu item
       >
         {label}
       </StyledNavLink>
     ) : (
       <MenuItem key={index}>{label}</MenuItem>
     );
-  
 
   const renderSection = (title, items, hasMarginTop = true) => {
     const isExpanded = openSections[title];
+
+    // 👇 Check if current location matches any path in the section
+    const isSectionActive = items.some((item) =>
+      typeof item === "object" && item.path
+        ? location.pathname.startsWith(item.path)
+        : false
+    );
 
     return (
       <React.Fragment key={title}>
@@ -85,6 +92,7 @@ const Sidebar = () => {
             cursor: "pointer",
             ...(hasMarginTop ? { marginTop: theme.spacing(3) } : {}),
           }}
+          className={isSectionActive ? "active" : ""}
           onClick={() => toggleSection(title)}
         >
           {title}
@@ -101,6 +109,7 @@ const Sidebar = () => {
                 key={`${title}-${index}`}
                 onClick={() => setIsOpen(false)}
                 $indented
+                $isDropdownChild={true} // dropdown child item
               >
                 {item.label}
               </StyledNavLink>
