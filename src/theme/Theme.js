@@ -6,6 +6,12 @@ const theme = {
      grey:"#dedede",
      backgrounGrey:"#f3f3f3",
      black:"#0c0d19",
+     lightwhite:"#F5F5F5",
+     brightblue: "#007BFF",
+     vividblue: "#0494FA",
+     lightgray: "#BDBECC",
+     darkgray: "#252525",
+     pureblack: "#000000",
     },
     fonts: {
       body: "'DM Sans', sans-serif",
@@ -13,6 +19,7 @@ const theme = {
       monospace: "'Source Sans 3', monospace",
       accent: "'Nunito', sans-serif",
       display: "'Outfit', sans-serif",
+      body2: "'Poppins', sans-serif",
     },
     breakpoints: {
       mobile: "480px",

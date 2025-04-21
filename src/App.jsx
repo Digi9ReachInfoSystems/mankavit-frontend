@@ -10,6 +10,8 @@ import Homepage from './module/admin/pages/Homepage/Homepage'
 import Login from './pages/Login/Login'
 import OtpLogin from './pages/OtpLogin/OtpLogin'
 import Test from './pages/Test/Test'
+import SignUp from './pages/Signup/Signup'
+import OtpSignup from './pages/OtpSignup/OtpSignup'
 import Course from './module/admin/pages/Course/Course'
 import StudentsTable from './module/admin/pages/StudentManagement/StudentManagement'
 import StudentManagement from './module/admin/pages/StudentManagement/StudentManagement'
@@ -20,6 +22,11 @@ import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
 import AddCourse from './module/admin/component/AddCourse/AddCourse'
 import AddNote from './module/admin/component/AddNotes/AddNotes'
+import LandingPage from './LandingPage/Pages/LandingMainPage/LangingPage'
+import AboutUs from './LandingPage/Pages/AboutUs/ABoutUs'
+import OurCourses from './LandingPage/Pages/OurCourses/OurCourses'
+import LandingPage from './LandingPage/Pages/LandingMainPage/LangingPage';
+import FAQ from './module/admin/pages/FAQ/FAQ';
 
 function App() {
 
@@ -30,10 +37,14 @@ function App() {
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
-
+          <Route path='/signup' element={<SignUp/>} />
+          <Route path="/signupOtp" element={<OtpSignup/>} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/aboutus" element={<AboutUs/>} />
+          <Route path="/ourcourses" element={<OurCourses />} />
 
           <Route path="/user" element={<Test />} >
-          
+
           </Route>
 
 
@@ -41,7 +52,7 @@ function App() {
 
           <Route path="/admin" element={<BaseLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="web-management/home" element={<Homepage />} />
+           
             <Route path="course-management" element={<Course />} />
             <Route path="courses/create" element={<AddCourse />} />
             <Route path="student-management" element={<StudentManagement />} />
@@ -50,6 +61,8 @@ function App() {
             <Route path="subjects/create" element={<AddSubject />} />
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes/create" element={<AddNote />} />
+            <Route path="web-management/home" element={<Homepage />} />
+            <Route path="web-management/faq" element={<FAQ />} />
           </Route>
         </Routes>
       </Router>
