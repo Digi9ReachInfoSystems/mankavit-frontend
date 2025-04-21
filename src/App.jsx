@@ -22,10 +22,9 @@ import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
 import AddCourse from './module/admin/component/AddCourse/AddCourse'
 import AddNote from './module/admin/component/AddNotes/AddNotes'
-import LandingPage from './LandingPage/Pages/LandingMainPage/LangingPage'
-import AboutUs from './LandingPage/Pages/AboutUs/ABoutUs'
-import OurCourses from './LandingPage/Pages/OurCourses/OurCourses'
-import LandingPage from './LandingPage/Pages/LandingMainPage/LangingPage';
+import LandingPage from './pages/LandingPage/LangingPage'
+import AboutUs from './pages/AboutUs/AboutUs'
+import OurCourses from './pages/OurCourses/OurCourses'
 import FAQ from './module/admin/pages/FAQ/FAQ';
 
 function App() {
