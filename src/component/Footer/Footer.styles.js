@@ -7,6 +7,10 @@ export const FooterWrapper = styled.div`
     box-sizing: border-box;
     margin-left: 40px;
     padding:5px 0 0 0;
+
+    @media (max-width: 768px) {
+        margin-left: 0;
+    }
     `;
 
 export const FooterContent = styled.div`

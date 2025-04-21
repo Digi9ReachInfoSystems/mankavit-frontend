@@ -62,6 +62,12 @@ export const MenuItem = styled.li`
     color: ${theme.colors.secondary};
     background: linear-gradient(to right, #0dcaf0, #007bff);
   }
+
+    &.active {
+    color: ${theme.colors.secondary};
+    background: linear-gradient(to right, #0dcaf0, #007bff);
+    border-radius: 6px;
+  }
 `;
 
 export const IndentedItem = styled(MenuItem)`
@@ -95,14 +101,25 @@ export const StyledNavLink = styled(NavLink).attrs(() => ({
       font-size: 0.9em;
     `}
 
-  &.active {
-    color: ${theme.colors.secondary};
-    background: linear-gradient(to right, #0dcaf0, #007bff);
-  }
+  ${({ $isDropdownChild }) =>
+    $isDropdownChild
+      ? css`
+          &.active {
+            color: #007bff;
+            background: transparent;
+          }
+        `
+      : css`
+          &.active {
+            color: ${theme.colors.secondary};
+            background: linear-gradient(to right, #0dcaf0, #007bff);
+            border-radius: 6px;
+          }
+        `}
 
   &:hover {
     color: ${theme.colors.secondary};
-    background: linear-gradient(to right, #0dcaf0, #007bff);
+    background: #007bff;
   }
 `;
 
