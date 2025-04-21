@@ -57,7 +57,7 @@ export const Headline = styled.div`
   }
 
   @media (max-width: 576px) {
-    font-size: 10px;
+    font-size: 9px;
   }
 `;
 
@@ -70,7 +70,7 @@ export const SocialIcons = styled.div`
   }
 
   @media (max-width: 576px) {
-    gap: 10px;
+    gap: 8px;
   }
 `;
 
@@ -89,8 +89,8 @@ export const Image = styled.img`
   }
 
   @media (max-width: 576px) {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
   }
 `;
 
