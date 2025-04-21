@@ -1,6 +1,6 @@
 import React from 'react'
-import Header from "../../component/AllCoursesComponents/AllCourses/AllCourses"
-import AllCourses from '../../pages/OurCourses/OurCourses'
+import Header from "../../pages/LandingPage/LandingHeader/LandingHeader"
+import AllCourses from '../../component/AllCoursesComponents/AllCourses/AllCourses'
 
 const OurCourses = () => {
   return (
