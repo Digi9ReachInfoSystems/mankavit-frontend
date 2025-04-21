@@ -25,7 +25,7 @@ import AddNote from './module/admin/component/AddNotes/AddNotes'
 import LandingPage from './pages/LandingPage/LangingPage'
 import AboutUs from './pages/AboutUs/AboutUs'
 import OurCourses from './pages/OurCourses/OurCourses'
-import FAQ from './module/admin/pages/FAQ/FAQ';
+import FAQ from './module/admin/pages/WebManagement/FAQ/FAQ';
 
 function App() {
 
