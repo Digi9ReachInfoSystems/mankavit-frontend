@@ -15,6 +15,8 @@ import {
   TableRow,
   TableCell,
   StatusCell,
+  StatusWrapper,
+  PaymentstatusDot,
   BottomRow,
   PageInfo,
   Pagination,
@@ -60,7 +62,7 @@ const mockData = [
     paymentID: "#913619",
     amount: 699,
     dateOfPayment: "24-07-2024 16:22",
-    modeOfPayment: "UPI",
+    modeOfPayment: "Debit Card",
     status: "Active",
   },
   {
@@ -100,7 +102,7 @@ const mockData = [
     paymentID: "#913619",
     amount: 699,
     dateOfPayment: "24-07-2024 16:22",
-    modeOfPayment: "UPI",
+    modeOfPayment: "Credit Card",
     status: "Pending",
   },
   {
@@ -147,16 +149,18 @@ export default function Payment() {
   };
 
   return (
-    
+
     <Container>
       {/* Table Header */}
       <HeaderRow>
-        <Title>All Payment  <span style={{ color: "#6d6e75",
-            fontSize: "12px",
-            fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
+        <Title>All Payment  <span style={{
+          color: "#6d6e75",
+          fontSize: "12px",
+          fontWeight: "400"
+        }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
         <SortByContainer>
           <SortLabel>Sort by:</SortLabel>
-          <SortSelect value="Time" onChange={() => {}}>
+          <SortSelect value="Time" onChange={() => { }}>
             <option value="Time">Time</option>
             <option value="Amount">Amount</option>
             <option value="Status">Status</option>
@@ -189,7 +193,12 @@ export default function Payment() {
                 <TableCell>{item.dateOfPayment}</TableCell>
                 <TableCell>{item.modeOfPayment}</TableCell>
                 {/* For status we use StatusCell to color-code the text */}
-                <StatusCell status={item.status}>{item.status}</StatusCell>
+                <StatusCell>
+                  <StatusWrapper>
+                  <PaymentstatusDot status={item.status} />
+                  {item.status}
+                </StatusWrapper>
+                </StatusCell>
               </TableRow>
             ))}
           </TableBody>

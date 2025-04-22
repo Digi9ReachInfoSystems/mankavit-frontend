@@ -14,9 +14,14 @@ const theme = {
      darkgray: "#252525",
      silvergray: "#AEAEAE",
      chorcoalgray: "#313131",
+     lavendargray: "#D4D7EA",
+     silverGray: "#B1B2B5",
      pureblack: "#000000",
      blueishblack: "#0C0D19",
-     white: "#FFFFFF"
+     white: "#FFFFFF",
+     emaraldgreen: "#20A100",
+     goldenyellow:"#D4B200",
+     crimsonRed: "#FB4F4F",
      
     },
     fonts: {

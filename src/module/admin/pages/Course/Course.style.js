@@ -1,13 +1,13 @@
 // CoursesTableStyles.js
 import styled from "styled-components";
-import theme from "../../../../theme/Theme";
+// import theme from "../../../../theme/Theme";
 
 // Outer container for the entire section
 export const Container = styled.div`
 display: flex;
 flex-direction: column;
 margin-left: 40px;
-margin-top: 40px;
+margin-top: 20px;
 justify-content: center;
 // align-items: center;
   width: 95%;
@@ -20,9 +20,10 @@ justify-content: center;
 }
 
   @media (max-width: 768px) {
-    margin-left: 0;
+    margin-left: 10px;
     margin-top: 0;
     padding: ${(props) => props.theme.spacing(1)};
+    width: 95%;
   }
 `;
 
@@ -52,7 +53,7 @@ export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
   color: ${(props) => props.theme.colors.test};
-  font-size: 0.9rem;
+  font-size: 12px;
 `;
 
 // The label "Sort by:"
@@ -63,10 +64,10 @@ export const SortLabel = styled.span`
 // The <select> or clickable text for actual sorting
 export const SortSelect = styled.select`
   border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
   padding: 4px;
   font-family: ${(props) => props.theme.fonts.body};
-  font-size: 0.9rem;
+  font-size: 14px;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
 
@@ -80,7 +81,7 @@ export const SortSelect = styled.select`
 export const TableWrapper = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.secondary};
-  border: 1px solid ${(props) => props.theme.colors.grey};
+  border: none;
   border-radius: 4px;
   overflow-x: auto;
 `;
@@ -204,26 +205,38 @@ export const PageButton = styled.button`
 export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-bottom: ${(props) => props.theme.spacing(2)};
-  margin-top: ${(props) => props.theme.spacing(4)};
+  margin-bottom: ${(props) => props.theme.spacing(0)};
+  margin-top: ${(props) => props.theme.spacing(2)};
  margin-right:10px;
 
  @media (max-width: 768px) {
 margin: 10px 5px;
   }
+
+  @media (max-width: 480px) {
+margin: 10px 5px;
   `;
 
 export const CreateButton = styled.button`
   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
-
-    background:linear-gradient(to right, #0dcaf0, #007bff);
-  color: ${(props) => props.theme.colors.secondary};
+  background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.white};
   border: none;
   border-radius: 4px;
   font-family: ${(props) => props.theme.fonts.body};
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 14px;
   transition: background-color 0.2s ease;
-  
- 
+  width: 15%;
+
+  @media (max-width: 768px) {
+    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    font-size: 12px;
+    width: 20%;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    font-size: 10px;
+    width: 30%;
 `;

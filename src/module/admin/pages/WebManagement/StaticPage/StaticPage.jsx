@@ -1,5 +1,5 @@
 // AddSocialLinksForm.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   FormGroup,
@@ -99,7 +99,7 @@ const StaticPage = ({ initialLinks = {}, onSubmit }) => {
           />
         </FormGroup> */}
 
-        <SubmitButton type="submit">Update</SubmitButton>
+        <SubmitButton type="submit">Update Changes</SubmitButton>
       </form>
     </Container>
   );
