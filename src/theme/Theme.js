@@ -12,6 +12,7 @@ const theme = {
      lightgray: "#BDBECC",
      darkgray: "#252525",
      pureblack: "#000000",
+     white: "#FFFFFF"
     },
     fonts: {
       body: "'DM Sans', sans-serif",
