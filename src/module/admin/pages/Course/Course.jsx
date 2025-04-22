@@ -22,8 +22,10 @@ import {
   ButtonContainer,
   CreateButton
 } from "./Course.style";
-import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { BiEditAlt } from "react-icons/bi";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import DeleteModal from "../../component/DeleteModal/DeleteModal";
 
 // Mock data representing table rows
 const mockData = Array.from({ length: 10 }, (_, index) => ({
@@ -33,13 +35,17 @@ const mockData = Array.from({ length: 10 }, (_, index) => ({
   subjects: 27,
   mockTests: 12,
   enrolled: 27,
-  price: 599,
+  dateAndTime: "24-08-2023 16:00 IST",
 }));
 
 // const TOTAL_ENTRIES = 100;
 const ITEMS_PER_PAGE = 10;
 
 export default function CoursesTable() {
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+      const [selectedStudent, setSelectedStudent] = useState(null);
+    
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -58,10 +64,22 @@ export default function CoursesTable() {
     setCurrentPage(page);
   };
 
+  const handleDeleteClick = (student) => {
+    setSelectedStudent(student);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log("Deleting student:", selectedStudent);
+    setDeleteModalOpen(false);
+    setSelectedStudent(null);
+    // API call goes here
+  };
+
   return (
     <>
     <ButtonContainer>
-       <Link to={"/admin/courses/create"}><CreateButton>+ Add Course</CreateButton></Link>
+       <Link to={"/admin/courses/create"}><CreateButton>Add Course</CreateButton></Link>
       </ButtonContainer>
     <Container>
       
@@ -73,7 +91,7 @@ export default function CoursesTable() {
           <SortLabel>Sort by:</SortLabel>
           <SortSelect value="Name" onChange={() => {}}>
             <option value="Name">Name</option>
-            <option value="Price">Price</option>
+            <option value="Price">Date and Time IST</option>
             <option value="Enrolled">Enrolled</option>
           </SortSelect>
         </SortByContainer>
@@ -89,7 +107,7 @@ export default function CoursesTable() {
               <TableHeader>No. of Subjects</TableHeader>
               <TableHeader>No. of Mock Test</TableHeader>
               <TableHeader>No. of Student Enrolled</TableHeader>
-              <TableHeader>Price</TableHeader>
+              <TableHeader>Date and Time IST</TableHeader>
               <TableHeader>Actions</TableHeader>
             </TableRow>
           </TableHead>
@@ -104,12 +122,11 @@ export default function CoursesTable() {
                   {item.enrolled}
                   <a href="#view">View</a>
                 </TableCell>
-                <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                <TableCell>{item.dateAndTime}</TableCell>
                 <TableCell>
                   <ActionsContainer>
-                    <FiEdit title="Edit" />
-                    <FiTrash title="Delete" />
-                    <FiEye title="View Details" />
+                    <BiEditAlt title="Edit" color="#000000" size={20}/>
+                    <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item)}/>
                   </ActionsContainer>
                 </TableCell>
               </TableRow>
@@ -137,6 +154,12 @@ export default function CoursesTable() {
           {/* You can add ellipses / advanced pagination logic as needed */}
         </Pagination>
       </BottomRow>
+
+      <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDeleteConfirm}
+        />
     </Container>
     </>
   );

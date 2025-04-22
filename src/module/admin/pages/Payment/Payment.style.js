@@ -18,9 +18,15 @@ justify-content: center;
 }
 
   @media (max-width: 768px) {
-    margin-left: 0;
-    margin-top: 0;
+    margin-left: 10px;
+    margin-top: 10px;
     padding: ${(props) => props.theme.spacing(1)};
+    width: 95%;
+  }
+
+  @media (max-width: 480px) {
+    width: 90%;
+    margin-left: 15px;
   }
 `;
 
@@ -57,12 +63,13 @@ export const SortLabel = styled.span`
 
 export const SortSelect = styled.select`
   border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.secondary};
-  padding: 4px;
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  padding: 8px;
   font-family: ${(props) => props.theme.fonts.body};
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
+  border-radius: 8px;
 
   &:focus {
     outline: none;
@@ -116,11 +123,34 @@ export const TableCell = styled.td`
 `;
 
 export const StatusCell = styled(TableCell)`
-  color: ${(props) => {
-    if (props.status === "Active") return "#2ecc71";    // green
-    if (props.status === "Failed") return "#e74c3c";    // red
-    if (props.status === "Pending") return "#f39c12";   // orange
-    return props.theme.colors.test;                     // default color
+  color: ${(props) => props.theme.colors.test};
+`;
+
+
+export const StatusWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #111;
+`;
+
+export const PaymentstatusDot = styled.span`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: ${({ status, theme }) => {
+    switch (status) {
+      case 'Pending':
+        return theme.colors.goldenyellow;
+      case 'Active':
+        return theme.colors.emaraldgreen;
+      case 'Failed':
+        return theme.colors.crimsonRed;
+      default:
+        return '#999';
+    }
   }};
 `;
 
