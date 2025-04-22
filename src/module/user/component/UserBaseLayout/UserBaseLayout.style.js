@@ -1,18 +1,17 @@
 import styled from "styled-components";
-import theme from "../../theme/Theme";
+import theme from "../../../../theme/Theme";
 export const PageWrapper = styled.div`
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   width: 100%;
 `;
 
 export const ContentWrapper = styled.main`
   flex: 1;
-  padding: 10px 20px;
-  // margin-left: 250px; /* This should match your sidebar width */
-  // max-width: calc(100% - 250px); /* Adjust based on sidebar width */
+  display: flex;
   background-color: ${theme.colors.backgrounGrey};
-
+ 
   @media (max-width: 990px) {
   margin-left: 200px;
   max-width: calc(100% - 240px); /* Adjust based on sidebar width */
