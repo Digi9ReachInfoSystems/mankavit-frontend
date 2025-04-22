@@ -11,12 +11,23 @@ export const FooterWrapper = styled.div`
     @media (max-width: 768px) {
         margin-left: 0;
     }
+
+    @media (max-width: 480px) {
+        flex-direction: column;
+        gap: 10px;
+    }
     `;
 
 export const FooterContent = styled.div`
     display: flex;
     background-color: #f5f5f5;
-    gap: 30px
+    gap: 30px;
+
+    @media (max-width: 480px) {
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+    }
     `;
 
 export const FooterTitle = styled.p`
@@ -24,6 +35,10 @@ export const FooterTitle = styled.p`
     font-size: 12px;
     font-weight: 500;
     color: #6D6E75;
+
+    @media (max-width: 480px) {
+        text-align: center;
+    }
     `;
 
 export const FooterLinks = styled.div`
@@ -39,6 +54,12 @@ export const FooterLink = styled.a`
 
     &:hover {
         text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
     }
     `;
 

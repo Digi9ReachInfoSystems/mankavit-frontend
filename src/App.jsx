@@ -36,6 +36,9 @@ import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq'
 import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
+import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
+import Achievements from './module/admin/pages/WebManagement/Achievements/Achievements'
+import AddAchievements from './module/admin/component/AddAchievement/AddAchievement'
 
 function App() {
 
@@ -89,6 +92,9 @@ function App() {
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
+            <Route path="web-management/testinomial" element={<Testimonial />} />
+            <Route path="web-management/achievement" element={<Achievements />} />
+            <Route path="web-management/achievement/create" element={<AddAchievements />} />
           </Route>
         </Routes>
       </Router>
