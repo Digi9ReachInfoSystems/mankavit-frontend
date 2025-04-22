@@ -40,6 +40,8 @@ import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinom
 import Achievements from './module/admin/pages/WebManagement/Achievements/Achievements'
 import AddAchievements from './module/admin/component/AddAchievement/AddAchievement'
 import Notification from './module/admin/pages/WebManagement/Notification/Notification'
+import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
+import UserDashboard from './module/user/pages/UserDashboard/UserDashboard'
 
 function App() {
 
@@ -56,7 +58,12 @@ function App() {
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/ourcourses" element={<OurCourses />} />
 
-          <Route path="/user" element={<Test />} >
+          {/* <Route path="/user" element={<Test />} > */}
+
+
+          <Route path="/user" element={<UserBaseLayout />}>
+            <Route index element={<UserDashboard />} />
+          {/* </Route> */}
 
           </Route>
 
@@ -65,7 +72,6 @@ function App() {
 
           <Route path="/admin" element={<BaseLayout />}>
             <Route index element={<Dashboard />} />
-           
             <Route path="course-management" element={<Course />} />
             <Route path="courses/create" element={<AddCourse />} />
             <Route path="student-management" element={<StudentManagement />} />
@@ -99,7 +105,9 @@ function App() {
 
             <Route path="web-management/notification" element={<Notification />} />
           </Route>
-        </Routes>
+
+          
+                  </Routes>
       </Router>
     </ThemeProvider>
   )
