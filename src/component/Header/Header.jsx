@@ -6,8 +6,6 @@ import {
 HeaderContainer,
 
     Title,
-    SearchWrapper,
-    SearchInput,
     UserInfoWrapper,
     UserDetails,
     UserName,
