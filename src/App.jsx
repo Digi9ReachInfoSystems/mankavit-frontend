@@ -39,6 +39,7 @@ import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyManka
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
 import Achievements from './module/admin/pages/WebManagement/Achievements/Achievements'
 import AddAchievements from './module/admin/component/AddAchievement/AddAchievement'
+import Notification from './module/admin/pages/WebManagement/Notification/Notification'
 
 function App() {
 
@@ -95,6 +96,8 @@ function App() {
             <Route path="web-management/testinomial" element={<Testimonial />} />
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
+
+            <Route path="web-management/notification" element={<Notification />} />
           </Route>
         </Routes>
       </Router>

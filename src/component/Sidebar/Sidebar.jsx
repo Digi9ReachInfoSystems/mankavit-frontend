@@ -52,17 +52,17 @@ const Sidebar = () => {
 
   const courseManagementItems = [
     {
-       path: "/admin/course-management",
-        label: "Courses" 
-      },
-    { 
-      path: "/admin/subject-management", 
-      label: "Subjects" 
+      path: "/admin/course-management",
+      label: "Courses"
     },
-    { 
-      path: "/admin/notes-management", 
+    {
+      path: "/admin/subject-management",
+      label: "Subjects"
+    },
+    {
+      path: "/admin/notes-management",
       label: "Notes"
-     },
+    },
 
   ];
 
@@ -71,8 +71,14 @@ const Sidebar = () => {
       path: "/admin/web-management/home",
       label: "Home page"
     },
-    { path: "/admin/web-management/why-mankavit", label: "Why Mankavit" },
-    { path: "/admin/web-management/aboutus", label: "About us"},
+    {
+      path: "/admin/web-management/why-mankavit",
+      label: "Why Mankavit"
+    },
+    {
+      path: "/admin/web-management/aboutus",
+      label: "About us"
+    },
 
     {
       path: "/admin/web-management/question-paper",
@@ -88,12 +94,20 @@ const Sidebar = () => {
       path: "/admin/web-management/recorded-class",
       label: "Recorded Class"
     },
-    { path: "/admin/web-management/testinomial", label: "Testinomial" },
-    {path: "/admin/web-management/achievement", label: "Achievement"},
-    "Question paper",
-    "Live Classes",
-    "Recorded Class",
-    "Notification",
+    {
+      path: "/admin/web-management/testinomial",
+      label: "Testinomial"
+    },
+    {
+      path: "/admin/web-management/achievement",
+      label: "Achievement"
+    },
+
+    // "Notification",
+    {
+      path: "/admin/web-management/notification",
+      label: "Notification"
+    },
 
     {
       path: "/admin/web-management/faq",
