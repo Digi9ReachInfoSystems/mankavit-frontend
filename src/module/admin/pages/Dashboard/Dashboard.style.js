@@ -31,6 +31,11 @@ export const DashboardWrapper = styled.div`
     justify-content: center;
     width: 100%;
     padding: 10px 0 ;
+
+    @media (max-width: 768px) {
+      width: 90%;
+      margin: 0 auto;
+    }
   `;
   export const Application = styled.div`
     display: grid;
@@ -41,6 +46,22 @@ export const DashboardWrapper = styled.div`
     width: 100%;
     padding-bottom: 10px ;
     gap: 20px;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+          width: 90%;
+      margin: 0 auto;
+      gap: 10px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 0px;
+    }
   `;
 
   export const Courses = styled.div`
@@ -50,4 +71,13 @@ display: flex;
     width: 100%;
     padding-bottom: 10px;
     gap: 20px;
+
+    @media (max-width: 768px) {
+      width: 90%;
+      margin: 0 auto;
+    }
+      @media (max-width: 480px) {
+      gap: 0px;
+      width: 85%;
+    }
   `;

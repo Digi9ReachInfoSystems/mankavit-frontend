@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import theme from '../../../../theme/Theme';
 import { NavLink as RouterNavLink } from 'react-router-dom';
+
+
 export const StyledNavLink = styled(RouterNavLink).attrs({
   activeClassName: 'active'
 })`
@@ -20,9 +22,17 @@ export const StyledNavLink = styled(RouterNavLink).attrs({
     color: ${theme.colors.primary};
   }
 `;
+export const SidebarWrapper = styled.div`
+  display: flex;
+  padding: ${theme.spacing(3)};
+  background: ${theme.colors.white };
+  padding-top: 0px;
+  padding-bottom: 50px;
+  height: 80vh;
+`;
 
 export const SidebarContainer = styled.div`
-  width: 240px;
+  width: 300px;
   background: ${theme.colors.secondary};
   display: flex;
   flex-direction: column;
@@ -45,6 +55,12 @@ export const MenuList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+
+  .arrow-icon{
+    margin-left: auto;
+    font-weight: 900;
+    
+  }
 `;
 
 export const MenuItem = styled.li`
@@ -98,9 +114,10 @@ export const LogoutButton = styled.button`
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   font-size: 1rem;
-  color: ${theme.colors.vividblue};
+  color: ${theme.colors.logoutButtonColor};
   cursor: pointer;
   transition: background 0.2s;
+  justify-content: center;
 
   svg {
     margin-right: ${theme.spacing(2)};

@@ -5,8 +5,14 @@ export const GraphWrapper = styled.div`
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  width: 100%;
+  // width: 100%;
   box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+        margin: 1rem auto;
+        width: 89%;
+  }
 `;
 
 export const Header = styled.div`
@@ -21,6 +27,10 @@ export const Title = styled.h3`
   font-weight: 400;
   margin: 0;
   color: #0C0D19;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 export const DateSelector = styled.div`
@@ -33,6 +43,10 @@ export const DateSelector = styled.div`
   gap: 0.4rem;
   cursor: pointer;
   color: #6D6E75;
+
+  @media (max-width: 480px) {
+    font-size: 0.6rem;
+  }
 `;
 
 export const LegendContainer = styled.div`

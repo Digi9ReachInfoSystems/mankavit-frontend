@@ -13,7 +13,7 @@ const Stats = () => {
     <StatsContainer>
       {statsData.map((stat, index) => (
         <StatCard key={index}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className='stat-header'>
             <StatTitle>{stat.title}</StatTitle>
             <MenuIcon>...</MenuIcon>
           </div>

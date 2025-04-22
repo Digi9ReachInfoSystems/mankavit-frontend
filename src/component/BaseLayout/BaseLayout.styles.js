@@ -9,8 +9,9 @@ export const PageWrapper = styled.div`
 export const ContentWrapper = styled.main`
   flex: 1;
   padding: 10px 20px;
+
   margin-left: 250px; /* This should match your sidebar width */
-  // max-width: calc(100% - 250px); /* Adjust based on sidebar width */
+  max-width: calc(100% - 250px); /* Adjust based on sidebar width */
   background-color: ${theme.colors.backgrounGrey};
 
   @media (max-width: 990px) {

@@ -33,7 +33,7 @@ import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLi
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
 import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
 import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq'
-import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
+// import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
@@ -41,7 +41,8 @@ import Achievements from './module/admin/pages/WebManagement/Achievements/Achiev
 import AddAchievements from './module/admin/component/AddAchievement/AddAchievement'
 import Notification from './module/admin/pages/WebManagement/Notification/Notification'
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
-import UserDashboard from './module/user/pages/UserDashboard/UserDashboard'
+import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
+import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
 
 function App() {
 
@@ -82,7 +83,7 @@ function App() {
             <Route path="notes/create" element={<AddNote />} />
 
             
-            <Route path="static-pages" element={<StaticPage />} />
+            {/* <Route path="static-pages" element={<StaticPage />} /> */}
             
             <Route path="web-management/home" element={<Homepage />} />
             <Route path="web-management/faq" element={<FAQ />} />
@@ -102,6 +103,7 @@ function App() {
             <Route path="web-management/testinomial" element={<Testimonial />} />
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
+            <Route path="web-management/social-media" element={<SocialMedia />} />
 
             <Route path="web-management/notification" element={<Notification />} />
           </Route>

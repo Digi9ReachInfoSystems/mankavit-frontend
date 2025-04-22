@@ -22,6 +22,7 @@ const theme = {
      emaraldgreen: "#20A100",
      goldenyellow:"#D4B200",
      crimsonRed: "#FB4F4F",
+     logoutButtonColor: "#FF2E00",
      
     },
     fonts: {
