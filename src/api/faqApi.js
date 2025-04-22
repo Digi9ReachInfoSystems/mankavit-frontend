@@ -13,13 +13,18 @@ export const createFaq = async (data) => {
 
 export const getAllfaqs = async () => {
     try {
-        const response = await api.get("/faq/getAllFaqs");
+        console.log("hello");
+        const response = await api.get('/faq/getAllFaqs');
+        console.log("response",response.data);
         return response.data;
+        
     } catch (error) {
-        console.log(error);
-        throw error;
+        console.log(error, "error",error.message);
+        // throw error;
     }
 };
+
+
 
 export const getFaqById = async (id) => {
     try {
