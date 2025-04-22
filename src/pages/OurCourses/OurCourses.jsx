@@ -7,6 +7,8 @@ const OurCourses = () => {
     <div>
       <Header/>
       <AllCourses/>
+      📅 Duration: 6-12 Months  
+🏆 Success Rate: 90%+
     </div>
   )
 }

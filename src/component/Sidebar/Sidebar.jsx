@@ -71,13 +71,8 @@ const Sidebar = () => {
       path: "/admin/web-management/home",
       label: "Home page"
     },
-    "Why Mankavit",
-    "About us",
-    { path: "/admin/web-management/home", label: "Home page" },
     { path: "/admin/web-management/why-mankavit", label: "Why Mankavit" },
     { path: "/admin/web-management/aboutus", label: "About us"},
-    "Testimonial",
-    "Achievement",
 
     {
       path: "/admin/web-management/question-paper",
@@ -93,6 +88,11 @@ const Sidebar = () => {
       path: "/admin/web-management/recorded-class",
       label: "Recorded Class"
     },
+    { path: "/admin/web-management/testinomial", label: "Testinomial" },
+    {path: "/admin/web-management/achievement", label: "Achievement"},
+    "Question paper",
+    "Live Classes",
+    "Recorded Class",
     "Notification",
 
     {
