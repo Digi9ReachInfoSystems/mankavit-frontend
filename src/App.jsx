@@ -34,6 +34,8 @@ import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/Reco
 import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
 import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq'
 import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
+import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
+import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 
 function App() {
 
@@ -85,6 +87,8 @@ function App() {
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
 
+            <Route path="web-management/aboutus" element={<Aboutus />} />
+            <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
           </Route>
         </Routes>
       </Router>

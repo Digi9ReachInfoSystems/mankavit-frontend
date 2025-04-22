@@ -73,6 +73,9 @@ const Sidebar = () => {
     },
     "Why Mankavit",
     "About us",
+    { path: "/admin/web-management/home", label: "Home page" },
+    { path: "/admin/web-management/why-mankavit", label: "Why Mankavit" },
+    { path: "/admin/web-management/aboutus", label: "About us"},
     "Testimonial",
     "Achievement",
 

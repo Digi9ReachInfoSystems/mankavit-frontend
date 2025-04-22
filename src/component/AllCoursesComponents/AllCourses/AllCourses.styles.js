@@ -8,6 +8,10 @@ export const Container = styled.div`
 //   align-items: center;
   justify-content: center;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 export const Title = styled.h1`
@@ -15,6 +19,11 @@ export const Title = styled.h1`
   font-weight: 500;
   span {
     color: #007bff;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+    margin: 1rem 0;
   }
 `;
 
@@ -24,6 +33,11 @@ export const FilterBar = styled.div`
   margin: 1.5rem 0;
   gap: 1rem;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+    margin: 0 0 1rem 0;
+  }
 `;
 
 export const FilterButton = styled.button`
@@ -43,6 +57,10 @@ export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
   margin-bottom: 30px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+  }
 `;
 
 export const SearchIcon = styled.div`
@@ -54,6 +72,10 @@ export const SearchIcon = styled.div`
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
+
+  @media (max-width: 768px) {
+    
+  }
 `;
 
 export const SearchInput = styled.input`
@@ -64,6 +86,10 @@ export const SearchInput = styled.input`
   font-size: 1rem;
   box-sizing: border-box;
   background: #F1F4FF;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 export const SliderIcon = styled.div`
@@ -85,20 +111,25 @@ export const CardGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 `;
 
 export const CourseCard = styled.div`
   background-color: #ABBED110;
-  border-radius: 12px;
 //   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: 0.2s ease;
-  // border-bottom-left-radius: 8px;
-  // border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 
   // &:hover {
   //   transform: translateY(-4px);
   // }
+  
 `;
 
 export const ImageWrapper = styled.div`
@@ -107,6 +138,10 @@ export const ImageWrapper = styled.div`
   img {
     width: 100%;
     height: 140px;
+
+    @media (max-width: 768px) {
+      height: 100px;
+    }
   }
 `;
 
@@ -147,38 +182,48 @@ export const CourseDesc = styled.p`
   margin: 0.5rem 0;
   color: ${({ theme }) => theme.colors.test};
   font-size: 16px;
+  font-wieght: 300;
+  line-height: 1.5;
 `;
 
 export const Details = styled.div`
   margin: 0.5rem 0;
-  font-size: 0.85rem;
-  color: #444;
+  font-size: 14px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.colors.chorcaolgray};
 `;
 
 export const DetailItem = styled.div`
-  margin: 2px 0;
+  margin: 3px 0;
 `;
 
 export const PriceActions = styled.div`
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
   width: 100%;
+
 `;
 
 export const Price = styled.div`
   color: ${({ theme }) => theme.colors.white};
   background: linear-gradient(to right, #0DCAF0, #007BFF);
   width: 50%;
-    padding: 6px 12px;
+  padding: 10px 12px;
+  border-bottom-left-radius: 12px;
+  font-size: 15px;
+  font-wight: 700;
+  text-align: center;
 `;
 
 export const ViewButton = styled.button`
   color: ${({ theme }) => theme.colors.vividblue};
+  background: transparent;
   border: none;
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
   width: 50%;
 `;

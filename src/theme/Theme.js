@@ -10,9 +10,14 @@ const theme = {
      brightblue: "#007BFF",
      vividblue: "#0494FA",
      lightgray: "#BDBECC",
+     platinumlightgray: "#EDEDED",
      darkgray: "#252525",
+     silvergray: "#AEAEAE",
+     chorcoalgray: "#313131",
      pureblack: "#000000",
+     blueishblack: "#0C0D19",
      white: "#FFFFFF"
+     
     },
     fonts: {
       body: "'DM Sans', sans-serif",
