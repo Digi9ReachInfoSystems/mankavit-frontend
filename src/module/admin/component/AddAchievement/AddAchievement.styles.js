@@ -25,6 +25,8 @@ export const Label = styled.label`
   margin: 1.2rem 0 0.4rem;
   font-size: 14px;
   font-weight: 500;
+  color: #2A2A2A;
+
 `;
 
 export const Input = styled.input`
@@ -53,10 +55,20 @@ export const DropZone = styled.div`
   border-radius: 10px;
   text-align: center;
   margin-top: 0.5rem;
-    height: 240px;
+    height: 230px;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 30%;
+
+    @media (max-width: 1024px) {
+      width: 40%;
+    }
+
+    @media (max-width: 480px) {
+    width: 100%;
+    box-sizing: border-box;
+}
 
 `;
 
@@ -79,14 +91,28 @@ export const AddImageText = styled.div`
 
 export const UploadButton = styled.button`
   margin-top: 2rem;
-  padding: 12px 20px;
+  padding: 15px 20px;
   background-color: #007bff;
   color: #fff;
-  font-weight: 600;
+  font-weight: 400;
+  font-size: 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background 0.3s;
+  width: 20%;
+
+  @media (max-width: 1024px) {
+    width: 40%;
+  }
+
+  @media (max-width: 768px) {
+    width: 40%;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 
 
   &:hover {

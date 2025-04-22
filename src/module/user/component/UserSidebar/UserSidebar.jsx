@@ -7,7 +7,8 @@ import {
   MenuItem,
   MenuLink,
   LogoutContainer,
-  LogoutButton
+  LogoutButton,
+  SidebarWrapper
 } from './UserSidebar.style';
 import { 
   FaTachometerAlt, 
@@ -18,13 +19,12 @@ import {
   FaHeadset, 
   FaPowerOff 
 } from 'react-icons/fa';
+import { AiOutlineRight  } from "react-icons/ai";
 
 const UserSidebar = () => {
   return (
+    <SidebarWrapper>
     <SidebarContainer>
-      <Logo> {/* optional logo / title */}
-        <NavLink to="/dashboard">Mankavit</NavLink>
-      </Logo>
       <MenuList>
         <MenuItem>
           <MenuLink to="/dashboard" end>
@@ -33,7 +33,7 @@ const UserSidebar = () => {
         </MenuItem>
         <MenuItem>
           <MenuLink to="/my-courses">
-            <FaBookOpen /> My Courses
+            <FaBookOpen /> My Courses  <AiOutlineRight className='arrow-icon' />
           </MenuLink>
         </MenuItem>
         <MenuItem>
@@ -64,6 +64,7 @@ const UserSidebar = () => {
         </LogoutButton>
       </LogoutContainer>
     </SidebarContainer>
+    </SidebarWrapper>
   );
 };
 

@@ -32,6 +32,7 @@ const AllCourses = () => {
             <TableHeader>No. of Subjects</TableHeader>
             <TableHeader>No. of Mock Test</TableHeader>
             <TableHeader>No. of Student Enrolled</TableHeader>
+            <TableHeader>Price</TableHeader>
           </TableHead>
         </thead>
         <tbody>
@@ -42,6 +43,7 @@ const AllCourses = () => {
               <TableCell>{row.subjects}</TableCell>
               <TableCell>{row.mockTests}</TableCell>
               <TableCell>{row.studentsEnrolled}</TableCell>
+              <TableCell>{row.price}</TableCell>
             </TableRow>
           ))}
         </tbody>

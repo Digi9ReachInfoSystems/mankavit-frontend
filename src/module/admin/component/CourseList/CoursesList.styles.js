@@ -7,6 +7,12 @@ export const Container = styled.div`
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+        margin: 10px auto;
+        width: 95%;
+  }
 `;
  
 export const Title = styled.h2`
@@ -20,6 +26,14 @@ font-size: 1.25rem;
   font-size: 12px;
   font-weight: 400;
   color: #74787A;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+
+    .number{
+      font-size: 10px;
+    }
   }
 `;
  
@@ -39,6 +53,11 @@ export const Name = styled.div`
   gap: 0.4rem;
   cursor: pointer;
   color: #6D6E75;
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+    padding: 0.2rem 0.4rem;
+  }
 `;
 
  
@@ -54,6 +73,10 @@ export const Seen = styled.div`
   font-weight: 400;
   color: #6D6E75;
   cursor: pointer;
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+  }
 `;
  
 export const Tabs = styled.div`
@@ -63,6 +86,10 @@ export const Tabs = styled.div`
   border-bottom: 1px solid #ddd;
   width: 40%;
 //   padding-right:20px
+
+@media (max-width: 480px) {
+  width: 100%;
+}
 `;
  
 export const Tab = styled.button`
@@ -74,7 +101,7 @@ export const Tab = styled.button`
   font-weight: 600;
   font-family: Button Small - SemiBold 12px - Lato;
   background-color: ${({ active }) => (active ? '#007bff' : 'white')};
-  color: ${({ active }) => (active ? '#fff' : '#000')};
+  color: ${({ active }) => (active ? '#fff' : '#6D6E75')};
   height: 35px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
@@ -83,6 +110,13 @@ export const Tab = styled.button`
  
   &:hover {
     background-color: ${({ active }) => (active ? '#0069d9' : '#e0e0e0')};
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+    height: 30px;
+    padding: 4px 8px;
+
   }
 `;
  

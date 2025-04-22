@@ -5,12 +5,18 @@ export const StatsContainer = styled.div`
   gap: 20px;
   flex-wrap: wrap;
   width: 100%;
+
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
 `;
 
 export const StatCard = styled.div`
   flex: 1;
 //   min-width: 200px;
-width: 100%;
+// width: 100%;
   padding: 15px;
   border-radius: 16px;
   background: #fff;
@@ -27,6 +33,15 @@ width: 100%;
     div {
       color: #fff;
     }
+  }
+
+  @media (max-width: 768px) {
+    width: none;  
+  }
+
+  .stat-header {
+    display: flex;
+    justify-content: space-between;
   }
 `;
 

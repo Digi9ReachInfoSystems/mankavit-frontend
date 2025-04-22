@@ -24,10 +24,13 @@ export const AddButton = styled.button`
   color: white;
   padding: 15px 40px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   transition: 0.3s ease;
   margin-bottom: 20px;
+  width:15%;
+justify-content: center;
+
 
   &:hover {
     background-color: #007ecc;
@@ -38,12 +41,23 @@ export const AddButton = styled.button`
   }
       @media (max-width: 768px) {
       margin-right: 20px;
+      width: 40%;
   }
 
   @media (max-width: 480px) {
-    padding: 10px 20px;
+    padding: 15px 20px;
     font-size: 13px;
+    width: 60%;
+
   }
+`;
+
+export const Label = styled.p`
+font-size: 14px;
+font-weight: 400;
+color: #2A2A2A;
+margin-top: 5px;
+margin-bottom: 10px;
 `;
 
 export const Container = styled.div`
@@ -66,17 +80,29 @@ export const Input = styled.input`
   border-radius: 8px;
   font-size: 16px;
   box-sizing: border-box;
+  color: #AEAEAE;
+  outline: none;
+
+  &::placeholder {
+  color: #AEAEAE;
+  }
 `;
 
 export const TextArea = styled.textarea`
   width: 100%;
   padding: 12px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
-  resize: vertical;
   box-sizing: border-box;
+  color: #AEAEAE;
+  resize: none;
+  outline: none;
+
+  &::placeholder {
+  color: #AEAEAE;
+  }
 `;
 
 export const TableWrapper = styled.div`
@@ -103,20 +129,37 @@ export const Table = styled.table`
 `;
 
 export const Th = styled.th`
-  background: #f0f0f0;
-  font-weight: bold;
+  background: #F3F3F3;
+  font-weight: 600;
   height: 25px;
+  color: #6D6E75;
 `;
 
 export const Td = styled.td`
-  color: #333;
+  color: #0C0D19;
   height: 20px;
+  font-size: 14px;
+  font-weight: 400;
+
+
+
+  &:last-child {
+    text-align: center;
+    justify-content: center;
+    
+    display: flex;
+    gap: 20px
+     }
 `;
 
 export const ViewLink = styled.a`
   color: #007bff;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
+
+  &:hover {
+  text-decoration: underline;
+  }
 `;
 
 export const ToggleSwitch = styled.input`

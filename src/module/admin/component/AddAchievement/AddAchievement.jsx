@@ -12,6 +12,7 @@ import {
   UploadButton,
 } from './AddAchievement.styles';
 import { FiImage } from 'react-icons/fi';
+import upload from "../../../../assets/upload.png";
 
 const AddAchievements = () => {
   const [studentName, setStudentName] = useState('');
@@ -59,7 +60,7 @@ const AddAchievements = () => {
           onChange={handleImageUpload}
         />
         <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
-          <ImageIcon><FiImage size={32} /></ImageIcon>
+          <ImageIcon><img src={upload} alt="upload" width="50px" height="50px" /></ImageIcon>
           <DropZoneText>Drag and drop image here, or click add image</DropZoneText>
           <AddImageText>Add Image</AddImageText>
         </label>

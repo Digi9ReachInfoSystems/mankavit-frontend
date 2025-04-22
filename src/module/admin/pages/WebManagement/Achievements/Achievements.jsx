@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Input,
@@ -7,32 +7,37 @@ import {
   Table,
   Th,
   Td,
-  Pagination,
-  PaginationButton,
   ViewLink,
   BtnAchieve,
   AddButton,
   ToggleWrapper,
-} from './Achievements.styles';
-import { FaPlus } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+  Label
+} from "./Achievements.styles";
+import { FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Pagination from "../../../component/Pagination/Pagination"; // This is your component
+import { BiEditAlt } from "react-icons/bi";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+
 
 const testimonials = Array.from({ length: 10 }, (_, i) => ({
-    rank: `AIR ${i + 1}`,
-    exam: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-    student: `Gaurav ${i + 1}`,
-    date: '24-07-2024',
-    time: '16:22',
-    showcase: true,
-  }));
+  rank: `AIR ${i + 1}`,
+  exam: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+  student: `Gaurav ${i + 1}`,
+  date: "24-07-2024",
+  time: "16:22",
+  showcase: true,
+}));
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 5;
 
 const Achievements = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState(testimonials);
+  const [Modal, setModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -43,12 +48,6 @@ const Achievements = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
   const toggleShowcase = (index) => {
     const updated = [...data];
     const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
@@ -57,26 +56,32 @@ const Achievements = () => {
   };
 
   const handleAddButton = () => {
-    navigate('/admin/web-management/achievement/create');
+    navigate("/admin/web-management/achievement/create");
   };
+
+  const handleDelete = () => {
+    setModal(true);
+  }
 
   return (
     <>
       <BtnAchieve>
         <AddButton onClick={handleAddButton}>
-          <FaPlus size={12} /> Achievement
+           Achievement
         </AddButton>
       </BtnAchieve>
 
       <Container>
         <h3>Achievement</h3>
+        <Label>Title</Label>
         <Input
-          placeholder="write here"
+          placeholder="Enter Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+        <Label>Description</Label>
         <TextArea
-          placeholder="Write here"
+          placeholder="Enter description"
           rows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -103,14 +108,17 @@ const Achievements = () => {
                   <Td><ViewLink href="#">View</ViewLink></Td>
                   <Td>{item.date} {item.time}</Td>
                   <Td>
-                    <ToggleWrapper>
+                    {/* <ToggleWrapper>
                       <input
                         type="checkbox"
                         checked={item.showcase}
                         onChange={() => toggleShowcase(index)}
                       />
                       <span></span>
-                    </ToggleWrapper>
+                    </ToggleWrapper> */}
+
+                    <BiEditAlt size={20} color="#000000" style={{cursor: "pointer"}}/>
+                    <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={handleDelete} style={{cursor: "pointer"}}/>
                   </Td>
                 </tr>
               ))}
@@ -118,27 +126,26 @@ const Achievements = () => {
           </Table>
         </TableWrapper>
 
-        <Pagination>
-          <span>
-            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
-            {Math.min(currentPage * ITEMS_PER_PAGE, data.length)} from {data.length}
-          </span>
-
-          <div>
-            <PaginationButton onClick={() => handlePageChange(currentPage - 1)}>◀</PaginationButton>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PaginationButton
-                key={i}
-                active={currentPage === i + 1}
-                onClick={() => handlePageChange(i + 1)}
-              >
-                {i + 1}
-              </PaginationButton>
-            ))}
-            <PaginationButton onClick={() => handlePageChange(currentPage + 1)}>▶</PaginationButton>
-          </div>
-        </Pagination>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={data.length}
+        />
       </Container>
+
+        {Modal && (
+          <DeleteModal
+            isOpen={Modal}
+            onClose={() => setModal(false)}
+            onDelete={() => {
+              // Add your delete logic here
+              console.log("Item deleted");
+              setModal(false);
+            }}
+          />
+        )}
+      
     </>
   );
 };

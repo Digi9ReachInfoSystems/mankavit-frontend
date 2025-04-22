@@ -4,11 +4,17 @@ export const Card = styled.div`
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  width: 100%;
+  // width: 100%;
   box-sizing: border-box;
 //   height: 0px;
 //   max-width: 500px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+        margin: 0rem auto;
+        width: 89%;
+  }
 `;
 
 export const Header = styled.div`
@@ -23,6 +29,10 @@ font-size: 1.25rem;
     font-weight: 400;
     margin: 0;
     color: #0C0D19;
+
+    @media (max-width: 480px) {
+        font-size: 1rem;  
+}
 `;
 
 export const DateSelector = styled.div`
@@ -35,6 +45,10 @@ export const DateSelector = styled.div`
   gap: 0.4rem;
   cursor: pointer;
   color: #6D6E75;
+
+    @media (max-width: 480px) {
+    font-size: 0.6rem;
+  }
 `;
 
 export const Content = styled.div`

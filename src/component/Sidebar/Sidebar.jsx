@@ -45,7 +45,7 @@ const Sidebar = () => {
       label: "Payment"
     },
     {
-      path: "/admin/static-pages",
+      path: "",
       label: "Static Page"
     },
   ];
@@ -102,6 +102,7 @@ const Sidebar = () => {
       path: "/admin/web-management/achievement",
       label: "Achievement"
     },
+    
 
     // "Notification",
     {
@@ -113,6 +114,11 @@ const Sidebar = () => {
       path: "/admin/web-management/faq",
       label: "FAQs"
     },
+
+    {
+      path: "/admin/web-management/social-media",
+      label: "Social Media"
+    }
   ];
 
   const appManagementItems = ["Homepage", "Courses", "Live Classes", "FAQs"];

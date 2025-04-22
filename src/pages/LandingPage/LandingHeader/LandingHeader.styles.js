@@ -24,7 +24,7 @@ export const ToolbarContainer = styled.div`
   padding: 8px 40px;
   font-size: 14px;
   color: #333;
-  width: 75%;
+  width: 80%;
   margin: 0 auto;
 
   @media (max-width: 1320px) {
@@ -107,7 +107,7 @@ export const NavBarContainer = styled.div`
   align-items: center;
   padding: 20px 40px;
   background: transparent;
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 
   .menu-container{

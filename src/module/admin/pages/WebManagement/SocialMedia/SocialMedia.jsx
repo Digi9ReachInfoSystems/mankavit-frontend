@@ -6,9 +6,9 @@ import {
   Label,
   TextInput,
   SubmitButton
-} from '../StaticPage/StaticPage.style'; // adjust path to your style.js
+} from './SocialMedia.styles'; // adjust path to your style.js
 
-const StaticPage = ({ initialLinks = {}, onSubmit }) => {
+const SocialMedia = ({ initialLinks = {}, onSubmit }) => {
   const [links, setLinks] = useState({
     youtube: '',
     linkedin: '',
@@ -105,4 +105,4 @@ const StaticPage = ({ initialLinks = {}, onSubmit }) => {
   );
 };
 
-export default StaticPage;
+export default SocialMedia;
