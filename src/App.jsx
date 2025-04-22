@@ -26,6 +26,14 @@ import LandingPage from './pages/LandingPage/LangingPage'
 import AboutUs from './pages/AboutUs/AboutUs'
 import OurCourses from './pages/OurCourses/OurCourses'
 import FAQ from './module/admin/pages/WebManagement/FAQ/FAQ';
+import Questionpaper from './module/admin/pages/WebManagement/QuestionPaper/QuestionPaper'
+import AddQuestionpaper from './module/admin/component/WebManagement/Questionpaper/AddQuestionpaper'
+import LiveClass from './module/admin/pages/WebManagement/LiveClass/LiveClass'
+import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLiveClass'
+import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
+import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
+import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq'
+import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 
@@ -62,8 +70,23 @@ function App() {
             <Route path="subjects/create" element={<AddSubject />} />
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes/create" element={<AddNote />} />
+
+            
+            <Route path="static-pages" element={<StaticPage />} />
+            
             <Route path="web-management/home" element={<Homepage />} />
             <Route path="web-management/faq" element={<FAQ />} />
+            <Route path="web-management/faq/create" element={<AddFaq />} />
+
+            <Route path="web-management/question-paper" element={< Questionpaper/>} />
+            <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />
+
+            <Route path="web-management/live-classes" element={<LiveClass />} />
+            <Route path="web-management/live-classes/create" element={<AddLiveClass/>} />
+
+            <Route path="web-management/recorded-class" element={<RecordedClass />} />
+            <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
+
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
           </Route>
