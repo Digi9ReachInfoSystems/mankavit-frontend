@@ -143,7 +143,7 @@ const AllCourses = () => {
               </CourseMain>
               <Details>
                 <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
-                <DetailItem>🏆 Success Rate: {course.success}</DetailItem>
+                <DetailItem>🏆Success Rate: {course.success}</DetailItem>
               </Details>
             </CourseContent>
             

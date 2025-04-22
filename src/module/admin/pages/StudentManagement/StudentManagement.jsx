@@ -22,9 +22,11 @@ import {
   ButtonContainer,
   CreateButton
 } from "../StudentManagement/StudentManagement.style"; // adjust path if needed
-import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 
-// Example mock data to demonstrate table rows
+import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
+import DeleteModal from "../../component/DeleteModal/DeleteModal";
+ 
+
 const mockData = [
   {
     id: 1,
@@ -132,6 +134,8 @@ const ITEMS_PER_PAGE = 10;
 
 export default function StudentManagement() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const TOTAL_ENTRIES = mockData.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
@@ -144,7 +148,17 @@ export default function StudentManagement() {
     setCurrentPage(page);
   };
 
-  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
+  const handleDeleteClick = (student) => {
+    setSelectedStudent(student);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log("Deleting student:", selectedStudent);
+    setDeleteModalOpen(false);
+    setSelectedStudent(null);
+    // API call goes here
+  };
 
   return (
     <>
@@ -156,13 +170,7 @@ export default function StudentManagement() {
         <HeaderRow>
           <Title>
             See All Students{" "}
-            <span
-              style={{
-                color: "#6d6e75",
-                fontSize: "12px",
-                fontWeight: "400",
-              }}
-            >
+            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
               ({currentItems.length}/{TOTAL_ENTRIES})
             </span>
           </Title>
@@ -201,8 +209,7 @@ export default function StudentManagement() {
                     {item.email}
                   </TableCell>
                   <TableCell>
-                    {item.subjectsEnrolled}
-                    <a href="#view">View</a>
+                    {item.subjectsEnrolled} <a href="#view">View</a>
                   </TableCell>
                   <TableCell>{item.lastActive}</TableCell>
                   <TableCell>{item.kycStatus}</TableCell>
@@ -210,7 +217,7 @@ export default function StudentManagement() {
                   <TableCell>
                     <ActionsContainer>
                       <FiEdit title="Edit" />
-                      <FiTrash title="Delete" />
+                      <FiTrash title="Delete" onClick={() => handleDeleteClick(item)} />
                       <FiEye title="View Details" />
                     </ActionsContainer>
                   </TableCell>
@@ -225,7 +232,7 @@ export default function StudentManagement() {
             Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from {TOTAL_ENTRIES}
           </PageInfo>
           <Pagination>
-            {pages.map((page) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <PageButton
                 key={page}
                 onClick={() => handlePageChange(page)}
@@ -236,6 +243,12 @@ export default function StudentManagement() {
             ))}
           </Pagination>
         </BottomRow>
+
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDeleteConfirm}
+        />
       </Container>
     </>
   );

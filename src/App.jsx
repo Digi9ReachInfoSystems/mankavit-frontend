@@ -26,6 +26,8 @@ import LandingPage from './pages/LandingPage/LangingPage'
 import AboutUs from './pages/AboutUs/AboutUs'
 import OurCourses from './pages/OurCourses/OurCourses'
 import FAQ from './module/admin/pages/WebManagement/FAQ/FAQ';
+import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
+import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 
 function App() {
 
@@ -62,6 +64,8 @@ function App() {
             <Route path="notes/create" element={<AddNote />} />
             <Route path="web-management/home" element={<Homepage />} />
             <Route path="web-management/faq" element={<FAQ />} />
+            <Route path="web-management/aboutus" element={<Aboutus />} />
+            <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
           </Route>
         </Routes>
       </Router>
