@@ -13,8 +13,13 @@ import {
   PaginationContainer,
   PageButton,
   TableWrapper,
+  TableHeader,
+  ButtonContainer,
+  CreateButton
 } from './FAQ.styles';
+import {  FaEdit, FaTrash } from 'react-icons/fa';
 import { FaPlus } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const FAQ = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +30,7 @@ const FAQ = () => {
     answer: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
     uploadedTime: '24-07-2024',
     uploadedHour: '16:00',
-    showcase: true,
+    // showcase: true,
   });
 
   const totalPages = Math.ceil(faqData.length / faqsPerPage);
@@ -34,11 +39,11 @@ const FAQ = () => {
 
   return (
     <FAQContainer>
-      <ButtonTitle>
-        <AddButton>
-          <FaPlus size={12} /> Add More FAQ
-        </AddButton>
-      </ButtonTitle>
+     <ButtonContainer>
+        <Link to="/admin/web-management/faq/create">
+          <CreateButton>Add more FAQ</CreateButton>
+        </Link>
+      </ButtonContainer>
 
       <Header>
         <h3>FAQ</h3>
@@ -48,10 +53,10 @@ const FAQ = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell><strong>Question</strong></TableCell>
-              <TableCell><strong>Answer</strong></TableCell>
-              <TableCell><strong>Uploaded Time</strong></TableCell>
-              <TableCell><strong>Showcase</strong></TableCell>
+              <TableHeader>Question</TableHeader>
+              <TableHeader>Answer</TableHeader>
+              <TableHeader>Uploaded Time</TableHeader>
+              <TableHeader>Actions</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -61,7 +66,15 @@ const FAQ = () => {
                 <TableCell>{item.answer}</TableCell>
                 <TableCell>{item.uploadedTime} &nbsp; {item.uploadedHour}</TableCell>
                 <TableCell>
-                  <ToggleSwitch type="checkbox" defaultChecked={index !== 1} />
+                  {/* Edit/Delete icons */}
+                  <FaEdit
+                    style={{ cursor: 'pointer', marginRight: '12px' }}
+                    onClick={() => console.log('Edit', item)}
+                  />
+                 <FaTrash
+                   style={{ cursor: 'pointer' }}
+                    onClick={() => console.log('Delete', item)}
+                  />
                 </TableCell>
               </TableRow>
             ))}

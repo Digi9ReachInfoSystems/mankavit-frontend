@@ -29,30 +29,73 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    { path: "/admin", label: "Dashboard" },
-    { path: "/admin/student-management", label: "Student Management" },
-    { label: "Mock Test" },
-    { path: "/admin/payment-management", label: "Payment" },
+    {
+      path: "/admin",
+      label: "Dashboard"
+    },
+    {
+      path: "/admin/student-management",
+      label: "Student Management"
+    },
+    {
+      label: "Mock Test"
+    },
+    {
+      path: "/admin/payment-management",
+      label: "Payment"
+    },
+    {
+      path: "/admin/static-pages",
+      label: "Static Page"
+    },
   ];
 
   const courseManagementItems = [
-    { path: "/admin/course-management", label: "Courses" },
-    { path: "/admin/subject-management", label: "Subjects" },
-    { path: "/admin/notes-management", label: "Notes" },
+    {
+       path: "/admin/course-management",
+        label: "Courses" 
+      },
+    { 
+      path: "/admin/subject-management", 
+      label: "Subjects" 
+    },
+    { 
+      path: "/admin/notes-management", 
+      label: "Notes"
+     },
+
   ];
 
   const webmanagement = [
-    { path: "/admin/web-management/home", label: "Home page" },
+    {
+      path: "/admin/web-management/home",
+      label: "Home page"
+    },
     "Why Mankavit",
     "About us",
     "Testimonial",
     "Achievement",
-    "Question paper",
-    "Live Classes",
-    "Recorded Class",
+
+    {
+      path: "/admin/web-management/question-paper",
+      label: "Question apper"
+    },
+
+    {
+      path: "/admin/web-management/live-classes",
+      label: "Live Classes"
+    },
+
+    {
+      path: "/admin/web-management/recorded-class",
+      label: "Recorded Class"
+    },
     "Notification",
-    "Static Page",
-    { path: "/admin/web-management/faq", label: "FAQs" },
+
+    {
+      path: "/admin/web-management/faq",
+      label: "FAQs"
+    },
   ];
 
   const appManagementItems = ["Homepage", "Courses", "Live Classes", "FAQs"];

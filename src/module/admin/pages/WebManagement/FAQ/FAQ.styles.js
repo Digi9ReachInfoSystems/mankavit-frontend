@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import theme from '../../../../../theme/Theme';
 
 export const FAQContainer = styled.div`
   padding: 20px;
@@ -14,6 +15,16 @@ export const FAQContainer = styled.div`
   @media (max-width: 576px) {
     margin-left: 0;
   } 
+`;
+export const TableHeader = styled.th`
+  text-align: left;
+  padding: ${(props) => props.theme.spacing(3)};
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 1rem;
+  font-weight: normal;
+  color: ${(props) => props.theme.colors.test};
+  white-space: nowrap;
+//   border-bottom: 1px solid ${(props) => props.theme.colors.test};
 `;
 
 export const Header = styled.div`
@@ -89,6 +100,7 @@ export const Table = styled.table`
 
 export const TableHead = styled.thead`
   background: #f8f8f8;
+  color:${theme.colors.test};
 `;
 
 export const TableBody = styled.tbody`
@@ -103,7 +115,9 @@ export const TableRow = styled.tr`
 
 export const TableCell = styled.td`
   padding: 12px;
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight:normal;
+  color:${theme.colors.black};
   vertical-align: top;
 `;
 
@@ -176,4 +190,32 @@ export const TableWrapper = styled.div`
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+`;
+
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: ${(props) => props.theme.spacing(2)};
+  margin-top: ${(props) => props.theme.spacing(4)};
+ margin-right:10px;
+
+ @media (max-width: 768px) {
+margin: 10px 5px;
+  }
+  `;
+
+export const CreateButton = styled.button`
+  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+
+    background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.secondary};
+  border: none;
+  border-radius: 4px;
+  font-family: ${(props) => props.theme.fonts.body};
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  
+ 
 `;
