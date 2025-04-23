@@ -7,6 +7,7 @@ export const FooterWrapper = styled.div`
     box-sizing: border-box;
     margin-left: 40px;
     padding:5px 0 0 0;
+    margin-top: 10px;
 
     @media (max-width: 768px) {
         margin-left: 0;

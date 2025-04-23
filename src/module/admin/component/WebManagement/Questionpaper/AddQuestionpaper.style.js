@@ -4,14 +4,12 @@ import theme from "../../../../../theme/Theme";
 export const Container = styled.div`
 margin-left: 40px;
 margin-top: 20px;
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.white};
   border-radius: 6px;
   padding: ${(props) => props.theme.spacing(3)};
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
-
-  h2{
-  font-size: 1.2rem;}
+  min-height: 750px;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
@@ -19,12 +17,24 @@ margin-top: 20px;
 
   @media (max-width: 768px) {
     margin:0;
-}
+  }
 `;
 
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
+`;
+
+export const FormItem = styled.div`
+display: grid;
+grid-template-columns: 2fr 1fr;
+gap: 20px;
+width: 100%;
+
+@media (max-width: 576px) {
+  grid-template-columns: 1fr;
+  gap: 0
+}
 `;
 
 export const FormGroup = styled.div`
@@ -40,44 +50,52 @@ export const Label = styled.label`
 `;
 
 export const Select = styled.select`
-  width: 10%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
+  box-sizing: border-box;
 `;
 
 export const TextInput = styled.input`
-  width: 80%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
+  box-sizing: border-box;
 `;
 
 export const TextArea = styled.textarea`
-  width: 80%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
-  resize: vertical;
+  resize: none;
     font-size: 0.9rem;
+  box-sizing: border-box;
+
 `;
 
 export const UploadBox = styled.div`
-  position: relative;
+  // position: relative;
   border: 2px dashed ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   padding: ${theme.spacing(4)};
-//   text-align: center;
 width: 40%;
-  cursor: pointer;
+cursor: pointer;
   background: ${theme.colors.secondary};
   transition: background 0.2s;
+
+  @media (max-width:1024px) {
+    width: 100%;
+    box-sizing: border-box;
+  }
 
   ${(p) =>
     p.dragOver &&
@@ -88,12 +106,14 @@ width: 40%;
 `;
 
 export const UploadInput = styled.input`
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   opacity: 0;
   cursor: pointer;
+    display: flex;
+  justify-content: center;
+  align-items: center;
+
 `;
 
 export const UploadContent = styled.div`
@@ -103,6 +123,7 @@ export const UploadContent = styled.div`
 
 export const UploadIcon = styled.div`
   margin-bottom: ${theme.spacing(2)};
+  text-align: center;
   svg {
     width: 40px;
     height: 40px;
@@ -114,6 +135,7 @@ export const UploadText = styled.div`
   margin-bottom: ${theme.spacing(2)};
   color: ${theme.colors.darkgray};
   font-family: ${theme.fonts.body};
+  text-align: center;
 `;
 
 export const UploadButton = styled.div`
@@ -122,6 +144,7 @@ export const UploadButton = styled.div`
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
+  text-align: center;
 `;
 
 export const SubmitButton = styled.button`
@@ -135,6 +158,16 @@ export const SubmitButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
   align-self: flex-start;
+  width: 20%; 
+
+    @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 100%;
+    margin:0  auto ;
+  }
 
   &:hover {
     background: ${theme.colors.vividblue};

@@ -13,7 +13,8 @@ import {
   UploadIcon,
   UploadText,
   UploadButton,
-  SubmitButton
+  SubmitButton,
+  FormItem
 } from "../Questionpaper/AddQuestionpaper.style";
 import upload from "../../../../../assets/upload.png";
 const years = [2024, 2023, 2022, 2021];
@@ -58,6 +59,17 @@ const AddQuestionPaper = ({ onSubmit }) => {
     <Container>
       <h2>Question Paper</h2>
       <Form onSubmit={submit}>
+        <FormItem>
+        <FormGroup>
+          <Label htmlFor="title">Title</Label>
+          <TextInput
+            id="title"
+            placeholder="Enter title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </FormGroup>
+
         <FormGroup>
           <Label htmlFor="year">Select Year</Label>
           <Select
@@ -72,22 +84,15 @@ const AddQuestionPaper = ({ onSubmit }) => {
             ))}
           </Select>
         </FormGroup>
+        </FormItem>
 
-        <FormGroup>
-          <Label htmlFor="title">Title</Label>
-          <TextInput
-            id="title"
-            placeholder="Enter title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </FormGroup>
+
 
         <FormGroup>
           <Label htmlFor="description">Description</Label>
           <TextArea
             id="description"
-            rows={4}
+            rows={8}
             placeholder="Enter description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}

@@ -7,11 +7,12 @@ export const Container = styled.div`
 //   margin: 0 auto;
 margin-left: 40px;
 margin-top: 20px;
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.white};
   border-radius: 6px;
   padding: ${(props) => props.theme.spacing(3)};
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
+  min-height: 750px;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
@@ -135,6 +136,8 @@ export const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
+  overflow-y: auto;
+  max-height: 120px;
 `;
 
 /** A single checkbox + label line */
@@ -155,10 +158,9 @@ export const CheckboxInput = styled.input`
 
 export const UploadArea = styled.div`
 width: 20%;
-margin-left: 60px;
   border: 2px dashed ${(props) => props.theme.colors.grey};
   border-radius: 8px;
-  padding: ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(6)};
   text-align: center;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
@@ -171,10 +173,16 @@ margin-left: 60px;
     background-color: ${(props) => props.theme.colors.backgrounGrey};
   }
 
+  @media (max-width: 1320px) {
+    width: 30%;
+  }
+
   @media (max-width: 990px) {
     width: 85%;
-    margin-left: 0;
   }
+
+  @media (max-width: 480px) {
+    padding: ${(props) => props.theme.spacing(6)} ${(props) => props.theme.spacing(2)};
 `;
 
 /** Hidden file input to trigger on area click */
@@ -190,7 +198,7 @@ export const UploadPlaceholder = styled.div`
 
 /** The big action button at the bottom ("Add Subject") */
 export const SubmitButton = styled.button`
-  width: 160px;
+  width: 20%;
  background:linear-gradient(to right, #0dcaf0, #007bff);
   color: ${(props) => props.theme.colors.secondary};
   padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
@@ -201,6 +209,15 @@ export const SubmitButton = styled.button`
   font-family: ${(props) => props.theme.fonts.body};
   transition: background-color 0.2s ease;
   margin-top: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 85%;
+    margin:0  auto ;
+  }
 
 
 `;
