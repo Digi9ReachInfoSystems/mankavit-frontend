@@ -138,13 +138,6 @@ export default function Payment() {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = mockData.slice(startIndex, endIndex);
 
-  // Simple pagination logic
-  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
   return (
 
     <Container>
