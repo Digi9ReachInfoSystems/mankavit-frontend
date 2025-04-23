@@ -5,11 +5,12 @@ import styled from "styled-components";
 export const Container = styled.div`
 margin-left: 40px;
 margin-top: 20px;
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.white};
   border-radius: 6px;
   padding: ${(props) => props.theme.spacing(3)};
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
+  min-height: 750px;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
@@ -24,7 +25,8 @@ margin-top: 20px;
 export const Title = styled.h2`
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 1.5rem;
-  margin-bottom: ${(props) => props.theme.spacing(3)};
+  margin-bottom: ${(props) => props.theme.spacing(1)};
+  margin-top: 0;
   color: ${(props) => props.theme.colors.primary};
 `;
 
@@ -32,7 +34,7 @@ export const Title = styled.h2`
 export const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.theme.spacing(3)};
+  gap: ${(props) => props.theme.spacing(2)};
 `;
 
 /** A row that divides into two columns (on desktop) */
@@ -140,7 +142,8 @@ export const CheckboxSectionTitle = styled.h4`
   font-weight: normal;
   margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
   color: ${(props) => props.theme.colors.test};
-  padding: ${(props) => props.theme.spacing(2)};
+  padding: ${(props) => props.theme.spacing(1)};
+  //done
   background-color: ${(props) => props.theme.colors.backgrounGrey};
   border-radius: 6px;
 `;
@@ -150,6 +153,8 @@ export const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
+  overflow-y: auto;
+  max-height: 80px;
 `;
 
 /** A single checkbox + label line */
@@ -165,18 +170,19 @@ export const CheckboxInput = styled.input`
   width: 16px;
   height: 16px;
   cursor: pointer;
+  background-color: ${(props) => props.theme.colors.black};
 `;
 
 /** The upload area for the thumbnail, styled as a drop zone */
 export const UploadArea = styled.div`
   border: 2px dashed ${(props) => props.theme.colors.grey};
   border-radius: 8px;
-  padding: ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(6)};
   text-align: center;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
-  width:20%;
-  margin-left: 60px;
+  width: 80%;
+  // margin-left: 60px;
 
   p {
     margin: ${(props) => props.theme.spacing(1)} 0 0 0;
@@ -186,9 +192,14 @@ export const UploadArea = styled.div`
     background-color: ${(props) => props.theme.colors.backgrounGrey};
   }
 
-  @media (max-width: 990px) {
-    width: 85%;
+  @media (max-width: 1024px) {
+    width: 70%;
     margin-left: 0;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    box-sizing: border-box;
   }
 `;
 
@@ -206,7 +217,7 @@ export const UploadPlaceholder = styled.div`
 
 /** The big action button at the bottom ("Add Course") */
 export const SubmitButton = styled.button`
-  width: 160px;
+  width: 20%;
   background:linear-gradient(to right, #0dcaf0, #007bff);
   color: ${(props) => props.theme.colors.secondary};
   padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
@@ -216,12 +227,17 @@ export const SubmitButton = styled.button`
   cursor: pointer;
   font-family: ${(props) => props.theme.fonts.body};
   transition: background-color 0.2s ease;
-  margin-top: ${(props) => props.theme.spacing(2)};
+  margin-top: ${(props) => props.theme.spacing(2)}; 
 
- 
+  @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 85%;
+    margin: 0 auto;
+  }
 `;
-
-
 
 // Toggle Switch styled component
 export const ToggleSwitch = styled.input`
@@ -230,7 +246,7 @@ export const ToggleSwitch = styled.input`
   appearance: none;
   width: 50px;
   height: 25px;
-  background-color: ${props => (props.checked ? props.theme.colors.primary : '#ccc')};
+  background-color: ${props => (props.checked ? props.theme.colors.emaraldgreen : '#ccc')};
   border-radius: 25px;
   position: relative;
   cursor: pointer;
@@ -254,9 +270,8 @@ export const ToggleSwitch = styled.input`
     outline: none;
   }
 
-  &:hover {
-    background-color: ${props => (props.checked ? "#00aaff" : "#ddd")};
-  }
+  // &:hover {
+  //   background-color: ${props => (props.checked ? "#ccc" : "#ddd")};
+  // }
+
 `;
-
-

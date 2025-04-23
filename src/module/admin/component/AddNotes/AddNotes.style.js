@@ -5,11 +5,12 @@ import styled from "styled-components";
 export const Container = styled.div`
  margin-left: 40px;
  margin-top: 20px;
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.white};
   border-radius: 6px;
   padding: ${(props) => props.theme.spacing(3)};
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
+  min-height: 750px;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
@@ -100,19 +101,24 @@ export const TextArea = styled.textarea`
 export const UploadArea = styled.div`
   border: 2px dashed ${(props) => props.theme.colors.grey};
   border-radius: 8px;
-  padding: ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(6)};
   text-align: center;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
-  width: 85%;
+  width: 80%;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
   }
 
-  @media (max-width: 990px) {
-    width: 85%;
-    margin: 0 auto;
+  @media (max-width: 1024px) {
+    width: 60%;
+    margin-left: 0;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    box-sizing: border-box;
   }
 `;
 
@@ -139,6 +145,9 @@ export const CheckboxSectionTitle = styled.h3`
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   margin-bottom: ${(props) => props.theme.spacing(1)};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  padding: ${(props) => props.theme.spacing(2)};
+  border-radius: 4px;
 `;
 
 // Checkbox list for subjects
@@ -146,6 +155,8 @@ export const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
+  max-height: 80px;
+  overflow-y: auto;
 `;
 
 // Each checkbox label
@@ -162,6 +173,7 @@ export const CheckboxInput = styled.input`
   width: 16px;
   height: 16px;
   cursor: pointer;
+  background-color: ${(props) => props.theme.colors.black};
 `;
 
 // Toggle switch styled component
@@ -171,7 +183,7 @@ export const ToggleSwitch = styled.input`
   appearance: none;
   width: 50px;
   height: 25px;
-  background-color: ${(props) => (props.checked ? props.theme.colors.primary : "#ccc")};
+  background-color: ${(props) => (props.checked ? props.theme.colors.emaraldgreen : "#ccc")};
   border-radius: 25px;
   position: relative;
   cursor: pointer;
@@ -197,7 +209,7 @@ export const ToggleSwitch = styled.input`
 
 // Submit Button
 export const SubmitButton = styled.button`
-  width: 160px;
+  width: 20%;
   background:linear-gradient(to right, #0dcaf0, #007bff);
   color: ${(props) => props.theme.colors.secondary};
   padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
@@ -211,6 +223,15 @@ export const SubmitButton = styled.button`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.black};
+  }
+
+   @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 85%;
+    margin: 0 auto;
   }
 `;
 

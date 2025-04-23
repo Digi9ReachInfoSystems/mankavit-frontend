@@ -38,12 +38,18 @@ export default function AddCourse() {
     { label: "Mankavit Mock Test – CLAT 2025", checked: true },
     { label: "Mankavit Mock Test – CLAT 2025", checked: false },
     { label: "Mankavit Mock Test – CLAT 2025", checked: true },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
   ]);
 
   const [mockTestCheckboxes, setMockTestCheckboxes] = useState([
     { label: "Mankavit Mock Test – CLAT 2025", checked: true },
     { label: "Mankavit Mock Test – CLAT 2025", checked: false },
     { label: "Mankavit Mock Test – CLAT 2025", checked: false },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
   ]);
 
   // File upload state

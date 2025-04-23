@@ -5,28 +5,25 @@ export const Container = styled.div`
 display: flex;
 flex-direction: column;
 margin-left: 40px;
-margin-top: 40px;
-justify-content: center;
+margin-top: 20px;
+// justify-content: center;
 // align-items: center;
-  width: 95%;
+  // width: 95%;
   padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
-
-  @media (max-width: 990px) {
-  width: 90%;
-}
+  min-height: 780px;
+  border-radius: 12px;
 
   @media (max-width: 768px) {
     margin-left: 10px;
-    margin-top: 10px;
+    margin-top: 0px;
     padding: ${(props) => props.theme.spacing(1)};
-    width: 95%;
+    // width: 95%;
   }
 
   @media (max-width: 480px) {
-    width: 90%;
-    margin-left: 15px;
+    padding: ${(props) => props.theme.spacing(1)};
   }
 `;
 
@@ -53,7 +50,7 @@ export const Title = styled.h3`
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 12px;
   color: ${(props) => props.theme.colors.test};
 `;
 
@@ -64,9 +61,9 @@ export const SortLabel = styled.span`
 export const SortSelect = styled.select`
   border: 1px solid ${(props) => props.theme.colors.grey};
   background-color: ${(props) => props.theme.colors.backgrounGrey};
-  padding: 8px;
+  padding: 4px;
   font-family: ${(props) => props.theme.fonts.body};
-  font-size: 0.9rem;
+  font-size: 12px;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
   border-radius: 8px;
@@ -80,7 +77,7 @@ export const SortSelect = styled.select`
 export const TableWrapper = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.secondary};
-  border: 1px solid ${(props) => props.theme.colors.grey};
+  border: none;
   border-radius: 4px;
   overflow-x: auto;
 `;
@@ -99,16 +96,25 @@ export const TableHeader = styled.th`
   text-align: left;
   padding: ${(props) => props.theme.spacing(3)};
   font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 0.9rem;
+  font-size: 16px;
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   white-space: nowrap;
+
+      &:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+ 
+&:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 `;
 
 export const TableBody = styled.tbody``;
 
 export const TableRow = styled.tr`
-  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
@@ -116,10 +122,12 @@ export const TableRow = styled.tr`
 `;
 
 export const TableCell = styled.td`
-  padding: ${(props) => props.theme.spacing(3)};
-  font-size: 0.9rem;
+  padding: ${(props) => props.theme.spacing(2.5)};
+  font-size: 14px;
   color: ${(props) => props.theme.colors.black};
   white-space: nowrap;
+      border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+
 `;
 
 export const StatusCell = styled(TableCell)`

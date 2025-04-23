@@ -8,22 +8,29 @@ display: flex;
 flex-direction: column;
 margin-left: 40px;
 margin-top: 20px;
-justify-content: center;
+border-radius: 12px;
+// justify-content: center;
 // align-items: center;
-  width: 95%;
-  padding: ${(props) => props.theme.spacing(2)};
+  // width: 95%;
+  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(4)} 0 ${(props) => props.theme.spacing(4)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
+  min-height: 720px;
 
-    @media (max-width: 990px) {
-  width: 90%;
-}
+
+//     @media (max-width: 990px) {
+//   width: 90%;
+// }
 
   @media (max-width: 768px) {
     margin-left: 10px;
     margin-top: 0;
     padding: ${(props) => props.theme.spacing(1)};
-    width: 95%;
+    // width: 95%;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${(props) => props.theme.spacing(1)};
   }
 `;
 
@@ -67,7 +74,7 @@ export const SortSelect = styled.select`
   background-color: ${(props) => props.theme.colors.backgrounGrey};
   padding: 4px;
   font-family: ${(props) => props.theme.fonts.body};
-  font-size: 14px;
+  font-size: 12px;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
 
@@ -82,7 +89,6 @@ export const TableWrapper = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.secondary};
   border: none;
-  border-radius: 4px;
   overflow-x: auto;
 `;
 
@@ -101,13 +107,24 @@ export const TableHead = styled.thead`
 // Table Header Cell
 export const TableHeader = styled.th`
   text-align: left;
-  padding: ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   white-space: nowrap;
+  // border-radius: 4px;
 //   border-bottom: 1px solid ${(props) => props.theme.colors.test};
+
+  &:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+ 
+&:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 `;
 
 // Table Body
@@ -115,7 +132,6 @@ export const TableBody = styled.tbody``;
 
 // Table Row
 export const TableRow = styled.tr`
-  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
@@ -124,10 +140,12 @@ export const TableRow = styled.tr`
 
 // Table Cell
 export const TableCell = styled.td`
-  padding: ${(props) => props.theme.spacing(3)};
-  font-size: 1rem;
+  padding: ${(props) => props.theme.spacing(1.9)};
+  font-size: 14px;
   color: ${(props) => props.theme.colors.black};
   white-space: nowrap;
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+
 
   a {
     margin-left: 6px;
@@ -159,24 +177,10 @@ export const ActionsContainer = styled.div`
   }
 `;
 
-// Bottom area that contains the "Showing X-Y from Z" on the left and pagination on the right
-export const BottomRow = styled.div`
-  margin-top: ${(props) => props.theme.spacing(2)};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 // Text on the bottom left (e.g., "Showing 1-10 from 100")
 export const PageInfo = styled.div`
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.test};
-`;
-
-// Pagination container on the bottom right
-export const Pagination = styled.div`
-  display: flex;
-  gap: 4px;
 `;
 
 // Individual page buttons
@@ -205,9 +209,12 @@ export const PageButton = styled.button`
 export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   margin-bottom: ${(props) => props.theme.spacing(0)};
   margin-top: ${(props) => props.theme.spacing(2)};
- margin-right:10px;
+//  margin-right:10px;
+  //  width: 100%;
+
 
  @media (max-width: 768px) {
 margin: 10px 5px;
@@ -225,18 +232,62 @@ export const CreateButton = styled.button`
   border-radius: 4px;
   font-family: ${(props) => props.theme.fonts.body};
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1rem;
   transition: background-color 0.2s ease;
-  width: 15%;
+    width: 15%; 
+    display: flex;
+  justify-content: center;
+  align-items: center;
+
+
 
   @media (max-width: 768px) {
-    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    // padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
     font-size: 12px;
-    width: 20%;
+    width: 40%;
+    margin-right: 20px;
   }
 
   @media (max-width: 480px) {
-    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
     font-size: 10px;
-    width: 30%;
+    width: 50%;
 `;
+
+
+export const SearchWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+  }
+`;
+
+export const SearchIcon = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+
+`;
+
+export const SearchInput = styled.input`
+  width: 20%;
+  padding: 10px 5px 10px 40px; 
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.silverGray};
+  background: ${({ theme }) => theme.colors.backgrounGrey};
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
