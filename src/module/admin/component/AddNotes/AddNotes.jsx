@@ -10,7 +10,7 @@ import {
   FieldWrapper,
   Label,
   Input,
-  TextArea,
+  // TextArea,
   UploadArea,
   FileInput,
   UploadPlaceholder,
@@ -35,7 +35,7 @@ export default function AddNote() {
   // State for form fields
   const [noteTitle, setNoteTitle] = useState("CLAT");
   const [internalTitle, setInternalTitle] = useState("ANUJA");
-  const [shortDescription, setShortDescription] = useState("");
+  // const [shortDescription, setShortDescription] = useState("");
   const [isDownloadable, setIsDownloadable] = useState(false);
   const [subjectsCheckboxes, setSubjectsCheckboxes] = useState(defaultSubjects);
 
@@ -103,6 +103,27 @@ export default function AddNote() {
           </Column>
         </FormRow>
 
+         {/* Row 4: Add Subjects */}
+         <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Subjects (Click Checkbox to Select)</CheckboxSectionTitle>
+              <CheckboxList>
+                {subjectsCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
+
         {/* Row 2: Upload PDF */}
         <FormRow>
           <Column>
@@ -143,26 +164,7 @@ export default function AddNote() {
           </Column>
         </FormRow>
 
-        {/* Row 4: Add Subjects */}
-        <FormRow>
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Add Subjects (Click Checkbox to Select)</CheckboxSectionTitle>
-              <CheckboxList>
-                {subjectsCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-        </FormRow>
+       
 
         {/* Row 5: Submit button */}
         <FormRow>

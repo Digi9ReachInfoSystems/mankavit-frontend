@@ -16,12 +16,9 @@ import {
   TableCell,
   StatusCell,
   StatusWrapper,
-  PaymentstatusDot,
-  BottomRow,
-  PageInfo,
-  Pagination,
-  PageButton,
+  PaymentstatusDot
 } from "../Payment/Payment.style";
+import Pagination from "../../component/Pagination/Pagination"; 
 
 // Example mock data for the table
 const mockData = [
@@ -141,13 +138,6 @@ export default function Payment() {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = mockData.slice(startIndex, endIndex);
 
-  // Simple pagination logic
-  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
   return (
 
     <Container>
@@ -205,24 +195,13 @@ export default function Payment() {
         </StyledTable>
       </TableWrapper>
 
-      {/* Pagination and Info */}
-      <BottomRow>
-        <PageInfo>
-          Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from{" "}
-          {TOTAL_ENTRIES}
-        </PageInfo>
-        <Pagination>
-          {pages.map((page) => (
-            <PageButton
-              key={page}
-              className={page === currentPage ? "active" : ""}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </PageButton>
-          ))}
-        </Pagination>
-      </BottomRow>
+      <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={TOTAL_ENTRIES}
+          itemsPerPage = {ITEMS_PER_PAGE}
+        />
     </Container>
   );
 }

@@ -17,251 +17,175 @@ import {
   SwitchContainer,
   SwitchHandle,
   ActionsContainer,
-  BottomRow,
-  PageInfo,
-  Pagination,
-  PageButton,
   ButtonContainer,
+  SearchWrapper,
+  SearchIcon,
+  SearchInput,
   CreateButton
-} from "../Notes/Notes.style"; // Adjust path as needed
-import { FiEdit, FiTrash, FiEye } from "react-icons/fi";
-import { Link } from "react-router-dom";
+} from "../Notes/Notes.style";
+import { BiEditAlt } from "react-icons/bi";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { CiSearch } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
+import DeleteModal from "../../component/DeleteModal/DeleteModal";
+import Pagination from "../../component/Pagination/Pagination";
 
-/* Example mock data for rows */
-const initialData = [
-  {
-    id: 1,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-  {
-    id: 2,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: false,
-  },
-  {
-    id: 3,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-  {
-    id: 4,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-  {
-    id: 5,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: false,
-  },
-  {
-    id: 6,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-  {
-    id: 7,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-  {
-    id: 8,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-  {
-    id: 9,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: false,
-  },
-  {
-    id: 10,
-    noteTitle: "CLAT Coaching",
-    noteDescription:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    subjectsCount: 27,
-    lastActive: "24-07-2024 16:22",
-    active: true,
-  },
-];
+const initialData = Array.from({ length: 22 }, (_, index) => ({
+  id: index + 1,
+  noteTitle: "CLAT Coaching",
+  noteDescription: "Lorem Ipsum is s.",
+  subjectsCount: 27,
+  lastActive: "24-07-2024 16:22",
+  active: true,
+}));
 
-// const TOTAL_ENTRIES = 100;
 const ITEMS_PER_PAGE = 10;
 
 export default function NotesManagement() {
-  /* State for table data (including toggle states) */
-  const [notesData, setNotesData] = useState(initialData);
-  /* Current page for pagination */
+  const navigate = useNavigate();
+  const [data, setData] = useState(initialData);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
-  const TOTAL_ENTRIES = initialData.length;
+  const filteredData = data.filter((item) =>
+    item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const TOTAL_ENTRIES = filteredData.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  
-
-  /* Slice data for the current page */
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = notesData.slice(startIndex, endIndex);
+  const currentItems = filteredData.slice(startIndex, endIndex);
 
-  /* Total pages based on total data length (100 in this example) */
-  const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
-
-  /* Handler for pagination */
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  /* Handler for toggling "active" state in each row */
   const handleToggleActive = (id) => {
-    setNotesData((prev) =>
-      prev.map((note) =>
+    setData((prevData) =>
+      prevData.map((note) =>
         note.id === id ? { ...note, active: !note.active } : note
       )
     );
   };
 
+  const handleDeleteClick = (id) => {
+    setSelectedStudent(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleClickDelete = () => {
+    setData((prevData) => {
+      const newData = prevData.filter((item) => item.id !== selectedStudent);
+      const newTotalPages = Math.ceil(newData.length / ITEMS_PER_PAGE);
+      if (currentPage > newTotalPages) {
+        setCurrentPage(newTotalPages || 1);
+      }
+      return newData;
+    });
+    setDeleteModalOpen(false);
+    setSelectedStudent(null);
+  };
+
   return (
-      <>
-        <ButtonContainer>
-            <Link to="/admin/notes/create">
-            <CreateButton>+ Add Notes</CreateButton>
-            </Link>
-          </ButtonContainer>
-    <Container>
-      {/* Header Section */}
-      <HeaderRow>
-        <Title>See All Notes <span style={{ color: "#6d6e75",
-            fontSize: "12px",
-            fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
-        <SortByContainer>
-          <SortLabel>Sort by:</SortLabel>
-          <SortSelect value="Name" onChange={() => {}}>
-            <option value="Name">Name</option>
-            <option value="LastActive">Last Active</option>
-            <option value="Active">Active</option>
-          </SortSelect>
-        </SortByContainer>
-      </HeaderRow>
+    <>
+      <ButtonContainer>
+        <CreateButton onClick={() => navigate("/admin/notes/create")}>
+          Add Notes
+        </CreateButton>
+      </ButtonContainer>
 
-      {/* Table Section */}
-      <TableWrapper>
-        <StyledTable>
-          <TableHead>
-            <TableRow>
-              <TableHeader>Note Title</TableHeader>
-              <TableHeader>Note Description</TableHeader>
-              <TableHeader>No. of Subjects</TableHeader>
-              <TableHeader>View Subjects</TableHeader>
-              <TableHeader>View Pdf</TableHeader>
-              <TableHeader>Last Active</TableHeader>
-              <TableHeader>Active</TableHeader>
-              <TableHeader>Actions</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {currentItems.map((item) => (
-              <TableRow key={item.id}>
-                {/* Note Title */}
-                <TableCell>{item.noteTitle}</TableCell>
+      <Container>
+        <HeaderRow>
+          <Title>
+            See All Notes{" "}
+            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+              ({currentItems.length}/{TOTAL_ENTRIES})
+            </span>
+          </Title>
+          <SortByContainer>
+            <SortLabel>Sort by:</SortLabel>
+            <SortSelect value="Name" onChange={() => { }}>
+              <option value="Name">Name</option>
+              <option value="LastActive">Last Active</option>
+              <option value="Active">Active</option>
+            </SortSelect>
+          </SortByContainer>
+        </HeaderRow>
 
-                {/* Note Description */}
-                <TableCell>{item.noteDescription}</TableCell>
+        <SearchWrapper>
+          <SearchIcon>
+            <CiSearch size={24} />
+          </SearchIcon>
+          <SearchInput
+            placeholder="Search"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </SearchWrapper>
 
-                {/* No. of Subjects */}
-                <TableCell>{item.subjectsCount}</TableCell>
-
-                {/* View Subjects */}
-                <TableCell>
-                  <a href="#view-subjects">View</a>
-                </TableCell>
-
-                {/* View Pdf */}
-                <TableCell>
-                  <a href="#view-pdf">View</a>
-                </TableCell>
-
-                {/* Last Active */}
-                <TableCell>{item.lastActive}</TableCell>
-
-                {/* Active (toggle switch) */}
-                <TableCell>
-                  <SwitchContainer
-                    checked={item.active}
-                    onClick={() => handleToggleActive(item.id)}
-                  >
-                    <SwitchHandle checked={item.active} />
-                  </SwitchContainer>
-                </TableCell>
-
-                {/* Actions (icons) */}
-                <TableCell>
-                  <ActionsContainer>
-                    <FiEdit title="Edit" />
-                    <FiTrash title="Delete" />
-                    <FiEye title="View Details" />
-                  </ActionsContainer>
-                </TableCell>
+        <TableWrapper>
+          <StyledTable>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Note Title</TableHeader>
+                <TableHeader>Note Description</TableHeader>
+                <TableHeader>No. of Subjects</TableHeader>
+                <TableHeader>View Subjects</TableHeader>
+                <TableHeader>View Pdf</TableHeader>
+                <TableHeader>Last Active</TableHeader>
+                <TableHeader>Active</TableHeader>
+                <TableHeader>Actions</TableHeader>
               </TableRow>
-            ))}
-          </TableBody>
-        </StyledTable>
-      </TableWrapper>
+            </TableHead>
+            <TableBody>
+              {currentItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.noteTitle}</TableCell>
+                  <TableCell>{item.noteDescription}</TableCell>
+                  <TableCell>{item.subjectsCount}</TableCell>
+                  <TableCell>
+                    <a href="#view-subjects">View</a>
+                  </TableCell>
+                  <TableCell>
+                    <a href="#view-pdf">View</a>
+                  </TableCell>
+                  <TableCell>{item.lastActive}</TableCell>
+                  <TableCell>
+                    <SwitchContainer checked={item.active} onClick={() => handleToggleActive(item.id)}>
+                      <SwitchHandle checked={item.active} />
+                    </SwitchContainer>
 
-      {/* Bottom Info + Pagination */}
-      <BottomRow>
-        <PageInfo>
-          Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from{" "}
-          {TOTAL_ENTRIES}
-        </PageInfo>
-        <Pagination>
-          {pages.map((page) => (
-            <PageButton
-              key={page}
-              className={page === currentPage ? "active" : ""}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </PageButton>
-          ))}
-        </Pagination>
-      </BottomRow>
-    </Container>
+                  </TableCell>
+                  <TableCell>
+                    <ActionsContainer>
+                      <BiEditAlt title="Edit" color="#000000" size={20} />
+                      <RiDeleteBin6Line
+                        title="Delete"
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDeleteClick(item.id)}
+                      />
+                    </ActionsContainer>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </StyledTable>
+        </TableWrapper>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={TOTAL_ENTRIES}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
+
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onDelete={handleClickDelete}
+        />
+      </Container>
     </>
   );
 }

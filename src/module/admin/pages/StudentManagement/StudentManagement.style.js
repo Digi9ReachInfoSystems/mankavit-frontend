@@ -7,27 +7,30 @@ display: flex;
 flex-direction: column;
 margin-left: 40px;
 margin-top: 20px;
-justify-content: center;
+// justify-content: center;
 // align-items: center;
-  width: 95%;
-  padding: ${(props) => props.theme.spacing(2)};
+  // width: 95%;
+  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(4)} 0 ${(props) => props.theme.spacing(4)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
+    border-radius: 12px;
+    min-height: 720px;
+    border-radius: 12px;
 
-    @media (max-width: 990px) {
-  width: 90%;
-}
+//     @media (max-width: 990px) {
+//   width: 90%;
+// }
 
   @media (max-width: 768px) {
     margin-left: 10px;
     margin-top: 0;
     padding: ${(props) => props.theme.spacing(1)};
-    width: 95%;
+    // width: 95%;
   }
 
   @media (max-width: 480px) {
     padding: ${(props) => props.theme.spacing(1)};
-    width: 90%;
+    // width: 90%;
   }
 `;
 
@@ -56,7 +59,7 @@ export const Title = styled.h3`
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 12px;
   color: ${(props) => props.theme.colors.test};
 `;
 
@@ -68,10 +71,10 @@ export const SortLabel = styled.span`
 // A <select> for the sort options
 export const SortSelect = styled.select`
   border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
   padding: 4px;
   font-family: ${(props) => props.theme.fonts.body};
-  font-size: 0.9rem;
+  font-size: 12px;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
 
@@ -86,7 +89,6 @@ export const TableWrapper = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.secondary};
   border: none;
-  border-radius: 4px;
   overflow-x: auto;
 `;
 
@@ -105,15 +107,22 @@ export const TableHead = styled.thead`
 // Table header cell
 export const TableHeader = styled.th`
   text-align: left;
-  padding: ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 0.9rem;
+  font-size: 16px;
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   white-space: nowrap;
+
+  &:first-child {
+  border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
+}
+ 
+&:last-child {
+  border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
-  // border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+}
 `;
 
 // Table body
@@ -121,7 +130,6 @@ export const TableBody = styled.tbody``;
 
 // Table row
 export const TableRow = styled.tr`
-  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
@@ -130,9 +138,10 @@ export const TableRow = styled.tr`
 
 // Table cell
 export const TableCell = styled.td`
-  padding: ${(props) => props.theme.spacing(3)};
-  font-size: 0.9rem;
+  padding: ${(props) => props.theme.spacing(1.9)};
+  font-size: 14px;
   color: ${(props) => props.theme.colors.black};
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
   
   vertical-align: top;
   white-space: nowrap;
@@ -168,24 +177,10 @@ export const ActionsContainer = styled.div`
   // }
 `;
 
-// Bottom row: "Showing 1-10 from 100" on the left and pagination on the right
-export const BottomRow = styled.div`
-  margin-top: ${(props) => props.theme.spacing(2)};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 // "Showing X-Y from Z" text
 export const PageInfo = styled.div`
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.test};
-`;
-
-// Pagination container
-export const Pagination = styled.div`
-  display: flex;
-  gap: 4px;
 `;
 
 // Individual page-number buttons
@@ -215,9 +210,9 @@ export const PageButton = styled.button`
 export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   margin-bottom: ${(props) => props.theme.spacing(0)};
   margin-top: ${(props) => props.theme.spacing(2)};
- margin-right: 10px;
 
  @media (max-width: 768px) {
     margin: 10px 5px;
@@ -240,17 +235,21 @@ export const CreateButton = styled.button`
   font-size: 1rem;
   transition: background-color 0.2s ease;
   width: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   @media (max-width: 768px) {
-    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    // padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
     font-size: 0.9rem;
-    width: 20%;
+    width: 40%;
+    margin-right: 20px;
   }
 
   @media (max-width: 480px) {
     padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
     font-size: 0.8rem;
-    width: 30%;
+    width: 50%;
   }
 `;
 
@@ -382,7 +381,7 @@ export const StatusDot = styled.span`
 export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
 
   @media (max-width: 768px) {
     margin-bottom: 20px;
@@ -399,13 +398,10 @@ export const SearchIcon = styled.div`
   color: #888;
   pointer-events: none;
 
-  @media (max-width: 768px) {
-    
-  }
 `;
 
 export const SearchInput = styled.input`
-  width: 30%;
+  width: 20%;
   padding: 10px 5px 10px 40px; 
   border: none;
   border-radius: 8px;

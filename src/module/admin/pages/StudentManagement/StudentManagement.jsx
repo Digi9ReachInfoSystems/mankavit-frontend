@@ -15,10 +15,6 @@ import {
   TableRow,
   TableCell,
   ActionsContainer,
-  BottomRow,
-  PageInfo,
-  Pagination,
-  PageButton,
   ButtonContainer,
   CreateButton,
   ModalOverlay,
@@ -35,12 +31,13 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput
-} from "../StudentManagement/StudentManagement.style"; // adjust path if needed
+} from "../StudentManagement/StudentManagement.style"; 
 
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
+import Pagination from "../../component/Pagination/Pagination"; 
 
 
 const mockData = [
@@ -156,7 +153,7 @@ const mockData = [
   },
 ];
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
 export default function StudentManagement() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -165,8 +162,9 @@ export default function StudentManagement() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewStudent, setViewStudent] = useState(null);
   const [searchText, setSearchText] = useState('');
+    const [data, setData] = useState(mockData);
 
-  const filteredStudents = mockData.filter((student) =>
+  const filteredStudents = data.filter((student) =>
     student.name.toLowerCase().includes(searchText.toLowerCase())
   );
   
@@ -177,23 +175,11 @@ export default function StudentManagement() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = filteredStudents.slice(startIndex, endIndex);
-  
 
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleDeleteClick = (student) => {
-    setSelectedStudent(student);
+  const handleDeleteClick = (id) => {
+    setSelectedStudent(id);
     setDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    console.log("Deleting student:", selectedStudent);
-    setDeleteModalOpen(false);
-    setSelectedStudent(null);
-    // API call goes here
   };
 
   const handleViewClick = (student) => {
@@ -280,7 +266,7 @@ export default function StudentManagement() {
                   </TableCell>                  <TableCell>
                     <ActionsContainer>
                       <BiEditAlt title="Edit" color="#000000" size={20} />
-                      <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item)} />
+                      <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item.id)} />
                     </ActionsContainer>
                   </TableCell>
                 </TableRow>
@@ -289,27 +275,23 @@ export default function StudentManagement() {
           </StyledTable>
         </TableWrapper>
 
-        <BottomRow>
-          <PageInfo>
-            Showing {startIndex + 1}-{Math.min(endIndex, TOTAL_ENTRIES)} from {TOTAL_ENTRIES}
-          </PageInfo>
-          <Pagination>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <PageButton
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={page === currentPage ? "active" : ""}
-              >
-                {page}
-              </PageButton>
-            ))}
-          </Pagination>
-        </BottomRow>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={TOTAL_ENTRIES}
+          itemsPerPage = {ITEMS_PER_PAGE}
+        />
+        
 
         <DeleteModal
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
-          onConfirm={handleDeleteConfirm}
+          onDelete={() => {
+            setData(prevData => prevData.filter(item => item.id !== selectedStudent));
+            setDeleteModalOpen(false);
+            setSelectedStudent(null);
+          }}
         />
 
 
