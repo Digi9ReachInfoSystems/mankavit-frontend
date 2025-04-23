@@ -7,10 +7,6 @@ export const PaginationWrapper = styled.div`
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem 0;
-
-  @media (max-width: 768px) {
-  justify-content: flex-end;
-}
 `;
 
 export const PaginationButton = styled.button`
