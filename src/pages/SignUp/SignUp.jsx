@@ -85,6 +85,7 @@ const SignUp = () => {
         role: 'user',
         email,
         password,
+        confirmPassword,
       };
 
       const response = await registerUser(userData);
