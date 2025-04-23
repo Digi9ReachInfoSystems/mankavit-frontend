@@ -3,31 +3,44 @@ import styled from "styled-components";
 import theme from "../../../../../theme/Theme";
 
 export const TableWrapper = styled.div`
-  background: ${theme.colors.test};
-  padding: ${theme.spacing(4)};
-  border-radius: ${theme.spacing(1)};
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  width: 100%;
+  background-color: ${(props) => props.theme.colors.secondary};
+  border-radius: 4px;
+  overflow-x: auto;
+
 `;
 
 export const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-family: ${theme.fonts.body};
-  border: 1px solid ${theme.colors.grey};
-  border-radius: 4px;
+      min-width: 900px;
+
 `;
 
 export const TableHead = styled.thead`
-  background: ${theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
 `;
 
 
 export const TableHeader = styled.th`
   text-align: left;
-  padding: ${theme.spacing(2)};
-  color: ${theme.colors.test};
+  padding: ${(props) => props.theme.spacing(2)};
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 16px;
   font-weight: normal;
-  font-size: 1rem;
+  color: ${(props) => props.theme.colors.test};
+  white-space: nowrap;
+//   border-bottom: 1px solid ${(props) => props.theme.colors.test};
+
+&:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+&:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 `;
 
 export const TableBody = styled.tbody``;
@@ -43,24 +56,40 @@ export const TableRow = styled.tr`
 `;
 
 export const TableCell = styled.td`
-  padding: ${theme.spacing(2)};
-  border-bottom: 1px solid ${theme.colors.grey};
-  color: ${theme.colors.black};
-  font-size: 1rem;
+  padding: ${(props) => props.theme.spacing(1.9)};
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.black};
+  white-space: nowrap;
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 `;
 
 export const PdfLink = styled.a`
-  color: ${theme.colors.primary};
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
+    margin-left: 6px;
+    text-decoration: none;
+    color: ${(props) => props.theme.colors.primary};
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
 `;
 
 // Actions cell wrapper
 export const ActionsWrapper = styled.div`
   display: flex;
-  gap: ${theme.spacing(2)};
+  align-items: center;
+  gap: ${(props) => props.theme.spacing(1)};
+  font-size: 1rem;
+
+  svg {
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.test};
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: ${(props) => props.theme.colors.primary};
+    }
+  }
 `;
 
 // Edit button
@@ -91,17 +120,18 @@ export const Container = styled.div`
 display: flex;
 flex-direction: column;
 margin-left: 40px;
-margin-top: 40px;
-justify-content: center;
+margin-top: 20px;
+// justify-content: center;
 // align-items: center;
-border-radius: 8px;
-  width: 95%;
-  padding: ${(props) => props.theme.spacing(2)};
+  // width: 95%;
+  padding: ${theme.spacing(2)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
+  border-radius: 12px;
+  min-height: 720px;
 
     @media (max-width: 990px) {
-  width: 90%;
+  // width: 90%;
 }
 
   @media (max-width: 768px) {
@@ -118,12 +148,12 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-bottom: ${(props) => props.theme.spacing(2)};
-  margin-top: ${(props) => props.theme.spacing(4)};
- margin-right:10px;
+  margin-top: ${(props) => props.theme.spacing(2)};
+//  margin-right:10px;
 
  @media (max-width: 768px) {
-margin: 10px 5px;
-  }
+//  margin: 10px 5px;
+}
   `;
 
 export const CreateButton = styled.button`
@@ -137,6 +167,28 @@ export const CreateButton = styled.button`
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s ease;
+  width: 15%;
+  display: flex;
+  justify-content: center;
+
+  &:hover {
+    background-color: #007ecc;
+  }
+
+  @media (max-width: 1024px) {
+    width: 25%;
+  }
+      @media (max-width: 768px) {
+      margin-right: 20px;
+      width: 40%;
+  }
+ 
+  @media (max-width: 480px) {
+    padding: 15px 20px;
+    font-size: 14px;
+    width: 50%;
+ 
+  }
   
  
 `;

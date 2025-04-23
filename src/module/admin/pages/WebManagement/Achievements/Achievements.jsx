@@ -10,10 +10,8 @@ import {
   ViewLink,
   BtnAchieve,
   AddButton,
-  ToggleWrapper,
   Label
 } from "./Achievements.styles";
-import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination"; // This is your component
 import { BiEditAlt } from "react-icons/bi";
@@ -48,13 +46,6 @@ const Achievements = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const toggleShowcase = (index) => {
-    const updated = [...data];
-    const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
-    updated[globalIndex].showcase = !updated[globalIndex].showcase;
-    setData(updated);
-  };
-
   const handleAddButton = () => {
     navigate("/admin/web-management/achievement/create");
   };
@@ -67,7 +58,7 @@ const Achievements = () => {
     <>
       <BtnAchieve>
         <AddButton onClick={handleAddButton}>
-           Achievement
+           Add Achievement
         </AddButton>
       </BtnAchieve>
 
@@ -108,15 +99,6 @@ const Achievements = () => {
                   <Td><ViewLink href="#">View</ViewLink></Td>
                   <Td>{item.date} {item.time}</Td>
                   <Td>
-                    {/* <ToggleWrapper>
-                      <input
-                        type="checkbox"
-                        checked={item.showcase}
-                        onChange={() => toggleShowcase(index)}
-                      />
-                      <span></span>
-                    </ToggleWrapper> */}
-
                     <BiEditAlt size={20} color="#000000" style={{cursor: "pointer"}}/>
                     <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={handleDelete} style={{cursor: "pointer"}}/>
                   </Td>
@@ -131,6 +113,7 @@ const Achievements = () => {
           totalPages={totalPages}
           onPageChange={setCurrentPage}
           totalItems={data.length}
+          itemsPerPage={ITEMS_PER_PAGE}
         />
       </Container>
 
@@ -139,7 +122,6 @@ const Achievements = () => {
             isOpen={Modal}
             onClose={() => setModal(false)}
             onDelete={() => {
-              // Add your delete logic here
               console.log("Item deleted");
               setModal(false);
             }}

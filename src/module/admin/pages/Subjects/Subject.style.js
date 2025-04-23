@@ -7,16 +7,18 @@ export const Container = styled.div`
 display: flex;
 flex-direction: column;
 margin-left: 40px;
-margin-top: 40px;
-justify-content: center;
+margin-top: 20px;
+// justify-content: center;
 // align-items: center;
-  width: 95%;
-  padding: ${(props) => props.theme.spacing(2)};
+  // width: 95%;
+  padding: ${theme.spacing(2)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
+  border-radius: 12px;
+  min-height: 720px;
 
     @media (max-width: 990px) {
-  width: 90%;
+  // width: 90%;
 }
 
   @media (max-width: 768px) {
@@ -63,10 +65,10 @@ export const SortLabel = styled.span`
 // The <select> or clickable text for actual sorting
 export const SortSelect = styled.select`
   border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
   padding: 4px;
   font-family: ${(props) => props.theme.fonts.body};
-  font-size: 0.9rem;
+  font-size: 12px;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
 
@@ -80,7 +82,6 @@ export const SortSelect = styled.select`
 export const TableWrapper = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.secondary};
-  border: 1px solid ${(props) => props.theme.colors.grey};
   border-radius: 4px;
   overflow-x: auto;
 `;
@@ -100,13 +101,23 @@ export const TableHead = styled.thead`
 // Table Header Cell
 export const TableHeader = styled.th`
   text-align: left;
-  padding: ${(props) => props.theme.spacing(3)};
+  padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   white-space: nowrap;
 //   border-bottom: 1px solid ${(props) => props.theme.colors.test};
+
+&:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+&:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 `;
 
 // Table Body
@@ -114,19 +125,21 @@ export const TableBody = styled.tbody``;
 
 // Table Row
 export const TableRow = styled.tr`
-  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+
 
   &:hover {
     background-color: ${(props) => props.theme.colors.backgrounGrey};
   }
+
 `;
 
 // Table Cell
 export const TableCell = styled.td`
-  padding: ${(props) => props.theme.spacing(3)};
-  font-size: 1rem;
+  padding: ${(props) => props.theme.spacing(1.9)};
+  font-size: 14px;
   color: ${(props) => props.theme.colors.black};
   white-space: nowrap;
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
   a {
     margin-left: 6px;
@@ -205,11 +218,11 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-bottom: ${(props) => props.theme.spacing(2)};
-  margin-top: ${(props) => props.theme.spacing(4)};
- margin-right:10px;
+  margin-top: ${(props) => props.theme.spacing(2)};
+//  margin-right:10px;
 
  @media (max-width: 768px) {
- margin: 10px 5px;
+//  margin: 10px 5px;
 }
   `;
 
@@ -224,6 +237,64 @@ export const CreateButton = styled.button`
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s ease;
+  width: 15%;
+  display: flex;
+  justify-content: center;
+
+  &:hover {
+    background-color: #007ecc;
+  }
+
+  @media (max-width: 1024px) {
+    width: 25%;
+  }
+      @media (max-width: 768px) {
+      margin-right: 20px;
+      width: 40%;
+  }
+ 
+  @media (max-width: 480px) {
+    padding: 15px 20px;
+    font-size: 14px;
+    width: 50%;
+ 
+  }
   
  
+`;
+
+export const SearchWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+ 
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+  }
+`;
+ 
+export const SearchIcon = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+ 
+`;
+ 
+export const SearchInput = styled.input`
+  width: 20%;
+  padding: 10px 5px 10px 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.silverGray};
+  background: ${({ theme }) => theme.colors.backgrounGrey};
+ 
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;

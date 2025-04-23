@@ -35,10 +35,6 @@ justify-content: center;
   &:hover {
     background-color: #007ecc;
   }
-
-  svg {
-    stroke-width: 2px;
-  }
       @media (max-width: 768px) {
       margin-right: 20px;
       width: 40%;
@@ -46,14 +42,14 @@ justify-content: center;
 
   @media (max-width: 480px) {
     padding: 15px 20px;
-    font-size: 13px;
-    width: 60%;
+    font-size: 14px;
+    width: 50%;
 
   }
 `;
 
 export const Label = styled.p`
-font-size: 14px;
+font-size: 16px;
 font-weight: 400;
 color: #2A2A2A;
 margin-top: 5px;
@@ -66,6 +62,12 @@ export const Container = styled.div`
   border-radius: 12px;
     color: #333;
     margin-left: 40px;
+
+    h3{
+        font-size: 20px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
 
     @media (max-width: 768px) {
         margin-left: 0;
@@ -111,7 +113,7 @@ export const TableWrapper = styled.div`
 
 export const Table = styled.table`
   width: 100%;
-  min-width: 800px;
+  min-width: 900px;
   border-collapse: collapse;
   background: white;
   border-radius: 12px;

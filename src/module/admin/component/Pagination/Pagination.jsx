@@ -1,8 +1,6 @@
 import React from "react";
 import { PaginationWrapper, PaginationButton } from "./Pagination.styles";
 
-const ITEMS_PER_PAGE = 6;
-
 const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
