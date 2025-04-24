@@ -63,7 +63,8 @@ export const TableCell = styled.td`
   text-align: left;
 
   &:nth-child(2) {
-    width: 50px;
+display: flex;
+    max-width: 200px;
       white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

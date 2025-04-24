@@ -17,8 +17,10 @@ export const HeaderContainer = styled.header`
   z-index: 990; /* Just behind the sidebar's 999 if it overlaps */
 
   @media (max-width: 768px) {
-    margin-left: 0;
-    width: calc(100% - 50px); /* Adjust width for smaller screens */
+        margin-left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        height: 90px;
   }
 `;
 

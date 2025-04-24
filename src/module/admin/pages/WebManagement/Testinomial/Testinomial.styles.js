@@ -1,25 +1,42 @@
 import styled from 'styled-components';
+import theme from '../../../../../theme/Theme';
 
 export const Container = styled.div`
-  padding: 2rem;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #fff;
-  color: #333;
-  margin-left: 40px;
+position: relative;
+display: flex;
+flex-direction: column;
+margin-left: 40px;
+margin-top: 20px;
+// justify-content: center;
+// align-items: center;
+  // width: 95%;
+  padding: ${theme.spacing(2)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
+  font-family: ${(props) => props.theme.fonts.body};
+  background-color: ${(props) => props.theme.colors.secondary};
+  border-radius: 12px;
+  min-height: 720px;
+
+    @media (max-width: 990px) {
+  // width: 90%;
+}
 
   @media (max-width: 768px) {
     margin-left: 0;
-      
+    margin-top: 0;
+    padding: ${(props) => props.theme.spacing(1)};
   }
 `;
 
 export const BtnTitle = styled.div`
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  flex-wrap: wrap;
-  margin-top: 20px;
+  margin-bottom: ${(props) => props.theme.spacing(2)};
+  margin-top: ${(props) => props.theme.spacing(2)};
+//  margin-right:10px;
+
+ @media (max-width: 768px) {
+//  margin: 10px 5px;
+}
 
   
 
@@ -27,35 +44,39 @@ export const BtnTitle = styled.div`
 `;
 
 export const AddTestButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(to right, #0dcaf0, #007bff);
+padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+
+    background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.secondary};
   border: none;
-  color: white;
-  padding: 15px 40px;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: 4px;
+  font-family: ${(props) => props.theme.fonts.body};
   cursor: pointer;
-  transition: 0.3s ease;
-  margin-bottom: 20px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  width: 15%;
+  display: flex;
+  justify-content: center;
 
   &:hover {
     background-color: #007ecc;
   }
 
-  svg {
-    stroke-width: 2px;
+  @media (max-width: 1024px) {
+    width: 25%;
   }
-
-  @media (max-width: 768px) {
+      @media (max-width: 768px) {
       margin-right: 20px;
+      width: 40%;
   }
-
+ 
   @media (max-width: 480px) {
-    padding: 10px 20px;
-    font-size: 13px;
+    padding: 15px 20px;
+    font-size: 14px;
+    width: 50%;
+ 
   }
+  
 `;
 
 
@@ -75,7 +96,7 @@ export const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 8px;
   margin-bottom: 1rem;
-  resize: vertical;
+  resize: none;
   font-size: 1rem;
   box-sizing: border-box;
 
@@ -86,51 +107,67 @@ export const Input = styled.input`
 `;
 
 export const TableWrapper = styled.div`
-  overflow-x: auto;
   width: 100%;
-
-  @media (max-width: 1000px) {
-    margin-bottom: 1rem;
-  }
+  background-color: ${(props) => props.theme.colors.secondary};
+  border-radius: 4px;
+  overflow-x: auto;
 `;
 
 export const Table = styled.table`
   width: 100%;
-  min-width: 800px;
-
   border-collapse: collapse;
-  font-size: 0.95rem;
+      min-width: 900px;
+
 `;
 
 export const TableRow = styled.tr`
-  border-bottom: 1px solid #e0e0e0;
+  background: ${theme.colors.secondary};
+  transition: background 0.2s ease;
 
-  &:hover {
-    background-color: #f9f9f9;
+  /* on hover, turn light grey */
+ &:hover {
+    background: ${theme.colors.backgrounGrey};
   }
 `;
 
 export const TableHeader = styled.th`
-  padding: 1rem;
   text-align: left;
-  font-weight: 600;
-  background-color: #f2f2f2;
-  color: #333;
+  padding: ${(props) => props.theme.spacing(2)};
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 16px;
+  font-weight: normal;
+  color: ${(props) => props.theme.colors.test};
+  white-space: nowrap;
+//   border-bottom: 1px solid ${(props) => props.theme.colors.test};
+
+&:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+&:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 `;
 
 export const TableCell = styled.td`
-  padding: 1rem;
-  vertical-align: top;
+  padding: ${(props) => props.theme.spacing(1.9)};
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.black};
+  white-space: nowrap;
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 `;
 
 export const ViewLink = styled.a`
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 500;
+    margin-left: 6px;
+    text-decoration: none;
+    color: ${(props) => props.theme.colors.primary};
+    font-weight: 500;
 
-  &:hover {
-    text-decoration: underline;
-  }
+    &:hover {
+      text-decoration: underline;
+    }
 `;
 
 export const IconButton = styled.button`
@@ -142,6 +179,28 @@ export const IconButton = styled.button`
 
   &:hover {
     opacity: 0.8;
+  }
+`;
+
+export const TableHead = styled.thead`
+  background: ${theme.colors.backgrounGrey};
+`;
+
+
+export const ActionsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing(1)};
+  font-size: 1rem;
+
+  svg {
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.test};
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: ${(props) => props.theme.colors.primary};
+    }
   }
 `;
 

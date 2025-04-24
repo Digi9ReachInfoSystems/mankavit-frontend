@@ -2,14 +2,22 @@ import styled, { css } from "styled-components";
 import theme from "../../../../../theme/Theme";
 
 export const Container = styled.div`
-//   max-width: 600px;
-//   margin: 0 auto;
 margin-left: 40px;
 margin-top: 20px;
-  padding: ${theme.spacing(4)};
-  background: ${theme.colors.secondary};
-  border-radius: ${theme.spacing(1)};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: ${(props) => props.theme.colors.white};
+  border-radius: 6px;
+  padding: ${(props) => props.theme.spacing(3)};
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: ${(props) => props.theme.fonts.body};
+  min-height: 750px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: ${(props) => props.theme.spacing(2)};
+  }
+
+  @media (max-width: 768px) {
+    margin:0;
+  }
 
   h2 {
     margin-bottom: ${theme.spacing(3)};
@@ -23,6 +31,19 @@ export const Form = styled.form`
   flex-direction: column;
 `;
 
+export const FormItem = styled.div`
+display: grid;
+grid-template-columns: 1fr 2fr;
+gap: 20px;
+width: 100%;
+
+@media (max-width: 576px) {
+  grid-template-columns: 1fr;
+  gap: 0
+}
+`;
+
+
 export const FormGroup = styled.div`
   margin-bottom: ${theme.spacing(3)};
 `;
@@ -35,43 +56,39 @@ export const Label = styled.label`
 `;
 
 export const DateTimeInput = styled.input`
-  width: 20%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
-`;
-
-export const TextInput = styled.input`
-  width: 50%;
-  padding: ${theme.spacing(2)};
-  border: 1px solid ${theme.colors.grey};
-  border-radius: ${theme.spacing(0.5)};
-  font-family: ${theme.fonts.body};
-  background: ${theme.colors.secondary};
+  box-sizing: border-box;
 `;
 
 export const TextArea = styled.textarea`
-  width: 50%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
-  resize: vertical;
+  resize: none;
+  box-sizing: border-box;
 `;
 
 export const UploadBox = styled.div`
-  position: relative;
   border: 2px dashed ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   padding: ${theme.spacing(4)};
-  text-align: center;
+  width: 30%;
   cursor: pointer;
   background: ${theme.colors.secondary};
   transition: background 0.2s;
-  width: 20%;
+
+    @media (max-width:1024px) {
+    width: 100%;
+    box-sizing: border-box;
+  }
 
   ${(p) =>
     p.dragOver &&
@@ -82,12 +99,13 @@ export const UploadBox = styled.div`
 `;
 
 export const UploadInput = styled.input`
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   opacity: 0;
   cursor: pointer;
+      display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const UploadContent = styled.div`
@@ -97,6 +115,7 @@ export const UploadContent = styled.div`
 
 export const UploadIcon = styled.div`
   margin-bottom: ${theme.spacing(2)};
+    text-align: center;
   svg {
     width: 40px;
     height: 40px;
@@ -108,6 +127,7 @@ export const UploadText = styled.div`
   margin-bottom: ${theme.spacing(2)};
   color: ${theme.colors.darkgray};
   font-family: ${theme.fonts.body};
+    text-align: center;
 `;
 
 export const UploadButton = styled.div`
@@ -116,6 +136,7 @@ export const UploadButton = styled.div`
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
+    text-align: center;
 `;
 
 export const SubmitButton = styled.button`
@@ -128,7 +149,17 @@ export const SubmitButton = styled.button`
   font-family: ${theme.fonts.body};
   font-size: 1rem;
   cursor: pointer;
-  width: 20%;
+  align-self: flex-start;
+  width: 20%; 
+
+    @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 100%;
+    margin:0  auto ;
+  }
 
   &:hover {
     background: ${theme.colors.vividblue};

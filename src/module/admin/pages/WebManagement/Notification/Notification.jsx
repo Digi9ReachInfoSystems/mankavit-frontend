@@ -12,7 +12,8 @@ import {
   UploadIcon,
   UploadText,
   UploadButton,
-  SubmitButton
+  SubmitButton,
+  FormItem
 } from "../Notification/Notification.style";
 import upload from "../../../../../assets/upload.png";
 const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
@@ -49,6 +50,7 @@ const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
     <Container>
       <h2>Notification</h2>
       <form onSubmit={submit}>
+        <FormItem>
         <FormGroup>
           <Label>Schedule Time</Label>
           <ReadOnlyInput readOnly value={scheduleTime} />
@@ -62,11 +64,12 @@ const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
             onChange={(e) => setTitle(e.target.value)}
           />
         </FormGroup>
+        </FormItem>
 
         <FormGroup>
           <Label>Description</Label>
           <TextArea
-            rows={4}
+            rows={8}
             placeholder="Enter description here"
             value={description}
             onChange={(e) => setDescription(e.target.value)}

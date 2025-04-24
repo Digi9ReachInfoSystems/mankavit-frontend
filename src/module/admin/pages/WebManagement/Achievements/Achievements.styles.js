@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import theme from '../../../../../theme/Theme';
 
 export const BtnAchieve = styled.div`
   display: flex;
@@ -27,13 +28,17 @@ export const AddButton = styled.button`
   font-size: 16px;
   cursor: pointer;
   transition: 0.3s ease;
-  margin-bottom: 20px;
   width:15%;
 justify-content: center;
 
 
   &:hover {
     background-color: #007ecc;
+  }
+
+  
+  @media (max-width: 1024px) {
+    width: 25%;
   }
       @media (max-width: 768px) {
       margin-right: 20px;
@@ -57,21 +62,28 @@ margin-bottom: 10px;
 `;
 
 export const Container = styled.div`
-  padding: 1rem 2rem ;
-  background: #fff;
+position: relative; 
+display: flex;
+flex-direction: column;
+margin-left: 40px;
+margin-top: 20px;
+// justify-content: center;
+// align-items: center;
+  // width: 95%;
+  padding: ${theme.spacing(2)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
+  font-family: ${(props) => props.theme.fonts.body};
+  background-color: ${(props) => props.theme.colors.secondary};
   border-radius: 12px;
-    color: #333;
-    margin-left: 40px;
+  min-height: 719px;
 
-    h3{
-        font-size: 20px;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
+    @media (max-width: 990px) {
+  // width: 90%;
+}
 
-    @media (max-width: 768px) {
-        margin-left: 0;
-    }
+  @media (max-width: 768px) {
+    margin: 0 10px;
+    padding: ${(props) => props.theme.spacing(1)};
+  }
 `;
 
 export const Input = styled.input`
@@ -89,6 +101,11 @@ export const Input = styled.input`
   color: #AEAEAE;
   }
 `;
+
+export const TableHead = styled.thead`
+  background: ${theme.colors.backgrounGrey};
+`;
+
 
 export const TextArea = styled.textarea`
   width: 100%;
@@ -108,65 +125,57 @@ export const TextArea = styled.textarea`
 `;
 
 export const TableWrapper = styled.div`
+  width: 100%;
+  background-color: ${(props) => props.theme.colors.secondary};
+  border-radius: 4px;
   overflow-x: auto;
 `;
 
 export const Table = styled.table`
   width: 100%;
-  min-width: 900px;
   border-collapse: collapse;
-  background: white;
-  border-radius: 12px;
-//   overflow: hidden;
-    // height: 400px;
+      min-width: 900px;
 
-  th, td {
-    text-align: left;
-    padding: 16px;
-  }
-
-  tr {
-    border-bottom: 1px solid #eee;
-  }
 `;
 
 export const Th = styled.th`
-  background: #F3F3F3;
-  font-weight: 600;
-  height: 25px;
-  color: #6D6E75;
+  text-align: left;
+  padding: ${(props) => props.theme.spacing(2)};
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 16px;
+  font-weight: normal;
+  color: ${(props) => props.theme.colors.test};
+  white-space: nowrap;
+//   border-bottom: 1px solid ${(props) => props.theme.colors.test};
+
+&:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+&:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
 `;
 
 export const Td = styled.td`
-  color: #0C0D19;
-  height: 20px;
+  padding: ${(props) => props.theme.spacing(1.9)};
   font-size: 14px;
-  font-weight: 400;
-
-
-
-  &:last-child {
-    text-align: center;
-    justify-content: center;
-    
-    display: flex;
-    gap: 20px
-     }
+  color: ${(props) => props.theme.colors.black};
+  white-space: nowrap;
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 `;
 
 export const ViewLink = styled.a`
-  color: #007bff;
-  text-decoration: none;
-  cursor: pointer;
+    margin-left: 6px;
+    text-decoration: none;
+    color: ${(props) => props.theme.colors.primary};
+    font-weight: 500;
 
-  &:hover {
-  text-decoration: underline;
-  }
-`;
-
-export const ToggleSwitch = styled.input`
-  cursor: pointer;
-  accent-color: #28c76f;
+    &:hover {
+      text-decoration: underline;
+    }
 `;
 
 export const PaginationWrapper = styled.div`
