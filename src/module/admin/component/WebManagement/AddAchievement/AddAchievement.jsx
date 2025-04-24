@@ -12,7 +12,7 @@ import {
   UploadButton,
 } from './AddAchievement.styles';
 import { FiImage } from 'react-icons/fi';
-import upload from "../../../../assets/upload.png";
+import upload from "../../../../../assets/upload.png";
 
 const AddAchievements = () => {
   const [studentName, setStudentName] = useState('');

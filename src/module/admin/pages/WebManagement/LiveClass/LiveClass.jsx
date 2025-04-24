@@ -13,10 +13,13 @@ import {
   TableRow,
   TableCell,
   ViewLink,
-  PaginationContainer,
-  PageButton
+ActionsWrapper,
 } from "../LiveClass/LiveClass.style";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { BiEditAlt } from "react-icons/bi";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import Pagination from "../../../component/Pagination/Pagination";
+import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 
 // sample data – replace with your real fetch
 const sampleData = [
@@ -26,18 +29,25 @@ const sampleData = [
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
     bannerUrl: "/path/to/banner1.jpg",
-    schedule: "2024-07-24T10:30:00Z"
+    schedule: "2024-07-24T10:30:00Z",
   },
   // …add as many items as you like
 ];
 
-const LiveClass = ({ data = sampleData }) => {
+const LiveClass = () => {
   // pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const [data, setData] = useState(sampleData);
+  const [modal, setModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
   const totalPages = Math.ceil(data.length / rowsPerPage);
-  const start = (currentPage - 1) * rowsPerPage;
-  const pageData = data.slice(start, start + rowsPerPage);
+  const currentItems = data.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+  const navigate = useNavigate();
 
   // helper to format to IST
   const formatIST = (iso) => {
@@ -46,17 +56,38 @@ const LiveClass = ({ data = sampleData }) => {
     const time = d.toLocaleTimeString("en-GB", {
       timeZone: "Asia/Kolkata",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
     return `${date} ${time}`;
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setModal(true);
+  };
+
+  const handleClickDelete = () => {
+    const updatedData = data.filter((item) => item.id !== deleteId);
+    const newTotalPages = Math.ceil(updatedData.length / rowsPerPage);
+    const newCurrentPage =
+      currentPage > newTotalPages ? newTotalPages : currentPage;
+
+    setData(updatedData);
+    setCurrentPage(newCurrentPage);
+    setModal(false);
+    setDeleteId(null);
   };
 
   return (
     <>
       <ButtonContainer>
-        <Link to="/admin/web-management/live-classes/create">
-          <CreateButton>Schedule live class</CreateButton>
-        </Link>
+        <CreateButton
+          onClick={() => {
+            navigate("/admin/web-management/live-classes/create");
+          }}
+        >
+          Schedule live class
+        </CreateButton>
       </ButtonContainer>
 
       <Container>
@@ -72,55 +103,61 @@ const LiveClass = ({ data = sampleData }) => {
                 <TableHeader>Description</TableHeader>
                 <TableHeader>View Banner</TableHeader>
                 <TableHeader>Schedule IST time</TableHeader>
+                <TableHeader>Actions</TableHeader>
               </tr>
             </TableHead>
             <TableBody>
-              {pageData.map((row) => (
+              {currentItems.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.title}</TableCell>
                   <TableCell>{row.description}</TableCell>
                   <TableCell>
                     <ViewLink
-                    //   href={row.bannerUrl}
-                    //   target="_blank"
+                      //   href={row.bannerUrl}
+                      //   target="_blank"
                       rel="noopener"
                     >
                       View
                     </ViewLink>
                   </TableCell>
                   <TableCell>{formatIST(row.schedule)}</TableCell>
+                  <TableCell>
+                  <ActionsWrapper>
+                    <BiEditAlt
+                      size={20}
+                      color="#000"
+                      style={{ cursor: "pointer" }}
+                    />
+                    <RiDeleteBin6Line
+                      size={20}
+                      color="#FB4F4F"
+                      onClick={() => handleDelete(row.id)}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </ActionsWrapper>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </StyledTable>
         </TableWrapper>
 
-        <PaginationContainer>
-          <PageButton
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Prev
-          </PageButton>
-
-          {Array.from({ length: totalPages }, (_, i) => (
-            <PageButton
-              key={i + 1}
-              active={currentPage === i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </PageButton>
-          ))}
-
-          <PageButton
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </PageButton>
-        </PaginationContainer>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  totalItems={data.length}
+                  itemsPerPage={rowsPerPage}
+                />
       </Container>
+
+      {modal && (
+        <DeleteModal
+          isOpen={modal}
+          onClose={() => setModal(false)}
+          onDelete={handleClickDelete}
+        />
+      )}
     </>
   );
 };

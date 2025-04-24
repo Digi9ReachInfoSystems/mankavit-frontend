@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import theme from "../../theme/Theme";
@@ -29,99 +29,64 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    {
-      path: "/admin",
-      label: "Dashboard"
-    },
-    {
-      path: "/admin/student-management",
-      label: "Student Management"
-    },
-    {
-      label: "Mock Test"
-    },
-    {
-      path: "/admin/payment-management",
-      label: "Payment"
-    },
-    {
-      path: "",
-      label: "Static Page"
-    },
+    { path: "/admin", label: "Dashboard" },
+    { path: "/admin/student-management", label: "Student Management" },
+    { label: "Mock Test" },
+    { path: "/admin/payment-management", label: "Payment" },
+    { path: "", label: "Static Page" },
   ];
 
   const courseManagementItems = [
-    {
-      path: "/admin/course-management",
-      label: "Courses"
-    },
-    {
-      path: "/admin/subject-management",
-      label: "Subjects"
-    },
-    {
-      path: "/admin/notes-management",
-      label: "Notes"
-    },
-
+    { path: "/admin/course-management", label: "Courses" },
+    { path: "/admin/subject-management", label: "Subjects" },
+    { path: "/admin/notes-management", label: "Notes" },
   ];
 
   const webmanagement = [
-    {
-      path: "/admin/web-management/home",
-      label: "Home page"
-    },
-    {
-      path: "/admin/web-management/why-mankavit",
-      label: "Why Mankavit"
-    },
-    {
-      path: "/admin/web-management/aboutus",
-      label: "About us"
-    },
-
-    {
-      path: "/admin/web-management/question-paper",
-      label: "Question apper"
-    },
-
-    {
-      path: "/admin/web-management/live-classes",
-      label: "Live Classes"
-    },
-
-    {
-      path: "/admin/web-management/recorded-class",
-      label: "Recorded Class"
-    },
-    {
-      path: "/admin/web-management/testinomial",
-      label: "Testinomial"
-    },
-    {
-      path: "/admin/web-management/achievement",
-      label: "Achievement"
-    },
-    
-
-    // "Notification",
-    {
-      path: "/admin/web-management/notification",
-      label: "Notification"
-    },
-
-    {
-      path: "/admin/web-management/faq",
-      label: "FAQs"
-    },
-
-    {
-      path: "/admin/web-management/social-media",
-      label: "Social Media"
-    }
+    { path: "/admin/web-management/home", label: "Home page" },
+    { path: "/admin/web-management/why-mankavit", label: "Why Mankavit" },
+    { path: "/admin/web-management/aboutus", label: "About us" },
+    { path: "/admin/web-management/question-paper", label: "Question paper" },
+    { path: "/admin/web-management/live-classes", label: "Live Classes" },
+    { path: "/admin/web-management/recorded-class", label: "Recorded Class" },
+    { path: "/admin/web-management/testinomial", label: "Testimonial" },
+    { path: "/admin/web-management/achievement", label: "Achievement" },
+    { path: "/admin/web-management/notification", label: "Notification" },
+    { path: "/admin/web-management/faq", label: "FAQs" },
+    { path: "/admin/web-management/social-media", label: "Social Media" },
   ];
 
-  const appManagementItems = ["Homepage", "Courses", "Live Classes", "FAQs"];
+  const appManagementItems = [
+    { label: "Homepage" },
+    { label: "Courses" },
+    { label: "Live Classes" },
+    { label: "FAQs" },
+  ];
+
+  // Expand section if current path matches one of its items
+  useEffect(() => {
+    const newOpenSections = {};
+    const sections = {
+      "Course Management": courseManagementItems,
+      "Web management": webmanagement,
+      "App Management": appManagementItems,
+    };
+
+    for (const [section, items] of Object.entries(sections)) {
+      if (
+        items.some(
+          (item) =>
+            typeof item === "object" &&
+            item.path &&
+            location.pathname.startsWith(item.path)
+        )
+      ) {
+        newOpenSections[section] = true;
+      }
+    }
+
+    setOpenSections(newOpenSections);
+  }, [location.pathname]);
 
   const renderMenuItem = ({ path, label }, index) =>
     path ? (
@@ -130,7 +95,7 @@ const Sidebar = () => {
         key={index}
         onClick={() => setIsOpen(false)}
         end={path === "/admin"}
-        $isDropdownChild={false} // main menu item
+        $isDropdownChild={false}
       >
         {label}
       </StyledNavLink>
@@ -141,11 +106,11 @@ const Sidebar = () => {
   const renderSection = (title, items, hasMarginTop = true) => {
     const isExpanded = openSections[title];
 
-    // 👇 Check if current location matches any path in the section
-    const isSectionActive = items.some((item) =>
-      typeof item === "object" && item.path
-        ? location.pathname.startsWith(item.path)
-        : false
+    const isSectionActive = items.some(
+      (item) =>
+        typeof item === "object" &&
+        item.path &&
+        location.pathname.startsWith(item.path)
     );
 
     return (
@@ -175,7 +140,7 @@ const Sidebar = () => {
                 key={`${title}-${index}`}
                 onClick={() => setIsOpen(false)}
                 $indented
-                $isDropdownChild={true} // dropdown child item
+                $isDropdownChild={true}
               >
                 {item.label}
               </StyledNavLink>

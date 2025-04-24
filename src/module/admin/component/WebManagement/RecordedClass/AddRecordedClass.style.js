@@ -1,14 +1,22 @@
 import styled, { css } from "styled-components";
 import theme from "../../../../../theme/Theme";
 export const Container = styled.div`
-//   max-width: 600px;
-//   margin: 0 auto;
 margin-left: 40px;
 margin-top: 20px;
-  padding: ${theme.spacing(4)};
-  background: ${theme.colors.secondary};
-  border-radius: ${theme.spacing(1)};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: ${(props) => props.theme.colors.white};
+  border-radius: 6px;
+  padding: ${(props) => props.theme.spacing(3)};
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: ${(props) => props.theme.fonts.body};
+  min-height: 750px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: ${(props) => props.theme.spacing(2)};
+  }
+
+  @media (max-width: 768px) {
+    margin:0;
+  }
 
   h2 {
     margin-bottom: ${theme.spacing(3)};
@@ -39,6 +47,7 @@ export const DateTimeInput = styled.input`
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
+  box-sizing: border-box;
 `;
 
 export const TextInput = styled.input`
@@ -48,6 +57,7 @@ export const TextInput = styled.input`
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
+  box-sizing: border-box;
 `;
 
 export const TextArea = styled.textarea`
@@ -57,14 +67,15 @@ export const TextArea = styled.textarea`
   border-radius: ${theme.spacing(0.5)};
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
-  resize: vertical;
+  resize: none;
+  box-sizing: border-box;
 `;
 
 export const UploadBox = styled.div`
   position: relative;
   border: 2px dashed ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
-  padding: ${theme.spacing(4)};
+  padding: ${theme.spacing(8)} ${theme.spacing(2)};
   text-align: center;
   cursor: pointer;
   background: ${theme.colors.secondary};
@@ -125,6 +136,17 @@ export const SubmitButton = styled.button`
   font-family: ${theme.fonts.body};
   font-size: 1rem;
   cursor: pointer;
+  align-self: flex-start;
+  width: 20%; 
+
+    @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 100%;
+    margin:0  auto ;
+  }
 
   &:hover {
     background: ${theme.colors.vividblue};
@@ -138,7 +160,10 @@ export const CourseCheckbox = styled.input`
 export const CourseItem = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: ${theme.spacing(1)};
+  padding-left: ${theme.spacing(4)};
+  padding-bottom: ${theme.spacing(2)};
+  border-bottom: 1px solid ${theme.colors.grey};
+
 `;
 
 export const CourseLabel = styled.label`
@@ -150,16 +175,13 @@ export const CourseLabel = styled.label`
 export const CourseList = styled.div`
   max-height: 200px;
   overflow-y: auto;
-  border: 1px solid ${theme.colors.grey};
-  border-radius: ${theme.spacing(0.5)};
-  padding: ${theme.spacing(2)};
-  background: ${theme.colors.secondary};
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(2)};
 `;  
 
 export const CoursesContainer = styled.div`
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid ${theme.colors.grey};
+
   border-radius: ${theme.spacing(0.5)};
   padding: ${theme.spacing(2)};
   background: ${theme.colors.secondary};
@@ -170,6 +192,13 @@ export const CoursesHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${theme.spacing(2)};
+  width: 100%;
+  padding: ${theme.spacing(2)};
+  font-size: 16px;
+  font-weight: 600;
+  font-family: ${theme.fonts.heading};
+  color: #6D6E75; 
+  background:#F3F3F3;
 `;
 
 export const FormColumn = styled.div`
@@ -179,6 +208,15 @@ export const FormColumn = styled.div`
 `;
 
 export const FormRow = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
   margin-bottom: ${theme.spacing(2)};
+
+  @media (max-width: 1320px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;

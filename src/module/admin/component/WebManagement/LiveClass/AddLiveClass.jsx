@@ -5,7 +5,6 @@ import {
   FormGroup,
   Label,
   DateTimeInput,
-  TextInput,
   TextArea,
   UploadBox,
   UploadInput,
@@ -13,7 +12,8 @@ import {
   UploadIcon,
   UploadText,
   UploadButton,
-  SubmitButton
+  SubmitButton,
+  FormItem
 } from "../LiveClass/AddLiveClass.style";
 
 import upload from "../../../../../assets/upload.png";
@@ -57,6 +57,7 @@ const AddLiveClass = ({ onSubmit }) => {
     <Container>
       <h2>Schedule Live Class</h2>
       <Form onSubmit={submit}>
+        <FormItem>
         <FormGroup>
           <Label htmlFor="dateTime">Select Time</Label>
           <DateTimeInput
@@ -69,19 +70,20 @@ const AddLiveClass = ({ onSubmit }) => {
 
         <FormGroup>
           <Label htmlFor="title">Title</Label>
-          <TextInput
+          <DateTimeInput
             id="title"
             placeholder="write here"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </FormGroup>
+        </FormItem>
 
         <FormGroup>
           <Label htmlFor="description">Description</Label>
           <TextArea
             id="description"
-            rows={4}
+            rows={8}
             placeholder="Write here"
             value={description}
             onChange={(e) => setDescription(e.target.value)}

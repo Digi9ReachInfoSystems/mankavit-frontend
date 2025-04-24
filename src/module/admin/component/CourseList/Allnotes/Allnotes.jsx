@@ -34,7 +34,7 @@ const Allnotes = () => {
           {data.map((row, index) => (
             <TableRow key={index}>
               <TableCell>{row.noteTitle}</TableCell>
-              <TableCell>{row.noteDescription}</TableCell>
+              <TableCell  className='truncate-text'>{row.noteDescription}</TableCell>
               <TableCell>{row.subjectsCount}</TableCell>
               <TableCell>{row.lastActive}</TableCell>
             </TableRow>

@@ -38,7 +38,7 @@ import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
 import Achievements from './module/admin/pages/WebManagement/Achievements/Achievements'
-import AddAchievements from './module/admin/component/AddAchievement/AddAchievement'
+import AddAchievements from './module/admin/component/WebManagement/AddAchievement/AddAchievement'
 import Notification from './module/admin/pages/WebManagement/Notification/Notification'
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';

@@ -5,6 +5,7 @@ import {
   TextArea,
   TableWrapper,
   Table,
+  TableHead,
   Th,
   Td,
   ViewLink,
@@ -20,6 +21,7 @@ import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 
 
 const testimonials = Array.from({ length: 10 }, (_, i) => ({
+  id: i + 1,
   rank: `AIR ${i + 1}`,
   exam: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   student: `Gaurav ${i + 1}`,
@@ -36,6 +38,7 @@ const Achievements = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState(testimonials);
   const [Modal, setModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -50,9 +53,22 @@ const Achievements = () => {
     navigate("/admin/web-management/achievement/create");
   };
 
-  const handleDelete = () => {
+  const handleDelete = (id) => {
+    setDeleteId(id);
     setModal(true);
-  }
+  };
+
+  const handleClickDelete = () => {
+    const updatedData = data.filter((item) => item.id !== deleteId);
+    const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
+    const newCurrentPage =
+      currentPage > newTotalPages ? newTotalPages : currentPage;
+
+    setData(updatedData);
+    setCurrentPage(newCurrentPage);
+    setModal(false);
+    setDeleteId(null);
+  };
 
   return (
     <>
@@ -80,7 +96,7 @@ const Achievements = () => {
 
         <TableWrapper>
           <Table>
-            <thead>
+            <TableHead>
               <tr>
                 <Th>Rank</Th>
                 <Th>Exam Name</Th>
@@ -89,7 +105,7 @@ const Achievements = () => {
                 <Th>Date Updated</Th>
                 <Th>Showcase</Th>
               </tr>
-            </thead>
+            </TableHead>
             <tbody>
               {paginatedTestimonials.map((item, index) => (
                 <tr key={index}>
@@ -100,7 +116,7 @@ const Achievements = () => {
                   <Td>{item.date} {item.time}</Td>
                   <Td>
                     <BiEditAlt size={20} color="#000000" style={{cursor: "pointer"}}/>
-                    <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={handleDelete} style={{cursor: "pointer"}}/>
+                    <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={() => handleDelete(item.id)} style={{cursor: "pointer"}}/>
                   </Td>
                 </tr>
               ))}
@@ -121,10 +137,7 @@ const Achievements = () => {
           <DeleteModal
             isOpen={Modal}
             onClose={() => setModal(false)}
-            onDelete={() => {
-              console.log("Item deleted");
-              setModal(false);
-            }}
+            onDelete={handleClickDelete}
           />
         )}
       

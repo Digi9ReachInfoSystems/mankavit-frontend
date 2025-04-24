@@ -8,8 +8,6 @@ export const SidebarContainer = styled.div`
   background-color: #f9fafc;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  scrollbar-width: none;
   border-right: 1px solid #e0e0e0;
   padding: ${theme.spacing(3)};
   z-index: 999;
@@ -47,6 +45,9 @@ export const MenuList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+    overflow-y: auto;
+  scrollbar-width: none;
+  height: 90vh;
 `;
 
 export const MenuItem = styled.li`
@@ -67,6 +68,7 @@ export const MenuItem = styled.li`
     color: ${theme.colors.secondary};
     background: linear-gradient(to right, #0dcaf0, #007bff);
     border-radius: 6px;
+    
   }
 `;
 

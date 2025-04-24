@@ -2,28 +2,28 @@ import styled, { css } from "styled-components";
 import theme from "../../../../../theme/Theme";
 
 export const Container = styled.div`
-display: flex;
-flex-direction: column;
+position: relative;
 margin-left: 40px;
-margin-top: 40px;
-border-radius: 8px;
-justify-content: center;
-// align-items: center;
-  width: 95%;
-  padding: ${(props) => props.theme.spacing(2)};
+margin-top: 20px;
+  background-color: ${(props) => props.theme.colors.white};
+  border-radius: 6px;
+  padding: ${(props) => props.theme.spacing(3)};
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
-  background-color: ${(props) => props.theme.colors.secondary};
-  h2{
-  font-size: 1.2rem;}
+  min-height: 750px;
 
-    @media (max-width: 990px) {
-  width: 90%;
-}
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: ${(props) => props.theme.spacing(2)};
+  }
 
   @media (max-width: 768px) {
-    margin-left: 0;
-    margin-top: 0;
-    padding: ${(props) => props.theme.spacing(1)};
+    margin:0;
+  }
+
+  h2 {
+    margin-bottom: ${theme.spacing(3)};
+    font-family: ${theme.fonts.heading};
+    color: ${theme.colors.black};
   }
 `;
 
@@ -39,26 +39,41 @@ export const Label = styled.label`
   font-size: 0.9rem;
 `;
 
+export const FormItem = styled.div`
+display: grid;
+grid-template-columns: 1fr 2fr;
+gap: 20px;
+width: 100%;
+
+@media (max-width: 576px) {
+  grid-template-columns: 1fr;
+  gap: 0
+}
+`;
+
+
 // read-only display of schedule
 export const ReadOnlyInput = styled.input`
-  width: 20%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
 //   background: ${theme.colors.lightwhite};
   color: ${theme.colors.darkgray};
   font-family: ${theme.fonts.body};
+  box-sizing: border-box;
   font-size: 1rem;
 `;
 
 // standard text input
 export const TextInput = styled.input`
-  width: 50%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   background: ${theme.colors.secondary};
   font-family: ${theme.fonts.body};
+  box-sizing: border-box;
   font-size: 1rem;
 
   &::placeholder {
@@ -73,14 +88,15 @@ export const TextInput = styled.input`
 `;
 
 export const TextArea = styled.textarea`
-  width: 50%;
+  width: 100%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
   background: ${theme.colors.secondary};
   font-family: ${theme.fonts.body};
   font-size: 1rem;
-  resize: vertical;
+  resize: none;
+  box-sizing: border-box;
 
   &::placeholder {
     color: ${theme.colors.lightgray};
@@ -102,7 +118,13 @@ export const UploadBox = styled.div`
   cursor: pointer;
   background: ${theme.colors.secondary};
   transition: background 0.2s;
-  width: 20%;
+  width: 30%;
+
+  
+    @media (max-width:1024px) {
+    width: 100%;
+    box-sizing: border-box;
+  }
 
   ${(p) => p.dragOver && css`
     background: ${theme.colors.lightwhite};
@@ -111,12 +133,13 @@ export const UploadBox = styled.div`
 `;
 
 export const UploadInput = styled.input`
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   opacity: 0;
   cursor: pointer;
+      display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const UploadContent = styled.div`
@@ -126,6 +149,7 @@ export const UploadContent = styled.div`
 
 export const UploadIcon = styled.div`
   margin-bottom: ${theme.spacing(2)};
+     text-align: center;
   svg {
     width: 40px;
     height: 40px;
@@ -137,6 +161,7 @@ export const UploadText = styled.div`
   margin-bottom: ${theme.spacing(2)};
   color: ${theme.colors.darkgray};
   font-family: ${theme.fonts.body};
+      text-align: center;
 `;
 
 export const UploadButton = styled.div`
@@ -145,11 +170,12 @@ export const UploadButton = styled.div`
   font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
+      text-align: center;
 `;
 
 export const SubmitButton = styled.button`
   margin-top: ${theme.spacing(2)};
-  padding: ${theme.spacing(2)} ${theme.spacing(4)};
+  padding: ${theme.spacing(2)};
   background: ${theme.colors.primary};
   color: ${theme.colors.secondary};
   border: none;
@@ -157,7 +183,17 @@ export const SubmitButton = styled.button`
   font-family: ${theme.fonts.body};
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  align-self: flex-start;
+  width: 20%; 
+
+    @media (max-width: 1320px) {
+    width: 40%;
+  }
+
+  @media (max-width: 990px) {
+    width: 100%;
+    margin:0  auto ;
+  }
 
   &:hover {
     background: ${theme.colors.vividblue};

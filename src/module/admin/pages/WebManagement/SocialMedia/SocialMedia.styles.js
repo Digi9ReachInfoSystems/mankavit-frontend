@@ -3,30 +3,28 @@ import styled from 'styled-components';
 import theme from '../../../../../theme/Theme'; // adjust the import path as needed
 
 export const Container = styled.div`
-display: flex;
-flex-direction: column;
+position: relative;
 margin-left: 40px;
-margin-top: 40px;
-border-radius: 8px;
-justify-content: center;
-// align-items: center;
-  width: 95%;
-  padding: ${(props) => props.theme.spacing(2)};
+margin-top: 20px;
+  background-color: ${(props) => props.theme.colors.white};
+  border-radius: 6px;
+  padding: ${(props) => props.theme.spacing(3)};
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
-  background-color: ${(props) => props.theme.colors.secondary};
+  min-height: 750px;
 
-  h2{
-  font-size: 1.2rem;
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: ${(props) => props.theme.spacing(2)};
   }
 
-    @media (max-width: 990px) {
-  width: 90%;
-}
-
   @media (max-width: 768px) {
-    margin-left: 0;
-    margin-top: 0;
-    padding: ${(props) => props.theme.spacing(1)};
+    margin:0;
+  }
+
+  h2 {
+    margin-bottom: ${theme.spacing(3)};
+    font-family: ${theme.fonts.heading};
+    color: ${theme.colors.black};
   }
 `;
 export const FormGroup = styled.div`
