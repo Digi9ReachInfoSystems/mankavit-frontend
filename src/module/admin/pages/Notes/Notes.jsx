@@ -14,8 +14,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  SwitchContainer,
-  SwitchHandle,
   ActionsContainer,
   ButtonContainer,
   SearchWrapper,
@@ -29,15 +27,18 @@ import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
+import CustomModal from "../../component/CustomModal/CustomModal";
+
 
 const initialData = Array.from({ length: 22 }, (_, index) => ({
   id: index + 1,
   noteTitle: "CLAT Coaching",
-  noteDescription: "Lorem Ipsum is s.",
-  subjectsCount: 27,
+  noteDescription: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quos, praesentium.",
+  subjects: ["Math", "English", "Logic"],
   lastActive: "24-07-2024 16:22",
   active: true,
 }));
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -48,6 +49,8 @@ export default function NotesManagement() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewStudent, setViewStudent] = useState(null);
 
   const filteredData = data.filter((item) =>
     item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
@@ -58,14 +61,6 @@ export default function NotesManagement() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = filteredData.slice(startIndex, endIndex);
-
-  const handleToggleActive = (id) => {
-    setData((prevData) =>
-      prevData.map((note) =>
-        note.id === id ? { ...note, active: !note.active } : note
-      )
-    );
-  };
 
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
@@ -84,6 +79,14 @@ export default function NotesManagement() {
     setDeleteModalOpen(false);
     setSelectedStudent(null);
   };
+
+  const handleOpenModal = (type, data) => {
+    setViewModalOpen(true);
+    setViewStudent({ type, data });
+  };
+
+
+
 
   return (
     <>
@@ -127,12 +130,10 @@ export default function NotesManagement() {
             <TableHead>
               <TableRow>
                 <TableHeader>Note Title</TableHeader>
-                <TableHeader>Note Description</TableHeader>
+                <TableHeader>Internal Name</TableHeader>
                 <TableHeader>No. of Subjects</TableHeader>
-                <TableHeader>View Subjects</TableHeader>
                 <TableHeader>View Pdf</TableHeader>
-                <TableHeader>Last Active</TableHeader>
-                <TableHeader>Active</TableHeader>
+                <TableHeader>Date Uploaded</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
@@ -140,21 +141,17 @@ export default function NotesManagement() {
               {currentItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.noteTitle}</TableCell>
-                  <TableCell>{item.noteDescription}</TableCell>
-                  <TableCell>{item.subjectsCount}</TableCell>
+                  <TableCell><span className="internaldescription">{item.noteDescription}</span></TableCell>
                   <TableCell>
-                    <a href="#view-subjects">View</a>
+                    {item.subjects?.length || 0}{" "}
+                    <a href="#view-subjects" onClick={() => handleOpenModal("subjects", item.subjects)}>
+                      View
+                    </a>
                   </TableCell>
                   <TableCell>
                     <a href="#view-pdf">View</a>
                   </TableCell>
                   <TableCell>{item.lastActive}</TableCell>
-                  <TableCell>
-                    <SwitchContainer checked={item.active} onClick={() => handleToggleActive(item.id)}>
-                      <SwitchHandle checked={item.active} />
-                    </SwitchContainer>
-
-                  </TableCell>
                   <TableCell>
                     <ActionsContainer>
                       <BiEditAlt title="Edit" color="#000000" size={20} />
@@ -185,6 +182,17 @@ export default function NotesManagement() {
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleClickDelete}
         />
+
+        {viewModalOpen && viewStudent && viewStudent.type === "subjects" && (
+          <CustomModal
+            title="Subjects Enrolled"
+            type="subjects"
+            data={viewStudent.data}
+            onClose={() => setViewModalOpen(false)}
+          />
+        )}
+
+
       </Container>
     </>
   );

@@ -15,11 +15,11 @@ const WhyMankavit = () => {
       <Title>Why Mankavit</Title>
       <FormGroup>
         <Label>Title</Label>
-        <Input type="text" placeholder="write here" />
+        <Input type="text" placeholder="write title here" />
       </FormGroup>
       <FormGroup>
         <Label>Description</Label>
-        <Textarea placeholder="Write here" rows="10" />
+        <Textarea placeholder="Write description here" rows="10" />
       </FormGroup>
       
       <Button>Update changes</Button>

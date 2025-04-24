@@ -77,12 +77,13 @@ export const Label = styled.label`
 `;
 
 export const Input = styled.input`
-  width: 95%;
+  width: 100%;
   padding: 0.8rem 1rem;
   border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 6px;
   font-size: 0.95rem;
   outline: none;
+  box-sizing: border-box;
 
   &::placeholder {
   color: ${props => props.theme.colors.silvergray};
@@ -96,13 +97,14 @@ export const Input = styled.input`
 `;
 
 export const Textarea = styled.textarea`
-  width: 95%;
-  padding: 1rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
   border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 6px;
   font-size: 0.95rem;
-  resize: vertical;
+  resize: none;
   outline: none;
+  box-sizing: border-box;
 
   &::placeholder {
   color: ${props => props.theme.colors.silvergray};
