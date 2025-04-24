@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 // Outer container for the entire table section
 export const Container = styled.div`
+position: relative;
 display: flex;
 flex-direction: column;
 margin-left: 40px;

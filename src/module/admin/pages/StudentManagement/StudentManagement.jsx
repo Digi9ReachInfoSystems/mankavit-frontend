@@ -31,13 +31,15 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput
-} from "../StudentManagement/StudentManagement.style"; 
+} from "../StudentManagement/StudentManagement.style";
 
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
-import Pagination from "../../component/Pagination/Pagination"; 
+import Pagination from "../../component/Pagination/Pagination";
+import CustomModal from "../../component/CustomModal/CustomModal";
+
 
 
 const mockData = [
@@ -162,16 +164,16 @@ export default function StudentManagement() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewStudent, setViewStudent] = useState(null);
   const [searchText, setSearchText] = useState('');
-    const [data, setData] = useState(mockData);
+  const [data, setData] = useState(mockData);
 
   const filteredStudents = data.filter((student) =>
     student.name.toLowerCase().includes(searchText.toLowerCase())
   );
-  
+
 
   const TOTAL_ENTRIES = filteredStudents.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  
+
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = filteredStudents.slice(startIndex, endIndex);
@@ -218,7 +220,7 @@ export default function StudentManagement() {
             <CiSearch size={24} />
           </SearchIcon>
           <SearchInput placeholder="Search" value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}/>
+            onChange={(e) => setSearchText(e.target.value)} />
         </SearchWrapper>
 
         <TableWrapper>
@@ -280,9 +282,9 @@ export default function StudentManagement() {
           totalPages={totalPages}
           onPageChange={setCurrentPage}
           totalItems={TOTAL_ENTRIES}
-          itemsPerPage = {ITEMS_PER_PAGE}
+          itemsPerPage={ITEMS_PER_PAGE}
         />
-        
+
 
         <DeleteModal
           isOpen={deleteModalOpen}
@@ -296,28 +298,14 @@ export default function StudentManagement() {
 
 
         {viewModalOpen && viewStudent && (
-          <ModalOverlay>
-            <ModalContainer>
-              <ModalHeader>
-                <ModalTitle>Subjects Enrolled</ModalTitle>
-              </ModalHeader>
-
-              <StudentList>
-                {viewStudent.subjects?.length > 0 ? (
-                  viewStudent.subjects.map((subject, index) => (
-                    <StudentItem key={index}>{subject}</StudentItem>
-                  ))
-                ) : (
-                  <StudentItem>No subjects enrolled.</StudentItem>
-                )}
-              </StudentList>
-
-              <CloseButtonContainer>
-                <CloseButton onClick={() => setViewModalOpen(false)}>Close</CloseButton>
-              </CloseButtonContainer>
-            </ModalContainer>
-          </ModalOverlay>
+          <CustomModal
+            title="Subjects Enrolled"
+            type="subjects"
+            data={viewStudent.subjects}
+            onClose={() => setViewModalOpen(false)}
+          />
         )}
+
 
 
       </Container>

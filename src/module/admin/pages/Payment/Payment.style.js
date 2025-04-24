@@ -2,6 +2,7 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
+position: relative;
 display: flex;
 flex-direction: column;
 margin-left: 40px;
@@ -12,7 +13,7 @@ margin-top: 20px;
   padding: ${(props) => props.theme.spacing(2)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
-  min-height: 780px;
+  min-height: 760px;
   border-radius: 12px;
 
   @media (max-width: 768px) {

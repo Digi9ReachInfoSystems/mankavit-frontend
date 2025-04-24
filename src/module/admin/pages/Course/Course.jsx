@@ -25,7 +25,8 @@ import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
-import Pagination from "../../component/Pagination/Pagination"; 
+import Pagination from "../../component/Pagination/Pagination";
+import CustomModal from "../../component/CustomModal/CustomModal";
 import { useNavigate } from "react-router-dom";
 
 
@@ -34,11 +35,12 @@ const mockData = Array.from({ length: 15 }, (_, index) => ({
   id: index + 1,
   courseName: "CLAT Coaching",
   internalName: "Anuja Admin",
-  subjects: 27,
-  mockTests: 12,
-  enrolled: 27,
+  subjects: ["English", "Math", "Reasoning", "Legal Aptitude", "GK"],
+  mockTests: ["Test 1", "Test 2", "Test 3"],
+  enrolled: ["Alice", "Bob", "Charlie", "Siri", "Rahul", "Alexa", "Akshay", "Robin"],
   dateAndTime: "24-08-2023 16:00 IST",
 }));
+
 
 // const TOTAL_ENTRIES = 100;
 const ITEMS_PER_PAGE = 10;
@@ -49,6 +51,11 @@ export default function CoursesTable() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [data, setData] = useState(mockData);
   const [searchText, setSearchText] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [modalData, setModalData] = useState([]);
+
+
 
 
   const filteredStudents = data.filter((student) =>
@@ -70,6 +77,13 @@ export default function CoursesTable() {
     setSelectedStudent(id);
     setDeleteModalOpen(true);
   };
+
+  const openModal = (type, data) => {
+    setModalType(type);
+    setModalData(data);
+    setModalOpen(true);
+  };
+
 
   return (
     <>
@@ -121,12 +135,11 @@ export default function CoursesTable() {
                 <TableRow key={item.id}>
                   <TableCell>{item.courseName}</TableCell>
                   <TableCell>{item.internalName}</TableCell>
-                  <TableCell>{item.subjects}</TableCell>
-                  <TableCell>{item.mockTests}</TableCell>
-                  <TableCell>
-                    {item.enrolled}
-                    <a href="#view">View</a>
-                  </TableCell>
+                  <TableCell>{item.subjects.length}<a href="#view" onClick={() => openModal("subjects", item.subjects)}>View</a></TableCell>
+                  <TableCell>{item.mockTests.length}<a href="#view" onClick={() => openModal("mockTests", item.mockTests)}>View</a></TableCell>
+                  <TableCell>{item.enrolled.length}<a href="#view" onClick={() => openModal("enrolled", item.enrolled)}>View</a></TableCell>
+
+
                   <TableCell>{item.dateAndTime}</TableCell>
                   <TableCell>
                     <ActionsContainer>
@@ -145,7 +158,7 @@ export default function CoursesTable() {
           totalPages={totalPages}
           onPageChange={setCurrentPage}
           totalItems={TOTAL_ENTRIES}
-          itemsPerPage = {ITEMS_PER_PAGE}
+          itemsPerPage={ITEMS_PER_PAGE}
         />
 
         <DeleteModal
@@ -157,6 +170,18 @@ export default function CoursesTable() {
             setSelectedStudent(null);
           }}
         />
+
+        {modalOpen && (
+          <CustomModal
+            title={
+              modalType === "subjects" ? "mockTests" : "enrolled"
+            }
+            type={modalType}
+            data={modalData}
+            onClose={() => setModalOpen(false)}
+          />
+        )}
+
       </Container>
     </>
   );

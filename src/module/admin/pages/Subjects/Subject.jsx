@@ -19,102 +19,25 @@ import {
   SearchInput,
   SearchIcon,
   CreateButton,
-  ButtonContainer
-} from "../Subjects/Subject.style"; // Adjust path as needed
+  ButtonContainer,
+} from "../Subjects/Subject.style";
 import Pagination from "../../component/Pagination/Pagination";
-import {CiSearch} from "react-icons/ci";
+import { CiSearch } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
+import CustomModal from "../../component/CustomModal/CustomModal";
 
-// Example mock data for rows
-const mockData = [
-  {
-    id: 1,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 2,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 3,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 4,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 5,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 6,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 7,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 8,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 9,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 10,
-    subjectName: "CLAT Coaching",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 11,
-    subjectName: " math",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-  {
-    id: 12,
-    subjectName: "social",
-    internalName: "Anuja Admin",
-    mockTestCount: 12,
-    activeCoursesCount: 12,
-  },
-];
+const mockData = Array.from({ length: 15 }, (_, index) => ({
+  id: index + 1,
+  subjectName: "CLAT Coaching",
+  internalName: "Anuja Admin",
+  mockTest: ["Mock Test 1", "Mock Test 2", "Mock Test 3", "Mock Test 4", "Mock Test 5", "Mock Test 6", "Mock Test 7", "Mock Test 8", "Mock Test 9"],
+  activeCourses: ["Course A", "Course B", "Course C", "Course D", "Course E", "Course F", "Course G", "Course H", "Course I"],
+  dateandtime: "2023-06-01 10:00 AM",
+}));
+
 
 // const TOTAL_ENTRIES = 100;       // e.g. total number of subjects
 const ITEMS_PER_PAGE = 10;
@@ -124,7 +47,11 @@ export default function Subjects() {
   const [data, setData] = useState(mockData);
   const [searchText, setSearchText] = useState("");
   const [Modal, setModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null); // track which ID is being deleted
+  const [deleteId, setDeleteId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [modalData, setModalData] = useState([]);
+
 
   const filteredData = data.filter(
     (item) =>
@@ -158,17 +85,24 @@ export default function Subjects() {
           item.internalName.toLowerCase().includes(searchText.toLowerCase())
       );
       const newTotalPages = Math.ceil(newFiltered.length / ITEMS_PER_PAGE);
-  
+
       // ✅ Adjust page if current page becomes invalid
       if (currentPage > newTotalPages) {
         setCurrentPage(newTotalPages || 1);
       }
-  
+
       return newData;
     });
     setModal(false);
     setDeleteId(null);
   };
+
+  const handleOpenModal = (type, data) => {
+    setModalType(type);
+    setModalData(data);
+    setModalOpen(true);
+  };
+
 
   return (
     <>
@@ -195,7 +129,7 @@ export default function Subjects() {
           </Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value="Name" onChange={() => {}}>
+            <SortSelect value="Name" onChange={() => { }}>
               <option value="Name">Name</option>
               <option value="MockTests">No. of Mock Test</option>
               <option value="ActiveCourses">Active Courses</option>
@@ -224,6 +158,7 @@ export default function Subjects() {
                 <TableHeader>Internal Name</TableHeader>
                 <TableHeader>No. of Mock Test</TableHeader>
                 <TableHeader>Active Courses</TableHeader>
+                <TableHeader>Date and Time IST</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
@@ -232,18 +167,23 @@ export default function Subjects() {
                 <TableRow key={item.id}>
                   <TableCell>{item.subjectName}</TableCell>
                   <TableCell>{item.internalName}</TableCell>
+
                   <TableCell>
-                    {item.mockTestCount}{" "}
-                    <a href="#view" style={{ marginLeft: "5px" }}>View</a>
+                    {item.mockTest?.length || 0}{" "}
+                    <a href="#view" onClick={() => handleOpenModal("mockTests", item.mockTest)}>View</a>
+
                   </TableCell>
+
                   <TableCell>
-                    {item.activeCoursesCount}{" "}
-                    <a href="#view" style={{ marginLeft: "5px" }}>View</a>
+                    {item.activeCourses?.length || 0}{" "}
+                    <a href="#view" onClick={() => handleOpenModal("activeCourses", item.activeCourses)}>View</a>
                   </TableCell>
+
+                  <TableCell>{item.dateandtime}</TableCell>
                   <TableCell>
                     <ActionsContainer>
-                   <BiEditAlt size={20} color="#000000" style={{cursor: "pointer"}}/>
-                   <RiDeleteBin6Line
+                      <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }} />
+                      <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"
                         onClick={() => handleDelete(item.id)}
@@ -267,13 +207,23 @@ export default function Subjects() {
         />
       </Container>
 
-       {Modal && (
-                <DeleteModal
-                  isOpen={Modal}
-                  onClose={() => setModal(false)}
-                  onDelete={handleClickDelete}
-                />
-              )}
+      {Modal && (
+        <DeleteModal
+          isOpen={Modal}
+          onClose={() => setModal(false)}
+          onDelete={handleClickDelete}
+        />
+      )}
+
+
+      {modalOpen && (
+        <CustomModal
+          title={modalType === "mockTests" ? "Mock Test Details" : "Active Courses"}
+          type={modalType}
+          data={modalData}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </>
   );
 }

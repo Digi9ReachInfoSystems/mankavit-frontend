@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 /* Outer container for the entire table section */
 export const Container = styled.div`
+position: relative;
 display: flex;
 flex-direction: column;
 margin-left: 40px;
@@ -137,7 +138,7 @@ export const TableCell = styled.td`
 
   /* For multiline text (note description), add these rules if needed */
   &:nth-child(2) {
-    max-width: 250px;
+    max-width: 200px;
     white-space: normal;
   }
 
@@ -150,30 +151,15 @@ export const TableCell = styled.td`
       text-decoration: underline;
     }
   }
-`;
 
-/* Toggle switch container in each row for "Active" column */
-export const SwitchContainer = styled.div`
-  display: inline-block;
-  position: relative;
-  width: 42px;
-  height: 20px;
-  background-color: ${(props) => (props.checked ? "#28a745" : "#ccc")};
-  border-radius: 15px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-`;
+.internaldescription {
+  display: inline-block;  /* or block */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;  /* or set a specific width like 150px */
+}
 
-export const SwitchHandle = styled.div`
-  position: absolute;
-  top: 2px;
-  left: ${(props) => (props.checked ? "22px" : "2px")};
-  width: 16px;
-  height: 16px;
-  background-color: white;
-  border-radius: 50%;
-  transition: left 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 `;
 
 /* Container for action icons (edit, delete, etc.) */

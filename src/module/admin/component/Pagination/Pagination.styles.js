@@ -7,6 +7,10 @@ export const PaginationWrapper = styled.div`
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem 0;
+  position: absolute;
+  bottom: 0;
+  width: 95%;
+  box-sizing: border-box;
 `;
 
 export const PaginationButton = styled.button`
