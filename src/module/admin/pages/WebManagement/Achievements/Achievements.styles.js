@@ -86,19 +86,36 @@ margin-top: 20px;
   }
 `;
 
+export const Title = styled.h2`
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: ${props => props.theme.colors.blueishblack};
+`;
+
+export const Form = styled.div`
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    margin: 0.5rem 0 0.3rem;
+    font-weight: bold;
+  }
+`;
+
 export const Input = styled.input`
   width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
+  padding: 0.8rem;
+  border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 8px;
-  font-size: 16px;
+  margin-bottom: 1rem;
+  resize: none;
+  font-size: 1rem;
   box-sizing: border-box;
-  color: #AEAEAE;
-  outline: none;
 
-  &::placeholder {
-  color: #AEAEAE;
+  &:focus {
+    outline: none;
+    border-color: #007bff;
   }
 `;
 
@@ -106,21 +123,63 @@ export const TableHead = styled.thead`
   background: ${theme.colors.backgrounGrey};
 `;
 
-
-export const TextArea = styled.textarea`
+export const Textarea = styled.textarea`
   width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
-  color: #AEAEAE;
+  height: 100px;
+  padding: 1rem 1.5rem;
+  border: ${props => props.theme.colors.platinumlightgray} 1px solid;
+  border-radius: 6px;
+  font-size: 0.95rem;
   resize: none;
   outline: none;
+  box-sizing: border-box;
 
   &::placeholder {
-  color: #AEAEAE;
+  color: ${props => props.theme.colors.silvergray};
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    width: 90%;
+  }
+`;
+
+export const Button = styled.button`
+    background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${props => props.theme.colors.white};
+  border: none;
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  width: 20%;
+
+  @media (max-width: 1360px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 25%;
+    font-size: 12px;
+  }
+
+  @media (max-width: 768px) {
+    width: 30%;
+  }
+
+  @media (max-width: 540px) {
+    width: 40%;
+  }
+
+  @media (max-width: 480px) {
+  font-size: 14px;
+  padding: 8px 16px;
+    width: 50%;
   }
 `;
 

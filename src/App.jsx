@@ -44,6 +44,8 @@ import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayou
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
 import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
 import AddStudent from './module/admin/component/AddStudent/AddStudent'
+// import Mocktest from './module/admin/pages/Mocktest/Mocktest'
+import Staticpage from './module/admin/pages/Staticpage/Staticpage'
 
 function App() {
 
@@ -78,11 +80,13 @@ function App() {
             <Route path="course-management/create" element={<AddCourse />} />
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
+            {/* <Route path='mock-test' element={<Mocktest/>} /> */}
             <Route path="payment-management" element={<Payment />} />
             <Route path="subject-management" element={<Subjects />} />
             <Route path="subject-management/create" element={<AddSubject />} />
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes-management/create" element={<AddNote />} />
+            <Route path="static-page" element={<Staticpage />} />
 
             
             {/* <Route path="static-pages" element={<StaticPage />} /> */}

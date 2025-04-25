@@ -27,6 +27,13 @@ margin-top: 20px;
   }
 `;
 
+export const Title = styled.h2`
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: ${props => props.theme.colors.blueishblack};
+`;
+
 export const BtnTitle = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -37,10 +44,6 @@ export const BtnTitle = styled.div`
  @media (max-width: 768px) {
 //  margin: 10px 5px;
 }
-
-  
-
-
 `;
 
 export const AddTestButton = styled.button`
@@ -79,9 +82,8 @@ padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2
   
 `;
 
-
 export const Form = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
   label {
     display: block;
@@ -93,7 +95,7 @@ export const Form = styled.div`
 export const Input = styled.input`
   width: 100%;
   padding: 0.8rem;
-  border: 1px solid #ccc;
+  border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 8px;
   margin-bottom: 1rem;
   resize: none;
@@ -103,6 +105,67 @@ export const Input = styled.input`
   &:focus {
     outline: none;
     border-color: #007bff;
+  }
+`;
+
+
+export const Textarea = styled.textarea`
+  width: 100%;
+  height: 100px;
+  padding: 1rem 1.5rem;
+  border: ${props => props.theme.colors.platinumlightgray} 1px solid;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+
+  &::placeholder {
+  color: ${props => props.theme.colors.silvergray};
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    width: 90%;
+  }
+`;
+
+export const Button = styled.button`
+    background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${props => props.theme.colors.white};
+  border: none;
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-bottom: 0;
+  margin-top: 1rem;
+  cursor: pointer;
+  width: 20%;
+
+  @media (max-width: 1360px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 25%;
+    font-size: 12px;
+  }
+
+  @media (max-width: 768px) {
+    width: 30%;
+  }
+
+  @media (max-width: 540px) {
+    width: 40%;
+  }
+
+  @media (max-width: 480px) {
+  font-size: 14px;
+  padding: 8px 16px;
+    width: 50%;
   }
 `;
 

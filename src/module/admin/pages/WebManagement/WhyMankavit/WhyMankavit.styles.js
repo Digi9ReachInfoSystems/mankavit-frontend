@@ -5,7 +5,7 @@ export const Container = styled.div`
   background-color: ${props => props.theme.colors.white};
   border-radius: 12px;
   width: calc(100% - 40px);
-  height: 85vh;
+  min-height: 800px;
   margin-left: 40px ;
   margin-top: 20px;
   box-sizing: border-box;
@@ -98,6 +98,7 @@ export const Input = styled.input`
 
 export const Textarea = styled.textarea`
   width: 100%;
+  height: 250px;
   padding: 1rem 1.5rem;
   border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 6px;
