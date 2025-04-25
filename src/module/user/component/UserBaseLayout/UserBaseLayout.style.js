@@ -10,7 +10,7 @@ export const PageWrapper = styled.div`
 export const ContentWrapper = styled.main`
   flex: 1;
   display: flex;
-  background-color: ${theme.colors.backgrounGrey};
+  // background-color: ${theme.colors.backgrounGrey};
  
   @media (max-width: 990px) {
   margin-left: 200px;
