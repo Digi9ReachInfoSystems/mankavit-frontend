@@ -33,7 +33,6 @@ import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLi
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
 import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
 import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq'
-// import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
@@ -44,8 +43,9 @@ import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayou
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
 import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
 import AddStudent from './module/admin/component/AddStudent/AddStudent'
-// import Mocktest from './module/admin/pages/Mocktest/Mocktest'
+import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
+import Profile from './module/user/pages/Profile/Profile'
 
 function App() {
 
@@ -67,6 +67,7 @@ function App() {
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
+            <Route path="profile" element={<Profile />} />
           {/* </Route> */}
 
           </Route>
@@ -80,7 +81,7 @@ function App() {
             <Route path="course-management/create" element={<AddCourse />} />
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
-            {/* <Route path='mock-test' element={<Mocktest/>} /> */}
+            <Route path="mock-test"element={<Mocktest/>} />
             <Route path="payment-management" element={<Payment />} />
             <Route path="subject-management" element={<Subjects />} />
             <Route path="subject-management/create" element={<AddSubject />} />
