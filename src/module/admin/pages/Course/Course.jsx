@@ -88,7 +88,7 @@ export default function CoursesTable() {
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => { navigate("/admin/courses/create") }}>Add Course</CreateButton>
+        <CreateButton onClick={() => { navigate("/admin/course-management/create") }}>Add Course</CreateButton>
       </ButtonContainer>
       <Container>
 
@@ -143,7 +143,7 @@ export default function CoursesTable() {
                   <TableCell>{item.dateAndTime}</TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <BiEditAlt title="Edit" color="#000000" size={20} />
+                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => { navigate("/admin/courses/create") }} />
                       <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item.id)} />
                     </ActionsContainer>
                   </TableCell>

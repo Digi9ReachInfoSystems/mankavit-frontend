@@ -16,6 +16,7 @@ const theme = {
      chorcoalgray: "#313131",
      lavendargray: "#D4D7EA",
      silverGray: "#B1B2B5",
+     dimGray: "#696969",
      pureblack: "#000000",
      blueishblack: "#0C0D19",
      white: "#FFFFFF",

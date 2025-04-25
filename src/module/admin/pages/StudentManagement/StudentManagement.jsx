@@ -39,6 +39,7 @@ import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -158,6 +159,7 @@ const mockData = [
 const ITEMS_PER_PAGE = 8;
 
 export default function StudentManagement() {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -193,7 +195,7 @@ export default function StudentManagement() {
   return (
     <>
       <ButtonContainer>
-        <CreateButton> Add Student</CreateButton>
+        <CreateButton onClick={() => { navigate("/admin/student-management/create") }}> Add Student</CreateButton>
       </ButtonContainer>
 
       <Container>

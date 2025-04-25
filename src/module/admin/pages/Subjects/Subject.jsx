@@ -107,7 +107,7 @@ export default function Subjects() {
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/subjects/create")}>
+        <CreateButton onClick={() => navigate("/admin/subject-management/create")}>
           Add Subject
         </CreateButton>
       </ButtonContainer>
