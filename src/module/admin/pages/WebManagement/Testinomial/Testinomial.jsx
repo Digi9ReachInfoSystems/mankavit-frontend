@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import {
   Container,
+  Title,
   Form,
   Input,
+  Textarea,
+  Button,
   TableWrapper,
   Table,
   TableRow,
   TableHeader,
   TableCell,
   ViewLink,
-  IconButton,
+  // IconButton,
   ActionsWrapper,
   BtnTitle,
   AddTestButton,
@@ -19,7 +22,6 @@ import Pagination from "../../../component/Pagination/Pagination"; // This is yo
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-import {FaCheckCircle, FaTrash} from "react-icons/fa";
 
 // Dummy testimonial data
 const dummyTestimonials = Array.from({ length: 10 }, (_, i) => ({
@@ -70,24 +72,30 @@ const Testimonial = () => {
         <AddTestButton>Testinomial</AddTestButton>
       </BtnTitle>
       <Container>
+
+        <Title>Testimonial</Title>
+
         <Form>
           <label htmlFor="title">Title</label>
           <Input
             id="title"
-            placeholder="write here"
+            placeholder="Write title here"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
 
           <label htmlFor="description">Description</label>
-          <Input
+          <Textarea
             as="textarea"
             id="description"
-            placeholder="Write here"
+            placeholder="Write description here"
             rows={7}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+
+          <Button>Create</Button>
+
         </Form>
 
         <TableWrapper>

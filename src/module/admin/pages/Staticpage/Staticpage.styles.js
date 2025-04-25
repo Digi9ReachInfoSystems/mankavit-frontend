@@ -1,15 +1,15 @@
 import styled from 'styled-components';
 
-export const AboutusContainer = styled.div`
+export const Container = styled.div`
   padding: 1rem 1.5rem;
   background-color: ${props => props.theme.colors.white};
   border-radius: 12px;
   width: calc(100% - 40px);
-  min-height: 800px;
   margin-left: 40px ;
   margin-top: 20px;
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-height: 800px;
 
   @media (max-width: 1024px) {
     width: calc(100% - 40px);
@@ -21,14 +21,14 @@ export const AboutusContainer = styled.div`
   }
 `;
 
-export const AboutusTitle = styled.h2`
+export const Title = styled.h2`
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 1.2rem;
   color: ${props => props.theme.colors.blueishblack};
 `;
 
-export const AboutusButton = styled.button`
+export const Button = styled.button`
   background-color: ${props => props.theme.colors.brightblue};
   color: ${props => props.theme.colors.white};
   border: none;
@@ -65,23 +65,25 @@ export const AboutusButton = styled.button`
   }
 `;
 
-export const AboutusFormGroup = styled.div`
+export const FormGroup = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-export const AboutusLabel = styled.label`
+export const Label = styled.label`
   display: block;
   font-size: 0.95rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
 `;
 
-export const AboutusInput = styled.input`
+export const Textarea = styled.textarea`
   width: 100%;
-  padding: 0.8rem 1rem;
+  height: 120px;
+  padding: 1rem 1.5rem;
   border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 6px;
   font-size: 0.95rem;
+  resize: none;
   outline: none;
   box-sizing: border-box;
 
@@ -94,26 +96,4 @@ export const AboutusInput = styled.input`
     padding: 0.6rem 0.8rem;
     width: 90%;
   }
-`;
-
-export const AboutusTextarea = styled.textarea`
-  width: 100%;
-  height: 250px;
-  padding: 1rem;
-  border: ${props => props.theme.colors.platinumlightgray} 1px solid;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  resize: none;
-  outline: none;
-  box-sizing: border-box;
-
-
-  &::placeholder {
-  color: ${props => props.theme.colors.silvergray};
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
-    padding: 0.6rem 0.8rem;
-    w
 `;
