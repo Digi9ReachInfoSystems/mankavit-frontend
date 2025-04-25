@@ -91,7 +91,7 @@ export default function NotesManagement() {
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/notes/create")}>
+        <CreateButton onClick={() => navigate("/admin/notes-management/create")}>
           Add Notes
         </CreateButton>
       </ButtonContainer>

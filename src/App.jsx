@@ -43,6 +43,7 @@ import Notification from './module/admin/pages/WebManagement/Notification/Notifi
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
 import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
+import AddStudent from './module/admin/component/AddStudent/AddStudent'
 
 function App() {
 
@@ -74,13 +75,14 @@ function App() {
           <Route path="/admin" element={<BaseLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="course-management" element={<Course />} />
-            <Route path="courses/create" element={<AddCourse />} />
+            <Route path="course-management/create" element={<AddCourse />} />
             <Route path="student-management" element={<StudentManagement />} />
+            <Route path="student-management/create" element={<AddStudent />} />
             <Route path="payment-management" element={<Payment />} />
             <Route path="subject-management" element={<Subjects />} />
-            <Route path="subjects/create" element={<AddSubject />} />
+            <Route path="subject-management/create" element={<AddSubject />} />
             <Route path="notes-management" element={<NotesManagement />} />
-            <Route path="notes/create" element={<AddNote />} />
+            <Route path="notes-management/create" element={<AddNote />} />
 
             
             {/* <Route path="static-pages" element={<StaticPage />} /> */}

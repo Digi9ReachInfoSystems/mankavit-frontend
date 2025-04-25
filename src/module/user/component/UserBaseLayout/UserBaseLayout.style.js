@@ -9,7 +9,7 @@ export const PageWrapper = styled.div`
 
 export const ContentWrapper = styled.main`
   flex: 1;
-  // display: flex;
+  display: flex;
   background-color: ${theme.colors.backgrounGrey};
  
   @media (max-width: 990px) {
