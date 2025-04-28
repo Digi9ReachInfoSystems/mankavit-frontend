@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
 export const FormContainer = styled.div`
-// margin-left: 0px;
+margin-left: 35px;
 // margin-top: 20px;
   background-color: ${(props) => props.theme.colors.white};
   border-radius: 6px;
   padding: ${(props) => props.theme.spacing(3)};
   font-family: ${(props) => props.theme.fonts.body};
 //   min-height: 70px;
-  width: 60%;
+  width: 100%;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     padding: ${(props) => props.theme.spacing(2)};
@@ -19,13 +19,30 @@ export const FormContainer = styled.div`
 }
 `;
 
+export const Form = styled.div`
+  width: 80%;
+  `;
+
 export const ProfileImage = styled.img`
 //   display: block;
-  width: 120px;
-  height: 120px;
+  width: 130px;
+  height: 130px;
   object-fit: cover;
   border-radius: 50%;
-  margin: 0 40px;
+  margin: 0 ;
+  position: relative;
+`;
+
+export  const CameraImage = styled.img`
+position: absolute;
+  top: 37%;
+  left: 40%;
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  background-color: ${(props) => props.theme.colors.white};
+  border-radius: 50%;
+  cursor: pointer;
 `;
 
 export const Title = styled.h1`
@@ -93,6 +110,35 @@ export const InputField = styled.input`
   box-sizing: border-box;
 `;
 
+export const MobileInputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  border: ${(props) => props.theme.colors.platinumlightgray} 1px solid;
+`;
+
+export const FixedCode = styled.div`
+  padding: 16px 10px;
+  color: #333;
+  font-size: 14px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+`;
+
+export const MobileNumberInput = styled.input`
+  flex: 1;
+  padding: 16px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: ${(props) => props.theme.colors.dimGray};
+  &::placeholder {
+    color: #aaa;
+  }
+`;
+
 export const UploadSection = styled.div`
   flex: 1;
   margin-top: 30px;
@@ -127,6 +173,42 @@ export const UploadButton = styled.button`
   &:hover {
     background-color: ${(props) => props.theme.colors.platinumlightgray};
   }
+`;
+
+export const UploadedFileName = styled.div`
+  margin-top: 10px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+`;
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+export const ModalContent = styled.div`
+  background: #fff;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+  position: relative;
+`;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: 10px; right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 `;
 
 export const BrowseButton = styled.button`
