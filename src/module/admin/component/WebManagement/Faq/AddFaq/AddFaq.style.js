@@ -3,14 +3,22 @@ import theme from "../../../../../../theme/Theme";
 
 
 export const Container = styled.div`
-//   max-width: 600px;
-//   margin: 0 auto;
 margin-left: 40px;
 margin-top: 20px;
-  padding: ${theme.spacing(4)};
-  background: ${theme.colors.secondary};
-  border-radius: ${theme.spacing(1)};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: ${(props) => props.theme.colors.white};
+  border-radius: 6px;
+  padding: ${(props) => props.theme.spacing(3)};
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: ${(props) => props.theme.fonts.body};
+  min-height: 750px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: ${(props) => props.theme.spacing(2)};
+  }
+
+  @media (max-width: 768px) {
+    margin:0;
+  }
 
   h2 {
     margin-bottom: ${theme.spacing(3)};
