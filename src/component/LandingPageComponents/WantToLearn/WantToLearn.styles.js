@@ -2,13 +2,16 @@ import styled from 'styled-components';
 
 export const Section = styled.section`
   padding: 60px 20px;
+  width: 80%;
+  margin: 0 auto;
   text-align: center;
 `;
 
 export const Title = styled.h2`
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 48px;
+  font-weight: 400;
   margin-bottom: 40px;
+  text-align: left;
 `;
 
 export const Buttons = styled.div`
@@ -26,23 +29,7 @@ export const CardsWrapper = styled.div`
   display: flex;
 //   flex-wrap: wrap;
   gap: 20px;
-  justify-content: center;
-  width: 70%;
-  margin: 0 auto;   
-
-  @media (max-width: 1320px) {
-    width: 80%;
-  }
-
-  @media (max-width: 1024px) {
-    width: 90%;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-
-    align-items: center;
-  }
+  justify-content: center;  
 `;
 
 export const CourseCard = styled.div`
@@ -54,28 +41,23 @@ export const CourseCard = styled.div`
 `;
 
 export const CardHeader = styled.div`
-  height: 100px;
-  background: url(${props => props.background}) no-repeat center center/cover;
-  position: relative;
+
 `;
 
-export const Badge = styled.div`
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background-color: black;
-  color: #ffd700;
-  font-weight: bold;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 14px;
+export const Image = styled.img`
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 0px;
 `;
 
 export const CardBody = styled.div`
   padding: 15px;
   text-align: left;
 
+
   span {
+    margin-top: 20px;
     font-size: 14px;
     color: #333;
   }

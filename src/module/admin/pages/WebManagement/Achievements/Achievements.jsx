@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import {
   Container,
-  Title,
-  Form,
   Input,
-  Button,
-  Textarea,
+  Title,
+  TextArea,
   TableWrapper,
   Table,
   TableHead,
@@ -77,35 +75,25 @@ const Achievements = () => {
     <>
       <BtnAchieve>
         <AddButton onClick={handleAddButton}>
-          Add Achievement
+           Add Achievement
         </AddButton>
       </BtnAchieve>
 
       <Container>
         <Title>Achievement</Title>
-        <Form>
-          <label htmlFor="title">Title</label>
-          <Input
-            id="title"
-            placeholder="Write title here"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <label htmlFor="description">Description</label>
-          <Textarea
-            as="textarea"
-            id="description"
-            placeholder="Write description here"
-            rows={7}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-          <Button>Create</Button>
-
-        </Form>
-
+        <Label>Title</Label>
+        <Input
+          placeholder="Enter Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <Label>Description</Label>
+        <TextArea
+          placeholder="Enter description"
+          rows={6}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
         <TableWrapper>
           <Table>
@@ -128,8 +116,8 @@ const Achievements = () => {
                   <Td><ViewLink href="#">View</ViewLink></Td>
                   <Td>{item.date} {item.time}</Td>
                   <Td>
-                    <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }} />
-                    <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={() => handleDelete(item.id)} style={{ cursor: "pointer" }} />
+                    <BiEditAlt size={20} color="#000000" style={{cursor: "pointer"}}/>
+                    <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={() => handleDelete(item.id)} style={{cursor: "pointer"}}/>
                   </Td>
                 </tr>
               ))}
@@ -146,14 +134,14 @@ const Achievements = () => {
         />
       </Container>
 
-      {Modal && (
-        <DeleteModal
-          isOpen={Modal}
-          onClose={() => setModal(false)}
-          onDelete={handleClickDelete}
-        />
-      )}
-
+        {Modal && (
+          <DeleteModal
+            isOpen={Modal}
+            onClose={() => setModal(false)}
+            onDelete={handleClickDelete}
+          />
+        )}
+      
     </>
   );
 };

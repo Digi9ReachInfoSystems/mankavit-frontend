@@ -21,10 +21,10 @@ export const ToolbarContainer = styled.div`
   display: flex;
   justify-content: space-between;
   background-color: #ddd;
-  padding: 8px 40px;
-  font-size: 14px;
+  padding: 13px 40px;
+  font-size: 18px;
   color: #333;
-  width: 80%;
+  width: 79%;
   margin: 0 auto;
 
   @media (max-width: 1320px) {
@@ -41,7 +41,7 @@ export const ToolbarContainer = styled.div`
 `;
 
 export const Headline = styled.div`
-  font-size: 22px;
+  font-size: 24px;
 
   span {
     color: red;
