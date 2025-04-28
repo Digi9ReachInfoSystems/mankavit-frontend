@@ -90,42 +90,6 @@ const UserSidebar = () => {
             </MenuItem>
           </MenuList>
 
-    <SidebarWrapper>
-    <SidebarContainer>
-      <MenuList>
-        <MenuItem>
-          <MenuLink to="/user" end>
-            <FaTachometerAlt /> Dashboard
-          </MenuLink>
-        </MenuItem>
-        <MenuItem>
-          <MenuLink to="/user/my-courses">
-            <FaBookOpen /> My Courses  <AiOutlineRight className='arrow-icon' />
-          </MenuLink>
-        </MenuItem>
-        <MenuItem>
-          <MenuLink to="/user/profile">
-            <FaUser /> Profile
-          </MenuLink>
-        </MenuItem>
-        <MenuItem>
-          <MenuLink to="/terms">
-            <FaFileContract /> T&amp;C
-          </MenuLink>
-        </MenuItem>
-        <MenuItem>
-          <MenuLink to="/notification">
-            <FaBell /> Notification
-          </MenuLink>
-        </MenuItem>
-        <MenuItem>
-          <MenuLink to="/support">
-            <FaHeadset /> Contact Support
-          </MenuLink>
-        </MenuItem>
-      </MenuList>
-
-
           <LogoutContainer>
             <LogoutButton onClick={() => {/* your logout logic */}}>
               <FaPowerOff size={28} /> Log out
