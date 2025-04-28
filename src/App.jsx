@@ -46,6 +46,7 @@ import AddStudent from './module/admin/component/AddStudent/AddStudent'
 import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
 import Profile from './module/user/pages/Profile/Profile'
+import Mycourses from './module/user/pages/MyCourses/MyCourses'
 
 function App() {
 
@@ -68,6 +69,7 @@ function App() {
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
             <Route path="profile" element={<Profile />} />
+            <Route path='my-courses' element={<Mycourses/>} />
           {/* </Route> */}
 
           </Route>
