@@ -47,7 +47,7 @@ import AddStudent from './module/admin/component/AddStudent/AddStudent'
 import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
 import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
-
+import Profile from './module/user/pages/Profile/Profile'
 function App() {
 
   return (
