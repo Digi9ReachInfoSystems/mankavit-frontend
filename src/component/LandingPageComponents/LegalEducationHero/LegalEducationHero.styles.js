@@ -3,10 +3,11 @@ import styled from 'styled-components';
 export const HeroSection = styled.section`
   display: flex;
   justify-content: space-between;
-  padding: 4rem 8%;
+  padding: 4rem 6%;
   background-color:fff;
   // min-height: 90vh;
   font-family: 'Segoe UI', sans-serif;
+  margin-top: 60px;
 `;
 
 export const Circle = styled.div`
@@ -39,10 +40,11 @@ export  const SecCircle = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 72px;
+  font-size: 80px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 1rem;
+  font-family: DM Serif Text;
 `;
 
 export const SubTitle = styled.p`

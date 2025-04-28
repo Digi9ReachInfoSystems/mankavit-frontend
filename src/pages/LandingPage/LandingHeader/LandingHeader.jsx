@@ -130,7 +130,7 @@ const Header = () => {
                 className={activeLink === "Entrance" ? "active" : ""}
                 onClick={() => handleNavClick("Entrance")}
               >
-                Entrance <BsChevronCompactDown />
+                Entrance <BsChevronCompactDown size={15} style={{fontWeight: "800"}} />
                 {dropdownOpen && (
                   <Dropdown>
                     <DropdownItem onClick={() => navigate("/entrance/neet")}>

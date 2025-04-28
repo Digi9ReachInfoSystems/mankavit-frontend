@@ -99,21 +99,23 @@ export const NavbarMain = styled.div`
   justify-content: space-between;
   align-items: center;
   background: transparent;
+  margin-top: 20px;
 `;
 
 export const NavBarContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 0px 40px;
   background: transparent;
-  width: 90%;
+  width: 86%;
   margin: 0 auto;
 
   .menu-container{
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap:30px;
+    width:74%;
 
     @media (max-width: 1024px) {
       gap: 15px;
@@ -140,7 +142,7 @@ export const NavBarContainer = styled.div`
 `;
 
 export const Logo = styled.div`
-  font-size: 30px;
+  font-size: 36px;
   font-weight: 400;
   color: #252525;
 
@@ -155,7 +157,7 @@ export const Logo = styled.div`
 
 export const NavLinks = styled.div`
   display: flex;
-  gap: 4pc;
+  gap: 5.5pc;
   align-items: center;
 
   @media (max-width: 1757px) {
@@ -192,7 +194,7 @@ flex-direction: column;
 export const NavLinkItem = styled.div`
   position: relative;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 24px;
   color: #252525;
   font-weight: 400;
   display: flex;
@@ -253,7 +255,7 @@ export const SignInButton = styled.button`
   background: linear-gradient(to right, #00c6ff, #0072ff);
   color: #F5F5F5;
   border: none;
-  padding: 20px 32px;
+  padding: 27px 32px;
   font-size: 20px;
   border-radius: 8px;
   cursor: pointer;
