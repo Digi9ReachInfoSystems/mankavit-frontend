@@ -14,6 +14,9 @@ import {
   ExploreButton,
   StatTitle,
   StatsDescription
+
+
+  
 } from './LegalEducationHero.styles';
 import heroImage from '../../../assets/landingBannerImag.png'; // Adjust the path as needed
 
