@@ -6,7 +6,6 @@ import {
   CardsWrapper,
   CourseCard,
   CardHeader,
-  Badge,
   CardBody,
   CourseTitle,
   Description,
@@ -16,7 +15,8 @@ import {
   ViewButton,
   ViewMoreWrapper,
   ViewMoreButton,
-  Buttons
+  Buttons,
+  Image
 } from './WantToLearn.styles';
 
 import lawBanner from '../../../assets/Study1.png'; // your header banner image
@@ -62,12 +62,12 @@ const WantToLearn = () => {
       <CardsWrapper>
         {courses.map((course, index) => (
           <CourseCard key={index}>
-            <CardHeader background={lawBanner}>
-              <Badge>Law Entrance</Badge>
+            <CardHeader>
+              <Image src={lawBanner} alt="Law Banner" />
             </CardHeader>
 
             <CardBody>
-              <span>⭐ {course.rating}</span>
+              <span> {course.rating}⭐</span>
               <CourseTitle>{course.title}</CourseTitle>
               <Description>{course.description}</Description>
               <InfoList>
