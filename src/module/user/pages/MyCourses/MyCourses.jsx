@@ -1,9 +1,10 @@
 import React from 'react';
 import {
     MainContainer,
-    SectionTitle,
     CourseWrapper,
     Title,
+    FilterBar,
+    FilterButton,
     CardGrid,
     CourseCard,
     ImageWrapper,
@@ -19,21 +20,26 @@ import {
     DetailItemok,
     PriceActions,
     ViewButton,
-    CertificatesWrapper,
-    CertificateDownload,
-    CertificateCard,
-    CertificateImage,
-} from './UserDashboard.styles';
+    SectionTitle,
+    ListSection,
+    ListCard,
+    ListTime,
+    Testdate,
+    Testmonth,
+    Testtime,
+    ListContent,
+    Testtitle,
+    Testpara,
+    LiveBadge,
+    ViewAllLink
+} from './MyCourses.styles';
 import lawimg from "../../../../assets/lawentrance.png";
-import certificate from "../../../../assets/certificate.png";
 import { FcCalendar } from "react-icons/fc";
 import { FaStar } from "react-icons/fa";
 import { FcOk } from "react-icons/fc";
-import { FiDownload } from "react-icons/fi";
 
-const UserDashboard = () => {
-   
-
+const MyCourses = () => {
+    
     const courses = [
         {
           title: "CLAT",
@@ -93,15 +99,6 @@ const UserDashboard = () => {
           },
       ];
 
-    const certificates = [
-        { id: 1, imgUrl: certificate, title: 'CLAT Coaching (22 Nov 2024 - 23 Jan 2025)' },
-        { id: 2, imgUrl: certificate, title: 'CLAT Coaching (1 Feb 2025 - 31 May 2025)' },
-        { id: 3, imgUrl: certificate, title: 'CLAT Coaching (22 Nov 2024 - 23 Jan 2025)' },
-        { id: 4, imgUrl: certificate, title: 'CLAT Coaching(1 Feb 2025 - 31 May 2025)' },
-        { id: 5, imgUrl: certificate, title: 'CLAT Coaching (22 Nov 2024 - 23 Jan 2025)' },
-        { id: 6, imgUrl: certificate, title: 'CLAT Coaching (1 Feb 2025 - 31 May 2025)' },
-    ];
-
     const renderStars = (rating) => {
         const stars = [];
 
@@ -119,12 +116,28 @@ const UserDashboard = () => {
         return stars;
     };
 
+    const upcomingTests = [
+        { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — CLAT 2025", type: "Practice Test" },
+        { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — CLAT 2025", type: "Practice Test" },
+    ];
+
+    const liveClasses = [
+        { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live — CLAT 2025 Practice", type: "Dummy Topic", live: true },
+        { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live — CLAT 2025 Practice", type: "Dummy Topic", live: true },
+    ];
+
     return (
         <MainContainer>
             <CourseWrapper>
                 <Title>
                     My Courses
                 </Title>
+
+                <FilterBar>
+                    <FilterButton active>All</FilterButton>
+                    <FilterButton>Popular</FilterButton>
+                    <FilterButton>Most Liked</FilterButton>
+                </FilterBar>
 
                 <CardGrid>
                     {courses.map((course, index) => (
@@ -185,24 +198,46 @@ const UserDashboard = () => {
             </CourseWrapper>
 
 
-            <SectionTitle>My Certificates</SectionTitle>
-
-            <CertificatesWrapper>
-                {certificates.map((certificate) => (
-
-                    <CertificateCard key={certificate.id}>
-                        <CertificateDownload >
-                            {certificate.title} <FiDownload fontSize={20} />
-                        </CertificateDownload>
-
-                        <CertificateImage src={certificate.imgUrl} alt="Certificate" />
-                    </CertificateCard>
+            {/* Upcoming Tests */}
+            <ListSection>
+                <SectionTitle>Upcoming Test <ViewAllLink>View all</ViewAllLink></SectionTitle>
+                {upcomingTests.map((test, index) => (
+                    <ListCard key={index}>
+                        <ListTime>
+                            <Testdate>{test.date}</Testdate>
+                            <Testmonth>{test.month}</Testmonth>
+                            <Testtime>{test.time}</Testtime>
+                        </ListTime>
+                        <ListContent>
+                            <Testtitle>{test.title}</Testtitle>
+                            <Testpara>{test.type}</Testpara>
+                        </ListContent>
+                    </ListCard>
                 ))}
-            </CertificatesWrapper>
+            </ListSection>
+
+            {/* Upcoming Live Classes */}
+            <ListSection>
+                <SectionTitle>Upcoming Live Classes <ViewAllLink>View all</ViewAllLink></SectionTitle>
+                {liveClasses.map((cls, index) => (
+                    <ListCard key={index} live>
+                        <ListTime>
+                            <div>{cls.date}</div>
+                            <div>{cls.month}</div>
+                            <div>{cls.live && <LiveBadge>LIVE</LiveBadge>}</div>
+                            <div>{cls.time}</div>
+                        </ListTime>
+                        <ListContent>
+                            <h5>{cls.title}</h5>
+                            <p>{cls.type}</p>
+                        </ListContent>
+                    </ListCard>
+                ))}
+            </ListSection>
 
 
         </MainContainer>
     );
 };
 
-export default UserDashboard;
+export default MyCourses;

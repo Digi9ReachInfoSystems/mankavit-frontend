@@ -27,12 +27,12 @@ const UserSidebar = () => {
     <SidebarContainer>
       <MenuList>
         <MenuItem>
-          <MenuLink to="/dashboard" end>
+          <MenuLink to="/user" end>
             <FaTachometerAlt /> Dashboard
           </MenuLink>
         </MenuItem>
         <MenuItem>
-          <MenuLink to="/my-courses">
+          <MenuLink to="/user/my-courses">
             <FaBookOpen /> My Courses  <AiOutlineRight className='arrow-icon' />
           </MenuLink>
         </MenuItem>
