@@ -1,4 +1,3 @@
-// CustomModal.jsx
 import React from "react";
 import {
   Overlay,
@@ -17,12 +16,19 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
     if (type === "mockTests") return "No mock tests available.";
     if (type === "activeCourses") return "No active courses available.";
     if (type === "subjects") return "No subjects available.";
+    if (type === "students" || type === "enrolled") return "No students available.";
     return "No data available.";
   };
 
   const renderList = () => {
     if (!Array.isArray(data) || data.length === 0) {
       return <MocktestItem>{getEmptyMessage()}</MocktestItem>;
+    }
+  
+    if (type === "students" || type === "enrolled") {
+      return data.map((student, index) => (
+        <MocktestItem key={index}>{student.name}</MocktestItem>
+      ));
     }
   
     return data.map((item, index) => (

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import theme from '../../../../../theme/Theme';
 
 export const Container = styled.div`
-position: relative;
+position: relative; 
 display: flex;
 flex-direction: column;
 margin-left: 40px;
@@ -14,15 +14,14 @@ margin-top: 20px;
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
   border-radius: 12px;
-  min-height: 720px;
+  min-height: 719px;
 
     @media (max-width: 990px) {
   // width: 90%;
 }
 
   @media (max-width: 768px) {
-    margin-left: 0;
-    margin-top: 0;
+    margin: 0 10px;
     padding: ${(props) => props.theme.spacing(1)};
   }
 `;
@@ -111,7 +110,6 @@ export const Input = styled.input`
 
 export const Textarea = styled.textarea`
   width: 100%;
-  height: 100px;
   padding: 1rem 1.5rem;
   border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 6px;

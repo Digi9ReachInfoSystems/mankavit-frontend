@@ -88,16 +88,16 @@ const SocialMedia = ({ initialLinks = {}, onSubmit }) => {
           />
         </FormGroup>
 
-        {/* <FormGroup>
+        <FormGroup>
           <Label htmlFor="other">Other Links</Label>
           <TextInput
             id="other"
             name="other"
-            placeholder="Paste olink here"
+            placeholder="Paste link here"
             value={links.other}
             onChange={handleChange}
           />
-        </FormGroup> */}
+        </FormGroup>
 
         <SubmitButton type="submit">Update Changes</SubmitButton>
       </form>

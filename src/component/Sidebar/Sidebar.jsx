@@ -31,8 +31,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: "/admin", label: "Dashboard" },
     { path: "/admin/student-management", label: "Student Management" },
-    { label: "Mock test"},
-    // { path: "/admin/mock-test", label: "Mock Test" },
+    { path: "/admin/mock-test", label: "Mock Test" },
     { path: "/admin/payment-management", label: "Payment" },
     { path: "/admin/static-page", label: "Static Page" },
   ];

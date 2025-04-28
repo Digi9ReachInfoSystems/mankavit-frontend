@@ -37,7 +37,7 @@ const UserSidebar = () => {
           </MenuLink>
         </MenuItem>
         <MenuItem>
-          <MenuLink to="/profile">
+          <MenuLink to="/user/profile">
             <FaUser /> Profile
           </MenuLink>
         </MenuItem>

@@ -39,6 +39,11 @@ const mockData = Array.from({ length: 15 }, (_, index) => ({
   mockTests: ["Test 1", "Test 2", "Test 3"],
   enrolled: ["Alice", "Bob", "Charlie", "Siri", "Rahul", "Alexa", "Akshay", "Robin"],
   dateAndTime: "24-08-2023 16:00 IST",
+  students: [ 
+    { name: "Student A"},
+    { name: "Student B"},
+    { name: "Student C"},
+],
 }));
 
 
@@ -110,7 +115,7 @@ export default function CoursesTable() {
 
         <SearchWrapper>
           <SearchIcon>
-            <CiSearch size={24} />
+            <CiSearch size={18} />
           </SearchIcon>
           <SearchInput placeholder="Search" value={searchText}
             onChange={(e) => setSearchText(e.target.value)} />
@@ -135,11 +140,18 @@ export default function CoursesTable() {
                 <TableRow key={item.id}>
                   <TableCell>{item.courseName}</TableCell>
                   <TableCell>{item.internalName}</TableCell>
-                  <TableCell>{item.subjects.length}<a href="#view" onClick={() => openModal("subjects", item.subjects)}>View</a></TableCell>
-                  <TableCell>{item.mockTests.length}<a href="#view" onClick={() => openModal("mockTests", item.mockTests)}>View</a></TableCell>
-                  <TableCell>{item.enrolled.length}<a href="#view" onClick={() => openModal("enrolled", item.enrolled)}>View</a></TableCell>
-
-
+                  <TableCell>
+                    {item.subjects.length}
+                    <a href="#view" onClick={() => openModal("subjects", item.subjects)}> View</a>
+                  </TableCell>
+                  <TableCell>
+                    {item.mockTests.length}
+                    <a href="#view" onClick={() => openModal("mockTests", item.mockTests)}> View</a>
+                  </TableCell>
+                  <TableCell>
+                    {item.students.length}
+                    <a href="#view" onClick={() => openModal("enrolled", item.students)}> View</a>
+                  </TableCell>
                   <TableCell>{item.dateAndTime}</TableCell>
                   <TableCell>
                     <ActionsContainer>
@@ -150,6 +162,7 @@ export default function CoursesTable() {
                 </TableRow>
               ))}
             </TableBody>
+
           </StyledTable>
         </TableWrapper>
 
@@ -174,13 +187,20 @@ export default function CoursesTable() {
         {modalOpen && (
           <CustomModal
             title={
-              modalType === "subjects" ? "mockTests" : "enrolled"
+              modalType === "subjects"
+                ? "Subjects"
+                : modalType === "mockTests"
+                  ? "Mock Tests"
+                  : modalType === "enrolled"
+                    ? "Students"
+                    : "Details"
             }
             type={modalType}
             data={modalData}
             onClose={() => setModalOpen(false)}
           />
         )}
+
 
       </Container>
     </>

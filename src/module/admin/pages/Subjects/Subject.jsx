@@ -140,7 +140,7 @@ export default function Subjects() {
         {/* Search Bar */}
         <SearchWrapper>
           <SearchIcon>
-            <CiSearch size={24} />
+            <CiSearch size={18} />
           </SearchIcon>
           <SearchInput
             placeholder="Search"

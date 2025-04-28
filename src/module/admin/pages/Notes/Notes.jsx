@@ -116,7 +116,7 @@ export default function NotesManagement() {
 
         <SearchWrapper>
           <SearchIcon>
-            <CiSearch size={24} />
+            <CiSearch size={18} />
           </SearchIcon>
           <SearchInput
             placeholder="Search"

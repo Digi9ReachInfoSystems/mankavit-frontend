@@ -4,25 +4,35 @@ import {
   LeftContent,
   RightImage,
   Stats,
-  StatBox
+  StatBox,
+  Circle,
+  SecCircle,
+  Title,
+  SubTitle,
+  ButtonsGroup,
+  StartButton,
+  ExploreButton,
+  StatTitle,
+  StatsDescription
 } from './LegalEducationHero.styles';
-import heroImage from '../../../assets/Study1.png'; // Adjust the path as needed
+import heroImage from '../../../assets/landingBannerImag.png'; // Adjust the path as needed
 
 const LegalEducationHero = () => {
   return (
     <>
       <HeroSection>
         <LeftContent>
-          <h1>India's Trusted Legal Education Platform</h1>
-          <p>
+          <Title>India's Trusted Legal Education Platform</Title>
+          <SubTitle>
             Ace exams like CLAT, AILET, and DU LL.M. with expert coaching and comprehensive resources.
-          </p>
-          <div className="buttons">
-            <button className="get-started">Get Started</button>
-            <button className="explore">Explore Courses</button>
-          </div>
+          </SubTitle>
+          <ButtonsGroup>
+            <StartButton>Get Started</StartButton>
+            <ExploreButton>Explore Courses</ExploreButton>
+          </ButtonsGroup>
         </LeftContent>
-
+        <Circle> </Circle>
+        <SecCircle> </SecCircle>
         <RightImage>
           <img src={heroImage} alt="Law Education Illustration" />
         </RightImage>
@@ -30,16 +40,16 @@ const LegalEducationHero = () => {
 
       <Stats>
         <StatBox>
-          <h2>95%</h2>
-          <p>Success Rate in Law Entrance Exams</p>
+          <StatTitle>95%</StatTitle>
+          <StatsDescription>Success Rate in Law Entrance Exams</StatsDescription>
         </StatBox>
         <StatBox>
-          <h2>82%</h2>
-          <p>Improvement in Student Performance</p>
+          <StatTitle>82%</StatTitle>
+          <StatsDescription>Improvement in Student Performance</StatsDescription>
         </StatBox>
         <StatBox>
-          <h2>2x</h2>
-          <p>Faster Exam Preparation with Expert Coaching</p>
+          <StatTitle>2x</StatTitle>
+          <StatsDescription>Faster Exam Preparation with Expert Coaching</StatsDescription>
         </StatBox>
       </Stats>
     </>
