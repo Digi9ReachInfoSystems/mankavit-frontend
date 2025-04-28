@@ -13,15 +13,18 @@ import {
   TableBody,
   TableCell,
   PaginationContainer,
-  PageButton
+  PageButton,
+  Title,
+  HeaderRow,
+  ActionsWrapper,
 } from "./FAQ.styles";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+
+import { FaPlus } from "react-icons/fa";
+import { BiEditAlt } from "react-icons/bi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  getAllfaqs,
-  deleteFaqById
-} from "../../../../../api/faqApi";
-import DeleteModal from "../../../../admin/component/DeleteModal/DeleteModal"; // <-- adjust the path
+import { getAllfaqs, deleteFaqById } from "../../../../../api/faqApi";
+import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
@@ -32,39 +35,49 @@ const FAQ = () => {
 
   const navigate = useNavigate();
 
-  // pagination
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const faqsPerPage = 10;
   const totalPages = Math.ceil(faqs.length / faqsPerPage);
   const startIndex = (currentPage - 1) * faqsPerPage;
   const currentFaqs = faqs.slice(startIndex, startIndex + faqsPerPage);
 
+  
   useEffect(() => {
     const fetchFaqs = async () => {
       setLoading(true);
       try {
         const data = await getAllfaqs();
-        setFaqs(Array.isArray(data) ? data : []);
-      } catch {
+        console.log("Fetched FAQ data:", data);
+  
+        if (Array.isArray(data.body)) {
+          setFaqs(data.body);
+        } else {
+          console.error("Unexpected FAQ format:", data);
+          setFaqs([]);
+          setError("Unexpected response format");
+        }
+      } catch (err) {
+        console.error("Error fetching FAQs:", err);
         setError("Failed to load FAQs");
       } finally {
         setLoading(false);
       }
     };
+  
     fetchFaqs();
   }, []);
+  
 
   const handleEdit = (faq) => {
     navigate(`/admin/web-management/faq/edit/${faq._id}`);
   };
 
-  // when trash icon is clicked:
   const confirmDelete = (faq) => {
     setFaqToDelete(faq);
     setIsDeleteOpen(true);
   };
 
-  // actually delete after confirmation
   const handleDelete = async () => {
     if (!faqToDelete) return;
     try {
@@ -81,15 +94,16 @@ const FAQ = () => {
   return (
     <FAQContainer>
       <ButtonContainer>
-        <Link to="/admin/web-management/faq/create">
-          <CreateButton>
-            <FaPlus size={12} /> Add FAQ
-          </CreateButton>
-        </Link>
+        <CreateButton onClick={() => navigate("/admin/web-management/faq/create")}>
+          <FaPlus size={12} /> Add FAQ
+        </CreateButton>
       </ButtonContainer>
 
       <Header>
-        <h3>FAQs</h3>
+        <HeaderRow>
+          <Title>FAQs</Title>
+        </HeaderRow>
+
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         <TableWrapper>
@@ -98,37 +112,58 @@ const FAQ = () => {
           ) : (
             <Table>
               <TableHead>
-                <TableRow>
+                <tr>
                   <TableHeader>Question</TableHeader>
                   <TableHeader>Answer</TableHeader>
                   <TableHeader>Uploaded Time</TableHeader>
                   <TableHeader>Actions</TableHeader>
-                </TableRow>
+                </tr>
               </TableHead>
               <TableBody>
-                {currentFaqs.map((faq) => (
-                  <TableRow key={faq._id}>
-                    <TableCell>{faq.question}</TableCell>
-                    <TableCell>{faq.answer}</TableCell>
-                    <TableCell>
-                      {new Date(faq.createdAt).toLocaleDateString()}{" "}
-                      {new Date(faq.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
+                {currentFaqs.length === 0 ? (
+                  <tr>
+                    <TableCell colSpan="4" style={{ textAlign: "center" }}>
+                      No FAQs found.
                     </TableCell>
-                    <TableCell>
-                      <FaEdit
-                        style={{ cursor: "pointer", marginRight: 12 }}
-                        onClick={() => handleEdit(faq)}
-                      />
-                      <FaTrash
-                        style={{ cursor: "pointer" }}
-                        onClick={() => confirmDelete(faq)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                  </tr>
+                ) : (
+                  currentFaqs.map((faq) => (
+                    <TableRow key={faq._id}>
+                      {console.log("FAQ item:", faq)}
+                      <TableCell>{faq.question || faq.questionText || "No Question"}</TableCell>
+                      <TableCell>{faq.answer || faq.answerText || "No Answer"}</TableCell>
+                      <TableCell>
+                        {faq.createdAt ? (
+                          <>
+                            {new Date(faq.createdAt).toLocaleDateString()}{" "}
+                            {new Date(faq.createdAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </>
+                        ) : (
+                          "No Date"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <ActionsWrapper>
+                          <BiEditAlt
+                            size={20}
+                            color="#000"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleEdit(faq)}
+                          />
+                          <RiDeleteBin6Line
+                            size={20}
+                            color="#FB4F4F"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => confirmDelete(faq)}
+                          />
+                        </ActionsWrapper>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           )}
@@ -150,14 +185,13 @@ const FAQ = () => {
       </Header>
 
       {/* Delete confirmation modal */}
-      <DeleteModal
-        isOpen={isDeleteOpen}
-        onClose={() => {
-          setIsDeleteOpen(false);
-          setFaqToDelete(null);
-        }}
-        onDelete={handleDelete}
-      />
+      {isDeleteOpen && (
+        <DeleteModal
+          isOpen={isDeleteOpen}
+          onClose={() => setIsDeleteOpen(false)}
+          onDelete={handleDelete}
+        />
+      )}
     </FAQContainer>
   );
 };
