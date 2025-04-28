@@ -5,14 +5,12 @@ import {
   Form,
   Input,
   Textarea,
-  Button,
   TableWrapper,
   Table,
   TableRow,
   TableHeader,
   TableCell,
   ViewLink,
-  // IconButton,
   ActionsWrapper,
   BtnTitle,
   AddTestButton,
@@ -93,8 +91,6 @@ const Testimonial = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-
-          <Button>Create</Button>
 
         </Form>
 

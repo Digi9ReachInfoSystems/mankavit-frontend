@@ -32,7 +32,8 @@ import LiveClass from './module/admin/pages/WebManagement/LiveClass/LiveClass'
 import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLiveClass'
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
 import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
-import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq'
+import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq/AddFaq'
+// import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
@@ -45,6 +46,7 @@ import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMe
 import AddStudent from './module/admin/component/AddStudent/AddStudent'
 import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
+import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
 import Profile from './module/user/pages/Profile/Profile'
 import Mycourses from './module/user/pages/MyCourses/MyCourses'
 
@@ -95,8 +97,10 @@ function App() {
             {/* <Route path="static-pages" element={<StaticPage />} /> */}
             
             <Route path="web-management/home" element={<Homepage />} />
+
             <Route path="web-management/faq" element={<FAQ />} />
             <Route path="web-management/faq/create" element={<AddFaq />} />
+            <Route path="web-management/faq/edit/:id" element={<EditFaq />} />
 
             <Route path="web-management/question-paper" element={< Questionpaper/>} />
             <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />

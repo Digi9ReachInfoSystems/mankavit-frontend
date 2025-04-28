@@ -16,17 +16,21 @@ import {
   PageButton
 } from "./FAQ.styles";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   getAllfaqs,
-  updateFaqById,
   deleteFaqById
-} from "../../../../../api/faqApi"; // adjust path as needed
+} from "../../../../../api/faqApi";
+import DeleteModal from "../../../../admin/component/DeleteModal/DeleteModal"; // <-- adjust the path
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [faqToDelete, setFaqToDelete] = useState(null);
+
+  const navigate = useNavigate();
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,16 +39,13 @@ const FAQ = () => {
   const startIndex = (currentPage - 1) * faqsPerPage;
   const currentFaqs = faqs.slice(startIndex, startIndex + faqsPerPage);
 
-  // fetch all FAQs
   useEffect(() => {
     const fetchFaqs = async () => {
       setLoading(true);
-      setError("");
       try {
-        const data = await getAllfaqs(); // expected to return an array
+        const data = await getAllfaqs();
         setFaqs(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError("Failed to load FAQs");
       } finally {
         setLoading(false);
@@ -53,35 +54,27 @@ const FAQ = () => {
     fetchFaqs();
   }, []);
 
-  // delete handler
-  const handleDelete = async (faq) => {
-    if (!window.confirm("Are you sure you want to delete this FAQ?")) return;
-    try {
-      await deleteFaqById(faq._id);
-      setFaqs((prev) => prev.filter((f) => f._id !== faq._id));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete FAQ");
-    }
+  const handleEdit = (faq) => {
+    navigate(`/admin/web-management/faq/edit/${faq._id}`);
   };
 
-  // update handler (simple prompts)
-  const handleEdit = async (faq) => {
-    const newQuestion = window.prompt("Edit question:", faq.question);
-    if (newQuestion == null) return;
-    const newAnswer = window.prompt("Edit answer:", faq.answer);
-    if (newAnswer == null) return;
+  // when trash icon is clicked:
+  const confirmDelete = (faq) => {
+    setFaqToDelete(faq);
+    setIsDeleteOpen(true);
+  };
+
+  // actually delete after confirmation
+  const handleDelete = async () => {
+    if (!faqToDelete) return;
     try {
-      const updated = await updateFaqById(faq._id, {
-        question: newQuestion,
-        answer: newAnswer
-      });
-      setFaqs((prev) =>
-        prev.map((f) => (f._id === faq._id ? updated : f))
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update FAQ");
+      await deleteFaqById(faqToDelete._id);
+      setFaqs((prev) => prev.filter((f) => f._id !== faqToDelete._id));
+    } catch {
+      alert("Failed to delete FAQ");
+    } finally {
+      setIsDeleteOpen(false);
+      setFaqToDelete(null);
     }
   };
 
@@ -97,7 +90,6 @@ const FAQ = () => {
 
       <Header>
         <h3>FAQs</h3>
-
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         <TableWrapper>
@@ -132,7 +124,7 @@ const FAQ = () => {
                       />
                       <FaTrash
                         style={{ cursor: "pointer" }}
-                        onClick={() => handleDelete(faq)}
+                        onClick={() => confirmDelete(faq)}
                       />
                     </TableCell>
                   </TableRow>
@@ -156,6 +148,16 @@ const FAQ = () => {
           </PaginationContainer>
         )}
       </Header>
+
+      {/* Delete confirmation modal */}
+      <DeleteModal
+        isOpen={isDeleteOpen}
+        onClose={() => {
+          setIsDeleteOpen(false);
+          setFaqToDelete(null);
+        }}
+        onDelete={handleDelete}
+      />
     </FAQContainer>
   );
 };
