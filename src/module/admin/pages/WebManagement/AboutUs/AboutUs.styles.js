@@ -96,6 +96,7 @@ export const Input = styled.input`
   resize: none;
   font-size: 1rem;
   box-sizing: border-box;
+  
 
   &:focus {
     outline: none;
@@ -108,8 +109,8 @@ export const Textarea = styled.textarea`
   padding: 1rem 1.5rem;
   border: ${props => props.theme.colors.platinumlightgray} 1px solid;
   border-radius: 6px;
-  font-size: 0.95rem;
-  resize: none;
+  font-size: 1rem;
+  // resize: none;
   outline: none;
   box-sizing: border-box;
 

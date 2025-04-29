@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/components/GotQuestions/GotQuestions.jsx
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Content,
@@ -12,32 +13,34 @@ import {
   Answer,
   ViewAllButton
 } from './GotQuestions.styles';
-
-import ladyJustice from '../../../assets/Study2.png'; // your image path
+import { getAllfaqs } from '../../../api/faqApi';
+import ladyJustice from '../../../assets/Study2.png';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-
-const questionsData = [
-  {
-    question: 'What courses does Mankavit offer?',
-    answer:
-      'We offer coaching for CLAT, AILET, DU LLM, and ILICAT exams, with tailored programs for each.',
-  },
-  {
-    question: 'Can I get personalized coaching?',
-    answer: '',
-  },
-  {
-    question: 'What makes Mankavit different from other coaching centers?',
-    answer: '',
-  },
-  {
-    question: 'How can I enroll in a course?',
-    answer: '',
-  },
-];
+import { useNavigate } from 'react-router-dom';
 
 const GotQuestion = () => {
-  const [openIndex, setOpenIndex] = useState(0);
+  const [faqs, setFaqs] = useState([]);
+  const [openIndex, setOpenIndex] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAllfaqs();
+        setFaqs(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setError('Could not load FAQs.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFaqs();
+  }, []);
 
   const toggleQuestion = (index) => {
     setOpenIndex(prev => (prev === index ? null : index));
@@ -49,24 +52,29 @@ const GotQuestion = () => {
         <LeftImage src={ladyJustice} alt="Justice" />
 
         <RightSection>
-          <Heading>Got Question?</Heading>
+          <Heading>Got Questions?</Heading>
 
-          {questionsData.map((item, index) => (
-            <QuestionItem key={index}>
-              <QuestionHeader onClick={() => toggleQuestion(index)}>
-                <QuestionText>{item.question}</QuestionText>
+          {loading && <p>Loading FAQs…</p>}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+
+          {!loading && !error && faqs.map((faq, idx) => (
+            <QuestionItem key={faq._id}>
+              <QuestionHeader onClick={() => toggleQuestion(idx)}>
+                <QuestionText>{faq.question}</QuestionText>
                 <ArrowIcon>
-                  {openIndex === index ? <FaChevronUp /> : <FaChevronDown />}
+                  {openIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
                 </ArrowIcon>
               </QuestionHeader>
 
-              {openIndex === index && item.answer && (
-                <Answer>{item.answer}</Answer>
+              {openIndex === idx && faq.answer && (
+                <Answer>{faq.answer}</Answer>
               )}
             </QuestionItem>
           ))}
-
-          <ViewAllButton>View All Questions</ViewAllButton>
+{/* 
+          <ViewAllButton onClick={() => navigate('/faq')}>
+            View All Questions
+          </ViewAllButton> */}
         </RightSection>
       </Content>
     </Container>
