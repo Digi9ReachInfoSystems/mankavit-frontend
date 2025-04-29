@@ -2,6 +2,60 @@ import styled from 'styled-components';
 import theme from '../../../../theme/Theme';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 
+// TOGGLE BUTTON
+export const ToggleButton = styled.button`
+  position: fixed;
+  top: 20px;
+  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '310px' : '20px')};
+  z-index: 999;
+  background: ${theme.colors.primary};
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  transition: left 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${theme.colors.secondary};
+
+  @media (min-width: 991px) {
+    display: none;
+  }
+`;
+
+// SIDEBAR WRAPPER
+export const SidebarWrapper = styled.div`
+  display: flex;
+  padding: ${theme.spacing(3)};
+  background: ${theme.colors.white};
+  padding-top: 20px;
+  padding-bottom: 50px;
+  height: 80vh;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  position: fixed;
+  top: 0;
+  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-320px')};
+  width: 300px;
+  transition: left 0.3s ease;
+  z-index: 998;
+
+  @media (min-width: 991px) {
+    position: relative;
+    left: 0;
+    height: auto;
+    box-shadow: none;
+  }
+`;
+
+export const SidebarContainer = styled.div`
+  width: 100%;
+  background: ${theme.colors.secondary};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
 
 export const StyledNavLink = styled(RouterNavLink).attrs({
   activeClassName: 'active'
@@ -22,26 +76,27 @@ export const StyledNavLink = styled(RouterNavLink).attrs({
     color: ${theme.colors.primary};
   }
 `;
-export const SidebarWrapper = styled.div`
-  display: flex;
-  padding: ${theme.spacing(3)};
-  background: ${theme.colors.white };
-  padding-top: 0px;
-  padding-bottom: 50px;
-  height: 80vh;
-`;
+// export const SidebarWrapper = styled.div`
+//   display: flex;
+//   padding: ${theme.spacing(3)};
+//   background: ${theme.colors.white };
+//   padding-top: 20px;
+//   padding-bottom: 50px;
+//   height: 80vh;
+//     box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+// `;
 
-export const SidebarContainer = styled.div`
-  width: 300px;
-  background: ${theme.colors.secondary};
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
-`;
+// export const SidebarContainer = styled.div`
+//   width: 300px;
+//   background: ${theme.colors.secondary};
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+
+// `;
 
 export const Logo = styled.div`
-  padding: ${theme.spacing(4)};
+  padding: ${theme.spacing(6)};
   font-family: ${theme.fonts.heading};
   font-size: 1.25rem;
   color: ${theme.colors.primary};
@@ -64,7 +119,7 @@ export const MenuList = styled.ul`
 `;
 
 export const MenuItem = styled.li`
-  margin-bottom: ${theme.spacing(1)};
+  margin-bottom: ${theme.spacing(2)};
 `;
 
 export const MenuLink = styled(RouterNavLink).attrs(() => ({
@@ -74,7 +129,7 @@ export const MenuLink = styled(RouterNavLink).attrs(() => ({
   align-items: center;
   padding: ${theme.spacing(2)} ${theme.spacing(3)};
   font-family: ${theme.fonts.body};
-  font-size: 1rem;
+  font-size: 18px;
   color: ${theme.colors.darkgray};
   background: ${theme.colors.lightwhite};
   text-decoration: none;
