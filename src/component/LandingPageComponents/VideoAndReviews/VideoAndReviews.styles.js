@@ -6,7 +6,7 @@ export const Section = styled.section`
 `;
 
 export const VideoWrapper = styled.div`
-  width: 70%;
+  width: 80%;
   height: 600px;
   margin: 0 auto 60px;
   background-color: #f0f0f0;
@@ -39,7 +39,7 @@ export const ReviewsContainer = styled.div`
 //   flex-wrap: wrap;
 margin: 0 auto;
   gap: 20px;
-  width: 70%;
+  width: 85%;
 
   @media (max-width: 1024px) {
     width: 90%;
@@ -61,23 +61,23 @@ export const ReviewCard = styled.div`
 `;
 
 export const Avatar = styled.img`
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 15px;
 `;
 
 export const ReviewText = styled.p`
-  font-size: 18px;
+  font-size: 20px;
   color: #555;
-  margin-bottom: 15px;
+  margin-bottom: 3rem;
 `;
 
 export const ReviewerName = styled.h4`
   margin: 0;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 18px;
 `;
 
 export const ReviewerTitle = styled.p`
@@ -85,4 +85,5 @@ export const ReviewerTitle = styled.p`
   font-weight: bold;
   font-size: 16px;
   color: #111;
+  margin-bottom: 2rem;
 `;

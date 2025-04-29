@@ -6,28 +6,39 @@ export const Container = styled.section`
 
 export const Content = styled.div`
   display: flex;
-  align-items: center;
   gap: 40px;
-  flex-wrap: wrap;
-  justify-content: center;
+    width: 80%;
+    margin: 0 auto;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
 `;
 
+
 export const LeftImage = styled.img`
-  width: 350px;
+  width: 550px;
   max-width: 100%;
   border-radius: 16px;
+
+  @media (max-width: 1320px) {
+    width: 450px;
+  }
+
+  @media (max-width: 1200px) {
+    width: 400px;
+  }
 `;
 
 export const RightSection = styled.div`
   flex: 1;
-  min-width: 300px;
-  max-width: 600px;
 `;
 
 export const Heading = styled.h2`
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 25px;
+  font-size: 48px;
+  font-weight: 400;
+  margin: 0; 
+  margin-bottom: 40px;
 `;
 
 export const QuestionItem = styled.div`
@@ -43,20 +54,33 @@ export const QuestionHeader = styled.div`
 `;
 
 export const QuestionText = styled.h4`
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 500;
   margin: 0;
+  color: #252525;
 `;
 
 export const ArrowIcon = styled.div`
-  font-size: 14px;
-  color: #007bff;
+
+  .arrow-up {
+    color: #25252570;
+    font-size: 28px;
+        margin-right: -3px;
+  }
+
+  .arrow-down {
+    background: linear-gradient(to right, #0DCAF0, #007BFF);
+    color: white;
+    border-radius: 50%;
+    font-size: 22px;
+
+  }
 `;
 
 export const Answer = styled.p`
   margin-top: 8px;
-  color: #666;
-  font-size: 14px;
+  color: #25252570;
+  font-size: 16px;
   padding-left: 2px;
 `;
 

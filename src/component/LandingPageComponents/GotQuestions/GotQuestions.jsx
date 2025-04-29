@@ -15,7 +15,7 @@ import {
 } from './GotQuestions.styles';
 import { getAllfaqs } from '../../../api/faqApi';
 import ladyJustice from '../../../assets/Study2.png';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { IoIosArrowDropup , IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 
 const GotQuestion = () => {
@@ -31,7 +31,8 @@ const GotQuestion = () => {
       setError(null);
       try {
         const data = await getAllfaqs();
-        setFaqs(Array.isArray(data) ? data : []);
+        console.log('Fetched FAQs:', data);
+        setFaqs(Array.isArray(data.body) ? data.body : []);
       } catch (err) {
         console.error(err);
         setError('Could not load FAQs.');
@@ -57,12 +58,12 @@ const GotQuestion = () => {
           {loading && <p>Loading FAQs…</p>}
           {error && <p style={{ color: 'red' }}>{error}</p>}
 
-          {!loading && !error && faqs.map((faq, idx) => (
+          {!loading && !error && faqs.slice(0, 4).map((faq, idx) => (
             <QuestionItem key={faq._id}>
               <QuestionHeader onClick={() => toggleQuestion(idx)}>
                 <QuestionText>{faq.question}</QuestionText>
                 <ArrowIcon>
-                  {openIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
+                  {openIndex === idx ? <IoIosArrowDropup className='arrow-up' /> : <IoIosArrowDown className='arrow-down' />}
                 </ArrowIcon>
               </QuestionHeader>
 

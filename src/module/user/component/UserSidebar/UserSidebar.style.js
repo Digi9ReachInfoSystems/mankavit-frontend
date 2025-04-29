@@ -2,60 +2,31 @@ import styled from 'styled-components';
 import theme from '../../../../theme/Theme';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 
-// TOGGLE BUTTON
 export const ToggleButton = styled.button`
   position: fixed;
-  top: 20px;
-  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '310px' : '20px')};
-  z-index: 999;
+  top: 50%;
+  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '300px' : '10px')};
+  z-index: 1100;
   background: ${theme.colors.primary};
+  color: ${theme.colors.white};
   border: none;
   border-radius: 50%;
-  padding: 10px;
-  cursor: pointer;
-  transition: left 0.3s ease;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${theme.colors.secondary};
-
-  @media (min-width: 991px) {
-    display: none;
-  }
-`;
-
-// SIDEBAR WRAPPER
-export const SidebarWrapper = styled.div`
-  display: flex;
-  padding: ${theme.spacing(3)};
-  background: ${theme.colors.white};
-  padding-top: 20px;
-  padding-bottom: 50px;
-  height: 80vh;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
-  position: fixed;
-  top: 0;
-  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-320px')};
-  width: 300px;
+  cursor: pointer;
   transition: left 0.3s ease;
-  z-index: 998;
 
   @media (min-width: 991px) {
-    position: relative;
-    left: 0;
-    height: auto;
-    box-shadow: none;
+    display: none; /* Hide toggle button on big screens */
+  }
+
+  @media (max-width: 576px) {
+    left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '10px')};
   }
 `;
-
-export const SidebarContainer = styled.div`
-  width: 100%;
-  background: ${theme.colors.secondary};
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
-
 
 export const StyledNavLink = styled(RouterNavLink).attrs({
   activeClassName: 'active'
@@ -76,24 +47,44 @@ export const StyledNavLink = styled(RouterNavLink).attrs({
     color: ${theme.colors.primary};
   }
 `;
-// export const SidebarWrapper = styled.div`
-//   display: flex;
-//   padding: ${theme.spacing(3)};
-//   background: ${theme.colors.white };
-//   padding-top: 20px;
-//   padding-bottom: 50px;
-//   height: 80vh;
-//     box-shadow: 2px 0 8px rgba(0,0,0,0.05);
-// `;
+export const SidebarWrapper = styled.div`
+  display: flex;
+  padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? '20px' : theme.spacing(0))};
+  padding-bottom: ${({ isSidebarOpen }) => (isSidebarOpen ? '50px' : theme.spacing(0))};
+  padding-left: ${({ isSidebarOpen }) => (isSidebarOpen ? theme.spacing(3) : theme.spacing(0))};
+  padding-right: ${({ isSidebarOpen }) => (isSidebarOpen ? theme.spacing(3) : theme.spacing(0))};
+    background: ${theme.colors.white};
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  position: fixed;
+  top: 0;
+  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-320px')};
+  width: 300px;
+  transition: left 0.3s ease;
+  z-index: 998;
+  bottom:0;
 
-// export const SidebarContainer = styled.div`
-//   width: 300px;
-//   background: ${theme.colors.secondary};
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: space-between;
+  @media (min-width: 991px) {
+    position: relative;
+    left: 0;
+    height: auto;
+    box-shadow: none;
+    padding: ${theme.spacing(3)};
+  }
 
-// `;
+  @media (max-width: 576px) {
+    width: 200px;
+  }
+
+`;
+
+export const SidebarContainer = styled.div`
+  width: 300px;
+  background: ${theme.colors.secondary};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+`;
 
 export const Logo = styled.div`
   padding: ${theme.spacing(6)};
@@ -152,6 +143,18 @@ export const MenuLink = styled(RouterNavLink).attrs(() => ({
   &:hover {
     background: ${theme.colors.lightwhite};
     color: ${theme.colors.primary};
+  }
+
+  .sidebar-icon {
+    font-size: 28px;
+
+    @media (max-width: 576px) {
+      font-size: 20px;
+}
+    }
+
+  @media (max-width: 576px) {
+    font-size: 12px;
   }
 `;
 

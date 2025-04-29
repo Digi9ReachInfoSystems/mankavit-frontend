@@ -23,7 +23,7 @@ import {
 import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
 
 const UserSidebar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
 
   const toggleSidebar = () => {
@@ -51,7 +51,7 @@ const UserSidebar = () => {
     <>
       {/* Toggle Button */}
       <ToggleButton onClick={toggleSidebar} isSidebarOpen={isSidebarOpen}>
-        {isSidebarOpen ? <AiOutlineLeft size={28} /> : <AiOutlineRight size={28} />}
+        {isSidebarOpen ? <AiOutlineLeft size={24} /> : <AiOutlineRight size={24} />}
       </ToggleButton>
 
       {/* Sidebar */}
@@ -60,32 +60,32 @@ const UserSidebar = () => {
           <MenuList>
             <MenuItem>
               <MenuLink to="/user" end>
-                <FaTachometerAlt size={28} /> Dashboard
+                <FaTachometerAlt className='sidebar-icon' /> Dashboard
               </MenuLink>
             </MenuItem>
             <MenuItem>
               <MenuLink to="/user/my-courses">
-                <FaBookOpen size={28} /> My Courses <AiOutlineRight className='arrow-icon' />
+                <FaBookOpen className='sidebar-icon' /> My Courses <AiOutlineRight className='arrow-icon' />
               </MenuLink>
             </MenuItem>
             <MenuItem>
               <MenuLink to="/user/profile">
-                <FaUser size={24} /> Profile
+                <FaUser className='sidebar-icon' /> Profile
               </MenuLink>
             </MenuItem>
             <MenuItem>
               <MenuLink to="/terms">
-                <FaFileContract size={28} /> T&amp;C
+                <FaFileContract className='sidebar-icon' /> T&amp;C
               </MenuLink>
             </MenuItem>
             <MenuItem>
               <MenuLink to="/notification">
-                <FaBell size={28} /> Notification
+                <FaBell className='sidebar-icon' /> Notification
               </MenuLink>
             </MenuItem>
             <MenuItem>
               <MenuLink to="/support">
-                <FaHeadset size={28} /> Contact Support
+                <FaHeadset className='sidebar-icon' /> Contact Support
               </MenuLink>
             </MenuItem>
           </MenuList>

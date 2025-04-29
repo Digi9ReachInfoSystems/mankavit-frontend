@@ -24,8 +24,9 @@ export const Description = styled.p`
 
 // NEW: Horizontal slider container
 export const CardSlider = styled.div`
-  max-width: 90%;
-  margin: 0 auto;
+  max-width: 98%;
+  // margin: 0 auto;
+  margin-left: auto;
   overflow-x: auto;
   display: flex;
   gap: 20px;
@@ -46,6 +47,7 @@ export const CardSlider = styled.div`
   }
 
   scroll-behavior: smooth;
+  scrollbar-width: none;
 `;
 
 export const Card = styled.div`
@@ -85,8 +87,10 @@ export const ProgressBarWrapper = styled.div`
 `;
 
 export const ProgressBar = styled.div`
-  width: 40%;
+  width: ${({ width }) => width}%;
   height: 100%;
   background-color: #2d79f3;
   border-radius: 4px;
+  transition: width 0.3s ease; /* smooth width change */
 `;
+

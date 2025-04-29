@@ -40,9 +40,7 @@ export default function Footer() {
         <LinkList>
           <li>Student Portal</li>
           <li>Courses</li>
-        <Link
-        to="/aboutus"
-        >  <li>About</li></Link>
+           <li><Link to="/aboutus"> About </Link></li>
           <li>Blogs</li>
         </LinkList>
       </FooterSection>

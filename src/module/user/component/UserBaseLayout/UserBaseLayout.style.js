@@ -13,7 +13,7 @@ export const ContentWrapper = styled.main`
   // background-color: ${theme.colors.backgrounGrey};
  
   @media (max-width: 990px) {
-  margin-left: 200px;
+  // margin-left: 200px;
   max-width: calc(100% - 240px); /* Adjust based on sidebar width */
   }
 
