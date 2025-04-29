@@ -1,31 +1,62 @@
-import React from 'react'
-import { AboutmainContainer, AboutTitle, AboutContent, ContentOne, ContentTwo } from './AboutContainer.styles'
-
-const aboutTexts = [
-  {
-    id: 1,
-    component: ContentOne,
-    text: `Welcome to Mankavit Law Academy, a leading institute dedicated to providing expert coaching and guidance for aspiring law students. Established with the vision to empower students and help them succeed in competitive law exams, we specialize in preparing candidates for CLAT, AILET, DU LL.M, and ILICAT.`
-  },
-  {
-    id: 2,
-    component: ContentTwo,
-    text: `At Mankavit, we believe in fostering a deep understanding of legal concepts through personalized coaching, expert faculty, and comprehensive resources. Our teaching methodology focuses on clarity, engagement, and practical learning to ensure every student is fully prepared to excel in their exams.`
-  }
-]
+// src/components/AboutContainer/AboutContainer.jsx
+import React, { useState, useEffect } from 'react';
+import {
+  AboutmainContainer,
+  AboutTitle,
+  AboutContent,
+  ContentOne,
+  ContentTwo
+} from './AboutContainer.styles';
+import { getAllAboutUs } from '../../../api/aboutUsApi';
 
 const AboutContainer = () => {
+  const [aboutItems, setAboutItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAbout = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAllAboutUs();
+        // Expecting an array like [{ _id, title, description, … }, …]
+        setAboutItems(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setError('Could not load About Us content.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAbout();
+  }, []);
+
   return (
     <AboutmainContainer>
       <AboutTitle>About Us</AboutTitle>
-      <AboutContent>
-        {aboutTexts.map((item) => {
-          const Component = item.component
-          return <Component key={item.id}>{item.text}</Component>
-        })}
-      </AboutContent>
-    </AboutmainContainer>
-  )
-}
 
-export default AboutContainer
+      {loading && <p>Loading…</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {!loading && !error && (
+        <AboutContent>
+          {aboutItems.map((item, idx) => {
+            // alternate components for styling
+            const Component = idx % 2 === 0 ? ContentOne : ContentTwo;
+            return (
+              <Component key={item._id}>
+                {/* if you have a title field and want to render it: */}
+                {item.title && <strong>{item.title}</strong>}
+                <p>{item.description}</p>
+              </Component>
+            );
+          })}
+        </AboutContent>
+      )}
+    </AboutmainContainer>
+  );
+};
+
+export default AboutContainer;

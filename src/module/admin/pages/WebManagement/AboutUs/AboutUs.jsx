@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// src/modules/admin/components/AboutUs/AboutUs.jsx
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Title,
@@ -8,130 +9,221 @@ import {
   Textarea,
   Button,
   TableWrapper,
-  Table,  // Add Table styled component
+  Table,
+  TableHead,
   TableRow,
   TableHeader,
   TableCell,
-  TableHead,
   ActionsWrapper,
-} from './AboutUs.styles';
-import {BiEditAlt} from "react-icons/bi";
-import {RiDeleteBin6Line} from "react-icons/ri";
+} from "./AboutUs.styles";
+import { BiEditAlt } from "react-icons/bi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import {
+  createAboutUs,
+  getAllAboutUs,
+  deleteAboutUsById,
+  updateAboutUsById
+} from "../../../../../api/aboutUsApi";
 
-const Aboutus = () => {
-    const [formData, setFormData] = useState({
-      title: '',
-      description: '',
+const AboutUs = () => {
+  // the list
+  const [items, setItems] = useState([]);
+  const [loadingList, setLoadingList] = useState(false);
+
+  // form (id === '' means “new”)
+  const [formData, setFormData] = useState({
+    id: "",
+    title: "",
+    description: "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  // delete modal
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  // error
+  const [error, setError] = useState("");
+
+  // fetch (or re-fetch) the list
+  const fetchItems = async () => {
+    setLoadingList(true);
+    setError("");
+    try {
+      const data = await getAllAboutUs();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load entries.");
+    } finally {
+      setLoadingList(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  // handle form field changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((f) => ({ ...f, [name]: value }));
+  };
+
+  // create or update
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.description.trim()) return;
+
+    setSaving(true);
+    setError("");
+    try {
+      if (formData.id) {
+        await updateAboutUsById(formData.id, {
+          title: formData.title,
+          description: formData.description,
+        });
+      } else {
+        await createAboutUs({
+          title: formData.title,
+          description: formData.description,
+        });
+      }
+      // reset form & refresh list
+      setFormData({ id: "", title: "", description: "" });
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+      setError("Save failed. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // populate form for editing
+  const handleEdit = (item) => {
+    setFormData({
+      id: item._id,
+      title: item.title,
+      description: item.description,
     });
-    const [Modal, setModal] = useState(false);
-  
-    const [submittedData, setSubmittedData] = useState(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    };
-  
-    const handleSubmit = () => {
-      setSubmittedData(formData);
-      setFormData({ title: '', description: '' }); // Optional: clear the form after update
-    };
-  
-    const handleDelete = (id) => {
-      setDeleteId(id);
-      setModal(true);
-    };
-  
-    const handleClickDelete = () => {
-      const updatedData = data.filter((item) => item.id !== deleteId);
-      const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
-      const newCurrentPage =
-        currentPage > newTotalPages ? newTotalPages : currentPage;
-  
-      setData(updatedData);
-      setCurrentPage(newCurrentPage);
-      setModal(false);
+  // open delete dialog
+  const handleDeleteClick = (id) => {
+    setDeleteId(id);
+    setIsDeleteOpen(true);
+  };
+
+  // confirm deletion
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    setError("");
+    try {
+      await deleteAboutUsById(deleteId);
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+      setError("Delete failed. Please try again.");
+    } finally {
+      setIsDeleteOpen(false);
       setDeleteId(null);
-    };
-  
+    }
+  };
 
   return (
-<Container>
-      <Title>Why Mankavit</Title>
+    <Container>
+      <Title>About us</Title>
 
-      <FormGroup>
-        <Label>Title</Label>
-        <Input
-          type="text"
-          name="title"
-          placeholder="Write title here"
-          value={formData.title}
-          onChange={handleChange}
-        />
-      </FormGroup>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <FormGroup>
-        <Label>Description</Label>
-        <Textarea
-          name="description"
-          placeholder="Write description here"
-          rows={8}
-          value={formData.description}
-          onChange={handleChange}
-        />
-      </FormGroup>
+      {/* NEW: wrap in <form> */}
+      <form onSubmit={handleSubmit}>
+        <FormGroup>
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            name="title"
+            placeholder="Write title here"
+            value={formData.title}
+            onChange={handleChange}
+          />
+        </FormGroup>
 
-      <Button onClick={handleSubmit}>Update changes</Button>
+        <FormGroup>
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="Write description here"
+            rows={8}
+            value={formData.description}
+            onChange={handleChange}
+          />
+        </FormGroup>
 
-      {/* Show table if data is submitted */}
-      {submittedData && (
-        <TableWrapper>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader>Title</TableHeader>
-              <TableHeader>Description</TableHeader>
-              <TableHeader>Action</TableHeader>
-            </TableRow>
-          </TableHead>
-          <tbody>
-            <TableRow>
-              <TableCell>{submittedData.title}</TableCell>
-              <TableCell>{submittedData.description}</TableCell>
-              <TableCell>
+        <Button type="submit" disabled={saving}>
+          {saving
+            ? "Saving..."
+            : formData.id
+            ? "Update changes"
+            : "Add About Us"}
+        </Button>
+      </form>
+
+      <TableWrapper>
+        {loadingList ? (
+          <p>Loading...</p>
+        ) : items.length > 0 ? (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Title</TableHeader>
+                <TableHeader>Description</TableHeader>
+                <TableHeader>Action</TableHeader>
+              </TableRow>
+            </TableHead>
+            <tbody>
+              {items.map((item) => (
+                <TableRow key={item._id}>
+                  <TableCell>{item.title}</TableCell>
+                  <TableCell>{item.description}</TableCell>
+                  <TableCell>
                     <ActionsWrapper>
                       <BiEditAlt
                         size={20}
-                        color="#000"
                         style={{ cursor: "pointer" }}
+                        onClick={() => handleEdit(item)}
                       />
                       <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"
-                        onClick={() => handleDelete(item.id)}
                         style={{ cursor: "pointer" }}
+                        onClick={() => handleDeleteClick(item._id)}
                       />
                     </ActionsWrapper>
                   </TableCell>
-            </TableRow>
-          </tbody>
-        </Table>
-        </TableWrapper>
-      )}
-            {Modal && (
-        <DeleteModal
-          isOpen={Modal}
-          onClose={() => setModal(false)}
-          onDelete={handleClickDelete}
-        />
-      )}
+                </TableRow>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <p>No records found.</p>
+        )}
+      </TableWrapper>
+
+      <DeleteModal
+        isOpen={isDeleteOpen}
+        onClose={() => {
+          setIsDeleteOpen(false);
+          setDeleteId(null);
+        }}
+        onDelete={handleConfirmDelete}
+      />
     </Container>
-  )
+  );
 };
 
-
-export default Aboutus;
+export default AboutUs;
