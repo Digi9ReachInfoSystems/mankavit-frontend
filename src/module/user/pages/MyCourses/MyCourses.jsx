@@ -29,45 +29,33 @@ import {
     Testtime,
     ListContent,
     Testtitle,
+    Testsubtitle,
     Testpara,
+    Testattempt,
+    Testdetails,
+    // Testduration,
+    // Testquestions,
+    // Testmarks,
+    ClassCard,
+    Classtime,
     LiveBadge,
     ViewAllLink
 } from './MyCourses.styles';
 import lawimg from "../../../../assets/lawentrance.png";
-import { FcCalendar } from "react-icons/fc";
 import { FaStar } from "react-icons/fa";
-import { FcOk } from "react-icons/fc";
+import { FcOk, FcCalendar, FcClock } from "react-icons/fc";
 
 const MyCourses = () => {
-    
+
     const courses = [
         {
-          title: "CLAT",
-          subtitle: "Preparation",
-          description: "Comprehensive coaching to crack CLAT and enter top law schools.",
-          duration: "6-12 Months",
-          successRate: "90%+",
-          progress: 63,
-          completed: false,
-        },
-        {
-          title: "CLAT",
-          subtitle: "Preparation",
-          description: "Comprehensive coaching to crack CLAT and enter top law schools.",
-          duration: "6-12 Months",
-          successRate: "90%+",
-          progress: 63,
-          completed: false,
-        },
-        {
-          title: "CLAT",
-          subtitle: "Preparation",
-          description: "Comprehensive coaching to crack CLAT and enter top law schools.",
-          duration: "6-12 Months",
-          successRate: "90%+",
-          progress: 100,
-          completed: true,
-          rating: 4.3,
+            title: "CLAT",
+            subtitle: "Preparation",
+            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
+            duration: "6-12 Months",
+            successRate: "90%+",
+            progress: 63,
+            completed: false,
         },
         {
             title: "CLAT",
@@ -77,17 +65,8 @@ const MyCourses = () => {
             successRate: "90%+",
             progress: 63,
             completed: false,
-          },
-          {
-            title: "CLAT",
-            subtitle: "Preparation",
-            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
-            duration: "6-12 Months",
-            successRate: "90%+",
-            progress: 63,
-            completed: false,
-          },
-          {
+        },
+        {
             title: "CLAT",
             subtitle: "Preparation",
             description: "Comprehensive coaching to crack CLAT and enter top law schools.",
@@ -96,8 +75,36 @@ const MyCourses = () => {
             progress: 100,
             completed: true,
             rating: 4.3,
-          },
-      ];
+        },
+        {
+            title: "CLAT",
+            subtitle: "Preparation",
+            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
+            duration: "6-12 Months",
+            successRate: "90%+",
+            progress: 63,
+            completed: false,
+        },
+        {
+            title: "CLAT",
+            subtitle: "Preparation",
+            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
+            duration: "6-12 Months",
+            successRate: "90%+",
+            progress: 63,
+            completed: false,
+        },
+        {
+            title: "CLAT",
+            subtitle: "Preparation",
+            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
+            duration: "6-12 Months",
+            successRate: "90%+",
+            progress: 100,
+            completed: true,
+            rating: 4.3,
+        },
+    ];
 
     const renderStars = (rating) => {
         const stars = [];
@@ -117,13 +124,13 @@ const MyCourses = () => {
     };
 
     const upcomingTests = [
-        { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — CLAT 2025", type: "Practice Test" },
-        { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — CLAT 2025", type: "Practice Test" },
+        { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — ", subtitle: "CLAT 2025", type: "Practice Test", attempt: "Attempted - 1", duration: "120 minutes", questions: "50", marks: "100" },
+        { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — ", subtitle: "CLAT 2025", type: "Practice Test", attempt: "Attempted - 1", duration: "120 minutes", questions: "50", marks: "100" },
     ];
 
     const liveClasses = [
-        { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live — CLAT 2025 Practice", type: "Dummy Topic", live: true },
-        { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live — CLAT 2025 Practice", type: "Dummy Topic", live: true },
+        { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live —", subtitle: "CLAT 2025 Practice", type: "Dummy Topic", live: true, attempt: "Ongoing",  duration: "120 minutes" },
+        { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live —", subtitle: "CLAT 2025 Practice", type: "Dummy Topic", live: false, attempt: "28:00 min remaining", duration: "120 minutes" },
     ];
 
     return (
@@ -209,8 +216,20 @@ const MyCourses = () => {
                             <Testtime>{test.time}</Testtime>
                         </ListTime>
                         <ListContent>
-                            <Testtitle>{test.title}</Testtitle>
+                            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                <Testtitle>{test.title}</Testtitle>
+                                <Testsubtitle>{test.subtitle}</Testsubtitle>
+                            </div>
                             <Testpara>{test.type}</Testpara>
+                            <Testattempt>{test.attempt}</Testattempt>
+                            <Testdetails>
+                                    <p className='testDetails'>🕒 Duration: {test.duration} </p> <div className='endLine'></div>
+
+                                    <p className='testDetails'>📋 Total Questions:{test.questions}</p> <div className='endLine'></div>
+
+                                    <p className='testDetails'>🎯 Total Marks: {test.marks}</p> 
+                            </Testdetails>
+
                         </ListContent>
                     </ListCard>
                 ))}
@@ -221,15 +240,29 @@ const MyCourses = () => {
                 <SectionTitle>Upcoming Live Classes <ViewAllLink>View all</ViewAllLink></SectionTitle>
                 {liveClasses.map((cls, index) => (
                     <ListCard key={index} live>
-                        <ListTime>
-                            <div>{cls.date}</div>
-                            <div>{cls.month}</div>
-                            <div>{cls.live && <LiveBadge>LIVE</LiveBadge>}</div>
-                            <div>{cls.time}</div>
-                        </ListTime>
+                        <ClassCard>
+                            <Testdate>{cls.date}</Testdate>
+                            <Testmonth>{cls.month}</Testmonth>
+                            <Classtime>
+                                {cls.live ? (
+                                    <LiveBadge>LIVE <div className='liveDot'></div></LiveBadge>
+                                ) : (
+                                    cls.time
+                                )}
+                            </Classtime>
+                        </ClassCard>
                         <ListContent>
-                            <h5>{cls.title}</h5>
-                            <p>{cls.type}</p>
+                            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                <Testtitle>{cls.title}</Testtitle>
+                                <Testsubtitle>{cls.subtitle}</Testsubtitle>
+                            </div>
+                            <Testpara>{cls.type}</Testpara>
+                            <Testattempt>{cls.attempt}</Testattempt>
+                            <Testdetails>
+
+                            <p className='testDetails'>🕒 Duration: {cls.duration} </p> 
+
+                            </Testdetails>
                         </ListContent>
                     </ListCard>
                 ))}
