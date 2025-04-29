@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   AchieversSection,
   Title,
@@ -21,6 +21,16 @@ const achievers = Array(19).fill({
 });
 
 const Achievers = () => {
+  const sliderRef = useRef(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const handleScroll = (e) => {
+    const { scrollLeft, scrollWidth, clientWidth } = e.target;
+    const maxScrollLeft = scrollWidth - clientWidth;
+    const scrolled = (scrollLeft / maxScrollLeft) * 100;
+    setScrollProgress(scrolled || 0); // fallback to 0 if NaN
+  };
+
   return (
     <AchieversSection>
       <Title>
@@ -31,7 +41,7 @@ const Achievers = () => {
         Join us and start your journey toward achieving your law career goals today!
       </Description>
 
-      <CardSlider>
+      <CardSlider ref={sliderRef} onScroll={handleScroll}>
         {achievers.map((achiever, index) => (
           <Card key={index}>
             <Avatar src={achiever.image} alt={achiever.name} />
@@ -42,7 +52,7 @@ const Achievers = () => {
       </CardSlider>
 
       <ProgressBarWrapper>
-        <ProgressBar />
+        <ProgressBar width={scrollProgress} />
       </ProgressBarWrapper>
     </AchieversSection>
   );

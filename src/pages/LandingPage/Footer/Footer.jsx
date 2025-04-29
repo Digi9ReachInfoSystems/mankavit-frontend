@@ -17,6 +17,7 @@ import {
 } from "./Footer.styles";
 import { MdPhone } from "react-icons/md";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 
 export default function Footer() {
@@ -39,7 +40,7 @@ export default function Footer() {
         <LinkList>
           <li>Student Portal</li>
           <li>Courses</li>
-          <li>About</li>
+           <li><Link to="/aboutus"> About </Link></li>
           <li>Blogs</li>
         </LinkList>
       </FooterSection>
