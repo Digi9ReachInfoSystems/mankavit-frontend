@@ -21,6 +21,8 @@ const theme = {
      silverGray: "#B1B2B5",
      dimGray: "#696969",
      charcoalGray: "#272727",
+     darkblueGray: "#171821",
+     graniteGray: "#717171",
      pureblack: "#000000",
      blueishblack: "#0C0D19",
      jetBlack: "#2F2F2F",
@@ -28,7 +30,9 @@ const theme = {
      emaraldgreen: "#20A100",
      goldenyellow:"#D4B200",
      crimsonRed: "#FB4F4F",
+     vividRed: "#FF1010",
      logoutButtonColor: "#FF2E00",
+     salmonPink: "#FF6161",
      
     },
     fonts: {
