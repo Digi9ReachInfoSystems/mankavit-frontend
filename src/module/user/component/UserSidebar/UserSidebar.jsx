@@ -84,7 +84,7 @@ const UserSidebar = () => {
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/support">
+              <MenuLink to="/user/contactsupport">
                 <FaHeadset className='sidebar-icon' /> Contact Support
               </MenuLink>
             </MenuItem>
