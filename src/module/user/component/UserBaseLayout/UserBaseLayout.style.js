@@ -10,11 +10,12 @@ export const PageWrapper = styled.div`
 export const ContentWrapper = styled.main`
   flex: 1;
   display: flex;
+  //  width: calc(100% - 410px); 
   // background-color: ${theme.colors.backgrounGrey};
  
   @media (max-width: 990px) {
   // margin-left: 200px;
-  max-width: calc(100% - 240px); /* Adjust based on sidebar width */
+  // max-width: calc(100% - 240px); /* Adjust based on sidebar width */
   }
 
   @media (max-width: 768px) {

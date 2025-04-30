@@ -49,6 +49,7 @@ import Staticpage from './module/admin/pages/Staticpage/Staticpage'
 import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
 import Profile from './module/user/pages/Profile/Profile'
 import Mycourses from './module/user/pages/MyCourses/MyCourses'
+import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
 
@@ -64,6 +65,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/ourcourses" element={<OurCourses />} />
+          <Route path="/contactsupport" element={<ContactSupport />} />
+          <Route path="/userdash" element={<UserDashboard />} />
+          
 
           {/* <Route path="/user" element={<Test />} > */}
 
@@ -72,6 +76,8 @@ function App() {
             <Route index element={<UserDashboard />} />
             <Route path="profile" element={<Profile />} />
             <Route path='my-courses' element={<Mycourses/>} />
+            <Route path="contactsupport" element={<ContactSupport />} />
+
           {/* </Route> */}
 
           </Route>
