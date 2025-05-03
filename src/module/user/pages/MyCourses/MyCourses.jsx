@@ -1,13 +1,14 @@
 import React from 'react'
 import UserCourses from '../../component/UserCourses/UserCourses'
 import UpComing from '../../component/UpComing/UpComing'
+import { MainContainer } from './MyCourses.styles'
 
 const MyCourses = () => {
   return (
-    <div style={{ width: "100%"}}>
+    <MainContainer>
       <UserCourses/>
       <UpComing/>
-    </div>
+    </MainContainer>
   )
 }
 

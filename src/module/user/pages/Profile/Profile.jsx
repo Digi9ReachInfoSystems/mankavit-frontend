@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import {
   FormContainer,
   Form,
+  FormWrapper,
   ProfileImage,
   CameraImage,
   InputGroup,
@@ -116,7 +117,7 @@ const AddStudent = () => {
       <Form>
 
         {/* Profile Photo Section */}
-        <div style={{ position: 'relative', display: 'inline-block' }}>
+        <div style={{ position: 'relative', display: 'flex' }}>
           <ProfileImage src={profileImage} alt="Profile" />
           <CameraImage
             src={camera}
@@ -132,111 +133,113 @@ const AddStudent = () => {
           />
         </div>
 
-        <InputGroup>
-          <Label>Full Name</Label>
-          <InputField
-            name="name"
-            value={profileData.name}
-            onChange={handleInputChange}
-            placeholder="Enter Full Name"
-          />
-        </InputGroup>
-
-        <FlexRow>
+        <FormWrapper>
           <InputGroup>
-            <Label>Email</Label>
+            <Label>Full Name</Label>
             <InputField
-              type="email"
-              name="email"
-              value={profileData.email}
+              name="name"
+              value={profileData.name}
               onChange={handleInputChange}
-              placeholder="Enter Email"
+              placeholder="Enter Full Name"
             />
           </InputGroup>
 
-          <InputGroup>
-            <Label>Mobile Number</Label>
-            <MobileInputContainer>
-              <FixedCode>+91 |</FixedCode>
-              <MobileNumberInput
-                type="text"
-                name="mobile"
-                value={profileData.mobile}
+          <FlexRow>
+            <InputGroup>
+              <Label>Email</Label>
+              <InputField
+                type="email"
+                name="email"
+                value={profileData.email}
                 onChange={handleInputChange}
-                placeholder="Enter 10-digit number"
-                maxLength={10}
+                placeholder="Enter Email"
               />
-            </MobileInputContainer>
-          </InputGroup>
-        </FlexRow>
+            </InputGroup>
 
-        <FlexRow>
+            <InputGroup>
+              <Label>Mobile Number</Label>
+              <MobileInputContainer>
+                <FixedCode>+91 <div className='numberLine'></div></FixedCode>
+                <MobileNumberInput
+                  type="text"
+                  name="mobile"
+                  value={profileData.mobile}
+                  onChange={handleInputChange}
+                  placeholder="Enter 10-digit number"
+                  maxLength={10}
+                />
+              </MobileInputContainer>
+            </InputGroup>
+          </FlexRow>
 
-          {/* Passport Size Upload Section */}
-          <UploadSection>
-            <Label>Upload Profile Photo <small>(Passport Size)</small></Label>
-            <FlexUpload>
-              <UploadButton onClick={handlePassportPhotoUploadClick}>
-                <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-                Upload Photo
-              </UploadButton>
-              <BrowseButton onClick={handlePassportPhotoUploadClick}>Browse</BrowseButton>
-            </FlexUpload>
-            <input
-              type="file"
-              ref={passportPhotoInputRef}
-              style={{ display: 'none' }}
-              onChange={handlePassportPhotoFileChange}
-              accept="image/*"
-            />
-            {passportPhoto && (
-              <UploadedFileName onClick={() => handleFileClick(passportPhoto)}>
-                {passportPhoto.name}
-              </UploadedFileName>
-            )}
-          </UploadSection>
+          <FlexRow>
 
-          {/* ID Proof Upload Section */}
-          <UploadSection>
-            <Label>Upload ID Proof <small>(Aadhar / Driving License)</small></Label>
-            <FlexUpload>
-              <UploadButton onClick={handleIDProofUploadClick}>
-                <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-                Upload ID Proof
-              </UploadButton>
-              <BrowseButton onClick={handleIDProofUploadClick}>Browse</BrowseButton>
-            </FlexUpload>
-            <input
-              type="file"
-              ref={idProofInputRef}
-              style={{ display: 'none' }}
-              onChange={handleIDProofFileChange}
-              accept="image/*,.pdf"
-            />
-            {uploadedIDProof && (
-              <UploadedFileName onClick={() => handleFileClick(uploadedIDProof)}>
-                {uploadedIDProof.name}
-              </UploadedFileName>
-            )}
-          </UploadSection>
-
-        </FlexRow>
-
-        <SubmitButton>Save Changes</SubmitButton>
-
-        {/* Modal for file view */}
-        {modalFile && (
-          <ModalOverlay onClick={closeModal}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
-              <CloseButton onClick={closeModal}>X</CloseButton>
-              {modalFile.type.startsWith('image/') ? (
-                <img src={modalFile.url} alt="Uploaded File" style={{ width: '100%', height: 'auto' }} />
-              ) : (
-                <iframe src={modalFile.url} width="100%" height="500px" title="Document Viewer" />
+            {/* Passport Size Upload Section */}
+            <UploadSection>
+              <Label>Upload Profile Photo <small>(Passport Size)</small></Label>
+              <FlexUpload>
+                <UploadButton onClick={handlePassportPhotoUploadClick}>
+                  <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
+                  Upload Photo
+                </UploadButton>
+                <BrowseButton onClick={handlePassportPhotoUploadClick}>Browse</BrowseButton>
+              </FlexUpload>
+              <input
+                type="file"
+                ref={passportPhotoInputRef}
+                style={{ display: 'none' }}
+                onChange={handlePassportPhotoFileChange}
+                accept="image/*"
+              />
+              {passportPhoto && (
+                <UploadedFileName onClick={() => handleFileClick(passportPhoto)}>
+                  {passportPhoto.name}
+                </UploadedFileName>
               )}
-            </ModalContent>
-          </ModalOverlay>
-        )}
+            </UploadSection>
+
+            {/* ID Proof Upload Section */}
+            <UploadSection>
+              <Label>Upload ID Proof <small>(Aadhar / Driving License)</small></Label>
+              <FlexUpload>
+                <UploadButton onClick={handleIDProofUploadClick}>
+                  <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
+                  Upload ID Proof
+                </UploadButton>
+                <BrowseButton onClick={handleIDProofUploadClick}>Browse</BrowseButton>
+              </FlexUpload>
+              <input
+                type="file"
+                ref={idProofInputRef}
+                style={{ display: 'none' }}
+                onChange={handleIDProofFileChange}
+                accept="image/*,.pdf"
+              />
+              {uploadedIDProof && (
+                <UploadedFileName onClick={() => handleFileClick(uploadedIDProof)}>
+                  {uploadedIDProof.name}
+                </UploadedFileName>
+              )}
+            </UploadSection>
+
+          </FlexRow>
+
+          <SubmitButton>Save Changes</SubmitButton>
+
+          {/* Modal for file view */}
+          {modalFile && (
+            <ModalOverlay onClick={closeModal}>
+              <ModalContent onClick={(e) => e.stopPropagation()}>
+                <CloseButton onClick={closeModal}>X</CloseButton>
+                {modalFile.type.startsWith('image/') ? (
+                  <img src={modalFile.url} alt="Uploaded File" style={{ width: '100%', height: 'auto' }} />
+                ) : (
+                  <iframe src={modalFile.url} width="100%" height="500px" title="Document Viewer" />
+                )}
+              </ModalContent>
+            </ModalOverlay>
+          )}
+        </FormWrapper>
       </Form>
     </FormContainer>
   );

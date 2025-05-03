@@ -1,5 +1,5 @@
 // import { useState } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import GlobalStyle from './theme/GlobalStyle'
 import theme from './theme/Theme'
@@ -65,8 +65,6 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/ourcourses" element={<OurCourses />} />
-          <Route path="/contactsupport" element={<ContactSupport />} />
-          <Route path="/userdash" element={<UserDashboard />} />
           
 
           {/* <Route path="/user" element={<Test />} > */}
