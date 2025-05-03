@@ -10,6 +10,13 @@ export const Content = styled.div`
     width: 80%;
     margin: 0 auto;
 
+    @media (max-width: 1200px) {
+      width: 90%;
+    }
+      @media (max-width: 1024px) {
+        width: 100%;
+      }
+
     @media (max-width: 768px) {
       flex-direction: column;
     }
@@ -28,6 +35,10 @@ export const LeftImage = styled.img`
   @media (max-width: 1200px) {
     width: 400px;
   }
+
+  @media (max-width: 1024px) {
+    width: 350px;
+  }
 `;
 
 export const RightSection = styled.div`
@@ -39,6 +50,15 @@ export const Heading = styled.h2`
   font-weight: 400;
   margin: 0; 
   margin-bottom: 40px;
+
+  @media (max-width: 1024px) {
+    font-size: 42px;
+  }
+
+
+  @media (max-width: 768px) {
+    font-size: 36px;
+  }
 `;
 
 export const QuestionItem = styled.div`
@@ -58,6 +78,14 @@ export const QuestionText = styled.h4`
   font-weight: 500;
   margin: 0;
   color: #252525;
+
+  @media (max-width: 1024px) {
+    font-size: 22px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
 `;
 
 export const ArrowIcon = styled.div`
@@ -66,6 +94,13 @@ export const ArrowIcon = styled.div`
     color: #25252570;
     font-size: 28px;
         margin-right: -3px;
+
+        @media (max-width: 1024px) {
+          font-size: 22px;
+        }
+          @media (max-width: 768px) {
+            font-size: 20px;
+          }
   }
 
   .arrow-down {
@@ -73,6 +108,13 @@ export const ArrowIcon = styled.div`
     color: white;
     border-radius: 50%;
     font-size: 22px;
+
+    @media (max-width: 1024px) {
+      font-size: 18px;
+    }
+      @media (max-width: 768px) {
+        font-size: 16px;
+      }
 
   }
 `;
@@ -82,6 +124,14 @@ export const Answer = styled.p`
   color: #25252570;
   font-size: 16px;
   padding-left: 2px;
+
+  @media (max-width: 1024px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 export const ViewAllButton = styled.button`

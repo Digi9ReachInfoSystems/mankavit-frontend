@@ -4,10 +4,24 @@ export const HeroSection = styled.section`
   display: flex;
   justify-content: space-between;
   padding: 4rem 6%;
-  background-color:fff;
   // min-height: 90vh;
   font-family: 'Segoe UI', sans-serif;
   margin-top: 60px;
+
+    @media (max-width: 1064px){
+    margin-top: 40px;
+    padding: 3rem 4%;
+    }
+
+    @media (max-width: 768px) {
+        margin-top: 20px;
+    padding: 2rem 2%;
+    }
+
+    @media (max-width: 576px) {
+        margin-top: 10px;
+    padding: 0rem 2%;
+    }
 `;
 
 export const Circle = styled.div`
@@ -20,6 +34,45 @@ export const Circle = styled.div`
   left: 65%;
   transform: translate(-50%, -50%);
   z-index: -1;
+
+  @media (max-width: 1713px) {
+    width: 1100px;
+  }
+
+  @media (max-width: 1568px){
+  width:1000px;
+  height: 800px;
+  }
+  @media (max-width: 1428px){
+    left: 55%;
+  }
+
+  @media (max-width: 1246px) {
+            width: 850px;
+        height: 750px;
+        left: 60%;
+        top: 40%
+
+  }
+
+  @media (max-width: 1064px) {
+            width: 670px;
+        height: 670px;
+        left: 60%;
+        top: 35%;
+  }
+
+      @media (max-width: 837px) {
+        width: 500px;
+        height: 500px;
+        left: 60%;
+        top: 25%;
+}
+
+   @media (max-width: 576px) {
+      display: none;
+}
+  
 `;
 
 export  const SecCircle = styled.div`
@@ -37,6 +90,28 @@ export  const SecCircle = styled.div`
   left: 40%;
   transform: translate(-50%, -50%);
   z-index: -1;
+
+  @media (max-width: 1246px)
+  {
+        top: 60%;
+    left: 35%;
+  }
+  @media (max-width: 1064px){
+  
+
+          top: 50%;
+        left: 40%;
+}
+            @media (max-width: 837px) {
+                        top: 40%;
+        left: 45%;
+        width: 300px;
+        height: 300px;
+}
+
+    @media (max-width: 576px) {
+      display: none;
+}
 `;
 
 export const Title = styled.h1`
@@ -45,6 +120,19 @@ export const Title = styled.h1`
   color: #1a1a1a;
   margin-bottom: 1rem;
   font-family: DM Serif Text;
+
+   @media (max-width: 1428px){
+      font-size: 60px;
+  }
+
+  @media (max-width: 1246px) {
+    font-size : 45px;
+  }
+
+    @media (max-width: 837px) {
+    font-size : 35px;
+  }
+  
 `;
 
 export const SubTitle = styled.p`
@@ -52,11 +140,25 @@ export const SubTitle = styled.p`
   font-weight: 400; 
   color: #252525;
   margin-bottom: 6rem;
+
+    @media (max-width: 1246px) {
+      font-size: 20px;
+      margin-bottom: 5rem;
+    }
+
+      @media (max-width: 837px) {
+                font-size: 14px;
+      margin-bottom: 3rem;
+        }
 `;
 
 export const ButtonsGroup = styled.div`
   display: flex;
   gap: 2rem;
+
+  @media(max-width: 836px){
+    gap: 1rem;
+  }
 `;
 
 export const StartButton = styled.button`
@@ -68,6 +170,14 @@ export const StartButton = styled.button`
   border: none;
   background: linear-gradient(to right, #00c6ff, #0072ff);
   color: #fff;
+
+    @media (max-width: 1246px) {
+      padding: 1rem 2rem;
+}
+
+    @media (max-width: 837px) {
+      padding: .6rem 1.6rem;
+}
 `;
 
 export const ExploreButton = styled.button`
@@ -80,23 +190,59 @@ export const ExploreButton = styled.button`
   background: #fff;
   color: #252525;
   border: 1px solid #252525;
+
+      @media (max-width: 1246px) {
+      padding: 1rem 2rem;
+}
+          @media (max-width: 837px) {
+      padding: .6rem 1.6rem;
+}
 `;
 
 export const LeftContent = styled.div`
   max-width: 50%;
+
+  @media (max-width: 576px) {
+  max-width: 100%;  
+  }
 `;
 
 export const RightImage = styled.div`
-  max-width: 50%;
+  max-width: 90%;
   min-height: 40px;
-      margin-top: 6rem;
     margin-right: 6rem;
 
   img {
     width: 100%;
-    height: 500px;
+    height: 650px;
+
+    @media (max-width: 1428px) {
+      height: 600px;
+    }
+
+        @media (max-width: 1246px) {
+      height: 530px;
+    }
+              @media (max-width: 1064px) {
+      height: 430px;
+    }
+
+        @media (max-width: 837px) {
+          height: 300px;
+}
 
   }
+        @media (max-width: 1428px) {
+        max-width: 80%;
+    }
+
+        @media (max-width: 837px) {
+          max-width: 40%;
+}
+
+   @media (max-width: 576px) {
+      display: none;
+}
 `;
 
 export const Stats = styled.div`
@@ -104,6 +250,14 @@ export const Stats = styled.div`
   justify-content: center;
   gap: 2rem;
   padding: 3rem 8%;
+
+  @media (max-width: 768px){
+    padding: 2rem 5%;
+    gap:1rem;
+  }
+    @media (max-width: 576px) {
+      flex-direction: column;
+    }
 `;
 
 export const StatBox = styled.div`
@@ -112,6 +266,11 @@ export const StatBox = styled.div`
   border-radius: 12px;
   text-align: left;
   width: 300px;
+
+      @media (max-width: 576px) {
+      width: 70%;
+      margin: 0 auto;
+    }
 `;
 
 export const StatTitle = styled.h2`
@@ -119,6 +278,10 @@ export const StatTitle = styled.h2`
   margin-top: 20px;
   color: #007BFF;
   margin: 0;
+
+    @media (max-width: 768px){
+      font-size: 30px;
+  }
 `;
 
 export const StatsDescription = styled.p`
@@ -126,4 +289,8 @@ export const StatsDescription = styled.p`
   color: #203643;
   margin: 0;
   margin-top: 10px;
+
+    @media (max-width: 768px){
+      font-size: 16px;
+  }
 `;

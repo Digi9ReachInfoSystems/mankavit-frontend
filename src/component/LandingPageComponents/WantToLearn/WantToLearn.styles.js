@@ -5,7 +5,9 @@ export const Section = styled.section`
   width: 80%;
   margin: 0 auto;
   text-align: center;
+  overflow: hidden;
 `;
+
 
 export const Title = styled.h2`
   font-size: 48px;
@@ -18,7 +20,7 @@ export const Buttons = styled.div`
   display: flex;
   justify-content: center;
   position: absolute;
-  bottom: 0px; 
+  bottom: 0px;
   width: 100%;
 `;
 
@@ -28,28 +30,23 @@ export const Highlight = styled.span`
 
 export const CardsWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr); 
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  justify-content: center;  
+  justify-content: center;
 
   @media (max-width: 1200px) {
+    display: flex;
     overflow-x: auto;
-    gap: 20px;
     padding-bottom: 10px;
+    gap: 20px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 20px;
+    justify-content: flex-start;
 
-    /* Optional: hide scrollbar visually but keep functionality */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE 10+ */
     &::-webkit-scrollbar {
       display: none; /* Chrome, Safari, Opera */
-    }
-  }
-
-  /* Each child should have a min-width to scroll properly */
-  & > * {
-    @media (max-width: 1200px) {
-      min-width: 300px;
-      flex: 0 0 auto;
     }
   }
 `;
@@ -61,12 +58,16 @@ export const CourseCard = styled.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   position: relative;
-    // height: 20vw;
+
+  @media (max-width: 1200px) {
+    width: 300px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
 `;
 
-export const CardHeader = styled.div`
 
-`;
+export const CardHeader = styled.div``;
 
 export const Image = styled.img`
   width: 100%;
@@ -123,18 +124,18 @@ export const PriceButton = styled.button`
 `;
 
 export const ViewButton = styled.button`
-background-color: transparent;
+  background-color: transparent;
   color: #2d79f3;
   padding: 12px;
   border: none;
   font-size: 14px;
   cursor: pointer;
   transition: 0.3s;
-  font-weight: bold; 
+  font-weight: bold;
   width: 50%;
 
   &:hover {
-text-decoration: underline;
+    text-decoration: underline;
   }
 `;
 
