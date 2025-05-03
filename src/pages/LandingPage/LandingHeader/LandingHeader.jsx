@@ -27,7 +27,7 @@ import Facebook from '../../../assets/facebook.svg';
 import Instagram from '../../../assets/instagram.svg';
 import Twitter from '../../../assets/twitter.svg';
 import Whatsapp from '../../../assets/whatsapp.svg';
-import Linkedin from '../../../assets/linkedin.svg';
+import Linkedin from '../../../assets/linkedIn.svg';
 import Telegram from '../../../assets/telegram.svg';
 
 const Header = () => {

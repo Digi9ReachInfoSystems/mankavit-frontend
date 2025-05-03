@@ -18,7 +18,7 @@ import {
 
   
 } from './LegalEducationHero.styles';
-import heroImage from '../../../assets/landingBannerImag.png'; // Adjust the path as needed
+import heroImage from '../../../assets/LandingBannerImag.png'; // Adjust the path as needed
 
 const LegalEducationHero = () => {
   return (
