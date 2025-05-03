@@ -63,8 +63,8 @@ export const LeftContainer = styled.div`
   @media (max-width: 480px) {
     // width: 100%;
     // margin-left: 40px;
-    flex-direction: column;
-    text-align: center;
+    // flex-direction: column;
+    // text-align: center;
   }
   `;
 
@@ -79,8 +79,8 @@ export const RightContainer = styled.div`
   @media (max-width: 480px) {
     // margin-left: 40px;
     // width: 100%;
-    flex-direction: column;
-    text-align: center;
+    // flex-direction: column;
+    // text-align: center;
   }
   `;
 
@@ -114,7 +114,7 @@ export const FooterSection = styled.div`
     padding: 2px;
     line-height: 1.2;
     margin-left: 20px;
-    text-align: center;
+    // text-align: center;
   }
 `;
 
@@ -139,7 +139,7 @@ export const SectionTitle = styled.h3`
   }
 
   @media (max-width: 480px) {
-    font-size: 12px;
+    font-size: 16px;
   }
 `;
 
@@ -167,7 +167,7 @@ export const ContactInfo = styled.div`
   @media (max-width: 480px) {
     font-size: 12px;
     // width: 70%;
-    text-align: center;
+    // text-align: center;
   }
 `;
 
@@ -217,7 +217,7 @@ export const Phone = styled.div`
 
   @media (max-width: 480px) {
     font-size: 12px;
-    justify-content: center;
+    // justify-content: center;
   }
 `;
 
@@ -314,7 +314,8 @@ export const NewsletterInput = styled.input`
 
   @media (max-width: 480px) {
     font-size: 10px;
-    width: 40%;
+    width: 100%;
+    box-sizing: border-box;
     padding: 4px 8px;
   }
 `;
@@ -351,8 +352,7 @@ export const SubscribeButton = styled.button`
 
   @media (max-width: 480px) {
     font-size: 10px;
-    padding: 2px 2px;
-    margin-left: 10px;
+    // margin-left: 10px;
   }
 
   .rightarrow{
