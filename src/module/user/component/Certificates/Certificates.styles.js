@@ -54,10 +54,27 @@ export const CertificateCard = styled.div`
   max-width: 350px; 
  overflow: hidden;
  flex-shrink: 0; 
+
+ @media (max-width: 768px) {
+    max-width: 300px;
+  }
+  @media (max-width: 480px) {
+    max-width: 250px;
+  }
 `;
 
 export const CertificateImage = styled.img`
   width: 100%;
   height: 300px;
   border-radius: 8px;
+
+  @media (max-width: 1024px) {
+    height: 250px;
+  }
+  @media (max-width: 768px) {
+    height: 200px;
+  }
+  @media (max-width: 480px) {
+    height: 150px;
+  }
 `;

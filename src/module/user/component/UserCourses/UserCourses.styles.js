@@ -1,36 +1,16 @@
 import styled from 'styled-components';
 
-// export const MainContainer = styled.div`
-// //   padding: 0rem 1rem;
-// //   display: flex;
-//   flex-direction: column;
-// //   align-items: center;
-//   justify-content: center;
-// //   margin-left: 30px;
-//   margin-bottom: 3rem;
-//   width: 100%;
-
-//   @media (max-width: 768px) {
-//     padding: 1rem;
-//   }
-// `;
-
-
 export const CourseWrapper = styled.div`
-  display: flex;
+display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 3rem;
-  padding: 0 2rem;
+  // padding: 0 2rem;
+  width: 100%;
+  // max-width: 75vw;
+  box-sizing: border-box;
+  overflow-x: auto;
 `;
-
-// export const CoursesWrapper = styled.div`
-//   display: flex;
-//   gap: 0.5rem;
-//   margin-bottom: 3rem;
-//   // flex-wrap: nowrap;
-//    max-width: 500px;
-// `;
 
 export const Title = styled.h1`
   font-size: 36px;
