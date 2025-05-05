@@ -121,7 +121,7 @@ export const TextArea = styled.textarea`
 
 /** Price input with smaller max-width */
 export const PriceInput = styled(Input)`
-  max-width: 200px;
+  max-width: 250px;
 
   @media(max-width: 990px){
     max-width: 100%;

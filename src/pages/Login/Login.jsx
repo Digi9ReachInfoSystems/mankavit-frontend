@@ -42,6 +42,7 @@ const Login = () => {
                 setErrorMessage('Please enter a valid email address.');
                 return;
             }
+            console.log(email, password);
             const userResponse = await loginUser({ email, password });
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;

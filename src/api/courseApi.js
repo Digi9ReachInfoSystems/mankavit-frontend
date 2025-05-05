@@ -2,7 +2,7 @@ import api from '../config/axiosConfig'
 
 export const createCourse = async (data) => {
     try {
-        const response = await api.post("/course/courses", data);
+        const response = await api.post("/api/v1/course", data);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -12,7 +12,7 @@ export const createCourse = async (data) => {
 
 export const getAllCourses = async () => {
     try {
-        const response = await api.get("/course/courses");
+        const response = await api.get("/api/v1/course");
         return response.data;
     } catch (error) {
         console.log(error);
@@ -23,7 +23,7 @@ export const getAllCourses = async () => {
 
 export const getCourseById = async (id) => {
     try {
-        const response = await api.get(`/course/courses/${id}`);
+        const response = await api.get(`/api/v1/course/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -33,7 +33,7 @@ export const getCourseById = async (id) => {
 
 export const deleteCourseById = async (id) => {
     try {
-        const response = await api.delete(`/course/courses/${id}`);
+        const response = await api.delete(`/api/v1/course/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -43,7 +43,7 @@ export const deleteCourseById = async (id) => {
 
 export const updateCourseById = async (id, data) => {
     try {
-        const response = await api.put(`/course/courses/${id}`, data);
+        const response = await api.put(`/api/v1/course/${id}`, data);
         return response.data;
     } catch (error) {
         console.log(error);

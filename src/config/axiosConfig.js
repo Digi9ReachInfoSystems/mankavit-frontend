@@ -57,6 +57,9 @@ api.interceptors.request.use(
         }
         // Encrypt only for specific endpoints
         //   if (config.url === '/secure-endpoint' && config.data) {
+        if (config.headers['Content-Type']?.startsWith('multipart/form-data')) {
+            return config;
+        }
         if (config.data && ['post', 'put', 'patch'].includes(config.method.toLowerCase())) {
             if (typeof config.data === "string") {
                 if (config.data.includes('"dataEncrypted":"true"')) {

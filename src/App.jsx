@@ -67,7 +67,7 @@ function App() {
           <Route path="/ourcourses" element={<OurCourses />} />
           
 
-          {/* <Route path="/user" element={<Test />} > */}
+          <Route path="/test" element={<Test />} />
 
 
           <Route path="/user" element={<UserBaseLayout />}>
