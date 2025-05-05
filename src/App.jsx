@@ -69,7 +69,7 @@ function App() {
           <Route path="/userdash" element={<UserDashboard />} />
           
 
-          {/* <Route path="/user" element={<Test />} > */}
+          <Route path="/test" element={<Test />} />
 
 
           <Route path="/user" element={<UserBaseLayout />}>

@@ -1,5 +1,5 @@
 // SubjectsTable.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   HeaderRow,
@@ -28,6 +28,8 @@ import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
+import { Select, Space } from "antd";
+import { getSubjects } from "../../../../api/subjectApi";
 
 const mockData = Array.from({ length: 15 }, (_, index) => ({
   id: index + 1,
@@ -51,20 +53,124 @@ export default function Subjects() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState([]);
+  const [sortOption, setSortOption] = useState('Name');
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentItems, setCurrentItems] = useState([]);
+  const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  // const filteredData = data.filter(
+  //   (item) =>
+  //     item.subjectName.toLowerCase().includes(searchText.toLowerCase()) ||
+  //     item.internalName.toLowerCase().includes(searchText.toLowerCase())
+  // );
+
+  // const TOTAL_ENTRIES = filteredData.length;
+  // const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+
+  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  // const endIndex = startIndex + ITEMS_PER_PAGE;
+  // const currentItems = filteredData.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    const appiCaller = async () => {
+      try {
+        const subjectResponse = await getSubjects();
+        const subjectsData = subjectResponse.data.map((item) => ({
+          id: item._id,
+          subjectName: item.subjectDisplayName,
+          internalName: item.subjectName,
+          mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
+          activeCourses: item.courses.map((course) => course.courseName),
+          dateandtime: item.updatedAt,
+        }))
+        setData(subjectsData);
+        const filteredValue = subjectsData.filter((item) =>
+          item.subjectName.toLowerCase().includes(searchText.toLowerCase())
+        )
+        setFilteredData(filteredValue);
+        const TOTAL_ENTRIESValues = filteredValue.length;
+        setTotalEntries(TOTAL_ENTRIESValues);
+        const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+        setTotalPages(totalPagesValues);
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const currentValue = filteredValue.slice(startIndex, endIndex);
+        setCurrentItems(currentValue);
+      } catch (error) {
+        console.log("error",error);
+      }
+
+    }
+    appiCaller();
+  }, [])
+  useEffect(() => {
+    const apiCaller = async () => {
+      const subjectResponse = await getSubjects();
+      const subjectsData = subjectResponse.data.map((item) => ({
+        id: item._id,
+        subjectName: item.subjectDisplayName,
+        internalName: item.subjectName,
+        mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
+        activeCourses: item.courses.map((course) => course.courseName),
+        dateandtime: item.updatedAt,
+      }))
+      setData(subjectsData);
+
+      const sampleData = subjectsData.sort((a, b) => {
+        if (sortOption === 'Name') {
+          return a.subjectName.localeCompare(b.subjectName);
+        } else if (sortOption === 'No. of Mock Test') {
+          return b.mockTest.length - a.mockTest.length;
+        }
+      })
+
+      let filteredValue = sampleData;
+      if (searchText !== "") {
+        filteredValue = sampleData.filter((item) =>
+          item.subjectName.toLowerCase().includes(searchText.toLowerCase())
+        )
+      } else {
 
 
-  const filteredData = data.filter(
-    (item) =>
-      item.subjectName.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.internalName.toLowerCase().includes(searchText.toLowerCase())
-  );
+      }
 
-  const TOTAL_ENTRIES = filteredData.length;
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+      setFilteredData(filteredValue);
+      const TOTAL_ENTRIESValues = filteredValue.length;
+      setTotalEntries(TOTAL_ENTRIESValues);
+      const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+      setTotalPages(totalPagesValues);
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const currentValue = filteredValue.slice(startIndex, endIndex);
+      setCurrentItems(currentValue);
+    };
+    apiCaller();
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = filteredData.slice(startIndex, endIndex);
+    // currentItems = sampleData;
+  }, [sortOption, searchText])
+  const formatToIST = (isoString, options = {}) => {
+    try {
+      const date = new Date(isoString);
+
+      const defaultOptions = {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        ...options
+      };
+
+      return new Intl.DateTimeFormat('en-IN', defaultOptions).format(date);
+    } catch (error) {
+      console.error('Invalid date format:', isoString);
+      return 'Invalid date';
+    }
+  };
 
   const handleSearch = (event) => {
     setSearchText(event.target.value);
@@ -129,11 +235,21 @@ export default function Subjects() {
           </Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value="Name" onChange={() => { }}>
+            <Select
+              defaultValue={sortOption}
+              style={{ width: 120 }}
+              onChange={(value) => setSortOption(value)}
+              options={[
+                { value: 'Name', label: 'Name' },
+                { value: 'No. of Mock Test', label: 'Mock Test Count' },
+                // { value: 'Active', label: 'Active' },
+              ]}
+            />
+            {/* <SortSelect value="Name" onChange={() => { }}>
               <option value="Name">Name</option>
               <option value="MockTests">No. of Mock Test</option>
               <option value="ActiveCourses">Active Courses</option>
-            </SortSelect>
+            </SortSelect> */}
           </SortByContainer>
         </HeaderRow>
 
@@ -179,7 +295,7 @@ export default function Subjects() {
                     <a href="#view" onClick={() => handleOpenModal("activeCourses", item.activeCourses)}>View</a>
                   </TableCell>
 
-                  <TableCell>{item.dateandtime}</TableCell>
+                  <TableCell>{formatToIST(item.dateandtime)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
                       <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }} />
