@@ -62,12 +62,36 @@ export const Card = styled.div`
 export const Avatar = styled.img`
   width: 400px;
   height: 300px;
+
+  @media (max-width: 1024px) {
+    width: 350px;
+    height: 250px;
+  }
+
+  @media (max-width: 768px) {
+    width: 300px;
+    height: 200px;
+  }
+
+  @media (max-width: 480px) {
+    width: 250px;
+    height: 150px;
+  }
+
 `;
 
 export const Name = styled.h3`
   margin: 10px 0 5px;
   font-size: 18px;
   color: #333;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
 `;
 
 export const Achievement = styled.p`

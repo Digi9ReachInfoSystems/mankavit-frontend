@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const ContactContainer = styled.div`
-  margin: 60px auto;
+  margin: 0px auto;
   padding: 20px;
   box-sizing: border-box;
   width: 100%;
@@ -11,14 +11,30 @@ export const ContactTitle = styled.h2`
   font-size: 28px;
   font-weight: 600;
   color: #171821;
+  margin-top: 0;
   margin-bottom: 20px;
+
+  @media (max-width: 1360px) {
+    font-size: 24px;
+  }
+  @media (max-width: 1024px) {
+    font-size: 22px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 
 export const TextArea = styled.textarea`
   width: 100%;
   height: 200px;
   padding: 15px;
-  font-size: 16px;
+  font-size: 18px;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   resize: none;
@@ -27,6 +43,11 @@ export const TextArea = styled.textarea`
   font-family: inherit;
   ::placeholder {
     color: #c0c0c0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    padding: 10px;
   }
 `;
 

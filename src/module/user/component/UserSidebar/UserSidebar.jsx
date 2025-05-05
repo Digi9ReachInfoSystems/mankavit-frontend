@@ -21,6 +21,7 @@ import {
   FaPowerOff 
 } from 'react-icons/fa';
 import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
+import { MdOutlineMenuOpen } from "react-icons/md";
 
 const UserSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -50,8 +51,8 @@ const UserSidebar = () => {
   return (
     <>
       {/* Toggle Button */}
-      <ToggleButton onClick={toggleSidebar} isSidebarOpen={isSidebarOpen}>
-        {isSidebarOpen ? <AiOutlineLeft size={24} /> : <AiOutlineRight size={24} />}
+      <ToggleButton onClick={toggleSidebar} >
+       <MdOutlineMenuOpen size={24} /> 
       </ToggleButton>
 
       {/* Sidebar */}

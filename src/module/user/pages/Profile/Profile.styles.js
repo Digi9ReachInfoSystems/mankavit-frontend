@@ -14,6 +14,9 @@ margin-left: 35px;
     padding: ${(props) => props.theme.spacing(2)};
   }
 
+  @media (max-width: 1024px) {
+    margin-left: 0px;
+  }
   @media (max-width: 768px) {
     margin:0;
 }
@@ -21,28 +24,50 @@ margin-left: 35px;
 
 export const Form = styled.div`
   width: 80%;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
   `;
+export const FormWrapper = styled.div`
+  margin-top: 20px;
+`;
 
 export const ProfileImage = styled.img`
 //   display: block;
   width: 130px;
   height: 130px;
-  object-fit: cover;
+  // object-fit: cover;
   border-radius: 50%;
   margin: 0 ;
   position: relative;
+
+  @media (max-width: 480px) {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+  }
 `;
 
 export  const CameraImage = styled.img`
 position: absolute;
   top: 37%;
-  left: 40%;
+  left: 50px;
   width: 20px;
   height: 20px;
   padding: 5px;
   background-color: ${(props) => props.theme.colors.white};
   border-radius: 50%;
   cursor: pointer;
+
+  @media (max-width: 480px) {
+    width: 15px;
+    height: 15px;
+    left: 47%;
+  }
 `;
 
 export const Title = styled.h1`
@@ -81,7 +106,7 @@ export const Label = styled.label`
     margin-left: 5px;
 
     @media (max-width: 1024px) {
-      font-size: 10px;
+      font-size: 12px;
     }
 
     @media (max-width: 820px) {
@@ -108,6 +133,11 @@ export const InputField = styled.input`
   font-size: 16px;
   color: ${(props) => props.theme.colors.dimGray};
   box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    padding: 10px;
+  }
 `;
 
 export const MobileInputContainer = styled.div`
@@ -125,17 +155,34 @@ export const FixedCode = styled.div`
   white-space: nowrap;
   display: flex;
   align-items: center;
+
+  .numberLine{
+  width: 2px;
+  height: 20px;
+  margin-left: 10px;
+  background-color: #ccc;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 10px;
+  }
 `;
 
 export const MobileNumberInput = styled.input`
   flex: 1;
-  padding: 16px;
+  padding: 16px 8px;
   border: none;
   outline: none;
   font-size: 16px;
   color: ${(props) => props.theme.colors.dimGray};
   &::placeholder {
     color: #aaa;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    padding: 10px;
   }
 `;
 
@@ -164,14 +211,25 @@ export const UploadButton = styled.button`
   cursor: pointer;
   width: 50%;
 
+  &:hover {
+    background-color: ${(props) => props.theme.colors.platinumlightgray};
+  }
+
+  @media (max-width: 1360px) {
+    width: 60%;
+  }
   @media (max-width: 1024px) {
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 12px;
     width: 50%;  
   }
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.platinumlightgray};
+  @media (max-width: 768px) {
+    width: 75%;
+  }
+
+  @media (max-width: 480px) {
+    width: 70%;
   }
 `;
 
@@ -181,34 +239,6 @@ export const UploadedFileName = styled.div`
   cursor: pointer;
   text-decoration: underline;
   font-size: 14px;
-`;
-
-export const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-`;
-
-export const ModalContent = styled.div`
-  background: #fff;
-  padding: 20px;
-  width: 80%;
-  max-width: 600px;
-  border-radius: 10px;
-  position: relative;
-`;
-
-export const CloseButton = styled.button`
-  position: absolute;
-  top: 10px; right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
 `;
 
 export const BrowseButton = styled.button`
@@ -224,6 +254,9 @@ export const BrowseButton = styled.button`
   cursor: pointer;
   width: 20%;
 
+  @media (max-width: 1360px) {
+    width: 25%;
+  }
   @media (max-width: 1024px) {
     padding: 8px 12px;
     font-size: 14px;
@@ -231,6 +264,11 @@ export const BrowseButton = styled.button`
   }
 
   @media (max-width: 768px) {
+    width: 20%;
+        margin-left: auto;
+  }
+
+  @media (max-width: 480px) {
     width: 30%;
   }
 `;
@@ -287,6 +325,10 @@ export const FlexUpload = styled.div`
   gap: 20px;
   flex-wrap: wrap;
 
+  @media (max-width: 1360px) {
+gap: 10px;
+}
+
   @media (max-width: 1024px) {
 flex-wrap: nowrap; 
 }
@@ -298,4 +340,32 @@ flex-wrap: nowrap;
   @media (max-width: 768px) {
     flex-direction: row;
   }
+`;
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+export const ModalContent = styled.div`
+  background: #fff;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+  position: relative;
+`;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: 10px; right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 `;

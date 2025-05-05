@@ -6,9 +6,11 @@ export const MainContainer = styled.div`
   flex-direction: column;
 //   align-items: center;
   justify-content: center;
-  margin-left: 30px;
+  // margin-left: 30px;
   margin-bottom: 3rem;
  width: 100%;
+ box-sizing: border-box;
+
   @media (max-width: 768px) {
     padding: 1rem;
   }
