@@ -5,6 +5,10 @@ export const ContactContainer = styled.div`
   padding: 20px;
   box-sizing: border-box;
   width: 100%;
+
+  @media (max-width: 480px) {
+    padding: 10px;
+  }
 `;
 
 export const ContactTitle = styled.h2`
@@ -31,7 +35,7 @@ export const ContactTitle = styled.h2`
 `;
 
 export const TextArea = styled.textarea`
-  width: 100%;
+  width: 90%;
   height: 200px;
   padding: 15px;
   font-size: 18px;
@@ -43,6 +47,10 @@ export const TextArea = styled.textarea`
   font-family: inherit;
   ::placeholder {
     color: #c0c0c0;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 
   @media (max-width: 480px) {

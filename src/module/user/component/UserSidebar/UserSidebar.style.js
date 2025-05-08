@@ -3,7 +3,7 @@ import theme from '../../../../theme/Theme';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 
 export const ToggleButton = styled.button`
-  position: fixed;
+  position: absolute;
   top: 5%;
   left: ${({ isSidebarOpen }) => (isSidebarOpen ? '300px' : '10px')};
   z-index: 990;
@@ -19,12 +19,16 @@ export const ToggleButton = styled.button`
   cursor: pointer;
   transition: left 0.3s ease;
 
-  @media (min-width: 991px) {
+  @media (min-width: 768px) {
     display: none; /* Hide toggle button on big screens */
   }
 
   @media (max-width: 576px) {
     left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '10px')};
+  }
+
+  @media (max-width: 480px) {
+    top: 38px;
   }
 `;
 
@@ -64,7 +68,7 @@ export const SidebarWrapper = styled.div`
   bottom:0;
   padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? '70px' : '0')};
 
-  @media (min-width: 991px) {
+  @media (min-width: 768px) {
     position: relative;
     left: 0;
     height: auto;

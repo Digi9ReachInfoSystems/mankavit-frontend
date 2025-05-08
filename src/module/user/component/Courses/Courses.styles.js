@@ -23,6 +23,10 @@ export const Title = styled.h1`
     font-size: 1.8rem;
     margin: 1rem 0;
   }
+
+  @media (max-width: 480px) {
+    margin: 0;
+  }
 `;
 
 export const CardGrid = styled.div`
@@ -55,16 +59,13 @@ export const CourseCard = styled.div`
   transition: border 0.3s ease;
   // overflow: hidden;
   // min-width: 300px; 
-  max-width: 350px; 
+  max-width: 300px; 
   margin-bottom: 1rem;
 
-  @media (max-width: 1360px) {
-    max-width: 300px;
-  }
   @media (max-width: 1024px) {
     max-width: 280px;
 
-    @media (max-width) {
+    @media (max-width: 768px) {
     max-width: 230px;
     }
   }
@@ -90,18 +91,35 @@ export const ImageWrapper = styled.div`
 export const ProgressContainer = styled.div`
   margin-bottom: 0;
     padding: 10px 40px;
+
+    @media (max-width: 768px) {
+      padding: 10px 20px;
+    }
 `;
 
 export const ProgressBarContainer = styled.div`
-   margin-bottom: 0;
-    padding: 12px 40px;
+   margin-bottom: 5px;
+    padding: 10px 40px;
+
+    .stars {
+      display: flex;
+      font-size: 18px;
+    }
+
+    @media (max-width: 1024px) {
+      margin-bottom: 6px;
+    }
+    @media (max-width: 768px) {
+      padding: 10px 20px;
+      margin-bottom: 5px;
+    }   
 `;  
 
 export const ProgressLabel = styled.div`
   font-size: 1.2rem;
   font-weight: 400;
   color: #333;
-  // margin-bottom: 5px;
+  // margin-bottom: 8px;
   margin-top: 0;
   text-align: left;
 
@@ -116,6 +134,7 @@ export const ProgressBar = styled.div`
   background-color: #ccc;
   border-radius: 6px;
   overflow: hidden;
+  margin-top: 5px;
 
  @media (max-width: 768px) {
     height: 8px;
@@ -134,7 +153,7 @@ export const CourseContent = styled.div`
   padding: 10px 40px;
 
   @media (max-width: 768px) {
-    padding: 0px 40px;
+    padding: 0px 20px;
   }
 `;
 

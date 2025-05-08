@@ -10,6 +10,7 @@ export const MainContainer = styled.div`
   // margin-left: 30px;
   margin-bottom: 3rem;
   width: 100%;
+  gap: 1rem;
 
   @media (max-width: 768px) {
     padding: 1rem;

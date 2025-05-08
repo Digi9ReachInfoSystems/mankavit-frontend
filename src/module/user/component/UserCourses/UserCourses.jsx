@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     CourseWrapper,
     Title,
@@ -7,7 +7,11 @@ import {
     CardGrid,
     CourseCard,
     ImageWrapper,
-    ProgressContainer, ProgressLabel, ProgressBar, ProgressFill,
+    ProgressContainer,
+    ProgressLabel,
+    ProgressBar,
+    ProgressFill,
+    ProgressBarContainer,
     CourseContent,
     CourseMain,
     CourseHead,
@@ -19,13 +23,14 @@ import {
     DetailItemok,
     PriceActions,
     ViewButton,
-    
 } from './UserCourses.styles';
+
 import lawimg from "../../../../assets/lawentrance.png";
 import { FaStar } from "react-icons/fa";
-import { FcOk, FcCalendar, FcClock } from "react-icons/fc";
+import { FcOk, FcCalendar } from "react-icons/fc";
 
 const UserCourses = () => {
+    const [activeTab, setActiveTab] = useState("All");
 
     const courses = [
         {
@@ -43,7 +48,7 @@ const UserCourses = () => {
             description: "Comprehensive coaching to crack CLAT and enter top law schools.",
             duration: "6-12 Months",
             successRate: "90%+",
-            progress: 63,
+            progress: 29,
             completed: false,
         },
         {
@@ -54,7 +59,7 @@ const UserCourses = () => {
             successRate: "90%+",
             progress: 100,
             completed: true,
-            rating: 4.3,
+            rating: 5,
         },
         {
             title: "CLAT",
@@ -71,7 +76,16 @@ const UserCourses = () => {
             description: "Comprehensive coaching to crack CLAT and enter top law schools.",
             duration: "6-12 Months",
             successRate: "90%+",
-            progress: 63,
+            progress: 48,
+            completed: false,
+        },
+        {
+            title: "CLAT",
+            subtitle: "Preparation",
+            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
+            duration: "6-12 Months",
+            successRate: "90%+",
+            progress: 12,
             completed: false,
         },
         {
@@ -82,9 +96,25 @@ const UserCourses = () => {
             successRate: "90%+",
             progress: 100,
             completed: true,
-            rating: 4.3,
+            rating: 3,
+        },
+        {
+            title: "CLAT",
+            subtitle: "Preparation",
+            description: "Comprehensive coaching to crack CLAT and enter top law schools.",
+            duration: "6-12 Months",
+            successRate: "90%+",
+            progress: 100,
+            completed: true,
+            rating: 1,
         },
     ];
+
+    const filteredCourses = courses.filter(course => {
+        if (activeTab === "Ongoing") return !course.completed;
+        if (activeTab === "Completed") return course.completed;
+        return true; 
+    });
 
     const renderStars = (rating) => {
         const stars = [];
@@ -103,82 +133,73 @@ const UserCourses = () => {
         return stars;
     };
 
-
-
     return (
-            <CourseWrapper>
-                <Title>
-                    My Courses
-                </Title>
+        <CourseWrapper>
+            <Title>My Courses</Title>
 
-                <FilterBar>
-                    <FilterButton active>All</FilterButton>
-                    <FilterButton>Popular</FilterButton>
-                    <FilterButton>Most Liked</FilterButton>
-                </FilterBar>
+            <FilterBar>
+                <FilterButton active={activeTab === "All"} onClick={() => setActiveTab("All")}>All</FilterButton>
+                <FilterButton active={activeTab === "Ongoing"} onClick={() => setActiveTab("Ongoing")}>Ongoing</FilterButton>
+                <FilterButton active={activeTab === "Completed"} onClick={() => setActiveTab("Completed")}>Completed</FilterButton>
+            </FilterBar>
 
-                <CardGrid>
-                    {courses.map((course, index) => (
-                        <CourseCard key={index} completed={course.completed}>
-                            <ImageWrapper>
-                                <img src={lawimg} alt="Law Banner" />
-                            </ImageWrapper>
+            <CardGrid>
+                {filteredCourses.map((course, index) => (
+                    <CourseCard key={index} completed={course.completed}>
+                        <ImageWrapper>
+                            <img src={lawimg} alt="Law Banner" />
+                        </ImageWrapper>
+
+                        {!course.completed ? (
+                            <ProgressContainer>
+                                <ProgressLabel>{course.progress}% Completed</ProgressLabel>
+                                <ProgressBar>
+                                    <ProgressFill style={{ width: `${course.progress}%` }} />
+                                </ProgressBar>
+                            </ProgressContainer>
+                        ) : (
+                            <ProgressBarContainer>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+                                    <ProgressLabel>Reviewed</ProgressLabel>
+                                    <div className='stars'>
+                                        {renderStars(course.rating)}
+                                    </div>
+                                </div>
+                            </ProgressBarContainer>
+                        )}
+
+                        <CourseContent>
+                            <CourseMain>
+                                <CourseHead>
+                                    <CourseTitle>{course.title}</CourseTitle>
+                                    <CourseMinititle>{course.subtitle}</CourseMinititle>
+                                </CourseHead>
+                                <CourseDesc>{course.description}</CourseDesc>
+                            </CourseMain>
 
                             {!course.completed ? (
-                                <ProgressContainer>
-                                    <ProgressLabel>{course.progress}% Completed</ProgressLabel>
-                                    <ProgressBar>
-                                        <ProgressFill style={{ width: `${course.progress}%` }} />
-                                    </ProgressBar>
-                                </ProgressContainer>
+                                <Details>
+                                    <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
+                                    <DetailItem>🏆 Success Rate: {course.successRate}</DetailItem>
+                                </Details>
                             ) : (
-                                <ProgressContainer>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                                        <ProgressLabel>Reviewed</ProgressLabel>
-                                        <div style={{ display: 'flex' }}>
-                                            {renderStars(course.rating)}
-                                        </div>
-                                    </div>
-                                </ProgressContainer>
+                                <Details>
+                                    <DetailItemok>
+                                        <FcOk fontSize={30} /> You have successfully Completed this course
+                                    </DetailItemok>
+                                </Details>
                             )}
+                        </CourseContent>
 
-                            <CourseContent>
-                                <CourseMain>
-                                    <CourseHead>
-                                        <CourseTitle>{course.title}</CourseTitle>
-                                        <CourseMinititle>{course.subtitle}</CourseMinititle>
-                                    </CourseHead>
-                                    <CourseDesc>{course.description}</CourseDesc>
-                                </CourseMain>
-
-                                {!course.completed ? (
-                                    <Details>
-                                        <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
-                                        <DetailItem>🏆 Success Rate: {course.successRate}</DetailItem>
-                                    </Details>
-                                ) : (
-                                    <Details>
-                                        <DetailItemok>
-                                            <FcOk fontSize={30} /> You have successfully Completed this course
-                                        </DetailItemok>
-                                    </Details>
-                                )}
-                            </CourseContent>
-
-                            <PriceActions>
-                                <ViewButton completed={course.completed}>
-                                    {course.completed ? 'Completed' : 'Continue Learning'}
-                                </ViewButton>
-                            </PriceActions>
-                        </CourseCard>
-                    ))}
-                </CardGrid>
-            </CourseWrapper>
-
-
-            
-
-
+                        <PriceActions>
+                            <ViewButton completed={course.completed}>
+                                {course.completed ? 'Completed' : 'Continue Learning'}
+                            </ViewButton>
+                        </PriceActions>
+                    </CourseCard>
+                ))}
+            </CardGrid>
+        </CourseWrapper>
     );
 };
 
