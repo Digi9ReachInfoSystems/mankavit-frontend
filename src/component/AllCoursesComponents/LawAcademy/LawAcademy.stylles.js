@@ -6,6 +6,10 @@ export const Wrapper = styled.div`
   padding: 0 20px;
   font-family: 'Segoe UI', sans-serif;
   line-height: 1.6;
+
+  @media (max-width: 1320px) {
+    max-width: 90%;
+  }
 `;
 
 export const Heading = styled.h2`

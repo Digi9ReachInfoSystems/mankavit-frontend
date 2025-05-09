@@ -9,6 +9,10 @@ export const Container = styled.div`
   justify-content: center;
   margin: 0 auto;
 
+  @media (max-width: 1360px) {
+    width: 90%;
+  }
+
   @media (max-width: 768px) {
     padding: 1rem;
   }
@@ -112,8 +116,18 @@ export const CardGrid = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 540px) {
+    grid-template-columns: repeat(1, 1fr);
     gap: 1rem;
   }
 `;
@@ -125,10 +139,20 @@ export const CourseCard = styled.div`
   transition: 0.2s ease;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
+  position: relative;
+  height: 400px;
 
   // &:hover {
   //   transform: translateY(-4px);
   // }
+
+  @media (max-width: 1024px) {
+    height: 450px;
+  }
+
+  @media (max-width: 768px) {
+    height: 400px;
+  }
   
 `;
 
@@ -154,7 +178,25 @@ export const CourseMain = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 30px;
+
+  @media (max-width: 1320px) {
+    margin-bottom: 15px;
+  }
 `;
+
+export const RatingWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 4px;
+
+  svg {
+    margin-right: 4px;
+  }
+`;
+
 
 export const CourseHead = styled.div`
   display: flex;
@@ -167,6 +209,14 @@ export const CourseHead = styled.div`
 export const CourseTitle = styled.h3`
   font-size: 28px;
   margin: 0;
+
+  @media (max-width: 1320px) {
+    font-size: 22px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
 `;
 
 export const CourseMinititle = styled.p`
@@ -176,6 +226,14 @@ justify-content: center;
   color: #555;
   font-size: 16px;
   margin: 5px 0 0 0;
+
+  @media (max-width: 1320px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 export const CourseDesc = styled.p`
@@ -184,6 +242,14 @@ export const CourseDesc = styled.p`
   font-size: 16px;
   font-wieght: 300;
   line-height: 1.5;
+
+  @media (max-width: 1320px) {
+    font-size: 14px;
+  }
+
+    @media (max-width: 1320px) {
+    font-size: 16px;
+  }
 `;
 
 export const Details = styled.div`
@@ -203,6 +269,8 @@ export const PriceActions = styled.div`
   align-items: center;
   margin-top: 1rem;
   width: 100%;
+  position: absolute;
+  bottom: 0;
 
 `;
 
@@ -226,4 +294,25 @@ export const ViewButton = styled.button`
   font-weight: 700;
   cursor: pointer;
   width: 50%;
+
+  @media (max-width: 1024px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 15px;
+  }
+`;
+
+export const ContinueButton = styled.button`
+  color: ${({ theme }) => theme.colors.white};
+  background: linear-gradient(to right, #0DCAF0, #007BFF);
+  border: none;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 `;

@@ -6,14 +6,34 @@ export const Section = styled.section`
   margin: 0 auto;
   text-align: center;
   overflow: hidden;
+
+  @media (max-width: 1360px) {
+    width: 90%;
+  }
+    @media (max-width: 1024px) {
+    width: 95%;
+    padding: 20px 5px;
+  }
 `;
 
 
 export const Title = styled.h2`
-  font-size: 48px;
-  font-weight: 400;
+  font-size: 40px;
+  font-weight: 600;
   margin-bottom: 40px;
   text-align: left;
+
+  @media (max-width: 1360px) {
+    font-size: 36px;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 480px) {
+     text-align: center;
+     }
 `;
 
 export const Buttons = styled.div`
