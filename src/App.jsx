@@ -50,6 +50,10 @@ import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
 import Profile from './module/user/pages/Profile/Profile'
 import Mycourses from './module/user/pages/MyCourses/MyCourses'
 import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
+import CourseDetails from './pages/CourseDetails/CourseDetails'
+import WhyEntranceCourses from './pages/WhyEntranceCourses/WhyEntranceCourses'
+import Category from './module/admin/pages/Category/Category'
+import Addcategory from './module/admin/component/AddCategory/AddCategory'
 
 function App() {
 
@@ -65,6 +69,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/ourcourses" element={<OurCourses />} />
+          <Route path="/coursedetails" element={<CourseDetails />} />
+          <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
           
 
           <Route path="/test" element={<Test />} />
@@ -95,6 +101,9 @@ function App() {
             <Route path="subject-management/create" element={<AddSubject />} />
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes-management/create" element={<AddNote />} />
+            <Route path="category-management" element={<Category />} />
+            <Route path="category-management/create" element={<Addcategory />} />
+
             <Route path="static-page" element={<Staticpage />} />
 
             
