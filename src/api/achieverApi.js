@@ -1,6 +1,6 @@
 import api from '../config/axiosConfig'
 
-export const createCAhiever = async (data) => {
+export const createAchiever = async (data) => {
     try {
         const response = await api.post('/achiever/create', data);
         return response.data;
@@ -20,7 +20,7 @@ export const getAllAchievers = async () => {
     }
 }
 
-export const getAChieverById  = async (id) => {
+export const getAchieverById  = async (id) => {
     try {
         const response = await api.get(`/achiever/getAchieverById/${id}`);
         return response.data;

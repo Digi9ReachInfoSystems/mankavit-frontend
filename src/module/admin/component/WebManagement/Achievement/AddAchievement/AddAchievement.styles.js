@@ -119,3 +119,17 @@ export const UploadButton = styled.button`
     background-color: #0056b3;
   }
 `;
+
+export const SubmitButton = styled.button`
+  width: 20%;
+  background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.secondary};
+  padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: ${(props) => props.theme.fonts.body};
+  transition: background-color 0.2s ease;
+  margin-top: ${(props) => props.theme.spacing(2)};
+  `;

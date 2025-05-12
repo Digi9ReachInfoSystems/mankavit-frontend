@@ -44,7 +44,7 @@ const Sidebar = () => {
   ];
 
   const webmanagement = [
-    { path: "/admin/web-management/home", label: "Home page" },
+    // { path: "/admin/web-management/home", label: "Home page" },
     { path: "/admin/web-management/why-mankavit", label: "Why Mankavit" },
     { path: "/admin/web-management/aboutus", label: "About us" },
     { path: "/admin/web-management/question-paper", label: "Question paper" },
@@ -168,7 +168,7 @@ const Sidebar = () => {
           {menuItems.map((item, index) => renderMenuItem(item, index))}
           {renderSection("Course Management", courseManagementItems)}
           {renderSection("Web management", webmanagement)}
-          {renderSection("App Management", appManagementItems)}
+          {/* {renderSection("App Management", appManagementItems)} */}
         </MenuList>
       </SidebarContainer>
     </>

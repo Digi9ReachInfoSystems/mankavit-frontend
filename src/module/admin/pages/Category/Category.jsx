@@ -3,38 +3,56 @@ import { useNavigate } from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
 import { BiEditAlt } from 'react-icons/bi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+
 import {
   ButtonContainer, CreateButton, Container, Title,
   SearchWrapper, SearchIcon, SearchInput,
   TableWrapper, StyledTable, TableBody, TableCell,
   TableHeader, TableHead, TableRow, ActionsContainer
 } from "./Category.styles";
-import Pagination  from '../../component/Pagination/Pagination';
+
+import Pagination from '../../component/Pagination/Pagination';
 import DeleteModal from '../../component/DeleteModal/DeleteModal';
+import { deleteCategory, getCategories } from '../../../../api/categoryApi';
+import { notification } from 'antd';
 
-
-const ITEMS_PER_PAGE = 5; // You can adjust this
-const initialData = [
-  { id: 1, categoryName: 'Science' },
-  { id: 2, categoryName: 'Math' },
-  { id: 3, categoryName: 'History' },
-  { id: 4, categoryName: 'Geography' },
-  { id: 5, categoryName: 'Computer' },
-  { id: 6, categoryName: 'Art' },
-];
+const ITEMS_PER_PAGE = 10;
 
 const Category = () => {
   const navigate = useNavigate();
 
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        // Check if res is an array or wrapped inside an object
+        const categories = Array.isArray(res) ? res : res.categories || [];
+        setData(categories);
+      } catch (error) {
+        notification.error({
+          message: "Failed to load categories",
+          description: error.message || "Something went wrong",
+        });
+      }
+    };
+  
+    fetchCategories();
+  }, []);
+  
+  // const filteredData = data.filter(item =>
+  //   item.categoryName.toLowerCase().includes(searchText.toLowerCase())
+  // );
+
   const filteredData = data.filter(item =>
-    item.categoryName.toLowerCase().includes(searchText.toLowerCase())
+    item.title && item.title.toLowerCase().includes(searchText.toLowerCase())
   );
+  
 
   const TOTAL_ENTRIES = filteredData.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
@@ -44,6 +62,24 @@ const Category = () => {
   const handleDeleteClick = (id) => {
     setSelectedCategory(id);
     setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteCategory(selectedCategory);
+      setData(prev => prev.filter(cat => cat._id !== selectedCategory));
+      notification.success({
+        message: "Category deleted successfully",
+      });
+    } catch (error) {
+      notification.error({
+        message: "Failed to delete category",
+        description: error.message || "Something went wrong",
+      });
+    } finally {
+      setDeleteModalOpen(false);
+      setSelectedCategory(null);
+    }
   };
 
   return (
@@ -81,25 +117,25 @@ const Category = () => {
             </TableHead>
             <TableBody>
               {currentItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.categoryName}</TableCell>
-                  <TableCell>
-                    <ActionsContainer>
-                      <BiEditAlt
-                        title="Edit"
-                        color="#000000"
-                        size={20}
-                        onClick={() => navigate("/admin/category-management/create")}
-                      />
-                      <RiDeleteBin6Line
-                        title="Delete"
-                        size={20}
-                        color="#FB4F4F"
-                        onClick={() => handleDeleteClick(item.id)}
-                      />
-                    </ActionsContainer>
-                  </TableCell>
-                </TableRow>
+              <TableRow key={item._id}>
+              <TableCell>{item.title}</TableCell>
+              <TableCell>
+                <ActionsContainer>
+                  <BiEditAlt
+                    title="Edit"
+                    color="#000000"
+                    size={20}
+                    onClick={() => navigate(`/admin/category-management/edit/${item._id}`)}
+                  />
+                  <RiDeleteBin6Line
+                    title="Delete"
+                    size={20}
+                    color="#FB4F4F"
+                    onClick={() => handleDeleteClick(item._id)}
+                  />
+                </ActionsContainer>
+              </TableCell>
+            </TableRow>
               ))}
             </TableBody>
           </StyledTable>
@@ -117,11 +153,7 @@ const Category = () => {
         <DeleteModal
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
-          onDelete={() => {
-            setData(prevData => prevData.filter(item => item.id !== selectedCategory));
-            setDeleteModalOpen(false);
-            setSelectedCategory(null);
-          }}
+          onDelete={handleConfirmDelete}
         />
       </Container>
     </>

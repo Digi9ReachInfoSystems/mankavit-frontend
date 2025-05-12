@@ -70,7 +70,9 @@ export const Column = styled.div`
 /** Wrapper for a single field */
 export const FieldWrapper = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: ${(props) => props.theme.spacing(6)};
+  margin-top: ${(props) => props.theme.spacing(2)};
 
   @media (max-width: 990px) {
   .toggle-wrapper{
@@ -83,9 +85,10 @@ export const FieldWrapper = styled.div`
 /** Labels for inputs */
 export const Label = styled.label`
   font-weight: normal;
-  margin-bottom: ${(props) => props.theme.spacing(1)};
+  // margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
-  font-size: 0.9rem;
+  font-size: 1rem;
+  margin-top: ${(props) => props.theme.spacing(1)};
 
 `;
 

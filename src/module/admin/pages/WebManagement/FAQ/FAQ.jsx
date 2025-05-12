@@ -42,16 +42,17 @@ const FAQ = () => {
   const startIndex = (currentPage - 1) * faqsPerPage;
   const currentFaqs = faqs.slice(startIndex, startIndex + faqsPerPage);
 
-  
+
   useEffect(() => {
     const fetchFaqs = async () => {
       setLoading(true);
       try {
         const data = await getAllfaqs();
         console.log("Fetched FAQ data:", data);
-  
-        if (Array.isArray(data.body)) {
-          setFaqs(data.body);
+
+        // ✅ Use `data` directly instead of `data.body`
+        if (Array.isArray(data)) {
+          setFaqs(data);
         } else {
           console.error("Unexpected FAQ format:", data);
           setFaqs([]);
@@ -64,10 +65,10 @@ const FAQ = () => {
         setLoading(false);
       }
     };
-  
+
     fetchFaqs();
   }, []);
-  
+
 
   const handleEdit = (faq) => {
     navigate(`/admin/web-management/faq/edit/${faq._id}`);
@@ -133,17 +134,31 @@ const FAQ = () => {
                       <TableCell>{faq.question || faq.questionText || "No Question"}</TableCell>
                       <TableCell>{faq.answer || faq.answerText || "No Answer"}</TableCell>
                       <TableCell>
-                        {faq.createdAt ? (
-                          <>
-                            {new Date(faq.createdAt).toLocaleDateString()}{" "}
-                            {new Date(faq.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </>
-                        ) : (
-                          "No Date"
-                        )}
+                        {(() => {
+                          let dateObj;
+
+                          // Try using createdAt first
+                          if (faq.createdAt) {
+                            dateObj = new Date(faq.createdAt);
+                          }
+                          // Otherwise extract timestamp from MongoDB ObjectId
+                          else if (faq._id && faq._id.length >= 8) {
+                            const timestamp = parseInt(faq._id.substring(0, 8), 16) * 1000;
+                            dateObj = new Date(timestamp);
+                          } else {
+                            return "No Date";
+                          }
+
+                          return (
+                            <>
+                              {dateObj.toLocaleDateString()}{" "}
+                              {dateObj.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell>
                         <ActionsWrapper>

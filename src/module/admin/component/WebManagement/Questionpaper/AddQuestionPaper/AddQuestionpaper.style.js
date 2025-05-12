@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import theme from "../../../../../theme/Theme";
+import theme from "../../../../../../theme/Theme";
 
 export const Container = styled.div`
 margin-left: 40px;
@@ -172,4 +172,11 @@ export const SubmitButton = styled.button`
   &:hover {
     background: ${theme.colors.vividblue};
   }
+`;
+
+export const ErrorMessage = styled.div`
+  margin-top: ${theme.spacing(1)};
+  font-size: 0.8rem;
+  color: ${theme.colors.red};
+  font-family: ${theme.fonts.body};
 `;
