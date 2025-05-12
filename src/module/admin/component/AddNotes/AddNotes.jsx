@@ -1,5 +1,5 @@
 // AddNote.jsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import upload from "../../../../assets/upload.png";
 import {
   Container,
@@ -22,26 +22,42 @@ import {
   CheckboxSectionTitle,
   ToggleSwitch,
 } from "../AddNotes/AddNotes.style"; // Adjust the path if needed
+import { getSubjects } from "../../../../api/subjectApi";
+import { uploadFileToAzureStorage } from "../../../../utils/azureStorageService";
+import { createNotes } from "../../../../api/notesApi";
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 
-// Default checkbox subjects
-const defaultSubjects = [
-  { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-  { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-  { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-  { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-];
 
 export default function AddNote() {
   // State for form fields
-  const [noteTitle, setNoteTitle] = useState("CLAT");
-  const [internalTitle, setInternalTitle] = useState("ANUJA");
+  const [noteTitle, setNoteTitle] = useState(null);
+  const [internalTitle, setInternalTitle] = useState(null);
   // const [shortDescription, setShortDescription] = useState("");
   const [isDownloadable, setIsDownloadable] = useState(false);
-  const [subjectsCheckboxes, setSubjectsCheckboxes] = useState(defaultSubjects);
+  const [subjectsCheckboxes, setSubjectsCheckboxes] = useState([]);
 
   // File upload state
   const [pdfFile, setPdfFile] = useState(null);
   const fileInputRef = useRef(null);
+
+ const navigate= useNavigate();
+  useEffect(() => {
+    const apiCaller = async () => {
+      try {
+        const response = await getSubjects();
+        const data = response.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: false,
+        }))
+        setSubjectsCheckboxes(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    apiCaller();
+  }, []);
 
   // Handler for checkboxes
   const handleCheckboxChange = (index) => {
@@ -66,14 +82,125 @@ export default function AddNote() {
   };
 
   // Form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Perform your logic (e.g., API call)
-    console.log("Form submitted!");
+    try {
+      if (noteTitle == "" || noteTitle == null) {
+        toast.error('Please enter note title',
+          {
+            duration: 3000, 
+            position: 'top-right', 
+            ariaProps: {
+              role: 'status',
+              'aria-live': 'polite',
+            },
+          }
+        )
+       
+        return;
+      }
+      if(internalTitle==""||internalTitle==null ) {
+        
+        toast.error('Please enter internal note title.',
+          {
+            duration: 3000, 
+            position: 'top-right', 
+            ariaProps: {
+              role: 'status',
+              'aria-live': 'polite',
+            },
+          }
+        )
+        return;
+      }
+      if(pdfFile==null){
+        
+        toast.error('Please upload pdf file.',
+          {
+            duration: 3000, 
+            position: 'top-right', 
+            ariaProps: {
+              role: 'status',
+              'aria-live': 'polite',
+            },
+          }
+        )
+       
+        return;
+      }
+      if(pdfFile.type!="application/pdf"){
+        toast.error('Please select pdf file.',
+          {
+            duration: 3000, 
+            position: 'top-right', 
+            ariaProps: {
+              role: 'status',
+              'aria-live': 'polite',
+            },
+          }
+        )
+        return;
+      }
+      const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
+      const fileURL = fileData.blobUrl;
+      const subjects = subjectsCheckboxes.filter((item) => item.checked).map((item) => item.id);
+      const createNotesResponse = await createNotes(
+        {
+          noteName: internalTitle,
+          noteDisplayName: noteTitle,
+          isDownload: isDownloadable,
+          fileUrl: fileURL,
+          subjects: subjects
+        }
+      )
+      if (createNotesResponse.success == true) {
+        toast.success("Note created with name "+noteTitle+" successfully.",
+          {
+            duration: 3000, 
+            position: 'top-right', 
+            ariaProps: {
+              role: 'status',
+              'aria-live': 'polite',
+            },
+          }
+        )
+        setInternalTitle("");
+        setNoteTitle("");
+        setIsDownloadable(false);
+        setSubjectsCheckboxes(subjectsCheckboxes.map((item) => ({ ...item, checked: false })));
+        setTimeout(() => {
+          navigate("/admin/notes-management")
+        }, 2000);
+      } else {
+        toast.error('Note creation failed.',
+          {
+            duration: 3000, 
+            position: 'top-right', 
+            ariaProps: {
+              role: 'status',
+              'aria-live': 'polite',
+            },
+          }
+        )
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Note creation failed.',
+        {
+          duration: 3000, 
+          position: 'top-right', 
+          ariaProps: {
+            role: 'status',
+            'aria-live': 'polite',
+          },
+        }
+      )
+    }
   };
 
   return (
     <Container>
+      <Toaster/>
       <Title>Add Note</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Note Title & Note Internal Title */}
@@ -103,22 +230,23 @@ export default function AddNote() {
           </Column>
         </FormRow>
 
-         {/* Row 4: Add Subjects */}
-         <FormRow>
+        {/* Row 4: Add Subjects */}
+        <FormRow>
           <Column>
             <CheckboxSection>
               <CheckboxSectionTitle>Add Subjects (Click Checkbox to Select)</CheckboxSectionTitle>
               <CheckboxList>
-                {subjectsCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
+                {subjectsCheckboxes &&
+                  subjectsCheckboxes.map((item, index) => (
+                    <CheckboxLabel key={index}>
+                      <CheckboxInput
+                        type="checkbox"
+                        checked={item.checked}
+                        onChange={() => handleCheckboxChange(index)}
+                      />
+                      {item.label}
+                    </CheckboxLabel>
+                  ))}
               </CheckboxList>
             </CheckboxSection>
           </Column>
@@ -148,12 +276,12 @@ export default function AddNote() {
               />
             </UploadArea>
           </Column>
-        {/* </FormRow>
+          {/* </FormRow>
 
         <FormRow> */}
           <Column style={{ display: "flex", alignItems: "center", gap: "10px", }}>
             <FieldWrapper style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-              <Label htmlFor="isDownloadable" style={{ marginBottom: 0}}>Is it downloadable?</Label>
+              <Label htmlFor="isDownloadable" style={{ marginBottom: 0 }}>Is it downloadable?</Label>
               <ToggleSwitch
                 id="isDownloadable"
                 type="checkbox"
@@ -164,11 +292,11 @@ export default function AddNote() {
           </Column>
         </FormRow>
 
-       
+
 
         {/* Row 5: Submit button */}
         <FormRow>
-          <SubmitButton type="submit">Add User</SubmitButton>
+          <SubmitButton type="submit">Add Notes</SubmitButton>
         </FormRow>
       </FormWrapper>
     </Container>

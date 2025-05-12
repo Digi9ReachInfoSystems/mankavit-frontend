@@ -5,6 +5,10 @@ export const Container = styled.div`
   text-align: center;
   max-width: 80%;
   margin: 0 auto;
+
+  @media (max-width: 1320px) {
+    max-width: 90%;
+  }
 `;
 
 export const Title = styled.h2`
@@ -25,10 +29,13 @@ export const Line = styled.div`
 
 export const Features = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   gap: 30px;
   margin-bottom: 30px;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
 `;
 
 export const FeatureCard = styled.div`
@@ -58,10 +65,13 @@ export const FeatureText = styled.p`
 export const Description = styled.p`
   font-size: 1.5rem;
   color: #333;
-  margin: 20px 50px;
   max-width: 100%;
   text-align: left;
   margin-bottom: 50px;
+
+  @media (max-width: 1024px) {
+    font-size: 1.2rem;
+  }
 `;
 
 export const EnrollButton = styled.button`
@@ -77,5 +87,9 @@ export const EnrollButton = styled.button`
 
   &:hover {
     background-color: #005dc4;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 20px; 
   }
 `;

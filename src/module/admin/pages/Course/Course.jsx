@@ -1,5 +1,5 @@
 // CoursesTable.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   HeaderRow,
@@ -28,6 +28,8 @@ import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { useNavigate } from "react-router-dom";
+import { Select, Space } from "antd";
+import { getAllCourses } from "../../../../api/courseApi";
 
 
 // Mock data representing table rows
@@ -39,11 +41,11 @@ const mockData = Array.from({ length: 15 }, (_, index) => ({
   mockTests: ["Test 1", "Test 2", "Test 3"],
   enrolled: ["Alice", "Bob", "Charlie", "Siri", "Rahul", "Alexa", "Akshay", "Robin"],
   dateAndTime: "24-08-2023 16:00 IST",
-  students: [ 
-    { name: "Student A"},
-    { name: "Student B"},
-    { name: "Student C"},
-],
+  students: [
+    { name: "Student A" },
+    { name: "Student B" },
+    { name: "Student C" },
+  ],
 }));
 
 
@@ -54,29 +56,122 @@ export default function CoursesTable() {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [data, setData] = useState(mockData);
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
   const [modalData, setModalData] = useState([]);
-
-
-
-
-  const filteredStudents = data.filter((student) =>
-    student.courseName.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  // Pagination states
+  const [sortOption, setSortOption] = useState('Name');
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentItems, setCurrentItems] = useState([]);
+  const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const TOTAL_ENTRIES = filteredStudents.length;
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
 
-  // Slicing data for current page (if you actually had 100 items, you'd slice them accordingly)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = filteredStudents.slice(startIndex, endIndex);
+
+  // const filteredStudents = data.filter((student) =>
+  //   student.courseName.toLowerCase().includes(searchText.toLowerCase())
+  // );
+
+  // // Pagination states
+  // const [currentPage, setCurrentPage] = useState(1);
+
+  // const TOTAL_ENTRIES = filteredStudents.length;
+  // const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+
+  // // Slicing data for current page (if you actually had 100 items, you'd slice them accordingly)
+  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  // const endIndex = startIndex + ITEMS_PER_PAGE;
+  // const currentItems = filteredStudents.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    const appiCaller = async () => {
+      try {
+        const courseResponse = await getAllCourses();
+        const courseData = courseResponse.data.map((item) => ({
+        
+          id: item._id,
+          courseName: item.courseDisplayName,
+          internalName:item.courseName,
+          subjects: item.subjects.map((subject) => subject.subjectName),
+          mockTests: ["Test 1", "Test 2", "Test 3"],
+          enrolled:item.student_enrolled.length>0? item.student_enrolled.map((student) => student.displayName):[],
+          dateAndTime: item.updatedAt,
+          students: item.student_enrolled.map((student) => ({
+            name: student.displayName,
+          })),
+        }))
+        setData(courseData);
+        const filteredValue = courseData.filter((item) =>
+          item.courseName.toLowerCase().includes(searchText.toLowerCase())
+        )
+        setFilteredData(filteredValue);
+        const TOTAL_ENTRIESValues = filteredValue.length;
+        setTotalEntries(TOTAL_ENTRIESValues);
+        const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+        setTotalPages(totalPagesValues);
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const currentValue = filteredValue.slice(startIndex, endIndex);
+        setCurrentItems(currentValue);
+      } catch (error) {
+        console.log("error", error);
+      }
+
+    }
+    appiCaller();
+  }, [])
+  useEffect(() => {
+    const apiCaller = async () => {
+      const courseResponse = await getAllCourses();
+        const courseData = courseResponse.data.map((item) => ({
+        
+          id: item._id,
+          courseName: item.courseDisplayName,
+          internalName:item.courseName,
+          subjects: item.subjects.map((subject) => subject.subjectName),
+          mockTests: ["Test 1", "Test 2", "Test 3"],
+          enrolled:item.student_enrolled.length>0? item.student_enrolled.map((student) => student.displayName):[],
+          dateAndTime: item.updatedAt,
+          students: item.student_enrolled.map((student) => ({
+            name: student.displayName,
+          })),
+        }))
+        setData(courseData);
+
+      const sampleData = courseData.sort((a, b) => {
+        if (sortOption === 'Name') {
+          return a.courseName.localeCompare(b.courseName);
+        } else if (sortOption === 'Date') {
+          return new Date(b.dateAndTime) - new Date(a.dateAndTime)
+        }
+      })
+
+      let filteredValue = sampleData;
+      if (searchText !== "") {
+        filteredValue = sampleData.filter((item) =>
+          item.courseName.toLowerCase().includes(searchText.toLowerCase())
+        )
+      } else {
+
+
+      }
+
+      setFilteredData(filteredValue);
+      const TOTAL_ENTRIESValues = filteredValue.length;
+      setTotalEntries(TOTAL_ENTRIESValues);
+      const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+      setTotalPages(totalPagesValues);
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const currentValue = filteredValue.slice(startIndex, endIndex);
+      setCurrentItems(currentValue);
+    };
+    apiCaller();
+
+    // currentItems = sampleData;
+  }, [sortOption, searchText])
 
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
@@ -87,6 +182,29 @@ export default function CoursesTable() {
     setModalType(type);
     setModalData(data);
     setModalOpen(true);
+  };
+
+  const formatToIST = (isoString, options = {}) => {
+    try {
+      const date = new Date(isoString);
+
+      const defaultOptions = {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        ...options
+      };
+
+      return new Intl.DateTimeFormat('en-IN', defaultOptions).format(date);
+    } catch (error) {
+      console.error('Invalid date format:', isoString);
+      return 'Invalid date';
+    }
   };
 
 
@@ -105,11 +223,22 @@ export default function CoursesTable() {
           }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value="Name" onChange={() => { }}>
+            <Select
+              defaultValue={sortOption}
+              style={{ width: 120 }}
+              onChange={(value) => setSortOption(value)}
+              options={[
+                { value: 'Name', label: 'Name' },
+                { value: 'Date', label: 'Date' },
+                // { value: 'Price', label: 'Price' },
+                // { value: 'Enrolled', label: 'Enrolled' },
+              ]}
+            />
+            {/* <SortSelect value="Name" onChange={() => { }}>
               <option value="Name">Name</option>
               <option value="Price">Date and Time IST</option>
               <option value="Enrolled">Enrolled</option>
-            </SortSelect>
+            </SortSelect> */}
           </SortByContainer>
         </HeaderRow>
 
@@ -152,7 +281,7 @@ export default function CoursesTable() {
                     {item.students.length}
                     <a href="#view" onClick={() => openModal("enrolled", item.students)}> View</a>
                   </TableCell>
-                  <TableCell>{item.dateAndTime}</TableCell>
+                  <TableCell>{formatToIST(item.dateAndTime)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
                       <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => { navigate("/admin/courses/create") }} />

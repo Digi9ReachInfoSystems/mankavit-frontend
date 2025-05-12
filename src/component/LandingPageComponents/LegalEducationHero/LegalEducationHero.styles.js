@@ -21,6 +21,7 @@ export const HeroSection = styled.section`
     @media (max-width: 576px) {
         margin-top: 10px;
     padding: 0rem 2%;
+    text-align: center;
     }
 `;
 
@@ -158,6 +159,10 @@ export const ButtonsGroup = styled.div`
 
   @media(max-width: 836px){
     gap: 1rem;
+  }
+
+  @media (max-width: 576px) {
+    justify-content: center;
   }
 `;
 

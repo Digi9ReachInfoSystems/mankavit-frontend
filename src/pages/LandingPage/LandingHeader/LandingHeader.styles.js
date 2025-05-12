@@ -151,6 +151,10 @@ export const Logo = styled.div`
   @media (max-width: 1320px) {
     font-size: 20px;
   }
+
+  @media (max-width: 576px) {
+    margin-left: 20px;
+  }
 `;
 
 export const NavLinks = styled.div`

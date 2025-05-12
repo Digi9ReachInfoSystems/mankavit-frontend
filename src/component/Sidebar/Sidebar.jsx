@@ -40,6 +40,7 @@ const Sidebar = () => {
     { path: "/admin/course-management", label: "Courses" },
     { path: "/admin/subject-management", label: "Subjects" },
     { path: "/admin/notes-management", label: "Notes" },
+    { path: "/admin/category-management", label: "Category" },
   ];
 
   const webmanagement = [
@@ -63,7 +64,6 @@ const Sidebar = () => {
     { label: "FAQs" },
   ];
 
-  // Expand section if current path matches one of its items
   useEffect(() => {
     const newOpenSections = {};
     const sections = {

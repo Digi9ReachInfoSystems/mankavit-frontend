@@ -1,5 +1,5 @@
 // NotesTable.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo, use } from "react";
 import {
   Container,
   HeaderRow,
@@ -28,39 +28,139 @@ import { useNavigate } from "react-router-dom";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
+import { getAllNotes } from "../../../../api/notesApi";
+import { Select, Space } from "antd";
 
 
-const initialData = Array.from({ length: 22 }, (_, index) => ({
-  id: index + 1,
-  noteTitle: "CLAT Coaching",
-  noteDescription: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quos, praesentium.",
-  subjects: ["Math", "English", "Logic"],
-  lastActive: "24-07-2024 16:22",
-  active: true,
-}));
 
 
 const ITEMS_PER_PAGE = 10;
 
 export default function NotesManagement() {
   const navigate = useNavigate();
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewStudent, setViewStudent] = useState(null);
+  const [sortOption, setSortOption] = useState('Name');
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentItems, setCurrentItems] = useState([]);
+  const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const filteredData = data.filter((item) =>
-    item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
-  );
+  // const filteredData = data.filter((item) =>
+  //   item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
+  // );
 
-  const TOTAL_ENTRIES = filteredData.length;
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = filteredData.slice(startIndex, endIndex);
+  // const TOTAL_ENTRIES = filteredData.length;
+  // const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  // const endIndex = startIndex + ITEMS_PER_PAGE;
+  // let currentItems = filteredData.slice(startIndex, endIndex);
+  useEffect(() => {
+
+    const apiCaller = async () => {
+      try {
+        const response = await getAllNotes();
+        const dataPrepared = response.data.map((item) => ({
+          id: item._id,
+          noteTitle: item.noteDisplayName,
+          noteDescription: item.noteName,
+          subjects: item.subjects.map((item) => item.subjectName),
+          lastActive: item.updatedAt,
+          fileURL: item.fileUrl,
+          active: true,
+        }))
+        setData(dataPrepared);
+        const filteredValue = dataPrepared.filter((item) =>
+          item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
+        )
+        setFilteredData(filteredValue);
+        const TOTAL_ENTRIESValues = filteredValue.length;
+        setTotalEntries(TOTAL_ENTRIESValues);
+        const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+        setTotalPages(totalPagesValues);
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const currentValue = filteredValue.slice(startIndex, endIndex);
+        setCurrentItems(currentValue);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    apiCaller();
+  }, [])
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAllNotes();
+      const dataPrepared = response.data.map((item) => ({
+        id: item._id,
+        noteTitle: item.noteDisplayName,
+        noteDescription: item.noteName,
+        subjects: item.subjects.map((item) => item.subjectName),
+        lastActive: item.updatedAt,
+        fileURL: item.fileUrl,
+        active: true,
+      }))
+      setData(dataPrepared);
+
+      const sampleData = dataPrepared.sort((a, b) => {
+        if (sortOption === 'Name') {
+          return a.noteTitle.localeCompare(b.noteTitle);
+        } else if (sortOption === 'Last Active') {
+          return new Date(b.lastActive) - new Date(a.lastActive);
+        }
+      })
+
+      let filteredValue = sampleData;
+      if (searchText !== "") {
+        filteredValue = sampleData.filter((item) =>
+          item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
+        )
+      } else {
+
+
+      }
+
+      setFilteredData(filteredValue);
+      const TOTAL_ENTRIESValues = filteredValue.length;
+      setTotalEntries(TOTAL_ENTRIESValues);
+      const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+      setTotalPages(totalPagesValues);
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const currentValue = filteredValue.slice(startIndex, endIndex);
+      setCurrentItems(currentValue);
+    };
+    apiCaller();
+
+    // currentItems = sampleData;
+  }, [sortOption, searchText])
+  const formatToIST = (isoString, options = {}) => {
+    try {
+      const date = new Date(isoString);
+
+      const defaultOptions = {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        ...options
+      };
+
+      return new Intl.DateTimeFormat('en-IN', defaultOptions).format(date);
+    } catch (error) {
+      console.error('Invalid date format:', isoString);
+      return 'Invalid date';
+    }
+  };
 
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
@@ -106,11 +206,24 @@ export default function NotesManagement() {
           </Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value="Name" onChange={() => { }}>
+
+            <Select
+              defaultValue={sortOption}
+              style={{ width: 120 }}
+              onChange={(value) => setSortOption(value)}
+              options={[
+                { value: 'Name', label: 'Name' },
+                { value: 'Last Active', label: 'Last Active' },
+                // { value: 'Active', label: 'Active' },
+              ]}
+            />
+
+
+            {/* <SortSelect value="Name" onChange={() => { }}>
               <option value="Name">Name</option>
               <option value="LastActive">Last Active</option>
               <option value="Active">Active</option>
-            </SortSelect>
+            </SortSelect> */}
           </SortByContainer>
         </HeaderRow>
 
@@ -149,9 +262,9 @@ export default function NotesManagement() {
                     </a>
                   </TableCell>
                   <TableCell>
-                    <a href="#view-pdf">View</a>
+                    <a href={item.fileURL} target="_blank">View</a>
                   </TableCell>
-                  <TableCell>{item.lastActive}</TableCell>
+                  <TableCell>{formatToIST(item.lastActive)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
                       <BiEditAlt title="Edit" color="#000000" size={20} />
