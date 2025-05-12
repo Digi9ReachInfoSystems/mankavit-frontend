@@ -13,7 +13,7 @@ export const createFaq = async (data) => {
 
 export const getAllfaqs = async () => {
     try {
-        console.log("hello");
+     
         const response = await api.get('/faq/getAllFaqs');
         console.log("response",response.data);
         return response.data;

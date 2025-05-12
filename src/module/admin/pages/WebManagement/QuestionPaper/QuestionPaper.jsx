@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TableWrapper,
   StyledTable,
@@ -22,210 +22,38 @@ import { useNavigate } from "react-router-dom";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-
-const sampleData = [
-  {
-    id: 1,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: true,
-  },
-  {
-    id: 2,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 3,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 4,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 5,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 6,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 7,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 8,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 9,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: true,
-  },
-  {
-    id: 10,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 11,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 12,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 13,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 14,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 15,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 16,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 17,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: true,
-  },
-  {
-    id: 18,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 19,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 20,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 21,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 22,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 23,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  },
-  {
-    id: 24,
-    title: "CLAT Coaching",
-    description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    pdfUrl: "/path/to/file.pdf",
-    year: 2024,
-    showcase: false,
-  }
-];
+import { getAllQuestionPapers, deleteQuestionPaper } from "../../../../../api/questionPaperApi";
+import { notification } from "antd";
 
 const ITEMS_PER_PAGE = 10;
 
-const Questionpaper = () => {
+const QuestionPaper = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(sampleData);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  useEffect(() => {
+    const fetchQuestionPapers = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllQuestionPapers();
+        setData(response);
+      } catch (error) {
+        console.error("Error fetching question papers:", error);
+        notification.error({
+          message: "Error",
+          description: "Failed to fetch question papers",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestionPapers();
+  }, []);
 
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const currentItems = data.slice(
@@ -238,15 +66,27 @@ const Questionpaper = () => {
     setModal(true);
   };
 
-  const handleClickDelete = () => {
-    const updatedData = data.filter((item) => item.id !== deleteId);
-    const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
-    const newCurrentPage = currentPage > newTotalPages ? newTotalPages : currentPage;
-  
-    setData(updatedData);
-    setCurrentPage(newCurrentPage);
-    setModal(false);
-    setDeleteId(null);
+  const handleConfirmDelete = async () => {
+    try {
+      setLoading(true);
+      await deleteQuestionPaper(deleteId);
+      const updatedData = data.filter((item) => item._id !== deleteId);
+      setData(updatedData);
+      notification.success({
+        message: "Success",
+        description: "Question paper deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting question paper:", error);
+      notification.error({
+        message: "Error",
+        description: "Failed to delete question paper",
+      });
+    } finally {
+      setModal(false);
+      setDeleteId(null);
+      setLoading(false);
+    }
   };
 
   return (
@@ -258,45 +98,50 @@ const Questionpaper = () => {
       </ButtonContainer>
       <Container>
         <HeaderRow>
-          <Title>See all question papers</Title>
+          <Title>All Question Papers</Title>
         </HeaderRow>
         <TableWrapper>
-        <StyledTable>
-          <TableHead>
-            <tr>
-              <TableHeader>Title</TableHeader>
-              <TableHeader>Description</TableHeader>
-              <TableHeader>View Pdf</TableHeader>
-              <TableHeader>Year</TableHeader>
-              <TableHeader>Actions</TableHeader>
-            </tr>
-          </TableHead>
-          <TableBody>
-            {currentItems.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.title}</TableCell>
-                <TableCell>{row.description}</TableCell>
-                <TableCell>
-                  <PdfLink href={row.pdfUrl} target="_blank" rel="noopener noreferrer">
-                    View
-                  </PdfLink>
-                </TableCell>
-                <TableCell>{row.year}</TableCell>
-                <TableCell>
-                  <ActionsWrapper>
-                    <BiEditAlt size={20} color="#000" style={{ cursor: "pointer" }} />
-                    <RiDeleteBin6Line
-                      size={20}
-                      color="#FB4F4F"
-                      onClick={() => handleDelete(row.id)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </ActionsWrapper>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </StyledTable>
+          <StyledTable>
+            <TableHead>
+              <tr>
+                <TableHeader>Title</TableHeader>
+                <TableHeader>Description</TableHeader>
+                <TableHeader>View PDF</TableHeader>
+                <TableHeader>Year</TableHeader>
+                <TableHeader>Actions</TableHeader>
+              </tr>
+            </TableHead>
+            <TableBody>
+              {currentItems.map((row) => (
+                <TableRow key={row._id}>
+                  <TableCell>{row.title}</TableCell>
+                  <TableCell>{row.description}</TableCell>
+                  <TableCell>
+                    <PdfLink href={row.question_url} target="_blank" rel="noopener noreferrer">
+                      View
+                    </PdfLink>
+                  </TableCell>
+                  <TableCell>{row.year}</TableCell>
+                  <TableCell>
+                    <ActionsWrapper>
+                      <BiEditAlt 
+                        size={20} 
+                        color="#000" 
+                        style={{ cursor: "pointer" }} 
+                        onClick={() => navigate(`/admin/web-management/question-paper/edit/${row._id}`)}
+                      />
+                      <RiDeleteBin6Line
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDelete(row._id)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </ActionsWrapper>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </StyledTable>
         </TableWrapper>
         <Pagination
           currentPage={currentPage}
@@ -311,11 +156,12 @@ const Questionpaper = () => {
         <DeleteModal
           isOpen={modal}
           onClose={() => setModal(false)}
-          onDelete={handleClickDelete}
+          onDelete={handleConfirmDelete}
+          loading={loading}
         />
       )}
     </>
   );
 };
 
-export default Questionpaper;
+export default QuestionPaper;

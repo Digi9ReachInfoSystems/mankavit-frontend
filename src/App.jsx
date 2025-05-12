@@ -27,7 +27,7 @@ import AboutUs from './pages/AboutUs/AboutUs'
 import OurCourses from './pages/OurCourses/OurCourses'
 import FAQ from './module/admin/pages/WebManagement/FAQ/FAQ';
 import Questionpaper from './module/admin/pages/WebManagement/QuestionPaper/QuestionPaper'
-import AddQuestionpaper from './module/admin/component/WebManagement/Questionpaper/AddQuestionpaper'
+import AddQuestionpaper from './module/admin/component/WebManagement/Questionpaper/AddQuestionPaper/AddQuestionpaper'
 import LiveClass from './module/admin/pages/WebManagement/LiveClass/LiveClass'
 import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLiveClass'
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
@@ -38,7 +38,7 @@ import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
 import Achievements from './module/admin/pages/WebManagement/Achievements/Achievements'
-import AddAchievements from './module/admin/component/WebManagement/AddAchievement/AddAchievement'
+import AddAchievements from './module/admin/component/WebManagement/Achievement/AddAchievement/AddAchievement'
 import Notification from './module/admin/pages/WebManagement/Notification/Notification'
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
@@ -56,6 +56,8 @@ import CourseDetails from './pages/CourseDetails/CourseDetails'
 import WhyEntranceCourses from './pages/WhyEntranceCourses/WhyEntranceCourses'
 import Category from './module/admin/pages/Category/Category'
 import Addcategory from './module/admin/component/AddCategory/AddCategory'
+import EditAchievement from './module/admin/component/WebManagement/Achievement/EditAchievement/EditAchievement'
+import EditQuestionPaper from './module/admin/component/WebManagement/Questionpaper/EditQuestionPaper/EditQuestionPaper'
 
 function App() {
 
@@ -120,7 +122,8 @@ function App() {
 
             <Route path="web-management/question-paper" element={< Questionpaper/>} />
             <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />
-
+             <Route path="web-management/question-paper/edit/:id" element={<EditQuestionPaper />} />
+             
             <Route path="web-management/live-classes" element={<LiveClass />} />
             <Route path="web-management/live-classes/create" element={<AddLiveClass/>} />
 
@@ -130,8 +133,11 @@ function App() {
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
             <Route path="web-management/testinomial" element={<Testimonial />} />
+
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
+            <Route path='web-management/achievement/edit/:id' element={<EditAchievement />} />
+
             <Route path="web-management/social-media" element={<SocialMedia />} />
 
             <Route path="web-management/notification" element={<Notification />} />
