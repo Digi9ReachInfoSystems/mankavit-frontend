@@ -56,6 +56,7 @@ import CourseDetails from './pages/CourseDetails/CourseDetails'
 import WhyEntranceCourses from './pages/WhyEntranceCourses/WhyEntranceCourses'
 import Category from './module/admin/pages/Category/Category'
 import Addcategory from './module/admin/component/AddCategory/AddCategory'
+import AddTestimonial from './module/admin/component/WebManagement/AddTestimonial/AddTestimonial'
 
 function App() {
 
@@ -130,6 +131,7 @@ function App() {
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
             <Route path="web-management/testinomial" element={<Testimonial />} />
+            <Route path="web-management/testinomial/create" element={<AddTestimonial />} />
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
             <Route path="web-management/social-media" element={<SocialMedia />} />

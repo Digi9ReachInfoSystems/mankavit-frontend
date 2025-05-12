@@ -10,6 +10,7 @@ import {
   TableRow,
   TableHeader,
   TableCell,
+  TableCelldiscription,
   ViewLink,
   ActionsWrapper,
   BtnTitle,
@@ -20,9 +21,10 @@ import Pagination from "../../../component/Pagination/Pagination"; // This is yo
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import { useNavigate } from "react-router-dom";
 
 // Dummy testimonial data
-const dummyTestimonials = Array.from({ length: 10 }, (_, i) => ({
+const dummyTestimonials = Array.from({ length: 15 }, (_, i) => ({
   id: i + 1,
   course: "CLAT Coaching",
   testimonial:
@@ -32,7 +34,7 @@ const dummyTestimonials = Array.from({ length: 10 }, (_, i) => ({
   time: "16:22",
 }));
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const Testimonial = () => {
   const [title, setTitle] = useState("");
@@ -41,6 +43,8 @@ const Testimonial = () => {
   const [data, setData] = useState(dummyTestimonials);
   const [Modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  const navigate = useNavigate();
 
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const currentItems = data.slice(
@@ -64,16 +68,21 @@ const Testimonial = () => {
     setModal(false);
     setDeleteId(null);
   };
+
+  const handleAddButton = () => {
+    navigate("/admin/web-management/testinomial/create");
+  };
+
   return (
     <>
       <BtnTitle>
-        <AddTestButton>Testinomial</AddTestButton>
+        <AddTestButton onClick={handleAddButton}>Add Testinomial</AddTestButton>
       </BtnTitle>
       <Container>
 
         <Title>Testimonial</Title>
 
-        <Form>
+        {/* <Form>
           <label htmlFor="title">Title</label>
           <Input
             id="title"
@@ -92,7 +101,7 @@ const Testimonial = () => {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-        </Form>
+        </Form> */}
 
         <TableWrapper>
           <Table>
@@ -110,7 +119,7 @@ const Testimonial = () => {
               {currentItems.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>{item.course}</TableCell>
-                  <TableCell>{item.testimonial}</TableCell>
+                  <TableCelldiscription>{item.testimonial}</TableCelldiscription>
                   <TableCell>{item.student}</TableCell>
                   <TableCell>
                     <ViewLink href="#">View</ViewLink>
