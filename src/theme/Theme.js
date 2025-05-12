@@ -23,6 +23,7 @@ const theme = {
      charcoalGray: "#272727",
      darkblueGray: "#171821",
      graniteGray: "#717171",
+     timeGray: "#B4B4B4",
      pureblack: "#000000",
      blueishblack: "#0C0D19",
      jetBlack: "#2F2F2F",

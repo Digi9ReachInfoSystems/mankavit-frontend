@@ -48,6 +48,13 @@ const UserSidebar = () => {
     };
   }, [isSidebarOpen]);
 
+  const handleMenuClick = () => {
+    if (window.innerWidth <= 576) {
+      setIsSidebarOpen(false);
+    }
+  };
+  
+
   return (
     <>
       {/* Toggle Button */}
@@ -60,32 +67,32 @@ const UserSidebar = () => {
         <SidebarContainer>
           <MenuList>
             <MenuItem>
-              <MenuLink to="/user" end>
+              <MenuLink to="/user" end onClick={handleMenuClick}>
                 <FaTachometerAlt className='sidebar-icon' /> Dashboard
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/my-courses">
+              <MenuLink to="/user/my-courses" onClick={handleMenuClick}>
                 <FaBookOpen className='sidebar-icon' /> My Courses <AiOutlineRight className='arrow-icon' />
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/profile">
+              <MenuLink to="/user/profile" onClick={handleMenuClick}>
                 <FaUser className='sidebar-icon' /> Profile
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/terms">
+              <MenuLink to="/user/tandc" onClick={handleMenuClick}>
                 <FaFileContract className='sidebar-icon' /> T&amp;C
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/notification">
+              <MenuLink to="/user/notification" onClick={handleMenuClick}>
                 <FaBell className='sidebar-icon' /> Notification
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/contactsupport">
+              <MenuLink to="/user/contactsupport" onClick={handleMenuClick}>
                 <FaHeadset className='sidebar-icon' /> Contact Support
               </MenuLink>
             </MenuItem>

@@ -21,6 +21,10 @@ import styled from 'styled-components';
   gap: 1rem;
   margin-bottom: 3rem;
   // padding: 0 2rem;
+
+  @media (max-width: 480px) {
+    gap: 0;
+  }
   `;
 
   export const SectionTitle = styled.h2`
@@ -28,6 +32,15 @@ import styled from 'styled-components';
   font-size: 36px;
   font-weight: 400;
   color: ${({ theme }) => theme.colors.jetBlack};
+
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+    margin: 1rem 0;
+  }
+
+  @media (max-width: 480px) {
+    margin: 0;
+  }
 `;
 
 export const CertificatesWrapper = styled.div`
@@ -60,6 +73,7 @@ export const CertificateCard = styled.div`
   }
   @media (max-width: 480px) {
     max-width: 250px;
+    padding: 10px 0;
   }
 `;
 

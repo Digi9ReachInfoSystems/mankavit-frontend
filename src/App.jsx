@@ -50,6 +50,8 @@ import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
 import Profile from './module/user/pages/Profile/Profile'
 import Mycourses from './module/user/pages/MyCourses/MyCourses'
 import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
+import TandC from './module/user/pages/TandC/TandC'
+import UserNotifications from './module/user/pages/UserNotifications/UserNotifications'
 import CourseDetails from './pages/CourseDetails/CourseDetails'
 import WhyEntranceCourses from './pages/WhyEntranceCourses/WhyEntranceCourses'
 import Category from './module/admin/pages/Category/Category'
@@ -79,9 +81,10 @@ function App() {
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="tandc" element={<TandC />} />
             <Route path='my-courses' element={<Mycourses/>} />
             <Route path="contactsupport" element={<ContactSupport />} />
-
+            <Route path="notification" element={<UserNotifications />} />
           {/* </Route> */}
 
           </Route>

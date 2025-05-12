@@ -99,7 +99,6 @@ const Courses = () => {
                 <FaStar
                     key={i}
                     color={i <= Math.floor(rating) ? '#facc15' : '#e4e5e9'}
-                    size={20}
                     style={{ marginRight: 4 }}
                 />
             );
@@ -132,7 +131,7 @@ const Courses = () => {
                                 <ProgressBarContainer>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
                                         <ProgressLabel>Reviewed</ProgressLabel>
-                                        <div style={{ display: 'flex' }}>
+                                        <div className='stars'>
                                             {renderStars(course.rating)}
                                         </div>
                                     </div>

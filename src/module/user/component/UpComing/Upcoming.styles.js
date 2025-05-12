@@ -7,17 +7,25 @@ export const MainContainer = styled.div`
 //   align-items: center;
   justify-content: center;
   // margin-left: 30px;
-  margin-bottom: 3rem;
+  margin-bottom: 0;
  width: 100%;
  box-sizing: border-box;
 
   @media (max-width: 768px) {
     padding: 1rem;
   }
+
+  @media (max-width: 480px) {
+    padding: 0rem;
+  }
   `;
 
 export const ListSection = styled.div`
-  margin-top: 3rem;
+  margin-top: 0rem;
+
+  @media (max-width: 480px) {
+    margin-top: 0;
+  }
 `;
 
 export const ListCard = styled.div`
@@ -37,6 +45,9 @@ background-clip: padding-box, border-box;
   border: 2px solid ${({ theme }) => theme.colors.vividRed};
 }
 
+@media (max-width: 480px) {
+  padding: 5px;
+}
 `;
 
 export const ListTime = styled.div`
@@ -47,6 +58,15 @@ export const ListTime = styled.div`
   width: 80px;
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
+
+  @media (max-width: 1024px) {
+    width: 70px;
+  }
+
+  @media (max-width: 480px) {
+    width: 50px;
+    padding: 10px;
+  }
 `;
 
 export const Testdate = styled.div`
@@ -56,6 +76,14 @@ export const Testdate = styled.div`
   margin-bottom: 5px;
   margin-top: 0;
   text-align: left;
+
+  @media (max-width: 1024px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 
 export const Testmonth = styled.div`
@@ -65,6 +93,14 @@ export const Testmonth = styled.div`
   margin-bottom: 5px;
   margin-top: 0;
   text-align: left;
+
+  @media (max-width: 1024px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
 `;
 
 export const Testtime = styled.div`
@@ -74,17 +110,41 @@ export const Testtime = styled.div`
   margin-bottom: 5px;
   margin-top: 0;
   text-align: left;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 export const ListContent = styled.div`
    ${({ theme }) => theme.colors.darkblueGray};
    font-size: 22px;
+
+   @media (max-width: 1024px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 export const Testtitle = styled.h5`
   margin: 0;
      font-size: 20px;
   font-weight: 400;
+
+  @media (max-width: 1024px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 export const Testsubtitle = styled.h5`
@@ -92,11 +152,23 @@ margin: 0;
    font-size: 20px;
   font-weight: 700;
 
+  @media (max-width: 1024px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    // font-size: 12px ;
+    display: none;
+      }
 `;
 
 export const Testpara = styled.p`
   margin: 0.2rem 0 0;
   font-weight: 700;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 export const ClassCard = styled.div`
@@ -107,6 +179,15 @@ export const ClassCard = styled.div`
   width: 80px;
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
+
+  @media (max-width: 1024px) {
+    width: 70px;
+  }
+
+  @media (max-width: 480px) {
+    width: 50px;
+    padding: 10px;
+  }
 `;
 
 export const Classtime = styled.p`
@@ -114,6 +195,15 @@ export const Classtime = styled.p`
   font-weight: 700;
   font-size: 18px;
   color: ${({ theme }) => theme.colors.white};
+  text-align: left;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 export const LiveBadge = styled.span`
@@ -130,6 +220,24 @@ align-items: center;
   background-color: ${({ theme }) => theme.colors.white};
   border-radius: 50%;
   margin-left: 5px;
+
+  @media (max-width: 1024px) {
+    width: 10px;
+    height: 10px;
+  }
+
+  @media (max-width: 480px) {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
   }
 `;
 
@@ -138,6 +246,14 @@ export const Testattempt = styled.p`
   font-weight: 400;
   font-size: 16px;
   color: ${({ theme }) => theme.colors.salmonPink};
+
+  @media (max-width: 1024px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    margin: 5px 0px 5px 0;
+  }
 `;
 
 export const Testdetails = styled.p`
@@ -159,7 +275,26 @@ export const Testdetails = styled.p`
     width: 1px;
     background-color: ${({ theme }) => theme.colors.graniteGray};
     margin: 0 10px;
+
+    @media (max-width: 1024px) {
+      height: 14px;
+      margin: 0 8px;
+    }
+
+    @media (max-width: 480px) {
+      display: none;
+    }
   }
+
+  @media (max-width: 1024px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+  }
+ }
 `;
 
 export const ViewAllLink = styled.span`
@@ -177,7 +312,15 @@ export const ViewAllLink = styled.span`
 
 export const SectionTitle = styled.h2`
   margin-bottom: 1rem;
-  font-size: 18px;
+  font-size: 32px;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.charcoalGray};
+
+  @media (max-width: 1024px) {
+    font-size: 28px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 24px;
+  }
 `;

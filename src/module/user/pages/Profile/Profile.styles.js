@@ -22,11 +22,34 @@ margin-left: 35px;
 }
 `;
 
+export const UpdatedGif = styled.div`
+  width: 400px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+
+  .updatedText{
+    margin: 0px;
+  }
+`;
+
 export const Form = styled.div`
   width: 80%;
 
   @media (max-width: 1024px) {
     width: 100%;
+  }
+
+  .updatedGif{
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
   }
   `;
 export const FormWrapper = styled.div`
