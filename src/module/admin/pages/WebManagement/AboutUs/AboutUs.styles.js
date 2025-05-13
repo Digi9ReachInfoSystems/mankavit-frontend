@@ -141,11 +141,17 @@ export const Table = styled.table`
 export const TableRow = styled.tr`
   transition: background 0.2s ease;
 
+
   /* on hover, turn light grey */
  &:hover {
     background: ${theme.colors.backgrounGrey};
   }
 `;
+
+export const TableHead = styled.thead`
+  background: ${theme.colors.backgrounGrey};
+`;
+
 
 export const TableHeader = styled.th`
   text-align: left;
@@ -155,21 +161,20 @@ export const TableHeader = styled.th`
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   white-space: nowrap;
-//   border-bottom: 1px solid ${(props) => props.theme.colors.test};
 
-&:first-child {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
+  &:nth-child(2) {
+    width: 80%;
+  }
 
-&:last-child {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-}
-`;
+  &:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
 
-export const TableHead = styled.thead`
-  background: ${theme.colors.backgrounGrey};
+  &:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+  }
 `;
 
 export const TableCell = styled.td`
@@ -178,7 +183,17 @@ export const TableCell = styled.td`
   color: ${(props) => props.theme.colors.black};
   white-space: nowrap;
   border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+
+  &:nth-child(2) {
+    width: 40%;
+    white-space: normal; /* allow text to wrap inside description */
+    word-break: break-word;
+  }
 `;
+
+
+
+
 
 export const ActionsWrapper = styled.div`
   display: flex;
