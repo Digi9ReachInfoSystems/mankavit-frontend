@@ -19,7 +19,7 @@ export const ToggleButton = styled.button`
   cursor: pointer;
   transition: left 0.3s ease;
 
-  @media (min-width: 768px) {
+  @media (min-width: 769px) {
     display: none; /* Hide toggle button on big screens */
   }
 
@@ -68,7 +68,7 @@ export const SidebarWrapper = styled.div`
   bottom:0;
   padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? '70px' : '0')};
 
-  @media (min-width: 768px) {
+  @media (min-width: 769px) {
     position: relative;
     left: 0;
     height: auto;
