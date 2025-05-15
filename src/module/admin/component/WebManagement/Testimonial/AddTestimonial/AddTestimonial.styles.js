@@ -119,3 +119,15 @@ export const UploadButton = styled.button`
     background-color: #0056b3;
   }
 `;
+
+export const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 0.5rem;
+  font-size: 12px;
+`;
+
+export const PreviewImage = styled.img`
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 1rem;
+`;
