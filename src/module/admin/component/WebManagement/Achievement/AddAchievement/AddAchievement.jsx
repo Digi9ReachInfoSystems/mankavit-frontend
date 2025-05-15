@@ -124,7 +124,7 @@ const navigate = useNavigate();
       <Label>Student Name</Label>
       <Input
         name="studentName"
-        placeholder="Gaurav"
+        placeholder="Enter name "
         value={formData.studentName}
         onChange={handleChange}
       />
@@ -132,7 +132,7 @@ const navigate = useNavigate();
       <Label>Write Rank</Label>
       <Input
         name="rank"
-        placeholder="write here"
+        placeholder="Enter rank"
         value={formData.rank}
         onChange={handleChange}
       />
@@ -140,7 +140,7 @@ const navigate = useNavigate();
       <Label>Exam details</Label>
       <TextArea
         name="examDetails"
-        placeholder="Write here"
+        placeholder="Enter exam details"
         value={formData.examDetails}
         onChange={handleChange}
       />

@@ -119,21 +119,23 @@ const AddTestimonial = () => {
         onChange={handleInputChange}
       />
 
-      <Label>Course *</Label>
+      <Label htmlFor="course">Enter aspiring details</Label>
       <Input
         name="course"
-        placeholder="Write here"
+        placeholder="Enter aspiring details"
         value={formData.course}
         onChange={handleInputChange}
+        id='course' required
       />
 
-      <Label>Testimonial Details *</Label>
+      <Label htmlFor='testimonialDetails'>Testimonial description *</Label>
       <TextArea
         name="testimonialDetails"
         placeholder="Write here"
         value={formData.testimonialDetails}
         onChange={handleInputChange}
         rows={5}
+        id='testimonialDetails' required
       />
 
       <Label>Upload Student Image *</Label>

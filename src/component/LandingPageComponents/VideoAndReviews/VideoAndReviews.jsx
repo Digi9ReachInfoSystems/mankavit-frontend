@@ -1,74 +1,84 @@
-import React from 'react';
+// Aspirants.jsx
+import React, { useEffect, useState } from "react";
 import {
-  Section,
-  VideoWrapper,
+  Container,
   Title,
   Highlight,
-  ReviewsContainer,
-  ReviewCard,
+  Card,
   Avatar,
-  ReviewText,
-  ReviewerName,
-  ReviewerTitle
-} from './VideoAndReviews.styles';
-
-import avatar1 from '../../../assets/Study1.png';
-import avatar2 from '../../../assets/Study2.png';
-import avatar3 from '../../../assets/Study3.png';
-
-const reviews = [
-  {
-    name: 'Aditi Sharma',
-    title: 'CLAT 2024 Aspirant',
-    review: '“The structured video lessons and mock tests helped me improve my scores drastically. The legal reasoning section was a game-changer!”',
-    image: avatar1,
-  },
-  {
-    name: 'Aditi Sharma',
-    title: 'CLAT 2024 Aspirant',
-    review: '“The structured video lessons and mock tests helped me improve my scores drastically. The legal reasoning section was a game-changer!”',
-    image: avatar2,
-  },
-  {
-    name: 'Aditi Sharma',
-    title: 'CLAT 2024 Aspirant',
-    review: '“The structured video lessons and mock tests helped me improve my scores drastically. The legal reasoning section was a game-changer!”',
-    image: avatar3,
-  },
-];
+  Quote,
+  Name,
+  Role,
+  CardWrapper,
+} from "./VideoAndReviews.styles";
+import { getAlltestimonials } from "../../../api/testimonialApi";
+import placeholder from "../../../assets/aspi1.png";   // fallback avatar
 
 const VideoAndReviews = () => {
-  return (
-    <Section>
-      <VideoWrapper>
-        {/* Replace with your embedded YouTube iframe or custom video player */}
-        <iframe
-          width="100%"
-          height="100%"
-          src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-          title="Testimonial Video"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </VideoWrapper>
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const raw = await getAlltestimonials();   
+        const data = (Array.isArray(raw) ? raw : []).map((t) => ({
+          id: t._id?.$oid || t._id || t.id,
+          name: t.name,
+          role: t.rank,                // ← the API field is “rank”
+          quote: t.description,        // ← the API field is “description”
+          image: t.testimonial_image,
+        }));
+        setTestimonials(data);
+      } catch (err) {
+        console.error("Error fetching testimonials:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+  if (loading) {
+    return (
+      <Container>
+        <p>Loading testimonials…</p>
+      </Container>
+    );
+  }
+
+
+  if (testimonials.length === 0) {
+    return (
+      <Container>
+        <Title>
+          What Are <Highlight>They Saying</Highlight>
+        </Title>
+        <p>No testimonials found.</p>
+      </Container>
+    );
+  }
+
+  /* ───────────────── render cards ───────────────── */
+  return (
+    <Container>
       <Title>
         What Are <Highlight>They Saying</Highlight>
       </Title>
 
-      <ReviewsContainer>
-        {reviews.map((review, index) => (
-          <ReviewCard key={index}>
-            <Avatar src={review.image} alt={review.name} />
-            <ReviewText>{review.review}</ReviewText>
-            <ReviewerName>{review.name}</ReviewerName>
-            <ReviewerTitle>{review.title}</ReviewerTitle>
-          </ReviewCard>
+      <CardWrapper>
+        {testimonials.map((t) => (
+          <Card key={t.id}>
+            <Avatar src={t.image || placeholder} alt={t.name} />
+            <Quote>&quot;{t.quote}&quot;</Quote>
+            <Name>{t.name}</Name>
+            <Role>{t.role}</Role>
+          </Card>
         ))}
-      </ReviewsContainer>
-    </Section>
+      </CardWrapper>
+    </Container>
   );
 };
 
 export default VideoAndReviews;
+// VideoAndReviews

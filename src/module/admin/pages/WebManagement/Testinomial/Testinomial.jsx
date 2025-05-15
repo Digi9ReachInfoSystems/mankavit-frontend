@@ -93,7 +93,7 @@ const Testimonial = () => {
           <Table>
             <TableHead>
               <tr>
-                <TableHeader>Rank</TableHeader>
+                <TableHeader>Details</TableHeader>
                 <TableHeader>Testimonial</TableHeader>
                 <TableHeader>Student</TableHeader>
                 <TableHeader>View Image/Video</TableHeader>
