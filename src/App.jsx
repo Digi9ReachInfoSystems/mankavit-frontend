@@ -58,7 +58,8 @@ import Category from './module/admin/pages/Category/Category'
 import Addcategory from './module/admin/component/AddCategory/AddCategory'
 import EditAchievement from './module/admin/component/WebManagement/Achievement/EditAchievement/EditAchievement'
 import EditQuestionPaper from './module/admin/component/WebManagement/Questionpaper/EditQuestionPaper/EditQuestionPaper'
-import AddTestimonial from './module/admin/component/WebManagement/AddTestimonial/AddTestimonial'
+import AddTestimonial from './module/admin/component/WebManagement/Testimonial/AddTestimonial/AddTestimonial'
+import EditTestimonial from './module/admin/component/WebManagement/Testimonial/EditTestimonial/EditTestimonial'
 
 function App() {
 
@@ -133,9 +134,11 @@ function App() {
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
-            <Route path="web-management/testinomial" element={<Testimonial />} />
 
+            <Route path="web-management/testinomial" element={<Testimonial />} />
             <Route path="web-management/testinomial/create" element={<AddTestimonial />} />
+            <Route path="web-management/testinomial/edit/:id" element={<EditTestimonial />} />
+
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
             <Route path='web-management/achievement/edit/:id' element={<EditAchievement />} />
