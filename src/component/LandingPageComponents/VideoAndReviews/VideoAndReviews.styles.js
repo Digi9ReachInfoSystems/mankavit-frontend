@@ -1,89 +1,190 @@
 import styled from 'styled-components';
 
-export const Section = styled.section`
-  padding: 60px 20px;
+export const Container = styled.div`
+  padding: 20px;
   text-align: center;
-`;
-
-export const VideoWrapper = styled.div`
-  width: 80%;
-  height: 600px;
-  margin: 0 auto 60px;
-  background-color: #f0f0f0;
-  border-radius: 12px;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    height: 250px;
-    width: 80%; 
-  }
+  margin-bottom: 60px;
 `;
 
 export const Title = styled.h2`
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 40px;
+  font-size: 48px;
+  font-weight: 400;
+  color: ${props => props.theme.colors.darkgray};
+  margin-top: 20px;
 
-  @media (max-width: 600px) {
-    font-size: 24px;
+  @media (max-width: 1360px) {
+      font-size: 40px;
+  }
+
+  @media (max-width: 768px) {
+      font-size: 32px;
   }
 `;
 
 export const Highlight = styled.span`
-  color: #2d79f3;
+  color: ${props => props.theme.colors.vividblue};
 `;
 
-export const ReviewsContainer = styled.div`
+export const CardWrapper = styled.div`
   display: flex;
   justify-content: center;
 //   flex-wrap: wrap;
-margin: 0 auto;
   gap: 20px;
-  width: 85%;
+  margin-top: 2rem;
 
   @media (max-width: 1024px) {
-    width: 90%;
+    gap: 10px;
+  }
+
+  @media (max-width: 540px) {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  @media (max-width: 480px) {
+      flex-direction: column;
+      align-items: center;
+  }
+`;
+
+export const Card = styled.div`
+//   background-color: white;
+  border: ${props => props.theme.colors.darkgray} 1px solid;
+  border-radius: 14px;
+  width: 500px;
+  padding: 3rem 1rem;
+//   box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+
+  @media (max-width: 1360px) {
+      width: 300px;
+      padding: 2rem 1rem;
+  }
+
+  @media (max-width: 1024px) {
+      width: 220px;
+      padding: 2rem 1rem;
   }
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-      }
-`;
+      width: 200px;
+      padding: 1rem 0.5rem;
+  }
 
-export const ReviewCard = styled.div`
-  max-width: 450px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  background-color: #fff;
-  text-align: center;
+  @media (max-width: 540px) {
+      width: 350px;
+      padding: 2rem 1rem;
+  }
+
+  @media (max-width: 480px) {
+      width: 300px;
+      padding: 2rem 1rem;
+  }
 `;
 
 export const Avatar = styled.img`
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
+
+  @media (max-width: 1360px) {
+      width: 100px;
+      height: 100px;
+  }
+
+  @media (max-width: 1024px) {
+      width: 80px;
+      height: 80px;
+  }
+
+  @media (max-width: 768px) {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 540px) {
+      width: 100px;
+      height: 100px;
+  }
+
+  @media (max-width: 480px) {
+      width: 100px;
+      height: 100px;
+  }
 `;
 
-export const ReviewText = styled.p`
-  font-size: 20px;
-  color: #555;
-  margin-bottom: 3rem;
+export const Quote = styled.p`
+  font-size: 18x;
+  font-weight: 300;
+  color: ${props => props.theme.colors.test};
+  margin-bottom: 1rem;
+  padding: 6px;
+  line-height: 1.5;
+
+  @media (max-width: 1360px) {
+      font-size: 16px;
+  }
+
+  @media (max-width: 1024px) {
+      font-size: 14px;
+      padding: 4px;
+}
+
+  @media (max-width: 768px) {
+      font-size: 14px;
+      line-height: 1.2;
+  }
+
+  @media (max-width: 480px) {
+      font-size: 16px;
+      line-height: 1.5;
+  }
 `;
 
-export const ReviewerName = styled.h4`
-  margin: 0;
+export const Name = styled.h4`
+font-size: 26px;
+  font-weight: normal;
+  color: ${props => props.theme.colors.darkgray};
+  margin-bottom: 5px;
+
+  @media (max-width: 1360px) {
+      font-size: 22px;
+  }
+
+  @media (max-width: 1024px) {
+      font-size: 20px;
+  }
+
+  @media (max-width: 768px) {
+      font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+      font-size: 22px;
+  }
+`;
+
+export const Role = styled.p`
+font-size: 22px;
   font-weight: 600;
-  font-size: 18px;
-`;
-
-export const ReviewerTitle = styled.p`
+  color: ${props => props.theme.colors.darkgray};
   margin: 0;
-  font-weight: bold;
-  font-size: 16px;
-  color: #111;
-  margin-bottom: 2rem;
+
+  @media (max-width: 1360px) {
+      font-size: 18px;
+  }
+
+  @media (max-width: 1024px) {
+      font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+      font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+      font-size: 18px;
+  }
 `;

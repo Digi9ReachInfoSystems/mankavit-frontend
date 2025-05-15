@@ -96,6 +96,7 @@ export default function NotesManagement() {
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAllNotes();
+      console.log("respose", response);
       const dataPrepared = response.data.map((item) => ({
         id: item._id,
         noteTitle: item.noteDisplayName,

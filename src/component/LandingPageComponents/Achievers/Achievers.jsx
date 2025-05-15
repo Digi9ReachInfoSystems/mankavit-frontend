@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AchieversSection,
   Title,
@@ -14,15 +14,27 @@ import {
 } from './Achievers.styles';
 import achieverImage from '../../../assets/Study1.png'; // Replace with your actual image path
 
-const achievers = Array(19).fill({ 
-  name: 'Aditi Sharma',
-  achievement: 'CLAT PG 2024 AIR 4',
-  image: achieverImage,
-});
+
+
+import { getAllAchievers } from '../../../api/achieverApi';
 
 const Achievers = () => {
   const sliderRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [achievers, setAchievers] = useState([]);
+
+  useEffect(() => {
+    const fetchAchievers = async () => {
+      try {
+        const achieversData = await getAllAchievers();
+        setAchievers(achieversData);
+      } catch (error) {
+        console.error('Error fetching achievers:', error);
+      }
+    };
+
+    fetchAchievers();
+  }, []);
 
   const handleScroll = (e) => {
     const { scrollLeft, scrollWidth, clientWidth } = e.target;
@@ -46,7 +58,7 @@ const Achievers = () => {
           <Card key={index}>
             <Avatar src={achiever.image} alt={achiever.name} />
             <Name>{achiever.name}</Name>
-            <Achievement>{achiever.achievement}</Achievement>
+            <Achievement>{achiever.exam_name}, AIR {achiever.rank}</Achievement>
           </Card>
         ))}
       </CardSlider>
