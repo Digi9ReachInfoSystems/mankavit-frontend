@@ -1,6 +1,6 @@
 // AddSubject.jsx
 import React, { useState, useRef, useEffect } from "react";
-import uplaod from "../../../../assets/upload.png";
+import uplaod from "../../../../../assets/upload.png";
 import {
   Container,
   Title,
@@ -24,11 +24,11 @@ import {
 } from "../AddSubject/AddSubject.style"; // Adjust the path if needed
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from 'react-hot-toast';
-import { getAllNotes } from "../../../../api/notesApi";
-import { uploadFileToAzureStorage } from "../../../../utils/azureStorageService";
-import { createSubject } from "../../../../api/subjectApi";
+import { getAllNotes } from "../../../../../api/notesApi";
+import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { createSubject } from "../../../../../api/subjectApi";
 
-export default function AddSubject() {
+export default function EditSubject() {
   // State for form fields
   const [subjectTitle, setSubjectTitle] = useState(null);
   const [vimeoId, setVimeoId] = useState(null);

@@ -12,11 +12,11 @@ import {
   FormRow,
   SubmitButton,
   FormWrapper
-} from "./AddCategory.styles";
+} from "../AddCategory/AddCategory.styles";
 
-import { createCategory } from "../../../../api/categoryApi"; // Adjust path if needed
+import { createCategory } from "../../../../../api/categoryApi"; // Adjust path if needed
 
-const AddCategory = () => {
+const EditCategory = () => {
   const navigate = useNavigate();
   const [categoryTitle, setCategoryTitle] = useState("");
 
@@ -75,4 +75,4 @@ const AddCategory = () => {
   );
 };
 
-export default AddCategory;
+export default EditCategory;

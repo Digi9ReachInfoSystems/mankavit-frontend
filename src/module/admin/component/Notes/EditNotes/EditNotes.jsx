@@ -1,6 +1,6 @@
 // AddNote.jsx
 import React, { useState, useRef, useEffect } from "react";
-import upload from "../../../../assets/upload.png";
+import upload from "../../../../../assets/upload.png";
 import {
   Container,
   Title,
@@ -22,14 +22,14 @@ import {
   CheckboxSectionTitle,
   ToggleSwitch,
 } from "../AddNotes/AddNotes.style"; // Adjust the path if needed
-import { getSubjects } from "../../../../api/subjectApi";
-import { uploadFileToAzureStorage } from "../../../../utils/azureStorageService";
-import { createNotes } from "../../../../api/notesApi";
+import { getSubjects } from "../../../../../api/subjectApi";
+import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { createNotes } from "../../../../../api/notesApi";
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 
 
-export default function AddNote() {
+export default function EditNotes() {
   // State for form fields
   const [noteTitle, setNoteTitle] = useState(null);
   const [internalTitle, setInternalTitle] = useState(null);

@@ -17,11 +17,11 @@ import StudentsTable from './module/admin/pages/StudentManagement/StudentManagem
 import StudentManagement from './module/admin/pages/StudentManagement/StudentManagement'
 import Payment from './module/admin/pages/Payment/Payment'
 import Subjects from './module/admin/pages/Subjects/Subject'
-import AddSubject from './module/admin/component/AddSubject/AddSubject'
+import AddSubject from './module/admin/component/Subject/AddSubject/AddSubject'
 import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
-import AddCourse from './module/admin/component/AddCourse/AddCourse'
-import AddNote from './module/admin/component/AddNotes/AddNotes'
+import AddCourse from './module/admin/component/Course/AddCourse/AddCourse'
+import AddNote from './module/admin/component/Notes/AddNotes/AddNotes'
 import LandingPage from './pages/LandingPage/LangingPage'
 import AboutUs from './pages/AboutUs/AboutUs'
 import OurCourses from './pages/OurCourses/OurCourses'
@@ -43,7 +43,7 @@ import Notification from './module/admin/pages/WebManagement/Notification/Notifi
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
 import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
-import AddStudent from './module/admin/component/AddStudent/AddStudent'
+import AddStudent from './module/admin/component/Student/AddStudent/AddStudent'
 import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
 import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
@@ -55,13 +55,22 @@ import UserNotifications from './module/user/pages/UserNotifications/UserNotific
 import CourseDetails from './pages/CourseDetails/CourseDetails'
 import WhyEntranceCourses from './pages/WhyEntranceCourses/WhyEntranceCourses'
 import Category from './module/admin/pages/Category/Category'
-import Addcategory from './module/admin/component/AddCategory/AddCategory'
+import Addcategory from './module/admin/component/Category/AddCategory/AddCategory'
 import EditAchievement from './module/admin/component/WebManagement/Achievement/EditAchievement/EditAchievement'
 import EditQuestionPaper from './module/admin/component/WebManagement/Questionpaper/EditQuestionPaper/EditQuestionPaper'
 import AddTestimonial from './module/admin/component/WebManagement/Testimonial/AddTestimonial/AddTestimonial'
 import EditTestimonial from './module/admin/component/WebManagement/Testimonial/EditTestimonial/EditTestimonial'
 import AdminMission from './module/admin/pages/WebManagement/AdminMission/AdminMission'
 import AddMission from './module/admin/component/WebManagement/AddMission/AddMission'
+import EditStudent from './module/admin/component/Student/EditStudent/EditStudent'
+import ViewStudent from './module/admin/component/Student/ViewStudent/ViewStudent'
+import EditCourse from './module/admin/component/Course/EditCourse/EditCourse'
+import ViewCourse from './module/admin/component/Course/ViewCourse/ViewCourse'
+import EditSubject from './module/admin/component/Subject/EditSubject/EditSubject'
+import ViewSubject from './module/admin/component/Subject/ViewSubject/ViewSubject'
+import EditNotes from './module/admin/component/Notes/EditNotes/EditNotes'
+import ViewNotes from './module/admin/component/Notes/ViewNotes/ViewNotes'
+import EditCategory from './module/admin/component/Category/EditCategory/EditCategory'
 
 function App() {
 
@@ -102,18 +111,31 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="course-management" element={<Course />} />
             <Route path="course-management/create" element={<AddCourse />} />
+            <Route path="course-management/edit/:id" element={<EditCourse />} />
+            <Route path="course-management/view/:id" element={<ViewCourse />} />
+
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
-            <Route path="student-management/edit/:id" element={<AddStudent />} />
+            <Route path="student-management/edit/:id" element={<EditStudent />} />
+            <Route path="student-management/view/:id" element={<ViewStudent />} />
+
             <Route path="mock-test"element={<Mocktest/>} />
+
             <Route path="payment-management" element={<Payment />} />
+
             <Route path="subject-management" element={<Subjects />} />
             <Route path="subject-management/create" element={<AddSubject />} />
-            <Route path="subject-management/edit/:id" element={<AddSubject />} />
+            <Route path="subject-management/edit/:id" element={<EditSubject />} />
+            <Route path="subject-management/view/:id" element={<ViewSubject />} />
+
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes-management/create" element={<AddNote />} />
+            <Route path="notes-management/edit/:id" element={<EditNotes />} />
+            <Route path="notes-management/view/:id" element={<ViewNotes />} />
+
             <Route path="category-management" element={<Category />} />
             <Route path="category-management/create" element={<Addcategory />} />
+            <Route path="category-management/edit/:id" element={<EditCategory />} />
 
             <Route path="static-page" element={<Staticpage />} />
 

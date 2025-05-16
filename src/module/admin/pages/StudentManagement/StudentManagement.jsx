@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
+import { IoEyeOutline } from "react-icons/io5";
 
 const mockData = [
   {
@@ -54,162 +55,6 @@ const mockData = [
     lastActive: "24-07-2024 16:22",
     kycStatus: "Approved",
     status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 3,
-    name: "John Doe",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22", 
-    kycStatus: "Not Applied", 
-    status: "Inactive",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 4,
-    name: "Jane Smith",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["English", "History"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Approved",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 5,
-    name: "Alice Johnson",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Not Applied",
-    status: "Inactive",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 6,
-    name: "Gaurav N",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Not Applied",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 7,
-    name: "Alexa",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["English", "History"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Approved",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 8,
-    name: "John Doe",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22", 
-    kycStatus: "Not Applied", 
-    status: "Inactive",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 9,
-    name: "Jane Smith",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["English", "History"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Approved",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 10,
-    name: "Alice Johnson",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Not Applied",
-    status: "Inactive",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 11,
-    name: "Gaurav N",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Not Applied",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 12,
-    name: "Alexa",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["English", "History"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Approved",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 13,
-    name: "John Doe",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22", 
-    kycStatus: "Not Applied", 
-    status: "Inactive",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 14,
-    name: "Jane Smith",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["English", "History"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Approved",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
-  {
-    id: 15,
-    name: "Alice Johnson",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Not Applied",
-    status: "Inactive",
     passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
     idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
   },
@@ -241,16 +86,19 @@ export default function StudentManagement() {
     setSelectedStudent(id);
     setDeleteModalOpen(true);
   };
-
+  
   const handleDeleteConfirm = () => {
     setData(data.filter((student) => student.id !== selectedStudent));
     setDeleteModalOpen(false);
   };
-
+  
   const handleViewClick = (student) => {
-    setViewStudent(student);
-    setViewModalOpen(true);
+    navigate(`/admin/student-management/view/${student.id}`, {
+      state: { student }
+    });
+    console.log("View student with ID:", student.id);
   };
+  
   const handleEdit = (id) => {
     const student = data.find((student) => student.id === id);
     if (student) {
@@ -259,7 +107,6 @@ export default function StudentManagement() {
       });
     }
     console.log("Edit student with ID:", id);
-    console.log("Student data:", student);
   };
 
   return (
@@ -317,6 +164,7 @@ export default function StudentManagement() {
                   <TableCell><StatusWrapper><StatusDot status={item.status} />{item.status}</StatusWrapper></TableCell>
                   <TableCell>
                     <ActionsContainer>
+                    <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
                     <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item.id)} />
                       <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item.id)} />
                     </ActionsContainer>
