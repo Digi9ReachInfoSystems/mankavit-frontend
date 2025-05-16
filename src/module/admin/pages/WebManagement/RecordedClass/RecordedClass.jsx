@@ -27,9 +27,9 @@ const sampleData = [
     id: 1,
     title: "CLAT Coaching",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+      "Loremmmm Ipsum is simply dummy text of the printing and typesetting industry.",
     coursesEnrolled: 7,
-    bannerUrl: "/path/to/banner1.jpg",
+    bannerUrl: "https://www.google.com/search?sca_esv=69251213fe4ae3f6&q=java+class+linking&udm=7&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWpA-dk4wpBWOGsoR7DG5zJBkzPWUS0OtApxR2914vrjk4ZqZZ4I2IkJifuoUeV0iQtlsVaSqiwnznvC1owt2z2tTdc23Auc6X4y2i7IIF0f-d_O-E9yXafSm5foej9KNb5dB5UNNsgm78dv2qEeljVjLTUov5wWn4x9of_4BNb8vF_2a_9-AxwH0UJGyfTMDuJ_sz_gg&sa=X&ved=2ahUKEwjKpYDLvqeNAxU1UGwGHS9HNAkQtKgLegQIFBAB&biw=1920&bih=945&dpr=1#fpstate=ive&vld=cid:c15e3d6e,vid:XNWvF-xsCoY,st:0",
     schedule: "2024-07-24T10:30:00Z",
   },
   {
@@ -123,6 +123,7 @@ const RecordedClass = () => {
                       <BiEditAlt
                         size={20}
                         color="#000"
+                      onClick={() => navigate(`/admin/web-management/recorded-classes/edit/${row.id}`, { state: { row} })}
                         style={{ cursor: "pointer" }}
                       />
                       <RiDeleteBin6Line
