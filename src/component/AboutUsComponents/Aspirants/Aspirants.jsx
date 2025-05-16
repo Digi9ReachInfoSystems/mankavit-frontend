@@ -1,44 +1,78 @@
-import React from 'react';
-import { Container, Title, Highlight, Card, Avatar, Quote, Name, Role, CardWrapper } from './Aspirants.styles';
-// import './Testimonials.css';
-import aspi1 from '../../../assets/aspi1.png';
-import aspi2 from '../../../assets/aspi2.png';
-import aspi3 from '../../../assets/aspi3.png';
-
-const testimonials = [
-  {
-    name: "Aditi Sharma",
-    role: "CLAT 2024 Aspirant",
-    quote: "The structured video lessons and mock tests helped me improve my scores drastically. The legal reasoning sessions were a game-changer!",
-    image: aspi1,
-  },
-  {
-    name: "Aditi Sharma",
-    role: "CLAT 2024 Aspirant",
-    quote: "The structured video lessons and mock tests helped me improve my scores drastically. The legal reasoning sessions were a game-changer!",
-    image: aspi2,
-  },
-  {
-    name: "Aditi Sharma",
-    role: "CLAT 2024 Aspirant",
-    quote: "The structured video lessons and mock tests helped me improve my scores drastically. The legal reasoning sessions were a game-changer!",
-    image: aspi3,
-  }
-];
+// Aspirants.jsx
+import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Title,
+  Highlight,
+  Card,
+  Avatar,
+  Quote,
+  Name,
+  Role,
+  CardWrapper,
+} from "./Aspirants.styles";
+import { getAlltestimonials } from "../../../api/testimonialApi";
+import placeholder from "../../../assets/aspi1.png";   // fallback avatar
 
 const Aspirants = () => {
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const raw = await getAlltestimonials();   
+        const data = (Array.isArray(raw) ? raw : []).map((t) => ({
+          id: t._id?.$oid || t._id || t.id,
+          name: t.name,
+          role: t.rank,                // ← the API field is “rank”
+          quote: t.description,        // ← the API field is “description”
+          image: t.testimonial_image,
+        }));
+        setTestimonials(data);
+      } catch (err) {
+        console.error("Error fetching testimonials:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+  if (loading) {
+    return (
+      <Container>
+        <p>Loading testimonials…</p>
+      </Container>
+    );
+  }
+
+
+  if (testimonials.length === 0) {
+    return (
+      <Container>
+        <Title>
+          What Are <Highlight>They Saying</Highlight>
+        </Title>
+        <p>No testimonials found.</p>
+      </Container>
+    );
+  }
+
+  /* ───────────────── render cards ───────────────── */
   return (
     <Container>
       <Title>
         What Are <Highlight>They Saying</Highlight>
       </Title>
+
       <CardWrapper>
-        {testimonials.map((item, index) => (
-          <Card key={index}>
-            <Avatar src={item.image} alt={item.name} />
-            <Quote>"{item.quote}"</Quote>
-            <Name>{item.name}</Name>
-            <Role>{item.role}</Role>
+        {testimonials.map((t) => (
+          <Card key={t.id}>
+            <Avatar src={t.image || placeholder} alt={t.name} />
+            <Quote>&quot;{t.quote}&quot;</Quote>
+            <Name>{t.name}</Name>
+            <Role>{t.role}</Role>
           </Card>
         ))}
       </CardWrapper>
@@ -47,3 +81,4 @@ const Aspirants = () => {
 };
 
 export default Aspirants;
+// VideoAndReviews

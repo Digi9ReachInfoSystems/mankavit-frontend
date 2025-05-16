@@ -3,12 +3,12 @@ import theme from '../../../../theme/Theme';
 import { NavLink as RouterNavLink } from 'react-router-dom';
 
 export const ToggleButton = styled.button`
-  position: fixed;
-  top: 50%;
+  position: absolute;
+  top: 5%;
   left: ${({ isSidebarOpen }) => (isSidebarOpen ? '300px' : '10px')};
-  z-index: 1100;
-  background: ${theme.colors.primary};
-  color: ${theme.colors.white};
+  z-index: 990;
+  background: ${theme.colors.white};
+  color: ${theme.colors.black};
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -19,12 +19,16 @@ export const ToggleButton = styled.button`
   cursor: pointer;
   transition: left 0.3s ease;
 
-  @media (min-width: 991px) {
+  @media (min-width: 769px) {
     display: none; /* Hide toggle button on big screens */
   }
 
   @media (max-width: 576px) {
     left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '10px')};
+  }
+
+  @media (max-width: 480px) {
+    top: 38px;
   }
 `;
 
@@ -54,7 +58,7 @@ export const SidebarWrapper = styled.div`
   padding-left: ${({ isSidebarOpen }) => (isSidebarOpen ? theme.spacing(3) : theme.spacing(0))};
   padding-right: ${({ isSidebarOpen }) => (isSidebarOpen ? theme.spacing(3) : theme.spacing(0))};
     background: ${theme.colors.white};
-  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  box-shadow: 6px 0 8px rgba(0,0,0,0.5);
   position: fixed;
   top: 0;
   left: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-320px')};
@@ -62,8 +66,9 @@ export const SidebarWrapper = styled.div`
   transition: left 0.3s ease;
   z-index: 998;
   bottom:0;
+  padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? '70px' : '0')};
 
-  @media (min-width: 991px) {
+  @media (min-width: 769px) {
     position: relative;
     left: 0;
     height: auto;

@@ -30,7 +30,7 @@ import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { getAllNotes } from "../../../../api/notesApi";
 import { Select, Space } from "antd";
-
+import { IoEyeOutline } from "react-icons/io5";
 
 
 
@@ -50,16 +50,6 @@ export default function NotesManagement() {
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  // const filteredData = data.filter((item) =>
-  //   item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
-  // );
-
-  // const TOTAL_ENTRIES = filteredData.length;
-  // const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  // const endIndex = startIndex + ITEMS_PER_PAGE;
-  // let currentItems = filteredData.slice(startIndex, endIndex);
   useEffect(() => {
 
     const apiCaller = async () => {
@@ -93,52 +83,98 @@ export default function NotesManagement() {
     };
     apiCaller();
   }, [])
+  // useEffect(() => {
+  //   const apiCaller = async () => {
+  //     const response = await getAllNotes();
+  //     console.log("respose", response);
+  //     const dataPrepared = response.data.map((item) => ({
+  //       id: item._id,
+  //       noteTitle: item.noteDisplayName,
+  //       noteDescription: item.noteName,
+  //       subjects: item.subjects.map((item) => item.subjectName),
+  //       lastActive: item.updatedAt,
+  //       fileURL: item.fileUrl,
+  //       active: true,
+  //     }))
+  //     setData(dataPrepared);
+
+  //     const sampleData = dataPrepared.sort((a, b) => {
+  //       if (sortOption === 'Name') {
+  //         return a.noteTitle.localeCompare(b.noteTitle);
+  //       } else if (sortOption === 'Last Active') {
+  //         return new Date(b.lastActive) - new Date(a.lastActive);
+  //       }
+  //     })
+
+  //     let filteredValue = sampleData;
+  //     if (searchText !== "") {
+  //       filteredValue = sampleData.filter((item) =>
+  //         item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
+  //       )
+  //     } else {
+
+
+  //     }
+
+  //     setFilteredData(filteredValue);
+  //     const TOTAL_ENTRIESValues = filteredValue.length;
+  //     setTotalEntries(TOTAL_ENTRIESValues);
+  //     const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+  //     setTotalPages(totalPagesValues);
+  //     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  //     const endIndex = startIndex + ITEMS_PER_PAGE;
+  //     const currentValue = filteredValue.slice(startIndex, endIndex);
+  //     setCurrentItems(currentValue);
+  //   };
+  //   apiCaller();
+
+  //   // currentItems = sampleData;
+  // }, [sortOption, searchText])
+
   useEffect(() => {
-    const apiCaller = async () => {
-      const response = await getAllNotes();
-      const dataPrepared = response.data.map((item) => ({
-        id: item._id,
-        noteTitle: item.noteDisplayName,
-        noteDescription: item.noteName,
-        subjects: item.subjects.map((item) => item.subjectName),
-        lastActive: item.updatedAt,
-        fileURL: item.fileUrl,
-        active: true,
-      }))
-      setData(dataPrepared);
-
-      const sampleData = dataPrepared.sort((a, b) => {
-        if (sortOption === 'Name') {
-          return a.noteTitle.localeCompare(b.noteTitle);
-        } else if (sortOption === 'Last Active') {
-          return new Date(b.lastActive) - new Date(a.lastActive);
-        }
-      })
-
-      let filteredValue = sampleData;
-      if (searchText !== "") {
-        filteredValue = sampleData.filter((item) =>
-          item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
-        )
-      } else {
-
-
+    const fetchNotes = async () => {
+      try {
+        const response = await getAllNotes();
+        const dataPrepared = response.data.map((item) => ({
+          id: item._id,
+          noteTitle: item.noteDisplayName,
+          noteDescription: item.noteName,
+          subjects: item.subjects.map((item) => item.subjectName),
+          lastActive: item.updatedAt,
+          fileURL: item.fileUrl,
+          active: true,
+        }))
+        setData(dataPrepared);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-
-      setFilteredData(filteredValue);
-      const TOTAL_ENTRIESValues = filteredValue.length;
-      setTotalEntries(TOTAL_ENTRIESValues);
-      const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
-      setTotalPages(totalPagesValues);
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const currentValue = filteredValue.slice(startIndex, endIndex);
-      setCurrentItems(currentValue);
     };
-    apiCaller();
+    fetchNotes();
+  }, []);
 
-    // currentItems = sampleData;
-  }, [sortOption, searchText])
+  useEffect(() => {
+    let processedData = [...data];
+
+    if(searchText) {
+      processedData = processedData.filter((item) =>
+        item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+    if (sortOption === 'Name') {
+      processedData.sort((a, b) => a.noteTitle.localeCompare(b.noteTitle));
+    } else if (sortOption === 'Last Active') {
+      processedData.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
+    }
+    const TOTAL_ENTRIESValues = processedData.length;
+    setTotalEntries(TOTAL_ENTRIESValues);
+    const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+    setTotalPages(totalPagesValues);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentValue = processedData.slice(startIndex, endIndex);
+    setCurrentItems(currentValue);
+  }, [data, searchText, sortOption, currentPage]);
+
   const formatToIST = (isoString, options = {}) => {
     try {
       const date = new Date(isoString);
@@ -184,6 +220,21 @@ export default function NotesManagement() {
     setViewModalOpen(true);
     setViewStudent({ type, data });
   };
+
+  const handleViewClick = (item) => {
+    navigate(`/admin/notes-management/view/${item.id}`, {
+      state: { item }
+    });
+  }
+
+  const handleEdit = (id) => {
+    const item = data.find((item) => item.id === id);
+    if (item) {
+      navigate(`/admin/notes-management/edit/${id}`, {
+        state: { item }
+      });
+    }
+  }
 
 
 
@@ -267,7 +318,13 @@ export default function NotesManagement() {
                   <TableCell>{formatToIST(item.lastActive)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <BiEditAlt title="Edit" color="#000000" size={20} />
+                      <IoEyeOutline
+                        title="View"
+                        color="#000000"
+                        size={20}
+                        onClick={() => handleViewClick(item)}
+                      />
+                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item.id)} />
                       <RiDeleteBin6Line
                         title="Delete"
                         size={20}
@@ -285,7 +342,7 @@ export default function NotesManagement() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => setCurrentPage(page)}
           totalItems={TOTAL_ENTRIES}
           itemsPerPage={ITEMS_PER_PAGE}
         />

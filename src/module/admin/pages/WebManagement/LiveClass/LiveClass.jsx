@@ -28,7 +28,7 @@ const sampleData = [
     title: "CLAT Coaching",
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    bannerUrl: "/path/to/banner1.jpg",
+    bannerUrl: "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
     schedule: "2024-07-24T10:30:00Z",
   },
   // …add as many items as you like
@@ -113,8 +113,8 @@ const LiveClass = () => {
                   <TableCell>{row.description}</TableCell>
                   <TableCell>
                     <ViewLink
-                      //   href={row.bannerUrl}
-                      //   target="_blank"
+                        href={row.bannerUrl}
+                        target="_blank"
                       rel="noopener"
                     >
                       View
@@ -126,6 +126,7 @@ const LiveClass = () => {
                     <BiEditAlt
                       size={20}
                       color="#000"
+                      onClick={() => navigate(`/admin/web-management/live-classes/edit/${row.id}`, { state: { row} })}
                       style={{ cursor: "pointer" }}
                     />
                     <RiDeleteBin6Line

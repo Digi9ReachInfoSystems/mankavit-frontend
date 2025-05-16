@@ -2,8 +2,10 @@ import api from "../config/axiosConfig"
 
 export const createTestimonials = async (data) => {
     try {
+        console.log("Data",data);
         const response = await api.post('/testimonials/create', data);
-        return response.data;
+       console.log("Response",response.data);
+        return response.data;a
     } catch (error) {
         console.error('Error creating testimonials:', error);
         throw error;

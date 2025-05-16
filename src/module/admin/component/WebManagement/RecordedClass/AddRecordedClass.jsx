@@ -22,6 +22,7 @@ import {
   SubmitButton
 } from "../RecordedClass/AddRecordedClass.style";
 import upload from "../../../../../assets/upload.png";
+
 // sample courses data
 const sampleCourses = [
   { id: 1, name: "Mankavit Mock Test - CLAT 2025" },
@@ -68,7 +69,17 @@ const AddRecordedClass = ({ onSubmit }) => {
 
   const submit = (e) => {
     e.preventDefault();
-    onSubmit({ title, description, file, courses: Array.from(selectedCourses) });
+    if (!title || !description || !file || selectedCourses.size === 0) {
+      alert("Please fill all fields, upload a video, and select at least one course");
+      return;
+    }
+
+    onSubmit({
+      title,
+      description,
+      file,
+      courses: Array.from(selectedCourses),
+    });
   };
 
   return (
@@ -79,7 +90,7 @@ const AddRecordedClass = ({ onSubmit }) => {
           <Label htmlFor="title">Title</Label>
           <TextInput
             id="title"
-            placeholder="write here"
+            placeholder="Write here"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -98,11 +109,12 @@ const AddRecordedClass = ({ onSubmit }) => {
 
         <FormRow>
           <FormColumn>
-            <Label>Upload Class</Label>
+            <Label>Upload Class Video</Label>
             <UploadBox
               dragOver={dragOver}
               onDragOver={(e) => {
-                e.preventDefault(); setDragOver(true);
+                e.preventDefault();
+                setDragOver(true);
               }}
               onDragLeave={() => setDragOver(false)}
               onDrop={onDrop}
@@ -116,10 +128,10 @@ const AddRecordedClass = ({ onSubmit }) => {
               />
               <UploadContent>
                 <UploadIcon>
-                    <img src={upload} alt="upload" />
+                  <img src={upload} alt="upload" />
                 </UploadIcon>
                 <UploadText>
-                  {file ? file.name : "Drag and drop video here, or click add image"}
+                  {file ? file.name : "Drag and drop video here, or click add video"}
                 </UploadText>
                 {!file && <UploadButton>Add Video</UploadButton>}
               </UploadContent>

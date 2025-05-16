@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
-  Input,
   Title,
-  TextArea,
   TableWrapper,
   Table,
   TableHead,
@@ -14,134 +12,185 @@ import {
   AddButton,
   Label
 } from "./Achievements.styles";
+
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination"; // This is your component
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 
+// API functions
+import { getAllAchievers, deleteAchieverById } from "../../../../../api/achieverApi";
 
-const testimonials = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  rank: `AIR ${i + 1}`,
-  exam: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  student: `Gaurav ${i + 1}`,
-  date: "24-07-2024",
-  time: "16:22",
-  showcase: true,
-}));
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const Achievements = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [achievers, setAchievers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(testimonials);
-  const [Modal, setModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const navigate = useNavigate();
 
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  // Fetch all achievers
+  useEffect(() => {
+    const fetchAchievers = async () => {
+      try {
+        const data = await getAllAchievers();
+        if (Array.isArray(data)) {
+          setAchievers(data);
+        } else {
+          console.error("Unexpected response format:", data);
+          setAchievers([]);
+        }
+      } catch (err) {
+        console.error("Error fetching achievers:", err);
+        setError("Failed to load achievers");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const paginatedTestimonials = data.slice(
+    fetchAchievers();
+  }, []);
+  const getCreatedAtFromId = (id) => {
+    if (!id || id.length < 8) return "Invalid Date";
+  
+    const timestampHex = id.substring(0, 8);
+    const timestamp = parseInt(timestampHex, 16) * 1000;
+  
+    const date = new Date(timestamp);
+    return isNaN(date.getTime()) ? "Invalid Date" : date;
+  };
+
+  const totalPages = Math.ceil(achievers.length / ITEMS_PER_PAGE);
+  const paginatedAchievers = achievers.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleAddButton = () => {
+  const handleAdd = () => {
     navigate("/admin/web-management/achievement/create");
   };
 
-  const handleDelete = (id) => {
-    setDeleteId(id);
-    setModal(true);
+  const handleEdit = (id) => {
+    navigate(`/admin/web-management/achievement/edit/${id}`);
   };
 
-  const handleClickDelete = () => {
-    const updatedData = data.filter((item) => item.id !== deleteId);
-    const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
-    const newCurrentPage =
-      currentPage > newTotalPages ? newTotalPages : currentPage;
+  const handleDeleteClick = (id) => {
+    setSelectedId(id);
+    setDeleteModalOpen(true);
+  };
 
-    setData(updatedData);
-    setCurrentPage(newCurrentPage);
-    setModal(false);
-    setDeleteId(null);
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteAchieverById(selectedId);
+      setAchievers((prev) => prev.filter((item) => item._id !== selectedId));
+    } catch (err) {
+      console.error("Error deleting achiever:", err);
+      alert("Failed to delete achiever.");
+    } finally {
+      setDeleteModalOpen(false);
+      setSelectedId(null);
+    }
   };
 
   return (
     <>
       <BtnAchieve>
-        <AddButton onClick={handleAddButton}>
-           Add Achievement
+        <AddButton onClick={handleAdd}>
+          Add Achievement
         </AddButton>
       </BtnAchieve>
 
       <Container>
-        <Title>Achievement</Title>
-        <Label>Title</Label>
-        <Input
-          placeholder="Enter Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <Label>Description</Label>
-        <TextArea
-          placeholder="Enter description"
-          rows={6}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+        <Title>Achievements</Title>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
         <TableWrapper>
-          <Table>
-            <TableHead>
-              <tr>
-                <Th>Rank</Th>
-                <Th>Exam Name</Th>
-                <Th>Student</Th>
-                <Th>View Image/Video</Th>
-                <Th>Date Updated</Th>
-                <Th>Showcase</Th>
-              </tr>
-            </TableHead>
-            <tbody>
-              {paginatedTestimonials.map((item, index) => (
-                <tr key={index}>
-                  <Td>{item.rank}</Td>
-                  <Td>{item.exam}</Td>
-                  <Td><strong>{item.student}</strong></Td>
-                  <Td><ViewLink href="#">View</ViewLink></Td>
-                  <Td>{item.date} {item.time}</Td>
-                  <Td>
-                    <BiEditAlt size={20} color="#000000" style={{cursor: "pointer"}}/>
-                    <RiDeleteBin6Line size={20} color="#FB4F4F" onClick={() => handleDelete(item.id)} style={{cursor: "pointer"}}/>
-                  </Td>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <Table>
+              <TableHead>
+                <tr>
+                  <Th>Rank</Th>
+                  <Th>Exam Name</Th>
+                  <Th>Student Name</Th>
+                  <Th>Image</Th>
+                  <Th>Date Created</Th>
+                  <Th>Actions</Th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </TableHead>
+              <tbody>
+                {paginatedAchievers.length === 0 ? (
+                  <tr>
+                    <Td colSpan="6" style={{ textAlign: "center" }}>
+                      No achievements found.
+                    </Td>
+                  </tr>
+                ) : (
+                  paginatedAchievers.map((item) => (
+                    <tr key={item._id}>
+                      <Td>AIR {item.rank}</Td>
+                      <Td>{item.exam_name || "N/A"}</Td>
+                      <Td>{item.name}</Td>
+                      <Td>
+                        {item.image ? (
+                          <img src={item.image} alt="Achiever" style={{ width: "60px", height: "auto" }} />
+                        ) : (
+                          "No Image"
+                        )}
+                      </Td>
+                      <Td>
+  {getCreatedAtFromId(item._id).toLocaleDateString()}{" "}
+  {getCreatedAtFromId(item._id).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}
+</Td>
+                      <Td>
+                        <BiEditAlt
+                          size={20}
+                          color="#000000"
+                          style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={() => handleEdit(item._id)}
+                        />
+                        <RiDeleteBin6Line
+                          size={20}
+                          color="#FB4F4F"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleDeleteClick(item._id)}
+                        />
+                      </Td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          )}
         </TableWrapper>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={data.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
-      </Container>
-
-        {Modal && (
-          <DeleteModal
-            isOpen={Modal}
-            onClose={() => setModal(false)}
-            onDelete={handleClickDelete}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={achievers.length}
+            itemsPerPage={ITEMS_PER_PAGE}
           />
         )}
-      
+      </Container>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleConfirmDelete}
+      />
     </>
   );
 };

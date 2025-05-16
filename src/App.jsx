@@ -1,5 +1,5 @@
 // import { useState } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import GlobalStyle from './theme/GlobalStyle'
 import theme from './theme/Theme'
@@ -17,17 +17,17 @@ import StudentsTable from './module/admin/pages/StudentManagement/StudentManagem
 import StudentManagement from './module/admin/pages/StudentManagement/StudentManagement'
 import Payment from './module/admin/pages/Payment/Payment'
 import Subjects from './module/admin/pages/Subjects/Subject'
-import AddSubject from './module/admin/component/AddSubject/AddSubject'
+import AddSubject from './module/admin/component/Subject/AddSubject/AddSubject'
 import NotesManagement from './module/admin/pages/Notes/Notes'
 import CoursesTable from './module/admin/pages/Course/Course'
-import AddCourse from './module/admin/component/AddCourse/AddCourse'
-import AddNote from './module/admin/component/AddNotes/AddNotes'
+import AddCourse from './module/admin/component/Course/AddCourse/AddCourse'
+import AddNote from './module/admin/component/Notes/AddNotes/AddNotes'
 import LandingPage from './pages/LandingPage/LangingPage'
 import AboutUs from './pages/AboutUs/AboutUs'
 import OurCourses from './pages/OurCourses/OurCourses'
 import FAQ from './module/admin/pages/WebManagement/FAQ/FAQ';
 import Questionpaper from './module/admin/pages/WebManagement/QuestionPaper/QuestionPaper'
-import AddQuestionpaper from './module/admin/component/WebManagement/Questionpaper/AddQuestionpaper'
+import AddQuestionpaper from './module/admin/component/WebManagement/Questionpaper/AddQuestionPaper/AddQuestionpaper'
 import LiveClass from './module/admin/pages/WebManagement/LiveClass/LiveClass'
 import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLiveClass'
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
@@ -38,18 +38,46 @@ import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
 import WhyMankavit from './module/admin/pages/WebManagement/WhyMankavit/WhyMankavit'
 import Testimonial from './module/admin/pages/WebManagement/Testinomial/Testinomial'
 import Achievements from './module/admin/pages/WebManagement/Achievements/Achievements'
-import AddAchievements from './module/admin/component/WebManagement/AddAchievement/AddAchievement'
+import AddAchievements from './module/admin/component/WebManagement/Achievement/AddAchievement/AddAchievement'
 import Notification from './module/admin/pages/WebManagement/Notification/Notification'
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
 import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
-import AddStudent from './module/admin/component/AddStudent/AddStudent'
+import AddStudent from './module/admin/component/Student/AddStudent/AddStudent'
 import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
 import EditFaq from './module/admin/component/WebManagement/Faq/EditFaq/EditFaq'
 import Profile from './module/user/pages/Profile/Profile'
 import Mycourses from './module/user/pages/MyCourses/MyCourses'
 import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
+import TandC from './module/user/pages/TandC/TandC'
+import UserNotifications from './module/user/pages/UserNotifications/UserNotifications'
+import CourseDetails from './pages/CourseDetails/CourseDetails'
+import WhyEntranceCourses from './pages/WhyEntranceCourses/WhyEntranceCourses'
+import Category from './module/admin/pages/Category/Category'
+import Addcategory from './module/admin/component/Category/AddCategory/AddCategory'
+import EditAchievement from './module/admin/component/WebManagement/Achievement/EditAchievement/EditAchievement'
+import EditQuestionPaper from './module/admin/component/WebManagement/Questionpaper/EditQuestionPaper/EditQuestionPaper'
+import AddTestimonial from './module/admin/component/WebManagement/Testimonial/AddTestimonial/AddTestimonial'
+import EditTestimonial from './module/admin/component/WebManagement/Testimonial/EditTestimonial/EditTestimonial'
+import AdminMission from './module/admin/pages/WebManagement/AdminMission/AdminMission'
+import AddMission from './module/admin/component/WebManagement/AddMission/AddMission'
+import EditStudent from './module/admin/component/Student/EditStudent/EditStudent'
+import ViewStudent from './module/admin/component/Student/ViewStudent/ViewStudent'
+import EditCourse from './module/admin/component/Course/EditCourse/EditCourse'
+import ViewCourse from './module/admin/component/Course/ViewCourse/ViewCourse'
+import EditSubject from './module/admin/component/Subject/EditSubject/EditSubject'
+import ViewSubject from './module/admin/component/Subject/ViewSubject/ViewSubject'
+import EditNotes from './module/admin/component/Notes/EditNotes/EditNotes'
+import ViewNotes from './module/admin/component/Notes/ViewNotes/ViewNotes'
+import EditCategory from './module/admin/component/Category/EditCategory/EditCategory'
+import Lecturer from './module/admin/pages/Lecturer/Lecturer'
+import AddLecturer from './module/admin/component/Lecturer/AddLecturer/AddLecturer'
+import EditLecturer from './module/admin/component/Lecturer/EditLecturer/EditLecturer'
+import ViewLecturer from './module/admin/component/Lecturer/ViewLecturer/ViewLecturer'
+import EditLiveclass from './module/admin/component/WebManagement/LiveClass/EditLiveclass/EditLiveclass'
+import EditRecordedClass from './module/admin/component/WebManagement/RecordedClass/EditRecordedClass/EditRecordedClass'
+import EditMission from './module/admin/component/WebManagement/Mission/EditMission/EditMission'
 
 function App() {
 
@@ -65,8 +93,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/ourcourses" element={<OurCourses />} />
-          <Route path="/contactsupport" element={<ContactSupport />} />
-          <Route path="/userdash" element={<UserDashboard />} />
+          <Route path="/coursedetails" element={<CourseDetails />} />
+          <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
           
 
           <Route path="/test" element={<Test />} />
@@ -75,9 +103,10 @@ function App() {
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="tandc" element={<TandC />} />
             <Route path='my-courses' element={<Mycourses/>} />
             <Route path="contactsupport" element={<ContactSupport />} />
-
+            <Route path="notification" element={<UserNotifications />} />
           {/* </Route> */}
 
           </Route>
@@ -89,14 +118,37 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="course-management" element={<Course />} />
             <Route path="course-management/create" element={<AddCourse />} />
+            <Route path="course-management/edit/:id" element={<EditCourse />} />
+            <Route path="course-management/view/:id" element={<ViewCourse />} />
+
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
+            <Route path="student-management/edit/:id" element={<EditStudent />} />
+            <Route path="student-management/view/:id" element={<ViewStudent />} />
+
             <Route path="mock-test"element={<Mocktest/>} />
+
             <Route path="payment-management" element={<Payment />} />
+
             <Route path="subject-management" element={<Subjects />} />
             <Route path="subject-management/create" element={<AddSubject />} />
+            <Route path="subject-management/edit/:id" element={<EditSubject />} />
+            <Route path="subject-management/view/:id" element={<ViewSubject />} />
+
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes-management/create" element={<AddNote />} />
+            <Route path="notes-management/edit/:id" element={<EditNotes />} />
+            <Route path="notes-management/view/:id" element={<ViewNotes />} />
+
+            <Route path="category-management" element={<Category />} />
+            <Route path="category-management/create" element={<Addcategory />} />
+            <Route path="category-management/edit/:id" element={<EditCategory />} />
+
+            <Route path="lecturer-management" element={<Lecturer />} />
+            <Route path="lecturer-management/create" element={<AddLecturer />} />
+            <Route path="lecturer-management/edit/:id" element={<EditLecturer />} />
+            <Route path="lecturer-management/view/:id" element={<ViewLecturer />} />
+
             <Route path="static-page" element={<Staticpage />} />
 
             
@@ -110,21 +162,33 @@ function App() {
 
             <Route path="web-management/question-paper" element={< Questionpaper/>} />
             <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />
-
+             <Route path="web-management/question-paper/edit/:id" element={<EditQuestionPaper />} />
+             
             <Route path="web-management/live-classes" element={<LiveClass />} />
             <Route path="web-management/live-classes/create" element={<AddLiveClass/>} />
+            <Route path="web-management/live-classes/edit/:id" element={<EditLiveclass/>} />
 
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
+            <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass/>} />
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
+
             <Route path="web-management/testinomial" element={<Testimonial />} />
+            <Route path="web-management/testinomial/create" element={<AddTestimonial />} />
+            <Route path="web-management/testinomial/edit/:id" element={<EditTestimonial />} />
+
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
+            <Route path='web-management/achievement/edit/:id' element={<EditAchievement />} />
+
             <Route path="web-management/social-media" element={<SocialMedia />} />
 
             <Route path="web-management/notification" element={<Notification />} />
+            <Route path="web-management/mission" element={<AdminMission />} />
+            <Route path="web-management/mission/create" element={<AddMission />} />
+            <Route path="web-management/mission/edit/:id" element={<EditMission />} />
           </Route>
 
           

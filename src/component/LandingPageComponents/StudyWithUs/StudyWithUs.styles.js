@@ -70,7 +70,7 @@ export const CardsWrapper = styled.div`
   gap: 2rem;
 
   @media (max-width: 868px) {
-    gap: 1rem;
+        justify-content: space-evenly;
   }
 `;
 
@@ -123,6 +123,11 @@ export const Card = styled.div`
   @media (max-width: 576px) {
     width: 90%;
     height: 350px
+  }
+
+  @media (max-width: 380px) {
+    width: 90%;
+    height: 400px;
   }
 `;
 

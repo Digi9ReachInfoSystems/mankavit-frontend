@@ -24,13 +24,13 @@ import {
 } from './Upcoming.styles';
 
 const upcomingTests = [
-    { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — ", subtitle: "CLAT 2025", type: "Practice Test", attempt: "Attempted - 1", duration: "120 minutes", questions: "50", marks: "100" },
-    { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — ", subtitle: "CLAT 2025", type: "Practice Test", attempt: "Attempted - 1", duration: "120 minutes", questions: "50", marks: "100" },
+    { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — ", subtitle: "CLAT 2025", type: "Practice Test", attempt: "Attempted - 1", duration: "120 min", questions: "50", marks: "100" },
+    { date: "13", month: "March", time: "11:00 AM", title: "Mankavit Mock Test — ", subtitle: "CLAT 2025", type: "Practice Test", attempt: "Attempted - 1", duration: "120 min", questions: "50", marks: "100" },
 ];
 
 const liveClasses = [
-    { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live —", subtitle: "CLAT 2025 Practice", type: "Dummy Topic", live: true, attempt: "Ongoing", duration: "120 minutes" },
-    { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live —", subtitle: "CLAT 2025 Practice", type: "Dummy Topic", live: false, attempt: "28:00 min remaining", duration: "120 minutes" },
+    { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live —", subtitle: "CLAT 2025 Practice", type: "Dummy Topic", live: true, attempt: "Ongoing", duration: "120 min" },
+    { date: "13", month: "March", time: "11:00 AM", title: "Dummy Live —", subtitle: "CLAT 2025 Practice", type: "Dummy Topic", live: false, attempt: "28:00 min remaining", duration: "120 min" },
 ];
 const UpComing = () => {
     return (

@@ -60,26 +60,28 @@ const WantToLearn = () => {
       </Title>
 
       <CardsWrapper>
-        {courses.slice(0, 4).map((course, index) => (
+        {courses.map((course, index) => (
           <CourseCard key={index}>
             <CardHeader>
               <Image src={lawBanner} alt="Law Banner" />
             </CardHeader>
 
             <CardBody>
-              <span> {course.rating}⭐</span>
-              <CourseTitle>{course.title} <span style={{fontSize: "14px"}}>Preparation</span></CourseTitle>
+              <span>{course.rating}⭐</span>
+              <CourseTitle>
+                {course.title} <span style={{ fontSize: '14px' }}>Preparation</span>
+              </CourseTitle>
               <Description>{course.description}</Description>
               <InfoList>
                 <InfoItem>📆 Duration: {course.duration}</InfoItem>
                 <InfoItem>✅ Success Rate: {course.success}</InfoItem>
               </InfoList>
-
             </CardBody>
+
             <Buttons>
               <PriceButton>₹899/-</PriceButton>
               <ViewButton>View Courses</ViewButton>
-              </Buttons>
+            </Buttons>
           </CourseCard>
         ))}
       </CardsWrapper>

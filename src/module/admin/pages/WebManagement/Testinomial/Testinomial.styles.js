@@ -220,6 +220,17 @@ export const TableCell = styled.td`
   border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 `;
 
+export const TableCelldiscription = styled.td`
+  padding: ${(props) => props.theme.spacing(1.9)};
+  width: 45%;
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.black};
+  white-space: nowrap;
+  border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+   white-space: normal; 
+  word-break: break-word; 
+`;
+
 export const ViewLink = styled.a`
     margin-left: 6px;
     text-decoration: none;

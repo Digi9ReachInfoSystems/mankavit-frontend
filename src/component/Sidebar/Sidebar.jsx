@@ -40,10 +40,12 @@ const Sidebar = () => {
     { path: "/admin/course-management", label: "Courses" },
     { path: "/admin/subject-management", label: "Subjects" },
     { path: "/admin/notes-management", label: "Notes" },
+    { path: "/admin/category-management", label: "Category" },
+    { path: "/admin/lecturer-management", label: "Lecturer" },
   ];
 
   const webmanagement = [
-    { path: "/admin/web-management/home", label: "Home page" },
+    // { path: "/admin/web-management/home", label: "Home page" },
     { path: "/admin/web-management/why-mankavit", label: "Why Mankavit" },
     { path: "/admin/web-management/aboutus", label: "About us" },
     { path: "/admin/web-management/question-paper", label: "Question paper" },
@@ -54,6 +56,7 @@ const Sidebar = () => {
     { path: "/admin/web-management/notification", label: "Notification" },
     { path: "/admin/web-management/faq", label: "FAQs" },
     { path: "/admin/web-management/social-media", label: "Social Media" },
+    { path: "/admin/web-management/mission", label: "Mission" },
   ];
 
   const appManagementItems = [
@@ -63,7 +66,6 @@ const Sidebar = () => {
     { label: "FAQs" },
   ];
 
-  // Expand section if current path matches one of its items
   useEffect(() => {
     const newOpenSections = {};
     const sections = {
@@ -168,7 +170,7 @@ const Sidebar = () => {
           {menuItems.map((item, index) => renderMenuItem(item, index))}
           {renderSection("Course Management", courseManagementItems)}
           {renderSection("Web management", webmanagement)}
-          {renderSection("App Management", appManagementItems)}
+          {/* {renderSection("App Management", appManagementItems)} */}
         </MenuList>
       </SidebarContainer>
     </>

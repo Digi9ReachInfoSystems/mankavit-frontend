@@ -21,6 +21,7 @@ import {
   FaPowerOff 
 } from 'react-icons/fa';
 import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
+import { MdOutlineMenuOpen } from "react-icons/md";
 
 const UserSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -47,11 +48,18 @@ const UserSidebar = () => {
     };
   }, [isSidebarOpen]);
 
+  const handleMenuClick = () => {
+    if (window.innerWidth <= 576) {
+      setIsSidebarOpen(false);
+    }
+  };
+  
+
   return (
     <>
       {/* Toggle Button */}
-      <ToggleButton onClick={toggleSidebar} isSidebarOpen={isSidebarOpen}>
-        {isSidebarOpen ? <AiOutlineLeft size={24} /> : <AiOutlineRight size={24} />}
+      <ToggleButton onClick={toggleSidebar} >
+       <MdOutlineMenuOpen size={24} /> 
       </ToggleButton>
 
       {/* Sidebar */}
@@ -59,32 +67,32 @@ const UserSidebar = () => {
         <SidebarContainer>
           <MenuList>
             <MenuItem>
-              <MenuLink to="/user" end>
+              <MenuLink to="/user" end onClick={handleMenuClick}>
                 <FaTachometerAlt className='sidebar-icon' /> Dashboard
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/my-courses">
+              <MenuLink to="/user/my-courses" onClick={handleMenuClick}>
                 <FaBookOpen className='sidebar-icon' /> My Courses <AiOutlineRight className='arrow-icon' />
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/profile">
+              <MenuLink to="/user/profile" onClick={handleMenuClick}>
                 <FaUser className='sidebar-icon' /> Profile
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/terms">
+              <MenuLink to="/user/tandc" onClick={handleMenuClick}>
                 <FaFileContract className='sidebar-icon' /> T&amp;C
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/notification">
+              <MenuLink to="/user/notification" onClick={handleMenuClick}>
                 <FaBell className='sidebar-icon' /> Notification
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/contactsupport">
+              <MenuLink to="/user/contactsupport" onClick={handleMenuClick}>
                 <FaHeadset className='sidebar-icon' /> Contact Support
               </MenuLink>
             </MenuItem>

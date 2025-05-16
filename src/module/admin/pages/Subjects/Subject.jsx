@@ -30,6 +30,7 @@ import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
 import { getSubjects } from "../../../../api/subjectApi";
+import { IoEyeOutline } from "react-icons/io5";
 
 const mockData = Array.from({ length: 15 }, (_, index) => ({
   id: index + 1,
@@ -104,8 +105,56 @@ export default function Subjects() {
     }
     appiCaller();
   }, [])
-  useEffect(() => {
-    const apiCaller = async () => {
+  // useEffect(() => {
+  //   const apiCaller = async () => {
+  //     const subjectResponse = await getSubjects();
+  //     const subjectsData = subjectResponse.data.map((item) => ({
+  //       id: item._id,
+  //       subjectName: item.subjectDisplayName,
+  //       internalName: item.subjectName,
+  //       mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
+  //       activeCourses: item.courses.map((course) => course.courseName),
+  //       dateandtime: item.updatedAt,
+  //     }))
+  //     setData(subjectsData);
+
+  //     const sampleData = subjectsData.sort((a, b) => {
+  //       if (sortOption === 'Name') {
+  //         return a.subjectName.localeCompare(b.subjectName);
+  //       } else if (sortOption === 'No. of Mock Test') {
+  //         return b.mockTest.length - a.mockTest.length;
+  //       }
+  //     })
+
+  //     let filteredValue = sampleData;
+  //     if (searchText !== "") {
+  //       filteredValue = sampleData.filter((item) =>
+  //         item.subjectName.toLowerCase().includes(searchText.toLowerCase())
+  //       )
+  //     } else {
+
+
+  //     }
+
+  //     setFilteredData(filteredValue);
+  //     const TOTAL_ENTRIESValues = filteredValue.length;
+  //     setTotalEntries(TOTAL_ENTRIESValues);
+  //     const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+  //     setTotalPages(totalPagesValues);
+  //     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  //     const endIndex = startIndex + ITEMS_PER_PAGE;
+  //     const currentValue = filteredValue.slice(startIndex, endIndex);
+  //     setCurrentItems(currentValue);
+  //   };
+  //   apiCaller();
+
+  //   // currentItems = sampleData;
+  // }, [sortOption, searchText])
+
+  // ✅ First useEffect only for data fetching (run once or when refreshed)
+useEffect(() => {
+  const fetchSubjects = async () => {
+    try {
       const subjectResponse = await getSubjects();
       const subjectsData = subjectResponse.data.map((item) => ({
         id: item._id,
@@ -114,41 +163,55 @@ export default function Subjects() {
         mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
         activeCourses: item.courses.map((course) => course.courseName),
         dateandtime: item.updatedAt,
-      }))
+      }));
       setData(subjectsData);
-
-      const sampleData = subjectsData.sort((a, b) => {
-        if (sortOption === 'Name') {
-          return a.subjectName.localeCompare(b.subjectName);
-        } else if (sortOption === 'No. of Mock Test') {
-          return b.mockTest.length - a.mockTest.length;
-        }
-      })
-
-      let filteredValue = sampleData;
-      if (searchText !== "") {
-        filteredValue = sampleData.filter((item) =>
-          item.subjectName.toLowerCase().includes(searchText.toLowerCase())
-        )
-      } else {
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  fetchSubjects();
+}, []);
 
 
-      }
+// ✅ Second useEffect for filtering, sorting and pagination (runs when data, search, sort, or page change)
+useEffect(() => {
+  let processedData = [...data];
 
-      setFilteredData(filteredValue);
-      const TOTAL_ENTRIESValues = filteredValue.length;
-      setTotalEntries(TOTAL_ENTRIESValues);
-      const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
-      setTotalPages(totalPagesValues);
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const currentValue = filteredValue.slice(startIndex, endIndex);
-      setCurrentItems(currentValue);
-    };
-    apiCaller();
+  // Filter by search
+  if (searchText) {
+    processedData = processedData.filter((item) =>
+      item.subjectName.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }
 
-    // currentItems = sampleData;
-  }, [sortOption, searchText])
+  // Sort based on option
+  if (sortOption === "Name") {
+    processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
+  } else if (sortOption === "No. of Mock Test") {
+    processedData.sort((a, b) => b.mockTest.length - a.mockTest.length);
+  }
+
+  // Update filteredData state
+  setFilteredData(processedData);
+
+  // Update pagination
+  const TOTAL_ENTRIES_VALUES = processedData.length;
+  setTotalEntries(TOTAL_ENTRIES_VALUES);
+  const TOTAL_PAGES_VALUES = Math.ceil(TOTAL_ENTRIES_VALUES / ITEMS_PER_PAGE);
+  setTotalPages(TOTAL_PAGES_VALUES);
+
+  // Reset to page 1 if currentPage exceeds total pages
+  const safePage = currentPage > TOTAL_PAGES_VALUES ? 1 : currentPage;
+  setCurrentPage(safePage);
+
+  const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentValue = processedData.slice(startIndex, endIndex);
+  setCurrentItems(currentValue);
+}, [data, searchText, sortOption, currentPage]);
+
+
+
   const formatToIST = (isoString, options = {}) => {
     try {
       const date = new Date(isoString);
@@ -203,11 +266,29 @@ export default function Subjects() {
     setDeleteId(null);
   };
 
+  const handleViewClick = (subject) => {
+    navigate(`/admin/subject-management/view/${subject.id}`, {
+      state: { subject }
+    });
+    console.log("View subject with ID:", subject.id);
+    console.log("Subject data:", subject);
+  };
+
   const handleOpenModal = (type, data) => {
     setModalType(type);
     setModalData(data);
     setModalOpen(true);
   };
+
+  const handleEdit = (id) => {
+    const subject = data.find((item) => item.id === id);
+    if (subject) {
+      navigate(`/admin/subject-management/edit/${id}`, { state: { subject } });
+    }
+
+    console.log("Edit subject with ID:", id);
+    console.log("Subject data:", subject);
+  }
 
 
   return (
@@ -298,7 +379,13 @@ export default function Subjects() {
                   <TableCell>{formatToIST(item.dateandtime)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }} />
+                      <IoEyeOutline
+                        size={20}
+                        color="#000000"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleViewClick(item)}
+                      />
+                      <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }}  onClick ={() => handleEdit(item.id)}/>
                       <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"
@@ -317,7 +404,7 @@ export default function Subjects() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => setCurrentPage(page)}
           totalItems={TOTAL_ENTRIES}
           itemsPerPage={ITEMS_PER_PAGE}
         />

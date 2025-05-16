@@ -1,46 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Title,
-  Form,
-  Input,
-  Textarea,
   TableWrapper,
   Table,
   TableRow,
   TableHeader,
   TableCell,
+  TableCelldiscription,
   ViewLink,
   ActionsWrapper,
   BtnTitle,
   AddTestButton,
   TableHead,
 } from "./Testinomial.styles";
-import Pagination from "../../../component/Pagination/Pagination"; // This is your component
+import Pagination from "../../../component/Pagination/Pagination";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import { useNavigate } from "react-router-dom";
+import {
+  getAlltestimonials,
+  deleteTestimonalById,
+} from "../../../../../api/testimonialApi"; // Update path as needed
+import { format } from 'date-fns'; // Import date-fns for formatting
 
-// Dummy testimonial data
-const dummyTestimonials = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  course: "CLAT Coaching",
-  testimonial:
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  student: "Gaurav N",
-  date: "24-07-2024",
-  time: "16:22",
-}));
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const Testimonial = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(dummyTestimonials);
+  const [data, setData] = useState([]);
   const [Modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      const res = await getAlltestimonials();
+      setData(res);
+      console.log("Fetched testimonials:", res); // Log the response to see the data structure
+    } catch (err) {
+      console.error("Failed to fetch testimonials", err);
+    }
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setModal(true);
+  };
+
+  const handleClickDelete = async () => {
+    try {
+      await deleteTestimonalById(deleteId);
+      const updatedData = data.filter((item) => item._id !== deleteId);
+      const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
+      const newCurrentPage =
+        currentPage > newTotalPages ? newTotalPages : currentPage;
+      setData(updatedData);
+      setCurrentPage(newCurrentPage);
+    } catch (error) {
+      console.error("Failed to delete testimonial", error);
+    } finally {
+      setModal(false);
+      setDeleteId(null);
+    }
+  };
+
+  const handleAddButton = () => {
+    navigate("/admin/web-management/testinomial/create");
+  };
 
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const currentItems = data.slice(
@@ -48,57 +81,19 @@ const Testimonial = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleDelete = (id) => {
-    setDeleteId(id);
-    setModal(true);
-  };
-
-  const handleClickDelete = () => {
-    const updatedData = data.filter((item) => item.id !== deleteId);
-    const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
-    const newCurrentPage =
-      currentPage > newTotalPages ? newTotalPages : currentPage;
-
-    setData(updatedData);
-    setCurrentPage(newCurrentPage);
-    setModal(false);
-    setDeleteId(null);
-  };
   return (
     <>
       <BtnTitle>
-        <AddTestButton>Testinomial</AddTestButton>
+        <AddTestButton onClick={handleAddButton}>Add Testimonial</AddTestButton>
       </BtnTitle>
       <Container>
-
         <Title>Testimonial</Title>
-
-        <Form>
-          <label htmlFor="title">Title</label>
-          <Input
-            id="title"
-            placeholder="Write title here"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <label htmlFor="description">Description</label>
-          <Textarea
-            as="textarea"
-            id="description"
-            placeholder="Write description here"
-            rows={7}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-        </Form>
 
         <TableWrapper>
           <Table>
             <TableHead>
               <tr>
-                <TableHeader>Course</TableHeader>
+                <TableHeader>Details</TableHeader>
                 <TableHeader>Testimonial</TableHeader>
                 <TableHeader>Student</TableHeader>
                 <TableHeader>View Image/Video</TableHeader>
@@ -108,15 +103,18 @@ const Testimonial = () => {
             </TableHead>
             <tbody>
               {currentItems.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell>{item.course}</TableCell>
-                  <TableCell>{item.testimonial}</TableCell>
-                  <TableCell>{item.student}</TableCell>
+                <TableRow key={item._id || index}>
+                  <TableCell>{item.rank}</TableCell>
+                  <TableCelldiscription>{item.description}</TableCelldiscription>
+                  <TableCell>{item.name}</TableCell>
                   <TableCell>
-                    <ViewLink href="#">View</ViewLink>
+                    <ViewLink href={item.testimonial_image} target="_blank">
+                      View
+                    </ViewLink>
                   </TableCell>
+                  {/* Display the date if item.updatedAt exists */}
                   <TableCell>
-                    {item.date} {item.time}
+                    {item.updatedAt ? format(new Date(item.updatedAt), 'yyyy-MM-dd HH:mm:ss') : '—'}
                   </TableCell>
                   <TableCell>
                     <ActionsWrapper>
@@ -124,11 +122,16 @@ const Testimonial = () => {
                         size={20}
                         color="#000"
                         style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          navigate(
+                            `/admin/web-management/testinomial/edit/${item._id}`
+                          )
+                        }
                       />
                       <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item._id)}
                         style={{ cursor: "pointer" }}
                       />
                     </ActionsWrapper>
@@ -138,6 +141,7 @@ const Testimonial = () => {
             </tbody>
           </Table>
         </TableWrapper>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -146,6 +150,7 @@ const Testimonial = () => {
           itemsPerPage={ITEMS_PER_PAGE}
         />
       </Container>
+
       {Modal && (
         <DeleteModal
           isOpen={Modal}

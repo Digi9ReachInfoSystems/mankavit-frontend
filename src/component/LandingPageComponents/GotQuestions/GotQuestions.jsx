@@ -1,5 +1,5 @@
 // src/components/GotQuestions/GotQuestions.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Content,
@@ -11,12 +11,12 @@ import {
   QuestionText,
   ArrowIcon,
   Answer,
-  ViewAllButton
-} from './GotQuestions.styles';
-import { getAllfaqs } from '../../../api/faqApi';
-import ladyJustice from '../../../assets/Study2.png';
-import { IoIosArrowDropup , IoIosArrowDown } from "react-icons/io";
-import { useNavigate } from 'react-router-dom';
+  ViewAllButton,
+} from "./GotQuestions.styles";
+import { getAllfaqs } from "../../../api/faqApi";
+import ladyJustice from "../../../assets/Study2.png";
+import { IoIosArrowDropup, IoIosArrowDown } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const GotQuestion = () => {
   const [faqs, setFaqs] = useState([]);
@@ -31,11 +31,11 @@ const GotQuestion = () => {
       setError(null);
       try {
         const data = await getAllfaqs();
-        console.log('Fetched FAQs:', data);
-        setFaqs(Array.isArray(data.body) ? data.body : []);
+        console.log("API raw response:", data);
+        setFaqs(data);
       } catch (err) {
-        console.error(err);
-        setError('Could not load FAQs.');
+        console.error("Error fetching FAQs:", err);
+        setError("Could not load FAQs.");
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ const GotQuestion = () => {
   }, []);
 
   const toggleQuestion = (index) => {
-    setOpenIndex(prev => (prev === index ? null : index));
+    setOpenIndex((prev) => (prev === index ? null : index));
   };
 
   return (
@@ -56,23 +56,35 @@ const GotQuestion = () => {
           <Heading>Got Questions?</Heading>
 
           {loading && <p>Loading FAQs…</p>}
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
-          {!loading && !error && faqs.slice(0, 4).map((faq, idx) => (
-            <QuestionItem key={faq._id}>
-              <QuestionHeader onClick={() => toggleQuestion(idx)}>
-                <QuestionText>{faq.question}</QuestionText>
-                <ArrowIcon>
-                  {openIndex === idx ? <IoIosArrowDropup className='arrow-up' /> : <IoIosArrowDown className='arrow-down' />}
-                </ArrowIcon>
-              </QuestionHeader>
-
-              {openIndex === idx && faq.answer && (
-                <Answer>{faq.answer}</Answer>
+          {!loading && !error && (
+            <>
+              {faqs.length > 0 ? (
+                faqs.slice(0, 4).map((faq, idx) => (
+                  <QuestionItem key={faq._id}>
+                    <QuestionHeader onClick={() => toggleQuestion(idx)}>
+                      <QuestionText>{faq.question}</QuestionText>
+                      <ArrowIcon>
+                        {openIndex === idx ? (
+                          <IoIosArrowDropup />
+                        ) : (
+                          <IoIosArrowDown />
+                        )}
+                      </ArrowIcon>
+                    </QuestionHeader>
+                    {openIndex === idx && faq.answer && (
+                      <Answer>{faq.answer}</Answer>
+                    )}
+                  </QuestionItem>
+                ))
+              ) : (
+                <p>No FAQs found.</p>
               )}
-            </QuestionItem>
-          ))}
-{/* 
+            </>
+          )}
+
+          {/* 
           <ViewAllButton onClick={() => navigate('/faq')}>
             View All Questions
           </ViewAllButton> */}

@@ -25,8 +25,8 @@ const ContactSupport = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <SubmitButton type="submit">Submit</SubmitButton>
       </form>
+      <SubmitButton type="submit">Submit</SubmitButton>
     </ContactContainer>
   );
 };

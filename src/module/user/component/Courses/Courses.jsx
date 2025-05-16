@@ -5,7 +5,11 @@ import {
     CardGrid,
     CourseCard,
     ImageWrapper,
-    ProgressContainer, ProgressLabel, ProgressBar, ProgressFill,
+    ProgressContainer, 
+    ProgressLabel, 
+    ProgressBar, 
+    ProgressBarContainer,
+    ProgressFill,
     CourseContent,
     CourseMain,
     CourseHead,
@@ -17,7 +21,6 @@ import {
     DetailItemok,
     PriceActions,
     ViewButton,
- 
 } from './Courses.styles';
 import lawimg from "../../../../assets/lawentrance.png";
 import { FcCalendar } from "react-icons/fc";
@@ -96,7 +99,6 @@ const Courses = () => {
                 <FaStar
                     key={i}
                     color={i <= Math.floor(rating) ? '#facc15' : '#e4e5e9'}
-                    size={20}
                     style={{ marginRight: 4 }}
                 />
             );
@@ -126,14 +128,14 @@ const Courses = () => {
                                     </ProgressBar>
                                 </ProgressContainer>
                             ) : (
-                                <ProgressContainer>
+                                <ProgressBarContainer>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
                                         <ProgressLabel>Reviewed</ProgressLabel>
-                                        <div style={{ display: 'flex' }}>
+                                        <div className='stars'>
                                             {renderStars(course.rating)}
                                         </div>
                                     </div>
-                                </ProgressContainer>
+                                </ProgressBarContainer>
                             )}
 
                             <CourseContent>
