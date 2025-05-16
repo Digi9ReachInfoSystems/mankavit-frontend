@@ -23,7 +23,7 @@ import {
   SubmitButton,
   ToggleSwitch,
 } from "../AddCourse/AddCourse.style"; // Adjust the path if needed
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { getSubjects } from "../../../../api/subjectApi";
 import { Select } from "antd";
@@ -32,285 +32,201 @@ import { createCourse } from "../../../../api/courseApi";
 import { uploadFileToAzureStorage } from "../../../../utils/azureStorageService";
 
 export default function AddCourse() {
-  // State for form fields
-  const [courseTitle, setCourseTitle] = useState(null);
-  const [internalTitle, setInternalTitle] = useState(null);
-  const [shortDescription, setShortDescription] = useState(null);
-  const [discountedPrice, setDiscountedPrice] = useState(null);
-  const [actualPrice, setActualPrice] = useState(null);
+  // State for form fields (existing)
+  const [courseTitle, setCourseTitle] = useState("");
+  const [internalTitle, setInternalTitle] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
+  const [actualPrice, setActualPrice] = useState("");
   const [isKYCRequired, setIsKYCRequired] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [description, setDescription] = useState(null);
+  const [description, setDescription] = useState("");
+
+  // New state fields (from backend model)
+  const [duration, setDuration] = useState("");
+  const [noOfVideos, setNoOfVideos] = useState("");
+  const [noOfSubjects, setNoOfSubjects] = useState("");
+  const [noOfNotes, setNoOfNotes] = useState("");
+  const [successRate, setSuccessRate] = useState("");
+  const [courseIncludes, setCourseIncludes] = useState(""); // comma‑separated list
+  const [rating, setRating] = useState("");
+  const [liveClass, setLiveClass] = useState(false);
+  const [recordedClass, setRecordedClass] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
+  const [status, setStatus] = useState("active");
+
   const navigate = useNavigate();
 
-
   // Checkbox selections for Add Subject and Add Mock Test
-  const [subjectCheckboxes, setSubjectCheckboxes] = useState([
-  ]);
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
 
   const [mockTestCheckboxes, setMockTestCheckboxes] = useState([
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock1" },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock2" },
+    { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock3" },
   ]);
 
   // File upload state
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const apiCaller = async () => {
-      try {
-        const responseSubjects = await getSubjects();
-        const data = responseSubjects.data.map((item) => ({
-          label: item.subjectName,
-          id: item._id,
-          checked: false,
-        }));
-        setSubjectCheckboxes(data);
-        const responseCategories = await getCategories();
-        const dataCategories = responseCategories.data.map((item) => ({
-          label: item.title,
-          value: item._id,
-        }))
-        setCategory(dataCategories);
-        setSelectedCategory(dataCategories[0].value);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+useEffect(() => {
+  const apiCaller = async () => {
+    try {
+      const responseSubjects = await getSubjects();
+      const subjectsData = responseSubjects.data.map((item) => ({
+        label: item.subjectName,
+        id: item._id,
+        checked: false,
+      }));
+      setSubjectCheckboxes(subjectsData);
+
+      const responseCategories = await getCategories();
+      console.log("responseCategories", responseCategories);
+
+      const categoryArray = Array.isArray(responseCategories?.data)
+        ? responseCategories.data
+        : Array.isArray(responseCategories)
+          ? responseCategories
+          : [];
+
+      const dataCategories = categoryArray.map((item) => ({
+        label: item.title,
+        value: item._id,
+      }));
+      setCategory(dataCategories);
+      setSelectedCategory(dataCategories[0]?.value || null);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-    apiCaller();
+  };
+  apiCaller();
+}, []);
 
-  }, []);
 
-  // Handler for checkboxes
+  // Handlers for toggles & checkboxes
   const handleCheckboxChange = (index, setFn) => {
     setFn((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, checked: !item.checked } : item
-      )
+      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
     );
   };
-  const handleToggleChange = () => {
-    setIsKYCRequired(!isKYCRequired);
-  };
+  const handleToggleChange = () => setIsKYCRequired(!isKYCRequired);
+  const handleLiveClassToggle = () => setLiveClass(!liveClass);
+  const handleRecordedClassToggle = () => setRecordedClass(!recordedClass);
+  const handlePublishedToggle = () => setIsPublished(!isPublished);
 
-  // For triggering the hidden file input
+  // File upload helpers
   const handleUploadAreaClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    if (fileInputRef.current) fileInputRef.current.click();
   };
-
-  // For reading selected file
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setThumbnailFile(e.target.files[0]);
+      const file = e.target.files[0];
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file.");
+        return;
+      }
+      setThumbnailFile(file);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(URL.createObjectURL(file));
     }
-    if (!e.target.files[0].type.startsWith("image/")) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      toast.error('Please select an image file.',
-        {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        }
-      )
-      return;
-    }
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    const url = URL.createObjectURL(e.target.files[0]);
-    setPreviewUrl(url);
   };
+
+  // Utility: comma‑separated includes → array
+  const parseIncludes = (str) =>
+    str
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+  // Static student feedback (as requested)
+  const staticStudentFeedback = [
+    { student_ref: null, review: "Great course!" },
+  ];
 
   // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (courseTitle == "" || courseTitle == null) {
-        toast.error('Please enter course title.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        })
-        return;
-      }
-      if (internalTitle == "" || internalTitle == null) {
-        toast.error('Please enter internal course title.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        });
-        return;
-      }
-      // if (shortDescription == "" || shortDescription == null) {
-      //   toast.error('Please enter short description.', {
-      //     duration: 3000,
-      //     position: 'top-right',
-      //     ariaProps: {
-      //       role: 'status',
-      //       'aria-live': 'polite',
-      //     },
-      //   });
-      //   return;
-      // }
-      if (discountedPrice == "" || discountedPrice == null) {
-        toast.error('Please enter discounted price.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        });
-        return;
-      }
-      if (isNaN(discountedPrice) || !/^\d+$/.test(discountedPrice)) {
-        toast.error('Discounted price should be a number.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        });
-        return;
-      }
+      // Basic required validations (keeping original & minimal additional)
+      if (!courseTitle) return toast.error("Please enter course title.");
+      if (!internalTitle) return toast.error("Please enter internal course title.");
+      if (!discountedPrice || isNaN(discountedPrice))
+        return toast.error("Discounted price should be a number.");
+      if (!actualPrice || isNaN(actualPrice))
+        return toast.error("Actual price should be a number.");
+      if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
+      if (!selectedCategory) return toast.error("Please select category.");
 
-      if (actualPrice == "" || actualPrice == null) {
-        toast.error('Please enter actual price.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        });
-        return;
-      }
-      if (isNaN(actualPrice) || !/^\d+$/.test(actualPrice)) {
-        toast.error('Actual price should be a number.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        });
-        return;
-      }
-      if (thumbnailFile == null) {
-
-        toast.error('Please upload thumbnail file.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-
-        return;
-      }
-      if (selectedCategory == null) {
-        toast.error('Please select category.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        return;
-      }
-      if (!thumbnailFile.type.startsWith("image/")) {
-        toast.error('Please select an image file.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        return;
-
-      }
+      // Upload image
       const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
       const fileURL = fileData.blobUrl;
-      const subjects = subjectCheckboxes.filter((item) => item.checked).map((item) => item.id);
-      const createCourseResponse = await createCourse(
-        {
-          courseName: internalTitle,
-          courseDisplayName: courseTitle,
-          shortDescription: shortDescription,
-          description: description,
-          category: selectedCategory,
-          price: actualPrice,
-          discountPrice: discountedPrice,
-          discountActive: isKYCRequired,
-          subjects: subjects,
-          mockTests: [],
-          image: fileURL,
 
-        }
-      )
+      // Subjects & mock tests
+      const subjects = subjectCheckboxes.filter((i) => i.checked).map((i) => i.id);
+      const mockTests = mockTestCheckboxes.filter((i) => i.checked).map((i) => i.id);
+
+      // Prepare request body
+      const payload = {
+        courseName: internalTitle,
+        courseDisplayName: courseTitle,
+        shortDescription,
+        description,
+        category: selectedCategory,
+        price: Number(actualPrice),
+        discountPrice: Number(discountedPrice),
+        discountActive: isKYCRequired,
+        duration,
+        no_of_videos: Number(noOfVideos) || 0,
+        // no_of_subjects: Number(noOfSubjects) || 0,
+        // no_of_notes: Number(noOfNotes) || 0,
+        successRate: Number(successRate) || 0,
+        course_includes: parseIncludes(courseIncludes),
+        student_feedback: staticStudentFeedback,
+        live_class: liveClass,
+        recorded_class: recordedClass,
+        // rating: Number(rating) || 0,
+        isPublished,
+        status,
+        subjects,
+        mockTests,
+        image: fileURL,
+      };
+
+      const createCourseResponse = await createCourse(payload);
       if (createCourseResponse) {
-        toast.success('Course created successfully.', {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        });
+        toast.success("Course created successfully.");
+        // reset form
+        setInternalTitle("");
+        setCourseTitle("");
+        setShortDescription("");
+        setDescription("");
+        setDuration("");
+        setNoOfVideos("");
+        setNoOfSubjects("");
+        setNoOfNotes("");
+        setSuccessRate("");
+        setCourseIncludes("");
+        setRating("");
+        setIsPublished(false);
+        setLiveClass(false);
+        setRecordedClass(false);
+        setStatus("active");
+        setSelectedCategory(category[0]?.value || null);
+        setActualPrice("");
+        setDiscountedPrice("");
+        setIsKYCRequired(false);
+        setSubjectCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
+        setMockTestCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
+        setThumbnailFile(null);
+        setPreviewUrl(null);
+        setTimeout(() => navigate("/admin/course-management"), 2000);
       }
-      setInternalTitle(null);
-      setCourseTitle(null);
-      setShortDescription(null);
-      setDescription(null);
-      setSelectedCategory(category[0].value);
-      setActualPrice(null);
-      setDiscountedPrice(null);
-      setIsKYCRequired(false);
-      setSubjectCheckboxes(subjectCheckboxes.map((item) => ({ ...item, checked: false })));
-      setThumbnailFile(null);
-      setTimeout(() => {
-        navigate("/admin/course-management")
-      }, 2000);
     } catch (err) {
-      console.log(err);
-      toast.error('Course creation failed.', {
-        duration: 3000,
-        position: 'top-right',
-        ariaProps: {
-          role: 'status',
-          'aria-live': 'polite',
-        },
-      });
-      return;
+      console.error(err);
+      toast.error("Course creation failed.");
     }
   };
 
@@ -332,7 +248,6 @@ export default function AddCourse() {
               />
             </FieldWrapper>
           </Column>
-
           <Column>
             <FieldWrapper>
               <Label htmlFor="internalTitle">Course Internal Title</Label>
@@ -375,7 +290,6 @@ export default function AddCourse() {
               />
             </FieldWrapper>
           </Column>
-
           <Column>
             <FieldWrapper>
               <Label htmlFor="actualPrice">Actual Price</Label>
@@ -388,29 +302,115 @@ export default function AddCourse() {
             </FieldWrapper>
           </Column>
         </FormRow>
+
+        {/* NEW Row: Duration & Number of Videos */}
         <FormRow>
-          <FieldWrapper>
-            <Label htmlFor="actualPrice">Category</Label>
-            {(selectedCategory && category) &&
-              <Select
-                defaultValue={selectedCategory || category[0]?.value}
-                style={{ width: 120 }}
-                onChange={(value) => setSelectedCategory(value)}
-                options={category}
-              />}
-          </FieldWrapper>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="duration">Course Duration</Label>
+              <Input
+                id="duration"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                placeholder="e.g. 6 Months"
+              />
+            </FieldWrapper>
+          </Column>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="noOfVideos">Number of Videos</Label>
+              <Input
+                id="noOfVideos"
+                type="number"
+                value={noOfVideos}
+                onChange={(e) => setNoOfVideos(e.target.value)}
+                placeholder="e.g. 120"
+              />
+            </FieldWrapper>
+          </Column>
         </FormRow>
 
-        {/* Row 4: Add Subject + Add Mock Test */}
+        {/* NEW Row: Subjects & Notes count */}
+        {/* <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="noOfSubjects">Number of Subjects</Label>
+              <Input
+                id="noOfSubjects"
+                type="number"
+                value={noOfSubjects}
+                onChange={(e) => setNoOfSubjects(e.target.value)}
+                placeholder="e.g. 8"
+              />
+            </FieldWrapper>
+          </Column>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="noOfNotes">Number of Notes</Label>
+              <Input
+                id="noOfNotes"
+                type="number"
+                value={noOfNotes}
+                onChange={(e) => setNoOfNotes(e.target.value)}
+                placeholder="e.g. 25"
+              />
+            </FieldWrapper>
+          </Column>
+        </FormRow> */}
+
+        {/* NEW Row: Success Rate & Rating */}
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="successRate">Success Rate (%)</Label>
+              <Input
+                id="successRate"
+                type="number"
+                value={successRate}
+                onChange={(e) => setSuccessRate(e.target.value)}
+                placeholder="e.g. 95"
+              />
+            </FieldWrapper>
+          </Column>
+          {/* <Column>
+            <FieldWrapper>
+              <Label htmlFor="rating">Rating</Label>
+              <Input
+                id="rating"
+                type="number"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                placeholder="e.g. 4.5"
+              />
+            </FieldWrapper>
+          </Column> */}
+        </FormRow>
+
+     {/* Category Select */}
+<FormRow>
+  <FieldWrapper>
+    <Label htmlFor="category">Category</Label>
+    {selectedCategory && (
+      <Select
+        id="category"
+        style={{ width: 200 }}
+        value={selectedCategory}
+        onChange={(value) => setSelectedCategory(value)}
+        options={category}
+      />
+    )}
+  </FieldWrapper>
+</FormRow>
+
+
+        {/* Row: Add Subject + Add Mock Test */}
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>
-                Add Subject
-              </CheckboxSectionTitle>
+              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
               <CheckboxList>
                 {subjectCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
+                  <CheckboxLabel key={item.id || index}>
                     <CheckboxInput
                       type="checkbox"
                       checked={item.checked}
@@ -425,12 +425,10 @@ export default function AddCourse() {
 
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>
-                Add Mock Test ( Click Checkbox to Select )
-              </CheckboxSectionTitle>
+              <CheckboxSectionTitle>Add Mock Test</CheckboxSectionTitle>
               <CheckboxList>
                 {mockTestCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
+                  <CheckboxLabel key={item.id}>
                     <CheckboxInput
                       type="checkbox"
                       checked={item.checked}
@@ -444,23 +442,23 @@ export default function AddCourse() {
           </Column>
         </FormRow>
 
-        {/* Row 5: Add Notes */}
+        {/* NEW Row: Course Includes */}
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="shortDescription"> Description</Label>
+              <Label htmlFor="courseIncludes">Course Includes (comma‑separated)</Label>
               <TextArea
-                id="shortDescription"
-                rows="4"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter short description"
+                id="courseIncludes"
+                rows="3"
+                value={courseIncludes}
+                onChange={(e) => setCourseIncludes(e.target.value)}
+                placeholder="e.g. Notes, Live Doubt Sessions, Practice Tests"
               />
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 6: Upload Thumbnail and KYC Toggle (Side by Side) */}
+        {/* Row: Upload Thumbnail & Discount toggle */}
         <FormRow>
           <Column style={{ flex: 1 }}>
             <Label>Upload Thumbnail</Label>
@@ -468,7 +466,7 @@ export default function AddCourse() {
               {thumbnailFile ? (
                 previewUrl ? (
                   <>
-                    <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%' }} />
+                    <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%" }} />
                     <p>{thumbnailFile.name}</p>
                   </>
                 ) : (
@@ -477,7 +475,9 @@ export default function AddCourse() {
                       <img src={uplaod} alt="Upload" />
                     </UploadPlaceholder>
                     <p>Drag and drop image here</p>
-                    <p>or <strong>Add Image</strong></p>
+                    <p>
+                      or <strong>Add Image</strong>
+                    </p>
                   </>
                 )
               ) : (
@@ -486,31 +486,61 @@ export default function AddCourse() {
                     <img src={uplaod} className="upload-icon" alt="" />
                   </UploadPlaceholder>
                   <p>Drag and drop image here</p>
-                  <p>or <strong>Add Image</strong></p>
+                  <p>
+                    or <strong>Add Image</strong>
+                  </p>
                 </>
               )}
-              <FileInput
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
+              <FileInput ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
             </UploadArea>
           </Column>
 
           <Column className="toggle-column">
             <FieldWrapper style={{ flexDirection: "row", alignItems: "center" }}>
-              <Label style={{ marginBottom: "0px" }}>Is Discount Active?</Label>
-              <ToggleSwitch
-                type="checkbox"
-                checked={isKYCRequired}
-                onChange={handleToggleChange}
-              />
+              <Label style={{ marginBottom: 0 }}>Is Discount Active?</Label>
+              <ToggleSwitch type="checkbox" checked={isKYCRequired} onChange={handleToggleChange} />
+            </FieldWrapper>
+            <FieldWrapper style={{ flexDirection: "row", alignItems: "center" }}>
+              <Label style={{ marginBottom: 0 }}>Is Published?</Label>
+              <ToggleSwitch type="checkbox" checked={isPublished} onChange={handlePublishedToggle} />
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 7: Submit button */}
+        {/* NEW Row: Live & Recorded class toggles */}
+        <FormRow>
+          <Column className="toggle-column">
+            <FieldWrapper style={{ flexDirection: "row", alignItems: "center" }}>
+              <Label style={{ marginBottom: 0 }}>Live Class</Label>
+              <ToggleSwitch type="checkbox" checked={liveClass} onChange={handleLiveClassToggle} />
+            </FieldWrapper>
+          </Column>
+          <Column className="toggle-column">
+            <FieldWrapper style={{ flexDirection: "row", alignItems: "center" }}>
+              <Label style={{ marginBottom: 0 }}>Recorded Class</Label>
+              <ToggleSwitch type="checkbox" checked={recordedClass} onChange={handleRecordedClassToggle} />
+            </FieldWrapper>
+          </Column>
+        </FormRow>
+
+        {/* NEW Row: Course Status */}
+        <FormRow>
+          <FieldWrapper>
+            <Label htmlFor="status">Status</Label>
+            <Select
+              id="status"
+              style={{ width: 200 }}
+              value={status}
+              onChange={(value) => setStatus(value)}
+              options={[
+                { label: "Active", value: "active" },
+                { label: "Inactive", value: "inactive" },
+              ]}
+            />
+          </FieldWrapper>
+        </FormRow>
+
+        {/* Submit button */}
         <FormRow>
           <SubmitButton type="submit">Add Course</SubmitButton>
         </FormRow>
