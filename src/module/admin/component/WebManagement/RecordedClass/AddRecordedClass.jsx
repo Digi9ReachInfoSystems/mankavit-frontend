@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   FormRow,
@@ -22,6 +22,8 @@ import {
   SubmitButton
 } from "../RecordedClass/AddRecordedClass.style";
 import upload from "../../../../../assets/upload.png";
+import { useLocation } from "react-router-dom";
+
 // sample courses data
 const sampleCourses = [
   { id: 1, name: "Mankavit Mock Test - CLAT 2025" },
@@ -33,12 +35,23 @@ const sampleCourses = [
 ];
 
 const AddRecordedClass = ({ onSubmit }) => {
+  const location = useLocation();
+  const editingData = location.state?.row; // get data from state if exists
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   const fileRef = useRef();
+
+  useEffect(() => {
+    if (editingData) {
+      setTitle(editingData.title);
+      setDescription(editingData.description);
+      setSelectedCourses(new Set([editingData.coursesEnrolled])); // adjust logic if multiple courses
+    }
+  }, [editingData]);
 
   const handleFile = (f) => {
     if (f) {
@@ -58,6 +71,7 @@ const AddRecordedClass = ({ onSubmit }) => {
   };
 
   const toggleCourse = (id) => {
+    setSelectedCourses(new Set(editingData.courses || []));
     setSelectedCourses((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);

@@ -60,6 +60,8 @@ import EditAchievement from './module/admin/component/WebManagement/Achievement/
 import EditQuestionPaper from './module/admin/component/WebManagement/Questionpaper/EditQuestionPaper/EditQuestionPaper'
 import AddTestimonial from './module/admin/component/WebManagement/Testimonial/AddTestimonial/AddTestimonial'
 import EditTestimonial from './module/admin/component/WebManagement/Testimonial/EditTestimonial/EditTestimonial'
+import AdminMission from './module/admin/pages/WebManagement/AdminMission/AdminMission'
+import AddMission from './module/admin/component/WebManagement/AddMission/AddMission'
 
 function App() {
 
@@ -102,10 +104,12 @@ function App() {
             <Route path="course-management/create" element={<AddCourse />} />
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
+            <Route path="student-management/edit/:id" element={<AddStudent />} />
             <Route path="mock-test"element={<Mocktest/>} />
             <Route path="payment-management" element={<Payment />} />
             <Route path="subject-management" element={<Subjects />} />
             <Route path="subject-management/create" element={<AddSubject />} />
+            <Route path="subject-management/edit/:id" element={<AddSubject />} />
             <Route path="notes-management" element={<NotesManagement />} />
             <Route path="notes-management/create" element={<AddNote />} />
             <Route path="category-management" element={<Category />} />
@@ -131,6 +135,7 @@ function App() {
 
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
+            <Route path="web-management/recorded-classes/edit/:id" element={<AddRecordedClass/>} />
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
@@ -146,6 +151,9 @@ function App() {
             <Route path="web-management/social-media" element={<SocialMedia />} />
 
             <Route path="web-management/notification" element={<Notification />} />
+            <Route path="web-management/mission" element={<AdminMission />} />
+            <Route path="web-management/mission/create" element={<AddMission />} />
+            <Route path="web-management/mission/edit/:id" element={<AddMission />} />
           </Route>
 
           
