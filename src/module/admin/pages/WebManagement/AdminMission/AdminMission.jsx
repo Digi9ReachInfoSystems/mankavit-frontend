@@ -15,7 +15,7 @@ import Pagination from "../../../component/Pagination/Pagination";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-import { deleteAchieverById } from "../../../../../api/achieverApi"; // Keep if you want real API delete, else mock below
+// import { deleteAchieverById } from "../../../../../api/achieverApi"; // Keep if you want real API delete, else mock below
 
 const ITEMS_PER_PAGE = 10;
 
@@ -112,7 +112,7 @@ const AdminMission = () => {
                           size={20}
                           color="#FB4F4F"
                           style={{ cursor: "pointer" }}
-                          onClick={() => handleDeleteClick(item._id)}
+                          // onClick={() => handleDeleteClick(item._id)}
                         />
                       </Td>
                     </tr>
