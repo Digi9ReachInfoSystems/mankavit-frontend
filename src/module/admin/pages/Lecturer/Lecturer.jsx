@@ -36,33 +36,27 @@ import { IoEyeOutline } from "react-icons/io5";
 const mockData = [
   {
     id: 1,
-    name: "Gaurav N",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["Math", "Physics", "Chemistry"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Not Applied",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
+    name: 'John Doe',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    duration: '2 hours',
+    video: 'https://example.com/video.mp4',
+    courses: 'NEET, JEE',
+    subjects: 'Physics, Chemistry',
   },
   {
     id: 2,
-    name: "Alexa",
-    phone: "+91 9876543210",
-    email: "abcd@gmail.com",
-    subjects: ["English", "History"],
-    lastActive: "24-07-2024 16:22",
-    kycStatus: "Approved",
-    status: "Active",
-    passport : "https://th.bing.com/th/id/R.5f4b139697dd011110215753cc154192?rik=maBoY7975iFZaA&riu=http%3a%2f%2fwww.photos-public-domain.com%2fwp-content%2fuploads%2f2017%2f03%2fus-passport.jpg&ehk=V2Hb7izI4QRjBB9rh2OlabRcDeJbnZDdaetVrzD54Lw%3d&risl=&pid=ImgRaw&r=0",
-    idProof : "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
-  },
+    name: 'Jane Smith',
+    description: 'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
+    duration: '1 hour',
+    video: 'https://example.com/video.mp4',
+    courses: 'NEET, CET',
+    subjects: 'Maths, Biology',
+  }
 ];
 
 const ITEMS_PER_PAGE = 8;
 
-export default function StudentManagement() {
+export default function Lecturer() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -93,7 +87,7 @@ export default function StudentManagement() {
   };
   
   const handleViewClick = (student) => {
-    navigate(`/admin/student-management/view/${student.id}`, {
+    navigate(`/admin/lecturer-management/view/${student.id}`, {
       state: { student }
     });
     console.log("View student with ID:", student.id);
@@ -102,7 +96,7 @@ export default function StudentManagement() {
   const handleEdit = (id) => {
     const student = data.find((student) => student.id === id);
     if (student) {
-      navigate(`/admin/student-management/edit/${id}`, {
+      navigate(`/admin/lecturer-management/edit/${id}`, {
         state: { student }
       });
     }
@@ -112,13 +106,13 @@ export default function StudentManagement() {
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/student-management/create")}>Add Student</CreateButton>
+        <CreateButton onClick={() => navigate("/admin/lecturer-management/create")}>Add Lecturer</CreateButton>
       </ButtonContainer>
 
       <Container>
         <HeaderRow>
           <Title>
-            See All Students <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>({TOTAL_ENTRIES})</span>
+            See All Lecturers <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>({TOTAL_ENTRIES})</span>
           </Title>
 
           <SortByContainer>
@@ -141,12 +135,12 @@ export default function StudentManagement() {
             <TableHead>
               <TableRow>
                 <TableHeader>#</TableHeader>
-                <TableHeader>Student Name</TableHeader>
-                <TableHeader>Contact Details</TableHeader>
-                <TableHeader>Subject Enrolled</TableHeader>
-                <TableHeader>Last Active</TableHeader>
-                <TableHeader>KYC Status</TableHeader>
-                <TableHeader>Status</TableHeader>
+                <TableHeader>Lecturer Name</TableHeader>
+                <TableHeader>Description</TableHeader>
+                <TableHeader>Duration</TableHeader>
+                <TableHeader>Video </TableHeader>
+                <TableHeader>No of Courses</TableHeader>
+                <TableHeader>No of Subject</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
@@ -155,13 +149,13 @@ export default function StudentManagement() {
                 <TableRow key={item.id}>
                   <TableCell>{startIndex + index + 1}</TableCell>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.phone}<br />{item.email}</TableCell>
+                  <TableCell>{item.description}</TableCell>
                   <TableCell>
-                    {item.subjects.length} <a href="#view" onClick={() => handleViewClick(item)}>View</a>
+                    {item.duration}
                   </TableCell>
-                  <TableCell>{item.lastActive}</TableCell>
-                  <TableCell><StatusWrapper><KycDot status={item.kycStatus} />{item.kycStatus}</StatusWrapper></TableCell>
-                  <TableCell><StatusWrapper><StatusDot status={item.status} />{item.status}</StatusWrapper></TableCell>
+                  <TableCell> <a href="#view" onClick={() => handleViewClick(item)}>View</a></TableCell>
+                  <TableCell>{item.courses.length} <a href="#view" onClick={() => handleViewClick(item)}>View</a></TableCell>
+                  <TableCell>{item.subjects.length} <a href="#view" onClick={() => handleViewClick(item)}>View</a></TableCell>
                   <TableCell>
                     <ActionsContainer>
                     <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
