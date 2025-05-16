@@ -61,7 +61,7 @@ import EditQuestionPaper from './module/admin/component/WebManagement/Questionpa
 import AddTestimonial from './module/admin/component/WebManagement/Testimonial/AddTestimonial/AddTestimonial'
 import EditTestimonial from './module/admin/component/WebManagement/Testimonial/EditTestimonial/EditTestimonial'
 import AdminMission from './module/admin/pages/WebManagement/AdminMission/AdminMission'
-import AddMission from './module/admin/component/WebManagement/AddMission/AddMission'
+// import AddMission from './module/admin/component/WebManagement/AddMission/AddMission'
 import EditStudent from './module/admin/component/Student/EditStudent/EditStudent'
 import ViewStudent from './module/admin/component/Student/ViewStudent/ViewStudent'
 import EditCourse from './module/admin/component/Course/EditCourse/EditCourse'
@@ -187,7 +187,7 @@ function App() {
 
             <Route path="web-management/notification" element={<Notification />} />
             <Route path="web-management/mission" element={<AdminMission />} />
-            <Route path="web-management/mission/create" element={<AddMission />} />
+            {/* <Route path="web-management/mission/create" element={<AddMission />} /> */}
             <Route path="web-management/mission/edit/:id" element={<EditMission />} />
           </Route>
 
