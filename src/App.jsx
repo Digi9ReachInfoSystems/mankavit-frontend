@@ -61,7 +61,10 @@ import EditQuestionPaper from './module/admin/component/WebManagement/Questionpa
 import AddTestimonial from './module/admin/component/WebManagement/Testimonial/AddTestimonial/AddTestimonial'
 import EditTestimonial from './module/admin/component/WebManagement/Testimonial/EditTestimonial/EditTestimonial'
 import AdminMission from './module/admin/pages/WebManagement/AdminMission/AdminMission'
-import AddMission from './module/admin/component/WebManagement/AddMission/AddMission'
+import AddMission from './module/admin/component/WebManagement/Mission/AddMission/AddMission'
+import EditLiveclass from './module/admin/component/WebManagement/LiveClass/EditLiveclass/EditLiveclass'
+import EditRecordedClass from './module/admin/component/WebManagement/RecordedClass/EditRecordedClass/EditRecordedClass'
+import EditMission from './module/admin/component/WebManagement/Mission/EditMission/EditMission'
 
 function App() {
 
@@ -132,10 +135,11 @@ function App() {
              
             <Route path="web-management/live-classes" element={<LiveClass />} />
             <Route path="web-management/live-classes/create" element={<AddLiveClass/>} />
+            <Route path="web-management/live-classes/edit/:id" element={<EditLiveclass/>} />
 
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
-            <Route path="web-management/recorded-classes/edit/:id" element={<AddRecordedClass/>} />
+            <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass/>} />
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
@@ -153,7 +157,7 @@ function App() {
             <Route path="web-management/notification" element={<Notification />} />
             <Route path="web-management/mission" element={<AdminMission />} />
             <Route path="web-management/mission/create" element={<AddMission />} />
-            <Route path="web-management/mission/edit/:id" element={<AddMission />} />
+            <Route path="web-management/mission/edit/:id" element={<EditMission />} />
           </Route>
 
           
