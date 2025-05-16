@@ -13,6 +13,7 @@ export const createCourse = async (data) => {
 export const getAllCourses = async () => {
     try {
         const response = await api.get("/api/v1/course");
+        console.log("response", response);
         return response.data;
     } catch (error) {
         console.log(error);

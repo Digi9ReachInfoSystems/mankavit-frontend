@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Title,
@@ -11,10 +11,17 @@ import {
   AddImageText,
   UploadButton,
   PreviewImage,
-  ErrorMessage
+  ErrorMessage,
+  FormRow,
+  Column,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxInput,
+  CheckboxLabel
 } from './AddTestimonial.styles';
 import uploadIcon from "../../../../../../assets/upload.png";
 import { createTestimonials } from '../../../../../../api/testimonialApi';
+import { getAllCourses } from '../../../../../../api/courseApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,6 +35,7 @@ const AddTestimonial = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  const [CoursesCheckboxes, setCoursesCheckboxes] = useState([]);
 
   const navigate = useNavigate();
 
@@ -38,6 +46,26 @@ const AddTestimonial = () => {
       [name]: value
     }));
   };
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      try {
+        const response = await getAllCourses();
+        console.log("response", response);
+        const checkboxes = response.data.map((item) => ({
+          label: item?.courseName,
+          id: item?._id,
+          checked: false,
+        }));
+
+        console.log("checkboxes", checkboxes);
+        setCoursesCheckboxes(checkboxes);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+    apiCaller();
+  }, []);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -119,14 +147,13 @@ const AddTestimonial = () => {
         onChange={handleInputChange}
       />
 
-      <Label htmlFor="course">Enter aspiring details</Label>
+      {/* <Label>Course *</Label>
       <Input
         name="course"
         placeholder="Enter aspiring details"
         value={formData.course}
         onChange={handleInputChange}
-        id='course' required
-      />
+      /> */}
 
       <Label htmlFor='testimonialDetails'>Testimonial description *</Label>
       <TextArea
@@ -135,8 +162,26 @@ const AddTestimonial = () => {
         value={formData.testimonialDetails}
         onChange={handleInputChange}
         rows={5}
-        id='testimonialDetails' required
       />
+
+      <FormRow>
+        <Column>
+          <CheckboxSectionTitle>
+            Add Course (Click checkbox to Select)
+            </CheckboxSectionTitle>
+            <CheckboxList>
+                {CoursesCheckboxes.map((item, index) => (
+                  <CheckboxLabel  key={index}>
+                    <CheckboxInput 
+                    type="checkbox"
+                    checked={item.checked} 
+                    onChange={() => handleCheckboxChange(index, setCoursesCheckboxes)}
+                     />{item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>      
+        </Column>
+      </FormRow>
 
       <Label>Upload Student Image *</Label>
       <DropZone hasImage={!!previewUrl}>

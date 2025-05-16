@@ -95,7 +95,7 @@ const RecordedClass = () => {
       </ButtonContainer>
       <Container>
         <HeaderRow>
-          <Title>Live Class</Title>
+          <Title>Recorded Class</Title>
         </HeaderRow>
         <TableWrapper>
           <StyledTable>

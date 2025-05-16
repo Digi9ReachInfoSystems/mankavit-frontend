@@ -55,6 +55,7 @@ const Sidebar = () => {
     { path: "/admin/web-management/notification", label: "Notification" },
     { path: "/admin/web-management/faq", label: "FAQs" },
     { path: "/admin/web-management/social-media", label: "Social Media" },
+    { path: "/admin/web-management/mission", label: "Mission" },
   ];
 
   const appManagementItems = [

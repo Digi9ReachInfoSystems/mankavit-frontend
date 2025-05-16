@@ -131,3 +131,73 @@ export const PreviewImage = styled.img`
   max-height: 200px;
   margin-top: 1rem;
 `;
+
+
+export const FormRow = styled.div`
+  display: flex;
+  gap: ${(props) => props.theme.spacing(3)};
+  align-items: flex-start;
+  width: 50%;
+  margin-top: 1rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    flex-direction: column;
+  }
+`;
+
+/** Each column in a row */
+export const Column = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 990px) {
+    width: 100%;
+  }
+
+  
+`;
+
+/** Wrapper for sets of checkboxes with a title */
+export const CheckboxSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: ${(props) => props.theme.spacing(1)};
+`;
+
+/** Title for each checkbox section (e.g. "Add Notes ( Click Checkbox to Select )") */
+export const CheckboxSectionTitle = styled.h4`
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
+  color: ${(props) => props.theme.colors.test};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  padding: ${(props) => props.theme.spacing(1)};
+`;
+
+/** The container that holds multiple checkbox rows */
+export const CheckboxList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(1)};
+  overflow-y: auto;
+  max-height: 120px;
+`;
+
+/** A single checkbox + label line */
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing(1)};
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.black};
+`;
+
+export const CheckboxInput = styled.input`
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  background-color: ${(props) => props.theme.colors.black};
+`;

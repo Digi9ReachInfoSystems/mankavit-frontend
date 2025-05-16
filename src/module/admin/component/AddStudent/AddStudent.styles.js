@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const FormContainer = styled.div`
+export const FormContainer = styled.form`
 margin-left: 40px;
 margin-top: 20px;
   background-color: ${(props) => props.theme.colors.white};
