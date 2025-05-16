@@ -71,6 +71,10 @@ import ViewSubject from './module/admin/component/Subject/ViewSubject/ViewSubjec
 import EditNotes from './module/admin/component/Notes/EditNotes/EditNotes'
 import ViewNotes from './module/admin/component/Notes/ViewNotes/ViewNotes'
 import EditCategory from './module/admin/component/Category/EditCategory/EditCategory'
+import Lecturer from './module/admin/pages/Lecturer/Lecturer'
+import AddLecturer from './module/admin/component/Lecturer/AddLecturer/AddLecturer'
+import EditLecturer from './module/admin/component/Lecturer/EditLecturer/EditLecturer'
+import ViewLecturer from './module/admin/component/Lecturer/ViewLecturer/ViewLecturer'
 
 function App() {
 
@@ -136,6 +140,11 @@ function App() {
             <Route path="category-management" element={<Category />} />
             <Route path="category-management/create" element={<Addcategory />} />
             <Route path="category-management/edit/:id" element={<EditCategory />} />
+
+            <Route path="lecturer-management" element={<Lecturer />} />
+            <Route path="lecturer-management/create" element={<AddLecturer />} />
+            <Route path="lecturer-management/edit/:id" element={<EditLecturer />} />
+            <Route path="lecturer-management/view/:id" element={<ViewLecturer />} />
 
             <Route path="static-page" element={<Staticpage />} />
 
