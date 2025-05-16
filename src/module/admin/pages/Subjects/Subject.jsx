@@ -30,6 +30,7 @@ import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
 import { getSubjects } from "../../../../api/subjectApi";
+import { IoEyeOutline } from "react-icons/io5";
 
 const mockData = Array.from({ length: 15 }, (_, index) => ({
   id: index + 1,
@@ -265,6 +266,14 @@ useEffect(() => {
     setDeleteId(null);
   };
 
+  const handleViewClick = (subject) => {
+    navigate(`/admin/subject-management/view/${subject.id}`, {
+      state: { subject }
+    });
+    console.log("View subject with ID:", subject.id);
+    console.log("Subject data:", subject);
+  };
+
   const handleOpenModal = (type, data) => {
     setModalType(type);
     setModalData(data);
@@ -370,6 +379,12 @@ useEffect(() => {
                   <TableCell>{formatToIST(item.dateandtime)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
+                      <IoEyeOutline
+                        size={20}
+                        color="#000000"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleViewClick(item)}
+                      />
                       <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }}  onClick ={() => handleEdit(item.id)}/>
                       <RiDeleteBin6Line
                         size={20}

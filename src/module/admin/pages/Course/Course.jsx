@@ -30,6 +30,7 @@ import CustomModal from "../../component/CustomModal/CustomModal";
 import { useNavigate } from "react-router-dom";
 import { Select, Space } from "antd";
 import { getAllCourses } from "../../../../api/courseApi";
+import { IoEyeOutline } from "react-icons/io5";
 
 
 // Mock data representing table rows
@@ -86,92 +87,60 @@ export default function CoursesTable() {
   // const currentItems = filteredStudents.slice(startIndex, endIndex);
 
   useEffect(() => {
-    const appiCaller = async () => {
+    const fetchCourses = async () => {
       try {
-        const courseResponse = await getAllCourses();
-        const courseData = courseResponse.data.map((item) => ({
-        
+        const response = await getAllCourses();
+        const courseData = response.data.map((item) => ({
           id: item._id,
           courseName: item.courseDisplayName,
-          internalName:item.courseName,
+          internalName: item.courseName,
           subjects: item.subjects.map((subject) => subject.subjectName),
           mockTests: ["Test 1", "Test 2", "Test 3"],
-          enrolled:item.student_enrolled.length>0? item.student_enrolled.map((student) => student.displayName):[],
+          enrolled: item.student_enrolled.length > 0 ? item.student_enrolled.map((student) => student.displayName) : [],
           dateAndTime: item.updatedAt,
           students: item.student_enrolled.map((student) => ({
             name: student.displayName,
           })),
-        }))
+        }));
         setData(courseData);
-        const filteredValue = courseData.filter((item) =>
-          item.courseName.toLowerCase().includes(searchText.toLowerCase())
-        )
-        setFilteredData(filteredValue);
-        const TOTAL_ENTRIESValues = filteredValue.length;
-        setTotalEntries(TOTAL_ENTRIESValues);
-        const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
-        setTotalPages(totalPagesValues);
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        const currentValue = filteredValue.slice(startIndex, endIndex);
-        setCurrentItems(currentValue);
       } catch (error) {
-        console.log("error", error);
+        console.log("Error fetching courses:", error);
       }
-
-    }
-    appiCaller();
-  }, [])
-  useEffect(() => {
-    const apiCaller = async () => {
-      const courseResponse = await getAllCourses();
-        const courseData = courseResponse.data.map((item) => ({
-        
-          id: item._id,
-          courseName: item.courseDisplayName,
-          internalName:item.courseName,
-          subjects: item.subjects.map((subject) => subject.subjectName),
-          mockTests: ["Test 1", "Test 2", "Test 3"],
-          enrolled:item.student_enrolled.length>0? item.student_enrolled.map((student) => student.displayName):[],
-          dateAndTime: item.updatedAt,
-          students: item.student_enrolled.map((student) => ({
-            name: student.displayName,
-          })),
-        }))
-        setData(courseData);
-
-      const sampleData = courseData.sort((a, b) => {
-        if (sortOption === 'Name') {
-          return a.courseName.localeCompare(b.courseName);
-        } else if (sortOption === 'Date') {
-          return new Date(b.dateAndTime) - new Date(a.dateAndTime)
-        }
-      })
-
-      let filteredValue = sampleData;
-      if (searchText !== "") {
-        filteredValue = sampleData.filter((item) =>
-          item.courseName.toLowerCase().includes(searchText.toLowerCase())
-        )
-      } else {
-
-
-      }
-
-      setFilteredData(filteredValue);
-      const TOTAL_ENTRIESValues = filteredValue.length;
-      setTotalEntries(TOTAL_ENTRIESValues);
-      const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
-      setTotalPages(totalPagesValues);
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const currentValue = filteredValue.slice(startIndex, endIndex);
-      setCurrentItems(currentValue);
     };
-    apiCaller();
-
-    // currentItems = sampleData;
-  }, [sortOption, searchText])
+    fetchCourses();
+  }, []);
+  
+  useEffect(() => {
+    let processedData = [...data];
+  
+    // Sort
+    if (sortOption === 'Name') {
+      processedData.sort((a, b) => a.courseName.localeCompare(b.courseName));
+    } else if (sortOption === 'Date') {
+      processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
+    }
+  
+    // Filter
+    if (searchText) {
+      processedData = processedData.filter((item) =>
+        item.courseName.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+  
+    // Pagination
+    const totalEntries = processedData.length;
+    const totalPagesValue = Math.ceil(totalEntries / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentPageItems = processedData.slice(startIndex, endIndex);
+  
+    // Set all states
+    setFilteredData(processedData);
+    setTotalEntries(totalEntries);
+    setTotalPages(totalPagesValue);
+    setCurrentItems(currentPageItems);
+  
+  }, [data, sortOption, searchText, currentPage]);
 
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
@@ -206,6 +175,23 @@ export default function CoursesTable() {
       return 'Invalid date';
     }
   };
+
+  const handleViewClick = (course) => {
+    navigate(`/admin/course-management/view/${course.id}`, {
+      state: { course }
+    });
+    console.log("View student with ID:", course.id);
+  };
+
+  const handleEdit = (id) => {
+    const course = data.find((course) => course.id === id);
+    if (course) {
+      navigate(`/admin/course-management/edit/${id}`, {
+        state: { course }
+      });
+    }
+    console.log("Edit student with ID:", id);
+  }
 
 
   return (
@@ -284,7 +270,8 @@ export default function CoursesTable() {
                   <TableCell>{formatToIST(item.dateAndTime)}</TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => { navigate("/admin/courses/create") }} />
+                      <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
+                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item.id)} />
                       <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item.id)} />
                     </ActionsContainer>
                   </TableCell>
@@ -298,7 +285,7 @@ export default function CoursesTable() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => setCurrentPage(page)}
           totalItems={TOTAL_ENTRIES}
           itemsPerPage={ITEMS_PER_PAGE}
         />

@@ -82,6 +82,12 @@ const Category = () => {
     }
   };
 
+  const handleEditClick = (id) => {
+    navigate(`/admin/category-management/edit/${id}`, {
+      state: { categoryId: id }
+    });
+  };
+
   return (
     <>
       <ButtonContainer>
@@ -125,7 +131,7 @@ const Category = () => {
                     title="Edit"
                     color="#000000"
                     size={20}
-                    onClick={() => navigate(`/admin/category-management/edit/${item._id}`)}
+                    onClick={() => handleEditClick(item._id)}
                   />
                   <RiDeleteBin6Line
                     title="Delete"

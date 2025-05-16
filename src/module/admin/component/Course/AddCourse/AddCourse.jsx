@@ -1,6 +1,6 @@
 // AddCourse.jsx
 import React, { useState, useRef, useEffect } from "react";
-import uplaod from "../../../../assets/upload.png";
+import uplaod from "../../../../../assets/upload.png";
 import {
   Container,
   Title,
@@ -25,11 +25,11 @@ import {
 } from "../AddCourse/AddCourse.style"; // Adjust the path if needed
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { getSubjects } from "../../../../api/subjectApi";
+import { getSubjects } from "../../../../../api/subjectApi";
 import { Select } from "antd";
-import { getCategories } from "../../../../api/categoryApi";
-import { createCourse } from "../../../../api/courseApi";
-import { uploadFileToAzureStorage } from "../../../../utils/azureStorageService";
+import { getCategories } from "../../../../../api/categoryApi";
+import { createCourse } from "../../../../../api/courseApi";
+import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 
 export default function AddCourse() {
   // State for form fields (existing)
