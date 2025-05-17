@@ -15,62 +15,47 @@ import Pagination from "../../../component/Pagination/Pagination";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-import { deleteAchieverById } from "../../../../../api/achieverApi"; // Keep if you want real API delete, else mock below
+// import { deleteAchieverById } from "../../../../../api/achieverApi"; // Keep if you want real API delete, else mock below
 
 const ITEMS_PER_PAGE = 10;
 
-const LOCAL_STORAGE_KEY = "missions_data";
 
 const AdminMission = () => {
-    const [missions, setMissions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedId, setSelectedId] = useState(null);
-    const navigate = useNavigate();
-  
-    useEffect(() => {
-      // Load missions from localStorage or fallback to initial dummy data
-      const savedMissions = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (savedMissions) {
-        setMissions(JSON.parse(savedMissions));
-      } else {
-        const dummyMissions = [
-          { _id: "1", rank: 1, exam_name: "Exam 1", name: "John Doe", image: "https://example.com/image.jpg", createdAt: "2023-10-01T12:00:00Z" },
-          { _id: "2", rank: 2, exam_name: "Exam 2", name: "Jane Smith", image: "https://example.com/image2.jpg", createdAt: "2023-10-02T12:00:00Z" },
-          { _id: "3", rank: 3, exam_name: "Exam 3", name: "Alice Johnson", image: "https://example.com/image3.jpg", createdAt: "2023-10-03T12:00:00Z" },
-          { _id: "4", rank: 4, exam_name: "Exam 4", name: "Bob Brown", image: "https://example.com/image4.jpg", createdAt: "2023-10-04T12:00:00Z" }
-        ];
-        setMissions(dummyMissions);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dummyMissions));
-      }
-      setLoading(false);
-    }, []);
-  
-    // Save to localStorage whenever missions change
-    useEffect(() => {
-      if (!loading) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(missions));
-      }
-    }, [missions, loading]);
-  
-    const handleAdd = () => {
-      navigate("/admin/web-management/mission/create");
-    };
-  
-    const handleEdit = (id) => {
-      navigate(`/admin/web-management/mission/edit/${id}`);
-    };
-  
-    // same delete handlers etc, but modify missions state
-  
-    // Delete confirm function
-    const handleConfirmDelete = () => {
-      setMissions((prev) => prev.filter((item) => item._id !== selectedId));
-      setDeleteModalOpen(false);
-      setSelectedId(null);
-    };
-  
+  const [missions, setMissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+  const dummyMissions = [
+        { _id: "1", rank: 1, exam_name: "Exam 1", name: "John Doe", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-01T12:00:00Z" },
+        { _id: "2", rank: 2, exam_name: "Exam 2", name: "Jane Smith", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-02T12:00:00Z" },
+        { _id: "3", rank: 3, exam_name: "Exam 3", name: "Alice Johnson", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-03T12:00:00Z" },
+        { _id: "4", rank: 4, exam_name: "Exam 4", name: "Bob Brown", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-04T12:00:00Z" }
+      ];
+    setMissions(dummyMissions);
+    setLoading(false);
+  }, []);
+
+  const handleAdd = () => {
+    navigate("/admin/web-management/mission/create");
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/admin/web-management/mission/edit/${id}`);
+  };
+
+  // same delete handlers etc, but modify missions state
+
+  // Delete confirm function
+  const handleConfirmDelete = () => {
+    setMissions((prev) => prev.filter((item) => item._id !== selectedId));
+    setDeleteModalOpen(false);
+    setSelectedId(null);
+  };
+
   const totalPages = Math.ceil(missions.length / ITEMS_PER_PAGE);
   const currentPageData = missions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -108,13 +93,14 @@ const AdminMission = () => {
                     <tr key={item._id}>
                       <Td>AIR {item.rank}</Td>
                       <Td>{item.exam_name}</Td>
-                      <Td>
-                        {item.image ? (
-                          <img src={item.image} alt="Mission" style={{ width: "60px" }} />
-                        ) : (
-                          "No Image"
-                        )}
-                      </Td>
+                     <Td>
+                                            {item.image ? (
+                                              <img src={item.image} alt="Achiever" style={{ width: "60px", height: "auto" }} />
+                                            ) : (
+                                              "No Image"
+                                            )}
+                                          </Td>
+
                       <Td>
                         <BiEditAlt
                           size={20}
@@ -126,7 +112,7 @@ const AdminMission = () => {
                           size={20}
                           color="#FB4F4F"
                           style={{ cursor: "pointer" }}
-                          onClick={() => handleDeleteClick(item._id)}
+                          // onClick={() => handleDeleteClick(item._id)}
                         />
                       </Td>
                     </tr>

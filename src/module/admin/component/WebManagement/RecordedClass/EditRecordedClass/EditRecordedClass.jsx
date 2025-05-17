@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   FormRow,
@@ -20,26 +20,39 @@ import {
   CourseLabel,
   CourseCheckbox,
   SubmitButton
-} from "../RecordedClass/AddRecordedClass.style";
-import upload from "../../../../../assets/upload.png";
+} from "./EditRecordedClass.styles";
+import upload from "../../../../../../assets/upload.png";
+import { useLocation } from "react-router-dom";
+import { set } from "date-fns";
 
-// sample courses data
 const sampleCourses = [
   { id: 1, name: "Mankavit Mock Test - CLAT 2025" },
   { id: 2, name: "Mankavit Mock Test - CLAT 2025" },
   { id: 3, name: "Mankavit Mock Test - CLAT 2025" },
   { id: 4, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 5, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 6, name: "Mankavit Mock Test - CLAT 2025" }
+  { id: 5, name: "Mankavit Mock Test - CLAT 2025" }
 ];
 
-const AddRecordedClass = ({ onSubmit }) => {
+const EditRecordedClass = ({ onSubmit }) => {
+  const location = useLocation();
+  const editingData = location.state?.row; // get data from state if exists
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
+  const [fileName, setFileName] = useState("");
   const fileRef = useRef();
+
+  useEffect(() => {
+    if (editingData) {
+      setTitle(editingData.title);
+      setDescription(editingData.description);
+      setSelectedCourses(new Set([editingData.coursesEnrolled]));
+      setFileName(editingData.bannerUrl);
+    }
+  }, [editingData]);
 
   const handleFile = (f) => {
     if (f) {
@@ -59,6 +72,7 @@ const AddRecordedClass = ({ onSubmit }) => {
   };
 
   const toggleCourse = (id) => {
+    setSelectedCourses(new Set(editingData.courses || []));
     setSelectedCourses((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -69,28 +83,20 @@ const AddRecordedClass = ({ onSubmit }) => {
 
   const submit = (e) => {
     e.preventDefault();
-    if (!title || !description || !file || selectedCourses.size === 0) {
-      alert("Please fill all fields, upload a video, and select at least one course");
-      return;
-    }
+    onSubmit({ title, description, file, fileName, courses: Array.from(selectedCourses) });
 
-    onSubmit({
-      title,
-      description,
-      file,
-      courses: Array.from(selectedCourses),
-    });
+    onSubmit({ title, description, file, courses: Array.from(selectedCourses) });
   };
 
   return (
     <Container>
-      <h2>Upload Recorded Class</h2>
+      <h2>Edit Recorded Class</h2>
       <form onSubmit={submit}>
         <FormGroup>
           <Label htmlFor="title">Title</Label>
           <TextInput
             id="title"
-            placeholder="Write here"
+            placeholder="write here"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -109,12 +115,11 @@ const AddRecordedClass = ({ onSubmit }) => {
 
         <FormRow>
           <FormColumn>
-            <Label>Upload Class Video</Label>
+            <Label>Upload Class</Label>
             <UploadBox
               dragOver={dragOver}
               onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
+                e.preventDefault(); setDragOver(true);
               }}
               onDragLeave={() => setDragOver(false)}
               onDrop={onDrop}
@@ -128,10 +133,10 @@ const AddRecordedClass = ({ onSubmit }) => {
               />
               <UploadContent>
                 <UploadIcon>
-                  <img src={upload} alt="upload" />
+                    <img src={upload} alt="upload" />
                 </UploadIcon>
                 <UploadText>
-                  {file ? file.name : "Drag and drop video here, or click add video"}
+                  {file ? file.name : "Drag and drop video here, or click add image"}
                 </UploadText>
                 {!file && <UploadButton>Add Video</UploadButton>}
               </UploadContent>
@@ -157,10 +162,10 @@ const AddRecordedClass = ({ onSubmit }) => {
           </FormColumn>
         </FormRow>
 
-        <SubmitButton type="submit">Upload Recorded Class</SubmitButton>
+        <SubmitButton type="submit">Edit Recorded Class</SubmitButton>
       </form>
     </Container>
   );
 };
 
-export default AddRecordedClass;
+export default EditRecordedClass;
