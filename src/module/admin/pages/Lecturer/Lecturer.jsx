@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   HeaderRow,
@@ -19,11 +19,8 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
-  StatusWrapper,
-  KycDot,
-  StatusDot
 } from "../StudentManagement/StudentManagement.style";
-
+import { getAllLectures } from '../../../../api/lecturesApi';
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
@@ -33,74 +30,65 @@ import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
 import { IoEyeOutline } from "react-icons/io5";
 
-const mockData = [
-  {
-    id: 1,
-    name: 'John Doe',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    duration: '2 hours',
-    video: 'https://example.com/video.mp4',
-    courses: 'NEET, JEE',
-    subjects: 'Physics, Chemistry',
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    description: 'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
-    duration: '1 hour',
-    video: 'https://example.com/video.mp4',
-    courses: 'NEET, CET',
-    subjects: 'Maths, Biology',
-  }
-];
-
 const ITEMS_PER_PAGE = 8;
 
 export default function Lecturer() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedLecture, setSelectedLecture] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [viewStudent, setViewStudent] = useState(null);
+  const [viewLecture, setViewLecture] = useState(null);
   const [searchText, setSearchText] = useState('');
-  const [data, setData] = useState(mockData);
+  const [data, setData] = useState([]);
 
-  const filteredStudents = data.filter((student) =>
-    student.name.toLowerCase().includes(searchText.toLowerCase())
+  useEffect(() => {
+    const fetchLectures = async () => {
+      try {
+        const response = await getAllLectures();
+        console.log('Fetched lectures:', response);
+        setData(response.data || []);
+      } catch (error) {
+        console.error('Error fetching lectures:', error);
+      }
+    };
+
+    fetchLectures();
+  }, []);
+
+  const filteredLectures = data.filter((lecture) =>
+    lecture?.lectureName?.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const TOTAL_ENTRIES = filteredStudents.length;
+  const TOTAL_ENTRIES = filteredLectures.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = filteredStudents.slice(startIndex, endIndex);
+  const currentItems = filteredLectures.slice(startIndex, endIndex);
 
   const handleDeleteClick = (id) => {
-    setSelectedStudent(id);
+    setSelectedLecture(id);
     setDeleteModalOpen(true);
   };
   
   const handleDeleteConfirm = () => {
-    setData(data.filter((student) => student.id !== selectedStudent));
+    setData(data.filter((lecture) => lecture._id !== selectedLecture));
     setDeleteModalOpen(false);
   };
   
-  const handleViewClick = (student) => {
-    navigate(`/admin/lecturer-management/view/${student.id}`, {
-      state: { student }
+  const handleViewClick = (lecture) => {
+    navigate(`/admin/lecturer-management/view/${lecture._id}`, {
+      state: { lecture }
     });
-    console.log("View student with ID:", student.id);
   };
   
   const handleEdit = (id) => {
-    const student = data.find((student) => student.id === id);
-    if (student) {
+    const lecture = data.find((lecture) => lecture._id === id);
+    if (lecture) {
       navigate(`/admin/lecturer-management/edit/${id}`, {
-        state: { student }
+        state: { lecture }
       });
     }
-    console.log("Edit student with ID:", id);
   };
 
   return (
@@ -135,32 +123,36 @@ export default function Lecturer() {
             <TableHead>
               <TableRow>
                 <TableHeader>#</TableHeader>
-                <TableHeader>Lecturer Name</TableHeader>
+                <TableHeader>Lecture Name</TableHeader>
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Duration</TableHeader>
-                <TableHeader>Video </TableHeader>
-                <TableHeader>No of Courses</TableHeader>
-                <TableHeader>No of Subject</TableHeader>
+                <TableHeader>Video</TableHeader>
+                <TableHeader>Course</TableHeader>
+                <TableHeader>Subject</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
               {currentItems.map((item, index) => (
-                <TableRow key={item.id}>
+                <TableRow key={item._id}>
                   <TableCell>{startIndex + index + 1}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.description}</TableCell>
+                  <TableCell>{item.lectureName}</TableCell>
+                  <TableCell>{item.description || '-'}</TableCell>
+                  <TableCell>{item.duration || '-'}</TableCell>
                   <TableCell>
-                    {item.duration}
+                    <a href={item.videoUrl} target="_blank" rel="noopener noreferrer">View</a>
                   </TableCell>
-                  <TableCell> <a href="#view" onClick={() => handleViewClick(item)}>View</a></TableCell>
-                  <TableCell>{item.courses.length} <a href="#view" onClick={() => handleViewClick(item)}>View</a></TableCell>
-                  <TableCell>{item.subjects.length} <a href="#view" onClick={() => handleViewClick(item)}>View</a></TableCell>
+                  <TableCell>
+                    {item.courseRef?.courseName || '-'}
+                  </TableCell>
+                  <TableCell>
+                    {item.subjectRef?.subjectName || '-'}
+                  </TableCell>
                   <TableCell>
                     <ActionsContainer>
-                    <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
-                    <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item.id)} />
-                      <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item.id)} />
+                      <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
+                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item._id)} />
+                      <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item._id)} />
                     </ActionsContainer>
                   </TableCell>
                 </TableRow>
@@ -180,12 +172,16 @@ export default function Lecturer() {
 
       {viewModalOpen && (
         <CustomModal onClose={() => setViewModalOpen(false)}>
-          <h3>Subjects Enrolled</h3>
-          <ul>
-            {viewStudent.subjects.map((subject, i) => (
-              <li key={i}>{subject}</li>
-            ))}
-          </ul>
+          <h3>Lecture Details</h3>
+          {viewLecture && (
+            <div>
+              <p><strong>Name:</strong> {viewLecture.lectureName}</p>
+              <p><strong>Description:</strong> {viewLecture.description}</p>
+              <p><strong>Course:</strong> {viewLecture.courseRef?.courseName || 'N/A'}</p>
+              <p><strong>Subject:</strong> {viewLecture.subjectRef?.subjectName || 'N/A'}</p>
+              <p><strong>Video URL:</strong> <a href={viewLecture.videoUrl} target="_blank" rel="noopener noreferrer">{viewLecture.videoUrl}</a></p>
+            </div>
+          )}
         </CustomModal>
       )}
 

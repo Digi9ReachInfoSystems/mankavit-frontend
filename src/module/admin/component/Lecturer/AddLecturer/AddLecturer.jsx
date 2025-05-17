@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -22,29 +22,46 @@ import {
 } from "./AddLecturer.styles";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
+import { createLecture } from "../../../../../api/lecturesApi";
+import { getAllCourses } from "../../../../../api/courseApi";
+import { getSubjects } from "../../../../../api/subjectApi";
 export default function AddLecturer() {
-  const [lecturerName, setLecturerName] = useState("");
+  const [lectureName, setLectureName] = useState("");
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
-  const [subjectCheckboxes, setSubjectCheckboxes] = useState([
-    { id: 1, label: "Mathematics", checked: false },
-    { id: 2, label: "Physics", checked: false },
-  ]);
-  const [courseCheckboxes, setCourseCheckboxes] = useState([
-    { id: 1, label: "Mock Test 1", checked: false },
-    { id: 2, label: "Mock Test 2", checked: false },
-  ]);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [subjects, setSubjects] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleCheckboxChange = (index, setter) => {
-    setter((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        // Fetch subjects and courses
+        const [subjectsResponse, coursesResponse] = await Promise.all([
+          getSubjects(),
+          getAllCourses()
+        ]);
+        
+        setSubjects(subjectsResponse.data || []);
+        setCourses(coursesResponse.data || []);
+      } catch (error) {
+        toast.error("Failed to fetch data");
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleUploadAreaClick = () => {
     fileInputRef.current.click();
@@ -58,55 +75,79 @@ export default function AddLecturer() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!lecturerName || !duration || !description) {
+    if (!lectureName || !duration || !description || !videoUrl || !selectedSubject || !selectedCourse) {
       toast.error("Please fill all required fields!");
       return;
     }
 
-    // You can handle the form submission logic here (API call, etc.)
-    toast.success("Lecturer added successfully!");
-    console.log({
-      lecturerName,
-      duration,
-      description,
-      selectedSubjects: subjectCheckboxes.filter((item) => item.checked),
-      selectedCourses: courseCheckboxes.filter((item) => item.checked),
-      thumbnailFile,
-    });
+    try {
+      setIsLoading(true);
+      
+      const formData = new FormData();
+      formData.append("lectureName", lectureName);
+      formData.append("duration", duration);
+      formData.append("description", description);
+      formData.append("videoUrl", videoUrl);
+      formData.append("subjectRef", selectedSubject);
+      formData.append("courseRef", selectedCourse);
+      if (thumbnailFile) {
+        formData.append("thumbnail", thumbnailFile);
+      }
 
-    // Optionally, navigate or reset the form
-    // navigate("/somewhere");
+      const response = await createLecture(formData);
+      
+      toast.success("Lecture created successfully!");
+      console.log("Lecture created:", response.data);
+      
+      // Reset form
+      setLectureName("");
+      setDuration("");
+      setDescription("");
+      setVideoUrl("");
+      setSelectedSubject(null);
+      setSelectedCourse(null);
+      setThumbnailFile(null);
+      setPreviewUrl("");
+      
+      // Navigate back to lectures list
+      navigate("/admin/lecturer-management");
+    } catch (error) {
+      toast.error("Failed to create lecture");
+      console.error("Error creating lecture:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Container>
       <Toaster />
-      <Title>Add Lecturer</Title>
+      <Title>Add Lecture</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1 */}
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="lecturerName">Lecturer Name</Label>
+              <Label htmlFor="lectureName">Lecture Name *</Label>
               <Input
-                id="lecturerName"
-                value={lecturerName}
-                onChange={(e) => setLecturerName(e.target.value)}
-                placeholder="Enter Lecturer Name"
+                id="lectureName"
+                value={lectureName}
+                onChange={(e) => setLectureName(e.target.value)}
+                placeholder="Enter Lecture Name"
               />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">Duration *</Label>
               <Input
                 id="duration"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                placeholder="Enter Duration"
+                placeholder="e.g. 20 min"
               />
             </FieldWrapper>
           </Column>
@@ -116,7 +157,7 @@ export default function AddLecturer() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="description">Course Description</Label>
+              <Label htmlFor="description">Description *</Label>
               <TextArea
                 id="description"
                 rows="3"
@@ -126,22 +167,34 @@ export default function AddLecturer() {
               />
             </FieldWrapper>
           </Column>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="videoUrl">Video URL *</Label>
+              <Input
+                id="videoUrl"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="Enter video URL"
+              />
+            </FieldWrapper>
+          </Column>
         </FormRow>
 
         {/* Row 3 */}
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+              <CheckboxSectionTitle>Select Subject *</CheckboxSectionTitle>
               <CheckboxList>
-                {subjectCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id}>
+                {subjects.map((subject) => (
+                  <CheckboxLabel key={subject._id}>
                     <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                      type="radio"
+                      name="subject"
+                      checked={selectedSubject === subject._id}
+                      onChange={() => setSelectedSubject(subject._id)}
                     />
-                    {item.label}
+                    {subject.subjectName}
                   </CheckboxLabel>
                 ))}
               </CheckboxList>
@@ -150,16 +203,17 @@ export default function AddLecturer() {
 
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Add Course</CheckboxSectionTitle>
+              <CheckboxSectionTitle>Select Course *</CheckboxSectionTitle>
               <CheckboxList>
-                {courseCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id}>
+                {courses.map((course) => (
+                  <CheckboxLabel key={course._id}>
                     <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setCourseCheckboxes)}
+                      type="radio"
+                      name="course"
+                      checked={selectedCourse === course._id}
+                      onChange={() => setSelectedCourse(course._id)}
                     />
-                    {item.label}
+                    {course.courseName}
                   </CheckboxLabel>
                 ))}
               </CheckboxList>
@@ -174,7 +228,7 @@ export default function AddLecturer() {
             <UploadArea onClick={handleUploadAreaClick}>
               {thumbnailFile && previewUrl ? (
                 <>
-                  <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%" }} />
+                  <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                   <p>{thumbnailFile.name}</p>
                 </>
               ) : (
@@ -188,14 +242,21 @@ export default function AddLecturer() {
                   </p>
                 </>
               )}
-              <FileInput ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
+              <FileInput 
+                ref={fileInputRef} 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileChange} 
+              />
             </UploadArea>
           </Column>
         </FormRow>
 
         {/* Submit */}
         <FormRow>
-          <SubmitButton type="submit">Add Lecturer</SubmitButton>
+          <SubmitButton type="submit" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Add Lecture"}
+          </SubmitButton>
         </FormRow>
       </FormWrapper>
     </Container>

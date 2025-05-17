@@ -13,12 +13,9 @@ import {
   UploadPlaceholder,
   CheckboxSection,
   CheckboxList,
-  CheckboxLabel,
-  CheckboxInput,
-  CheckboxSectionTitle,
+  Field,
   ToggleSwitch,
 } from "./ViewNotes.styles"; // Adjust path if needed
-import { getSubjects } from "../../../../../api/subjectApi";
 
 export default function ViewNotes() {
   const [noteData, setNoteData] = useState({
@@ -29,25 +26,6 @@ export default function ViewNotes() {
     subjects: ["Math", "Physics"],
   });
 
-//   const [subjectsCheckboxes, setSubjectsCheckboxes] = useState([]);
-
-//   useEffect(() => {
-//     const apiCaller = async () => {
-//       try {
-//         const response = await getSubjects();
-//         const data = response.data.map((item) => ({
-//           label: item.subjectName,
-//           id: item._id,
-//           checked: noteData.subjects.includes(item.subjectName),
-//         }));
-//         setSubjectsCheckboxes(data);
-//       } catch (error) {
-//         console.error("Error fetching subjects:", error);
-//       }
-//     };
-//     apiCaller();
-//   }, [noteData.subjects]);
-
   return (
     <Container>
       <Title>View Note</Title>
@@ -57,14 +35,14 @@ export default function ViewNotes() {
           <Column>
             <FieldWrapper>
               <Label>Note Title</Label>
-              <p>{noteData.noteTitle}</p>
+              <Field>{noteData.noteTitle}</Field>
             </FieldWrapper>
           </Column>
 
           <Column>
             <FieldWrapper>
               <Label>Note Internal Title</Label>
-              <p>{noteData.internalTitle}</p>
+              <Field>{noteData.internalTitle}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -73,12 +51,10 @@ export default function ViewNotes() {
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Subjects</CheckboxSectionTitle>
+              <Label>Subjects</Label>
              <CheckboxList>
-             {noteData.subjects.map((subject, index) => (
-  <p key={index} style={{margin: "5px 0"}}>{subject},</p>
-))}
-                </CheckboxList>
+              <Field>{noteData.subjects.join(", ")}</Field>
+           </CheckboxList>
             </CheckboxSection>
           </Column>
         </FormRow>
@@ -89,13 +65,8 @@ export default function ViewNotes() {
             <Label>Uploaded PDF</Label>
             <UploadArea style={{ cursor: "default" }}>
               <UploadPlaceholder>
-                <img src={upload} alt="Uploaded" />
+                <img src={noteData.fileUrl} alt="Uploaded" />
               </UploadPlaceholder>
-              <p>
-                <a href={noteData.fileUrl} target="_blank" rel="noreferrer">
-                  View PDF
-                </a>
-              </p>
             </UploadArea>
           </Column>
 

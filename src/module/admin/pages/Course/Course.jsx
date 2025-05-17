@@ -1,4 +1,3 @@
-// CoursesTable.jsx
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -29,34 +28,16 @@ import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { useNavigate } from "react-router-dom";
 import { Select, Space } from "antd";
-import { getAllCourses } from "../../../../api/courseApi";
+import { getAllCourses, deleteCourseById } from "../../../../api/courseApi";
 import { IoEyeOutline } from "react-icons/io5";
+import toast from "react-hot-toast";
 
-
-// Mock data representing table rows
-const mockData = Array.from({ length: 15 }, (_, index) => ({
-  id: index + 1,
-  courseName: "CLAT Coaching",
-  internalName: "Anuja Admin",
-  subjects: ["English", "Math", "Reasoning", "Legal Aptitude", "GK"],
-  mockTests: ["Test 1", "Test 2", "Test 3"],
-  enrolled: ["Alice", "Bob", "Charlie", "Siri", "Rahul", "Alexa", "Akshay", "Robin"],
-  dateAndTime: "24-08-2023 16:00 IST",
-  students: [
-    { name: "Student A" },
-    { name: "Student B" },
-    { name: "Student C" },
-  ],
-}));
-
-
-// const TOTAL_ENTRIES = 100;
 const ITEMS_PER_PAGE = 10;
 
 export default function CoursesTable() {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -68,47 +49,34 @@ export default function CoursesTable() {
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-
-
-
-  // const filteredStudents = data.filter((student) =>
-  //   student.courseName.toLowerCase().includes(searchText.toLowerCase())
-  // );
-
-  // // Pagination states
-  // const [currentPage, setCurrentPage] = useState(1);
-
-  // const TOTAL_ENTRIES = filteredStudents.length;
-  // const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-
-  // // Slicing data for current page (if you actually had 100 items, you'd slice them accordingly)
-  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  // const endIndex = startIndex + ITEMS_PER_PAGE;
-  // const currentItems = filteredStudents.slice(startIndex, endIndex);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await getAllCourses();
-        const courseData = response.data.map((item) => ({
-          id: item._id,
-          courseName: item.courseDisplayName,
-          internalName: item.courseName,
-          subjects: item.subjects.map((subject) => subject.subjectName),
-          mockTests: ["Test 1", "Test 2", "Test 3"],
-          enrolled: item.student_enrolled.length > 0 ? item.student_enrolled.map((student) => student.displayName) : [],
-          dateAndTime: item.updatedAt,
-          students: item.student_enrolled.map((student) => ({
-            name: student.displayName,
-          })),
-        }));
-        setData(courseData);
-      } catch (error) {
-        console.log("Error fetching courses:", error);
-      }
-    };
     fetchCourses();
   }, []);
+
+  const fetchCourses = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllCourses();
+      const courseData = response.data.map((item) => ({
+        id: item._id,
+        courseName: item.courseDisplayName,
+        internalName: item.courseName,
+        subjects: item.subjects,
+        mockTests: item.mockTests || ["Test 1", "Test 2", "Test 3"],
+        enrolled: item.student_enrolled || [],
+        dateAndTime: item.updatedAt,
+        students: item.student_enrolled || [],
+      }));
+      setData(courseData);
+    } catch (error) {
+      console.log("Error fetching courses:", error);
+      toast.error("Failed to fetch courses");
+    } finally {
+      setLoading(false);
+    }
+  };
   
   useEffect(() => {
     let processedData = [...data];
@@ -139,12 +107,26 @@ export default function CoursesTable() {
     setTotalEntries(totalEntries);
     setTotalPages(totalPagesValue);
     setCurrentItems(currentPageItems);
-  
   }, [data, sortOption, searchText, currentPage]);
 
   const handleDeleteClick = (id) => {
-    setSelectedStudent(id);
+    setSelectedCourse(id);
     setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteCourseById(selectedCourse);
+      toast.success("Course deleted successfully");
+      // Refresh the course list after deletion
+      await fetchCourses();
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      toast.error("Failed to delete course");
+    } finally {
+      setDeleteModalOpen(false);
+      setSelectedCourse(null);
+    }
   };
 
   const openModal = (type, data) => {
@@ -177,36 +159,35 @@ export default function CoursesTable() {
   };
 
   const handleViewClick = (course) => {
-    navigate(`/admin/course-management/view/${course.id}`, {
-      state: { course }
-    });
-    console.log("View student with ID:", course.id);
+    navigate(`/admin/course-management/view/${course.id}`);
   };
 
   const handleEdit = (id) => {
-    const course = data.find((course) => course.id === id);
-    if (course) {
-      navigate(`/admin/course-management/edit/${id}`, {
-        state: { course }
-      });
-    }
-    console.log("Edit student with ID:", id);
-  }
+    navigate(`/admin/course-management/edit/${id}`);
+  };
 
+  const getSubjectNames = (subjects) => {
+    if (!subjects || subjects.length === 0) return [];
+    return subjects.map(subject => 
+      typeof subject === 'object' ? subject.subjectName || subject.label : subject
+    );
+  };
 
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => { navigate("/admin/course-management/create") }}>Add Course</CreateButton>
+        <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+          Add Course
+        </CreateButton>
       </ButtonContainer>
       <Container>
-
         <HeaderRow>
-          <Title>See All Course <span style={{
-            color: "#6d6e75",
-            fontSize: "12px",
-            fontWeight: "400"
-          }}>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
+          <Title>
+            See All Course{" "}
+            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+              ({currentItems.length}/{TOTAL_ENTRIES})
+            </span>
+          </Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
             <Select
@@ -216,15 +197,8 @@ export default function CoursesTable() {
               options={[
                 { value: 'Name', label: 'Name' },
                 { value: 'Date', label: 'Date' },
-                // { value: 'Price', label: 'Price' },
-                // { value: 'Enrolled', label: 'Enrolled' },
               ]}
             />
-            {/* <SortSelect value="Name" onChange={() => { }}>
-              <option value="Name">Name</option>
-              <option value="Price">Date and Time IST</option>
-              <option value="Enrolled">Enrolled</option>
-            </SortSelect> */}
           </SortByContainer>
         </HeaderRow>
 
@@ -232,72 +206,99 @@ export default function CoursesTable() {
           <SearchIcon>
             <CiSearch size={18} />
           </SearchIcon>
-          <SearchInput placeholder="Search" value={searchText}
-            onChange={(e) => setSearchText(e.target.value)} />
+          <SearchInput 
+            placeholder="Search" 
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)} 
+          />
         </SearchWrapper>
 
-        {/* Table */}
-        <TableWrapper>
-          <StyledTable>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Course Name</TableHeader>
-                <TableHeader>Internal Name</TableHeader>
-                <TableHeader>No. of Subjects</TableHeader>
-                <TableHeader>No. of Mock Test</TableHeader>
-                <TableHeader>No. of Student Enrolled</TableHeader>
-                <TableHeader>Date and Time IST</TableHeader>
-                <TableHeader>Actions</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.courseName}</TableCell>
-                  <TableCell>{item.internalName}</TableCell>
-                  <TableCell>
-                    {item.subjects.length}
-                    <a href="#view" onClick={() => openModal("subjects", item.subjects)}> View</a>
-                  </TableCell>
-                  <TableCell>
-                    {item.mockTests.length}
-                    <a href="#view" onClick={() => openModal("mockTests", item.mockTests)}> View</a>
-                  </TableCell>
-                  <TableCell>
-                    {item.students.length}
-                    <a href="#view" onClick={() => openModal("enrolled", item.students)}> View</a>
-                  </TableCell>
-                  <TableCell>{formatToIST(item.dateAndTime)}</TableCell>
-                  <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
-                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item.id)} />
-                      <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item.id)} />
-                    </ActionsContainer>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+        {loading ? (
+          <div>Loading courses...</div>
+        ) : (
+          <>
+            <TableWrapper>
+              <StyledTable>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader>Course Name</TableHeader>
+                    <TableHeader>Internal Name</TableHeader>
+                    <TableHeader>No. of Subjects</TableHeader>
+                    <TableHeader>No. of Mock Test</TableHeader>
+                    <TableHeader>No. of Student Enrolled</TableHeader>
+                    <TableHeader>Date and Time IST</TableHeader>
+                    <TableHeader>Actions</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {currentItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.courseName}</TableCell>
+                      <TableCell>{item.internalName}</TableCell>
+                      <TableCell>
+                        {getSubjectNames(item.subjects).length}
+                        <a href="#view" onClick={(e) => {
+                          e.preventDefault();
+                          openModal("subjects", getSubjectNames(item.subjects));
+                        }}> View</a>
+                      </TableCell>
+                      <TableCell>
+                        {item.mockTests.length}
+                        <a href="#view" onClick={(e) => {
+                          e.preventDefault();
+                          openModal("mockTests", item.mockTests);
+                        }}> View</a>
+                      </TableCell>
+                      <TableCell>
+                        {item.students.length}
+                        <a href="#view" onClick={(e) => {
+                          e.preventDefault();
+                          openModal("enrolled", item.students);
+                        }}> View</a>
+                      </TableCell>
+                      <TableCell>{formatToIST(item.dateAndTime)}</TableCell>
+                      <TableCell>
+                        <ActionsContainer>
+                          <IoEyeOutline 
+                            title="View" 
+                            color="#000000" 
+                            size={20} 
+                            onClick={() => handleViewClick(item)} 
+                          />
+                          <BiEditAlt 
+                            title="Edit" 
+                            color="#000000" 
+                            size={20} 
+                            onClick={() => handleEdit(item.id)} 
+                          />
+                          <RiDeleteBin6Line 
+                            title="Delete" 
+                            size={20} 
+                            color="#FB4F4F" 
+                            onClick={() => handleDeleteClick(item.id)} 
+                          />
+                        </ActionsContainer>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </StyledTable>
+            </TableWrapper>
 
-          </StyledTable>
-        </TableWrapper>
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          totalItems={TOTAL_ENTRIES}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+              totalItems={TOTAL_ENTRIES}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
+          </>
+        )}
 
         <DeleteModal
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
-          onDelete={() => {
-            setData(prevData => prevData.filter(item => item.id !== selectedStudent));
-            setDeleteModalOpen(false);
-            setSelectedStudent(null);
-          }}
+          onDelete={handleConfirmDelete}
         />
 
         {modalOpen && (
@@ -316,8 +317,6 @@ export default function CoursesTable() {
             onClose={() => setModalOpen(false)}
           />
         )}
-
-
       </Container>
     </>
   );

@@ -8,13 +8,12 @@ import {
   Column,
   FieldWrapper,
   Label,
-  TextArea,
+  Field,
   CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
   UploadArea,
-  UploadPlaceholder,
-} from "../AddLecturer/AddLecturer.styles";
+} from "./ViewLecturer.styles";
 
 export default function ViewLecturer() {
   // Mock static data for UI display
@@ -22,12 +21,12 @@ export default function ViewLecturer() {
   const duration = "3 Months";
   const description = "This is a sample course description for viewing purposes only.";
   const subjectCheckboxes = [
-    { id: 1, label: "Mathematics", checked: true },
-    { id: 2, label: "Physics", checked: false },
-  ];
+    "Mathematics",
+    "Physics",
+  ]
   const courseCheckboxes = [
-    { id: 1, label: "Mock Test 1", checked: true },
-    { id: 2, label: "Mock Test 2", checked: true },
+    "Mock Test 1",
+    "Mock Test 2",
   ];
   const thumbnailUrl = "https://via.placeholder.com/300x200?text=Thumbnail+Preview";
 
@@ -40,13 +39,13 @@ export default function ViewLecturer() {
           <Column>
             <FieldWrapper>
               <Label>Lecturer Name</Label>
-              <p>{lecturerName}</p>
+              <Field>{lecturerName}</Field>
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
               <Label>Duration</Label>
-              <p>{duration}</p>
+              <Field>{duration}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -56,9 +55,9 @@ export default function ViewLecturer() {
           <Column>
             <FieldWrapper>
               <Label>Course Description</Label>
-              <TextArea as="div" style={{ minHeight: "100px" }}>
+              <Field>
                 {description}
-              </TextArea>
+              </Field>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -69,11 +68,7 @@ export default function ViewLecturer() {
             <CheckboxSection>
               <CheckboxSectionTitle>Subjects</CheckboxSectionTitle>
               <CheckboxList>
-                {subjectCheckboxes.map((item) => (
-                  <p key={item.id}>
-                    {item.label} {item.checked ? "(Selected)" : ""}
-                  </p>
-                ))}
+                <Field>{subjectCheckboxes.join(", ")} </Field>
               </CheckboxList>
             </CheckboxSection>
           </Column>
@@ -82,11 +77,7 @@ export default function ViewLecturer() {
             <CheckboxSection>
               <CheckboxSectionTitle>Courses</CheckboxSectionTitle>
               <CheckboxList>
-                {courseCheckboxes.map((item) => (
-                  <p key={item.id}>
-                    {item.label} {item.checked ? "(Selected)" : ""}
-                  </p>
-                ))}
+                <Field>{courseCheckboxes.join(", ")} </Field>
               </CheckboxList>
             </CheckboxSection>
           </Column>
