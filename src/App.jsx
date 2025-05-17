@@ -80,6 +80,7 @@ import EditRecordedClass from './module/admin/component/WebManagement/RecordedCl
 import EditMission from './module/admin/component/WebManagement/Mission/EditMission/EditMission'
 import AddMission from './module/admin/component/WebManagement/Mission/AddMission/AddMission'
 import Results from './pages/Results/Results'
+import PrevYearsQuestion from './pages/PrevYearsQuestion/PrevYearsQuestion'
 
 function App() {
 
@@ -98,6 +99,7 @@ function App() {
           <Route path="/coursedetails" element={<CourseDetails />} />
           <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
           <Route path='/results' element={<Results/>} />
+          <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           
 
           <Route path="/test" element={<Test />} />

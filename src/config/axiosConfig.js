@@ -6,8 +6,8 @@ import { getCookiesData } from "../utils/cookiesService";
 
 // Create an Axios instance with the base URL and common configurations
 const api = axios.create({
-    //   baseURL: "https://mankavith-backend.vercel.app", // Replace with your backend base URL
-    baseURL: "http://localhost:5000/",     //
+      baseURL: "https://mankavith-backend.vercel.app", // Replace with your backend base URL
+    // baseURL: "http://localhost:5000/",     //
 
     timeout: 30000, // Optional: Timeout after 10 seconds
     headers: {
