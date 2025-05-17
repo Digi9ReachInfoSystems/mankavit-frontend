@@ -78,6 +78,8 @@ import ViewLecturer from './module/admin/component/Lecturer/ViewLecturer/ViewLec
 import EditLiveclass from './module/admin/component/WebManagement/LiveClass/EditLiveclass/EditLiveclass'
 import EditRecordedClass from './module/admin/component/WebManagement/RecordedClass/EditRecordedClass/EditRecordedClass'
 import EditMission from './module/admin/component/WebManagement/Mission/EditMission/EditMission'
+import AddMission from './module/admin/component/WebManagement/Mission/AddMission/AddMission'
+import Results from './pages/Results/Results'
 
 function App() {
 
@@ -95,6 +97,7 @@ function App() {
           <Route path="/ourcourses" element={<OurCourses />} />
           <Route path="/coursedetails" element={<CourseDetails />} />
           <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
+          <Route path='/results' element={<Results/>} />
           
 
           <Route path="/test" element={<Test />} />
@@ -187,7 +190,7 @@ function App() {
 
             <Route path="web-management/notification" element={<Notification />} />
             <Route path="web-management/mission" element={<AdminMission />} />
-            {/* <Route path="web-management/mission/create" element={<AddMission />} /> */}
+            <Route path="web-management/mission/create" element={<AddMission />} />
             <Route path="web-management/mission/edit/:id" element={<EditMission />} />
           </Route>
 
