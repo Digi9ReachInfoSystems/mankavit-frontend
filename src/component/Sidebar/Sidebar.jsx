@@ -41,7 +41,7 @@ const Sidebar = () => {
     { path: "/admin/subject-management", label: "Subjects" },
     { path: "/admin/notes-management", label: "Notes" },
     { path: "/admin/category-management", label: "Category" },
-    { path: "/admin/lecturer-management", label: "Lecturer" },
+    { path: "/admin/lecturer-management", label: "Lectures" },
   ];
 
   const webmanagement = [
