@@ -12,9 +12,10 @@ import {
   CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
-  CheckboxLabel,
   UploadArea,
-} from "../AddSubject/AddSubject.style";
+  Field,
+  List,
+} from "./ViewSubject.styles";
 
 export default function ViewSubject() {
   // Dummy data for display
@@ -22,14 +23,8 @@ export default function ViewSubject() {
   const internalTitle = "Sample Internal Title";
   const vimeoId = "123456789";
   const shortDescription = "This is a short description of the subject.";
-  const notesCheckboxes = [
-    { label: "Note 1", checked: true },
-    { label: "Note 2", checked: false },
-  ];
-  const mockTestCheckboxes = [
-    { label: "Mock Test 1", checked: true },
-    { label: "Mock Test 2", checked: false },
-  ];
+  const addedNotes = ["Note 1", "Note 2", "Note 3"];
+  const addedMockTests = ["Mock Test 1", "Mock Test 2", "Mock Test 3"];
   const thumbnailFileUrl = "https://via.placeholder.com/300x200.png?text=Thumbnail+Preview";
 
   return (
@@ -41,24 +36,24 @@ export default function ViewSubject() {
           <Column>
             <FieldWrapper>
               <Label>Subject Title</Label>
-              <p>{subjectTitle}</p>
+              <Field>{subjectTitle}</Field>
             </FieldWrapper>
 
             <FieldWrapper>
               <Label>Subject Internal Title</Label>
-              <p>{internalTitle}</p>
+              <Field>{internalTitle}</Field>
             </FieldWrapper>
           </Column>
 
           <Column>
             <FieldWrapper>
               <Label>Vimeo Showcase ID</Label>
-              <p>{vimeoId}</p>
+              <Field>{vimeoId}</Field>
             </FieldWrapper>
 
             <FieldWrapper>
               <Label>Subject Short Description</Label>
-              <p>{shortDescription}</p>
+              <Field>{shortDescription}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -67,28 +62,18 @@ export default function ViewSubject() {
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Added Notes</CheckboxSectionTitle>
+              <Label>Added Notes</Label>
               <CheckboxList>
-                {notesCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
-                    <input type="checkbox" checked={item.checked} disabled />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
+                <Field>{addedNotes.join(", ")}</Field>
               </CheckboxList>
             </CheckboxSection>
           </Column>
 
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Added Mock Tests</CheckboxSectionTitle>
+              <Label>Added Mock Tests</Label>
               <CheckboxList>
-                {mockTestCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
-                    <input type="checkbox" checked={item.checked} disabled />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
+                <Field>{addedMockTests.join(", ")}</Field>
               </CheckboxList>
             </CheckboxSection>
           </Column>
