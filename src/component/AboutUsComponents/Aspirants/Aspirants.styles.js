@@ -33,17 +33,23 @@ export const CardWrapper = styled.div`
   margin-top: 2rem;
 
   @media (max-width: 1024px) {
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   @media (max-width: 540px) {
-      flex-direction: column;
-      align-items: center;
+         display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   @media (max-width: 480px) {
-      flex-direction: column;
-      align-items: center;
+          display: grid;
+    grid-template-columns: 1fr;
   }
 `;
 
@@ -67,17 +73,17 @@ export const Card = styled.div`
   }
 
   @media (max-width: 768px) {
-      width: 200px;
+      width: 90%;
       padding: 1rem 0.5rem;
   }
 
   @media (max-width: 540px) {
-      width: 350px;
+      width: 80%;
       padding: 2rem 1rem;
   }
 
   @media (max-width: 480px) {
-      width: 300px;
+      width: 90%;
       padding: 2rem 1rem;
   }
 `;
