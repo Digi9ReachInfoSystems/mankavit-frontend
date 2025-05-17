@@ -20,7 +20,7 @@ import {
   SearchIcon,
   SearchInput,
 } from "../StudentManagement/StudentManagement.style";
-import { getAllLectures } from '../../../../api/lecturesApi';
+import { getAllLectures, deleteLectureById } from '../../../../api/lecturesApi';
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
@@ -29,6 +29,7 @@ import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
 import { IoEyeOutline } from "react-icons/io5";
+import toast from 'react-hot-toast';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -42,17 +43,18 @@ export default function Lecturer() {
   const [searchText, setSearchText] = useState('');
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    const fetchLectures = async () => {
-      try {
-        const response = await getAllLectures();
-        console.log('Fetched lectures:', response);
-        setData(response.data || []);
-      } catch (error) {
-        console.error('Error fetching lectures:', error);
-      }
-    };
+  // ⬇ Fetch Lectures moved outside for reuse ⬇
+  const fetchLectures = async () => {
+    try {
+      const response = await getAllLectures();
+      console.log('Fetched lectures:', response);
+      setData(response.data || []);
+    } catch (error) {
+      console.error('Error fetching lectures:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchLectures();
   }, []);
 
@@ -70,18 +72,28 @@ export default function Lecturer() {
     setSelectedLecture(id);
     setDeleteModalOpen(true);
   };
-  
-  const handleDeleteConfirm = () => {
-    setData(data.filter((lecture) => lecture._id !== selectedLecture));
-    setDeleteModalOpen(false);
+
+  // ✅ Made async
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteLectureById(selectedLecture);
+      toast.success("Lecturer deleted successfully");
+      await fetchLectures();
+    } catch (error) {
+      console.error("Error deleting lecturer:", error);
+      toast.error("Failed to delete lecturer");
+    } finally {
+      setDeleteModalOpen(false);
+      setSelectedLecture(null);
+    }
   };
-  
+
   const handleViewClick = (lecture) => {
     navigate(`/admin/lecturer-management/view/${lecture._id}`, {
       state: { lecture }
     });
   };
-  
+
   const handleEdit = (id) => {
     const lecture = data.find((lecture) => lecture._id === id);
     if (lecture) {
@@ -187,6 +199,7 @@ export default function Lecturer() {
 
       {deleteModalOpen && (
         <DeleteModal
+        isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleDeleteConfirm}
         />

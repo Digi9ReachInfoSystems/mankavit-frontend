@@ -6,8 +6,10 @@ import {
   Label,
   UploadSection,
   FlexRow,
-  FlexUpload
-} from '../AddStudent/AddStudent.styles';
+  Field,
+  ToggleSwitch,
+  ViewImage,
+} from './ViewStudent.styles';
 import { useLocation } from 'react-router-dom';
 
 const ViewStudent = () => {
@@ -39,32 +41,35 @@ const ViewStudent = () => {
 
       <InputGroup>
         <Label>Full Name</Label>
-        <p>{studentData.fullName || 'N/A'}</p>
+        <Field>{studentData.fullName || 'N/A'}</Field>
       </InputGroup>
 
       <FlexRow>
         <InputGroup>
           <Label>Email</Label>
-          <p>{studentData.email || 'N/A'}</p>
+          <Field>{studentData.email || 'N/A'}</Field>
         </InputGroup>
         <InputGroup>
           <Label>Mobile Number</Label>
-          <p>{studentData.phone || 'N/A'}</p>
+          <Field>{studentData.phone || 'N/A'}</Field>
         </InputGroup>
       </FlexRow>
 
       <FlexRow>
         <InputGroup>
           <Label>Subjects</Label>
-          <p>{studentData.subjects || 'N/A'}</p>
+          <Field>{studentData.subjects || 'N/A'}</Field>
         </InputGroup>
+        </FlexRow>
+
+      <FlexRow>
         <InputGroup>
           <Label>KYC Status</Label>
-          <p>{studentData.kycStatus || 'N/A'}</p>
+          <ToggleSwitch type="checkbox" checked={studentData.kycStatus} disabled />
         </InputGroup>
         <InputGroup>
           <Label>Status</Label>
-          <p>{studentData.status || 'N/A'}</p>
+          <ToggleSwitch type="checkbox" checked={studentData.status} disabled />
         </InputGroup>
       </FlexRow>
 
@@ -72,26 +77,26 @@ const ViewStudent = () => {
         <UploadSection>
           <Label>Photo <small>(Passport Size)</small></Label>
           {photoPreview ? (
-            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', padding: '10px', gap: "20px", width: '50%', border: '1px solid #ccc', borderRadius: '8px' }}>
-              <img src={photoPreview} alt="Photo Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
-            </div>
+            <ViewImage>
+              <img src={photoPreview} alt="Photo Preview" className='image' />
+            </ViewImage>
           ) : (
-            <p>No Photo Uploaded</p>
+            <Field>No Photo Uploaded</Field>
           )}
         </UploadSection>
 
         <UploadSection>
           <Label>ID Proof <small>(Aadhar / Driving License)</small></Label>
           {idProofPreview ? (
-            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', padding: '10px', gap: "20px", width: '50%', border: '1px solid #ccc', borderRadius: '8px' }}>
+            <ViewImage>
               {idProofPreview.includes('.pdf') ? (
                 <a href={idProofPreview} target="_blank" rel="noopener noreferrer" style={{ color: 'blue' }}>View Document</a>
               ) : (
-                <img src={idProofPreview} alt="ID Proof Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                <img src={idProofPreview} alt="ID Proof Preview" className='image' />
               )}
-            </div>
+            </ViewImage>
           ) : (
-            <p>No ID Proof Uploaded</p>
+            <Field>No ID Proof Uploaded</Field>
           )}
         </UploadSection>
       </FlexRow>
