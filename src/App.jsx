@@ -86,6 +86,10 @@ import ViewTestimonial from './module/admin/component/WebManagement/Testimonial/
 import ViewQuestionPaper from './module/admin/component/WebManagement/Questionpaper/ViewQuestionPaper/ViewQuestionPaper'
 import ViewMission from './module/admin/component/WebManagement/Mission/ViewMission/ViewMission'
 import OurCoursesDetails from './pages/OurCoursesDetails/OurCoursesDetails'
+import WhyStudyWithUs from './module/admin/pages/WebManagement/WhyStudyWithUs/WhyStudyWithUs'
+import AddWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/AddWhyStudyWithUs/AddWhyStudyWithUs'
+import EditWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/EditWhyStudyWithUs/EditWhyStudyWithUs'
+import ViewWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/ViewWhyStudyWithUs/ViewWhyStudyWithUs'
 
 function App() {
 
@@ -204,6 +208,11 @@ function App() {
             <Route path="web-management/mission/create" element={<AddMission />} />
             <Route path="web-management/mission/edit/:id" element={<EditMission />} />
             <Route path="web-management/mission/view/:id" element={<ViewMission />} />
+
+            <Route path="web-management/why-study-with-us" element={<WhyStudyWithUs />} />
+            <Route path="web-management/why-study-with-us/create" element={<AddWhyStudyWithUs />} />
+            <Route path="web-management/why-study-with-us/edit/:id" element={<EditWhyStudyWithUs />} />
+            <Route path="web-management/why-study-with-us/view/:id" element={<ViewWhyStudyWithUs />} />
           </Route>
 
           
