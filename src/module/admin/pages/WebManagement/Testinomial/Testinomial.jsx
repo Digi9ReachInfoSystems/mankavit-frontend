@@ -24,6 +24,8 @@ import {
   deleteTestimonalById,
 } from "../../../../../api/testimonialApi"; // Update path as needed
 import { format } from 'date-fns'; // Import date-fns for formatting
+import { IoEyeOutline } from "react-icons/io5";
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -75,6 +77,10 @@ const Testimonial = () => {
     navigate("/admin/web-management/testinomial/create");
   };
 
+  const handleViewClick = (id) => {
+    navigate(`/admin/web-management/testinomial/view/${id}`);
+  };
+
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const currentItems = data.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -118,6 +124,13 @@ const Testimonial = () => {
                   </TableCell>
                   <TableCell>
                     <ActionsWrapper>
+                      <IoEyeOutline
+                        size={20}
+                        color="#000"
+                        style={{ cursor: "pointer" }}
+                                                 onClick={() => handleViewClick(item._id)}
+                        
+                      />
                       <BiEditAlt
                         size={20}
                         color="#000"

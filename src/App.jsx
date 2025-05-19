@@ -81,6 +81,8 @@ import EditMission from './module/admin/component/WebManagement/Mission/EditMiss
 import AddMission from './module/admin/component/WebManagement/Mission/AddMission/AddMission'
 import Results from './pages/Results/Results'
 import PrevYearsQuestion from './pages/PrevYearsQuestion/PrevYearsQuestion'
+import ViewAchievement from './module/admin/component/WebManagement/Achievement/ViewAchievement/ViewAchievement'
+import ViewTestimonial from './module/admin/component/WebManagement/Testimonial/ViewTestimonial/ViewTestimonial'
 
 function App() {
 
@@ -183,10 +185,12 @@ function App() {
             <Route path="web-management/testinomial" element={<Testimonial />} />
             <Route path="web-management/testinomial/create" element={<AddTestimonial />} />
             <Route path="web-management/testinomial/edit/:id" element={<EditTestimonial />} />
+            <Route path="web-management/testinomial/view/:id" element={<ViewTestimonial />} />
 
             <Route path="web-management/achievement" element={<Achievements />} />
             <Route path="web-management/achievement/create" element={<AddAchievements />} />
             <Route path='web-management/achievement/edit/:id' element={<EditAchievement />} />
+            <Route path="web-management/achievement/view/:id" element={<ViewAchievement />} />
 
             <Route path="web-management/social-media" element={<SocialMedia />} />
 

@@ -10,8 +10,12 @@ import {
   ViewLink,
   BtnAchieve,
   AddButton,
-  Label
+  ModalOverlay,
+  ModalContent,
+  ModalImage,
+  CloseIcon
 } from "./Achievements.styles";
+import { IoEyeOutline } from "react-icons/io5";
 
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination"; // This is your component
@@ -31,6 +35,9 @@ const Achievements = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+const [imageModalOpen, setImageModalOpen] = useState(false);
+const [selectedImage, setSelectedImage] = useState(null);
+
 
   const navigate = useNavigate();
 
@@ -57,10 +64,10 @@ const Achievements = () => {
   }, []);
   const getCreatedAtFromId = (id) => {
     if (!id || id.length < 8) return "Invalid Date";
-  
+
     const timestampHex = id.substring(0, 8);
     const timestamp = parseInt(timestampHex, 16) * 1000;
-  
+
     const date = new Date(timestamp);
     return isNaN(date.getTime()) ? "Invalid Date" : date;
   };
@@ -95,6 +102,10 @@ const Achievements = () => {
       setDeleteModalOpen(false);
       setSelectedId(null);
     }
+  };
+
+  const handleViewClick = (id) => {
+    navigate(`/admin/web-management/achievement/view/${id}`);
   };
 
   return (
@@ -139,20 +150,36 @@ const Achievements = () => {
                       <Td>{item.exam_name || "N/A"}</Td>
                       <Td>{item.name}</Td>
                       <Td>
-                        {item.image ? (
-                          <img src={item.image} alt="Achiever" style={{ width: "60px", height: "auto" }} />
-                        ) : (
-                          "No Image"
-                        )}
+  {item.image ? (
+    <span
+      onClick={() => {
+        setSelectedImage(item.image);
+        setImageModalOpen(true);
+      }}
+      style={{ color: "#007bff", cursor: "pointer", textDecoration: "underline" }}
+    >
+      View Image
+    </span>
+  ) : (
+    "No Image"
+  )}
+</Td>
+
+
+                      <Td>
+                        {getCreatedAtFromId(item._id).toLocaleDateString()}{" "}
+                        {getCreatedAtFromId(item._id).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </Td>
                       <Td>
-  {getCreatedAtFromId(item._id).toLocaleDateString()}{" "}
-  {getCreatedAtFromId(item._id).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  })}
-</Td>
-                      <Td>
+                        <IoEyeOutline
+                          size={20}
+                          color="#000000"
+                          style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={() => handleViewClick(item._id)}
+                        />
                         <BiEditAlt
                           size={20}
                           color="#000000"
@@ -191,6 +218,29 @@ const Achievements = () => {
         onClose={() => setDeleteModalOpen(false)}
         onDelete={handleConfirmDelete}
       />
+
+{imageModalOpen && selectedImage && (
+  <ModalOverlay
+    onClick={() => {
+      setImageModalOpen(false);
+      setSelectedImage(null);
+    }}
+  >
+    <ModalContent onClick={(e) => e.stopPropagation()}>
+      <CloseIcon
+        onClick={() => {
+          setImageModalOpen(false);
+          setSelectedImage(null);
+        }}
+      >
+        &times;
+      </CloseIcon>
+      <ModalImage src={selectedImage} alt="Achiever" />
+    </ModalContent>
+  </ModalOverlay>
+)}
+
+
     </>
   );
 };
