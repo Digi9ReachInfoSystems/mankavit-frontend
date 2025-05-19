@@ -72,6 +72,18 @@ export const FieldWrapper = styled.div`
   display: flex;
   flex-direction: column;
 
+  .field {
+    background-color: #f5f5f5;
+  border-radius: 6px;
+  padding: ${(props) => props.theme.spacing(1.5)};
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: ${(props) => props.theme.fonts.body};
+  margin: 10px 0;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  }
+
   @media (max-width: 990px) {
   .toggle-wrapper{
     display: flex;
