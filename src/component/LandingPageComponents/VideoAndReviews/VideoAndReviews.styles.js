@@ -27,60 +27,57 @@ export const Highlight = styled.span`
 
 export const CardWrapper = styled.div`
   display: flex;
-  justify-content: center;
-//   flex-wrap: wrap;
+  flex-wrap: nowrap;         // ❗ DO NOT wrap
+  overflow-x: auto;          // ❗ Enable horizontal scroll
   gap: 20px;
   margin-top: 2rem;
+  padding-bottom: 1rem;
 
-  @media (max-width: 1024px) {
-    gap: 10px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 8px;
   }
 
-  @media (max-width: 540px) {
-      flex-direction: column;
-      align-items: center;
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
   }
 
-  @media (max-width: 480px) {
-      flex-direction: column;
-      align-items: center;
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
 `;
+
+
+
 
 export const Card = styled.div`
-//   background-color: white;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
   border: ${props => props.theme.colors.darkgray} 1px solid;
   border-radius: 14px;
-  width: 500px;
-  padding: 3rem 1rem;
-//   box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  min-width: 220px;
+  max-width: 500px;
+  padding: 2rem 1rem;
   transition: all 0.3s ease;
+  width: 250px;
 
-  @media (max-width: 1360px) {
-      width: 300px;
-      padding: 2rem 1rem;
+  @media (min-width: 768px) {
+    width: 300px;
   }
 
-  @media (max-width: 1024px) {
-      width: 220px;
-      padding: 2rem 1rem;
+  @media (min-width: 1024px) {
+    width: 250px;
   }
 
-  @media (max-width: 768px) {
-      width: 200px;
-      padding: 1rem 0.5rem;
-  }
-
-  @media (max-width: 540px) {
-      width: 350px;
-      padding: 2rem 1rem;
-  }
-
-  @media (max-width: 480px) {
-      width: 300px;
-      padding: 2rem 1rem;
+  @media (min-width: 1360px) {
+    width: 400px;
   }
 `;
+
+
 
 export const Avatar = styled.img`
   width: 120px;
@@ -187,4 +184,17 @@ font-size: 22px;
   @media (max-width: 480px) {
       font-size: 18px;
   }
+`;
+
+export const VideoWrapper = styled.div`
+  width: 80%;
+  height: 600px;
+  margin: 0 auto 60px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+    @media (max-width: 768px) {
+    height: 250px;
+    width: 80%; 
+}
 `;
