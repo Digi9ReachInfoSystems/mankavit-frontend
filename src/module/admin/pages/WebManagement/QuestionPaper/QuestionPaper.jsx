@@ -21,8 +21,12 @@ import Pagination from "../../../component/Pagination/Pagination";
 import { useNavigate } from "react-router-dom";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-import { getAllQuestionPapers, deleteQuestionPaper } from "../../../../../api/questionPaperApi";
+import {
+  getAllQuestionPapers,
+  deleteQuestionPaper
+} from "../../../../../api/questionPaperApi";
 import { notification } from "antd";
 
 const ITEMS_PER_PAGE = 10;
@@ -45,7 +49,7 @@ const QuestionPaper = () => {
         console.error("Error fetching question papers:", error);
         notification.error({
           message: "Error",
-          description: "Failed to fetch question papers",
+          description: "Failed to fetch question papers"
         });
       } finally {
         setLoading(false);
@@ -70,23 +74,26 @@ const QuestionPaper = () => {
     try {
       setLoading(true);
       await deleteQuestionPaper(deleteId);
-      const updatedData = data.filter((item) => item._id !== deleteId);
-      setData(updatedData);
+      setData((prev) => prev.filter((item) => item._id !== deleteId));
       notification.success({
         message: "Success",
-        description: "Question paper deleted successfully",
+        description: "Question paper deleted successfully"
       });
     } catch (error) {
       console.error("Error deleting question paper:", error);
       notification.error({
         message: "Error",
-        description: "Failed to delete question paper",
+        description: "Failed to delete question paper"
       });
     } finally {
       setModal(false);
       setDeleteId(null);
       setLoading(false);
     }
+  };
+
+  const handleViewClick = (row) => {
+    navigate(`/admin/web-management/question-paper/view/${row._id}`);
   };
 
   return (
@@ -96,10 +103,12 @@ const QuestionPaper = () => {
           Add Question Paper
         </CreateButton>
       </ButtonContainer>
+
       <Container>
         <HeaderRow>
           <Title>All Question Papers</Title>
         </HeaderRow>
+
         <TableWrapper>
           <StyledTable>
             <TableHead>
@@ -124,17 +133,26 @@ const QuestionPaper = () => {
                   <TableCell>{row.year}</TableCell>
                   <TableCell>
                     <ActionsWrapper>
-                      <BiEditAlt 
-                        size={20} 
-                        color="#000" 
-                        style={{ cursor: "pointer" }} 
+                      <IoEyeOutline
+                        title="View"
+                        size={20}
+                        color="#000"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleViewClick(row)}
+                      />
+                      <BiEditAlt
+                        title="Edit"
+                        size={20}
+                        color="#000"
+                        style={{ cursor: "pointer" }}
                         onClick={() => navigate(`/admin/web-management/question-paper/edit/${row._id}`)}
                       />
                       <RiDeleteBin6Line
+                        title="Delete"
                         size={20}
                         color="#FB4F4F"
-                        onClick={() => handleDelete(row._id)}
                         style={{ cursor: "pointer" }}
+                        onClick={() => handleDelete(row._id)}
                       />
                     </ActionsWrapper>
                   </TableCell>
@@ -143,13 +161,16 @@ const QuestionPaper = () => {
             </TableBody>
           </StyledTable>
         </TableWrapper>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={data.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={data.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
+        )}
       </Container>
 
       {modal && (

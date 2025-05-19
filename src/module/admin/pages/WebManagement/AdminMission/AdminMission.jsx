@@ -9,6 +9,10 @@ import {
   Td,
   BtnAchieve,
   AddButton,
+  ImageModalOverlay,
+  ImageModalContent,
+  ModalImage,
+  CloseButton,
 } from "./AdminMission.styles";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination";
@@ -16,6 +20,7 @@ import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { getMissions, deleteMissionById } from "../../../../../api/missionApi";
+import { IoEyeOutline } from "react-icons/io5";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -26,6 +31,8 @@ const AdminMission = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [error, setError] = useState(null);
+  const [modal, setModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); // ✅ Added
   const navigate = useNavigate();
 
   // Fetch all missions from the API
@@ -75,6 +82,19 @@ const AdminMission = () => {
     setDeleteModalOpen(true);
   };
 
+  // View mission details
+  const handleViewClick = (mission) => {
+    navigate(`/admin/web-management/mission/view/${mission._id}`, {
+      state: { mission },
+    });
+  };
+
+  // Open image modal
+  const handleViewImage = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setModal(true);
+  };
+
   // Pagination logic
   const totalItems = missions.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -119,16 +139,28 @@ const AdminMission = () => {
                       <Td>{item.description}</Td>
                       <Td>
                         {item.image ? (
-                          <img
-                            src={item.image}
-                            alt={item.title}
-                            style={{ width: "60px", height: "auto" }}
-                          />
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleViewImage(item.image);
+                            }}
+                            style={{ textDecoration: "none" }}
+                          >
+                            View Image
+                          </a>
                         ) : (
                           "No Image"
                         )}
                       </Td>
                       <Td>
+                        <IoEyeOutline
+                          title="View"
+                          size={20}
+                          color="#000"
+                          style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={() => handleViewClick(item)}
+                        />
                         <BiEditAlt
                           size={20}
                           color="#000"
@@ -166,8 +198,18 @@ const AdminMission = () => {
         onClose={() => setDeleteModalOpen(false)}
         onDelete={handleConfirmDelete}
       />
+
+      {modal && selectedImage && (
+        <ImageModalOverlay>
+          <ImageModalContent>
+            <CloseButton onClick={() => setModal(false)}>X</CloseButton>
+            <ModalImage src={selectedImage} alt="Selected" />
+          </ImageModalContent>
+        </ImageModalOverlay>
+      )}
     </>
   );
 };
 
 export default AdminMission;
+  
