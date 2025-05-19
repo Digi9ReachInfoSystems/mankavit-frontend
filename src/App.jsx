@@ -83,6 +83,8 @@ import Results from './pages/Results/Results'
 import PrevYearsQuestion from './pages/PrevYearsQuestion/PrevYearsQuestion'
 import ViewAchievement from './module/admin/component/WebManagement/Achievement/ViewAchievement/ViewAchievement'
 import ViewTestimonial from './module/admin/component/WebManagement/Testimonial/ViewTestimonial/ViewTestimonial'
+import ViewQuestionPaper from './module/admin/component/WebManagement/Questionpaper/ViewQuestionPaper/ViewQuestionPaper'
+import ViewMission from './module/admin/component/WebManagement/Mission/ViewMission/ViewMission'
 
 function App() {
 
@@ -170,6 +172,7 @@ function App() {
             <Route path="web-management/question-paper" element={< Questionpaper/>} />
             <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />
              <Route path="web-management/question-paper/edit/:id" element={<EditQuestionPaper />} />
+            <Route path="web-management/question-paper/view/:id" element={<ViewQuestionPaper />} />
              
             <Route path="web-management/live-classes" element={<LiveClass />} />
             <Route path="web-management/live-classes/create" element={<AddLiveClass/>} />
@@ -198,6 +201,7 @@ function App() {
             <Route path="web-management/mission" element={<AdminMission />} />
             <Route path="web-management/mission/create" element={<AddMission />} />
             <Route path="web-management/mission/edit/:id" element={<EditMission />} />
+            <Route path="web-management/mission/view/:id" element={<ViewMission />} />
           </Route>
 
           

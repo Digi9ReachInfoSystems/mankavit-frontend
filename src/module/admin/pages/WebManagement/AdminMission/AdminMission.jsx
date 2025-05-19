@@ -9,16 +9,20 @@ import {
   Td,
   BtnAchieve,
   AddButton,
+  ImageModalOverlay,
+  ImageModalContent,
+  ModalImage,
+  CloseButton,
 } from "./AdminMission.styles";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-// import { deleteAchieverById } from "../../../../../api/achieverApi"; // Keep if you want real API delete, else mock below
+import { getMissions, deleteMissionById } from "../../../../../api/missionApi";
+import { IoEyeOutline } from "react-icons/io5";
 
 const ITEMS_PER_PAGE = 10;
-
 
 const AdminMission = () => {
   const [missions, setMissions] = useState([]);
@@ -26,17 +30,28 @@ const AdminMission = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [error, setError] = useState(null);
+  const [modal, setModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); // ✅ Added
   const navigate = useNavigate();
 
+  // Fetch all missions from the API
+  const fetchMissions = async () => {
+    setLoading(true);
+    try {
+      const data = await getMissions();
+      setMissions(data);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching missions:", err);
+      setError("Failed to load missions. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-  const dummyMissions = [
-        { _id: "1", rank: 1, exam_name: "Exam 1", name: "John Doe", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-01T12:00:00Z" },
-        { _id: "2", rank: 2, exam_name: "Exam 2", name: "Jane Smith", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-02T12:00:00Z" },
-        { _id: "3", rank: 3, exam_name: "Exam 3", name: "Alice Johnson", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-03T12:00:00Z" },
-        { _id: "4", rank: 4, exam_name: "Exam 4", name: "Bob Brown", image: "http://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png", createdAt: "2023-10-04T12:00:00Z" }
-      ];
-    setMissions(dummyMissions);
-    setLoading(false);
+    fetchMissions();
   }, []);
 
   const handleAdd = () => {
@@ -47,17 +62,44 @@ const AdminMission = () => {
     navigate(`/admin/web-management/mission/edit/${id}`);
   };
 
-  // same delete handlers etc, but modify missions state
-
-  // Delete confirm function
-  const handleConfirmDelete = () => {
-    setMissions((prev) => prev.filter((item) => item._id !== selectedId));
-    setDeleteModalOpen(false);
-    setSelectedId(null);
+  // Confirm delete: call API then update state
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteMissionById(selectedId);
+      setMissions((prev) => prev.filter((item) => item._id !== selectedId));
+      setError(null);
+    } catch (err) {
+      console.error("Error deleting mission:", err);
+      setError("Failed to delete mission. Please try again.");
+    } finally {
+      setDeleteModalOpen(false);
+      setSelectedId(null);
+    }
   };
 
-  const totalPages = Math.ceil(missions.length / ITEMS_PER_PAGE);
-  const currentPageData = missions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const handleDeleteClick = (id) => {
+    setSelectedId(id);
+    setDeleteModalOpen(true);
+  };
+
+  // View mission details
+  const handleViewClick = (mission) => {
+    navigate(`/admin/web-management/mission/view/${mission._id}`, {
+      state: { mission },
+    });
+  };
+
+  // Open image modal
+  const handleViewImage = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setModal(true);
+  };
+
+  // Pagination logic
+  const totalItems = missions.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentPageData = missions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <>
@@ -67,6 +109,8 @@ const AdminMission = () => {
 
       <Container>
         <Title>Missions</Title>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
         <TableWrapper>
           {loading ? (
@@ -84,24 +128,39 @@ const AdminMission = () => {
               <tbody>
                 {currentPageData.length === 0 ? (
                   <tr>
-                    <Td colSpan="4" style={{ textAlign: "center" }}>
+                    <Td colSpan={4} style={{ textAlign: "center" }}>
                       No missions found.
                     </Td>
                   </tr>
                 ) : (
                   currentPageData.map((item) => (
                     <tr key={item._id}>
-                      <Td>AIR {item.rank}</Td>
-                      <Td>{item.exam_name}</Td>
-                     <Td>
-                                            {item.image ? (
-                                              <img src={item.image} alt="Achiever" style={{ width: "60px", height: "auto" }} />
-                                            ) : (
-                                              "No Image"
-                                            )}
-                                          </Td>
-
+                      <Td>{item.title}</Td>
+                      <Td>{item.description}</Td>
                       <Td>
+                        {item.image ? (
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleViewImage(item.image);
+                            }}
+                            style={{ textDecoration: "none" }}
+                          >
+                            View Image
+                          </a>
+                        ) : (
+                          "No Image"
+                        )}
+                      </Td>
+                      <Td>
+                        <IoEyeOutline
+                          title="View"
+                          size={20}
+                          color="#000"
+                          style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={() => handleViewClick(item)}
+                        />
                         <BiEditAlt
                           size={20}
                           color="#000"
@@ -112,7 +171,7 @@ const AdminMission = () => {
                           size={20}
                           color="#FB4F4F"
                           style={{ cursor: "pointer" }}
-                          // onClick={() => handleDeleteClick(item._id)}
+                          onClick={() => handleDeleteClick(item._id)}
                         />
                       </Td>
                     </tr>
@@ -128,7 +187,7 @@ const AdminMission = () => {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
-            totalItems={missions.length}
+            totalItems={totalItems}
             itemsPerPage={ITEMS_PER_PAGE}
           />
         )}
@@ -139,8 +198,18 @@ const AdminMission = () => {
         onClose={() => setDeleteModalOpen(false)}
         onDelete={handleConfirmDelete}
       />
+
+      {modal && selectedImage && (
+        <ImageModalOverlay>
+          <ImageModalContent>
+            <CloseButton onClick={() => setModal(false)}>X</CloseButton>
+            <ModalImage src={selectedImage} alt="Selected" />
+          </ImageModalContent>
+        </ImageModalOverlay>
+      )}
     </>
   );
 };
 
 export default AdminMission;
+  
