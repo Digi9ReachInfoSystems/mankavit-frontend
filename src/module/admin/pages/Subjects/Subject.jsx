@@ -29,8 +29,9 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
-import { getSubjects } from "../../../../api/subjectApi";
+import { getSubjects, deleteSubjectByid} from "../../../../api/subjectApi";
 import { IoEyeOutline } from "react-icons/io5";
+import toast from "react-hot-toast";
 
 const mockData = Array.from({ length: 15 }, (_, index) => ({
   id: index + 1,
@@ -60,18 +61,6 @@ export default function Subjects() {
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  // const filteredData = data.filter(
-  //   (item) =>
-  //     item.subjectName.toLowerCase().includes(searchText.toLowerCase()) ||
-  //     item.internalName.toLowerCase().includes(searchText.toLowerCase())
-  // );
-
-  // const TOTAL_ENTRIES = filteredData.length;
-  // const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-
-  // const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  // const endIndex = startIndex + ITEMS_PER_PAGE;
-  // const currentItems = filteredData.slice(startIndex, endIndex);
 
   useEffect(() => {
     const appiCaller = async () => {
@@ -105,53 +94,7 @@ export default function Subjects() {
     }
     appiCaller();
   }, [])
-  // useEffect(() => {
-  //   const apiCaller = async () => {
-  //     const subjectResponse = await getSubjects();
-  //     const subjectsData = subjectResponse.data.map((item) => ({
-  //       id: item._id,
-  //       subjectName: item.subjectDisplayName,
-  //       internalName: item.subjectName,
-  //       mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
-  //       activeCourses: item.courses.map((course) => course.courseName),
-  //       dateandtime: item.updatedAt,
-  //     }))
-  //     setData(subjectsData);
 
-  //     const sampleData = subjectsData.sort((a, b) => {
-  //       if (sortOption === 'Name') {
-  //         return a.subjectName.localeCompare(b.subjectName);
-  //       } else if (sortOption === 'No. of Mock Test') {
-  //         return b.mockTest.length - a.mockTest.length;
-  //       }
-  //     })
-
-  //     let filteredValue = sampleData;
-  //     if (searchText !== "") {
-  //       filteredValue = sampleData.filter((item) =>
-  //         item.subjectName.toLowerCase().includes(searchText.toLowerCase())
-  //       )
-  //     } else {
-
-
-  //     }
-
-  //     setFilteredData(filteredValue);
-  //     const TOTAL_ENTRIESValues = filteredValue.length;
-  //     setTotalEntries(TOTAL_ENTRIESValues);
-  //     const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
-  //     setTotalPages(totalPagesValues);
-  //     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  //     const endIndex = startIndex + ITEMS_PER_PAGE;
-  //     const currentValue = filteredValue.slice(startIndex, endIndex);
-  //     setCurrentItems(currentValue);
-  //   };
-  //   apiCaller();
-
-  //   // currentItems = sampleData;
-  // }, [sortOption, searchText])
-
-  // ✅ First useEffect only for data fetching (run once or when refreshed)
 useEffect(() => {
   const fetchSubjects = async () => {
     try {
@@ -245,26 +188,22 @@ useEffect(() => {
     setModal(true);
   };
 
-  const handleClickDelete = () => {
+const handleClickDelete = async () => {
+ try {
+     await deleteSubjectByid(deleteId);
     setData(prevData => {
-      const newData = prevData.filter((item) => item.id !== deleteId);
-      const newFiltered = newData.filter(
-        (item) =>
-          item.subjectName.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.internalName.toLowerCase().includes(searchText.toLowerCase())
-      );
-      const newTotalPages = Math.ceil(newFiltered.length / ITEMS_PER_PAGE);
-
-      // ✅ Adjust page if current page becomes invalid
-      if (currentPage > newTotalPages) {
-        setCurrentPage(newTotalPages || 1);
-      }
-
-      return newData;
-    });
-    setModal(false);
-    setDeleteId(null);
-  };
+       const newData = prevData.filter(item => item.id !== deleteId);
+       return newData;
+     });
+     toast.success("Subject deleted successfully");
+   } catch (error) {
+     console.error("Failed to delete subject:", error);
+     toast.error("Could not delete subject. Please try again.");
+   } finally {
+     setModal(false);
+     setDeleteId(null);
+   }
+ };
 
   const handleViewClick = (subject) => {
     navigate(`/admin/subject-management/view/${subject.id}`, {
@@ -326,11 +265,7 @@ useEffect(() => {
                 // { value: 'Active', label: 'Active' },
               ]}
             />
-            {/* <SortSelect value="Name" onChange={() => { }}>
-              <option value="Name">Name</option>
-              <option value="MockTests">No. of Mock Test</option>
-              <option value="ActiveCourses">Active Courses</option>
-            </SortSelect> */}
+           
           </SortByContainer>
         </HeaderRow>
 

@@ -127,12 +127,12 @@ const Category = () => {
               <TableCell>{item.title}</TableCell>
               <TableCell>
                 <ActionsContainer>
-                  <BiEditAlt
+                  {/* <BiEditAlt
                     title="Edit"
                     color="#000000"
                     size={20}
                     onClick={() => handleEditClick(item._id)}
-                  />
+                  /> */}
                   <RiDeleteBin6Line
                     title="Delete"
                     size={20}

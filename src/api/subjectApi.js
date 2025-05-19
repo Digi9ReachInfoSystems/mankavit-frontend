@@ -32,7 +32,7 @@ export const getSubjectById = async (id) => {
 
 export const updateSubjectById = async (id, data) => {
     try {
-        const response = await api.put(`/api/v1/subject//${id}`, data);
+        const response = await api.put(`/api/v1/subject/${id}`, data);
         return response.data;
     } catch (error) {
         console.error('Error updating subject by ID:', error);
@@ -42,7 +42,7 @@ export const updateSubjectById = async (id, data) => {
 
 export const deleteSubjectByid = async (id) => {
     try {
-        const response = await api.delete(`/api/v1/subject//${id}`);
+        const response = await api.delete(`/api/v1/subject/${id}`);
         return response.data;
     } catch (error) {   
         console.error('Error deleting subject by ID:', error);

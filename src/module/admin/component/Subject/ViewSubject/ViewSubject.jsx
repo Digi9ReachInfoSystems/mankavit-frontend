@@ -1,6 +1,5 @@
-// ViewSubject.jsx
-import React from "react";
-import uplaod from "../../../../../assets/upload.png";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -10,81 +9,142 @@ import {
   FieldWrapper,
   Label,
   CheckboxSection,
-  CheckboxSectionTitle,
   CheckboxList,
   UploadArea,
   Field,
-  List,
 } from "./ViewSubject.styles";
+import { getSubjectById } from "../../../../../api/subjectApi";
+import { getAllNotes } from "../../../../../api/notesApi";
+import toast from "react-hot-toast";
 
 export default function ViewSubject() {
-  // Dummy data for display
-  const subjectTitle = "Sample Subject Title";
-  const internalTitle = "Sample Internal Title";
-  const vimeoId = "123456789";
-  const shortDescription = "This is a short description of the subject.";
-  const addedNotes = ["Note 1", "Note 2", "Note 3"];
-  const addedMockTests = ["Mock Test 1", "Mock Test 2", "Mock Test 3"];
-  const thumbnailFileUrl = "https://via.placeholder.com/300x200.png?text=Thumbnail+Preview";
+  const { id } = useParams();
+  const [subject, setSubject] = useState(null);
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [subjectRes, notesRes] = await Promise.all([
+          getSubjectById(id),
+          getAllNotes(),
+        ]);
+
+        const subjectData = subjectRes.data;
+        setSubject(subjectData);
+        
+        // Extract note IDs from subject data
+        const subjectNoteIds = subjectData.notes?.map(note => 
+          note?.$oid || note  
+        ) || [];
+        
+        // Get note details for the subject's notes
+        const subjectNotes = notesRes.data
+          .filter(note => subjectNoteIds.includes(note._id))
+          .map(note => note.noteDisplayName || `Note (${note._id})`);
+        
+        setNotes(subjectNotes);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load subject data');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return <Container>Loading...</Container>;
+  }
+
+  if (!subject) {
+    return <Container>Subject not found</Container>;
+  }
 
   return (
     <Container>
       <Title>View Subject</Title>
       <FormWrapper>
-        {/* Row 1 */}
+        {/* Row 1 - Basic Info */}
         <FormRow>
           <Column>
             <FieldWrapper>
               <Label>Subject Title</Label>
-              <Field>{subjectTitle}</Field>
+              <Field>{subject.subjectDisplayName || "N/A"}</Field>
             </FieldWrapper>
-
             <FieldWrapper>
-              <Label>Subject Internal Title</Label>
-              <Field>{internalTitle}</Field>
+              <Label>Internal Title</Label>
+              <Field>{subject.subjectName || "N/A"}</Field>
             </FieldWrapper>
           </Column>
-
           <Column>
             <FieldWrapper>
-              <Label>Vimeo Showcase ID</Label>
-              <Field>{vimeoId}</Field>
+              <Label>Vimeo ID</Label>
+              <Field>{subject.vimeoShowcaseID || "N/A"}</Field>
             </FieldWrapper>
-
             <FieldWrapper>
-              <Label>Subject Short Description</Label>
-              <Field>{shortDescription}</Field>
+              <Label>Description</Label>
+              <Field>{subject.description || "N/A"}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 2 */}
+        {/* Row 2 - Notes and Mock Tests */}
         <FormRow>
           <Column>
             <CheckboxSection>
-              <Label>Added Notes</Label>
+              <Label>Associated Notes</Label>
               <CheckboxList>
-                <Field>{addedNotes.join(", ")}</Field>
+                {notes.length > 0 ? (
+                  notes.map((note, index) => (
+                    <Field key={index}>{note}</Field>
+                  ))
+                ) : (
+                  <Field>No notes associated with this subject</Field>
+                )}
               </CheckboxList>
             </CheckboxSection>
           </Column>
-
           <Column>
             <CheckboxSection>
-              <Label>Added Mock Tests</Label>
+              <Label>Mock Tests</Label>
               <CheckboxList>
-                <Field>{addedMockTests.join(", ")}</Field>
+                {subject.mockTests?.length > 0 ? (
+                  subject.mockTests.map((test, index) => (
+                    <Field key={index}>
+                      {typeof test === 'object' ? test.id || test.$oid : test}
+                    </Field>
+                  ))
+                ) : (
+                  <Field>No mock tests associated</Field>
+                )}
               </CheckboxList>
             </CheckboxSection>
           </Column>
         </FormRow>
 
-        {/* Row 3 */}
+        {/* Row 3 - Thumbnail */}
         <FormRow>
           <Column>
             <Label>Thumbnail</Label>
             <UploadArea style={{ cursor: "default" }}>
-              <img src={thumbnailFileUrl} alt="Thumbnail Preview" style={{ width: '100%', height: '100%' }} />
+              {subject.image ? (
+                <img 
+                  src={subject.image} 
+                  alt="Subject thumbnail" 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'contain',
+                    maxHeight: '300px'
+                  }} 
+                />
+              ) : (
+                <Field>No thumbnail available</Field>
+              )}
             </UploadArea>
           </Column>
         </FormRow>
