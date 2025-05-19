@@ -85,6 +85,7 @@ import ViewAchievement from './module/admin/component/WebManagement/Achievement/
 import ViewTestimonial from './module/admin/component/WebManagement/Testimonial/ViewTestimonial/ViewTestimonial'
 import ViewQuestionPaper from './module/admin/component/WebManagement/Questionpaper/ViewQuestionPaper/ViewQuestionPaper'
 import ViewMission from './module/admin/component/WebManagement/Mission/ViewMission/ViewMission'
+import OurCoursesDetails from './pages/OurCoursesDetails/OurCoursesDetails'
 
 function App() {
 
@@ -104,6 +105,7 @@ function App() {
           <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
+          <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
           
 
           <Route path="/test" element={<Test />} />
