@@ -1,6 +1,9 @@
-// AddSubject.jsx
-import React, { useState, useRef, useEffect } from "react";
-import uplaod from "../../../../../assets/upload.png";
+// EditSubject.jsx
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
+
+import upload from "../../../../../assets/upload.png";
 import {
   Container,
   Title,
@@ -10,8 +13,6 @@ import {
   FieldWrapper,
   Label,
   Input,
-  TextArea,
-  PriceInput,
   CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
@@ -21,248 +22,186 @@ import {
   FileInput,
   UploadPlaceholder,
   SubmitButton,
-} from "../AddSubject/AddSubject.style"; // Adjust the path if needed
-import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast';
+} from "../AddSubject/AddSubject.style";
+
 import { getAllNotes } from "../../../../../api/notesApi";
+import {
+  getSubjectById,
+  updateSubjectById,
+} from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
-import { createSubject } from "../../../../../api/subjectApi";
+
+const STATIC_MOCK_TESTS = [
+  { label: "Mankavit Mock Test – CLAT 2025", id: "mock1" },
+  { label: "Mankavit Mock Test – CLAT 2025", id: "mock2" },
+];
 
 export default function EditSubject() {
-  // State for form fields
-  const [subjectTitle, setSubjectTitle] = useState(null);
-  const [vimeoId, setVimeoId] = useState(null);
-  const [internalTitle, setInternalTitle] = useState(null);
-  const [shortDescription, setShortDescription] = useState(null);
-  const [discountedPrice, setDiscountedPrice] = useState("1499");
-  const [actualPrice, setActualPrice] = useState("2999");
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const { id } = useParams(); 
   const navigate = useNavigate();
-
-  // Two sets of checkboxes, e.g. for "Add Notes" and "Add Mock Test"
-  const [notesCheckboxes, setNotesCheckboxes] = useState([]);
-
-  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: true },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false },
-  ]);
-
-  // File upload state
-  const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
+  const [subjectTitle, setSubjectTitle] = useState("");
+  const [internalTitle, setInternalTitle] = useState("");
+  const [vimeoId, setVimeoId] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+
+  const [notesCheckboxes, setNotesCheckboxes] = useState([]);
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState(
+    STATIC_MOCK_TESTS.map((m) => ({ ...m, checked: false }))
+  );
+
+  const [thumbnailFile, setThumbnailFile] = useState(null); 
+  const [previewUrl, setPreviewUrl] = useState(null);       
 
   useEffect(() => {
-    const apiCaller = async () => {
+    const fillForm = async () => {
       try {
-        const notesResponse = await getAllNotes();
+        const [subData, notesRes] = await Promise.all([
+          getSubjectById(id),
+          getAllNotes(),
+        ]);
 
-        const notesData = notesResponse.data.map((item) => ({
-          label: item.noteDisplayName,
-          id: item._id,
-          checked: false,
-        }))
+        const subject = subData.data;
+        let subjectNoteIds = subject.notes.map(note =>
+          typeof note === 'object' && note.$oid ? note.$oid : note
+        );
+        subjectNoteIds =subjectNoteIds.map(noteId => noteId._id);
 
-        setNotesCheckboxes(notesData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
-    apiCaller();
+        setNotesCheckboxes(
+          notesRes.data.map((n) => ({
+            label: n.noteDisplayName,
+            id: n._id,
+            checked: subjectNoteIds.includes(n._id),
+          }))
+        );
 
-  }, []);
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+        setMockTestCheckboxes(prev =>
+          prev.map(m => ({
+            ...m,
+            checked: subject.mockTests?.some(mt =>
+              (typeof mt === 'object' && mt.$oid ? mt.$oid : mt) === m.id
+            ) ?? false
+          }))
+        );
+        setSubjectTitle(subject.subjectDisplayName || "");
+        setInternalTitle(subject.subjectName || "");
+        setVimeoId(subject.vimeoShowcaseID || "");
+        setShortDescription(subject.description || "");
+        if (subject.image) setPreviewUrl(subject.image);
+      } catch (err) {
+        console.error(err);
+        toast.error("Unable to fetch subject details");
+        navigate("/admin/subject-management");
       }
     };
-  }, [previewUrl]);
 
-  // Handler for checkboxes
-  const handleCheckboxChange = (index, setFn) => {
+    fillForm();
+
+    return () =>
+      previewUrl?.startsWith("blob:") && URL.revokeObjectURL(previewUrl);
+  }, [id, navigate]);
+
+  const handleCheckboxChange = (index, setFn) =>
     setFn((prev) =>
       prev.map((item, i) =>
         i === index ? { ...item, checked: !item.checked } : item
       )
     );
-  };
 
-  // For triggering the hidden file input
-  const handleUploadAreaClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  const handleUploadAreaClick = () => fileInputRef.current?.click();
 
-  // For reading selected file
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setThumbnailFile(e.target.files[0]);
-    }
-    if (!e.target.files[0].type.startsWith("image/")) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      toast.error('Please select an image file.',
-        {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        }
-      )
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
       return;
     }
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    const url = URL.createObjectURL(e.target.files[0]);
-    setPreviewUrl(url);
+    setThumbnailFile(file);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(thumbnailFile));
   };
 
-  // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!subjectTitle?.trim()) return toast.error("Please enter subject title.");
+    if (!internalTitle?.trim()) return toast.error("Please enter internal subject title.");
+    if (!vimeoId?.trim()) return toast.error("Please enter Vimeo showcase ID.");
+
     try {
-      if (subjectTitle == "" || subjectTitle == null) {
-        toast.error('Please enter subject title',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-
-        return;
-      }
-      if (internalTitle == "" || internalTitle == null) {
-
-        toast.error('Please enter internal subject title.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        return;
-      }
-      if (vimeoId == "" || vimeoId == null) {
-        toast.error('Please enter vimeo id.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        return;
-      }
-      if (thumbnailFile == null) {
-
-        toast.error('Please upload thumbnail file.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-
-        return;
-      }
-      if (!thumbnailFile.type.startsWith("image/")) {
-        toast.error('Please select an image file.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        return;
-
-      }
-      const fileData = await uploadFileToAzureStorage(thumbnailFile, "subjects");
-      const fileURL = fileData.blobUrl;
-      const notes = notesCheckboxes.filter((item) => item.checked).map((item) => item.id);
-      const mockTests = mockTestCheckboxes.filter((item) => item.checked).map((item) => item.id);
-
-      const createSubjectRespose = await createSubject(
-        {
-          subjectName: internalTitle,
-          vimeoShowcaseID: vimeoId,
-          subjectDisplayName: subjectTitle,
-          description: shortDescription,
-          notes: notes,
-          mockTests: [],
-          courses: [],
-          image: fileURL,
+      let imageUrl = previewUrl;
+      if (thumbnailFile) {
+        console.log("Uploading file:", thumbnailFile);
+        try {
+          const { blobUrl } = await uploadFileToAzureStorage(
+            thumbnailFile,
+            "subjects"
+          );
+          console.log("File uploaded successfully:", blobUrl); 
+          imageUrl = blobUrl;
+        } catch (uploadError) {
+          console.error("File upload error:", uploadError);
+          toast.error("Failed to upload image");
+          return;
         }
-      );
-      if (createSubjectRespose) {
-        toast.success('Subject created successfully.',
-          {
-            duration: 3000,
-            position: 'top-right',
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
       }
-      setSubjectTitle('');
-      setInternalTitle('');
-      setVimeoId('');
-      setShortDescription('');
-      setNotesCheckboxes(notesCheckboxes.map((item) => ({ ...item, checked: false })));
-      setMockTestCheckboxes(mockTestCheckboxes.map((item) => ({ ...item, checked: false })));
-      setThumbnailFile(null);
-      setTimeout(() => {
-        navigate("/admin/subject-management")
-      }, 2000);
+
+      const notes = notesCheckboxes
+        .filter((n) => n.checked)
+        .map((n) => n.id);
+      const mockTests = mockTestCheckboxes
+        .filter((m) => m.checked)
+        .map((m) => m.id);
+
+      console.log("Submitting data:", { 
+        subjectName: internalTitle,
+        subjectDisplayName: subjectTitle,
+        vimeoShowcaseID: vimeoId,
+        description: shortDescription,
+        notes,
+        mockTests,
+        courses: [],
+        image: imageUrl
+      });
+
+      await updateSubjectById(id, {
+        subjectName: internalTitle,
+        subjectDisplayName: subjectTitle,
+        vimeoShowcaseID: vimeoId,
+        description: shortDescription,
+        notes,
+        mockTests,
+        courses: [],
+        image: imageUrl
+      });
+
+      toast.success("Subject updated successfully.");
+      setTimeout(() => navigate("/admin/subject-management"), 2000);
     } catch (err) {
-      console.log(err);
-      toast.error('Subject creation failed.',
-        {
-          duration: 3000,
-          position: 'top-right',
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        }
-      )
+      console.error("Update error:", err); 
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+        console.error("Response status:", err.response.status);
+        console.error("Response headers:", err.response.headers);
+        toast.error(`Update failed: ${err.response.data.message || err.message}`);
+      } else if (err.request) {
+        console.error("Request:", err.request);
+        toast.error("No response from server. Check your network connection.");
+      } else {
+        console.error("Error:", err.message);
+        toast.error("Update failed. Please try again.");
+      }
     }
   };
-
   return (
     <Container>
       <Toaster />
-      <Title>Add Subject</Title>
+      <Title>Edit Subject</Title>
+
       <FormWrapper onSubmit={handleSubmit}>
-        {/* Row 1: Left & Right Column */}
         <FormRow>
-          {/* LEFT COLUMN */}
           <Column>
             <FieldWrapper>
               <Label htmlFor="subjectTitle">Subject Title</Label>
@@ -275,7 +214,7 @@ export default function EditSubject() {
             </FieldWrapper>
 
             <FieldWrapper>
-              <Label htmlFor="internalTitle">Subject Internal Title</Label>
+              <Label htmlFor="internalTitle">Internal Title</Label>
               <Input
                 id="internalTitle"
                 value={internalTitle}
@@ -283,14 +222,11 @@ export default function EditSubject() {
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
-
-
           </Column>
 
-          {/* RIGHT COLUMN */}
           <Column>
             <FieldWrapper>
-              <Label htmlFor="vimeoId">Add Vimeo Showcase ID</Label>
+              <Label htmlFor="vimeoId">Vimeo Showcase ID</Label>
               <Input
                 id="vimeoId"
                 value={vimeoId}
@@ -300,34 +236,30 @@ export default function EditSubject() {
             </FieldWrapper>
 
             <FieldWrapper>
-              <Label htmlFor="shortDescription">Subject Short Description</Label>
+              <Label htmlFor="shortDescription">Short Description</Label>
               <Input
                 id="shortDescription"
-                rows="2"
                 value={shortDescription}
                 onChange={(e) => setShortDescription(e.target.value)}
                 placeholder="Enter short description"
               />
             </FieldWrapper>
-
-
           </Column>
         </FormRow>
 
-        {/* Row 2: Add Notes + Add Mock Test */}
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>
-                Add Notes ( Click Checkbox to Select )
-              </CheckboxSectionTitle>
+              <CheckboxSectionTitle>Select Notes</CheckboxSectionTitle>
               <CheckboxList>
-                {notesCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
+                {notesCheckboxes.map((item, idx) => (
+                  <CheckboxLabel key={item.id}>
                     <CheckboxInput
                       type="checkbox"
                       checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setNotesCheckboxes)}
+                      onChange={() =>
+                        handleCheckboxChange(idx, setNotesCheckboxes)
+                      }
                     />
                     {item.label}
                   </CheckboxLabel>
@@ -338,16 +270,16 @@ export default function EditSubject() {
 
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>
-                Add Mock Test ( Click Checkbox to Select )
-              </CheckboxSectionTitle>
+              <CheckboxSectionTitle>Select Mock Tests</CheckboxSectionTitle>
               <CheckboxList>
-                {mockTestCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
+                {mockTestCheckboxes.map((item, idx) => (
+                  <CheckboxLabel key={item.id}>
                     <CheckboxInput
                       type="checkbox"
                       checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setMockTestCheckboxes)}
+                      onChange={() =>
+                        handleCheckboxChange(idx, setMockTestCheckboxes)
+                      }
                     />
                     {item.label}
                   </CheckboxLabel>
@@ -357,53 +289,42 @@ export default function EditSubject() {
           </Column>
         </FormRow>
 
-        {/* Row 3: Upload Thumbnail */}
         <FormRow>
           <Column>
-
             <Label>Upload Thumbnail</Label>
-            <div className="upload-area">
-
-              <UploadArea onClick={handleUploadAreaClick}>
-                {thumbnailFile ? (
-
-                  previewUrl ? (
-                    <>
-                      <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%' }} />
-                      <p>{thumbnailFile.name}</p>
-                    </>
-                  ) : (
-                    <>
-                      <UploadPlaceholder>
-                        <img src={uplaod} alt="Upload" />
-                      </UploadPlaceholder>
-                      <p>Drag and drop image here</p>
-                      <p>or <strong>Add Image</strong></p>
-                    </>
-                  )
-                ) : (
-                  <>
-                    <UploadPlaceholder>
-                      <img src={uplaod} alt="Upload" />
-                    </UploadPlaceholder>
-                    <p>Drag and drop image here</p>
-                    <p>or <strong>Add Image</strong></p>
-                  </>
-                )}
-                <FileInput
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </UploadArea>
-            </div>
+            <UploadArea onClick={handleUploadAreaClick}>
+              {previewUrl ? (
+                <>
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    style={{ width: "100%", height: "100%" }}
+                  />
+                  {thumbnailFile && <p>{thumbnailFile.name}</p>}
+                </>
+              ) : (
+                <>
+                  <UploadPlaceholder>
+                    <img src={upload} alt="Upload" />
+                  </UploadPlaceholder>
+                  <p>Drag and drop image here</p>
+                  <p>
+                    or <strong>Add Image</strong>
+                  </p>
+                </>
+              )}
+              <FileInput
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </UploadArea>
           </Column>
         </FormRow>
 
-        {/* Row 4: Submit button */}
         <FormRow>
-          <SubmitButton type="submit">Add Subject</SubmitButton>
+          <SubmitButton type="submit">Update Subject</SubmitButton>
         </FormRow>
       </FormWrapper>
     </Container>

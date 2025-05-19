@@ -1,4 +1,3 @@
-// AddNote.jsx
 import React, { useState, useRef, useEffect } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
@@ -10,7 +9,6 @@ import {
   FieldWrapper,
   Label,
   Input,
-  // TextArea,
   UploadArea,
   FileInput,
   UploadPlaceholder,
@@ -21,45 +19,67 @@ import {
   SubmitButton,
   CheckboxSectionTitle,
   ToggleSwitch,
-} from "../AddNotes/AddNotes.style"; // Adjust the path if needed
+} from "../AddNotes/AddNotes.style";
 import { getSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
-import { createNotes } from "../../../../../api/notesApi";
+import { getNotesById, updatenotesById } from "../../../../../api/notesApi";
 import toast, { Toaster } from 'react-hot-toast';
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditNotes() {
-  // State for form fields
-  const [noteTitle, setNoteTitle] = useState(null);
-  const [internalTitle, setInternalTitle] = useState(null);
-  // const [shortDescription, setShortDescription] = useState("");
+  const { id } = useParams();
+  const [noteTitle, setNoteTitle] = useState("");
+  const [internalTitle, setInternalTitle] = useState("");
   const [isDownloadable, setIsDownloadable] = useState(false);
   const [subjectsCheckboxes, setSubjectsCheckboxes] = useState([]);
-
-  // File upload state
   const [pdfFile, setPdfFile] = useState(null);
+  const [existingFileUrl, setExistingFileUrl] = useState("");
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
- const navigate= useNavigate();
-  useEffect(() => {
-    const apiCaller = async () => {
-      try {
-        const response = await getSubjects();
-        const data = response.data.map((item) => ({
-          label: item.subjectName,
-          id: item._id,
-          checked: false,
-        }))
-        setSubjectsCheckboxes(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    apiCaller();
-  }, []);
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // Fetch subjects and note data in parallel
+      const [subjectsResponse, noteResponse] = await Promise.all([
+        getSubjects(),
+        getNotesById(id)
+      ]);
 
-  // Handler for checkboxes
+      const noteData = noteResponse.data;
+      
+      // Set form fields with existing data
+      setNoteTitle(noteData.noteDisplayName);
+      setInternalTitle(noteData.noteName);
+      setIsDownloadable(noteData.isDownload);
+      setExistingFileUrl(noteData.fileUrl);
+      
+      // Prepare subjects data with checked status
+      const subjectsData = subjectsResponse.data.map((subject) => ({
+        label: subject.subjectName,
+        id: subject._id,
+        // Check if this subject is in the note's subjects array
+        checked: noteData.subjects.some(noteSubjectId => 
+          noteSubjectId === subject._id || 
+          noteSubjectId._id === subject._id // Handle both string and object IDs
+        )
+      }));
+      
+      setSubjectsCheckboxes(subjectsData);
+      
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error('Failed to load note data', {
+        duration: 3000,
+        position: 'top-right',
+      });
+      navigate("/admin/notes-management");
+    }
+  };
+  
+  fetchData();
+}, [id, navigate]);
+
   const handleCheckboxChange = (index) => {
     const updatedCheckboxes = subjectsCheckboxes.map((item, i) =>
       i === index ? { ...item, checked: !item.checked } : item
@@ -67,141 +87,95 @@ export default function EditNotes() {
     setSubjectsCheckboxes(updatedCheckboxes);
   };
 
-  // For triggering the hidden file input
   const handleUploadAreaClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // For reading selected file
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setPdfFile(e.target.files[0]);
     }
   };
 
-  // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (noteTitle == "" || noteTitle == null) {
-        toast.error('Please enter note title',
-          {
-            duration: 3000, 
-            position: 'top-right', 
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-       
+      // Validation
+      if (!noteTitle.trim()) {
+        toast.error('Please enter note title', {
+          duration: 3000,
+          position: 'top-right',
+        });
         return;
       }
-      if(internalTitle==""||internalTitle==null ) {
-        
-        toast.error('Please enter internal note title.',
-          {
-            duration: 3000, 
-            position: 'top-right', 
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
+      
+      if (!internalTitle.trim()) {
+        toast.error('Please enter internal note title.', {
+          duration: 3000,
+          position: 'top-right',
+        });
         return;
       }
-      if(pdfFile==null){
-        
-        toast.error('Please upload pdf file.',
-          {
-            duration: 3000, 
-            position: 'top-right', 
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-       
-        return;
-      }
-      if(pdfFile.type!="application/pdf"){
-        toast.error('Please select pdf file.',
-          {
-            duration: 3000, 
-            position: 'top-right', 
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        return;
-      }
-      const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
-      const fileURL = fileData.blobUrl;
-      const subjects = subjectsCheckboxes.filter((item) => item.checked).map((item) => item.id);
-      const createNotesResponse = await createNotes(
-        {
-          noteName: internalTitle,
-          noteDisplayName: noteTitle,
-          isDownload: isDownloadable,
-          fileUrl: fileURL,
-          subjects: subjects
+      
+      let fileURL = existingFileUrl;
+      
+      // Only upload new file if one was selected
+      if (pdfFile) {
+        if (pdfFile.type !== "application/pdf") {
+          toast.error('Please select pdf file.', {
+            duration: 3000,
+            position: 'top-right',
+          });
+          return;
         }
-      )
-      if (createNotesResponse.success == true) {
-        toast.success("Note created with name "+noteTitle+" successfully.",
-          {
-            duration: 3000, 
-            position: 'top-right', 
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
-        setInternalTitle("");
-        setNoteTitle("");
-        setIsDownloadable(false);
-        setSubjectsCheckboxes(subjectsCheckboxes.map((item) => ({ ...item, checked: false })));
+        
+        const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
+        fileURL = fileData.blobUrl;
+      }
+      
+      const subjects = subjectsCheckboxes
+        .filter((item) => item.checked)
+        .map((item) => item.id);
+      
+      const updateData = {
+        noteName: internalTitle,
+        noteDisplayName: noteTitle,
+        isDownload: isDownloadable,
+        fileUrl: fileURL,
+        subjects: subjects
+      };
+      
+      const updateResponse = await updatenotesById(id, updateData);
+      
+      if (updateResponse.success) {
+        toast.success(`Note "${noteTitle}" updated successfully.`, {
+          duration: 3000,
+          position: 'top-right',
+        });
         setTimeout(() => {
-          navigate("/admin/notes-management")
+          navigate("/admin/notes-management");
         }, 2000);
       } else {
-        toast.error('Note creation failed.',
-          {
-            duration: 3000, 
-            position: 'top-right', 
-            ariaProps: {
-              role: 'status',
-              'aria-live': 'polite',
-            },
-          }
-        )
+        toast.error('Note update failed.', {
+          duration: 3000,
+          position: 'top-right',
+        });
       }
     } catch (error) {
-      console.log(error);
-      toast.error('Note creation failed.',
-        {
-          duration: 3000, 
-          position: 'top-right', 
-          ariaProps: {
-            role: 'status',
-            'aria-live': 'polite',
-          },
-        }
-      )
+      console.error(error);
+      toast.error('Note update failed.', {
+        duration: 3000,
+        position: 'top-right',
+      });
     }
   };
 
   return (
     <Container>
       <Toaster/>
-      <Title>Add Note</Title>
+      <Title>Edit Note</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Note Title & Note Internal Title */}
         <FormRow>
@@ -236,17 +210,16 @@ export default function EditNotes() {
             <CheckboxSection>
               <CheckboxSectionTitle>Add Subjects (Click Checkbox to Select)</CheckboxSectionTitle>
               <CheckboxList>
-                {subjectsCheckboxes &&
-                  subjectsCheckboxes.map((item, index) => (
-                    <CheckboxLabel key={index}>
-                      <CheckboxInput
-                        type="checkbox"
-                        checked={item.checked}
-                        onChange={() => handleCheckboxChange(index)}
-                      />
-                      {item.label}
-                    </CheckboxLabel>
-                  ))}
+                {subjectsCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
               </CheckboxList>
             </CheckboxSection>
           </Column>
@@ -259,6 +232,8 @@ export default function EditNotes() {
             <UploadArea onClick={handleUploadAreaClick}>
               {pdfFile ? (
                 <p>{pdfFile.name}</p>
+              ) : existingFileUrl ? (
+                <p>Current file: {existingFileUrl.split('/').pop()}</p>
               ) : (
                 <>
                   <UploadPlaceholder>
@@ -276,10 +251,8 @@ export default function EditNotes() {
               />
             </UploadArea>
           </Column>
-          {/* </FormRow>
-
-        <FormRow> */}
-          <Column style={{ display: "flex", alignItems: "center", gap: "10px", }}>
+          
+          <Column style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <FieldWrapper style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
               <Label htmlFor="isDownloadable" style={{ marginBottom: 0 }}>Is it downloadable?</Label>
               <ToggleSwitch
@@ -292,11 +265,9 @@ export default function EditNotes() {
           </Column>
         </FormRow>
 
-
-
-        {/* Row 5: Submit button */}
+        {/* Submit button */}
         <FormRow>
-          <SubmitButton type="submit">Add Notes</SubmitButton>
+          <SubmitButton type="submit">Update Note</SubmitButton>
         </FormRow>
       </FormWrapper>
     </Container>

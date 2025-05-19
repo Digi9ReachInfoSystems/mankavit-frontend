@@ -251,3 +251,25 @@ export const Field = styled.p`
   width: 100%;
   box-sizing: border-box;
 `;
+
+export const FileLink = styled.a`
+  color: #0066cc;
+  text-decoration: underline;
+  margin-top: 10px;
+  display: inline-block;
+  &:hover {
+    color: #004499;
+  }
+`;
+
+export const BackButton = styled.button`
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  &:hover {
+    background: #e0e0e0;
+  }
+`;
