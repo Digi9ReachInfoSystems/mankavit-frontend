@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     AchieversSection,
     Title,
@@ -16,21 +16,35 @@ import {
 } from './MeetAchievers.styles';
 import achieverImage from '../../../assets/achievers.jpg';
 
-const achieversData = [
-    { name: 'John Doe', image: achieverImage, rank: 1, exam_name: 'CLAT' },
-    { name: 'Jane Smith', image: achieverImage, rank: 2, exam_name: 'EXAM 2' },
-    { name: 'Michael Johnson', image: achieverImage, rank: 3, exam_name: 'CLAT' },
-    { name: 'Emily Davis', image: achieverImage, rank: 4, exam_name: 'Exam2' },
-    { name: 'David Wilson', image: achieverImage, rank: 5, exam_name: 'CLAT' },
-    { name: 'Olivia Brown', image: achieverImage, rank: 6, exam_name: 'CLAT' },
-];
-
-const TABS = ['All', 'CLAT', 'Exam2'];
+// const achieversData = [
+//     { name: 'John Doe', image: achieverImage, rank: 1, exam_name: 'CLAT' },
+//     { name: 'Jane Smith', image: achieverImage, rank: 2, exam_name: 'EXAM 2' },
+//     { name: 'Michael Johnson', image: achieverImage, rank: 3, exam_name: 'CLAT' },
+//     { name: 'Emily Davis', image: achieverImage, rank: 4, exam_name: 'Exam2' },
+//     { name: 'David Wilson', image: achieverImage, rank: 5, exam_name: 'CLAT' },
+//     { name: 'Olivia Brown', image: achieverImage, rank: 6, exam_name: 'CLAT' },
+// ];
+import { getAllAchievers } from '../../../api/achieverApi';
+const TABS = ['All', 'CLAT', 'LAW'];
 
 const MeetAchievers = () => {
     const [activeTab, setActiveTab] = useState('All');
     const sliderRef = useRef(null);
     const [scrollProgress, setScrollProgress] = useState(0);
+    const [ achieversData, setAchieversData ] = useState([]);
+
+    useEffect(() => {
+        const fetchAchievers = async () => {
+            try {
+                const achieversData = await getAllAchievers();
+                setAchieversData(achieversData);
+            } catch (error) {
+                console.error('Error fetching achievers:', error);
+            }
+        };
+
+        fetchAchievers();
+    }, []);
 
     const handleScroll = (e) => {
         const { scrollLeft, scrollWidth, clientWidth } = e.target;

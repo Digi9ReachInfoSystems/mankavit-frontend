@@ -1,5 +1,5 @@
 // components/Mission.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import {
   MissionSection,
   Title,
@@ -17,27 +17,41 @@ import empower from "../../../assets/empowerment.png";
 import excellence from "../../../assets/excellence.png";
 import success from "../../../assets/success.png";
 
-const missionData = [
-  {
-    title: "Empowerment",
-    description: "Equipping students with the tools and confidence to excel.",
-    image: empower,
-  },
-  {
-    title: "Excellence",
-    description:
-      "Delivering high-quality coaching and resources for top results.",
-    image: excellence,
-  },
-  {
-    title: "Success",
-    description:
-      "Helping students achieve their goals and secure admissions to prestigious law schools.",
-    image: success,
-  },
-];
+// const missionData = [
+//   {
+//     title: "Empowerment",
+//     description: "Equipping students with the tools and confidence to excel.",
+//     image: empower,
+//   },
+//   {
+//     title: "Excellence",
+//     description:
+//       "Delivering high-quality coaching and resources for top results.",
+//     image: excellence,
+//   },
+//   {
+//     title: "Success",
+//     description:
+//       "Helping students achieve their goals and secure admissions to prestigious law schools.",
+//     image: success,
+//   },
+// ];
+import { getMissions } from "../../../api/missionApi";
 
 const Mission = () => {
+  const [missionData, setMissionData] = React.useState([]);
+
+  useEffect(() =>{
+    const fetchMissions = async () => {
+      try {
+        const data = await getMissions();
+        setMissionData(data);
+      } catch (err) {
+        console.error("Error fetching missions:", err);
+      }
+    }
+    fetchMissions();
+  })
   return (
     <MissionSection>
       <Title>Our Mission</Title>

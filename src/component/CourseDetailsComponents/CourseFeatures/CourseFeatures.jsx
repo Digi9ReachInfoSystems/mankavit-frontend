@@ -1,27 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FeatureItem,
   FeatureTitle,
   FeatureDescription,
   FeatureList,
 } from "./CourseFeatures.styles";
-
-const features = [
-  "Live Classes: Real-time learning with industry-experienced faculty.",
-  "Recorded Sessions: Access to recorded sessions anytime for review.",
-  "Personalized Guidance: Mentoring to help you focus on key areas.",
-  "Mock Tests & Quizzes: Regular practice to ensure exam readiness.",
-  "Doubt Solving: Clear your doubts through live interactions and Q&A sessions.",
-];
+import { getCourseById } from "../../../api/courseApi";
+import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const CourseFeatures = () => {
+  const { id } = useParams();
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const response = await getCourseById(id);
+        setCourse(response.data);
+      } catch (error) {
+        setError(error.message);
+        toast.error("Failed to fetch course features");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchCourse();
+    }
+  }, [id]); // Added dependency array to prevent infinite re-renders
+
+  if (loading) {
+    return <div>Loading course features...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!course) {
+    return <div>Course not found</div>;
+  }
+
   return (
     <FeatureItem>
       <FeatureTitle>Course <span>Features</span></FeatureTitle>
       <FeatureDescription>
-        {features.map((feature, index) => (
-          <FeatureList key={index}>{feature}</FeatureList>
-        ))}
+        {course.course_includes?.length > 0 ? (
+          course.course_includes.map((feature, index) => (
+            <FeatureList key={index}>
+              • {feature}
+            </FeatureList>
+          ))
+        ) : (
+          <FeatureList>No features listed for this course</FeatureList>
+        )}
       </FeatureDescription>
     </FeatureItem>
   );

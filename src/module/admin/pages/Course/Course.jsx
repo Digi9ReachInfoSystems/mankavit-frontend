@@ -237,7 +237,9 @@ export default function CoursesTable() {
                       <TableCell>{item.internalName}</TableCell>
                       <TableCell>
                         {getSubjectNames(item.subjects).length}
-                        <a href="#view" onClick={(e) => {
+                        <a href="#view"
+                        
+                        onClick={(e) => {
                           e.preventDefault();
                           openModal("subjects", getSubjectNames(item.subjects));
                         }}> View</a>
