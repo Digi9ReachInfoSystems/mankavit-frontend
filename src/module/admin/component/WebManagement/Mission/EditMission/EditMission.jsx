@@ -13,38 +13,35 @@ import {
   UploadButton,
   ErrorMessage
 } from './EditMission.styles';
-import uploadIcon from "../../../../../../assets/upload.png";
-
-const LOCAL_STORAGE_KEY = "missions_data";
+import uploadIcon from '../../../../../../assets/upload.png';
+import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
+import { getMissionById, updateMissionById } from '../../../../../../api/missionApi';
 
 const EditMission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [missions, setMissions] = useState([]);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    image: "",
-  });
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ title: '', description: '' });
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Load missions and set form data
   useEffect(() => {
-    const savedMissions = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-    setMissions(savedMissions);
-
-    const mission = savedMissions.find(m => m._id === id);
-    if (mission) {
-      setFormData({
-        title: `AIR ${mission.rank}`,
-        description: mission.exam_name,
-        image: mission.image,
-      });
-      setPreviewUrl(mission.image);
-    } else {
-      setError("Mission not found");
-    }
+    const fetchMission = async () => {
+      setLoading(true);
+      try {
+        const data = await getMissionById(id);
+        setFormData({ title: data.title, description: data.description });
+        setPreviewUrl(data.image);
+      } catch (err) {
+        console.error('Error fetching mission:', err);
+        setError('Failed to load mission. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMission();
   }, [id]);
 
   const handleInputChange = (e) => {
@@ -54,49 +51,65 @@ const EditMission = () => {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (!file.type.match('image.*')) {
-        setError('Please upload an image file');
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image size should be less than 5MB');
-        return;
-      }
+    if (!file) return;
 
-      setError('');
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result }));
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (!file.type.match('image.*')) {
+      setError('Please upload a valid image file.');
+      return;
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.title.trim() || !formData.description.trim()) {
-      setError("Title and Description are required.");
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB.');
       return;
     }
 
-    const updatedMissions = missions.map((mission) =>
-      mission._id === id
-        ? {
-            ...mission,
-            rank: formData.title.replace("AIR ", ""),
-            exam_name: formData.description,
-            image: formData.image,
-          }
-        : mission
-    );
-
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedMissions));
-    setError("");
-    navigate("/admin/web-management/mission");
+    setError('');
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreviewUrl(reader.result);
+    reader.readAsDataURL(file);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Validate
+    if (!formData.title.trim() || !formData.description.trim()) {
+      setError('Title and Description are required.');
+      return;
+    }
+
+    setError('');
+    setSubmitting(true);
+
+    try {
+      let imageUrl = previewUrl;
+      if (imageFile) {
+        const uploadResponse = await uploadFileToAzureStorage(imageFile, 'mission');
+        imageUrl = uploadResponse.blobUrl || uploadResponse.url || uploadResponse.fileUrl;
+      }
+
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        image: imageUrl,
+      };
+      await updateMissionById(id, payload);
+      navigate('/admin/web-management/mission');
+    } catch (err) {
+      console.error('Error updating mission:', err.response || err);
+      const serverMsg = err.response?.data?.message || err.message;
+      setError(serverMsg || 'Failed to update mission. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container>
+        <p>Loading mission...</p>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -108,7 +121,7 @@ const EditMission = () => {
         name="title"
         value={formData.title}
         onChange={handleInputChange}
-        placeholder="AIR 1"
+        placeholder="Enter mission title"
       />
 
       <Label>Mission Description *</Label>
@@ -117,9 +130,10 @@ const EditMission = () => {
         value={formData.description}
         onChange={handleInputChange}
         rows={5}
+        placeholder="Enter mission description"
       />
 
-      <Label>Current Mission Image</Label>
+      <Label>Mission Image</Label>
       <DropZone hasImage={!!previewUrl}>
         <input
           type="file"
@@ -128,7 +142,7 @@ const EditMission = () => {
           style={{ display: 'none' }}
           onChange={handleImageUpload}
         />
-        <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
+        <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
           {previewUrl ? (
             <PreviewImage src={previewUrl} alt="Preview" />
           ) : (
@@ -136,14 +150,14 @@ const EditMission = () => {
               <ImageIcon>
                 <img src={uploadIcon} alt="Upload" width="50" />
               </ImageIcon>
-              <DropZoneText>Drag and drop image here, or click add image</DropZoneText>
+              <DropZoneText>Drag & drop image here, or click to select</DropZoneText>
             </>
           )}
         </label>
       </DropZone>
 
-      <UploadButton onClick={handleSubmit}>
-        Update Mission
+      <UploadButton onClick={handleSubmit} disabled={submitting}>
+        {submitting ? 'Updating...' : 'Update Mission'}
       </UploadButton>
     </Container>
   );
