@@ -282,7 +282,7 @@ export const ToggleWrapper = styled.label`
   }
 `;
 
-const ImageModalOverlay = styled.div`
+export const ImageModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -295,19 +295,20 @@ const ImageModalOverlay = styled.div`
   z-index: 9999;
 `;
 
-const ImageModalContent = styled.div`
+export const ImageModalContent = styled.div`
   position: relative;
   max-width: 90%;
   max-height: 90%;
 `;
 
-const ModalImage = styled.img`
+export const ModalImage = styled.img`
   max-width: 100%;
   max-height: 100%;
   border-radius: 8px;
+  text-decoration: none;
 `;
 
-const CloseButton = styled.button`
+export const CloseButton = styled.button`
   position: absolute;
   top: 5px;
   right: 5px;
