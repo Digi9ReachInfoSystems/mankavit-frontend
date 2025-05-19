@@ -23,8 +23,8 @@ const Header = () => {
           type="text"
           placeholder="Search candidate, vacancy, etc"
         />
-      </SearchWrapper> */}
-
+      </SearchWrapper> */
+      }
       <UserInfoWrapper>
         <UserDetails>
           <UserName>Admin Mankavit</UserName>

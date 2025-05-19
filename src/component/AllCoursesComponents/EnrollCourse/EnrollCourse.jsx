@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Container,
   Title,
@@ -16,25 +16,38 @@ import image1 from "../../../assets/Study1.png";
 import image2 from "../../../assets/Study2.png";
 import image3 from "../../../assets/Study3.png";
 
-const features = [
-  {
-    image: image1, // Replace with your actual image path
-    title: "Expert Faculty & Proven Success",
-    text: "Learn from experienced mentors who have helped thousands of students achieve their goals.",
-  },
-  {
-    image: image2,
-    title: "Comprehensive Study Resources",
-    text: "Access up-to-date materials, mock tests, and previous year papers for effective preparation.",
-  },
-  {
-    image: image3,
-    title: "Personalized Support",
-    text: "Receive tailored study plans and one-on-one attention to maximize your potential.",
-  },
-];
-
+// const features = [
+//   {
+//     image: image1, // Replace with your actual image path
+//     title: "Expert Faculty & Proven Success",
+//     text: "Learn from experienced mentors who have helped thousands of students achieve their goals.",
+//   },
+//   {
+//     image: image2,
+//     title: "Comprehensive Study Resources",
+//     text: "Access up-to-date materials, mock tests, and previous year papers for effective preparation.",
+//   },
+//   {
+//     image: image3,
+//     title: "Personalized Support",
+//     text: "Receive tailored study plans and one-on-one attention to maximize your potential.",
+//   },
+// ];
+import { getAllWhy } from "../../../api/whyApi";
 const EnrollCourse = () => {
+  const [ whys, setWhys ] = React.useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllWhy();
+        setWhys(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+ 
   return (
     <Container>
       <Title>
@@ -42,7 +55,7 @@ const EnrollCourse = () => {
       </Title>
       <Line />
       <Features>
-        {features.map((item, index) => (
+        {whys.map((item, index) => (
           <FeatureCard key={index}>
             <FeatureImage src={item.image} alt={item.title} />
             <FeatureTitle>{item.title}</FeatureTitle>

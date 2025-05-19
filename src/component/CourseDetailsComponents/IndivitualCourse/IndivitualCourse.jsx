@@ -24,52 +24,129 @@ import {
 import courseImage from '../../../assets/courseDetails.png';
 import { FaStar, FaVideo, FaBook, FaFileAlt, FaArrowLeft } from 'react-icons/fa';
 import { RiLock2Fill } from "react-icons/ri";
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { getCourseById } from '../../../api/courseApi';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const IndividualCourses = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const response = await getCourseById(id);
+        setCourse(response.data);
+      } catch (error) {
+        setError(error.message);
+        toast.error('Failed to fetch course details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchCourse();
+    }
+  }, [id]);
+
+  if (loading) {
+    return <Container>Loading course details...</Container>;
+  }
+
+  if (error) {
+    return <Container>Error: {error}</Container>;
+  }
+
+  if (!course) {
+    return <Container>Course not found</Container>;
+  }
+
   return (
     <Container>
-        <Header>
-      <BackLink><BackIcon><FaArrowLeft /></BackIcon></BackLink>
-      <MainTitle>CLAT <span>Preparation</span></MainTitle>
+      <Header>
+        <BackLink onClick={() => navigate(-1)}>
+          <BackIcon><FaArrowLeft /></BackIcon>
+        </BackLink>
+        <MainTitle>
+          {course.courseDisplayName} 
+          <span> {course.courseName}</span>
+        </MainTitle>
       </Header>
 
-      <CourseImage src={courseImage} alt="Law Entrance Exams" />
+      <CourseImage src={course.image || courseImage} alt={course.courseDisplayName} />
 
       <TitleRatingRow>
-        <Title>CLAT Preparation</Title>
+        <Title>{course.courseDisplayName}</Title>
         <Rating>
-          4.3 <FaStar color="#f8b400" />
+          {course.rating} <FaStar color="#f8b400" />
         </Rating>
       </TitleRatingRow>
 
       <BulletList>
-        <ListBull>Course Duration: 4 Months</ListBull>
+        <ListBull>Course Duration: {course.duration}</ListBull>
         <ListBull>
-          Mode Of Learning: <Highlight>Live Classes + Recorded Sessions</Highlight>
+          Mode Of Learning: <Highlight>
+            {course.live_class ? 'Live Classes' : ''}
+            {course.live_class && course.recorded_class ? ' + ' : ''}
+            {course.recorded_class ? 'Recorded Sessions' : ''}
+          </Highlight>
         </ListBull>
+        {course.successRate && (
+          <ListBull>Success Rate: {course.successRate}%</ListBull>
+        )}
       </BulletList>
 
-      <CourseIncludes> Course Includes: </CourseIncludes>
-        <Description>
-          <ListBull>ListBullve OnListBullne Classes: 3 Sessions Per Week With Expert Faculty.</ListBull>
-          <ListBull>Study Materials: Books, Notes, Mock Tests, And Previous Year Papers.</ListBull>
-          <ListBull>Practice: Weekly Quizzes And Practice Tests.</ListBull>
-          <ListBull>Doubt Solving Sessions: Weekly Live Q&A Sessions With Faculty.</ListBull>
-          <ListBull>Personalized Guidance: One-On-One Mentoring For Personalized Support.</ListBull>
-        </Description>
+      <CourseIncludes>Course Includes:</CourseIncludes>
+      <Description>
+        {course.course_includes?.length > 0 ? (
+          course.course_includes.map((item, i) => (
+            <ListBull key={i}>{item}</ListBull>
+          ))
+        ) : (
+          <>
+            <ListBull>{course.shortDescription}</ListBull>
+            <ListBull>{course.description}</ListBull>
+          </>
+        )}
+      </Description>
 
-        <CourseButton>
+      <CourseButton>
+        <EnrollButton>
+          Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-
+          {course.discountActive && (
+            <span style={{ textDecoration: 'line-through', marginLeft: '8px', color: '#999' }}>
+              ₹{course.price}
+            </span>
+          )}
+        </EnrollButton>
 
-
-      <EnrollButton>Enroll Now ₹599/-</EnrollButton>
-
-      <FeaturesRow>
-        <Feature><RiLock2Fill  className="lock-icon"/></Feature>
-        <FeatureItem><Link to= "#" className='link'><FaVideo /><IconText>17 Videos</IconText></Link></FeatureItem> |
-        <FeatureItem><Link to= "#" className='link'><FaBook /><IconText>21 Subjects</IconText></Link></FeatureItem>  |
-        <FeatureItem><Link to= "#" className='link'><FaFileAlt /><IconText>13 Notes</IconText></Link></FeatureItem>
-      </FeaturesRow>
+        <FeaturesRow>
+          <Feature><RiLock2Fill className="lock-icon"/></Feature>
+          <FeatureItem>
+         
+              <FaVideo />
+              <IconText>{course.no_of_videos} Videos</IconText>
+        
+          </FeatureItem> |
+          <FeatureItem>
+            
+              <FaBook />
+              <IconText>{course.no_of_subjects} Subjects</IconText>
+         
+          </FeatureItem> |
+          <FeatureItem>
+            
+              <FaFileAlt />
+              <IconText>{course.no_of_notes} Notes</IconText>
+      
+          </FeatureItem>
+        </FeaturesRow>
       </CourseButton>
     </Container>
   );

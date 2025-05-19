@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Section,
   Title,
@@ -21,38 +21,26 @@ import {
 
 import lawBanner from '../../../assets/Study1.png'; // your header banner image
 
-const courses = [
-  {
-    title: 'CLAT ',
-    description: 'Comprehensive coaching to crack CLAT and other top law schools.',
-    duration: '6-12 Months',
-    success: '90+%',
-    rating: '4.3',
-  },
-  {
-    title: 'AILET ',
-    description: 'Expert training to excel in the AILET for NLU Delhi.',
-    duration: '6-12 Months',
-    success: '90+%',
-    rating: '4.3',
-  },
-  {
-    title: 'DU LLM ',
-    description: 'Tailored coaching for DU LLM entrance success.',
-    duration: '6-12 Months',
-    success: '90+%',
-    rating: '4.3',
-  },
-  {
-    title: 'IILCAT ',
-    description: 'Focused coaching for the IILCAT exam and admission to the Indian Law Institute.',
-    duration: '6-12 Months',
-    success: '90+%',
-    rating: '4.3',
-  },
-];
+
+import { getAllCourses } from '../../../api/courseApi';
+import { Link } from 'react-router-dom';
 
 const WantToLearn = () => {
+  const [courses, setCourses] = React.useState([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await getAllCourses();
+        setCourses(response.data);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses(); 
+    }
+  , []);
   return (
     <Section>
       <Title>
@@ -60,10 +48,13 @@ const WantToLearn = () => {
       </Title>
 
       <CardsWrapper>
-        {courses.map((course, index) => (
+        {courses.slice(0, 4).map((course, index) => (
           <CourseCard key={index}>
-            <CardHeader>
+            {/* <CardHeader>
               <Image src={lawBanner} alt="Law Banner" />
+            </CardHeader> */}
+            <CardHeader>
+              <Image src={course.image} alt="Law Banner" />
             </CardHeader>
 
             <CardBody>
@@ -74,12 +65,12 @@ const WantToLearn = () => {
               <Description>{course.description}</Description>
               <InfoList>
                 <InfoItem>📆 Duration: {course.duration}</InfoItem>
-                <InfoItem>✅ Success Rate: {course.success}</InfoItem>
+                <InfoItem>✅ Success Rate: {course.successRate}</InfoItem>
               </InfoList>
             </CardBody>
 
             <Buttons>
-              <PriceButton>₹899/-</PriceButton>
+              <PriceButton>₹{course.price}</PriceButton>
               <ViewButton>View Courses</ViewButton>
             </Buttons>
           </CourseCard>
@@ -87,7 +78,7 @@ const WantToLearn = () => {
       </CardsWrapper>
 
       <ViewMoreWrapper>
-        <ViewMoreButton>View More Courses</ViewMoreButton>
+ <ViewMoreButton>View More</ViewMoreButton>
       </ViewMoreWrapper>
     </Section>
   );

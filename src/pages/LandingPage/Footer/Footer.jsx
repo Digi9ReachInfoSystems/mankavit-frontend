@@ -38,8 +38,8 @@ export default function Footer() {
       <FooterSection>
         <SectionTitle>Quick Link</SectionTitle>
         <LinkList>
-          <li>Student Portal</li>
-          <li>Courses</li>
+          <li><Link to="/login"> Student Portal </Link></li>
+          <li><Link to="/ourcourses"> Courses </Link></li>
            <li><Link to="/aboutus"> About </Link></li>
           <li>Blogs</li>
         </LinkList>

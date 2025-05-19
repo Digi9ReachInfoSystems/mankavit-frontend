@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Container,
   TopBar,
@@ -17,8 +17,7 @@ import {
   Hamburger,
   DashboardButton,
 } from "./LandingHeader.styles";
-import { IoCallOutline, IoNotificationsOutline } from "react-icons/io5";
-import { FaRegEnvelope } from "react-icons/fa6";
+import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { BsChevronCompactDown } from "react-icons/bs";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -42,25 +41,39 @@ const Header = () => {
   const location = useLocation();
 
   const handleNavClick = (link) => {
-    if (link === "Entrance") {
-      setDropdownOpen(!dropdownOpen);
-    } else {
-      setDropdownOpen(false);
+    // Special routes
+    if (link === "Courses") {
       setActiveLink(link);
-      navigate(`/${link.toLowerCase().replace(/\s/g, "-")}`);
+      navigate("/ourcourses");
+      return;
     }
+     if (link === "About") {
+      setActiveLink(link);
+      navigate("/aboutus");
+      return;
+    }
+        if (link === "Prev. Year Ques.") {
+      setActiveLink(link);
+      navigate("/prev-years-question");
+      return;
+    }
+    if (link === "Entrance") {
+      setDropdownOpen((open) => !open);
+      return;
+    }
+    // Default routes
+    setDropdownOpen(false);
+    setActiveLink(link);
+    const path = link.toLowerCase().replace(/\.\s/g, "-").replace(/\s+/g, "-");
+    navigate(`/${path}`);
   };
 
-  const handleLoginButton = () => {
-    navigate("/login");
-  };
-
+  const handleLoginButton = () => navigate("/login");
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate("/");
   };
 
-  // Detect outside clicks
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -70,23 +83,19 @@ const Header = () => {
         setMobileMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Highlight link based on location
   useEffect(() => {
-    const currentPath = location.pathname.split("/")[1];
-    const formatted = currentPath.replace("-", " ").toLowerCase();
-    const matched = [
-      "courses",
-      "about",
-      "blog",
-      "results",
-      "prev. year ques.",
-    ].find((link) => link.toLowerCase() === formatted);
-    if (matched) setActiveLink(matched);
+    // Set active link based on URL
+    const segment = location.pathname.split("/")[1] || "";
+    if (segment === "ourcourses") setActiveLink("Courses");
+    else if (segment === "aboutus") setActiveLink("About");
+    else if (segment === "blog") setActiveLink("Blog");
+    else if (segment === "results") setActiveLink("Results");
+    else if (segment === "prev-years-question") setActiveLink("Prev. Year Ques.");
+    else setActiveLink(null);
   }, [location]);
 
   return (
@@ -96,15 +105,54 @@ const Header = () => {
           <Headline>
             Headline Of Our Courses/<span>Live Classes</span>
           </Headline>
-          <SocialIcons>
-            <Image src={Youtube} alt="Youtube" />
-            <Image src={Facebook} alt="Facebook" />
-            <Image src={Instagram} alt="Instagram" />
-            <Image src={Twitter} alt="Twitter" />
-            <Image src={Whatsapp} alt="Whatsapp" />
-            <Image src={Linkedin} alt="Linkedin" />
-            <Image src={Telegram} alt="Telegram" />
+       
+         <SocialIcons>
+            <Image
+              src={Youtube}
+              alt="YouTube"
+              style={{ cursor: 'pointer' }}
+              onClick={() => window.open('https://www.youtube.com/', '_blank')}
+           />
+            <Image
+              src={Facebook}
+             alt="Facebook"
+              style={{ cursor: 'pointer' }}
+             onClick={() => window.open('https://www.facebook.com/', '_blank')}
+            />
+            <Image
+              src={Instagram}
+             alt="Instagram"
+              style={{ cursor: 'pointer' }}
+              onClick={() =>
+                window.open('https://www.instagram.com/thevasudev_/', '_blank')
+              }
+            />
+            <Image
+              src={Twitter}
+              alt="Twitter"
+              style={{ cursor: 'pointer' }}
+              onClick={() => window.open('https://twitter.com/', '_blank')}
+            />
+            <Image
+              src={Whatsapp}
+              alt="Whatsapp"
+              style={{ cursor: 'pointer' }}
+              onClick={() => window.open('https://wa.me/', '_blank')}
+            />
+            <Image
+              src={Linkedin}
+              alt="LinkedIn"
+              style={{ cursor: 'pointer' }}
+              onClick={() => window.open('https://www.linkedin.com/', '_blank')}
+            />
+            <Image
+              src={Telegram}
+              alt="Telegram"
+              style={{ cursor: 'pointer' }}
+              onClick={() => window.open('https://t.me/', '_blank')}
+            />
           </SocialIcons>
+
         </ToolbarContainer>
       </TopBar>
 
@@ -114,37 +162,32 @@ const Header = () => {
 
           <div className="menu-container" ref={menuRef}>
             <NavLinks className={mobileMenuOpen ? "open" : ""}>
-              {["Courses", "About", "Blog", "Results", "Prev. Year Ques."].map(
-                (item) => (
-                  <NavLinkItem
-                    key={item}
-                    className={activeLink === item ? "active" : ""}
-                    onClick={() => handleNavClick(item)}
-                  >
-                    {item}
-                  </NavLinkItem>
-                )
-              )}
-              <NavLinkItem
-                ref={dropdownRef}
-                className={activeLink === "Entrance" ? "active" : ""}
-                onClick={() => handleNavClick("Entrance")}
-              >
-                Entrance <BsChevronCompactDown size={15} style={{fontWeight: "800"}} />
-                {dropdownOpen && (
-                  <Dropdown>
-                    <DropdownItem onClick={() => navigate("/entrance/neet")}>
-                      NEET
-                    </DropdownItem>
-                    <DropdownItem onClick={() => navigate("/entrance/jee")}>
-                      JEE
-                    </DropdownItem>
-                    <DropdownItem onClick={() => navigate("/entrance/cuet")}>
-                      CUET
-                    </DropdownItem>
-                  </Dropdown>
-                )}
-              </NavLinkItem>
+              {[
+                "Courses",
+                "About",
+                "Blog",
+                "Results",
+                "Prev. Year Ques.",
+              ].map((item) => (
+                <NavLinkItem
+                  key={item}
+                  className={activeLink === item ? "active" : ""}
+                  onClick={() => handleNavClick(item)}
+                  ref={item === "Entrance" ? dropdownRef : null}
+                >
+                  {item}
+                  {item === "Entrance" && (
+                    <BsChevronCompactDown size={15} style={{ fontWeight: "800" }} />
+                  )}
+                  {item === "Entrance" && dropdownOpen && (
+                    <Dropdown>
+                      <DropdownItem onClick={() => navigate("/entrance/neet")}>NEET</DropdownItem>
+                      <DropdownItem onClick={() => navigate("/entrance/jee")}>JEE</DropdownItem>
+                      <DropdownItem onClick={() => navigate("/entrance/cuet")}>CUET</DropdownItem>
+                    </Dropdown>
+                  )}
+                </NavLinkItem>
+              ))}
             </NavLinks>
 
             {!isLoggedIn ? (

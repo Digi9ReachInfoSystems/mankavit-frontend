@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Title,
@@ -22,163 +22,91 @@ import {
   PriceActions,
   Price,
   ViewButton,
-  RatingWrapper,
-  ContinueButton
+  RatingWrapper
 } from './AllCoursesDetails.styles';
 
-import { CiSearch } from "react-icons/ci";
-import { BiSliderAlt } from "react-icons/bi";
-import { FcCalendar } from "react-icons/fc";
-import { FaStar } from "react-icons/fa";
-import lawimg from "../../../assets/lawentrance.png";
+import { CiSearch } from 'react-icons/ci';
+import { BiSliderAlt } from 'react-icons/bi';
+import { FcCalendar } from 'react-icons/fc';
+import { FaStar } from 'react-icons/fa';
+import lawimg from '../../../assets/lawentrance.png';
 
-const courses = [
-  {
-    title: 'AILET',
-    minititle: 'Preparation',
-    desc: 'Expert training to excel in the AILET for NLU Delhi.',
-    duration: '6-12 Months',
-    success: '90%+',
-    price: '₹599/-',
-    rating: 4.5,
-    category: 'Popular',
-  },
-  {
-    title: 'DU LL.M',
-    minititle: 'Coaching',
-    desc: 'Tailored coaching for DU LL.M entrance success.',
-    duration: '6-12 Months',
-    success: '90%+',
-    price: '₹599/-',
-    rating: 4.7,
-    category: 'Most Liked',
-  },
-  {
-    title: 'ILICAT',
-    minititle: 'Preparation',
-    desc: 'Focused coaching for the ILICAT exam and admission.',
-    duration: '6-12 Months',
-    success: '90%+',
-    price: '₹999/-',
-    rating: 4.2,
-    category: 'Popular',
-  },
-  {
-    title: 'CLAT',
-    minititle: 'Preparation',
-    desc: 'Comprehensive coaching to crack CLAT and enter top law schools.',
-    duration: '6-12 Months',
-    success: '90%+',
-    price: '₹599/-',
-    rating: 4.8,
-    category: 'Most Liked',
-  },
-  {
-    title: 'IGICAT',
-    minititle: 'Preparation',
-    desc: 'Focused coaching for IGICAT exam and admission.',
-    duration: '6-12 Months',
-    success: '90%',
-    price: '₹599/-',
-    rating: 4.1,
-    category: 'Popular',
-    status: 'Continuing',
-  },
-  {
-    title: 'MH CET Law',
-    minititle: 'Test Series',
-    desc: 'Practice test series for MH CET Law aspirants.',
-    duration: '3-6 Months',
-    success: '85%',
-    price: '₹499/-',
-    rating: 4.3,
-    category: 'Popular',
-  },
-  {
-    title: 'LSAT India',
-    minititle: 'Crash Course',
-    desc: 'Intensive crash course for LSAT India preparation.',
-    duration: '2 Months',
-    success: '88%',
-    price: '₹799/-',
-    rating: 4.4,
-    category: 'Most Liked',
-  },
-  {
-    title: 'Symbiosis Law',
-    minititle: 'Mock Tests',
-    desc: 'High-quality mock tests for Symbiosis Law entrance.',
-    duration: '1-3 Months',
-    success: '87%',
-    price: '₹299/-',
-    rating: 4.0,
-    category: 'Popular',
-  },
-  {
-    title: 'AMU Law',
-    minititle: 'Coaching',
-    desc: 'Coaching designed for AMU Law entrance exam.',
-    duration: '6 Months',
-    success: '91%',
-    price: '₹699/-',
-    rating: 4.6,
-    category: 'Most Liked',
-  },
-  {
-    title: 'PU LL.B',
-    minititle: 'Coaching',
-    desc: 'Comprehensive coaching for Punjab University law entrance.',
-    duration: '5 Months',
-    success: '89%',
-    price: '₹649/-',
-    rating: 4.5,
-    category: 'Popular',
-  },
-  {
-    title: 'Army Institute of Law',
-    minititle: 'Preparation',
-    desc: 'Dedicated prep for Army Institute of Law exam.',
-    duration: '4 Months',
-    success: '86%',
-    price: '₹549/-',
-    rating: 4.2,
-    category: 'Popular',
-  },
-  {
-    title: 'KLEE',
-    minititle: 'Foundation',
-    desc: 'Foundation course for Kerala Law Entrance Exam (KLEE).',
-    duration: '6 Months',
-    success: '92%',
-    price: '₹599/-',
-    rating: 4.6,
-    category: 'Most Liked',
-  },
-  {
-    title: 'Law Aptitude Bootcamp',
-    minititle: 'Skill Building',
-    desc: 'Skill building bootcamp to improve legal aptitude.',
-    duration: '1 Month',
-    success: '83%',
-    price: '₹399/-',
-    rating: 4.0,
-    category: 'Popular',
-  }
-];
-
-
-const TABS = ['All', 'Popular', 'Most Liked'];
+import { getAllCourses, getCourseByCategory } from '../../../api/courseApi';
+import {getCategories} from '../../../api/categoryApi';
+import { useNavigate } from 'react-router-dom';
 
 const AllCoursesDetails = () => {
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch category list on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        // Map to titles
+        const titles = data.map(cat => cat.title);
+        // Ensure "All" is present at the front
+        const uniqueTitles = Array.from(new Set(['All', ...titles]));
+        setCategories(uniqueTitles);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch courses when activeTab changes
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        let data = [];
+        if (activeTab === 'All') {
+          const resp = await getAllCourses();
+          data = resp.data;
+        } else {
+          const resp = await getCourseByCategory(activeTab);
+          data = resp.data;
+        }
+        const transformed = data.map(course => ({
+          id: course._id,
+          title: course.courseDisplayName || 'Untitled Course',
+          minititle: course.courseName || '',
+          desc: course.description || 'No description available',
+          duration: course.duration || 'Not specified',
+          success: course.successRate || 'N/A',
+          price: course.price ? `₹${course.price}/-` : 'Price not available',
+          rating: course.rating || 0,
+          category: course.category || 'All',
+          image: course.image || lawimg
+        }));
+        setCourses(transformed);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, [activeTab]);
 
   const filteredCourses = courses.filter(course => {
-    const matchesCategory = activeTab === 'All' || course.category === activeTab;
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.desc.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      (course.title && course.title.toLowerCase().includes(term)) ||
+      (course.desc && course.desc.toLowerCase().includes(term))
+    );
   });
+
+  const handleViewDetails = id => navigate(`/coursedetails/${id}`);
+
+  if (loading) return <div>Loading courses...</div>;
 
   return (
     <Container>
@@ -187,41 +115,37 @@ const AllCoursesDetails = () => {
       </Title>
 
       <FilterBar>
-        {TABS.map(tab => (
+        {categories.map(cat => (
           <FilterButton
-            key={tab}
-            active={activeTab === tab}
-            onClick={() => setActiveTab(tab)}
+            key={cat}
+            active={activeTab === cat}
+            onClick={() => setActiveTab(cat)}
           >
-            {tab}
+            {cat}
           </FilterButton>
         ))}
       </FilterBar>
 
       <SearchWrapper>
-        <SearchIcon>
-          <CiSearch size={24} />
-        </SearchIcon>
+        <SearchIcon><CiSearch size={24} /></SearchIcon>
         <SearchInput
           placeholder="Search"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
-        <SliderIcon>
-          <BiSliderAlt size={24} />
-        </SliderIcon>
+        <SliderIcon><BiSliderAlt size={24} /></SliderIcon>
       </SearchWrapper>
 
       <CardGrid>
-        {filteredCourses.map((course, index) => (
-          <CourseCard key={index}>
+        {filteredCourses.map(course => (
+          <CourseCard key={course.id}>
             <ImageWrapper>
-              <img src={lawimg} alt="Law Banner" />
+              <img src={course.image} alt={course.title} />
             </ImageWrapper>
             <CourseContent>
               <CourseMain>
                 <RatingWrapper>
-                  {course.rating} <FaStar color="#f5b301" style={{ marginLeft: "5px" }} />
+                  {course.rating} <FaStar style={{ marginLeft: '5px' }} />
                 </RatingWrapper>
                 <CourseHead>
                   <CourseTitle>{course.title}</CourseTitle>
@@ -231,15 +155,15 @@ const AllCoursesDetails = () => {
               </CourseMain>
               <Details>
                 <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
-                <DetailItem>🏆Success Rate: {course.success}</DetailItem>
+                <DetailItem>🏆 Success Rate: {course.success}</DetailItem>
               </Details>
             </CourseContent>
 
             <PriceActions>
-                <>
-                  <Price>{course.price}</Price>
-                  <ViewButton>View Details</ViewButton>
-                </>
+              <Price>{course.price}</Price>
+              <ViewButton onClick={() => handleViewDetails(course.id)}>
+                View details
+              </ViewButton>
             </PriceActions>
           </CourseCard>
         ))}

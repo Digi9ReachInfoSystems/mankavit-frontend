@@ -22,8 +22,10 @@ export const getAllCourses = async () => {
 };  
 
 
+
 export const getCourseById = async (id) => {
     try {
+        console.log(id);
         const response = await api.get(`/api/v1/course/${id}`);
         return response.data;
     } catch (error) {
@@ -53,3 +55,12 @@ export const updateCourseById = async (id, data) => {
 };
 
 
+export const getCourseByCategory = async (categoryName) => {
+    try {
+        const response = await api.get(`/api/v1/course/category/${categoryName}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
