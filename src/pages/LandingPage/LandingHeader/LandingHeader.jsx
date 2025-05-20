@@ -20,7 +20,7 @@ import {
 import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { BsChevronCompactDown } from "react-icons/bs";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import Youtube from '../../../assets/youtube.svg';
 import Facebook from '../../../assets/facebook.svg';
 import Instagram from '../../../assets/instagram.svg';
@@ -44,7 +44,7 @@ const Header = () => {
     // Special routes
     if (link === "Courses") {
       setActiveLink(link);
-      navigate("/ourcourses");
+      navigate("/ourcoursedetails");
       return;
     }
      if (link === "About") {
@@ -90,7 +90,7 @@ const Header = () => {
   useEffect(() => {
     // Set active link based on URL
     const segment = location.pathname.split("/")[1] || "";
-    if (segment === "ourcourses") setActiveLink("Courses");
+    if (segment === "ourcoursedetails") setActiveLink("Courses");
     else if (segment === "aboutus") setActiveLink("About");
     else if (segment === "blog") setActiveLink("Blog");
     else if (segment === "results") setActiveLink("Results");
@@ -158,7 +158,9 @@ const Header = () => {
 
       <NavbarMain>
         <NavBarContainer>
+        <Link to="/" style={{ textDecoration: "none" }}>
           <Logo>Mankavit</Logo>
+        </Link>
 
           <div className="menu-container" ref={menuRef}>
             <NavLinks className={mobileMenuOpen ? "open" : ""}>

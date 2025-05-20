@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+// src/pages/Admin/WebManagement/WhyStudyWithUs/WhyStudyWithUs.jsx
+
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   Container,
   Title,
@@ -14,51 +18,48 @@ import {
   ModalImage,
   CloseButton,
 } from "./WhyStudyWithUs.styles";
+
 import { IoEyeOutline } from "react-icons/io5";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
+
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
-import { useNavigate } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination";
 
-const WhyStudy = [
-  {
-    id: 1,
-    title: "Why Study With Us",
-    description: "This is a description of why study with us.",
-    image:
-      "https://softspacesolutions.com/wp-content/uploads/2024/10/mern-stack-developer-interview-questions-1024x576.webp",
-  },
-  {
-    id: 2,
-    title: "Why Study With Us",
-    description: "This is a description of why study with us.",
-    image:
-      "https://softspacesolutions.com/wp-content/uploads/2024/10/mern-stack-developer-interview-questions-1024x576.webp",
-  },
-  {
-    id: 3,
-    title: "Why Study With Us",
-    description: "This is a description of why study with us.",
-    image:
-      "https://softspacesolutions.com/wp-content/uploads/2024/10/mern-stack-developer-interview-questions-1024x576.webp",
-  },
-];
+import { getAllWhy, deleteWhyById } from "../../../../../api/whyApi";
 
 const ITEMS_PER_PAGE = 8;
 
 const WhyStudyWithUs = () => {
-  const [modal, setModal] = useState(false);
+  const navigate = useNavigate();
+  const [whyStudy, setWhyStudy] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [modalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [whyStudy, setWhyStudy] = useState(WhyStudy);
-  const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
 
-  const handleViewImage = (imageUrl) => {
-    setSelectedImage(imageUrl);
-    setModal(true);
+  // fetch once on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllWhy();
+        setWhyStudy(response.data ?? response);
+      } catch (err) {
+        console.error("Error loading data:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const totalItems = whyStudy.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentPageData = whyStudy.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleViewImage = (url) => {
+    setSelectedImage(url);
+    setModalOpen(true);
   };
 
   const handleDeleteClick = (id) => {
@@ -66,28 +67,24 @@ const WhyStudyWithUs = () => {
     setDeleteModalOpen(true);
   };
 
-  const handleViewClick = (id) => {
-    navigate(`/admin/web-management/why-study-with-us/view/${id}`);
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteWhyById(selectedId);
+      setWhyStudy((prev) => prev.filter((item) => item._id !== selectedId));
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+      // optionally show user-facing error here
+    } finally {
+      setDeleteModalOpen(false);
+    }
   };
-
-  const handleEdit = (id) => {
-    navigate(`/admin/web-management/why-study-with-us/edit/${id}`);
-  };
-
-  const handleDeleteConfirm = (id) => {
-    setWhyStudy((prev) => prev.filter((item) => item.id !== id));
-    setDeleteModalOpen(false);
-  };
-
-  const totalItems = whyStudy.length;
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentPageData = whyStudy.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <>
       <BtnAchieve>
-        <AddButton onClick={() => navigate("/admin/web-management/why-study-with-us/create")}>Add</AddButton>
+        <AddButton onClick={() => navigate("/admin/web-management/why-study-with-us/create")}>
+          Add
+        </AddButton>
       </BtnAchieve>
 
       <Container>
@@ -105,7 +102,7 @@ const WhyStudyWithUs = () => {
             </TableHead>
             <tbody>
               {currentPageData.map((item) => (
-                <tr key={item.id}>
+                <tr key={item._id}>
                   <Td>{item.title}</Td>
                   <Td>{item.description}</Td>
                   <Td>
@@ -115,6 +112,7 @@ const WhyStudyWithUs = () => {
                         e.preventDefault();
                         handleViewImage(item.image);
                       }}
+                      style={{ textDecoration: "none" }}
                     >
                       View Image
                     </a>
@@ -123,21 +121,23 @@ const WhyStudyWithUs = () => {
                     <IoEyeOutline
                       title="View"
                       size={20}
-                      color="#000"
-                      style={{ cursor: "pointer", marginRight: "10px" }}
-                      onClick={() => handleViewClick(item.id)}
+                      style={{ cursor: "pointer", marginRight: 10 }}
+                      onClick={() =>
+                        navigate(`/admin/web-management/why-study-with-us/view/${item._id}`)
+                      }
                     />
                     <BiEditAlt
                       size={20}
-                      color="#000"
-                      style={{ cursor: "pointer", marginRight: "10px" }}
-                      onClick={() => handleEdit(item.id)}
+                      style={{ cursor: "pointer", marginRight: 10 }}
+                      onClick={() =>
+                        navigate(`/admin/web-management/why-study-with-us/edit/${item._id}`)
+                      }
                     />
                     <RiDeleteBin6Line
                       size={20}
                       color="#FB4F4F"
                       style={{ cursor: "pointer" }}
-                      onClick={() => handleDeleteClick(item.id)}
+                      onClick={() => handleDeleteClick(item._id)}
                     />
                   </Td>
                 </tr>
@@ -160,13 +160,13 @@ const WhyStudyWithUs = () => {
       <DeleteModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        onDelete={() => handleDeleteConfirm(selectedId)}
+        onDelete={handleDeleteConfirm}
       />
 
-      {modal && selectedImage && (
+      {modalOpen && selectedImage && (
         <ImageModalOverlay>
           <ImageModalContent>
-            <CloseButton onClick={() => setModal(false)}>X</CloseButton>
+            <CloseButton onClick={() => setModalOpen(false)}>X</CloseButton>
             <ModalImage src={selectedImage} alt="Selected" />
           </ImageModalContent>
         </ImageModalOverlay>

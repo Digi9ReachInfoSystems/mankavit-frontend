@@ -302,10 +302,10 @@ export const ImageModalContent = styled.div`
 `;
 
 export const ModalImage = styled.img`
-  max-width: 100%;
-  max-height: 100%;
   border-radius: 8px;
   text-decoration: none;
+  width:500px;
+  height:400px;
 `;
 
 export const CloseButton = styled.button`
