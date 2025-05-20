@@ -20,7 +20,7 @@ import { BiEditAlt } from 'react-icons/bi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import DeleteModal from '../../../component/DeleteModal/DeleteModal';
 import {
-  creteWhy,
+  createWhy,
   getAllWhy,
   updateWhyById,
   deleteWhyById

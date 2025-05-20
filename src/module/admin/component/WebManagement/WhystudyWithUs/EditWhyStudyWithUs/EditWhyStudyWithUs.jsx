@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+// src/pages/Admin/WebManagement/WhyStudyWithUs/EditWhyStudyWithUs.jsx
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import {
   Container,
   Title,
@@ -12,19 +16,49 @@ import {
   UploadButton,
   ErrorMessage
 } from './EditWhyStudyWithUs.styles';
+
 import uploadIcon from '../../../../../../assets/upload.png';
-import { useNavigate } from 'react-router-dom';
+import { getWhyById, updateWhyById } from '../../../../../../api/whyApi';
+import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 
 const EditWhyStudyWithUs = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ title: '', description: '', image: null });
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    imageFile: null,
+  });
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchWhy = async () => {
+      try {
+        const resp = await getWhyById(id);
+        const doc = resp.data ?? resp;
+        setFormData({
+          title: doc.title || '',
+          description: doc.description || '',
+          imageFile: null,
+        });
+        setPreviewUrl(doc.image || '');
+      } catch (err) {
+        console.error('Error loading item:', err);
+        setError('Failed to load the item.');
+      }
+    };
+
+    fetchWhy();
+  }, [id]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleImageUpload = (e) => {
@@ -41,65 +75,92 @@ const EditWhyStudyWithUs = () => {
     }
 
     setError('');
-    setFormData((prev) => ({ ...prev, image: file }));
+    setFormData(prev => ({ ...prev, imageFile: file }));
 
     const reader = new FileReader();
     reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    // Basic validation
     if (!formData.title.trim() || !formData.description.trim()) {
       setError('Title and Description are required.');
       return;
     }
-    if (!formData.image) {
-      setError('Please select an image.');
-      return;
-    }
 
-    setError('');
     setLoading(true);
+    try {
+      let imageUrl = previewUrl;
 
-    // Simulate submission delay (static)
-    setTimeout(() => {
-      console.log("Submitted form data:", {
+      if (formData.imageFile) {
+        const uploadResult = await uploadFileToAzureStorage(
+          formData.imageFile,
+          'why'
+        );
+        console.log('Upload result:', uploadResult);
+
+        // Now include blobUrl in our extraction chain
+        imageUrl =
+          uploadResult?.url ??
+          uploadResult?.fileUrl ??
+          uploadResult?.filePath ??
+          uploadResult?.blobUrl ??
+          (typeof uploadResult === 'string' ? uploadResult : null);
+
+        if (!imageUrl) {
+          throw new Error(
+            `Unexpected upload response format: ${JSON.stringify(
+              uploadResult
+            )}`
+          );
+        }
+      }
+
+      await updateWhyById(id, {
         title: formData.title,
         description: formData.description,
-        image: formData.image.name,
+        image: imageUrl,
       });
-      setLoading(false);
-      alert("Mission submitted (static)!");
+
       navigate('/admin/web-management/why-study-with-us');
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        'Something went wrong, please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container>
-      <Title>Add Why Study With Us</Title>
+      <Title>Edit Why Study With Us</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      <Label>Why Study With Us Title *</Label>
+      <Label>Title *</Label>
       <Input
         name="title"
         value={formData.title}
         onChange={handleInputChange}
-        placeholder="Enter mission title"
+        placeholder="Enter title"
       />
 
-      <Label>Why Study With Us Description *</Label>
+      <Label>Description *</Label>
       <TextArea
         name="description"
         value={formData.description}
         onChange={handleInputChange}
         rows={5}
-        placeholder="Enter mission description"
+        placeholder="Enter description"
       />
 
-      <Label>Upload Mission Image *</Label>
+      <Label>Image *</Label>
       <DropZone hasImage={!!previewUrl}>
         <input
           type="file"
@@ -114,16 +175,18 @@ const EditWhyStudyWithUs = () => {
           ) : (
             <>
               <ImageIcon>
-                <img src={uploadIcon} alt="Upload" width="50" />
+                <img src={uploadIcon} alt="Upload" width={50} />
               </ImageIcon>
-              <DropZoneText>Drag & drop image here, or click to select</DropZoneText>
+              <DropZoneText>
+                Drag & drop image here, or click to select
+              </DropZoneText>
             </>
           )}
         </label>
       </DropZone>
 
       <UploadButton onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Creating...' : 'Create'}
+        {loading ? 'Updating…' : 'Update'}
       </UploadButton>
     </Container>
   );

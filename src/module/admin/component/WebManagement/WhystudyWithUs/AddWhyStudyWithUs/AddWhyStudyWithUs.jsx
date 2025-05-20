@@ -1,4 +1,8 @@
+// src/pages/Admin/WebManagement/WhyStudyWithUs/AddWhyStudyWithUs.jsx
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import {
   Container,
   Title,
@@ -12,12 +16,18 @@ import {
   UploadButton,
   ErrorMessage
 } from './AddWhyStudyWithUs.styles';
+
 import uploadIcon from '../../../../../../assets/upload.png';
-import { useNavigate } from 'react-router-dom';
+import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
+import { createWhy } from '../../../../../../api/whyApi';
 
 const AddWhyStudyWithUs = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ title: '', description: '', image: null });
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    image: null
+  });
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,10 +58,9 @@ const AddWhyStudyWithUs = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (!formData.title.trim() || !formData.description.trim()) {
       setError('Title and Description are required.');
       return;
@@ -64,17 +73,50 @@ const AddWhyStudyWithUs = () => {
     setError('');
     setLoading(true);
 
-    // Simulate submission delay (static)
-    setTimeout(() => {
-      console.log("Submitted form data:", {
+    try {
+      // 1) Upload to Azure
+      const uploadResult = await uploadFileToAzureStorage(
+        formData.image,
+        'why'
+      );
+
+      console.log('Azure upload result:', uploadResult);
+
+      // 2) Pick out the URL from whatever shape the backend returned
+      const imageUrl =
+        uploadResult?.url ??
+        uploadResult?.fileUrl ??
+        uploadResult?.filePath ??
+        uploadResult?.blobUrl ??
+        (typeof uploadResult === 'string' ? uploadResult : null);
+
+      if (!imageUrl) {
+        throw new Error(
+          `Unexpected upload response format: ${JSON.stringify(
+            uploadResult
+          )}`
+        );
+      }
+
+      // 3) Create the "Why" record
+      await createWhy({
         title: formData.title,
         description: formData.description,
-        image: formData.image.name,
+        image: imageUrl
       });
-      setLoading(false);
-      alert("Mission submitted (static)!");
+
+      // 4) Navigate back on success
       navigate('/admin/web-management/why-study-with-us');
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Something went wrong, please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -87,7 +129,7 @@ const AddWhyStudyWithUs = () => {
         name="title"
         value={formData.title}
         onChange={handleInputChange}
-        placeholder="Enter mission title"
+        placeholder="Enter title"
       />
 
       <Label>Why Study With Us Description *</Label>
@@ -96,10 +138,10 @@ const AddWhyStudyWithUs = () => {
         value={formData.description}
         onChange={handleInputChange}
         rows={5}
-        placeholder="Enter mission description"
+        placeholder="Enter description"
       />
 
-      <Label>Upload Mission Image *</Label>
+      <Label>Upload Image *</Label>
       <DropZone hasImage={!!previewUrl}>
         <input
           type="file"
@@ -114,16 +156,18 @@ const AddWhyStudyWithUs = () => {
           ) : (
             <>
               <ImageIcon>
-                <img src={uploadIcon} alt="Upload" width="50" />
+                <img src={uploadIcon} alt="Upload" width={50} />
               </ImageIcon>
-              <DropZoneText>Drag & drop image here, or click to select</DropZoneText>
+              <DropZoneText>
+                Drag & drop image here, or click to select
+              </DropZoneText>
             </>
           )}
         </label>
       </DropZone>
 
       <UploadButton onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Creating...' : 'Create'}
+        {loading ? 'Creating…' : 'Create'}
       </UploadButton>
     </Container>
   );

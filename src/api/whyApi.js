@@ -1,7 +1,7 @@
 import api from "../config/axiosConfig";
 
 
-export const creteWhy = async (data) => {
+export const createWhy = async (data) => {
     try {
         const response = await api.post("/why/create", data);
         return response.data;
@@ -34,6 +34,16 @@ export const updateWhyById = async (id, data) => {
 export const deleteWhyById = async (id) => {
     try {
         const response = await api.delete(`/why/deleteWhy/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const getWhyById = async (id) => {
+    try {
+        const response = await api.get(`/why/getWhyById/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
