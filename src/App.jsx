@@ -91,6 +91,10 @@ import AddWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWi
 import EditWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/EditWhyStudyWithUs/EditWhyStudyWithUs'
 import ViewWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/ViewWhyStudyWithUs/ViewWhyStudyWithUs'
 import CompletedCoursesPage from './pages/CompletedCoursesPage/CompletedCoursesPage'
+import Blog from './module/admin/pages/WebManagement/Blog/Blog'
+import AddBlog from './module/admin/component/WebManagement/blog/AddBlog/AddBlog'
+import EditBlog from './module/admin/component/WebManagement/blog/EditBlog/EditBlog'
+import ViewBlog from './module/admin/component/WebManagement/blog/ViewBlog/ViewBlog'
 
 function App() {
 
@@ -215,6 +219,11 @@ function App() {
             <Route path="web-management/why-study-with-us/create" element={<AddWhyStudyWithUs />} />
             <Route path="web-management/why-study-with-us/edit/:id" element={<EditWhyStudyWithUs />} />
             <Route path="web-management/why-study-with-us/view/:id" element={<ViewWhyStudyWithUs />} />
+
+            <Route path="web-management/blog" element={<Blog />} />
+            <Route path="web-management/blog/create" element={<AddBlog />} />
+            <Route path="web-management/blog/edit/:id" element={<EditBlog />} />
+            <Route path="web-management/blog/view/:id" element={<ViewBlog />} />
           </Route>
 
           

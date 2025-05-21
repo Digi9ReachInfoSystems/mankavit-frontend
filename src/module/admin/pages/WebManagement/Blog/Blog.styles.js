@@ -174,7 +174,7 @@ export const Td = styled.td`
   border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
      &:nth-child(2) {
-    width: 60%;
+    width: 70%;
     white-space: normal; /* allow text to wrap inside description */
     word-break: break-word;
   }
@@ -309,10 +309,9 @@ export const ImageModalContent = styled.div`
 `;
 
 export const ModalImage = styled.img`
+  width: 500px;
+  height: 500px;
   border-radius: 8px;
-  text-decoration: none;
-  width:500px;
-  height:400px;
 `;
 
 export const CloseButton = styled.button`
