@@ -64,3 +64,13 @@ export const getCourseByCategory = async (categoryName) => {
         throw error;
     }
 };
+
+export const getNoOfCourses = async () => {
+    try {
+        const response = await api.get("/api/v1/course/total");
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

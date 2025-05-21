@@ -49,3 +49,13 @@ export const deleteSubjectByid = async (id) => {
         throw error;
     }
 };
+
+export const getNoOfSubjects = async () => {
+    try {
+        const response = await api.get('/api/v1/subject/total');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching number of subjects:', error);
+        throw error;
+    }
+};

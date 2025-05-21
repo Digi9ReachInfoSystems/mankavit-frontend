@@ -22,10 +22,16 @@ import {
 } from 'react-icons/fa';
 import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
 import { MdOutlineMenuOpen } from "react-icons/md";
-
+import { getCookiesData } from '../../../../utils/cookiesService';
 const UserSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const [ id, setId] = useState('');
+
+  useEffect(() => {
+    const { userId } = getCookiesData();
+    setId(userId);
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(prev => !prev);
@@ -77,7 +83,7 @@ const UserSidebar = () => {
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink to="/user/profile" onClick={handleMenuClick}>
+              <MenuLink to={`/user/profile/${id}`} onClick={handleMenuClick}>
                 <FaUser className='sidebar-icon' /> Profile
               </MenuLink>
             </MenuItem>

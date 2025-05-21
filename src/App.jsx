@@ -90,6 +90,11 @@ import WhyStudyWithUs from './module/admin/pages/WebManagement/WhyStudyWithUs/Wh
 import AddWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/AddWhyStudyWithUs/AddWhyStudyWithUs'
 import EditWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/EditWhyStudyWithUs/EditWhyStudyWithUs'
 import ViewWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/ViewWhyStudyWithUs/ViewWhyStudyWithUs'
+import CompletedCoursesPage from './pages/CompletedCoursesPage/CompletedCoursesPage'
+import Blog from './module/admin/pages/WebManagement/Blog/Blog'
+import AddBlog from './module/admin/component/WebManagement/blog/AddBlog/AddBlog'
+import EditBlog from './module/admin/component/WebManagement/blog/EditBlog/EditBlog'
+import ViewBlog from './module/admin/component/WebManagement/blog/ViewBlog/ViewBlog'
 import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
 
 function App() {
@@ -111,6 +116,7 @@ function App() {
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
+          <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse' element={<ContinueCoursePage />} />
           
 
@@ -119,7 +125,7 @@ function App() {
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="profile/:id" element={<Profile />} />
             <Route path="tandc" element={<TandC />} />
             <Route path='my-courses' element={<Mycourses/>} />
             <Route path="contactsupport" element={<ContactSupport />} />
@@ -215,6 +221,11 @@ function App() {
             <Route path="web-management/why-study-with-us/create" element={<AddWhyStudyWithUs />} />
             <Route path="web-management/why-study-with-us/edit/:id" element={<EditWhyStudyWithUs />} />
             <Route path="web-management/why-study-with-us/view/:id" element={<ViewWhyStudyWithUs />} />
+
+            <Route path="web-management/blog" element={<Blog />} />
+            <Route path="web-management/blog/create" element={<AddBlog />} />
+            <Route path="web-management/blog/edit/:id" element={<EditBlog />} />
+            <Route path="web-management/blog/view/:id" element={<ViewBlog />} />
           </Route>
 
           
