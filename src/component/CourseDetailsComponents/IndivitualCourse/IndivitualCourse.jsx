@@ -28,6 +28,9 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getCourseById } from '../../../api/courseApi';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import PaymentComponent from '../../../module/admin/component/PaymentComponent/PaymentComponent';
+import { getCookiesData } from '../../../utils/cookiesService';
+import { getUserByUserId } from '../../../api/authApi';
 
 const IndividualCourses = () => {
   const { id } = useParams();
@@ -35,6 +38,23 @@ const IndividualCourses = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const cookieData = getCookiesData();
+      if (cookieData && cookieData.userId) {
+        const user = await getUserByUserId(cookieData.userId);
+        console.log("user", user);
+        if (user) {
+          setUserData(user.user);
+          setUserLoggedIn(true);
+        }
+      }
+    };
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -74,7 +94,7 @@ const IndividualCourses = () => {
           <BackIcon><FaArrowLeft /></BackIcon>
         </BackLink>
         <MainTitle>
-          {course.courseDisplayName} 
+          {course.courseDisplayName}
           <span> {course.courseName}</span>
         </MainTitle>
       </Header>
@@ -117,34 +137,37 @@ const IndividualCourses = () => {
       </Description>
 
       <CourseButton>
-        <EnrollButton>
-          Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-
-          {course.discountActive && (
-            <span style={{ textDecoration: 'line-through', marginLeft: '8px', color: '#999' }}>
-              ₹{course.price}
-            </span>
-          )}
-        </EnrollButton>
-
+        {userLoggedIn ?
+          (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />) :
+          (<EnrollButton
+            onClick={() => { navigate(`/login`) }}>
+            Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-
+            {course.discountActive && (
+              <span style={{ textDecoration: 'line-through', marginLeft: '8px', color: '#999' }}>
+                ₹{course.price}
+              </span>
+            )}
+          </EnrollButton>)
+        }
         <FeaturesRow>
-          <Feature><RiLock2Fill className="lock-icon"/></Feature>
+          <Feature><RiLock2Fill className="lock-icon" /></Feature>
           <FeatureItem>
-         
-              <FaVideo />
-              <IconText>{course.no_of_videos} Videos</IconText>
-        
+
+            <FaVideo />
+            <IconText>{course.no_of_videos} Videos</IconText>
+
           </FeatureItem> |
           <FeatureItem>
-            
-              <FaBook />
-              <IconText>{course.no_of_subjects} Subjects</IconText>
-         
+
+            <FaBook />
+            <IconText>{course.no_of_subjects} Subjects</IconText>
+
           </FeatureItem> |
           <FeatureItem>
-            
-              <FaFileAlt />
-              <IconText>{course.no_of_notes} Notes</IconText>
-      
+
+            <FaFileAlt />
+            <IconText>{course.no_of_notes} Notes</IconText>
+
           </FeatureItem>
         </FeaturesRow>
       </CourseButton>

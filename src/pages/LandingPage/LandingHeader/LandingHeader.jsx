@@ -28,17 +28,40 @@ import Twitter from '../../../assets/twitter.svg';
 import Whatsapp from '../../../assets/whatsapp.svg';
 import Linkedin from '../../../assets/linkedIn.svg';
 import Telegram from '../../../assets/telegram.svg';
+import { getCookiesData } from "../../../utils/cookiesService";
+import { getUserByUserId } from "../../../api/authApi";
 
 const Header = () => {
   const [activeLink, setActiveLink] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const[userDetails,setUserDetails]=useState(null);
 
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  useEffect(() => {
+    console.log("Header useEffect running");
+    const apiCaller = async () => {
+      const cookieData = getCookiesData();
+      console.log("cookieData", cookieData);
+      if (cookieData) {
+        const userData = await getUserByUserId(cookieData.userId);
+        if (userData) {
+          console.log("userData", userData);
+          setUserDetails(userData.user)
+          setIsLoggedIn(true);
+        }
+
+
+      }
+      //  const response=
+    }
+    apiCaller();
+  }, [])
+ 
 
   const handleNavClick = (link) => {
     // Special routes
@@ -47,12 +70,12 @@ const Header = () => {
       navigate("/ourcoursedetails");
       return;
     }
-     if (link === "About") {
+    if (link === "About") {
       setActiveLink(link);
       navigate("/aboutus");
       return;
     }
-        if (link === "Prev. Year Ques.") {
+    if (link === "Prev. Year Ques.") {
       setActiveLink(link);
       navigate("/prev-years-question");
       return;
@@ -68,7 +91,7 @@ const Header = () => {
     navigate(`/${path}`);
   };
 
-  const handleLoginButton = () => navigate("/login");
+  const handleLoginButton = () => { navigate("/login") };
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate("/");
@@ -105,23 +128,23 @@ const Header = () => {
           <Headline>
             Headline Of Our Courses/<span>Live Classes</span>
           </Headline>
-       
-         <SocialIcons>
+
+          <SocialIcons>
             <Image
               src={Youtube}
               alt="YouTube"
               style={{ cursor: 'pointer' }}
               onClick={() => window.open('https://www.youtube.com/', '_blank')}
-           />
+            />
             <Image
               src={Facebook}
-             alt="Facebook"
+              alt="Facebook"
               style={{ cursor: 'pointer' }}
-             onClick={() => window.open('https://www.facebook.com/', '_blank')}
+              onClick={() => window.open('https://www.facebook.com/', '_blank')}
             />
             <Image
               src={Instagram}
-             alt="Instagram"
+              alt="Instagram"
               style={{ cursor: 'pointer' }}
               onClick={() =>
                 window.open('https://www.instagram.com/thevasudev_/', '_blank')
@@ -158,9 +181,9 @@ const Header = () => {
 
       <NavbarMain>
         <NavBarContainer>
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <Logo>Mankavit</Logo>
-        </Link>
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <Logo>Mankavit</Logo>
+          </Link>
 
           <div className="menu-container" ref={menuRef}>
             <NavLinks className={mobileMenuOpen ? "open" : ""}>
@@ -200,7 +223,7 @@ const Header = () => {
                 <DashboardButton onClick={handleLogout}>
                   Dashboard
                   <img
-                    src="https://cdn-icons-png.flaticon.com/512/9131/9131529.png"
+                    src={userDetails?.photo_url}
                     alt="Profile"
                     className="profile-icon"
                   />

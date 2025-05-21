@@ -74,3 +74,24 @@ export const getNoOfCourses = async () => {
         throw error;
     }
 };
+
+export const getAllUserCourses = async (userID) => {
+    try {
+        const response = await api.get( `/api/v1/course/getAllCourses/users/${userID}`);
+        console.log("response", response);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}; 
+export const getAllUserCourseByCategory = async (userID,categoryName) => {
+    try {
+        const response = await api.get( `api/v1/course/getAllCourses/users/category/${userID}/${categoryName}`);
+        console.log("response", response);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

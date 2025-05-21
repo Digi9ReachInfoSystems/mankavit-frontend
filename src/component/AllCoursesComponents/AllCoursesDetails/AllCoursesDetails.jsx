@@ -31,9 +31,10 @@ import { FcCalendar } from 'react-icons/fc';
 import { FaStar } from 'react-icons/fa';
 import lawimg from '../../../assets/lawentrance.png';
 
-import { getAllCourses, getCourseByCategory } from '../../../api/courseApi';
-import {getCategories} from '../../../api/categoryApi';
+import { getAllCourses, getAllUserCourseByCategory, getAllUserCourses, getCourseByCategory } from '../../../api/courseApi';
+import { getCategories } from '../../../api/categoryApi';
 import { useNavigate } from 'react-router-dom';
+import { getCookiesData } from '../../../utils/cookiesService';
 
 const AllCoursesDetails = () => {
   const navigate = useNavigate();
@@ -48,10 +49,11 @@ const AllCoursesDetails = () => {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
+        console.log("data", data);
         // Map to titles
         const titles = data.map(cat => cat.title);
         // Ensure "All" is present at the front
-        const uniqueTitles = Array.from(new Set(['All', ...titles]));
+        const uniqueTitles = Array.from(new Set([...titles]));
         setCategories(uniqueTitles);
       } catch (err) {
         console.error('Error fetching categories:', err);
@@ -63,16 +65,30 @@ const AllCoursesDetails = () => {
   // Fetch courses when activeTab changes
   useEffect(() => {
     const fetchCourses = async () => {
+      const cookiesData = getCookiesData();
+      console.log("cookiesData", cookiesData, "activeTab", activeTab);
       setLoading(true);
       try {
         let data = [];
-        if (activeTab === 'All') {
-          const resp = await getAllCourses();
+        if (cookiesData && cookiesData.userId) {
+          // if (activeTab === 'All') {
+          //   const resp = await getAllUserCourses(cookiesData.userId);
+          //   data = resp.data;
+          // } else {
+          const resp = await getAllUserCourseByCategory(cookiesData.userId, activeTab);
+          console.log("resp", resp);
           data = resp.data;
+          // }
         } else {
+          // if (activeTab === 'All') {
+          //   const resp = await getAllCourses();
+          //   data = resp.data;
+          // } else {
           const resp = await getCourseByCategory(activeTab);
           data = resp.data;
+          // }
         }
+
         const transformed = data.map(course => ({
           id: course._id,
           title: course.courseDisplayName || 'Untitled Course',
