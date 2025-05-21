@@ -24,7 +24,7 @@ import {
     PriceActions,
     ViewButton,
 } from './UserCourses.styles';
-
+import { useNavigate } from 'react-router-dom';
 import lawimg from "../../../../assets/lawentrance.png";
 import { FaStar } from "react-icons/fa";
 import { FcOk, FcCalendar } from "react-icons/fc";
@@ -40,6 +40,7 @@ const UserCourses = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     // Get userId from cookies
     const { userId } = getCookiesData();
@@ -222,9 +223,13 @@ const UserCourses = () => {
                                 </CourseContent>
 
                                 <PriceActions>
-                                    <ViewButton completed={course.course_status === "completed"}>
+                                    <ViewButton
+                                        completed={course.course_status === "completed"}
+                                        onClick={() => navigate(`/continueCourse/${course._id}`)}
+                                    >
                                         {course.course_status === "completed" ? 'Completed' : 'Continue Learning'}
                                     </ViewButton>
+
                                 </PriceActions>
                             </CourseCard>
                         ))
