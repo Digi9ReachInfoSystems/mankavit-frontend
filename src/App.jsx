@@ -116,6 +116,7 @@ function App() {
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
+          
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse' element={<ContinueCoursePage />} />
           
@@ -130,6 +131,8 @@ function App() {
             <Route path='my-courses' element={<Mycourses/>} />
             <Route path="contactsupport" element={<ContactSupport />} />
             <Route path="notification" element={<UserNotifications />} />
+
+            <Route path="completed-courses" element={<CompletedCoursesPage />} />
           {/* </Route> */}
 
           </Route>
