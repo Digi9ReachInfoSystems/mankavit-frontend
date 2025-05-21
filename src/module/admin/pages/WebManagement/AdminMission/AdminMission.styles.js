@@ -172,6 +172,12 @@ export const Td = styled.td`
   color: ${(props) => props.theme.colors.black};
   white-space: nowrap;
   border-bottom: 1px solid ${(props) => props.theme.colors.grey};
+
+    &:nth-child(2) {
+    width: 40%;
+    white-space: normal; /* allow text to wrap inside description */
+    word-break: break-word;
+  }
 `;
 
 export const ViewLink = styled.a`
