@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   HeaderRow,
@@ -22,36 +22,47 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 
 // sample data — replace with real fetch
-const sampleData = [
-  {
-    id: 1,
-    title: "CLAT Coaching",
-    description:
-      "Loremmmm Ipsum is simply dummy text of the printing and typesetting industry.",
-    coursesEnrolled: 7,
-    bannerUrl: "https://www.google.com/search?sca_esv=69251213fe4ae3f6&q=java+class+linking&udm=7&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWpA-dk4wpBWOGsoR7DG5zJBkzPWUS0OtApxR2914vrjk4ZqZZ4I2IkJifuoUeV0iQtlsVaSqiwnznvC1owt2z2tTdc23Auc6X4y2i7IIF0f-d_O-E9yXafSm5foej9KNb5dB5UNNsgm78dv2qEeljVjLTUov5wWn4x9of_4BNb8vF_2a_9-AxwH0UJGyfTMDuJ_sz_gg&sa=X&ved=2ahUKEwjKpYDLvqeNAxU1UGwGHS9HNAkQtKgLegQIFBAB&biw=1920&bih=945&dpr=1#fpstate=ive&vld=cid:c15e3d6e,vid:XNWvF-xsCoY,st:0",
-    schedule: "2024-07-24T10:30:00Z",
-  },
-  {
-    id: 2,
-    title: "CLAT Coaching",
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    coursesEnrolled: 7,
-    bannerUrl: "/path/to/banner2.jpg",
-    schedule: "2024-07-24T10:30:00Z",
-  },
-  // …more rows
-];
-
+// const sampleData = [
+//   {
+//     id: 1,
+//     title: "CLAT Coaching",
+//     description:
+//       "Loremmmm Ipsum is simply dummy text of the printing and typesetting industry.",
+//     coursesEnrolled: 7,
+//     bannerUrl: "https://www.google.com/search?sca_esv=69251213fe4ae3f6&q=java+class+linking&udm=7&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWpA-dk4wpBWOGsoR7DG5zJBkzPWUS0OtApxR2914vrjk4ZqZZ4I2IkJifuoUeV0iQtlsVaSqiwnznvC1owt2z2tTdc23Auc6X4y2i7IIF0f-d_O-E9yXafSm5foej9KNb5dB5UNNsgm78dv2qEeljVjLTUov5wWn4x9of_4BNb8vF_2a_9-AxwH0UJGyfTMDuJ_sz_gg&sa=X&ved=2ahUKEwjKpYDLvqeNAxU1UGwGHS9HNAkQtKgLegQIFBAB&biw=1920&bih=945&dpr=1#fpstate=ive&vld=cid:c15e3d6e,vid:XNWvF-xsCoY,st:0",
+//     schedule: "2024-07-24T10:30:00Z",
+//   },
+//   {
+//     id: 2,
+//     title: "CLAT Coaching",
+//     description:
+//       "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+//     coursesEnrolled: 7,
+//     bannerUrl: "/path/to/banner2.jpg",
+//     schedule: "2024-07-24T10:30:00Z",
+//   },
+//   // …more rows
+// ];
+import { getAllRecordedClasses } from "../../../../../api/recordedAPi";
 const ITEMS_PER_PAGE = 10;
 
 const RecordedClass = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(sampleData);
+  const [data, setData] = useState([]);
   const [modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllRecordedClasses();
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  })
 
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const currentItems = data.slice(

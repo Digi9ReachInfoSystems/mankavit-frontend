@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   FormRow,
@@ -22,16 +22,11 @@ import {
   SubmitButton
 } from "../RecordedClass/AddRecordedClass.style";
 import upload from "../../../../../assets/upload.png";
-
-// sample courses data
-const sampleCourses = [
-  { id: 1, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 2, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 3, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 4, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 5, name: "Mankavit Mock Test - CLAT 2025" },
-  { id: 6, name: "Mankavit Mock Test - CLAT 2025" }
-];
+import { getAllCourses } from "../../../../../api/courseApi";
+import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { createRecordedClass } from "../../../../../api/recordedAPi";
+import { useNavigate } from "react-router-dom";
+import { message } from "antd";
 
 const AddRecordedClass = ({ onSubmit }) => {
   const [title, setTitle] = useState("");
@@ -39,11 +34,48 @@ const AddRecordedClass = ({ onSubmit }) => {
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
+  const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [duration, setDuration] = useState("");
+  const navigate = useNavigate();
+
   const fileRef = useRef();
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await getAllCourses();
+        const checkboxes = (response.data || []).map((item) => ({
+          label: item?.courseName,
+          id: item?._id,
+          checked: false,
+        }));
+        setCoursesCheckboxes(checkboxes);
+      } catch (error) {
+        setError("Error fetching courses");
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const handleFile = (f) => {
     if (f) {
+      // Validate file type and size
+      if (!f.type.startsWith('video/')) {
+        setError("Please upload a valid video file");
+        return;
+      }
+      
+      // 10MB limit (adjust as needed)
+      const maxSize = 100 * 1024 * 1024; // 100MB
+      if (f.size > maxSize) {
+        setError(`Video file too large (max ${maxSize/1024/1024}MB)`);
+        return;
+      }
+      
       setFile(f);
+      setError("");
     }
   };
 
@@ -67,24 +99,81 @@ const AddRecordedClass = ({ onSubmit }) => {
     });
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!title || !description || !file || selectedCourses.size === 0) {
-      alert("Please fill all fields, upload a video, and select at least one course");
+      setError("Please fill all fields, upload a video, and select at least one course");
       return;
     }
+    
+    setError("");
+    setLoading(true);
+    
+    try {
+      console.log("Starting video upload...");
+      console.log("File details:", {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+      
+      // 1. Upload video to Azure
+      const uploadRes = await uploadFileToAzureStorage(file, "recorded-class");
+      console.log("Upload response:", uploadRes);
+      
+  if (!(uploadRes?.blobUrl)) {
+  const errorMsg = uploadRes?.message || "Video upload failed";
+  console.error("Upload failed:", errorMsg);
+  setError(errorMsg);
+  return;
+}
 
-    onSubmit({
-      title,
-      description,
-      file,
-      courses: Array.from(selectedCourses),
-    });
+      console.log("Video uploaded successfully. URL:", uploadRes.blobUrl);
+      
+const data = {
+  title,
+  description,
+  duration: Number(duration), // Convert to number if API expects that
+  videoUrl: uploadRes.blobUrl,
+  course_ref: Array.from(selectedCourses),
+};
+// In your submit function, before making the API call
+if (!duration || isNaN(Number(duration))) {
+  setError("Please enter a valid duration (numeric value)");
+  return;
+}
+
+
+      console.log("Creating recorded class with data:", data);
+      const createRes = await createRecordedClass(data);
+      navigate('/admin/web-management/recorded-class')
+      console.log("Create response:", createRes);
+      if (createRes?.success) {
+        console.log("Recorded class created successfully");
+        setTitle("");
+        setDescription("");
+        setDuration("");
+        setFile(null);
+        setSelectedCourses(new Set());
+        if (onSubmit) onSubmit();
+        message.success("Recorded class uploaded successfully!");
+      } else {
+        const errorMsg = createRes?.message || "Failed to create recorded class";
+        console.error("Creation failed:", errorMsg);
+        setError(errorMsg);
+      }
+    } catch (err) {
+      console.error("Error in submit:", err);
+      setError(err.message || "An error occurred. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container>
       <h2>Upload Recorded Class</h2>
+      {error && <p style={{ color: "red", marginBottom: 10 }}>{error}</p>}
       <form onSubmit={submit}>
         <FormGroup>
           <Label htmlFor="title">Title</Label>
@@ -106,6 +195,16 @@ const AddRecordedClass = ({ onSubmit }) => {
             onChange={(e) => setDescription(e.target.value)}
           />
         </FormGroup>
+        <FormGroup>
+  <Label htmlFor="duration">Duration</Label>
+  <TextInput
+    id="duration"
+    placeholder="e.g. 2 hours"
+    value={duration}
+    onChange={(e) => setDuration(e.target.value)}
+  />
+</FormGroup>
+
 
         <FormRow>
           <FormColumn>
@@ -142,9 +241,9 @@ const AddRecordedClass = ({ onSubmit }) => {
             <CoursesContainer>
               <CoursesHeader>Add Courses (Click Checkbox to Select)</CoursesHeader>
               <CourseList>
-                {sampleCourses.map((course) => (
+                {coursesCheckboxes.map((course) => (
                   <CourseItem key={course.id}>
-                    <CourseLabel>{course.name}</CourseLabel>
+                    <CourseLabel>{course.label}</CourseLabel>
                     <CourseCheckbox
                       type="checkbox"
                       checked={selectedCourses.has(course.id)}
@@ -157,7 +256,9 @@ const AddRecordedClass = ({ onSubmit }) => {
           </FormColumn>
         </FormRow>
 
-        <SubmitButton type="submit">Upload Recorded Class</SubmitButton>
+        <SubmitButton type="submit" disabled={loading}>
+          {loading ? "Uploading..." : "Upload Recorded Class"}
+        </SubmitButton>
       </form>
     </Container>
   );

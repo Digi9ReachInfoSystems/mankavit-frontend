@@ -19,6 +19,9 @@ import {
 
 import uploadIcon from '../../../../../../assets/upload.png';
 
+import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService'; // Adjust import as needed
+import { createBlog } from '../../../../../../api/blogApi'; // Adjust import as needed
+
 const AddBlog = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -35,21 +38,37 @@ const AddBlog = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e) => {
+    const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      setPreviewUrl(URL.createObjectURL(file));
-    } else {
+    if (!file) return;
+
+    if (!file.type.match('image.*')) {
       setError('Please upload a valid image file.');
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB.');
+      return;
+    }
+
+    setError('');
+    setFormData((prev) => ({ ...prev, image: file }));
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreviewUrl(reader.result);
+    reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async () => {
-    const { title, description, image } = formData;
+ const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (!title || !description || !image) {
-      setError('All fields are required.');
+    // Basic validation
+    if (!formData.title.trim() || !formData.description.trim()) {
+      setError('Title and Description are required.');
+      return;
+    }
+    if (!formData.image) {
+      setError('Please select an image.');
       return;
     }
 
@@ -57,32 +76,32 @@ const AddBlog = () => {
     setLoading(true);
 
     try {
-      // Simulate form submission
-      const formDataToSend = new FormData();
-      formDataToSend.append('title', title);
-      formDataToSend.append('description', description);
-      formDataToSend.append('image', image);
+      // 1. Upload image to Azure and get URL
+      const uploadResponse = await uploadFileToAzureStorage(formData.image, 'blog');
+      // Use blobUrl returned from Azure
+      const imageUrl = uploadResponse.blobUrl || uploadResponse.url || uploadResponse.fileUrl;
 
-      // Example: Replace with your actual API call
-      // await fetch('/api/blogs', {
-      //   method: 'POST',
-      //   body: formDataToSend,
-      // });
+      const blogPayload = {
+        title: formData.title,
+        description: formData.description,
+        image: imageUrl,
+      };
 
-      // Simulate success
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/admin/web-management/blog'); // Navigate after creation
-      }, 1000);
+      await createBlog(blogPayload);
+      navigate('/admin/web-management/blog');
     } catch (err) {
+      console.error('Error creating blog:', err.response || err);
+      const serverMsg = err.response?.data?.message || err.message;
+      setError(serverMsg || 'Failed to create blog. Please try again.');
+    } finally {
       setLoading(false);
-      setError('Failed to create blog. Try again.');
     }
   };
 
+
   return (
     <Container>
-      <Title>Blog</Title>
+      <Title>Add Blog</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       <Label>Blog *</Label>

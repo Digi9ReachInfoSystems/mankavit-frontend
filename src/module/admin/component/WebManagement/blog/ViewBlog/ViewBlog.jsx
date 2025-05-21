@@ -1,7 +1,5 @@
-// src/pages/Admin/WebManagement/Blog/ViewBlog.jsx
-
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import {
   Container,
@@ -14,16 +12,47 @@ import {
 } from "./ViewBlog.styles";
 
 import uploadIcon from "../../../../../../assets/upload.png";
+import { getBlogById } from "../../../../../../api/blogApi";
 
 const ViewBlog = () => {
-  const location = useLocation();
-  const blogData = location.state;
+  const { id } = useParams();
+  const [blogData, setBlogData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!blogData) {
+  useEffect(() => {
+    const fetchBlog = async () => {
+      setLoading(true);
+      try {
+        const response = await getBlogById(id);
+        if (response?.success && response?.blog) {
+          setBlogData(response.blog);
+        } else {
+          setError("No blog data found.");
+        }
+      } catch (err) {
+        setError("Error fetching blog data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlog();
+  }, [id]);
+
+  if (loading) {
     return (
       <Container>
         <Title>View Blog</Title>
-        <p style={{ color: "red" }}>No blog data found.</p>
+        <p>Loading...</p>
+      </Container>
+    );
+  }
+
+  if (error || !blogData) {
+    return (
+      <Container>
+        <Title>View Blog</Title>
+        <p style={{ color: "red" }}>{error || "No blog data found."}</p>
       </Container>
     );
   }
@@ -35,10 +64,10 @@ const ViewBlog = () => {
       <Title>View Blog</Title>
 
       <Label>Title</Label>
-      <Field>{title}</Field>
+      <Field>{title || "-"}</Field>
 
       <Label>Description</Label>
-      <Field>{description}</Field>
+      <Field>{description || "-"}</Field>
 
       <Label>Image</Label>
       <DropZone hasImage={!!image}>

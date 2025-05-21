@@ -1,8 +1,5 @@
-// src/pages/Admin/WebManagement/Blog/Blog.jsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   Container,
   Title,
@@ -18,57 +15,51 @@ import {
   ModalImage,
   CloseButton,
 } from "./Blog.styles";
-
 import { IoEyeOutline } from "react-icons/io5";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
-
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import Pagination from "../../../component/Pagination/Pagination";
-
-const BlogData = [
-  {
-    _id: "1",
-    title: "Blog 1",
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam nostrum, temporibus aperiam in blanditiis tempora tempore incidunt eius est quibusdam quas. Dolore obcaecati repellendus assumenda sunt distinctio corrupti mollitia dicta temporibus. Consequuntur possimus, quis inventore facere, ipsa error deserunt at amet temporibus unde animi ut nam reiciendis. Fuga voluptates tenetur modi veniam dicta sequi temporibus repudiandae et numquam vero quibusdam saepe soluta sint aspernatur voluptatum, omnis id deleniti veritatis quo corporis. Labore, nobis, cum perspiciatis asperiores illum voluptatem, vero dolore facere a ut enim quidem sit quos esse autem? Quaerat fugiat fugit rerum impedit reprehenderit delectus eveniet deleniti neque aut?",
-    image: "https://th.bing.com/th/id/R.478dfc41e1100a0ee3eef95559d208d6?rik=6gy0Ok9JyDUxFA&pid=ImgRaw&r=0",
-  },
-  {
-    _id: "2",
-    title: "Blog 2",
-    description: "Description 2",
-    image: "https://th.bing.com/th/id/OIP.iprMXLyybI8FZvpvA0PuWAHaFL?cb=iwp2&rs=1&pid=ImgDetMain",
-  },
-  {
-    _id: "3",
-    title: "Blog 3",
-    description: "Description 3",
-    image: "https://th.bing.com/th/id/OIP.T-w6kU2gIs0h0SXzkFkKlwHaGX?cb=iwp2&w=562&h=483&rs=1&pid=ImgDetMain",
-  },
-  {
-    _id: "4",
-    title: "Blog 4",
-    description: "Description 4",
-    image: "https://th.bing.com/th/id/OIP.iprMXLyybI8FZvpvA0PuWAHaFL?cb=iwp2&rs=1&pid=ImgDetMain",
-  },
-  {
-    _id: "5",
-    title: "Blog 5",
-    description: "Description 5",
-    image: "https://th.bing.com/th/id/OIP.T-w6kU2gIs0h0SXzkFkKlwHaGX?cb=iwp2&w=562&h=483&rs=1&pid=ImgDetMain",
-  },
-];
+import { getAllBlogs, deleteBlogById } from "../../../../../api/blogApi";
+import { message } from "antd";
 
 const ITEMS_PER_PAGE = 10;
 
 const Blog = () => {
   const navigate = useNavigate();
-  const [blog, setBlog] = useState(BlogData);
+  const [blog, setBlog] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllBlogs();
+        console.log("API Response:", response); // Debug log
+        
+        // Corrected data extraction based on your API response
+        if (response && response.success && response.blogs) {
+          setBlog(response.blogs);
+        } else {
+          setBlog([]);
+          message.warning("No blogs found");
+        }
+      } catch (err) {
+        setError("Failed to load blogs. Please try again later.");
+        console.error("Error loading blogs:", err);
+        message.error("Failed to load blogs");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const totalItems = blog.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -85,106 +76,150 @@ const Blog = () => {
     setDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    setBlog(blog.filter((item) => item._id !== selectedId));
-    setDeleteModalOpen(false);
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteBlogById(selectedId);
+      setBlog(blog.filter((item) => item._id !== selectedId));
+      message.success("Blog deleted successfully");
+    } catch (err) {
+      message.error("Failed to delete blog");
+      console.error("Error deleting blog:", err);
+    } finally {
+      setDeleteModalOpen(false);
+    }
   };
-  
 
-return(
+  if (loading) {
+    return (
+      <Container>
+        <Title>Blog</Title>
+        <div>Loading blogs...</div>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Title>Blog</Title>
+        <div style={{ color: "red" }}>{error}</div>
+      </Container>
+    );
+  }
+
+  return (
     <>
-    <BtnAchieve>
-      <AddButton onClick={() => navigate("/admin/web-management/blog/create")}>
-        Add Blog
-      </AddButton>
-    </BtnAchieve>
+      <BtnAchieve>
+        <AddButton onClick={() => navigate("/admin/web-management/blog/create")}>
+          Add Blog
+        </AddButton>
+      </BtnAchieve>
 
-    <Container>
-      <Title>Blog</Title>
+      <Container>
+        <Title>Blog</Title>
 
-      <TableWrapper>
-        <Table>
-          <TableHead>
-            <tr>
-              <Th>Title</Th>
-              <Th>Description</Th>
-              <Th>Image</Th>
-              <Th>Actions</Th>
-            </tr>
-          </TableHead>
-          <tbody>
-            {currentPageData.map((item) => (
-              <tr key={item._id}>
-                <Td>{item.title}</Td>
-                <Td>{item.description}</Td>
-                <Td>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleViewImage(item.image);
-                    }}
-                    style={{ textDecoration: "none" }}
-                  >
-                    View Image
-                  </a>
-                </Td>
-                <Td>
-                  <IoEyeOutline
-                    size={20}
-                    style={{ cursor: "pointer", marginRight: 10 }}
-                    onClick={() =>
-                        navigate(`/admin/web-management/blog/view/${item._id}`, { state: item })
-                    }
-                  />
-                  <BiEditAlt
-                    size={20}
-                    style={{ cursor: "pointer", marginRight: 10 }}
-                    onClick={() =>
-                        navigate(`/admin/web-management/blog/edit/${item._id}`, { state: item })
-                    }
-                  />
-                  <RiDeleteBin6Line
-                    size={20}
-                    color="#FB4F4F"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleDeleteClick(item._id)}
-                  />
-                </Td>
+        <TableWrapper>
+          <Table>
+            <TableHead>
+              <tr>
+                <Th>Title</Th>
+                <Th>Description</Th>
+                <Th>Image</Th>
+                <Th>Actions</Th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </TableWrapper>
+            </TableHead>
+            <tbody>
+              {currentPageData.length > 0 ? (
+                currentPageData.map((item) => (
+                  <tr key={item._id}>
+                    <Td>{item.title || "No title"}</Td>
+                    <Td>
+                      {item.description
+                        ? `${item.description.substring(0, 50)}...`
+                        : "No description"}
+                    </Td>
+                    <Td>
+                      {item.image ? (
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleViewImage(item.image);
+                          }}
+                          style={{ textDecoration: "none" }}
+                        >
+                          View Image
+                        </a>
+                      ) : (
+                        "No image"
+                      )}
+                    </Td>
+                    <Td>
+                      <IoEyeOutline
+                        size={20}
+                        style={{ cursor: "pointer", marginRight: 10 }}
+                        onClick={() =>
+                          navigate(`/admin/web-management/blog/view/${item._id}`, {
+                            state: item,
+                          })
+                        }
+                      />
+                      <BiEditAlt
+                        size={20}
+                        style={{ cursor: "pointer", marginRight: 10 }}
+                        onClick={() =>
+                          navigate(`/admin/web-management/blog/edit/${item._id}`, {
+                            state: item,
+                          })
+                        }
+                      />
+                      <RiDeleteBin6Line
+                        size={20}
+                        color="#FB4F4F"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleDeleteClick(item._id)}
+                      />
+                    </Td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <Td colSpan="4" style={{ textAlign: "center" }}>
+                    No blogs found
+                  </Td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </TableWrapper>
 
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={totalItems}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
+        )}
+      </Container>
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDeleteConfirm}
+      />
+
+      {modalOpen && selectedImage && (
+        <ImageModalOverlay>
+          <ImageModalContent>
+            <CloseButton onClick={() => setModalOpen(false)}>X</CloseButton>
+            <ModalImage src={selectedImage} alt="Selected" />
+          </ImageModalContent>
+        </ImageModalOverlay>
       )}
-    </Container>
-
-    <DeleteModal
-      isOpen={deleteModalOpen}
-      onClose={() => setDeleteModalOpen(false)}
-      onDelete={handleDeleteConfirm}
-    />
-
-    {modalOpen && selectedImage && (
-      <ImageModalOverlay>
-        <ImageModalContent>
-          <CloseButton onClick={() => setModalOpen(false)}>X</CloseButton>
-          <ModalImage src={selectedImage} alt="Selected" />
-        </ImageModalContent>
-      </ImageModalOverlay>
-    )}
-  </>
-);
-
+    </>
+  );
 };
 
 export default Blog;
