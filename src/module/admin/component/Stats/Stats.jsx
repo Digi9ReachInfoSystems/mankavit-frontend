@@ -1,14 +1,56 @@
-import React from 'react';
+
+
+
+import React, { useEffect, useState } from 'react';
 import { StatsContainer, StatCard, StatTitle, StatValue, MenuIcon } from './Stats.styles';
 
-const statsData = [
-  { title: 'Total Courses', value: '1,534' },
-  { title: 'Total Students', value: '869' },
-  { title: 'Subjects', value: '236' },
-  { title: 'Note', value: '429' },
-];
-
+import { getNoOfCourses } from '../../../../api/courseApi'; // <-- update path
+import { getNoOfNotes } from '../../../../api/notesApi';
+import { getNoOfStudents } from '../../../../api/authApi';
+import { getNoOfSubjects } from '../../../../api/subjectApi';
 const Stats = () => {
+  const [stats, setStats] = useState({
+    courses: null,
+    students: null,
+    subjects: null,
+    notes: null,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      try {
+        // Fetch all stats in parallel
+        const [coursesRes, studentsRes, subjectsRes, notesRes] = await Promise.all([
+          getNoOfCourses(),
+          getNoOfStudents(),
+          getNoOfSubjects(),
+          getNoOfNotes(),
+        ]);
+        setStats({
+          courses: coursesRes.count ?? 0,
+          students: studentsRes.count ?? 0,
+          subjects: subjectsRes.count ?? 0,
+          notes: notesRes.count ?? 0,
+        });
+      } catch (err) {
+        // If error, keep stats at 0 or show error message
+        setStats({ courses: 0, students: 0, subjects: 0, notes: 0 });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const statsData = [
+    { title: 'Total Courses', value: stats.courses ?? '-' },
+    { title: 'Total Students', value: stats.students ?? '-' },
+    { title: 'Subjects', value: stats.subjects ?? '-' },
+    { title: 'Note', value: stats.notes ?? '-' },
+  ];
+
   return (
     <StatsContainer>
       {statsData.map((stat, index) => (
@@ -17,7 +59,9 @@ const Stats = () => {
             <StatTitle>{stat.title}</StatTitle>
             <MenuIcon>...</MenuIcon>
           </div>
-          <StatValue>{stat.value}</StatValue>
+          <StatValue>
+            {loading ? <span style={{ fontSize: '12px' }}>Loading...</span> : stat.value}
+          </StatValue>
         </StatCard>
       ))}
     </StatsContainer>
