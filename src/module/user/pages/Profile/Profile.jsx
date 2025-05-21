@@ -1,4 +1,7 @@
-import React, { useRef, useState } from 'react';
+// src/pages/Admin/WebManagement/WhyStudyWithUs/Profile.jsx
+
+import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   FormContainer,
   UpdatedGif,
@@ -21,146 +24,265 @@ import {
   UploadedFileName,
   ModalOverlay,
   ModalContent,
-  CloseButton
+  CloseButton,
+  ErrorMessage
 } from './Profile.styles';
-import { MdOutlineFileUpload } from "react-icons/md";
-import profile from "../../../../assets/profile.png";
-import camera from "../../../../assets/Camera.png";
-import profileUpdated from "../../../../assets/profileUpdated.gif";
 
-const AddStudent = () => {
-  const profilePhotoInputRef = useRef(null);   // Profile image (clicking camera icon)
-  const passportPhotoInputRef = useRef(null);  // Passport size upload button
+import { MdOutlineFileUpload } from 'react-icons/md';
+import profilePlaceholder from '../../../../assets/profile.png';
+import cameraIcon from '../../../../assets/Camera.png';
+import profileUpdatedGif from '../../../../assets/profileUpdated.gif';
+
+import { getUserByUserId, updateUserById } from '../../../../api/authApi';
+import { uploadFileToAzureStorage } from '../../../../utils/azureStorageService';
+
+const Profile = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const profilePhotoInputRef = useRef(null);
+  const passportPhotoInputRef = useRef(null);
   const idProofInputRef = useRef(null);
 
   const [profileData, setProfileData] = useState({
-    name: 'Ryan Kr',
-    email: 'ryan142@gmail.com',
-    mobile: '9374624931',
+    name: '',
+    email: '',
+    mobile: ''
   });
 
-  const [profileImage, setProfileImage] = useState(profile);
+  const [profileImage, setProfileImage] = useState(profilePlaceholder);
   const [passportPhoto, setPassportPhoto] = useState(null);
   const [uploadedIDProof, setUploadedIDProof] = useState(null);
+
   const [modalFile, setModalFile] = useState(null);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Profile Photo Upload
-  const handleProfilePhotoUploadClick = () => {
-    profilePhotoInputRef.current.click();
-  };
+  useEffect(() => {
+    if (!id) {
+      navigate('/error');
+      return;
+    }
+    (async () => {
+      setIsLoading(true);
+      try {
+        const resp = await getUserByUserId(id);
+        if (!resp.success || !resp.user) {
+          throw new Error('User not found');
+        }
+        const u = resp.user;
+        setProfileData({
+          name: u.displayName || '',
+          email: u.email || '',
+          mobile: u.phone || ''
+        });
+        setProfileImage(u.profileImageUrl || u.profilePicture || profilePlaceholder);
 
-  const handleProfilePhotoFileChange = (e) => {
+        if (u.passportPhotoUrl) {
+          setPassportPhoto({
+            name: 'Passport Photo',
+            url: u.passportPhotoUrl,
+            type: 'image/*'
+          });
+        }
+        if (u.idProofUrl) {
+          setUploadedIDProof({
+            name: 'ID Proof',
+            url: u.idProofUrl,
+            type: u.idProofUrl.endsWith('.pdf') ? 'application/pdf' : 'image/*'
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [id, navigate]);
+
+  const handleProfilePhotoUploadClick = () => profilePhotoInputRef.current.click();
+  const handlePassportPhotoUploadClick = () => passportPhotoInputRef.current.click();
+  const handleIDProofUploadClick = () => idProofInputRef.current.click();
+
+  // const handleProfilePhotoFileChange = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file?.type.startsWith('image/')) {
+  //     return alert('Select a valid image');
+  //   }
+  //   setIsLoading(true);
+  //   try {
+  //     // Upload to 'profile' container in Azure Storage
+  //     const { blobUrl, url } = await uploadFileToAzureStorage(file, 'profile');
+  //     setProfileImage(blobUrl || url);
+  //   } catch {
+  //     alert('Upload failed');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handlePassportPhotoFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const imageURL = URL.createObjectURL(file);
-      setProfileImage(imageURL);
-    } else {
-      alert('Please select a valid image file for Profile Photo!');
+    if (!file?.type.startsWith('image/')) return alert('Select a valid image');
+    setIsLoading(true);
+    try {
+      const { blobUrl, url } = await uploadFileToAzureStorage(file, 'users');
+      setPassportPhoto({ name: file.name, url: blobUrl || url, type: file.type });
+    } catch {
+      alert('Upload failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Passport Size Photo Upload
-  const handlePassportPhotoUploadClick = () => {
-    passportPhotoInputRef.current.click();
-  };
-
-  const handlePassportPhotoFileChange = (e) => {
+  const handleIDProofFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const imageURL = URL.createObjectURL(file);
-      setPassportPhoto({
-        name: file.name,
-        url: imageURL,
-        type: file.type,
-      });
-    } else {
-      alert('Please select a valid image file for Passport Size Photo!');
-    }
-  };
-
-  const handleIDProofUploadClick = () => {
-    idProofInputRef.current.click();
-  };
-
-  const handleIDProofFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setUploadedIDProof({
-        name: file.name,
-        url: fileURL,
-        type: file.type,
-      });
+    if (!file) return;
+    setIsLoading(true);
+    try {
+      const { blobUrl, url } = await uploadFileToAzureStorage(file, 'users');
+      setUploadedIDProof({ name: file.name, url: blobUrl || url, type: file.type });
+    } catch {
+      alert('Upload failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-  
     if (name === 'mobile') {
-      const digitsOnly = value.replace(/\D/g, '');
-      if (digitsOnly.length <= 10) {
-        setProfileData((prev) => ({ ...prev, [name]: digitsOnly }));
-      }
+      const digits = value.replace(/\D/g, '').slice(0, 10);
+      setProfileData((p) => ({ ...p, mobile: digits }));
     } else if (name === 'name') {
-      const onlyLetters = value.replace(/[^a-zA-Z\s]/g, ''); 
-      setProfileData((prev) => ({ ...prev, [name]: onlyLetters }));
+      const letters = value.replace(/[^a-zA-Z\s]/g, '');
+      setProfileData((p) => ({ ...p, name: letters }));
     } else {
-      setProfileData((prev) => ({ ...prev, [name]: value }));
+      setProfileData((p) => ({ ...p, [name]: value }));
     }
   };
-  
 
-  const handleFileClick = (file) => {
-    setModalFile(file);
-  };
+  const handleFileClick = (file) => setModalFile(file);
+  const closeModal = () => setModalFile(null);
 
-  const closeModal = () => {
-    setModalFile(null);
-  };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   try {  
+  //     const updateData = {
+  //       displayName: profileData.name,
+  //       phone: profileData.mobile ? `+91${profileData.mobile}` : '',
+  //       photo_url: profileImage !== profilePlaceholder ? profileImage : '',
+  //       email: profileData.email
+  //     };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  //     const response = await updateUserById(id, updateData);
+      
+  //     if (!response.success) {
+  //       throw new Error(response.message || 'Failed to update user');
+  //     }
 
-    console.log("Saved", profileData, passportPhoto, uploadedIDProof);
+  //     setShowSuccessGif(true);
+  //     setTimeout(() => setShowSuccessGif(false), 3000);
+  //   } catch (error) {
+  //     console.error('Update error:', error);
+  //     setError(error.message || 'Failed to update user');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  // Update the handleProfilePhotoFileChange function
+const handleProfilePhotoFileChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file?.type.startsWith('image/')) {
+    return alert('Please select a valid image file (JPEG, PNG)');
+  }
+  setIsLoading(true);
+  try {
+    const { url } = await uploadFileToAzureStorage(file, 'profile');
+    if (!url) {
+      throw new Error('Failed to get URL after upload');
+    }
+    setProfileImage(url);
+    return url; // Return the URL so we can use it in handleSubmit
+  } catch (error) {
+    console.error('Upload error:', error);
+    alert('Profile photo upload failed. Please try again.');
+    return null;
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// Update the handleSubmit function
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
+
+  try {
+    // Prepare the update data
+    const updateData = {
+      displayName: profileData.name.trim(),
+      phone: profileData.mobile ? `+91${profileData.mobile}` : '',
+      email: profileData.email.trim(),
+      photo_url: profileImage !== profilePlaceholder ? profileImage : ''
+    };
+
+    // Validate required fields
+    if (!updateData.displayName) {
+      throw new Error('Full name is required');
+    }
+    if (!updateData.email) {
+      throw new Error('Email is required');
+    }
+
+    console.log('Submitting update:', updateData); // Debug log
+
+    const response = await updateUserById(id, updateData);
+    
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to update user profile');
+    }
 
     setShowSuccessGif(true);
+    setTimeout(() => setShowSuccessGif(false), 3000);
+  } catch (error) {
+    console.error('Update error:', error);
+    setError(error.message || 'Failed to update profile. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-    setTimeout(() => {
-      setShowSuccessGif(false);
-    }, 3000);
-  };
+  if (isLoading) return <div>Loading…</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <FormContainer>
       {showSuccessGif ? (
-        <UpdatedGif >
-          <img
-            src={profileUpdated}
-            alt="Profile Updated"
-            className='updatedGif'
-          />
-          <p className='updatedText'>Profile Updated</p>
+        <UpdatedGif>
+          <img src={profileUpdatedGif} alt="Updated" />
+          <p>Profile Updated</p>
         </UpdatedGif>
       ) : (
-        <Form>
-
-          {/* Profile Photo Section */}
-          <div style={{ position: 'relative', display: 'flex' }}>
+        <Form onSubmit={handleSubmit}>
+          {/* Profile Photo */}
+          <div style={{ position: 'relative', display: 'inline-block' }}>
             <ProfileImage src={profileImage} alt="Profile" />
             <CameraImage
-              src={camera}
-              alt="Camera"
+              src={cameraIcon}
+              alt="Change"
               onClick={handleProfilePhotoUploadClick}
-              accept="image/*"
             />
             <input
               type="file"
               ref={profilePhotoInputRef}
               style={{ display: 'none' }}
+              accept="image/*"
               onChange={handleProfilePhotoFileChange}
-              accept="image/*,.pdf"
             />
           </div>
 
@@ -169,10 +291,8 @@ const AddStudent = () => {
               <Label>Full Name</Label>
               <InputField
                 name="name"
-                // value={profileData.name}
                 value={profileData.name}
                 onChange={handleInputChange}
-                placeholder="Enter Full Name"
               />
             </InputGroup>
 
@@ -184,44 +304,39 @@ const AddStudent = () => {
                   name="email"
                   value={profileData.email}
                   onChange={handleInputChange}
-                  placeholder="Enter Email"
                 />
               </InputGroup>
 
               <InputGroup>
-                <Label>Mobile Number</Label>
+                <Label>Mobile</Label>
                 <MobileInputContainer>
-                  <FixedCode>+91 <div className='numberLine'></div></FixedCode>
+                  <FixedCode>+91</FixedCode>
                   <MobileNumberInput
-                    type="text"
                     name="mobile"
                     value={profileData.mobile}
                     onChange={handleInputChange}
-                    placeholder="Enter 10-digit number"
-                    maxLength={10}
                   />
                 </MobileInputContainer>
               </InputGroup>
             </FlexRow>
 
             <FlexRow>
-
-              {/* Passport Size Upload Section */}
               <UploadSection>
-                <Label>Upload Profile Photo <small>(Passport Size)</small></Label>
+                <Label>Passport Photo</Label>
                 <FlexUpload>
                   <UploadButton onClick={handlePassportPhotoUploadClick}>
-                    <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-                    Upload Photo
+                    <MdOutlineFileUpload /> Upload
                   </UploadButton>
-                  <BrowseButton onClick={handlePassportPhotoUploadClick}>Browse</BrowseButton>
+                  <BrowseButton onClick={handlePassportPhotoUploadClick}>
+                    Browse
+                  </BrowseButton>
                 </FlexUpload>
                 <input
                   type="file"
                   ref={passportPhotoInputRef}
                   style={{ display: 'none' }}
+                  accept="image/*"
                   onChange={handlePassportPhotoFileChange}
-                  accept="image/*,.pdf"
                 />
                 {passportPhoto && (
                   <UploadedFileName onClick={() => handleFileClick(passportPhoto)}>
@@ -230,22 +345,22 @@ const AddStudent = () => {
                 )}
               </UploadSection>
 
-              {/* ID Proof Upload Section */}
               <UploadSection>
-                <Label>Upload ID Proof <small>(Aadhar / Driving License)</small></Label>
+                <Label>ID Proof</Label>
                 <FlexUpload>
                   <UploadButton onClick={handleIDProofUploadClick}>
-                    <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-                    Upload ID Proof
+                    <MdOutlineFileUpload /> Upload
                   </UploadButton>
-                  <BrowseButton onClick={handleIDProofUploadClick}>Browse</BrowseButton>
+                  <BrowseButton onClick={handleIDProofUploadClick}>
+                    Browse
+                  </BrowseButton>
                 </FlexUpload>
                 <input
                   type="file"
                   ref={idProofInputRef}
                   style={{ display: 'none' }}
+                  accept="image/*,application/pdf"
                   onChange={handleIDProofFileChange}
-                  accept="image/*,.pdf"
                 />
                 {uploadedIDProof && (
                   <UploadedFileName onClick={() => handleFileClick(uploadedIDProof)}>
@@ -253,29 +368,38 @@ const AddStudent = () => {
                   </UploadedFileName>
                 )}
               </UploadSection>
-
             </FlexRow>
 
-            <SubmitButton onClick={handleSubmit}>Save Changes</SubmitButton>
-
-            {/* Modal for file view */}
-            {modalFile && (
-              <ModalOverlay onClick={closeModal}>
-                <ModalContent onClick={(e) => e.stopPropagation()}>
-                  <CloseButton onClick={closeModal}>X</CloseButton>
-                  {modalFile.type.startsWith('image/') ? (
-                    <img src={modalFile.url} alt="Uploaded File" style={{ width: '100%', height: 'auto' }} />
-                  ) : (
-                    <iframe src={modalFile.url} width="100%" height="500px" title="Document Viewer" />
-                  )}
-                </ModalContent>
-              </ModalOverlay>
-            )}
+            <SubmitButton type="submit" disabled={isLoading}>
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </SubmitButton>
           </FormWrapper>
+
+          {modalFile && (
+            <ModalOverlay onClick={closeModal}>
+              <ModalContent onClick={(e) => e.stopPropagation()}>
+                <CloseButton onClick={closeModal}>×</CloseButton>
+                {modalFile.type.startsWith('image/') ? (
+                  <img
+                    src={modalFile.url}
+                    alt="Preview"
+                    style={{ width: '100%' }}
+                  />
+                ) : (
+                  <iframe
+                    src={modalFile.url}
+                    title="Document"
+                    width="100%"
+                    height="500"
+                  />
+                )}
+              </ModalContent>
+            </ModalOverlay>
+          )}
         </Form>
       )}
     </FormContainer>
   );
 };
 
-export default AddStudent;
+export default Profile;

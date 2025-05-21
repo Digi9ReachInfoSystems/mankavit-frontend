@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TableWrapper,
   StyledTable,
@@ -7,20 +7,39 @@ import {
   TableHeader,
   TableCell
 } from './AllCourses.styles';
+import { getAllCourses } from '../../../../../api/courseApi';
 
 const AllCourses = () => {
-  const data = Array(10).fill(null).map((_, index) => ({
-    key: index,
-    courseName: 'CLAT Coaching',
-    internalName: 'Anuja Admin',
-    subjects: 27,
-    mockTests: 12,
-    studentsEnrolled: 12,
-    price: '₹599.00',
-  }));
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllCourses();
+        // Check for backend shape
+        if (response && Array.isArray(response.data?.data)) {
+          setCourses(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          setCourses(response.data);
+        } else {
+          setCourses([]); // fallback
+        }
+        setError(null);
+      } catch (err) {
+        setError('Failed to load courses');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
   const ITEMS_PER_PAGE = 5;
-
-
 
   return (
     <TableWrapper>
@@ -36,14 +55,23 @@ const AllCourses = () => {
           </TableHead>
         </thead>
         <tbody>
-          {data.slice(0, ITEMS_PER_PAGE).map((row, index) => (
-            <TableRow key={index}>
-              <TableCell>{row.courseName}</TableCell>
-              <TableCell>{row.internalName}</TableCell>
-              <TableCell>{row.subjects}</TableCell>
-              <TableCell>{row.mockTests}</TableCell>
-              <TableCell>{row.studentsEnrolled}</TableCell>
-              <TableCell>{row.price}</TableCell>
+          {courses.slice(0, ITEMS_PER_PAGE).map((row, index) => (
+            <TableRow key={row._id || index}>
+              <TableCell>{row.courseName || '-'}</TableCell>
+              <TableCell>{row.courseDisplayName || '-'}</TableCell>
+              <TableCell>
+                {/* If row.subjects is an array, use row.subjects.length; if number, just show it */}
+                {Array.isArray(row.subjects) ? row.subjects.length : row.subjects || 0}
+              </TableCell>
+              <TableCell>
+                {Array.isArray(row.mockTests) ? row.mockTests.length : row.mockTests || 0}
+              </TableCell>
+              <TableCell>
+                {row.studentsEnrolled !== undefined ? row.studentsEnrolled : (row.studentsEnrolledCount || 0)}
+              </TableCell>
+              <TableCell>
+                {row.price ? (typeof row.price === 'number' ? `₹${row.price}` : row.price) : '-'}
+              </TableCell>
             </TableRow>
           ))}
         </tbody>

@@ -107,3 +107,33 @@ export const resendSignupOtp = async (data) => {
         throw error;
     }
 };
+
+export const getUserByUserId = async (id) => {
+    try {
+        const response = await api.get(`/user/get/userById/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const updateUserById = async (id, data) => {
+    try {
+        const response = await api.put(`/user/updateUser/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const getNoOfStudents = async () => {
+    try {
+        const response = await api.get('/student/total');
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

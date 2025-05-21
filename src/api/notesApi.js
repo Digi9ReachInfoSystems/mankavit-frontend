@@ -49,3 +49,13 @@ export const deleteNotesById = async (id) => {
         throw error;
     }
 }
+
+export const getNoOfNotes = async () => {
+    try {
+        const response = await api.get('/notes/total');
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

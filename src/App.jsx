@@ -117,7 +117,7 @@ function App() {
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="profile/:id" element={<Profile />} />
             <Route path="tandc" element={<TandC />} />
             <Route path='my-courses' element={<Mycourses/>} />
             <Route path="contactsupport" element={<ContactSupport />} />

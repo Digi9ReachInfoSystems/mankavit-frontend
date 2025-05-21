@@ -392,3 +392,16 @@ export const CloseButton = styled.button`
   font-size: 20px;
   cursor: pointer;
 `;
+
+export const ErrorMessage = styled.p`
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+`;
+
+export const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
