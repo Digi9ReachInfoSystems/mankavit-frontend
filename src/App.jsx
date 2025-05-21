@@ -95,6 +95,7 @@ import Blog from './module/admin/pages/WebManagement/Blog/Blog'
 import AddBlog from './module/admin/component/WebManagement/blog/AddBlog/AddBlog'
 import EditBlog from './module/admin/component/WebManagement/blog/EditBlog/EditBlog'
 import ViewBlog from './module/admin/component/WebManagement/blog/ViewBlog/ViewBlog'
+import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
 
 function App() {
 
@@ -116,6 +117,8 @@ function App() {
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
           
+          <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
+          <Route path='/continueCourse' element={<ContinueCoursePage />} />
           
 
           <Route path="/test" element={<Test />} />
