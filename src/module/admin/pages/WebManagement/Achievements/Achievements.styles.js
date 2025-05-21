@@ -322,7 +322,7 @@ export const ModalContent = styled.div`
 
 export const ModalImage = styled.img`
   width: 500px;
-  height: 500px;
+  height: 400px;
   border-radius: 8px;
 `;
 

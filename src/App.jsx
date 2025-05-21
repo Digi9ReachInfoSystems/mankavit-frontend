@@ -90,6 +90,7 @@ import WhyStudyWithUs from './module/admin/pages/WebManagement/WhyStudyWithUs/Wh
 import AddWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/AddWhyStudyWithUs/AddWhyStudyWithUs'
 import EditWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/EditWhyStudyWithUs/EditWhyStudyWithUs'
 import ViewWhyStudyWithUs from './module/admin/component/WebManagement/WhystudyWithUs/ViewWhyStudyWithUs/ViewWhyStudyWithUs'
+import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
 
 function App() {
 
@@ -110,6 +111,7 @@ function App() {
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
+          <Route path='/continueCourse' element={<ContinueCoursePage />} />
           
 
           <Route path="/test" element={<Test />} />
