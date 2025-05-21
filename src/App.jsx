@@ -118,7 +118,7 @@ function App() {
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
           
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
-          <Route path='/continueCourse' element={<ContinueCoursePage />} />
+          <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
           
 
           <Route path="/test" element={<Test />} />
