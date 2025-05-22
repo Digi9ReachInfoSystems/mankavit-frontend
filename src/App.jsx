@@ -98,6 +98,7 @@ import ViewBlog from './module/admin/component/WebManagement/blog/ViewBlog/ViewB
 import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
 import ContactSupportView from './module/admin/pages/WebManagement/ContactSupportView/ContactSupportView'
 import UserFeedback from './module/admin/pages/WebManagement/UserFeedback/UserFeedback'
+import CoursesLiveclassPage from './pages/CoursesLiveclassPage/CoursesLiveclassPage'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
@@ -119,6 +120,7 @@ function App() {
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
+          <Route path="/course/liveclass" element={<CoursesLiveclassPage />} />
           
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
