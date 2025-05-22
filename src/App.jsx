@@ -96,6 +96,9 @@ import AddBlog from './module/admin/component/WebManagement/blog/AddBlog/AddBlog
 import EditBlog from './module/admin/component/WebManagement/blog/EditBlog/EditBlog'
 import ViewBlog from './module/admin/component/WebManagement/blog/ViewBlog/ViewBlog'
 import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
+import ContactSupportView from './module/admin/pages/WebManagement/ContactSupportView/ContactSupportView'
+import UserFeedback from './module/admin/pages/WebManagement/UserFeedback/UserFeedback'
+// import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
 
@@ -229,6 +232,10 @@ function App() {
             <Route path="web-management/blog/create" element={<AddBlog />} />
             <Route path="web-management/blog/edit/:id" element={<EditBlog />} />
             <Route path="web-management/blog/view/:id" element={<ViewBlog />} />
+
+            <Route path="web-management/contact-support" element={<ContactSupportView/>} />
+
+            <Route path="web-management/user-feedback" element={<UserFeedback />} />
           </Route>
 
           
