@@ -378,3 +378,12 @@ export const Heading = styled.h2`
 `;
 
 
+export const StatusBadge = styled.span`
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  background-color: ${props => props.color || '#9e9e9e'};
+`;
