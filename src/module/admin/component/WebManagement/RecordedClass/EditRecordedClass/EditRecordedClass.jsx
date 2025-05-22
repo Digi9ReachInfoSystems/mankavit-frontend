@@ -24,7 +24,7 @@ import {
 import upload from "../../../../../../assets/upload.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
-import { updateRecordedClassById } from "../../../../../../api/recordedAPi";
+import { updateRecordedClassById, getRecordedClassById } from "../../../../../../api/recordedAPi";
 import { getAllCourses } from "../../../../../../api/courseApi";
 
 const EditRecordedClass = () => {
@@ -43,23 +43,35 @@ const EditRecordedClass = () => {
   const [loading, setLoading] = useState(false);
   const fileRef = useRef();
 
-  useEffect(() => {
-    if (editingData) {
-      setTitle(editingData.title);
-      setDescription(editingData.description);
-      setDuration(editingData.duration || "");
-      setSelectedCourses(new Set([editingData.course_ref]));
+const normalizeCourseId = (ref) => {
+  if (!ref) return null;
+  return typeof ref === "object" && ref.$oid ? ref.$oid : ref.toString();
+};
+
+useEffect(() => {
+  if (editingData) {
+    setTitle(editingData.title);
+    setDescription(editingData.description);
+    setDuration(editingData.duration || "");
+    
+    // Normalize the course_ref from editing data
+    const normalizedCourseId = normalizeCourseId(editingData.course_ref);
+    if (normalizedCourseId) {
+      setSelectedCourses(new Set([normalizedCourseId]));
     }
-    const fetchCourses = async () => {
-      try {
-        const res = await getAllCourses();
-        setCoursesList(res.data || []);
-      } catch (err) {
-        console.error("Error fetching courses", err);
-      }
-    };
-    fetchCourses();
-  }, [editingData]);
+  }
+  
+  const fetchCourses = async () => {
+    try {
+      const res = await getAllCourses();
+      setCoursesList(res.data || []);
+    } catch (err) {
+      console.error("Error fetching courses", err);
+    }
+  };
+  fetchCourses();
+}, [editingData]);
+
 
   const handleFile = (f) => {
     if (f) {
@@ -88,14 +100,17 @@ const EditRecordedClass = () => {
   };
 
   const toggleCourse = (id) => {
-    setSelectedCourses((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.clear() && next.add(id); // Only one course allowed
-      return next;
-    });
-  };
-
+  setSelectedCourses((prev) => {
+    const next = new Set(prev);
+    const normalizedId = normalizeCourseId(id);
+    if (next.has(normalizedId)) next.delete(normalizedId);
+    else {
+      next.clear(); // Clear all first since only one is allowed
+      next.add(normalizedId);
+    }
+    return next;
+  });
+};
   const submit = async (e) => {
     e.preventDefault();
 
@@ -214,16 +229,19 @@ const EditRecordedClass = () => {
             <CoursesContainer>
               <CoursesHeader>Select Course</CoursesHeader>
               <CourseList>
-                {coursesList.map((course) => (
-                  <CourseItem key={course._id}>
-                    <CourseLabel>{course.courseName}</CourseLabel>
-                    <CourseCheckbox
-                      type="checkbox"
-                      checked={selectedCourses.has(course._id)}
-                      onChange={() => toggleCourse(course._id)}
-                    />
-                  </CourseItem>
-                ))}
+                {coursesList.map((course) => {
+  const courseId = normalizeCourseId(course._id);
+  return (
+    <CourseItem key={courseId}>
+      <CourseLabel>{course.courseName}</CourseLabel>
+      <CourseCheckbox
+        type="checkbox"
+        checked={selectedCourses.has(courseId)}
+        onChange={() => toggleCourse(courseId)}
+      />
+    </CourseItem>
+  );
+})}
               </CourseList>
             </CoursesContainer>
           </FormColumn>
