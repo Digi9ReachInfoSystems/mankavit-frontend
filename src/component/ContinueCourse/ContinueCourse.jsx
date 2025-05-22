@@ -72,22 +72,31 @@ const AccordionList = ({ data, activeIndex, onClick }) => (
                                         boxShadow: "none",
                                         background: "none",
                                         cursor: "default",
-                                        marginBottom: 4
+                                        marginBottom: 4,
+                                        padding: "12px 0",
+                                        borderBottom: "1px solid #eee"
                                     }}
                                 >
-                                    <div className="video-info">
-                                        {lecture.type === "Video" && (
-                                            <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
-                                        )}
-                                        {lecture.type === "Notes" && (
-                                            <FaRegStickyNote style={{ marginRight: 12, color: "#ffa726" }} />
-                                        )}
-                                        {lecture.type === "PDF" && (
-                                            <FaRegStickyNote style={{ marginRight: 12, color: "#43a047" }} />
-                                        )}
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <p style={{ fontSize: 16 }}>{lecture.title}</p>
-                                            <span>{lecture.duration}</span>
+                                    <div className="video-info" style={{ width: "100%" }}>
+                                        <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                                        <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
+                                            <p style={{ fontSize: 16, fontWeight: 500 }}>{lecture.lectureName}</p>
+                                            <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
+                                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
+                                                <a 
+                                                    href={lecture.videoUrl} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    style={{ 
+                                                        fontSize: 14, 
+                                                        color: "#007bff",
+                                                        textDecoration: "none"
+                                                    }}
+                                                >
+                                                    Watch Video
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </VideoItem>
@@ -115,6 +124,7 @@ const ContinueCourse = () => {
         const fetchCourses = async () => {
             try {
                 const response = await getCourseById(id);
+                console.log("get course by id response", response);
                 if (response && response.success) {
                     setCourse(response.data);
                 }
@@ -144,17 +154,17 @@ const ContinueCourse = () => {
     };
 
     // --- Prepare Accordion Data from API Response ---
-    // For demo, fallback to empty arrays if data not loaded yet
     const getAccordionData = () => {
         if (!course) return { Subjects: [], "Mock Test": [], "Recorded Class": [] };
 
         // Subjects Tab
         const subjects = (course.subjects || []).map(subject => ({
-            name: subject.subjectName || subject.name || "Subject",
+            name: subject.subjectName || "Subject",
             lectures: (subject.lectures || []).map(lec => ({
-                type: lec.type || "Video", // or "Notes", etc.
-                title: lec.title || "Untitled",
-                duration: lec.duration || (lec.type === "Notes" ? "PDF" : "00:00")
+                lectureName: lec.lectureName || "Untitled Lecture",
+                description: lec.description || "No description available",
+                duration: lec.duration || "Duration not specified",
+                videoUrl: lec.videoUrl || "#"
             }))
         }));
 
@@ -162,24 +172,23 @@ const ContinueCourse = () => {
         const mockTests = (course.mockTests || []).map((test, idx) => ({
             name: test.title || `Mock Test ${idx + 1}`,
             lectures: [{
-                type: "PDF",
-                title: test.title || `Mock Test ${idx + 1}`,
-                duration: `${test.totalQuestions || "N/A"} Qs | ${test.duration || "N/A"}`
+                lectureName: test.title || `Mock Test ${idx + 1}`,
+                description: test.description || "Mock test for practice",
+                duration: `${test.totalQuestions || "N/A"} Qs | ${test.duration || "N/A"}`,
+                videoUrl: "#"
             }]
         }));
 
-        // Recorded Class Tab
-        const recordedClasses = (course.recordedClasses || []).map((batch, idx) => ({
-            name: batch.title || `Recorded Batch ${idx + 1}`,
-            lectures: (batch.videos || []).map(video => ({
-                type: "Video",
-                title: video.title || "Untitled",
-                duration: video.duration || "00:00"
+        // Recorded Class Tab - Using subjects if no separate recorded classes exist
+        const recordedClasses = (course.subjects || []).map(subject => ({
+            name: subject.subjectName || "Recorded Subject",
+            lectures: (subject.lectures || []).map(lec => ({
+                lectureName: lec.lectureName || "Recorded Lecture",
+                description: lec.description || "Recorded lecture content",
+                duration: lec.duration || "00:00",
+                videoUrl: lec.videoUrl || "#"
             }))
         }));
-
-        // If your backend has "recorded_class: true" and stores classes in subjects or other arrays,
-        // You can map accordingly.
 
         return {
             Subjects: subjects,
@@ -245,9 +254,12 @@ const ContinueCourse = () => {
                 </FeaturesContainer>
             </CourseInfo>
 
-            <LiveClass>
-                Live Class   <TVIcon> <MdLiveTv /></TVIcon>
-            </LiveClass>
+            {course?.live_class && (
+                <LiveClass>
+                    Live Class <TVIcon> <MdLiveTv /></TVIcon>
+                </LiveClass>
+            )}
+
             <TabSection>
                 <button
                     className={activeTab === 'Subjects' ? 'active' : ''}
@@ -261,12 +273,14 @@ const ContinueCourse = () => {
                 >
                     Mock Test
                 </button>
-                <button
-                    className={activeTab === 'Recorded Class' ? 'active' : ''}
-                    onClick={() => { setActiveTab('Recorded Class'); setActiveAccordion(null); }}
-                >
-                    Recorded Class
-                </button>
+                {course?.recorded_class && (
+                    <button
+                        className={activeTab === 'Recorded Class' ? 'active' : ''}
+                        onClick={() => { setActiveTab('Recorded Class'); setActiveAccordion(null); }}
+                    >
+                        Recorded Class
+                    </button>
+                )}
             </TabSection>
 
             {/* Accordion content per tab */}
