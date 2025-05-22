@@ -59,6 +59,8 @@ const Sidebar = () => {
     { path: "/admin/web-management/mission", label: "Mission" },
     { path: "/admin/web-management/why-study-with-us", label: "Why Study With Us" },
     { path: "/admin/web-management/blog", label: "Blog" },
+    { path: "web-management/contact-support", label: "Contact Support" },
+    { path: "/admin/web-management/user-feedback", label: "User Feedback" },
   ];
 
   const appManagementItems = [
