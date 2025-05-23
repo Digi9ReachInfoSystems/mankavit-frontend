@@ -2,7 +2,9 @@ import api from "../config/axiosConfig";
 
 export const createLecture = async (data) => {
     try {
-        const response = await api.post("/lecture/", data);
+        console.log("Resposne data",data);
+        const response = await api.post("/lecture", data);
+         console.log("Darta",response.data);
         return response.data;
     } catch (error) {
         console.log(error);
