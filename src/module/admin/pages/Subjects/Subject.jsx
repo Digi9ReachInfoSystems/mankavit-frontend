@@ -74,6 +74,7 @@ export default function Subjects() {
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
         }))
+        console.log(subjectsData);
         setData(subjectsData);
         const filteredValue = subjectsData.filter((item) =>
           item.subjectName.toLowerCase().includes(searchText.toLowerCase())

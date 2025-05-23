@@ -53,6 +53,12 @@ export const MocktestItem = styled.li`
   color: #444;
   font-size: 16px;
     border-bottom: 1px solid #E7E7E8;
+
+    .subject-link {
+    color: #242526;
+    text-decoration: none;
+    cursor: pointer;
+  }
 `;
 
 export const ModalFooter = styled.div`

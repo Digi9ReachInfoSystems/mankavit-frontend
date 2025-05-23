@@ -31,7 +31,7 @@ import AddQuestionpaper from './module/admin/component/WebManagement/Questionpap
 import LiveClass from './module/admin/pages/WebManagement/LiveClass/LiveClass'
 import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLiveClass'
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
-import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
+import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass/AddRecordedClass'
 import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq/AddFaq'
 // import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
@@ -99,6 +99,7 @@ import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
 import ContactSupportView from './module/admin/pages/WebManagement/ContactSupportView/ContactSupportView'
 import UserFeedback from './module/admin/pages/WebManagement/UserFeedback/UserFeedback'
 import CoursesLiveclassPage from './pages/CoursesLiveclassPage/CoursesLiveclassPage'
+import ViewRecordedClass from './module/admin/component/WebManagement/RecordedClass/ViewRecordedClass/ViewRecordedClass'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
@@ -203,6 +204,7 @@ function App() {
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
             <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass/>} />
+            <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass/>} />
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />

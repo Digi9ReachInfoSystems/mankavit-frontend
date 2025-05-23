@@ -20,11 +20,11 @@ import {
   CourseLabel,
   CourseCheckbox,
   SubmitButton
-} from "../RecordedClass/AddRecordedClass.style";
-import upload from "../../../../../assets/upload.png";
-import { getAllCourses } from "../../../../../api/courseApi";
-import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
-import { createRecordedClass } from "../../../../../api/recordedAPi";
+} from "./AddRecordedClass.style";
+import upload from "../../../../../../assets/upload.png";
+import { getAllCourses } from "../../../../../../api/courseApi";
+import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
+import { createRecordedClass } from "../../../../../../api/recordedAPi";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 

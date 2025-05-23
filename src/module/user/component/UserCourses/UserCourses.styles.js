@@ -130,6 +130,8 @@ export const CourseCard = styled.div`
   // min-width: 300px; 
   max-width: 300px; 
   margin-bottom: 1rem;
+    position: relative;
+  height: 550px;
 
   @media (max-width: 1024px) {
     max-width: 280px;
@@ -146,7 +148,7 @@ export const ImageWrapper = styled.div`
 
   img {
     width: 100%;
-    height: 120px;
+    height: 150px;
 
    @media (max-width: 1360px) {
       height: 110px;
@@ -160,6 +162,7 @@ export const ImageWrapper = styled.div`
 export const ProgressContainer = styled.div`
   margin-bottom: 0;
     padding: 10px 40px;
+      height: 60px;
 
      @media (max-width: 768px) {
       padding: 10px 20px;
@@ -244,6 +247,13 @@ export const CourseHead = styled.div`
 export const CourseTitle = styled.h3`
   font-size: 28px;
   margin: 0;
+    word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  height: 68px;
 
     @media (max-width: 768px) {
     font-size: 24px;
@@ -251,12 +261,15 @@ export const CourseTitle = styled.h3`
 `;
 
 export const CourseMinititle = styled.p`
-display: flex;
-align-items: center;
-justify-content: center;
-  color: #555;
-  font-size: 16px;
-  margin: 5px 0 0 0;
+  font-size: 16px; 
+  margin: 5px 0 ;
+    word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+    height: 38px;
 
    @media (max-width: 768px) {
     font-size: 14px;
@@ -269,6 +282,14 @@ export const CourseDesc = styled.p`
   font-size: 16px;
   font-wieght: 300;
   line-height: 1.5;
+      word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+    height: 50px;
+
 
    @media (max-width: 768px) {
     font-size: 14px;
@@ -311,6 +332,9 @@ export const PriceActions = styled.div`
   // justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
+    position: absolute;
+  bottom: 0;
+  width: 100%;
 
    @media (max-width: 1024px) {
     margin-top: 0rem;
