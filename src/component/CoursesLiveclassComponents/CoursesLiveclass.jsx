@@ -87,8 +87,9 @@ const CoursesLiveclass = () => {
 
     const handleVideoEnd = async () => {
         if (userId && courseId && subjectId && lectureId) {
-            await completeLecturer(userId, courseId, subjectId, lectureId);
-            setCompletedLectures(prev => [...prev, lectureId]);
+          await completeLecturer(userId, courseId, subjectId, lectureId);
+setCompletedLectures(prev => [...prev, lectureId]);
+
         }
     };
 

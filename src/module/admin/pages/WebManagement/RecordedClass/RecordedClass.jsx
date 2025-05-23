@@ -19,6 +19,7 @@ import Pagination from "../../../component/Pagination/Pagination";
 import { useNavigate } from "react-router-dom";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { getAllRecordedClasses, deleteRecordedClassById } from "../../../../../api/recordedAPi";
 
@@ -120,6 +121,15 @@ const RecordedClass = () => {
                   </TableCell>
                   <TableCell>
                     <ActionsWrapper>
+                      <IoEyeOutline 
+                        size={20}
+                        color="#000"
+                        onClick={() => navigate(
+                          `/admin/web-management/recorded-classes/view/${row._id}`,
+                          { state: { row } }
+                        )}
+                        style={{ cursor: "pointer" }}
+                      />
                       <BiEditAlt
                         size={20}
                         color="#000"
