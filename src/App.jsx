@@ -120,7 +120,7 @@ function App() {
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
-          <Route path="/course/liveclass" element={<CoursesLiveclassPage />} />
+          <Route path="/course/liveclass/:courseId/:lectureId" element={<CoursesLiveclassPage />} />
           
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
