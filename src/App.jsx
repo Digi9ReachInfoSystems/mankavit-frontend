@@ -99,6 +99,9 @@ import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
 import ContactSupportView from './module/admin/pages/WebManagement/ContactSupportView/ContactSupportView'
 import UserFeedback from './module/admin/pages/WebManagement/UserFeedback/UserFeedback'
 import CoursesLiveclassPage from './pages/CoursesLiveclassPage/CoursesLiveclassPage'
+import KYCpage from './pages/KYCpage/KYCpage'
+import UserBlog from './pages/UserBlog/UserBlog'
+import ReadPost from './component/UserBlogComponents/ReadPost/ReadPost'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
@@ -124,7 +127,9 @@ function App() {
           
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
-          
+          <Route path='/kyc' element={<KYCpage />} />
+          <Route path="/userblog" element={<UserBlog />} />
+          <Route path='/read-post' element={<ReadPost />} />
 
           <Route path="/test" element={<Test />} />
 
