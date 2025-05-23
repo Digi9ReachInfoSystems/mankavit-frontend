@@ -177,3 +177,14 @@ export const NoteItem = styled.div`
   }
 `;
 
+export const CompletedBadge = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: green;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+`;
+

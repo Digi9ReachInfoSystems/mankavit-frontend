@@ -71,6 +71,9 @@ export const SubmitButton = styled.button`
   border-radius: 10px;
   cursor: pointer;
   transition: opacity 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
     opacity: 0.9;

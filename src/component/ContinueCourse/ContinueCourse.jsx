@@ -25,10 +25,13 @@ import {
     TabSection,
     VideoList,
     VideoItem,
-    Playbutton,
-    Playing
+    Playbutton
 } from "./ContinueCourse.styles";
+import courseImgFallback from "../../assets/courseDetails.png";
 import { getCourseById } from "../../api/courseApi";
+import { startCourse, startSubject, startLecturer } from "../../api/userProgressApi";
+import { getCookiesData } from "../../utils/cookiesService";
+import { getAllCompletedCourses } from "../../api/userDashboardAPI";
 import { MdLiveTv } from "react-icons/md";
 import {
     FaArrowLeft,
@@ -36,104 +39,176 @@ import {
     FaStar,
     FaStarHalfAlt,
     FaRegStar,
-    FaRegStickyNote,
     FaChevronDown,
     FaChevronUp
 } from 'react-icons/fa';
-import courseImgFallback from "../../assets/courseDetails.png"; // fallback image if needed
 
 // Accordion Component
-const AccordionList = ({ data, activeIndex, onClick }) => (
-    <VideoList>
-        {data && data.length === 0 && <p style={{padding: 24}}>No items found.</p>}
-        {data && data.map((item, idx) => (
-            <div key={idx}>
-                <VideoItem
-                    style={{ background: "#f5f6fa", boxShadow: activeIndex === idx ? "0 2px 8px #eee" : "none" }}
-                    onClick={() => onClick(idx === activeIndex ? null : idx)}
-                >
-                    <div className="video-info">
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <p style={{ fontWeight: 600 }}>{item.name}</p>
+   const AccordionList = ({ data, activeIndex, onClick, navigate, courseId, handleStartSubject, handleStartLecture, completedLectures = [], completedSubjects = [] }) => (
+        <VideoList>
+            {data && data.length === 0 && <p style={{ padding: 24 }}>No items found.</p>}
+            {data && data.map((item, idx) => (
+                <div key={idx}>
+                    <VideoItem
+                        style={{ 
+                            background: "#f5f6fa", 
+                            boxShadow: activeIndex === idx ? "0 2px 8px #eee" : "none",
+                            position: 'relative'
+                        }}
+                        onClick={async () => {
+                            const newIndex = idx === activeIndex ? null : idx;
+                            onClick(newIndex);
+                            if (newIndex !== null) {
+                                await handleStartSubject(item._id);
+                            }
+                        }}
+                    >
+                        <div className="video-info">
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <p style={{ fontWeight: 600 }}>{item.name}</p>
+                            </div>
                         </div>
-                    </div>
-                    <Playbutton>
-                        {activeIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
-                    </Playbutton>
-                </VideoItem>
-                {/* Dropdown content */}
-                {activeIndex === idx && (
-                    <div style={{ paddingLeft: 24, background: "#fff", borderRadius: 8, marginTop: 4 }}>
-                        {item.lectures && item.lectures.length > 0 ? (
-                            item.lectures.map((lecture, i) => (
-                                <VideoItem
-                                    key={i}
-                                    style={{
-                                        boxShadow: "none",
-                                        background: "none",
-                                        cursor: "default",
-                                        marginBottom: 4,
-                                        padding: "12px 0",
-                                        borderBottom: "1px solid #eee"
-                                    }}
-                                >
-                                    <div className="video-info" style={{ width: "100%" }}>
-                                        <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
-                                        <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
-                                            <p style={{ fontSize: 16, fontWeight: 500 }}>{lecture.lectureName}</p>
-                                            <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
-                                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                                                <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
-                                                <a 
-                                                    href={lecture.videoUrl} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    style={{ 
-                                                        fontSize: 14, 
-                                                        color: "#007bff",
-                                                        textDecoration: "none"
-                                                    }}
-                                                >
-                                                    Watch Video
-                                                </a>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {completedSubjects.includes(item._id) && (
+                                <FaCheckCircle style={{ color: 'green', marginRight: 10 }} />
+                            )}
+                            <Playbutton>
+                                {activeIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
+                            </Playbutton>
+                        </div>
+                    </VideoItem>
+                    {activeIndex === idx && (
+                        <div style={{ paddingLeft: 24, background: "#fff", borderRadius: 8, marginTop: 4 }}>
+                            {item.lectures && item.lectures.length > 0 ? (
+                                item.lectures.map((lecture, i) => (
+                                    <VideoItem
+                                        key={i}
+                                        style={{
+                                            boxShadow: "none",
+                                            background: "none",
+                                            cursor: "pointer",
+                                            marginBottom: 4,
+                                            padding: "12px 0",
+                                            borderBottom: "1px solid #eee"
+                                        }}
+                                        onClick={async () => {
+                                            await handleStartLecture(item._id, lecture._id);
+                                            navigate(`/course/liveclass/${courseId}/${lecture._id}`);
+                                        }}
+                                    >
+                                        <div className="video-info" style={{ width: "100%" }}>
+                                            <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                                            <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
+                                                <p style={{ fontSize: 16, fontWeight: 500 }}>
+                                                    {lecture.lectureName}
+                                                    {completedLectures.includes(lecture._id) && (
+                                                        <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
+                                                    )}
+                                                </p>
+                                                <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
+                                                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                    <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
+                                                    <div style={{ fontSize: 14, color: "#007bff", textDecoration: "none" }}>
+                                                        Join Class
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </VideoItem>
-                            ))
-                        ) : (
-                            <div style={{ padding: "16px 8px", color: "#888" }}>No lectures found.</div>
-                        )}
-                    </div>
-                )}
-            </div>
-        ))}
-    </VideoList>
-);
-
+                                    </VideoItem>
+                                ))
+                            ) : (
+                                <div style={{ padding: "16px 8px", color: "#888" }}>No lectures found.</div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </VideoList>
+    );
 const ContinueCourse = () => {
     const navigate = useNavigate();
     const { id } = useParams();
 
     const [activeTab, setActiveTab] = useState('Subjects');
     const [activeAccordion, setActiveAccordion] = useState(null);
-
     const [course, setCourse] = useState(null);
+    const [showContent, setShowContent] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [completedLectures, setCompletedLectures] = useState([]);
+    const [completedSubjects, setCompletedSubjects] = useState([]);
 
     useEffect(() => {
-        const fetchCourses = async () => {
+        const init = async () => {
+            const cookies = await getCookiesData();
+            setUserId(cookies.userId);
+
+            const response = await getCourseById(id);
+            if (response?.success) {
+                setCourse(response.data);
+            }
+
+            // Fetch completed lectures and subjects
             try {
-                const response = await getCourseById(id);
-                console.log("get course by id response", response);
-                if (response && response.success) {
-                    setCourse(response.data);
+                const completedRes = await getAllCompletedCourses(cookies.userId);
+                const matchingCourse = (completedRes?.data || []).find(c => c._id === id);
+                if (matchingCourse) {
+                    const lectureIds = (matchingCourse.completedLectures || []).map(l => l.lecturer_id);
+                    const subjectIds = (matchingCourse.completedSubjects || []).map(s => s.subject_id);
+                    setCompletedLectures(lectureIds);
+                    setCompletedSubjects(subjectIds);
                 }
-            } catch (err) {
-                console.error(err);
+            } catch (error) {
+                console.error("Error fetching completed data:", error);
             }
         };
-        fetchCourses();
+        init();
     }, [id]);
+
+        const updateCompletionStatus = async (lectureId, subjectId) => {
+        try {
+            // Update local state
+            setCompletedLectures(prev => [...prev, lectureId]);
+            
+            // Check if subject is completed
+            const subject = course.subjects.find(s => s._id === subjectId);
+            const allLecturesCompleted = subject.lectures.every(lec => 
+                completedLectures.includes(lec._id) || lec._id === lectureId
+            );
+            
+            if (allLecturesCompleted) {
+                setCompletedSubjects(prev => [...prev, subjectId]);
+            }
+        } catch (error) {
+            console.error("Error updating completion status:", error);
+        }
+    };
+    const handleStartCourse = async () => {
+        if (!userId || !course?._id) return;
+        try {
+            await startCourse(userId, course._id);
+            setShowContent(true);
+        } catch (err) {
+            console.error("Failed to start course:", err);
+        }
+    };
+
+    const handleStartSubject = async (subjectId) => {
+        if (!userId || !course?._id || !subjectId) return;
+        try {
+            await startSubject(userId, course._id, subjectId);
+        } catch (err) {
+            console.error("Failed to start subject:", err);
+        }
+    };
+
+    const handleStartLecture = async (subjectId, lectureId) => {
+        if (!userId || !course?._id || !subjectId || !lectureId) return;
+        try {
+            await startLecturer(userId, course._id, subjectId, lectureId);
+        } catch (err) {
+            console.error("Failed to start lecture:", err);
+        }
+    };
 
     const renderStars = (rating) => {
         const stars = [];
@@ -141,26 +216,20 @@ const ContinueCourse = () => {
         const hasHalfStar = rating - fullStars >= 0.5;
         const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-        for (let i = 0; i < fullStars; i++) {
-            stars.push(<FaStar key={`full-${i}`} color="#fbc02d" />);
-        }
-        if (hasHalfStar) {
-            stars.push(<FaStarHalfAlt key="half" color="#fbc02d" />);
-        }
-        for (let i = 0; i < emptyStars; i++) {
-            stars.push(<FaRegStar key={`empty-${i}`} color="#ccc" />);
-        }
+        for (let i = 0; i < fullStars; i++) stars.push(<FaStar key={`full-${i}`} color="#fbc02d" />);
+        if (hasHalfStar) stars.push(<FaStarHalfAlt key="half" color="#fbc02d" />);
+        for (let i = 0; i < emptyStars; i++) stars.push(<FaRegStar key={`empty-${i}`} color="#ccc" />);
         return stars;
     };
 
-    // --- Prepare Accordion Data from API Response ---
     const getAccordionData = () => {
         if (!course) return { Subjects: [], "Mock Test": [], "Recorded Class": [] };
 
-        // Subjects Tab
         const subjects = (course.subjects || []).map(subject => ({
+            _id: subject._id,
             name: subject.subjectName || "Subject",
             lectures: (subject.lectures || []).map(lec => ({
+                _id: lec._id,
                 lectureName: lec.lectureName || "Untitled Lecture",
                 description: lec.description || "No description available",
                 duration: lec.duration || "Duration not specified",
@@ -168,27 +237,17 @@ const ContinueCourse = () => {
             }))
         }));
 
-        // Mock Test Tab
         const mockTests = (course.mockTests || []).map((test, idx) => ({
             name: test.title || `Mock Test ${idx + 1}`,
             lectures: [{
-                lectureName: test.title || `Mock Test ${idx + 1}`,
+                lectureName: test.title,
                 description: test.description || "Mock test for practice",
                 duration: `${test.totalQuestions || "N/A"} Qs | ${test.duration || "N/A"}`,
                 videoUrl: "#"
             }]
         }));
 
-        // Recorded Class Tab - Using subjects if no separate recorded classes exist
-        const recordedClasses = (course.subjects || []).map(subject => ({
-            name: subject.subjectName || "Recorded Subject",
-            lectures: (subject.lectures || []).map(lec => ({
-                lectureName: lec.lectureName || "Recorded Lecture",
-                description: lec.description || "Recorded lecture content",
-                duration: lec.duration || "00:00",
-                videoUrl: lec.videoUrl || "#"
-            }))
-        }));
+        const recordedClasses = subjects; // same structure reused
 
         return {
             Subjects: subjects,
@@ -197,7 +256,6 @@ const ContinueCourse = () => {
         };
     };
 
-    // Prepare course includes/features (if any)
     const featuresArray = course?.course_includes?.length
         ? [course.course_includes]
         : [
@@ -212,12 +270,12 @@ const ContinueCourse = () => {
                     <BackIcon><FaArrowLeft /></BackIcon>
                 </BackLink>
                 <MainTitle>
-                    {(course && course.courseDisplayName) || "Course Name"}
-                    <span> {(course && course.courseName) || ""}</span>
+                    {course?.courseDisplayName || "Course Name"}
+                    <span> {course?.courseName || ""}</span>
                 </MainTitle>
             </Header>
 
-            <CourseImage src={(course && course.image) || courseImgFallback} alt="Course" />
+            <CourseImage src={course?.image || courseImgFallback} alt="Course" />
 
             <CourseInfo>
                 <HeaderSection>
@@ -227,18 +285,18 @@ const ContinueCourse = () => {
                     </Rating>
                     <CourseDetails>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <PlayButton>
+                            <PlayButton onClick={handleStartCourse}>
                                 <span><FaPlay /></span>
                             </PlayButton>
                             <div>
-                                <CourseSubject>{(course && course.courseDisplayName) || "Course Title"}</CourseSubject>
+                                <CourseSubject>{course?.courseDisplayName || "Course Title"}</CourseSubject>
                                 <CourseStats>
                                     <StatLink>{course?.no_of_videos || 0} Videos</StatLink> | <StatLink>{course?.no_of_subjects || 0} Subjects</StatLink> | <StatLink>{course?.no_of_notes || 0} Notes</StatLink>
                                 </CourseStats>
                             </div>
                         </div>
                         <Statdesc>
-                            📅 Duration: {course?.duration || "N/A"}  🏆 Success Rate: {course?.successRate ? `${course.successRate}%` : "N/A"}
+                            📅 Duration: {course?.duration || "N/A"} 🏆 Success Rate: {course?.successRate ? `${course.successRate}%` : "N/A"}
                         </Statdesc>
                     </CourseDetails>
                 </HeaderSection>
@@ -256,39 +314,32 @@ const ContinueCourse = () => {
 
             {course?.live_class && (
                 <LiveClass>
-                    Live Class <TVIcon> <MdLiveTv /></TVIcon>
+                    Live Class <TVIcon><MdLiveTv /></TVIcon>
                 </LiveClass>
             )}
 
+            {showContent && (
+        <>
             <TabSection>
-                <button
-                    className={activeTab === 'Subjects' ? 'active' : ''}
-                    onClick={() => { setActiveTab('Subjects'); setActiveAccordion(null); }}
-                >
-                    Subjects
-                </button>
-                <button
-                    className={activeTab === 'Mock Test' ? 'active' : ''}
-                    onClick={() => { setActiveTab('Mock Test'); setActiveAccordion(null); }}
-                >
-                    Mock Test
-                </button>
+                <button className={activeTab === 'Subjects' ? 'active' : ''} onClick={() => { setActiveTab('Subjects'); setActiveAccordion(null); }}>Subjects</button>
+                <button className={activeTab === 'Mock Test' ? 'active' : ''} onClick={() => { setActiveTab('Mock Test'); setActiveAccordion(null); }}>Mock Test</button>
                 {course?.recorded_class && (
-                    <button
-                        className={activeTab === 'Recorded Class' ? 'active' : ''}
-                        onClick={() => { setActiveTab('Recorded Class'); setActiveAccordion(null); }}
-                    >
-                        Recorded Class
-                    </button>
+                    <button className={activeTab === 'Recorded Class' ? 'active' : ''} onClick={() => { setActiveTab('Recorded Class'); setActiveAccordion(null); }}>Recorded Class</button>
                 )}
             </TabSection>
 
-            {/* Accordion content per tab */}
             <AccordionList
                 data={getAccordionData()[activeTab]}
                 activeIndex={activeAccordion}
                 onClick={setActiveAccordion}
+                navigate={navigate}
+                courseId={course?._id}
+                handleStartSubject={handleStartSubject}
+                handleStartLecture={handleStartLecture}
+                updateCompletionStatus={updateCompletionStatus} // Pass the new prop
             />
+        </>
+    )}
         </PageWrapper>
     );
 };

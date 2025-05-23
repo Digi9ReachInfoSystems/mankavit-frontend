@@ -64,3 +64,34 @@ export const completeLecturer = async (user_id,course_id,subject_id,lecturer_id)
         throw error;
     }
 };
+
+export const completeSubject = async (user_id,course_id,subject_id) => {
+    try {
+        const response = await api.post(`/userProgress/completeSubject`,
+            {
+                user_id: user_id,
+                course_id: course_id,
+                subject_id: subject_id
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const completeCourse = async (user_id,course_id) => {
+    try {
+        const response = await api.post(`/userProgress/completeCourse`,
+            {
+                user_id: user_id,
+                course_id: course_id
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
