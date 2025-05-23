@@ -95,3 +95,20 @@ export const completeCourse = async (user_id,course_id) => {
         throw error;
     }
 };
+
+export const getCourseByIdWithUSerProgress = async (user_id,course_id) => {
+    try {
+        console.log("user_id,course_id",user_id,course_id);
+        const response = await api.post(`/api/v1/course/coursebyId/withUserProgress`,
+            {
+            user_id: user_id,
+            course_id: course_id
+            }
+        );
+        console.log("Api response", response.data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
