@@ -8,11 +8,11 @@ import {
     ProgressContainer,
     ProgressLabel,
     ProgressBar,
-    ProgressBarContainer,
+    // ProgressBarContainer,
     ProgressFill,
     CourseContent,
     CourseMain,
-    CourseHead,
+    // CourseHead,
     CourseTitle,
     CourseMinititle,
     CourseDesc,
@@ -134,10 +134,10 @@ const Courses = () => {
 
                             <CourseContent>
                                 <CourseMain>
-                                    <CourseHead>
+                                    {/* <CourseHead> */}
                                         <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
                                         <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle>
-                                    </CourseHead>
+                                    {/* </CourseHead> */}
                                     <CourseDesc>{course.description || 'Course description not available'}</CourseDesc>
                                 </CourseMain>
 
