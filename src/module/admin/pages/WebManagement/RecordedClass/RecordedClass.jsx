@@ -22,6 +22,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { getAllRecordedClasses, deleteRecordedClassById } from "../../../../../api/recordedAPi";
+import CustomModal from "../../../component/CustomModal/CustomModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,6 +34,13 @@ const RecordedClass = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState("");
+    const [modalData, setModalData] = useState([]);
+
+    console.log("modalOpen", modalOpen);
+    console.log("modalType", modalType);
+    console.log("modalData", modalData);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,6 +93,14 @@ const RecordedClass = () => {
     }
   };
 
+  const handleOpenModal = (type, data) => {
+
+    console.log(type, data);
+    setModalType(type);
+    setModalData(data);
+    setModalOpen(true);
+  };
+
   return (
     <>
       <ButtonContainer>
@@ -116,8 +132,10 @@ const RecordedClass = () => {
                   <TableCell>{row.title}</TableCell>
                   <TableCell>{row.description}</TableCell>
                   <TableCell>
-                    {row.courses?.length || 0}{" "}
-                    <ViewLink href={`#view/${row._id}`}>View</ViewLink>
+                    {row.course_ref.length || 0}{" "}
+                    <ViewLink href={`#view`} 
+                      onClick={() => handleOpenModal("courses", row.course_ref)}
+                    >View</ViewLink>
                   </TableCell>
                   <TableCell>
                     <ActionsWrapper>
@@ -168,6 +186,15 @@ const RecordedClass = () => {
           isLoading={loading}
         />
       )}
+
+            {modalOpen && (
+              <CustomModal
+                title={modalType ===  "courses" ? "Courses" : ""}
+                type={modalType}
+                data={modalData}
+                onClose={() => setModalOpen(false)}
+              />
+            )}
     </>
   );
 };

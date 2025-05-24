@@ -17,7 +17,7 @@ import {
   VideoContainer,
   VideoPlayer,
   ThumbnailPreview,
-} from "../AddLecturer/AddLecturer.styles";
+} from "./EditLecturer.styles";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
@@ -47,6 +47,7 @@ export default function EditLecturer() {
       try {
         const response = await getLectureById(id);
         const lecture = response.data;
+        console.log(lecture);
 
         setFormData({
           lectureName: lecture.lectureName || "",
@@ -182,7 +183,7 @@ export default function EditLecturer() {
         </FormRow>
 
         {/* Thumbnail */}
-        <FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label>Current Thumbnail</Label>
@@ -195,22 +196,61 @@ export default function EditLecturer() {
               )}
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
 
         <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label>Update Video</Label>
+              <UploadArea onClick={handleVideoUploadClick}>
+  {videoPreviewUrl ? (
+    <VideoContainer>
+      <VideoPlayer controls>
+        <source src={videoPreviewUrl} type="video/mp4" />
+        Your browser does not support the video tag.
+      </VideoPlayer>
+    </VideoContainer>
+  ) : currentVideo ? (
+    <VideoContainer>
+      <VideoPlayer controls>
+        <source src={currentVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </VideoPlayer>
+    </VideoContainer>
+  ) : (
+    <>
+      <UploadPlaceholder>
+        <img src={upload} alt="Upload" />
+      </UploadPlaceholder>
+      <p>Click to upload new video</p>
+      <p><strong>or Browse Files</strong></p>
+    </>
+  )}
+  <FileInput
+    ref={videoInputRef}
+    type="file"
+    accept="video/*"
+    onChange={handleVideoChange}
+  />
+</UploadArea>
+            </FieldWrapper>
+          </Column>
+
           <Column>
             <FieldWrapper>
               <Label>Update Thumbnail</Label>
               <UploadArea onClick={handleThumbnailUploadClick}>
                 {previewUrl && previewUrl !== currentThumbnail ? (
-                  <img src={previewUrl} alt="New Thumbnail" />
+                  <img src={previewUrl} alt="New Thumbnail" className="preview" />
                 ) : (
                   <>
-                    <UploadPlaceholder>
-                      <img src={upload} alt="Upload" />
-                    </UploadPlaceholder>
-                    <p>Click to upload new thumbnail</p>
-                    <p><strong>or Browse Files</strong></p>
+              {currentThumbnail ? (
+                <ThumbnailPreview>
+                  <img src={currentThumbnail} alt="Current Thumbnail"  />
+                </ThumbnailPreview>
+              ) : (
+                <p>No thumbnail available</p>
+              )}
                   </>
                 )}
                 <FileInput
@@ -218,52 +258,6 @@ export default function EditLecturer() {
                   type="file"
                   accept="image/*"
                   onChange={handleThumbnailChange}
-                />
-              </UploadArea>
-            </FieldWrapper>
-          </Column>
-        </FormRow>
-
-        {/* Video */}
-        <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label>Current Video</Label>
-              {currentVideo ? (
-                <VideoContainer>
-                  <VideoPlayer controls>
-                    <source src={currentVideo} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </VideoPlayer>
-                </VideoContainer>
-              ) : (
-                <p>No video available</p>
-              )}
-            </FieldWrapper>
-          </Column>
-        </FormRow>
-
-        <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label>Update Video</Label>
-              <UploadArea onClick={handleVideoUploadClick}>
-                {videoFile ? (
-                  <p>{videoFile.name}</p>
-                ) : (
-                  <>
-                    <UploadPlaceholder>
-                      <img src={upload} alt="Upload" />
-                    </UploadPlaceholder>
-                    <p>Click to upload new video</p>
-                    <p><strong>or Browse Files</strong></p>
-                  </>
-                )}
-                <FileInput
-                  ref={videoInputRef}
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoChange}
                 />
               </UploadArea>
             </FieldWrapper>

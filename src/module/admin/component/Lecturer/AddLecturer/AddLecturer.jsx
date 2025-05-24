@@ -10,16 +10,11 @@ import {
   Label,
   Input,
   TextArea,
-  CheckboxSection,
-  CheckboxSectionTitle,
-  CheckboxList,
-  CheckboxLabel,
-  CheckboxInput,
   UploadArea,
   FileInput,
   UploadPlaceholder,
   SubmitButton,
-  
+  VideoControl
 } from "./AddLecturer.styles";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -161,12 +156,20 @@ export default function AddLecturer() {
               <TextArea id="description" rows="3" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter description" />
             </FieldWrapper>
           </Column>
-          <Column>
+        </FormRow>
+
+        <FormRow>
+          <Column style={{ flex: 1 }}>
             <FieldWrapper>
               <Label>Upload Video *</Label>
               <UploadArea onClick={() => videoInputRef.current.click()}>
                 {videoFile ? (
+                  <>
+                  <VideoControl controls>
+                    <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
+                  </VideoControl>
                   <p>{videoFile.name}</p>
+                  </>
                 ) : (
                   <>
                     <UploadPlaceholder><img src={upload} alt="Upload" /></UploadPlaceholder>
@@ -178,17 +181,12 @@ export default function AddLecturer() {
               </UploadArea>
             </FieldWrapper>
           </Column>
-        </FormRow>
-
-      
-
-        <FormRow>
           <Column style={{ flex: 1 }}>
             <Label>Upload Thumbnail</Label>
             <UploadArea onClick={() => thumbnailInputRef.current.click()}>
               {thumbnailFile && previewUrl ? (
                 <>
-                  <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                  <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "500px", objectFit: "contain" }} />
                   <p>{thumbnailFile.name}</p>
                 </>
               ) : (
