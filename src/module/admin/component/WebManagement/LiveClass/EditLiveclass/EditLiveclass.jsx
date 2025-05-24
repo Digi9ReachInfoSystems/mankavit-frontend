@@ -143,7 +143,7 @@ const convertToLocalDatetime = (utcString) => {
     )}
   </UploadIcon>
   <UploadText>
-    {file?.name || (fileName && "Existing banner loaded") || "Drag and drop image here, or click add image"}
+    {file?.name }
   </UploadText>
   {!file && <UploadButton>Add Image</UploadButton>}
 </UploadContent>

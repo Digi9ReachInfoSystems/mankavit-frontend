@@ -12,8 +12,12 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  ViewLink,
-ActionsWrapper,
+  // ViewLink,
+  ActionsWrapper,
+  ModalOverlay,
+  ModalContent,
+  ModalImage,
+  CloseIcon
 } from "../LiveClass/LiveClass.style";
 import { useNavigate } from "react-router-dom";
 import { BiEditAlt } from "react-icons/bi";
@@ -31,6 +35,15 @@ const sampleData = [
     bannerUrl: "https://aadhar-uidai.in/wp-content/uploads/2018/07/main-qimg-4a3032007d087580af4a6eff50634659.png",
     schedule: "2024-07-24T10:30:00Z",
   },
+  {
+      
+    id: 2,
+    title: "CLAT",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    bannerUrl: "https://mankavit.blob.core.windows.net/upload/1747304038358-Class%209%20Mathematics.jpg",
+    schedule: "2024-07-29T10:39:00Z",
+  },
   // …add as many items as you like
 ];
 
@@ -41,6 +54,8 @@ const LiveClass = () => {
   const [data, setData] = useState(sampleData);
   const [modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const totalPages = Math.ceil(data.length / rowsPerPage);
   const currentItems = data.slice(
@@ -112,30 +127,37 @@ const LiveClass = () => {
                   <TableCell>{row.title}</TableCell>
                   <TableCell>{row.description}</TableCell>
                   <TableCell>
-                    <ViewLink
-                        href={row.bannerUrl}
-                        target="_blank"
-                      rel="noopener"
-                    >
-                      View
-                    </ViewLink>
+                    {row.bannerUrl ? (
+                      <span
+                        onClick={() => {
+                          setSelectedImage(row.bannerUrl);
+                          setImageModalOpen(true);
+                        }}
+                        style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
+                      >
+                        View Image
+                      </span>
+                    ) : (
+                      "No Image"
+                    )}
                   </TableCell>
+
                   <TableCell>{formatIST(row.schedule)}</TableCell>
                   <TableCell>
-                  <ActionsWrapper>
-                    <BiEditAlt
-                      size={20}
-                      color="#000"
-                      onClick={() => navigate(`/admin/web-management/live-classes/edit/${row.id}`, { state: { row} })}
-                      style={{ cursor: "pointer" }}
-                    />
-                    <RiDeleteBin6Line
-                      size={20}
-                      color="#FB4F4F"
-                      onClick={() => handleDelete(row.id)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </ActionsWrapper>
+                    <ActionsWrapper>
+                      <BiEditAlt
+                        size={20}
+                        color="#000"
+                        onClick={() => navigate(`/admin/web-management/live-classes/edit/${row.id}`, { state: { row } })}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <RiDeleteBin6Line
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDelete(row.id)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </ActionsWrapper>
                   </TableCell>
                 </TableRow>
               ))}
@@ -143,13 +165,13 @@ const LiveClass = () => {
           </StyledTable>
         </TableWrapper>
 
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                  totalItems={data.length}
-                  itemsPerPage={rowsPerPage}
-                />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={data.length}
+          itemsPerPage={rowsPerPage}
+        />
       </Container>
 
       {modal && (
@@ -158,6 +180,27 @@ const LiveClass = () => {
           onClose={() => setModal(false)}
           onDelete={handleClickDelete}
         />
+      )}
+
+      {imageModalOpen && selectedImage && (
+        <ModalOverlay
+          onClick={() => {
+            setImageModalOpen(false);
+            setSelectedImage(null);
+          }}
+        >
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <CloseIcon
+              onClick={() => {
+                setImageModalOpen(false);
+                setSelectedImage(null);
+              }}
+            >
+              &times;
+            </CloseIcon>
+            <ModalImage src={selectedImage} alt="Achiever" />
+          </ModalContent>
+        </ModalOverlay>
       )}
     </>
   );

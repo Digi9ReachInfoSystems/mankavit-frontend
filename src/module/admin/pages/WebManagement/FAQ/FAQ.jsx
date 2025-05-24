@@ -19,7 +19,6 @@ import {
   ActionsWrapper,
 } from "./FAQ.styles";
 
-import { FaPlus } from "react-icons/fa";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
@@ -96,7 +95,7 @@ const FAQ = () => {
     <FAQContainer>
       <ButtonContainer>
         <CreateButton onClick={() => navigate("/admin/web-management/faq/create")}>
-          <FaPlus size={12} /> Add FAQ
+         Add FAQ
         </CreateButton>
       </ButtonContainer>
 

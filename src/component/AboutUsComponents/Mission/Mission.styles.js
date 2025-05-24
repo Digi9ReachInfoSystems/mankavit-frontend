@@ -69,16 +69,20 @@ export const Underline = styled.div`
 export const CardandDescription = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+  // justify-content: flex-start;
+  // align-items: center;
 
 `;
 
 export const CardsContainer = styled.div`
   display: flex;
-  justify-content: center;
+  // justify-content: center;
   gap: 2rem;
   margin-bottom: 2rem;
+  flex-wrap: nowrap;
+    overflow-x: scroll;
+  scroll-behavior: smooth;
+      max-width: 100%;
 
   // @media (max-width: 1450px) {
   //   gap: 1.5rem;
@@ -110,7 +114,7 @@ export const CardsContainer = styled.div`
 `;
 
 export const Card = styled.div`
-  width: 400px;
+  min-width: 400px;
   text-align: center;
 
   @media (max-width: 1360px) {
