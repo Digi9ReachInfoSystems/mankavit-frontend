@@ -291,26 +291,26 @@ export const VideoContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  // margin-top: 20px;
 `;
 
 export const VideoPlayer = styled.video`
   max-width: 100%;
-  height: auto;
+  height: 400px;
 `;
 
 export const ThumbnailContainer = styled.div`
-  width: 100%;
+  // width: 100%;
   margin-top: 10px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 `;
 
 export const ThumbnailImage = styled.img`
   width: 100%;
-  max-height: 300px;
+  height: 400px;
   object-fit: contain;
-  border: 1px solid #ddd;
+  // border: 1px solid #ddd;
   border-radius: 4px;
 `;

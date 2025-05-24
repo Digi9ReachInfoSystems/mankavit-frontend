@@ -15,12 +15,14 @@ import {getAllCourses} from "../../../../api/courseApi"
 import { Link } from "react-router-dom";
 
 const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
+  console.log(type);
   const [subjectData, setSubjectData] = useState([]);
   const [courseData, setCourseData] = useState([]);
 
   const getEmptyMessage = () => {
     if (type === "mockTests") return "No mock tests available.";
     if (type === "activeCourses") return "No active courses available.";
+    if(type === "courses") return "No courses available.";
     if (type === "subjects") return "No subjects available.";
     if (type === "students" || type === "enrolled") return "No students available.";
     return "No data available.";
@@ -58,6 +60,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
 
 
   const renderList = () => {
+    console.log(data);
     if (!Array.isArray(data) || data.length === 0) {
       return <MocktestItem>{getEmptyMessage()}</MocktestItem>;
     }
@@ -69,6 +72,8 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
     }
 
     if (type === "activeCourses") {
+
+      console.log(data);
       return data.map((course, index) => {
         const courseName = typeof course === 'string' ? course : course.courseName;
 
@@ -92,6 +97,21 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           </MocktestItem>
         );
       });
+    }
+    console.log(type);
+    
+    if(type === "courses") {
+      console.log(data);
+      return data.map((course, index) => (
+        <MocktestItem key={index}>
+          <Link
+              to={`/admin/course-management/view/${course._id}`}
+              className="subject-link"
+          >
+            {course.courseName}
+          </Link>
+        </MocktestItem>
+      ));
     }
 
     if (type === "subjects") {

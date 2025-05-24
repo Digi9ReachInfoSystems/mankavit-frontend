@@ -81,10 +81,6 @@ export default function ViewLecturer() {
               </ThumbnailContainer>
             </FieldWrapper>
           </Column>
-        </FormRow>
-
-        {/* Video Player Section */}
-        <FormRow>
           <Column style={{ flex: 1 }}>
             <FieldWrapper>
               <Label>Lecture Video</Label>
