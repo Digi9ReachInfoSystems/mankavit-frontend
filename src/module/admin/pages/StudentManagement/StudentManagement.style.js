@@ -344,23 +344,23 @@ export const StatusWrapper = styled.div`
   color: #111;
 `;
 
-export const KycDot = styled.span`
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: ${({ status, theme }) => {
-    switch (status) {
-      case 'Pending':
-        return theme.colors.goldenyellow;
-      case 'Approved':
-        return theme.colors.emaraldgreen;
-      case 'Not Applied':
-        return theme.colors.lavendargray;
-      default:
-        return '#999';
-    }
-  }};
-`;
+// export const KycDot = styled.span`
+//   width: 10px;
+//   height: 10px;
+//   border-radius: 50%;
+//   background-color: ${({ status, theme }) => {
+//     switch (status) {
+//       case 'Pending':
+//         return theme.colors.goldenyellow;
+//       case 'Approved':
+//         return theme.colors.emaraldgreen;
+//       case 'Not Applied':
+//         return theme.colors.lavendargray;
+//       default:
+//         return '#999';
+//     }
+//   }};
+// `;
 
 export const StatusDot = styled.span`
   width: 10px;
@@ -415,3 +415,12 @@ export const SearchInput = styled.input`
   }
 `;
 
+export const KycDot = styled.span`
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  background-color: ${({ status }) =>
+    status?.toLowerCase() === "approved" ? "#28a745" : "#ffc107"};
+`;

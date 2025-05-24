@@ -437,3 +437,14 @@ export const Playing = styled.div`
       font-size: 12px;
     }
 `;
+
+export const CompletedTag = styled.div`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: white;
+`;

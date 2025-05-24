@@ -81,7 +81,9 @@ export const logoutUser = async (data) => {
 };
 export const getUserDetails = async (id) => {
     try {
-        const response = await api.get(`/get/userById/${id}`);
+        console.log("id inside api",id);
+        const response = await api.get(`/user/get/userById/${id}`);
+        console.log("response.data",response.data);
         return response.data;
     } catch (error) {
         console.log(error);

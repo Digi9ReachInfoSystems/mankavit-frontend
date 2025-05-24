@@ -1,0 +1,268 @@
+// src/pages/Admin/WebManagement/Blog/ContactSupport.jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { IoEyeOutline, IoTrashOutline } from "react-icons/io5";
+import { getAllSupport, deleteSupportById, updateSupportById} from "../../../../../api/supportApi";
+import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import Pagination from "../../../component/Pagination/Pagination";
+
+import {
+  Container,
+  Title,
+  TableWrapper,
+  Table,
+  TableHead,
+  Th,
+  Td,
+  ImageModalOverlay,
+  ImageModalContent,
+  UpdateButton,
+  ViewDescription,
+  ViewTitle,
+  ViewContainer,
+  CloseButton,
+  Heading,
+  StatusBadge,
+} from "./ContactSupportView.styles";
+
+const ITEMS_PER_PAGE = 10;
+
+
+const ContactSupportView = () => {
+  const navigate = useNavigate();
+  const [supports, setSupports] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedSupport, setSelectedSupport] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [updateLoading, setUpdateLoading] = useState(false);
+
+
+useEffect(() => {
+  const fetchSupports = async () => {
+    try {
+      const response = await getAllSupport();
+      console.log("API Response:", response); // Debug log
+      
+      // The response is directly the array of support tickets
+      if (Array.isArray(response)) {
+        setSupports(response);
+      } else {
+        console.error("Unexpected response format:", response);
+        setSupports([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching supports:", error);
+      setLoading(false);
+    }
+  };
+
+  fetchSupports();
+}, []);
+
+
+  const totalItems = supports.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentPageData = supports.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleView = (item) => {
+    setSelectedSupport(item);
+    setModalOpen(true);
+  };
+
+  const handleDeleteClick = (id) => {
+    setSelectedId(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteSupportById(selectedId);
+      setSupports(supports.filter(support => support._id !== selectedId));
+      setDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting support:", error);
+    }
+  };
+
+  const getStatusBadgeColor = (status) => {
+    if (!status) return '#9e9e9e';
+    
+    switch (status.toLowerCase()) {
+      case 'open':
+        return '#ff9800'; // orange
+      case 'in progress':
+        return '#2196f3'; // blue
+     
+      case 'closed':
+        return '#4caf50'; // gray
+      default:
+        return '#9e9e9e'; // default gray
+    }
+  };
+
+  if (loading) {
+    return <Container>Loading...</Container>;
+  }
+
+const handleUpdateStatus = async (newStatus) => {
+  if (!selectedSupport) return;
+
+  setUpdateLoading(true);
+  try {
+    // Prepare update data — only sending { status: newStatus }
+    const updatedData = { status: newStatus };
+
+    const updatedSupport = await updateSupportById(selectedSupport._id, updatedData);
+
+    // Update the supports array with updatedSupport
+    setSupports((prevSupports) =>
+      prevSupports.map((support) =>
+        support._id === updatedSupport._id ? updatedSupport : support
+      )
+    );
+
+    // Also update the modal data (optional since modal will close)
+    setSelectedSupport(updatedSupport);
+
+    // Close the modal after successful update
+    setModalOpen(false);
+
+    setUpdateLoading(false);
+  } catch (error) {
+    console.error("Error updating support status:", error);
+    setUpdateLoading(false);
+  }
+};
+
+
+
+  return (
+    <>
+      <Container>
+        <Title>Contact Support</Title>
+        {supports.length === 0 ? (
+          <p>No support tickets found</p>
+        ) : (
+          <>
+            <TableWrapper>
+              <Table>
+                <TableHead>
+                  <tr>
+                    <Th>Email</Th>
+                    <Th>Description</Th>
+                    <Th>Status</Th>
+                    <Th>Actions</Th>
+                  </tr>
+                </TableHead>
+                <tbody>
+                  {currentPageData.map((item) => (
+                    <tr key={item._id}>
+                      <Td>{item.userRef?.email || 'N/A'}</Td>
+                      <Td>{item.description?.slice(0, 50)}...</Td>
+                      <Td>
+                        <StatusBadge color={getStatusBadgeColor(item.status)}>
+                          {item.status || 'N/A'}
+                        </StatusBadge>
+                      </Td>
+                      <Td>
+                        <IoEyeOutline
+                          size={20}
+                          style={{ cursor: "pointer", marginRight: 10 }}
+                          onClick={() => handleView(item)}
+                        />
+                        <IoTrashOutline
+                          size={20}
+                          style={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleDeleteClick(item._id)}
+                        />
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableWrapper>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                totalItems={totalItems}
+                itemsPerPage={ITEMS_PER_PAGE}
+              />
+            )}
+          </>
+        )}
+      </Container>
+{modalOpen && selectedSupport && (
+   <ImageModalOverlay
+    onClick={(e) => {
+      // Close modal only if click is on the overlay, not inside modal content
+      if (e.target === e.currentTarget) {
+        setModalOpen(false);
+      }
+    }}
+  >
+    <ImageModalContent>
+      <CloseButton onClick={() => setModalOpen(false)}> &times;</CloseButton>
+      <ViewContainer>
+        <Heading>View Contact Support Details</Heading>
+        <ViewTitle>
+          <strong style={{marginRight: "10px", fontWeight: "600"}}>Email: </strong> 
+          {selectedSupport.userRef?.email || 'N/A'}
+        </ViewTitle>
+        <ViewTitle>
+          <strong style={{marginRight: "10px", fontWeight: "600"}}>Status: </strong>
+          <StatusBadge color={getStatusBadgeColor(selectedSupport.status)}>
+            {selectedSupport.status || 'N/A'}
+          </StatusBadge>
+        </ViewTitle>
+        <ViewDescription>
+          <strong style={{marginRight: "10px", fontWeight: "600"}}>Description: </strong>
+          {selectedSupport.description || 'N/A'}
+        </ViewDescription>
+        <ViewTitle>
+          <strong style={{marginRight: "10px", fontWeight: "600"}}>Created At: </strong>
+          {selectedSupport.createdAt ? new Date(selectedSupport.createdAt).toLocaleString() : 'N/A'}
+        </ViewTitle>
+
+        {/* Buttons to update status */}
+        <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+          <button
+            disabled={updateLoading || selectedSupport.status?.toLowerCase() === "closed"}
+            onClick={() => handleUpdateStatus("closed")}
+            style={{
+              padding: "8px 16px",
+              background: "#4CAF50",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              transition: "background-color 0.3s ease",
+              opacity: updateLoading || selectedSupport.status?.toLowerCase() === "closed" ? 0.5 : 1,
+            }}
+          >
+            Mark as Closed
+          </button>
+
+        </div>
+      </ViewContainer>
+    </ImageModalContent>
+  </ImageModalOverlay>
+)}
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDeleteConfirm}
+      />
+    </>
+  );
+};
+
+export default ContactSupportView;

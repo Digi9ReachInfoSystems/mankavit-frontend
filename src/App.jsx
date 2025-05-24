@@ -31,7 +31,7 @@ import AddQuestionpaper from './module/admin/component/WebManagement/Questionpap
 import LiveClass from './module/admin/pages/WebManagement/LiveClass/LiveClass'
 import AddLiveClass from './module/admin/component/WebManagement/LiveClass/AddLiveClass'
 import RecordedClass from './module/admin/pages/WebManagement/RecordedClass/RecordedClass'
-import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass'
+import AddRecordedClass from './module/admin/component/WebManagement/RecordedClass/AddRecordedClass/AddRecordedClass'
 import AddFaq from './module/admin/component/WebManagement/Faq/AddFaq/AddFaq'
 // import StaticPage from './module/admin/pages/WebManagement/StaticPage/StaticPage'
 import Aboutus from './module/admin/pages/WebManagement/AboutUs/AboutUs'
@@ -96,6 +96,14 @@ import AddBlog from './module/admin/component/WebManagement/blog/AddBlog/AddBlog
 import EditBlog from './module/admin/component/WebManagement/blog/EditBlog/EditBlog'
 import ViewBlog from './module/admin/component/WebManagement/blog/ViewBlog/ViewBlog'
 import ContinueCoursePage from './pages/ContinueCoursePage/ContinueCoursePage'
+import ContactSupportView from './module/admin/pages/WebManagement/ContactSupportView/ContactSupportView'
+import UserFeedback from './module/admin/pages/WebManagement/UserFeedback/UserFeedback'
+import CoursesLiveclassPage from './pages/CoursesLiveclassPage/CoursesLiveclassPage'
+import ViewRecordedClass from './module/admin/component/WebManagement/RecordedClass/ViewRecordedClass/ViewRecordedClass'
+import KYCpage from './pages/KYCpage/KYCpage'
+import UserBlog from './pages/UserBlog/UserBlog'
+import ReadPost from './component/UserBlogComponents/ReadPost/ReadPost'
+// import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
 
@@ -116,10 +124,13 @@ function App() {
           <Route path='/results' element={<Results/>} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
+          <Route path="/course/liveclass/:courseId/:lectureId" element={<CoursesLiveclassPage />} />
           
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
-          
+          <Route path='/kyc' element={<KYCpage />} />
+          <Route path="/userblog" element={<UserBlog />} />
+          <Route path='/read-post' element={<ReadPost />} />
 
           <Route path="/test" element={<Test />} />
 
@@ -198,6 +209,7 @@ function App() {
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
             <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass/>} />
+            <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass/>} />
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
@@ -229,6 +241,10 @@ function App() {
             <Route path="web-management/blog/create" element={<AddBlog />} />
             <Route path="web-management/blog/edit/:id" element={<EditBlog />} />
             <Route path="web-management/blog/view/:id" element={<ViewBlog />} />
+
+            <Route path="web-management/contact-support" element={<ContactSupportView/>} />
+
+            <Route path="web-management/user-feedback" element={<UserFeedback />} />
           </Route>
 
           

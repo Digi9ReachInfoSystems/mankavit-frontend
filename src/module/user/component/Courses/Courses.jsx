@@ -8,11 +8,11 @@ import {
     ProgressContainer,
     ProgressLabel,
     ProgressBar,
-    ProgressBarContainer,
+    // ProgressBarContainer,
     ProgressFill,
     CourseContent,
     CourseMain,
-    CourseHead,
+    // CourseHead,
     CourseTitle,
     CourseMinititle,
     CourseDesc,
@@ -30,12 +30,14 @@ import {
     getAllEnrolledCourses,
 } from '../../../../api/userDashboardAPI';
 import { getCookiesData } from '../../../../utils/cookiesService';
+import { useNavigate } from 'react-router-dom';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { userId } = getCookiesData();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -132,10 +134,10 @@ const Courses = () => {
 
                             <CourseContent>
                                 <CourseMain>
-                                    <CourseHead>
+                                    {/* <CourseHead> */}
                                         <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
                                         <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle>
-                                    </CourseHead>
+                                    {/* </CourseHead> */}
                                     <CourseDesc>{course.description || 'Course description not available'}</CourseDesc>
                                 </CourseMain>
 
@@ -154,9 +156,13 @@ const Courses = () => {
                             </CourseContent>
 
                             <PriceActions>
-                                <ViewButton completed={course.course_status === "completed"}>
+                                <ViewButton
+                                    completed={course.course_status === "completed"}
+                                    onClick={() => navigate(`/continueCourse/${course._id}`)}
+                                >
                                     {course.course_status === "completed" ? 'Completed' : 'Continue Learning'}
                                 </ViewButton>
+
                             </PriceActions>
                         </CourseCard>
                     ))

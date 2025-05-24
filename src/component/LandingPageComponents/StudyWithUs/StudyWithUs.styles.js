@@ -79,7 +79,6 @@ export const Card = styled.div`
   width: 500px;
   text-align: center;
   position: relative;
-  height: 510px;
 
   @media (max-width: 1802px) {
   width: 450px;
@@ -87,48 +86,40 @@ export const Card = styled.div`
 
   @media (max-width: 1636px) {
     width: 400px;
-    height: 470px;
-  }
+    }
 
   @media (max-width: 1468px) {
     width: 350px;
-    height: 450px;
-  }
+    }
 
   @media (max-width: 1320px) {
     width: 310px;
-    height: 430px;
-  }
+    }
 
   @media (max-width: 1179px) {
     width: 250px;
-    height: 380px;
-  }
+     }
 
   @media (max-width: 1024px) {
     width: 200px;
-    height: 350px;
-  }
+     }
 
   @media (max-width: 863px) {
     width: 180px;
-    height: 250px;
-  }
+}
+    
 
   @media (max-width: 768px) {
     width: 160px;
-    height: 250px;
-  }
+    }
 
   @media (max-width: 576px) {
     width: 90%;
-    height: 350px
-  }
+    }
 
   @media (max-width: 380px) {
     width: 90%;
-    height: 400px;
-  }
+    }
 `;
 
 export const CardImage = styled.img`
@@ -158,10 +149,18 @@ export const CardImage = styled.img`
 `;
 
 export const CardTitle = styled.h3`
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 400;
   color: #252525;
   margin-bottom: 0.5rem;
+     word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+
 
   @media (max-width: 1468px) {
     font-size: 30px;
@@ -183,11 +182,17 @@ export const CardTitle = styled.h3`
 `;
 
 export const CardDescription = styled.p`
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 300;
   color: #252525;
-  position: absolute;
-  bottom: 0;
+      word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+    height: 40px;
+
 
   @media (max-width: 1802px) {
     font-size: 18px;

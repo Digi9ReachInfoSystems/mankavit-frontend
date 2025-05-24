@@ -11,10 +11,8 @@ import {
     ProgressLabel,
     ProgressBar,
     ProgressFill,
-    ProgressBarContainer,
     CourseContent,
     CourseMain,
-    CourseHead,
     CourseTitle,
     CourseMinititle,
     CourseDesc,
@@ -108,74 +106,6 @@ const UserCourses = () => {
             {error && <div style={{ padding: "2rem", color: "red", textAlign: "center" }}>{error}</div>}
 
             {!loading && !error && (
-                // <CardGrid>
-                //     {courses.length === 0 ? (
-                //         <div style={{ gridColumn: "1/-1", padding: "2rem", textAlign: "center" }}>
-                //             No courses found.
-                //         </div>
-                //     ) : (
-                //         courses.map((course, index) => (
-                //             <CourseCard key={index} completed={course.completed || course.progress === 100}>
-                //                 <ImageWrapper>
-                //                     <img src={course.image} alt="Course" />
-                //                 </ImageWrapper>
-
-                //                 {!(course.completed || course.progress === 100) ? (
-                //                     <ProgressContainer>
-                //                         <ProgressLabel>
-                //                             {course.completePercentage || 0}% Completed
-                //                         </ProgressLabel>
-                //                         <ProgressBar>
-                //                             <ProgressFill style={{ width: `${course.completePercentage || 0}%` }} />
-                //                         </ProgressBar>
-                //                     </ProgressContainer>
-                //                 ) : (
-                //                     <ProgressBarContainer>
-                //                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                //                             <ProgressLabel>Reviewed</ProgressLabel>
-                //                             <div className='stars'>
-                //                                 {renderStars(course.rating || 5)}
-                //                             </div>
-                //                         </div>
-                //                     </ProgressBarContainer>
-                //                 )}
-
-                //                 <CourseContent>
-                //                     <CourseMain>
-                //                         <CourseHead>
-                //                             <CourseTitle>{course.courseName}</CourseTitle>
-                //                             <CourseMinititle>{course.courseDisplayName}</CourseMinititle>
-                //                         </CourseHead>
-                //                         <CourseDesc>{course.shortDescription}</CourseDesc>
-                //                     </CourseMain>
-
-                //                     {!(course.completed || course.progress === 100) ? (
-                //                         <Details>
-                //                             <DetailItem>
-                //                                 <FcCalendar /> Duration: {course.duration || "N/A"}
-                //                             </DetailItem>
-                //                             <DetailItem>
-                //                                 🏆 Success Rate: {course.successRate || "N/A"}
-                //                             </DetailItem>
-                //                         </Details>
-                //                     ) : (
-                //                         <Details>
-                //                             <DetailItemok>
-                //                                 <FcOk fontSize={30} /> You have successfully Completed this course
-                //                             </DetailItemok>
-                //                         </Details>
-                //                     )}
-                //                 </CourseContent>
-
-                //                 <PriceActions>
-                //                     <ViewButton completed={course.course_status === "completed"}>
-                //                         {course.course_status === "completed" ? 'Completed' : 'Continue Learning'}
-                //                     </ViewButton>
-                //                 </PriceActions>
-                //             </CourseCard>
-                //         ))
-                //     )}
-                // </CardGrid>
                 <CardGrid>
                     {courses.length > 0 ? (
                         courses.map((course, index) => (
@@ -201,10 +131,8 @@ const UserCourses = () => {
 
                                 <CourseContent>
                                     <CourseMain>
-                                        <CourseHead>
                                             <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
                                             <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle>
-                                        </CourseHead>
                                         <CourseDesc>{course.description || 'Course description not available'}</CourseDesc>
                                     </CourseMain>
 
