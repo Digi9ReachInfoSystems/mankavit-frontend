@@ -26,6 +26,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { getAllNotes } from "../../../../../api/notesApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 import { createSubject } from "../../../../../api/subjectApi";
+import { getAllLectures } from "../../../../../api/lecturesApi";
+import { set } from "date-fns";
 
 export default function AddSubject() {
   const [subjectTitle, setSubjectTitle] = useState("");
@@ -36,6 +38,8 @@ export default function AddSubject() {
   const navigate = useNavigate();
 
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
+  const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
+
   const [mockTestCheckboxes, setMockTestCheckboxes] = useState([
     { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock1" },
     { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock2" }
@@ -60,6 +64,23 @@ export default function AddSubject() {
     };
     apiCaller();
   }, []);
+
+useEffect(() => {
+  const apiCaller = async () => {
+    try {
+      const lecturesResponse = await getAllLectures();
+      const lecturesData = lecturesResponse.data.map((item) => ({
+        label: item.lectureName,
+        id: item._id,
+        checked: false,
+      }));
+      setLecturesCheckboxes(lecturesData);
+    } catch (error) {
+      console.error("Error fetching lectures:", error);
+    }
+  };
+  apiCaller();
+}, []);
 
   useEffect(() => {
     return () => {
@@ -107,6 +128,7 @@ export default function AddSubject() {
 
       const notes = notesCheckboxes.filter((item) => item.checked).map((item) => item.id);
       const mockTests = mockTestCheckboxes.filter((item) => item.checked).map((item) => item.id);
+   const lectures = lecturesCheckboxes.filter((item) => item.checked).map((item) => item.id);
 
       const createSubjectResponse = await createSubject({
         subjectName: internalTitle,
@@ -117,7 +139,10 @@ export default function AddSubject() {
         mockTests,
         courses: [],
         image: fileURL,
+        lectures
+
       });
+      console.log("Created subject response",createSubjectResponse);
 
       if (createSubjectResponse) {
         toast.success("Subject created successfully.");
@@ -127,6 +152,7 @@ export default function AddSubject() {
         setShortDescription("");
         setThumbnailFile(null);
         setNotesCheckboxes(notesCheckboxes.map((i) => ({ ...i, checked: false })));
+        setLecturesCheckboxes(lecturesCheckboxes.map((i) => ({ ...i, checked: false })));
         setMockTestCheckboxes(mockTestCheckboxes.map((i) => ({ ...i, checked: false })));
         setTimeout(() => navigate("/admin/subject-management"), 2000);
       }
@@ -214,6 +240,25 @@ export default function AddSubject() {
                       type="checkbox"
                       checked={item.checked}
                       onChange={() => handleCheckboxChange(index, setMockTestCheckboxes)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
+         <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>
+              <CheckboxList>
+                {lecturesCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={item.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index, setLecturesCheckboxes)}
                     />
                     {item.label}
                   </CheckboxLabel>

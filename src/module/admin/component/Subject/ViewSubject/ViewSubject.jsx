@@ -16,35 +16,41 @@ import {
 import { getSubjectById } from "../../../../../api/subjectApi";
 import { getAllNotes } from "../../../../../api/notesApi";
 import toast from "react-hot-toast";
+import { getAllLectures } from "../../../../../api/lecturesApi";
 
 export default function ViewSubject() {
   const { id } = useParams();
   const [subject, setSubject] = useState(null);
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lectures, setLectures] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subjectRes, notesRes] = await Promise.all([
+        const [subjectRes, notesRes, lecturesRes] = await Promise.all([
           getSubjectById(id),
           getAllNotes(),
+          getAllLectures()
         ]);
+
+        console.log("Response subject by id",subjectRes.data);
 
         const subjectData = subjectRes.data;
         setSubject(subjectData);
-        
-        // Extract note IDs from subject data
-        const subjectNoteIds = subjectData.notes?.map(note => 
-          note?.$oid || note  
-        ) || [];
-        
+
         // Get note details for the subject's notes
-        const subjectNotes = notesRes.data
-          .filter(note => subjectNoteIds.includes(note._id))
-          .map(note => note.noteDisplayName || `Note (${note._id})`);
-        
+        const subjectNotes = subjectData.notes.map(note => 
+          note.noteDisplayName || `Note (${note._id})`
+        );
         setNotes(subjectNotes);
+
+        // Get lecture details for the subject's lectures
+        const subjectLectures = subjectData.lectures.map(lecture => 
+          lecture.lectureName || `Lecture (${lecture._id})`
+        );
+        setLectures(subjectLectures);
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -125,8 +131,26 @@ export default function ViewSubject() {
             </CheckboxSection>
           </Column>
         </FormRow>
+        
+        {/* Row 3 - Lectures */}
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <Label>Associated Lectures</Label>
+              <CheckboxList>
+                {lectures.length > 0 ? (
+                  lectures.map((lecture, index) => (
+                    <Field key={index}>{lecture}</Field>
+                  ))
+                ) : (
+                  <Field>No lectures associated with this subject</Field>
+                )}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
 
-        {/* Row 3 - Thumbnail */}
+        {/* Row 4 - Thumbnail */}
         <FormRow>
           <Column>
             <Label>Thumbnail</Label>
