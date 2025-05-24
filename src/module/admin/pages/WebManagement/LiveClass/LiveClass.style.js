@@ -209,3 +209,47 @@ export const ActionsWrapper = styled.div`
     }
   }
 `;
+
+export const ModalOverlay = styled.div`
+   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+export const CloseIcon = styled.span`
+ position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #fff;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+
+  &:hover {
+    color: #555;
+  }
+`;
+
+export const ModalContent = styled.div`
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+`;
+
+export const ModalImage = styled.img`
+  width: 500px;
+  height: 400px;
+  border-radius: 8px;
+`;
