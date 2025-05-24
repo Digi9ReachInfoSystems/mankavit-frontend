@@ -193,6 +193,7 @@ const Header = () => {
                 "Blog",
                 "Results",
                 "Prev. Year Ques.",
+                 <IoNotificationsOutline className="notification-icon" />
               ].map((item) => (
                 <NavLinkItem
                   key={item}
@@ -218,8 +219,8 @@ const Header = () => {
             {!isLoggedIn ? (
               <SignInButton onClick={handleLoginButton}>Sign In</SignInButton>
             ) : (
-              <div className="dashboard-container">
-                <IoNotificationsOutline className="notification-icon" />
+              <div className="dashboard-container"> 
+                {/* <IoNotificationsOutline className="notification-icon" /> */}
                 <DashboardButton onClick={handleLogout}>
                   Dashboard
                   <img

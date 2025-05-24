@@ -37,7 +37,7 @@ const STATIC_MOCK_TESTS = [
 ];
 
 export default function EditSubject() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -52,8 +52,8 @@ export default function EditSubject() {
     STATIC_MOCK_TESTS.map((m) => ({ ...m, checked: false }))
   );
 
-  const [thumbnailFile, setThumbnailFile] = useState(null); 
-  const [previewUrl, setPreviewUrl] = useState(null);       
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
     const fillForm = async () => {
@@ -155,6 +155,7 @@ export default function EditSubject() {
             "subjects"
           );
           imageUrl = blobUrl;
+          console.log("imageUrl", imageUrl);
         } catch (uploadError) {
           console.error("File upload error:", uploadError);
           toast.error("Failed to upload image");
@@ -172,7 +173,7 @@ export default function EditSubject() {
         .filter((l) => l.checked)
         .map((l) => l.id);
 
-const data =      await updateSubjectById(id, {
+      console.log("notes", {
         subjectName: internalTitle,
         subjectDisplayName: subjectTitle,
         vimeoShowcaseID: vimeoId,
@@ -182,13 +183,23 @@ const data =      await updateSubjectById(id, {
         image: imageUrl,
         lectures
       });
+      const data = await updateSubjectById(id, {
+        subjectName: internalTitle,
+        subjectDisplayName: subjectTitle,
+        vimeoShowcaseID: vimeoId,
+        description: shortDescription,
+        notes,
+        mockTests,
+        image: imageUrl,
+        lectures
+      });
+      console.log("data", data);
 
-      console.log("Updated subject response", data);
 
       // toast.success("Subject updated successfully.");
       setTimeout(() => navigate("/admin/subject-management"), 2000);
     } catch (err) {
-      console.error("Update error:", err); 
+      console.error("Update error:", err);
       if (err.response) {
         toast.error(`Update failed: ${err.response.data.message || err.message}`);
       } else if (err.request) {
