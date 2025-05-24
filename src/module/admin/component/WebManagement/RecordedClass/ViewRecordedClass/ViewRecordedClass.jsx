@@ -7,7 +7,7 @@ import {
   Label,
   ValueText, // Add a styled `p` tag if desired
 } from "./ViewRecordedClass.styles";
-
+import { getRecordedClassById } from "../../../../../../api/recordedAPi";
 
 const ViewRecordedClass = ({ classData }) => {
   const {

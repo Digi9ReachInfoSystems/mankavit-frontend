@@ -9,23 +9,22 @@ import {
   FieldWrapper,
   Label,
   Field,
-  CheckboxSection,
-  CheckboxSectionTitle,
-  CheckboxList,
-  UploadArea,
+  VideoPlayer,
+  VideoContainer,
+  ThumbnailImage,
+  ThumbnailContainer,
 } from "./ViewLecturer.styles";
 import { getLectureById } from "../../../../../api/lecturesApi";
 
 export default function ViewLecturer() {
   const { id } = useParams();
-  console.log("id", id);
   const [lecture, setLecture] = useState(null);
 
   useEffect(() => {
     const fetchLecture = async () => {
       try {
         const response = await getLectureById(id);
-        setLecture(response.lecture || response); // depending on your API shape
+        setLecture(response.data);
       } catch (error) {
         console.error("Failed to fetch lecture:", error);
       }
@@ -40,19 +39,19 @@ export default function ViewLecturer() {
 
   return (
     <Container>
-      <Title>View Lecturer</Title>
+      <Title>View Lecture</Title>
       <FormWrapper>
         {/* Row 1 */}
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label>Lecturer Name</Label>
-              <Field>{lecture.lecturerName || 'N/A'}</Field>
+              <Label>Lecture Name</Label>
+              <Field>{lecture.lectureName || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label>Duration</Label>
+              <Label>Duration (minutes)</Label>
               <Field>{lecture.duration || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
@@ -62,26 +61,40 @@ export default function ViewLecturer() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label>Course Description</Label>
+              <Label>Description</Label>
               <Field>{lecture.description || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 3 */}
-       
+        {/* Thumbnail Section */}
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label>Thumbnail</Label>
+              <ThumbnailContainer>
+                {lecture.thumbnail ? (
+                  <ThumbnailImage src={lecture.thumbnail} alt="Lecture Thumbnail" />
+                ) : (
+                  <Field>No thumbnail available</Field>
+                )}
+              </ThumbnailContainer>
+            </FieldWrapper>
+          </Column>
+        </FormRow>
 
-        {/* Row 4 */}
+        {/* Video Player Section */}
         <FormRow>
           <Column style={{ flex: 1 }}>
-            <Label>Thumbnail</Label>
-            <UploadArea style={{ cursor: "default" }}>
-              <img
-                src={lecture.thumbnail || "https://via.placeholder.com/300x200?text=No+Image"}
-                alt="Thumbnail"
-                style={{ width: "100%", height: "100%" }}
-              />
-            </UploadArea>
+            <FieldWrapper>
+              <Label>Lecture Video</Label>
+              <VideoContainer>
+                <VideoPlayer controls>
+                  <source src={lecture.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </VideoPlayer>
+              </VideoContainer>
+            </FieldWrapper>
           </Column>
         </FormRow>
       </FormWrapper>
