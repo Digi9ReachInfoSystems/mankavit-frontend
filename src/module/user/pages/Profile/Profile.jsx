@@ -68,6 +68,7 @@ const Profile = () => {
       setIsLoading(true);
       try {
         const resp = await getUserByUserId(id);
+        console.log('resp', resp);  
         if (!resp.success || !resp.user) {
           throw new Error('User not found');
         }
@@ -77,7 +78,7 @@ const Profile = () => {
           email: u.email || '',
           mobile: u.phone || ''
         });
-        setProfileImage(u.profileImageUrl || u.profilePicture || profilePlaceholder);
+        setProfileImage(u.photo_url  || profilePlaceholder);
 
         if (u.passportPhotoUrl) {
           setPassportPhoto({
@@ -201,12 +202,9 @@ const handleProfilePhotoFileChange = async (e) => {
   }
   setIsLoading(true);
   try {
-    const { url } = await uploadFileToAzureStorage(file, 'profile');
-    if (!url) {
-      throw new Error('Failed to get URL after upload');
-    }
-    setProfileImage(url);
-    return url; // Return the URL so we can use it in handleSubmit
+    const data= await uploadFileToAzureStorage(file, 'profile');
+    setProfileImage(data.blobUrl);
+    return data.blobUrl; // Return the URL so we can use it in handleSubmit
   } catch (error) {
     console.error('Upload error:', error);
     alert('Profile photo upload failed. Please try again.');
@@ -218,6 +216,7 @@ const handleProfilePhotoFileChange = async (e) => {
 
 // Update the handleSubmit function
 const handleSubmit = async (e) => {
+  console.log('Profile Image:', profileImage);
   e.preventDefault();
   setIsLoading(true);
   setError('');
@@ -226,7 +225,7 @@ const handleSubmit = async (e) => {
     // Prepare the update data
     const updateData = {
       displayName: profileData.name.trim(),
-      phone: profileData.mobile ? `+91${profileData.mobile}` : '',
+      phone: profileData.mobile ? `${profileData.mobile}` : '',
       email: profileData.email.trim(),
       photo_url: profileImage !== profilePlaceholder ? profileImage : ''
     };
@@ -242,6 +241,7 @@ const handleSubmit = async (e) => {
     console.log('Submitting update:', updateData); // Debug log
 
     const response = await updateUserById(id, updateData);
+    console.log('Update response:', response);
     
     if (!response.success) {
       throw new Error(response.message || 'Failed to update user profile');
@@ -320,7 +320,7 @@ const handleSubmit = async (e) => {
               </InputGroup>
             </FlexRow>
 
-            <FlexRow>
+            {/* <FlexRow>
               <UploadSection>
                 <Label>Passport Photo</Label>
                 <FlexUpload>
@@ -368,9 +368,9 @@ const handleSubmit = async (e) => {
                   </UploadedFileName>
                 )}
               </UploadSection>
-            </FlexRow>
+            </FlexRow> */}
 
-            <SubmitButton type="submit" disabled={isLoading}>
+            <SubmitButton type="submit" disabled={isLoading} onClick={handleSubmit}>
               {isLoading ? 'Saving...' : 'Save Changes'}
             </SubmitButton>
           </FormWrapper>
