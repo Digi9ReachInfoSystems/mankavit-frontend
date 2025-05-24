@@ -1,5 +1,5 @@
-import React from "react";
-import upload from "../../../../../assets/upload.png";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -9,43 +9,50 @@ import {
   FieldWrapper,
   Label,
   Field,
-  CheckboxSection,
-  CheckboxSectionTitle,
-  CheckboxList,
-  UploadArea,
+  VideoPlayer,
+  VideoContainer,
+  ThumbnailImage,
+  ThumbnailContainer,
 } from "./ViewLecturer.styles";
+import { getLectureById } from "../../../../../api/lecturesApi";
 
 export default function ViewLecturer() {
-  // Mock static data for UI display
-  const lecturerName = "Dr. John Doe";
-  const duration = "3 Months";
-  const description = "This is a sample course description for viewing purposes only.";
-  const subjectCheckboxes = [
-    "Mathematics",
-    "Physics",
-  ]
-  const courseCheckboxes = [
-    "Mock Test 1",
-    "Mock Test 2",
-  ];
-  const thumbnailUrl = "https://via.placeholder.com/300x200?text=Thumbnail+Preview";
+  const { id } = useParams();
+  const [lecture, setLecture] = useState(null);
+
+  useEffect(() => {
+    const fetchLecture = async () => {
+      try {
+        const response = await getLectureById(id);
+        setLecture(response.data);
+      } catch (error) {
+        console.error("Failed to fetch lecture:", error);
+      }
+    };
+
+    if (id) fetchLecture();
+  }, [id]);
+
+  if (!lecture) {
+    return <Container><Title>Loading Lecture...</Title></Container>;
+  }
 
   return (
     <Container>
-      <Title>View Lecturer</Title>
+      <Title>View Lecture</Title>
       <FormWrapper>
         {/* Row 1 */}
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label>Lecturer Name</Label>
-              <Field>{lecturerName}</Field>
+              <Label>Lecture Name</Label>
+              <Field>{lecture.lectureName || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label>Duration</Label>
-              <Field>{duration}</Field>
+              <Label>Duration (minutes)</Label>
+              <Field>{lecture.duration || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -54,42 +61,40 @@ export default function ViewLecturer() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label>Course Description</Label>
-              <Field>
-                {description}
-              </Field>
+              <Label>Description</Label>
+              <Field>{lecture.description || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 3 */}
+        {/* Thumbnail Section */}
         <FormRow>
           <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Subjects</CheckboxSectionTitle>
-              <CheckboxList>
-                <Field>{subjectCheckboxes.join(", ")} </Field>
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Courses</CheckboxSectionTitle>
-              <CheckboxList>
-                <Field>{courseCheckboxes.join(", ")} </Field>
-              </CheckboxList>
-            </CheckboxSection>
+            <FieldWrapper>
+              <Label>Thumbnail</Label>
+              <ThumbnailContainer>
+                {lecture.thumbnail ? (
+                  <ThumbnailImage src={lecture.thumbnail} alt="Lecture Thumbnail" />
+                ) : (
+                  <Field>No thumbnail available</Field>
+                )}
+              </ThumbnailContainer>
+            </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 4 */}
+        {/* Video Player Section */}
         <FormRow>
           <Column style={{ flex: 1 }}>
-            <Label>Thumbnail</Label>
-            <UploadArea style={{ cursor: "default" }}>
-              <img src={thumbnailUrl} alt="Preview" style={{ width: "100%", height: "100%" }} />
-            </UploadArea>
+            <FieldWrapper>
+              <Label>Lecture Video</Label>
+              <VideoContainer>
+                <VideoPlayer controls>
+                  <source src={lecture.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </VideoPlayer>
+              </VideoContainer>
+            </FieldWrapper>
           </Column>
         </FormRow>
       </FormWrapper>

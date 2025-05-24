@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -10,47 +10,75 @@ import {
   Label,
   Input,
   TextArea,
-  CheckboxSection,
-  CheckboxSectionTitle,
-  CheckboxList,
-  CheckboxLabel,
-  CheckboxInput,
   UploadArea,
   FileInput,
   UploadPlaceholder,
   SubmitButton,
+  VideoContainer,
+  VideoPlayer,
+  ThumbnailPreview,
 } from "../AddLecturer/AddLecturer.styles";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
 
 export default function EditLecturer() {
-  const [lecturerName, setLecturerName] = useState("");
-  const [duration, setDuration] = useState("");
-  const [description, setDescription] = useState("");
-  const [subjectCheckboxes, setSubjectCheckboxes] = useState([
-    { id: 1, label: "Mathematics", checked: false },
-    { id: 2, label: "Physics", checked: false },
-  ]);
-  const [courseCheckboxes, setCourseCheckboxes] = useState([
-    { id: 1, label: "Mock Test 1", checked: false },
-    { id: 2, label: "Mock Test 2", checked: false },
-  ]);
-  const [thumbnailFile, setThumbnailFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
-  const fileInputRef = useRef(null);
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const handleCheckboxChange = (index, setter) => {
-    setter((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
+  const [formData, setFormData] = useState({
+    lectureName: "",
+    duration: "",
+    description: "",
+  });
+
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
+  const [currentThumbnail, setCurrentThumbnail] = useState("");
+  const [currentVideo, setCurrentVideo] = useState("");
+
+  const thumbnailInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchLecture = async () => {
+      try {
+        const response = await getLectureById(id);
+        const lecture = response.data;
+
+        setFormData({
+          lectureName: lecture.lectureName || "",
+          duration: lecture.duration || "",
+          description: lecture.description || "",
+        });
+
+        setCurrentThumbnail(lecture.thumbnail);
+        setCurrentVideo(lecture.videoUrl);
+        setPreviewUrl(lecture.thumbnail);
+        setVideoPreviewUrl(lecture.videoUrl);
+      } catch (error) {
+        console.error("Failed to fetch lecture:", error);
+        toast.error("Failed to load lecture data");
+      }
+    };
+
+    if (id) fetchLecture();
+  }, [id]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleUploadAreaClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleThumbnailUploadClick = () => thumbnailInputRef.current.click();
+  const handleVideoUploadClick = () => videoInputRef.current.click();
 
-  const handleFileChange = (e) => {
+  const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setThumbnailFile(file);
@@ -58,144 +86,195 @@ export default function EditLecturer() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setVideoFile(file);
+      setVideoPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!lecturerName || !duration || !description) {
-      toast.error("Please fill all required fields!");
+    const { lectureName, duration, description } = formData;
+    if (!lectureName || !duration || !description) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    // You can handle the form submission logic here (API call, etc.)
-    toast.success("Lecturer added successfully!");
-    console.log({
-      lecturerName,
-      duration,
-      description,
-      selectedSubjects: subjectCheckboxes.filter((item) => item.checked),
-      selectedCourses: courseCheckboxes.filter((item) => item.checked),
-      thumbnailFile,
-    });
+    try {
+      // Create a JSON payload instead of FormData
+      const payload = {
+        lectureName,
+        duration,
+        description,
+        // Note: If your API accepts file URLs directly, you'll need to handle file uploads separately
+        // thumbnail: thumbnailFile ? await uploadFile(thumbnailFile) : currentThumbnail,
+        // videoUrl: videoFile ? await uploadFile(videoFile) : currentVideo
+      };
 
-    // Optionally, navigate or reset the form
-    // navigate("/somewhere");
+      const response = await updateLectureById(id, payload);
+      console.log("Update response:", response);
+
+      if (response.success) {
+        toast.success("Lecture updated successfully!");
+        navigate(-1);
+      } else {
+        throw new Error(response.message || "Failed to update lecture");
+      }
+    } catch (error) {
+      console.error("Update failed:", error);
+      toast.error(error.message || "Error updating lecture");
+    }
   };
 
   return (
     <Container>
       <Toaster />
-      <Title>Add Lecturer</Title>
+      <Title>Edit Lecture</Title>
       <FormWrapper onSubmit={handleSubmit}>
-        {/* Row 1 */}
+        {/* Basic Fields */}
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="lecturerName">Lecturer Name</Label>
+              <Label htmlFor="lectureName">Lecture Name*</Label>
               <Input
-                id="lecturerName"
-                value={lecturerName}
-                onChange={(e) => setLecturerName(e.target.value)}
-                placeholder="Enter Lecturer Name"
+                id="lectureName"
+                name="lectureName"
+                value={formData.lectureName}
+                onChange={handleInputChange}
+                placeholder="Enter Lecture Name"
+                required
               />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">Duration (min)*</Label>
               <Input
                 id="duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                placeholder="Enter Duration"
+                name="duration"
+                value={formData.duration}
+                onChange={handleInputChange}
+                placeholder="e.g. 20"
+                required
               />
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 2 */}
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="description">Course Description</Label>
+              <Label htmlFor="description">Description*</Label>
               <TextArea
                 id="description"
-                rows="3"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows="4"
+                placeholder="Enter detailed description"
+                required
               />
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 3 */}
+        {/* Thumbnail */}
         <FormRow>
           <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
-              <CheckboxList>
-                {subjectCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Add Course</CheckboxSectionTitle>
-              <CheckboxList>
-                {courseCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setCourseCheckboxes)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
+            <FieldWrapper>
+              <Label>Current Thumbnail</Label>
+              {currentThumbnail ? (
+                <ThumbnailPreview>
+                  <img src={currentThumbnail} alt="Current Thumbnail" />
+                </ThumbnailPreview>
+              ) : (
+                <p>No thumbnail available</p>
+              )}
+            </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* Row 4 */}
         <FormRow>
-          <Column style={{ flex: 1 }}>
-            <Label>Upload Thumbnail</Label>
-            <UploadArea onClick={handleUploadAreaClick}>
-              {thumbnailFile && previewUrl ? (
-                <>
-                  <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%" }} />
-                  <p>{thumbnailFile.name}</p>
-                </>
+          <Column>
+            <FieldWrapper>
+              <Label>Update Thumbnail</Label>
+              <UploadArea onClick={handleThumbnailUploadClick}>
+                {previewUrl && previewUrl !== currentThumbnail ? (
+                  <img src={previewUrl} alt="New Thumbnail" />
+                ) : (
+                  <>
+                    <UploadPlaceholder>
+                      <img src={upload} alt="Upload" />
+                    </UploadPlaceholder>
+                    <p>Click to upload new thumbnail</p>
+                    <p><strong>or Browse Files</strong></p>
+                  </>
+                )}
+                <FileInput
+                  ref={thumbnailInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailChange}
+                />
+              </UploadArea>
+            </FieldWrapper>
+          </Column>
+        </FormRow>
+
+        {/* Video */}
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label>Current Video</Label>
+              {currentVideo ? (
+                <VideoContainer>
+                  <VideoPlayer controls>
+                    <source src={currentVideo} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </VideoPlayer>
+                </VideoContainer>
               ) : (
-                <>
-                  <UploadPlaceholder>
-                    <img src={upload} alt="Upload" />
-                  </UploadPlaceholder>
-                  <p>Drag and drop image here</p>
-                  <p>
-                    or <strong>Add Image</strong>
-                  </p>
-                </>
+                <p>No video available</p>
               )}
-              <FileInput ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
-            </UploadArea>
+            </FieldWrapper>
+          </Column>
+        </FormRow>
+
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label>Update Video</Label>
+              <UploadArea onClick={handleVideoUploadClick}>
+                {videoFile ? (
+                  <p>{videoFile.name}</p>
+                ) : (
+                  <>
+                    <UploadPlaceholder>
+                      <img src={upload} alt="Upload" />
+                    </UploadPlaceholder>
+                    <p>Click to upload new video</p>
+                    <p><strong>or Browse Files</strong></p>
+                  </>
+                )}
+                <FileInput
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                />
+              </UploadArea>
+            </FieldWrapper>
           </Column>
         </FormRow>
 
         {/* Submit */}
         <FormRow>
-          <SubmitButton type="submit">Add Lecturer</SubmitButton>
+          <Column>
+            <SubmitButton type="submit">Update Lecture</SubmitButton>
+          </Column>
         </FormRow>
       </FormWrapper>
     </Container>

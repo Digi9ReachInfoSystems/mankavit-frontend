@@ -22,15 +22,17 @@ import {
   SubmitButton
 } from "./EditRecordedClass.styles";
 import upload from "../../../../../../assets/upload.png";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
 import { updateRecordedClassById, getRecordedClassById } from "../../../../../../api/recordedAPi";
 import { getAllCourses } from "../../../../../../api/courseApi";
+import toast from "react-hot-toast";
 
 const EditRecordedClass = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const editingData = location.state?.row;
+  const { id } = useParams(); // Get ID from URL if needed
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -43,35 +45,46 @@ const EditRecordedClass = () => {
   const [loading, setLoading] = useState(false);
   const fileRef = useRef();
 
-const normalizeCourseId = (ref) => {
-  if (!ref) return null;
-  return typeof ref === "object" && ref.$oid ? ref.$oid : ref.toString();
-};
-
-useEffect(() => {
-  if (editingData) {
-    setTitle(editingData.title);
-    setDescription(editingData.description);
-    setDuration(editingData.duration || "");
-    
-    // Normalize the course_ref from editing data
-    const normalizedCourseId = normalizeCourseId(editingData.course_ref);
-    if (normalizedCourseId) {
-      setSelectedCourses(new Set([normalizedCourseId]));
-    }
-  }
-  
-  const fetchCourses = async () => {
-    try {
-      const res = await getAllCourses();
-      setCoursesList(res.data || []);
-    } catch (err) {
-      console.error("Error fetching courses", err);
-    }
+  // Helper to normalize course IDs (handles both string and object IDs)
+  const normalizeCourseId = (ref) => {
+    if (!ref) return null;
+    // Handle MongoDB ObjectId format
+    if (typeof ref === "object" && ref.$oid) return ref.$oid;
+    // Handle populated course reference
+    if (typeof ref === "object" && ref._id) return ref._id;
+    // Handle string IDs
+    return ref.toString();
   };
-  fetchCourses();
-}, [editingData]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // If we don't have editingData in location state, fetch it
+        const dataToEdit = editingData || (id ? (await getRecordedClassById(id)).data : null);
+        
+        if (dataToEdit) {
+          setTitle(dataToEdit.title);
+          setDescription(dataToEdit.description);
+          setDuration(dataToEdit.duration || "");
+
+          // Normalize and set the course reference
+          const courseId = normalizeCourseId(dataToEdit.course_ref);
+          if (courseId) {
+            setSelectedCourses(new Set([courseId]));
+          }
+        }
+
+        // Fetch all courses
+        const res = await getAllCourses();
+        setCoursesList(res.data || []);
+      } catch (err) {
+        console.error("Error fetching data", err);
+        setError("Failed to load data");
+      }
+    };
+
+    fetchData();
+  }, [editingData, id]);
 
   const handleFile = (f) => {
     if (f) {
@@ -100,17 +113,19 @@ useEffect(() => {
   };
 
   const toggleCourse = (id) => {
-  setSelectedCourses((prev) => {
-    const next = new Set(prev);
-    const normalizedId = normalizeCourseId(id);
-    if (next.has(normalizedId)) next.delete(normalizedId);
-    else {
-      next.clear(); // Clear all first since only one is allowed
-      next.add(normalizedId);
-    }
-    return next;
-  });
-};
+    setSelectedCourses((prev) => {
+      const next = new Set(prev);
+      const normalizedId = normalizeCourseId(id);
+      if (next.has(normalizedId)) {
+        next.delete(normalizedId);
+      } else {
+        next.clear(); // Clear all first since only one is allowed
+        next.add(normalizedId);
+      }
+      return next;
+    });
+  };
+
   const submit = async (e) => {
     e.preventDefault();
 
@@ -123,7 +138,7 @@ useEffect(() => {
     setError("");
 
     try {
-      let videoUrl = editingData.videoUrl;
+      let videoUrl = editingData?.videoUrl || (id ? (await getRecordedClassById(id)).data.videoUrl : "");
 
       // Upload new video if changed
       if (file) {
@@ -140,12 +155,12 @@ useEffect(() => {
         description,
         duration,
         videoUrl,
-        course_ref: Array.from(selectedCourses)[0]
+        course_ref: Array.from(selectedCourses)[0] // Send the first (only) selected course
       };
 
-      const updateRes = await updateRecordedClassById(editingData._id, payload);
+      const updateRes = await updateRecordedClassById(editingData?._id || id, payload);
       if (updateRes?.success) {
-        alert("Recorded class updated successfully!");
+        toast.success("Recorded class updated successfully!");
         navigate(-1); // go back
       } else {
         setError(updateRes?.message || "Update failed.");
@@ -230,18 +245,18 @@ useEffect(() => {
               <CoursesHeader>Select Course</CoursesHeader>
               <CourseList>
                 {coursesList.map((course) => {
-  const courseId = normalizeCourseId(course._id);
-  return (
-    <CourseItem key={courseId}>
-      <CourseLabel>{course.courseName}</CourseLabel>
-      <CourseCheckbox
-        type="checkbox"
-        checked={selectedCourses.has(courseId)}
-        onChange={() => toggleCourse(courseId)}
-      />
-    </CourseItem>
-  );
-})}
+                  const courseId = normalizeCourseId(course._id);
+                  return (
+                    <CourseItem key={courseId}>
+                      <CourseCheckbox
+                        type="checkbox"
+                        checked={selectedCourses.has(courseId)}
+                        onChange={() => toggleCourse(courseId)}
+                      />
+                      <CourseLabel>{course.courseName}</CourseLabel>
+                    </CourseItem>
+                  );
+                })}
               </CourseList>
             </CoursesContainer>
           </FormColumn>

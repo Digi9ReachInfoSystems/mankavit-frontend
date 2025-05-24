@@ -139,35 +139,31 @@ export default function Lecturer() {
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Duration</TableHeader>
                 <TableHeader>Video</TableHeader>
-                <TableHeader>Course</TableHeader>
-                <TableHeader>Subject</TableHeader>
+                <TableHeader>Image</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
               {currentItems.map((item, index) => (
-                <TableRow key={item._id}>
-                  <TableCell>{startIndex + index + 1}</TableCell>
-                  <TableCell>{item.lectureName}</TableCell>
-                  <TableCell>{item.description || '-'}</TableCell>
-                  <TableCell>{item.duration || '-'}</TableCell>
-                  <TableCell>
-                    <a href={item.videoUrl} target="_blank" rel="noopener noreferrer">View</a>
-                  </TableCell>
-                  <TableCell>
-                    {item.courseRef?.courseName || '-'}
-                  </TableCell>
-                  <TableCell>
-                    {item.subjectRef?.subjectName || '-'}
-                  </TableCell>
-                  <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
-                      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item._id)} />
-                      <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item._id)} />
-                    </ActionsContainer>
-                  </TableCell>
-                </TableRow>
+           <TableRow key={item._id}>
+  <TableCell>{startIndex + index + 1}</TableCell>
+  <TableCell>{item.lectureName}</TableCell>
+  <TableCell>{item.description || '-'}</TableCell>
+  <TableCell>{item.duration || '-'}</TableCell>
+  <TableCell>
+    <a href={item.videoUrl} target="_blank" rel="noopener noreferrer">View</a>
+  </TableCell>
+  <TableCell> 
+    <a href={item.thumbnail} target="_blank" rel="noopener noreferrer">View</a>
+  </TableCell>
+  <TableCell>
+    <ActionsContainer>
+      <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
+      <BiEditAlt title="Edit" color="#000000" size={20} onClick={() => handleEdit(item._id)} />
+      <RiDeleteBin6Line size={20} color="#FB4F4F" title="Delete" onClick={() => handleDeleteClick(item._id)} />
+    </ActionsContainer>
+  </TableCell>
+</TableRow>
               ))}
             </TableBody>
           </StyledTable>

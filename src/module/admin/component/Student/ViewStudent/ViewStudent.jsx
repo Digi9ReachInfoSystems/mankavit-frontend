@@ -8,32 +8,53 @@ import {
   FlexRow,
   Field,
   ToggleSwitch,
-  ViewImage,
+  ViewImage
 } from './ViewStudent.styles';
-import { useLocation } from 'react-router-dom';
-
+import { useParams } from 'react-router-dom';
+import { getUserDetails } from '../../../../../api/authApi';
+import { getAllCourses } from '../../../../../api/courseApi'; // assumed path
+import { getCookiesData } from '../../../../../utils/cookiesService';
 const ViewStudent = () => {
-    const location = useLocation();
-    const initialData = location.state?.student;
+  const { id } = useParams(); // expects route to be /view/:id
 
   const [studentData, setStudentData] = useState({});
   const [photoPreview, setPhotoPreview] = useState('');
   const [idProofPreview, setIDProofPreview] = useState('');
+  const [courseNames, setCourseNames] = useState([]);
 
   useEffect(() => {
-    if (initialData) {
-      setStudentData({
-        fullName: initialData.name || '',
-        phone: initialData.phone || '',
-        email: initialData.email || '',
-        subjects: initialData.subjects ? initialData.subjects.join(', ') : '',
-        kycStatus: initialData.kycStatus || '',
-        status: initialData.status || '',
-      });
-      setPhotoPreview(initialData.passport || '');
-      setIDProofPreview(initialData.idProof || '');
-    }
-  }, [initialData]);
+    const fetchStudentDetails = async () => {
+      try {
+     
+console.log("id",id);
+ const student = await getUserDetails(id);
+console.log("Student details:", student);
+const user = student.user;
+setStudentData(user);
+setPhotoPreview(user.passport || '');
+setIDProofPreview(user.idProof || '');
+
+// Fetch course names
+const courseResponse = await getAllCourses();
+const courseMap = {};
+courseResponse.data.forEach(c => {
+  courseMap[c._id] = c.course_name;
+});
+
+const enrolledCourses = (user.subscription || []).map(sub => {
+  const cid = sub.course_enrolled?.$oid || sub.course_enrolled;
+  return courseMap[cid] || cid;
+});
+
+setCourseNames(enrolledCourses);
+
+      } catch (error) {
+        console.error("Failed to fetch student details:", error);
+      }
+    };
+
+    if (id) fetchStudentDetails();
+  }, [id]);
 
   return (
     <FormContainer>
@@ -41,7 +62,7 @@ const ViewStudent = () => {
 
       <InputGroup>
         <Label>Full Name</Label>
-        <Field>{studentData.fullName || 'N/A'}</Field>
+        <Field>{studentData.displayName || 'N/A'}</Field>
       </InputGroup>
 
       <FlexRow>
@@ -57,19 +78,23 @@ const ViewStudent = () => {
 
       <FlexRow>
         <InputGroup>
-          <Label>Subjects</Label>
-          <Field>{studentData.subjects || 'N/A'}</Field>
+          <Label>Courses Enrolled</Label>
+          <Field>
+            {courseNames.length > 0
+              ? `${courseNames.length} - ${courseNames.join(', ')}`
+              : 'No Enrollments'}
+          </Field>
         </InputGroup>
-        </FlexRow>
+      </FlexRow>
 
       <FlexRow>
         <InputGroup>
           <Label>KYC Status</Label>
-          <ToggleSwitch type="checkbox" checked={studentData.kycStatus} disabled />
+          <ToggleSwitch type="checkbox" checked={studentData.kyc_status === 'approved'} disabled />
         </InputGroup>
         <InputGroup>
           <Label>Status</Label>
-          <ToggleSwitch type="checkbox" checked={studentData.status} disabled />
+          <ToggleSwitch type="checkbox" checked={studentData.status === 'active'} disabled />
         </InputGroup>
       </FlexRow>
 
