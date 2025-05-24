@@ -41,6 +41,7 @@ const ContactSupport = () => {
 
   return (
     <ContactContainer>
+      <Toaster position='top-center'/>
       <ContactTitle>Contact Support</ContactTitle>
       <form onSubmit={handleSubmit}>
         <TextArea
