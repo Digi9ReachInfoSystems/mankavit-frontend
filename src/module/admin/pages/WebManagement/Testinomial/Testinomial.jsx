@@ -13,6 +13,10 @@ import {
   BtnTitle,
   AddTestButton,
   TableHead,
+  ModalOverlay,
+  ModalContent,
+  ModalImage,
+  CloseIcon
 } from "./Testinomial.styles";
 import Pagination from "../../../component/Pagination/Pagination";
 import { BiEditAlt } from "react-icons/bi";
@@ -34,6 +38,8 @@ const Testimonial = () => {
   const [data, setData] = useState([]);
   const [Modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const navigate = useNavigate();
 
@@ -114,9 +120,19 @@ const Testimonial = () => {
                   <TableCelldiscription>{item.description}</TableCelldiscription>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>
-                    <ViewLink href={item.testimonial_image} target="_blank">
-                      View
-                    </ViewLink>
+                    {item.testimonial_image ? (
+                      <span
+                        onClick={() => {
+                          setSelectedImage(item.testimonial_image);
+                          setImageModalOpen(true);
+                        }}
+                        style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
+                      >
+                        View Image
+                      </span>
+                    ) : (
+                      "No Image"
+                    )}
                   </TableCell>
                   {/* Display the date if item.updatedAt exists */}
                   <TableCell>
@@ -128,8 +144,8 @@ const Testimonial = () => {
                         size={20}
                         color="#000"
                         style={{ cursor: "pointer" }}
-                                                 onClick={() => handleViewClick(item._id)}
-                        
+                        onClick={() => handleViewClick(item._id)}
+
                       />
                       <BiEditAlt
                         size={20}
@@ -170,6 +186,27 @@ const Testimonial = () => {
           onClose={() => setModal(false)}
           onDelete={handleClickDelete}
         />
+      )}
+
+      {imageModalOpen && selectedImage && (
+        <ModalOverlay
+          onClick={() => {
+            setImageModalOpen(false);
+            setSelectedImage(null);
+          }}
+        >
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <CloseIcon
+              onClick={() => {
+                setImageModalOpen(false);
+                setSelectedImage(null);
+              }}
+            >
+              &times;
+            </CloseIcon>
+            <ModalImage src={selectedImage} alt="Achiever" />
+          </ModalContent>
+        </ModalOverlay>
       )}
     </>
   );

@@ -58,7 +58,7 @@ setCourseNames(enrolledCourses);
 
   return (
     <FormContainer>
-      <Title>Student Details</Title>
+      <Title>View Student Details</Title>
 
       <InputGroup>
         <Label>Full Name</Label>

@@ -160,11 +160,14 @@ export default function NotesManagement() {
         item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
       );
     }
-    if (sortOption === 'Name') {
-      processedData.sort((a, b) => a.noteTitle.localeCompare(b.noteTitle));
-    } else if (sortOption === 'Last Active') {
-      processedData.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
-    }
+  if (sortOption === 'Name') {
+  processedData.sort((a, b) => a.noteTitle.localeCompare(b.noteTitle));
+} else if (sortOption === 'Date') {
+  processedData.sort((a, b) =>
+    new Date(b.lastActive) - new Date(a.lastActive)
+  );
+}
+
     const TOTAL_ENTRIESValues = processedData.length;
     setTotalEntries(TOTAL_ENTRIESValues);
     const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
@@ -258,16 +261,16 @@ export default function NotesManagement() {
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
 
-            <Select
-              defaultValue={sortOption}
-              style={{ width: 120 }}
-              onChange={(value) => setSortOption(value)}
-              options={[
-                { value: 'Name', label: 'Name' },
-                { value: 'Last Active', label: 'Last Active' },
-                // { value: 'Active', label: 'Active' },
-              ]}
-            />
+           <Select
+  defaultValue={sortOption}
+  style={{ width: 120 }}
+  onChange={(value) => setSortOption(value)}
+  options={[
+    { value: 'Name', label: 'Name' },
+    { value: 'Date', label: 'Date' },
+  ]}
+/>
+
 
 
             {/* <SortSelect value="Name" onChange={() => { }}>

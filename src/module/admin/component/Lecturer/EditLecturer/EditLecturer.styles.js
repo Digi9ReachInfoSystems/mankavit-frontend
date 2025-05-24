@@ -203,6 +203,12 @@ export const UploadArea = styled.div`
     width: 100%;
     box-sizing: border-box;
   }
+
+  .preview{
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+  }
 `;
 
 /** Hidden file input to trigger on area click */
@@ -284,12 +290,15 @@ export const VideoContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 8px;
 `;
 
 export const VideoPlayer = styled.video`
   max-width: 100%;
-  height: auto;
+  height: 500px;
+//   border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
 `;
 
 export const ThumbnailContainer = styled.div`
@@ -304,14 +313,14 @@ export const ThumbnailImage = styled.img`
   width: 100%;
   height: 300px;
   object-fit: contain;
-  border: 1px solid #ddd;
+//   border: 1px solid #ddd;
   border-radius: 4px;
 `;
 
 export const ThumbnailPreview = styled.div`
   width: 100%;
-  max-height: 300px;
-  border: 1px solid #ddd;
+  height: 500px;
+//   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
   margin-top: 8px;

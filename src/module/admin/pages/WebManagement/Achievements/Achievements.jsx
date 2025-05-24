@@ -156,7 +156,7 @@ const [selectedImage, setSelectedImage] = useState(null);
         setSelectedImage(item.image);
         setImageModalOpen(true);
       }}
-      style={{ color: "#007bff", cursor: "pointer", textDecoration: "underline" }}
+      style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
     >
       View Image
     </span>
@@ -177,7 +177,7 @@ const [selectedImage, setSelectedImage] = useState(null);
                         <IoEyeOutline
                           size={20}
                           color="#000000"
-                          style={{ cursor: "pointer", marginRight: "10px" }}
+                          style={{ cursor: "pointer", marginRight: "10px"}}
                           onClick={() => handleViewClick(item._id)}
                         />
                         <BiEditAlt

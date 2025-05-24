@@ -318,22 +318,6 @@ export const CloseButtonContainer = styled.div`
   padding: 16px;
 `;
 
-export const CloseButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.brightblue};
-  color: ${({ theme }) => theme.colors.white};
-  padding: 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 18px;
-  width: 70%;
-
-  &:hover {
-    background-color: #0069d9;
-  }
-`;
-
 
 export const StatusWrapper = styled.div`
   display: flex;
@@ -414,4 +398,57 @@ export const SearchInput = styled.input`
     font-size: 14px;
   }
 `;
+
+
+export const ImageModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+export const ImageModalContent = styled.div`
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+`;
+
+export const ModalImage = styled.img`
+  width: 500px;
+  height: 500px;
+  border-radius: 8px;
+`;
+
+export const ModalVideo = styled.video`
+  width: 800px;
+  // height: 500px;
+  border-radius: 8px;
+`;
+
+
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #fff;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  z-index: 9999;
+`;
+
+
+
 
