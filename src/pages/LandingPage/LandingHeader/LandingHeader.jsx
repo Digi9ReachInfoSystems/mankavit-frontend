@@ -70,6 +70,12 @@ const Header = () => {
       navigate("/ourcoursedetails");
       return;
     }
+    if(link==="Blog")
+    {
+      setActiveLink(link);
+      navigate("/userblog");
+      return;
+    }
     if (link === "About") {
       setActiveLink(link);
       navigate("/aboutus");
@@ -115,7 +121,7 @@ const Header = () => {
     const segment = location.pathname.split("/")[1] || "";
     if (segment === "ourcoursedetails") setActiveLink("Courses");
     else if (segment === "aboutus") setActiveLink("About");
-    else if (segment === "blog") setActiveLink("Blog");
+    else if (segment === "userblog") setActiveLink("Blog");
     else if (segment === "results") setActiveLink("Results");
     else if (segment === "prev-years-question") setActiveLink("Prev. Year Ques.");
     else setActiveLink(null);
