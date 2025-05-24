@@ -1,37 +1,24 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   FormContainer,
   Title,
   InputGroup,
   InputField,
   Label,
-  UploadSection,
-  UploadButton,
-  BrowseButton,
   SubmitButton,
-  FlexRow,
-  FlexUpload
+  FlexRow
 } from './AddStudent.styles';
-import { MdOutlineFileUpload, MdDelete } from "react-icons/md";
+import { createStudent } from '../../../../../api/userApi';
 
 const AddStudent = () => {
   const [studentData, setStudentData] = useState({
-    fullName: '',
-    phone: '',
+    name: '',
     email: '',
-    subjects: '',
-    kycStatus: '',
-    status: ''
+    phone: '',
+    password: ''
   });
 
   const [formErrors, setFormErrors] = useState({});
-  const [photoPreview, setPhotoPreview] = useState('');
-  const [photoFile, setPhotoFile] = useState(null);
-  const photoInputRef = useRef(null);
-
-  const [idProofPreview, setIDProofPreview] = useState('');
-  const [idProofFile, setIDProofFile] = useState(null);
-  const idProofInputRef = useRef(null);
 
   const handleChange = (e) => {
     setStudentData({
@@ -40,73 +27,34 @@ const AddStudent = () => {
     });
   };
 
-  const handlePhotoUploadClick = () => {
-    photoInputRef.current.click();
-  };
-
-  const handlePhotoFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPhotoFile(file);
-      setPhotoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleDeletePhoto = () => {
-    setPhotoFile(null);
-    setPhotoPreview('');
-    photoInputRef.current.value = null;
-  };
-
-  const handleIDProofUploadClick = () => {
-    idProofInputRef.current.click();
-  };
-
-  const handleIDProofFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setIDProofFile(file);
-      setIDProofPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleDeleteIDProof = () => {
-    setIDProofFile(null);
-    setIDProofPreview('');
-    idProofInputRef.current.value = null;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let errors = {};
-    if (!studentData.fullName) errors.fullName = 'Full name is required';
+    const errors = {};
+    if (!studentData.name) errors.name = 'Name is required';
     if (!studentData.email) errors.email = 'Email is required';
     if (!studentData.phone) errors.phone = 'Phone is required';
-    if (!photoFile) errors.passport = 'Photo is required';
-    if (!idProofFile) errors.idProof = 'ID Proof is required';
+    if (!studentData.password) errors.password = 'Password is required';
 
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
-    console.log('Student Data:', studentData);
-    console.log('Photo File:', photoFile);
-    console.log('ID Proof File:', idProofFile);
-    alert('Student added successfully!');
+    try {
+      const response = await createStudent(studentData);
+      alert('Student added successfully!');
+      console.log('Response:', response);
 
-    // Reset form
-    setStudentData({
-      fullName: '',
-      phone: '',
-      email: '',
-      subjects: '',
-      kycStatus: '',
-      status: ''
-    });
-    setPhotoFile(null);
-    setPhotoPreview('');
-    setIDProofFile(null);
-    setIDProofPreview('');
-    setFormErrors({});
+      // Reset form
+      setStudentData({
+        name: '',
+        email: '',
+        phone: '',
+        password: ''
+      });
+      setFormErrors({});
+    } catch (error) {
+      console.error('Error creating student:', error);
+      alert('Failed to create student.');
+    }
   };
 
   return (
@@ -117,11 +65,11 @@ const AddStudent = () => {
         <Label>Full Name</Label>
         <InputField
           placeholder="Enter Full Name"
-          name="fullName"
-          value={studentData.fullName}
+          name="name"
+          value={studentData.name}
           onChange={handleChange}
         />
-        {formErrors.fullName && <p style={{ color: 'red' }}>{formErrors.fullName}</p>}
+        {formErrors.name && <p style={{ color: 'red' }}>{formErrors.name}</p>}
       </InputGroup>
 
       <FlexRow>
@@ -150,65 +98,17 @@ const AddStudent = () => {
         </InputGroup>
       </FlexRow>
 
-      <FlexRow>
-        <UploadSection>
-          <Label>Upload Photo <small>(Passport Size)</small></Label>
-          <FlexUpload>
-            <UploadButton type="button" onClick={handlePhotoUploadClick}>
-              <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-              Upload Document
-            </UploadButton>
-            <BrowseButton type="button" onClick={handlePhotoUploadClick}>Browse</BrowseButton>
-            <input
-              type="file"
-              ref={photoInputRef}
-              onChange={handlePhotoFileChange}
-              style={{ display: 'none' }}
-              accept="image/*"
-            />
-          </FlexUpload>
-          {formErrors.passport && <p style={{ color: 'red' }}>{formErrors.passport}</p>}
-          {photoPreview && (
-            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', padding: '10px', gap: "50px", width: '50%', border: '1px solid #ccc', borderRadius: '8px' }}>
-              <img src={photoPreview} alt="Photo Preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} />
-              <p style={{ color: 'green', marginTop: '5px' }}>Photo successfully selected!</p>
-              <MdDelete onClick={handleDeletePhoto} color="red" style={{ cursor: 'pointer' }} title="Remove Photo" />
-            </div>
-          )}
-        </UploadSection>
-
-        <UploadSection>
-          <Label>Upload ID Proof <small>(Aadhar / Driving License)</small></Label>
-          <FlexUpload>
-            <UploadButton type="button" onClick={handleIDProofUploadClick}>
-              <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-              Upload Document
-            </UploadButton>
-            <BrowseButton type="button" onClick={handleIDProofUploadClick}>Browse</BrowseButton>
-            <input
-              type="file"
-              ref={idProofInputRef}
-              onChange={handleIDProofFileChange}
-              style={{ display: 'none' }}
-              accept="image/*,.pdf"
-            />
-          </FlexUpload>
-          {formErrors.idProof && <p style={{ color: 'red' }}>{formErrors.idProof}</p>}
-          {idProofPreview && (
-            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', padding: '10px', gap: "30px", width: '50%', border: '1px solid #ccc', borderRadius: '8px' }}>
-              {idProofFile?.type === 'application/pdf' ? (
-                <a href={idProofPreview} target="_blank" rel="noopener noreferrer" style={{ color: 'blue' }}>{idProofFile.name}</a>
-              ) : (
-                <>
-                  <img src={idProofPreview} alt="ID Proof Preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} />
-                  <p style={{ color: 'green', margin: 0, marginTop: '5px', marginBottom: "5px" }}>ID Proof successfully selected!</p>
-                </>
-              )}
-              <MdDelete onClick={handleDeleteIDProof} color="red" style={{ cursor: 'pointer' }} title="Remove ID Proof" />
-            </div>
-          )}
-        </UploadSection>
-      </FlexRow>
+      <InputGroup>
+        <Label>Password</Label>
+        <InputField
+          type="password"
+          placeholder="Enter Password"
+          name="password"
+          value={studentData.password}
+          onChange={handleChange}
+        />
+        {formErrors.password && <p style={{ color: 'red' }}>{formErrors.password}</p>}
+      </InputGroup>
 
       <SubmitButton type="submit">Add Student</SubmitButton>
     </FormContainer>
