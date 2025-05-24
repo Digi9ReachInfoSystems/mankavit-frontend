@@ -130,7 +130,7 @@ function App() {
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
           <Route path='/kyc' element={<KYCpage />} />
           <Route path="/userblog" element={<UserBlog />} />
-          <Route path='/read-post' element={<ReadPost />} />
+          <Route path='/userblog/post/:id' element={<ReadPost />} />
 
           <Route path="/test" element={<Test />} />
 
