@@ -19,6 +19,7 @@ import {
   FileInput,
   UploadPlaceholder,
   SubmitButton,
+  
 } from "./AddLecturer.styles";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -80,7 +81,7 @@ export default function AddLecturer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!lectureName || !duration || !description || !videoFile || !selectedSubject || !selectedCourse) {
+    if (!lectureName || !duration || !description || !videoFile) {
       toast.error("Please fill all required fields!");
       return;
     }
@@ -110,8 +111,6 @@ export default function AddLecturer() {
         description,
         duration,
         videoUrl: videoResponse.blobUrl,
-        courseRef: selectedCourse,
-        subjectRef: selectedSubject,
         thumbnail: thumbnailUrl
       };
 
@@ -181,34 +180,7 @@ export default function AddLecturer() {
           </Column>
         </FormRow>
 
-        <FormRow>
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Select Subject *</CheckboxSectionTitle>
-              <CheckboxList>
-                {subjects.map((subject) => (
-                  <CheckboxLabel key={subject._id}>
-                    <CheckboxInput type="radio" name="subject" checked={selectedSubject === subject._id} onChange={() => setSelectedSubject(subject._id)} />
-                    {subject.subjectName}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Select Course *</CheckboxSectionTitle>
-              <CheckboxList>
-                {courses.map((course) => (
-                  <CheckboxLabel key={course._id}>
-                    <CheckboxInput type="radio" name="course" checked={selectedCourse === course._id} onChange={() => setSelectedCourse(course._id)} />
-                    {course.courseName}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-        </FormRow>
+      
 
         <FormRow>
           <Column style={{ flex: 1 }}>
