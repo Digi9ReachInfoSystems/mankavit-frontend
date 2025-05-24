@@ -1,5 +1,5 @@
-import React from "react";
-import upload from "../../../../../assets/upload.png";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -14,21 +14,29 @@ import {
   CheckboxList,
   UploadArea,
 } from "./ViewLecturer.styles";
+import { getLectureById } from "../../../../../api/lecturesApi";
 
 export default function ViewLecturer() {
-  // Mock static data for UI display
-  const lecturerName = "Dr. John Doe";
-  const duration = "3 Months";
-  const description = "This is a sample course description for viewing purposes only.";
-  const subjectCheckboxes = [
-    "Mathematics",
-    "Physics",
-  ]
-  const courseCheckboxes = [
-    "Mock Test 1",
-    "Mock Test 2",
-  ];
-  const thumbnailUrl = "https://via.placeholder.com/300x200?text=Thumbnail+Preview";
+  const { id } = useParams();
+  console.log("id", id);
+  const [lecture, setLecture] = useState(null);
+
+  useEffect(() => {
+    const fetchLecture = async () => {
+      try {
+        const response = await getLectureById(id);
+        setLecture(response.lecture || response); // depending on your API shape
+      } catch (error) {
+        console.error("Failed to fetch lecture:", error);
+      }
+    };
+
+    if (id) fetchLecture();
+  }, [id]);
+
+  if (!lecture) {
+    return <Container><Title>Loading Lecture...</Title></Container>;
+  }
 
   return (
     <Container>
@@ -39,13 +47,13 @@ export default function ViewLecturer() {
           <Column>
             <FieldWrapper>
               <Label>Lecturer Name</Label>
-              <Field>{lecturerName}</Field>
+              <Field>{lecture.lecturerName || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
               <Label>Duration</Label>
-              <Field>{duration}</Field>
+              <Field>{lecture.duration || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -55,40 +63,24 @@ export default function ViewLecturer() {
           <Column>
             <FieldWrapper>
               <Label>Course Description</Label>
-              <Field>
-                {description}
-              </Field>
+              <Field>{lecture.description || 'N/A'}</Field>
             </FieldWrapper>
           </Column>
         </FormRow>
 
         {/* Row 3 */}
-        <FormRow>
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Subjects</CheckboxSectionTitle>
-              <CheckboxList>
-                <Field>{subjectCheckboxes.join(", ")} </Field>
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Courses</CheckboxSectionTitle>
-              <CheckboxList>
-                <Field>{courseCheckboxes.join(", ")} </Field>
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-        </FormRow>
+       
 
         {/* Row 4 */}
         <FormRow>
           <Column style={{ flex: 1 }}>
             <Label>Thumbnail</Label>
             <UploadArea style={{ cursor: "default" }}>
-              <img src={thumbnailUrl} alt="Preview" style={{ width: "100%", height: "100%" }} />
+              <img
+                src={lecture.thumbnail || "https://via.placeholder.com/300x200?text=No+Image"}
+                alt="Thumbnail"
+                style={{ width: "100%", height: "100%" }}
+              />
             </UploadArea>
           </Column>
         </FormRow>

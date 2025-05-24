@@ -139,8 +139,6 @@ export default function Lecturer() {
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Duration</TableHeader>
                 <TableHeader>Video</TableHeader>
-                <TableHeader>Course</TableHeader>
-                <TableHeader>Subject</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
@@ -154,12 +152,7 @@ export default function Lecturer() {
                   <TableCell>
                     <a href={item.videoUrl} target="_blank" rel="noopener noreferrer">View</a>
                   </TableCell>
-                  <TableCell>
-                    {item.courseRef?.courseName || '-'}
-                  </TableCell>
-                  <TableCell>
-                    {item.subjectRef?.subjectName || '-'}
-                  </TableCell>
+                
                   <TableCell>
                     <ActionsContainer>
                       <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
