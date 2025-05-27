@@ -108,6 +108,7 @@ import TestInstructionsPage from './module/user/pages/TestInstructionsPage/TestI
 import TestsubmittedPage from './module/user/pages/TestsubmittedPage/TestsubmittedPage'
 import ExamSummary from './module/user/pages/ExamSummary/ExamSummary'
 import TestResults from './module/user/pages/TestResults/TestResults'
+import TextQuestionPage from './module/user/pages/TextQuestionPage/TextQuestionPage'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
@@ -145,6 +146,7 @@ function App() {
           <Route path='/test-results' element={<TestResults />} />
 
 
+<Route path='/text-question' element={<TextQuestionPage />} />
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
