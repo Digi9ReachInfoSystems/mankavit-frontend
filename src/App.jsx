@@ -103,6 +103,12 @@ import ViewRecordedClass from './module/admin/component/WebManagement/RecordedCl
 import KYCpage from './pages/KYCpage/KYCpage'
 import UserBlog from './pages/UserBlog/UserBlog'
 import ReadPost from './component/UserBlogComponents/ReadPost/ReadPost'
+import StarttestPage from './module/user/pages/StarttestPage/StarttestPage'
+import TestInstructionsPage from './module/user/pages/TestInstructionsPage/TestInstructionsPage'
+import TestsubmittedPage from './module/user/pages/TestsubmittedPage/TestsubmittedPage'
+import ExamSummary from './module/user/pages/ExamSummary/ExamSummary'
+import TestResults from './module/user/pages/TestResults/TestResults'
+import TextQuestionPage from './module/user/pages/TextQuestionPage/TextQuestionPage'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
@@ -131,9 +137,16 @@ function App() {
           <Route path='/kyc' element={<KYCpage />} />
           <Route path="/userblog" element={<UserBlog />} />
           <Route path='/userblog/post/:id' element={<ReadPost />} />
-
           <Route path="/test" element={<Test />} />
 
+          <Route path='/start-test' element={<StarttestPage/>} />
+          <Route path='/test-instructions' element={<TestInstructionsPage/>} />
+          <Route path='/test-submitted' element={<TestsubmittedPage/>} />
+          <Route path='/exam-summary' element={<ExamSummary/>} />
+          <Route path='/test-results' element={<TestResults />} />
+
+
+<Route path='/text-question' element={<TextQuestionPage />} />
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
