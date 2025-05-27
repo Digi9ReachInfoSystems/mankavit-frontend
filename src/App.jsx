@@ -109,7 +109,7 @@ import TestsubmittedPage from './module/user/pages/TestsubmittedPage/Testsubmitt
 import ExamSummary from './module/user/pages/ExamSummary/ExamSummary'
 import TestResults from './module/user/pages/TestResults/TestResults'
 import TextQuestionPage from './module/user/pages/TextQuestionPage/TextQuestionPage'
-import AddMockTest from './module/admin/component/MockTestComponents/AddMockTests/AddMocktest'
+import AddMockTest from './module/admin/component/MockTestComponents/AddMockTests/AddMockTest'
 import ViewMockTest from './module/admin/component/MockTestComponents/ViewMockTest/ViewMockTest'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
