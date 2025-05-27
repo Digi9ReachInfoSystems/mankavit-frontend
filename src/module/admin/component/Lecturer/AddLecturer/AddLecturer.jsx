@@ -138,13 +138,23 @@ export default function AddLecturer() {
           <Column>
             <FieldWrapper>
               <Label htmlFor="lectureName">Lecture Name *</Label>
-              <Input id="lectureName" value={lectureName} onChange={(e) => setLectureName(e.target.value)} placeholder="Enter Lecture Name" />
+              <Input id="lectureName" value={lectureName}
+               onChange={(e)=>{
+                const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                setLectureName(filteredData);
+               }}
+               placeholder="Enter Lecture Name" />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
               <Label htmlFor="duration">Duration *</Label>
-              <Input id="duration" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g. 20 min" />
+              <Input id="duration" value={duration} 
+              onChange={(e)=>{
+                const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                setDuration(filteredData);
+              }}
+              placeholder="e.g. 20 min" />
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -153,7 +163,12 @@ export default function AddLecturer() {
           <Column>
             <FieldWrapper>
               <Label htmlFor="description">Description *</Label>
-              <TextArea id="description" rows="3" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter description" />
+              <TextArea id="description" rows="3" value={description} 
+           onChange={(e)=>{
+            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+            setDescription(filteredData);
+           }}
+               placeholder="Enter description" />
             </FieldWrapper>
           </Column>
         </FormRow>

@@ -10,13 +10,7 @@ import {
 import { getSubjects } from '../../../../../api/subjectApi';
 
 const AllSubjects = () => {
-  // const data = Array(5).fill(null).map((_, index) => (  {
-  //   id: 10,
-  //   subjectName: "CLAT Coaching",
-  //   internalName: "Anuja Admin",
-  //   mockTestCount: 12,
-  //   activeCoursesCount: 12,
-  // }));
+
   const [ subjects, setSubjects ] = useState([]);
   const [ loading, setLoading ] = useState(true);
   const [ error, setError ] = useState(null);

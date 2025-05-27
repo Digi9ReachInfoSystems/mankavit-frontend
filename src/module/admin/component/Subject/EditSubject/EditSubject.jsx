@@ -212,7 +212,10 @@ const data =      await updateSubjectById(id, {
               <Input
                 id="subjectTitle"
                 value={subjectTitle}
-                onChange={(e) => setSubjectTitle(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setSubjectTitle(filteredData);
+                }}
                 placeholder="Enter Subject Title"
               />
             </FieldWrapper>
@@ -222,7 +225,10 @@ const data =      await updateSubjectById(id, {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredData);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -244,7 +250,10 @@ const data =      await updateSubjectById(id, {
               <Input
                 id="shortDescription"
                 value={shortDescription}
-                onChange={(e) => setShortDescription(e.target.value)}
+               onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setShortDescription(filteredData);
+                }}
                 placeholder="Enter short description"
               />
             </FieldWrapper>

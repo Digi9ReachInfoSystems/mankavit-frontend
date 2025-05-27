@@ -201,7 +201,7 @@ export default function AddNote() {
   return (
     <Container>
       <Toaster/>
-      <Title>Add Note</Title>
+      <Title>Add notes</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Note Title & Note Internal Title */}
         <FormRow>
@@ -211,7 +211,10 @@ export default function AddNote() {
               <Input
                 id="noteTitle"
                 value={noteTitle}
-                onChange={(e) => setNoteTitle(e.target.value)}
+                onChange={(e) =>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setNoteTitle(filteredData);
+                }}
                 placeholder="Enter Note Title"
               />
             </FieldWrapper>
@@ -223,7 +226,11 @@ export default function AddNote() {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+                // onChange={(e) => setInternalTitle(e.target.value)}
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredData);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>

@@ -124,9 +124,12 @@ const navigate = useNavigate();
       <Label>Student Name</Label>
       <Input
         name="studentName"
-        placeholder="Enter name "
+        placeholder="Enter student name "
         value={formData.studentName}
-        onChange={handleChange}
+        onChange={(e)=>{
+          const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, ''); // Allow only letters and spaces
+          setFormData(prev => ({ ...prev, studentName: filteredData }));
+        }}
       />
 
       <Label>Write Rank</Label>

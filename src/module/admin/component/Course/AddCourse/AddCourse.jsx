@@ -243,7 +243,10 @@ useEffect(() => {
               <Input
                 id="courseTitle"
                 value={courseTitle}
-                onChange={(e) => setCourseTitle(e.target.value)}
+                  onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setCourseTitle(filteredData);
+                }}
                 placeholder="Enter Course Title"
               />
             </FieldWrapper>
@@ -254,7 +257,10 @@ useEffect(() => {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+                 onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredData);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -270,7 +276,10 @@ useEffect(() => {
                 id="shortDescription"
                 rows="3"
                 value={shortDescription}
-                onChange={(e) => setShortDescription(e.target.value)}
+               onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setShortDescription(filteredData);
+                }}
                 placeholder="Enter short description"
               />
             </FieldWrapper>
@@ -285,7 +294,10 @@ useEffect(() => {
               <PriceInput
                 id="discountedPrice"
                 value={discountedPrice}
-                onChange={(e) => setDiscountedPrice(e.target.value)}
+                 onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setDiscountedPrice(filteredData);
+                }}
                 placeholder="Enter Discounted Price in ₹ (eg: 2999)"
               />
             </FieldWrapper>
@@ -296,7 +308,10 @@ useEffect(() => {
               <PriceInput
                 id="actualPrice"
                 value={actualPrice}
-                onChange={(e) => setActualPrice(e.target.value)}
+              onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setActualPrice(filteredData);
+                }}
                 placeholder="Enter Actual Price in ₹ (eg: 3999)"
               />
             </FieldWrapper>
@@ -323,42 +338,16 @@ useEffect(() => {
                 id="noOfVideos"
                 type="number"
                 value={noOfVideos}
-                onChange={(e) => setNoOfVideos(e.target.value)}
+               onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setNoOfVideos(filteredData);
+                }}
                 placeholder="e.g. 120"
               />
             </FieldWrapper>
           </Column>
         </FormRow>
 
-        {/* NEW Row: Subjects & Notes count */}
-        {/* <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label htmlFor="noOfSubjects">Number of Subjects</Label>
-              <Input
-                id="noOfSubjects"
-                type="number"
-                value={noOfSubjects}
-                onChange={(e) => setNoOfSubjects(e.target.value)}
-                placeholder="e.g. 8"
-              />
-            </FieldWrapper>
-          </Column>
-          <Column>
-            <FieldWrapper>
-              <Label htmlFor="noOfNotes">Number of Notes</Label>
-              <Input
-                id="noOfNotes"
-                type="number"
-                value={noOfNotes}
-                onChange={(e) => setNoOfNotes(e.target.value)}
-                placeholder="e.g. 25"
-              />
-            </FieldWrapper>
-          </Column>
-        </FormRow> */}
-
-        {/* NEW Row: Success Rate & Rating */}
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -372,18 +361,7 @@ useEffect(() => {
               />
             </FieldWrapper>
           </Column>
-          {/* <Column>
-            <FieldWrapper>
-              <Label htmlFor="rating">Rating</Label>
-              <Input
-                id="rating"
-                type="number"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-                placeholder="e.g. 4.5"
-              />
-            </FieldWrapper>
-          </Column> */}
+         
         </FormRow>
 
      {/* Category Select */}

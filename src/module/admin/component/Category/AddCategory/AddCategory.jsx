@@ -62,8 +62,18 @@ const AddCategory = () => {
             <Input
               id="categoryTitle"
               value={categoryTitle}
-              onChange={(e) => setCategoryTitle(e.target.value)}
+              // onChange={(e) => setCategoryTitle(e.target.value)}
+              onChange={(e)=>{
+                const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                setCategoryTitle(filteredData);
+              }}
               placeholder="Enter category title"
+              rules={[
+                {
+                  required: true,
+                  message: "Category title is required",
+                },
+              ]}
             />
           </FieldWrapper>
         </Column>

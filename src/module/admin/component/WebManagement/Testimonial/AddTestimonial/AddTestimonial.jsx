@@ -142,23 +142,19 @@ const AddTestimonial = () => {
       <Label>Student Name *</Label>
       <Input
         name="studentName"
-        placeholder="Gaurav"
+        placeholder="Enter student name"
         value={formData.studentName}
-        onChange={handleInputChange}
+     onChange={(e)=>{
+      const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+      setFormData((prev) => ({ ...prev, studentName: filteredData }));
+     }}
       />
 
-      {/* <Label>Course *</Label>
-      <Input
-        name="course"
-        placeholder="Enter aspiring details"
-        value={formData.course}
-        onChange={handleInputChange}
-      /> */}
 
       <Label htmlFor='testimonialDetails'>Testimonial description *</Label>
       <TextArea
         name="testimonialDetails"
-        placeholder="Write here"
+        placeholder="Enter testimonial description"
         value={formData.testimonialDetails}
         onChange={handleInputChange}
         rows={5}

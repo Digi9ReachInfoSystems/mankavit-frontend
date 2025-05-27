@@ -146,9 +146,12 @@ const EditAchievement = () => {
       <Label>Student Name</Label>
       <Input
         name="studentName"
-        placeholder="Please enter the name"
+        placeholder="Enter student name"
         value={formData.studentName}
-        onChange={handleChange}
+    onChange={(e)=>{
+      const filteredData = e.target.value.replace(/[^a-zA-Z ]/g, ''); // Remove non-alphabetic characters
+      setFormData({ ...formData, studentName: filteredData });
+    }}
       />
 
       <Label>Write Rank</Label>
