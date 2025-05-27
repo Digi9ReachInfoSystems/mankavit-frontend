@@ -109,6 +109,8 @@ import TestsubmittedPage from './module/user/pages/TestsubmittedPage/Testsubmitt
 import ExamSummary from './module/user/pages/ExamSummary/ExamSummary'
 import TestResults from './module/user/pages/TestResults/TestResults'
 import TextQuestionPage from './module/user/pages/TextQuestionPage/TextQuestionPage'
+import AddMockTest from './module/admin/component/MockTestComponents/AddMockTests/AddMocktest'
+import ViewMockTest from './module/admin/component/MockTestComponents/ViewMockTest/ViewMockTest'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 
 function App() {
@@ -177,6 +179,8 @@ function App() {
             <Route path="student-management/view/:id" element={<ViewStudent />} />
 
             <Route path="mock-test"element={<Mocktest/>} />
+            <Route path="mock-test/create" element={<AddMockTest />} />
+            <Route path="mock-test/view" element={<ViewMockTest />} />
 
             <Route path="payment-management" element={<Payment />} />
 
