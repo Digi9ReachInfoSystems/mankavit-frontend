@@ -28,7 +28,8 @@ import {
     Playbutton
 } from "./ContinueCourse.styles";
 import courseImgFallback from "../../assets/courseDetails.png";
-import { getCourseById, getCourseByIdWithUSerProgress } from "../../api/courseApi";
+import { getCourseById } from "../../api/courseApi";
+import {getCourseByIdWithUSerProgress} from "../../api/userProgressApi";
 import { startCourse, startSubject, startLecturer } from "../../api/userProgressApi";
 import { getCookiesData } from "../../utils/cookiesService";
 import { FaArrowLeft, FaPlay, FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
