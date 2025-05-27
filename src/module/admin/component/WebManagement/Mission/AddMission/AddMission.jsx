@@ -99,17 +99,27 @@ const AddMission = () => {
       <Input
         name="title"
         value={formData.title}
-        onChange={handleInputChange}
-        placeholder="Enter mission title"
+      onChange={(e)=>
+      {
+        const filteredData = e.target.value.replace(/[^a-zA-Z]/g, '');
+        setFormData((prev) => ({ ...prev, title: filteredData }));
+      }
+      }
+        placeholder="Enter  title"
       />
 
       <Label>Mission Description *</Label>
       <TextArea
         name="description"
         value={formData.description}
-        onChange={handleInputChange}
+      onChange={(e)=>
+      {
+        const filteredData = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+        setFormData((prev) => ({ ...prev, description: filteredData }));
+      }
+      }
         rows={5}
-        placeholder="Enter mission description"
+        placeholder="Enter  description"
       />
 
       <Label>Upload Mission Image *</Label>

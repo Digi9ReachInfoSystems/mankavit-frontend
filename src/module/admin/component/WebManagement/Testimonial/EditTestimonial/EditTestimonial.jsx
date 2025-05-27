@@ -179,15 +179,18 @@ const EditTestimonial = () => {
       <Label>Student Name *</Label>
       <Input
         name="studentName"
-        placeholder="Gaurav"
+        placeholder="Enter student name"
         value={formData.studentName}
-        onChange={handleInputChange}
+        onChange={(e)=>{
+          const filteredData = e.target.value.replace(/[^a-zA-Z ]/g, '');
+          setFormData({ ...formData, studentName: filteredData });
+        }}
       />
 
       <Label>Testimonial Details *</Label>
       <TextArea
         name="testimonialDetails"
-        placeholder="Write here"
+        placeholder="Enter testimonials description"
         value={formData.testimonialDetails}
         onChange={handleInputChange}
         rows={5}

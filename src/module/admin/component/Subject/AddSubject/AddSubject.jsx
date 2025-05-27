@@ -65,22 +65,22 @@ export default function AddSubject() {
     apiCaller();
   }, []);
 
-useEffect(() => {
-  const apiCaller = async () => {
-    try {
-      const lecturesResponse = await getAllLectures();
-      const lecturesData = lecturesResponse.data.map((item) => ({
-        label: item.lectureName,
-        id: item._id,
-        checked: false,
-      }));
-      setLecturesCheckboxes(lecturesData);
-    } catch (error) {
-      console.error("Error fetching lectures:", error);
-    }
-  };
-  apiCaller();
-}, []);
+  useEffect(() => {
+    const apiCaller = async () => {
+      try {
+        const lecturesResponse = await getAllLectures();
+        const lecturesData = lecturesResponse.data.map((item) => ({
+          label: item.lectureName,
+          id: item._id,
+          checked: false,
+        }));
+        setLecturesCheckboxes(lecturesData);
+      } catch (error) {
+        console.error("Error fetching lectures:", error);
+      }
+    };
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -128,7 +128,7 @@ useEffect(() => {
 
       const notes = notesCheckboxes.filter((item) => item.checked).map((item) => item.id);
       const mockTests = mockTestCheckboxes.filter((item) => item.checked).map((item) => item.id);
-   const lectures = lecturesCheckboxes.filter((item) => item.checked).map((item) => item.id);
+      const lectures = lecturesCheckboxes.filter((item) => item.checked).map((item) => item.id);
 
       const createSubjectResponse = await createSubject({
         subjectName: internalTitle,
@@ -142,7 +142,7 @@ useEffect(() => {
         lectures
 
       });
-      console.log("Created subject response",createSubjectResponse);
+      console.log("Created subject response", createSubjectResponse);
 
       if (createSubjectResponse) {
         toast.success("Subject created successfully.");
@@ -174,7 +174,11 @@ useEffect(() => {
               <Input
                 id="subjectTitle"
                 value={subjectTitle}
-                onChange={(e) => setSubjectTitle(e.target.value)}
+                onChange={(e) => {
+                  // Only allow alphabetic characters and spaces
+                  const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setSubjectTitle(filteredValue);
+                }}
                 placeholder="Enter Subject Title"
               />
             </FieldWrapper>
@@ -183,7 +187,13 @@ useEffect(() => {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+                // onChange={(e) => setInternalTitle(e.target.value)}
+                // placeholder="Enter Internal Title"
+                onChange={(e) => {
+                  // Only allow alphabetic characters and spaces
+                  const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredValue);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -204,7 +214,11 @@ useEffect(() => {
               <Input
                 id="shortDescription"
                 value={shortDescription}
-                onChange={(e) => setShortDescription(e.target.value)}
+                // onChange={(e) => setShortDescription(e.target.value)}
+                onChange={(e) => {
+                  const filteredValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setShortDescription(filteredValue);
+                }}
                 placeholder="Enter Short Description"
               />
             </FieldWrapper>
@@ -248,7 +262,7 @@ useEffect(() => {
             </CheckboxSection>
           </Column>
         </FormRow>
-         <FormRow>
+        <FormRow>
           <Column>
             <CheckboxSection>
               <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>

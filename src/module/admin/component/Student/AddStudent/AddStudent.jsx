@@ -6,18 +6,24 @@ import {
   InputField,
   Label,
   SubmitButton,
-  FlexRow
+  FlexRow,
+  PasswordInputWrapper,
+  PasswordToggle
 } from './AddStudent.styles';
 import { createStudent } from '../../../../../api/userApi';
+import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 const AddStudent = () => {
+  const navigate = useNavigate();
   const [studentData, setStudentData] = useState({
     name: '',
     email: '',
     phone: '',
     password: ''
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
   const handleChange = (e) => {
@@ -25,6 +31,10 @@ const AddStudent = () => {
       ...studentData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
@@ -40,7 +50,7 @@ const AddStudent = () => {
 
     try {
       const response = await createStudent(studentData);
-      alert('Student added successfully!');
+      toast.success('Student added successfully!');
       console.log('Response:', response);
 
       // Reset form
@@ -51,9 +61,10 @@ const AddStudent = () => {
         password: ''
       });
       setFormErrors({});
+      setTimeout(()=> navigate('/admin/student-management'),1000);
     } catch (error) {
       console.error('Error creating student:', error);
-      alert('Failed to create student.');
+      toast.error('Failed to create student.');
     }
   };
 
@@ -100,13 +111,18 @@ const AddStudent = () => {
 
       <InputGroup>
         <Label>Password</Label>
-        <InputField
-          type="password"
-          placeholder="Enter Password"
-          name="password"
-          value={studentData.password}
-          onChange={handleChange}
-        />
+        <PasswordInputWrapper>
+          <InputField
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter Password"
+            name="password"
+            value={studentData.password}
+            onChange={handleChange}
+          />
+          <PasswordToggle onClick={togglePasswordVisibility}>
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </PasswordToggle>
+        </PasswordInputWrapper>
         {formErrors.password && <p style={{ color: 'red' }}>{formErrors.password}</p>}
       </InputGroup>
 

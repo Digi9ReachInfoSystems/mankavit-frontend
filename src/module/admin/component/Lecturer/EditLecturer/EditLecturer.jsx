@@ -144,7 +144,11 @@ export default function EditLecturer() {
                 id="lectureName"
                 name="lectureName"
                 value={formData.lectureName}
-                onChange={handleInputChange}
+                // onChange={handleInputChange}
+                onchange={(e) => {
+                  const filterentData = formData.lectureName.replace(/[^a-zA-Z\s]/g, '');
+                  setFormData({ ...formData, lectureName: filterentData });
+                }}
                 placeholder="Enter Lecture Name"
                 required
               />
@@ -157,7 +161,11 @@ export default function EditLecturer() {
                 id="duration"
                 name="duration"
                 value={formData.duration}
-                onChange={handleInputChange}
+                // onChange={handleInputChange}
+                onChange={(e) => {
+                  const filterentData = e.target.value.replace(/[^0-9]/g, '');
+                  setFormData({ ...formData, duration: filterentData });
+                }}
                 placeholder="e.g. 20"
                 required
               />
@@ -173,7 +181,10 @@ export default function EditLecturer() {
                 id="description"
                 name="description"
                 value={formData.description}
-                onChange={handleInputChange}
+               onChange={(e)=> {
+                const filterentData = formData.description.replace(/[^a-zA-Z\s]/g, '');
+                setFormData({ ...formData, description: filterentData });
+               }}
                 rows="4"
                 placeholder="Enter detailed description"
                 required
@@ -182,21 +193,7 @@ export default function EditLecturer() {
           </Column>
         </FormRow>
 
-        {/* Thumbnail */}
-        {/* <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label>Current Thumbnail</Label>
-              {currentThumbnail ? (
-                <ThumbnailPreview>
-                  <img src={currentThumbnail} alt="Current Thumbnail" />
-                </ThumbnailPreview>
-              ) : (
-                <p>No thumbnail available</p>
-              )}
-            </FieldWrapper>
-          </Column>
-        </FormRow> */}
+    
 
         <FormRow>
           <Column>

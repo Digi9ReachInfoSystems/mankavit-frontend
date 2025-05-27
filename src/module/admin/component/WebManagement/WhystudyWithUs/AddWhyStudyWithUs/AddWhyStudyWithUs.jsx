@@ -128,7 +128,10 @@ const AddWhyStudyWithUs = () => {
       <Input
         name="title"
         value={formData.title}
-        onChange={handleInputChange}
+      onChange={(e)=>{
+        const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+        setFormData(prev => ({ ...prev, title: filteredData }));
+      }}
         placeholder="Enter title"
       />
 
@@ -136,7 +139,10 @@ const AddWhyStudyWithUs = () => {
       <TextArea
         name="description"
         value={formData.description}
-        onChange={handleInputChange}
+    onChange={(e)=>{
+      const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+      setFormData(prev => ({ ...prev, description: filteredData }));
+    }}
         rows={5}
         placeholder="Enter description"
       />

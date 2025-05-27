@@ -223,7 +223,10 @@ export default function EditSubject() {
               <Input
                 id="subjectTitle"
                 value={subjectTitle}
-                onChange={(e) => setSubjectTitle(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setSubjectTitle(filteredData);
+                }}
                 placeholder="Enter Subject Title"
               />
             </FieldWrapper>
@@ -233,7 +236,10 @@ export default function EditSubject() {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredData);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -255,7 +261,10 @@ export default function EditSubject() {
               <Input
                 id="shortDescription"
                 value={shortDescription}
-                onChange={(e) => setShortDescription(e.target.value)}
+               onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setShortDescription(filteredData);
+                }}
                 placeholder="Enter short description"
               />
             </FieldWrapper>

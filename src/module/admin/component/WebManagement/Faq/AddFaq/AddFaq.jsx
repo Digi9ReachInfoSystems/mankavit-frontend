@@ -56,7 +56,10 @@ const AddFaq = ({ onAdd }) => {
             id="question"
             placeholder="Enter question"
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+          onChange={(e)=>{
+            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+            setQuestion(filteredData);
+          }}
           />
         </FormGroup>
 
@@ -67,7 +70,10 @@ const AddFaq = ({ onAdd }) => {
             rows={4}
             placeholder="Enter answer"
             value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+          onChange={(e)=>{
+            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+            setAnswer(filteredData);
+          }}
           />
         </FormGroup>
 

@@ -185,7 +185,10 @@ export default function EditNotes() {
               <Input
                 id="noteTitle"
                 value={noteTitle}
-                onChange={(e) => setNoteTitle(e.target.value)}
+             onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setNoteTitle(filteredData);
+                }}
                 placeholder="Enter Note Title"
               />
             </FieldWrapper>
@@ -197,7 +200,10 @@ export default function EditNotes() {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+               onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredData);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
