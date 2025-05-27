@@ -200,7 +200,11 @@ export default function EditCourse() {
               <Input
                 id="courseTitle"
                 value={courseTitle}
-                onChange={(e) => setCourseTitle(e.target.value)}
+                // onChange={(e) => setCourseTitle(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setCourseTitle(filteredData);
+                }}
                 placeholder="Enter Course Title"
               />
             </FieldWrapper>
@@ -212,7 +216,10 @@ export default function EditCourse() {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-                onChange={(e) => setInternalTitle(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(filteredData);
+                }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -228,7 +235,10 @@ export default function EditCourse() {
                 id="shortDescription"
                 rows="3"
                 value={shortDescription}
-                onChange={(e) => setShortDescription(e.target.value)}
+                  onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setShortDescription(filteredData);
+                }}
                 placeholder="Enter short description"
               />
             </FieldWrapper>
@@ -244,7 +254,10 @@ export default function EditCourse() {
                 id="discountedPrice"
                 type="number"
                 value={discountedPrice}
-                onChange={(e) => setDiscountedPrice(e.target.value)}
+                onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setDiscountedPrice(filteredData);
+                }}
                 placeholder="Enter Discounted Price in ₹ (eg: 2999)"
               />
             </FieldWrapper>
@@ -257,7 +270,10 @@ export default function EditCourse() {
                 id="actualPrice"
                 type="number"
                 value={actualPrice}
-                onChange={(e) => setActualPrice(e.target.value)}
+                  onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setActualPrice(filteredData);
+                }}
                 placeholder="Enter Actual Price in ₹ (eg: 3999)"
               />
             </FieldWrapper>
@@ -343,7 +359,10 @@ export default function EditCourse() {
                 id="noOfVideos"
                 type="number"
                 value={noOfVideos}
-                onChange={(e) => setNoOfVideos(e.target.value)}
+                 onChange={(e)=>{
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setNoOfVideos(filteredData);
+                }}
                 placeholder="e.g. 120"
               />
             </FieldWrapper>

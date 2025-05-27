@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Container,
   HeaderRow,
@@ -33,7 +33,7 @@ import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import { IoEyeOutline } from "react-icons/io5";
 import toast from 'react-hot-toast';
-import { Select, } from "antd";
+import { Select } from "antd";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -48,7 +48,8 @@ export default function Lecturer() {
   const [modalOpenVideo, setModalOpenVideo] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-    const [sortOption, setSortOption] = useState('Name');
+  const [sortOption, setSortOption] = useState('Name');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   const fetchLectures = async () => {
     try {
@@ -63,7 +64,29 @@ export default function Lecturer() {
     fetchLectures();
   }, []);
 
-  const filteredLectures = data.filter((lecture) =>
+  const sortedLectures = useMemo(() => {
+    const sortableItems = [...data];
+    if (sortOption === 'Name') {
+      sortableItems.sort((a, b) => {
+        const nameA = a.lectureName?.toLowerCase() || '';
+        const nameB = b.lectureName?.toLowerCase() || '';
+        return sortDirection === 'asc' 
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+    } else if (sortOption === 'Duration') {
+      sortableItems.sort((a, b) => {
+        const durationA = parseInt(a.duration) || 0;
+        const durationB = parseInt(b.duration) || 0;
+        return sortDirection === 'asc' 
+          ? durationA - durationB
+          : durationB - durationA;
+      });
+    }
+    return sortableItems;
+  }, [data, sortOption, sortDirection]);
+
+  const filteredLectures = sortedLectures.filter((lecture) =>
     lecture?.lectureName?.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -71,6 +94,15 @@ export default function Lecturer() {
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentItems = filteredLectures.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleSortChange = (value) => {
+    if (value === sortOption) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortOption(value);
+      setSortDirection('asc');
+    }
+  };
 
   const handleDeleteClick = (id) => {
     setSelectedLecture(id);
@@ -127,18 +159,18 @@ export default function Lecturer() {
       <Container>
         <HeaderRow>
           <Title>
-            See All Lecturers <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>({TOTAL_ENTRIES})</span>
+            See All Lecturers <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span>
           </Title>
 
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
             <Select
-              defaultValue={sortOption}
+              value={sortOption}
               style={{ width: 120 }}
-              onChange={(value) => setSortOption(value)}
+              onChange={handleSortChange}
               options={[
-                { value: 'Name', label: 'Name' },
-                { value: 'Duration', label: 'Duration' },
+                { value: 'Name', label: `Name ${sortOption === 'Name' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}` },
+                { value: 'Duration', label: `Duration ${sortOption === 'Duration' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}` },
               ]}
             />
           </SortByContainer>

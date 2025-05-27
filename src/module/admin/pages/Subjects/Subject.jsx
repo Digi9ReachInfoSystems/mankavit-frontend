@@ -131,9 +131,9 @@ useEffect(() => {
   // Sort based on option
   if (sortOption === "Name") {
     processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
-  } else if (sortOption === "No. of Mock Test") {
-    processedData.sort((a, b) => b.mockTest.length - a.mockTest.length);
-  }
+    } else if (sortOption === 'Date') {
+      processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
+    }
 
   // Update filteredData state
   setFilteredData(processedData);
@@ -262,7 +262,7 @@ const handleClickDelete = async () => {
               onChange={(value) => setSortOption(value)}
               options={[
                 { value: 'Name', label: 'Name' },
-                { value: 'No. of Mock Test', label: 'Mock Test Count' },
+                { value: 'Date', label: 'Date' },
                 // { value: 'Active', label: 'Active' },
               ]}
             />

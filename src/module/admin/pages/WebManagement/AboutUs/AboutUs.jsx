@@ -148,7 +148,12 @@ const AboutUs = () => {
             name="title"
             placeholder="Write title here"
             value={formData.title}
-            onChange={handleChange}
+            // onChange={handleChange}
+            onChange={(e)=>{
+              const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setFormData({ ...formData, title: filteredData });
+
+            }}
           />
         </FormGroup>
 

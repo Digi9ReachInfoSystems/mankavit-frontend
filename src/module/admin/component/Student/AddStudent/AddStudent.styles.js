@@ -208,3 +208,20 @@ flex-wrap: nowrap;
     flex-direction: row;
   }
 `;
+export const PasswordInputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+export const PasswordToggle = styled.span`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  
+  &:hover {
+    color: #333;
+  }
+`;
