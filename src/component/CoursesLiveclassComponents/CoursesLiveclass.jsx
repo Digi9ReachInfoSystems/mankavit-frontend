@@ -16,7 +16,7 @@ import {
     ContentText
 } from './CoursesLiveclass.styles';
 import { FaUser, FaDownload, FaPlay, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
-import { getCourseById } from '../../api/courseApi';
+import { getCourseById, getCourseByIdWithUSerProgress } from '../../api/courseApi';
 import { completeLecturer, startSubject, startLecturer } from '../../api/userProgressApi';
 import { getCookiesData } from '../../utils/cookiesService';
 
@@ -35,23 +35,56 @@ const CoursesLiveclass = () => {
     const [userId, setUserId] = useState(null);
     const [activeAccordion, setActiveAccordion] = useState(null);
     const [completedLectures, setCompletedLectures] = useState([]);
+    const [completedSubjects, setCompletedSubjects] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             const cookies = await getCookiesData();
             setUserId(cookies.userId);
 
-            const response = await getCourseById(courseId);
-            if (response?.success) {
-                const courseData = response.data;
-                setCourse(courseData);
+            try {
+                const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
+                if (progressResponse?.success) {
+                    setCourse(progressResponse.data);
+                    
+                    // Extract completed lectures and subjects
+                    const lectures = [];
+                    const subjects = [];
+                    
+                    (progressResponse.data.subjects || []).forEach(subject => {
+                        if (subject.completed) {
+                            subjects.push(subject._id);
+                        }
+                        (subject.lectures || []).forEach(lecture => {
+                            if (lecture.completed) {
+                                lectures.push(lecture._id);
+                            }
+                            if (lecture._id === lectureId) {
+                                setLecture(lecture);
+                                setSubjectId(subject._id);
+                            }
+                        });
+                    });
+                    
+                    setCompletedLectures(lectures);
+                    setCompletedSubjects(subjects);
+                }
+            } catch (error) {
+                console.error("Error fetching course with progress:", error);
+                
+                // Fallback to regular course fetch if progress fails
+                const response = await getCourseById(courseId);
+                if (response?.success) {
+                    const courseData = response.data;
+                    setCourse(courseData);
 
-                for (const subject of courseData.subjects || []) {
-                    const found = (subject.lectures || []).find(lec => lec._id === lectureId);
-                    if (found) {
-                        setLecture(found);
-                        setSubjectId(subject._id);
-                        break;
+                    for (const subject of courseData.subjects || []) {
+                        const found = (subject.lectures || []).find(lec => lec._id === lectureId);
+                        if (found) {
+                            setLecture(found);
+                            setSubjectId(subject._id);
+                            break;
+                        }
                     }
                 }
             }
@@ -87,22 +120,45 @@ const CoursesLiveclass = () => {
 
     const handleVideoEnd = async () => {
         if (userId && courseId && subjectId && lectureId) {
-          await completeLecturer(userId, courseId, subjectId, lectureId);
-setCompletedLectures(prev => [...prev, lectureId]);
-
+            try {
+                await completeLecturer(userId, courseId, subjectId, lectureId);
+                setCompletedLectures(prev => [...prev, lectureId]);
+                
+                // Check if all lectures in this subject are completed
+                const currentSubject = course.subjects.find(s => s._id === subjectId);
+                if (currentSubject) {
+                    const allLecturesCompleted = currentSubject.lectures.every(lec => 
+                        completedLectures.includes(lec._id) || lec._id === lectureId
+                    );
+                    
+                    if (allLecturesCompleted) {
+                        setCompletedSubjects(prev => [...prev, subjectId]);
+                    }
+                }
+            } catch (error) {
+                console.error("Error completing lecture:", error);
+            }
         }
     };
 
     const handleStartSubject = async (subjectId) => {
         if (userId && courseId && subjectId) {
-            await startSubject(userId, courseId, subjectId);
+            try {
+                await startSubject(userId, courseId, subjectId);
+            } catch (error) {
+                console.error("Error starting subject:", error);
+            }
         }
     };
 
     const handleStartLecture = async (subjectId, lecId) => {
         if (userId && courseId && subjectId && lecId) {
-            await startLecturer(userId, courseId, subjectId, lecId);
-            navigate(`/course/liveclass/${courseId}/${lecId}`);
+            try {
+                await startLecturer(userId, courseId, subjectId, lecId);
+                navigate(`/course/liveclass/${courseId}/${lecId}`);
+            } catch (error) {
+                console.error("Error starting lecture:", error);
+            }
         }
     };
 
@@ -131,7 +187,15 @@ setCompletedLectures(prev => [...prev, lectureId]);
             return course.subjects.map((subject, sIdx) => (
                 <div key={subject._id} style={{ marginBottom: 24 }}>
                     <div
-                        style={{ cursor: 'pointer', padding: 12, background: '#f5f6fa', borderRadius: 8 }}
+                        style={{ 
+                            cursor: 'pointer', 
+                            padding: 12, 
+                            background: '#f5f6fa', 
+                            borderRadius: 8,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}
                         onClick={async () => {
                             const newIndex = sIdx === activeAccordion ? null : sIdx;
                             setActiveAccordion(newIndex);
@@ -139,7 +203,12 @@ setCompletedLectures(prev => [...prev, lectureId]);
                         }}
                     >
                         <strong>{subject.subjectName}</strong>
-                        <span style={{ float: 'right' }}>{activeAccordion === sIdx ? <FaChevronUp /> : <FaChevronDown />}</span>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {completedSubjects.includes(subject._id) && (
+                                <FaCheckCircle style={{ color: 'green', marginRight: 10 }} />
+                            )}
+                            {activeAccordion === sIdx ? <FaChevronUp /> : <FaChevronDown />}
+                        </div>
                     </div>
                     {activeAccordion === sIdx && (
                         <div style={{ paddingLeft: 16, marginTop: 8 }}>
@@ -181,6 +250,24 @@ setCompletedLectures(prev => [...prev, lectureId]);
         return <ContentText>Tab not found.</ContentText>;
     };
 
+    const calculateProgress = () => {
+        if (!course || !course.subjects) return 0;
+        
+        let totalLectures = 0;
+        let completed = 0;
+        
+        course.subjects.forEach(subject => {
+            if (subject.lectures) {
+                totalLectures += subject.lectures.length;
+                subject.lectures.forEach(lecture => {
+                    if (completedLectures.includes(lecture._id)) completed++;
+                });
+            }
+        });
+        
+        return totalLectures > 0 ? Math.round((completed / totalLectures) * 100) : 0;
+    };
+
     if (loading) return <Container>Loading...</Container>;
 
     return (
@@ -214,7 +301,8 @@ setCompletedLectures(prev => [...prev, lectureId]);
                         </PhoneNumber>
                     </TopBar>
                     <BottomTitle>
-                        Course: {course?.courseDisplayName || 'Course'}
+                        Course: {course?.courseDisplayName || 'Course'} | 
+                        Progress: {calculateProgress()}%
                     </BottomTitle>
                 </StyledVideo>
             </VideoContainer>
