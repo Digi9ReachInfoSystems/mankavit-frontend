@@ -25,16 +25,17 @@ import {
 
 import { getAllNotes } from "../../../../../api/notesApi";
 import { getAllLectures } from "../../../../../api/lecturesApi";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
 import {
   getSubjectById,
   updateSubjectById,
 } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 
-const STATIC_MOCK_TESTS = [
-  { label: "Mankavit Mock Test – CLAT 2025", id: "mock1" },
-  { label: "Mankavit Mock Test – CLAT 2025", id: "mock2" },
-];
+// const STATIC_MOCK_TESTS = [
+//   { label: "Mankavit Mock Test – CLAT 2025", id: "mock1" },
+//   { label: "Mankavit Mock Test – CLAT 2025", id: "mock2" },
+// ];
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -48,74 +49,82 @@ export default function EditSubject() {
 
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
-  const [mockTestCheckboxes, setMockTestCheckboxes] = useState(
-    STATIC_MOCK_TESTS.map((m) => ({ ...m, checked: false }))
-  );
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
 
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  useEffect(() => {
-    const fillForm = async () => {
-      try {
-        const [subData, notesRes, lecturesRes] = await Promise.all([
-          getSubjectById(id),
-          getAllNotes(),
-          getAllLectures(),
-        ]);
+ useEffect(() => {
+  const fillForm = async () => {
+    try {
+      // ↓ include mockRes in the destructure
+      const [subData, notesRes, lecturesRes, mockRes] = await Promise.all([
+        getSubjectById(id),
+        getAllNotes(),
+        getAllLectures(),
+        getAllMocktest(),
+      ]);
 
-        const subject = subData.data;
+      const subject = subData.data;
 
-        const subjectNoteIds = subject.notes.map(note =>
-          typeof note === 'object' ? note._id : note
-        );
+      // IDs already in subject
+      const subjectNoteIds = subject.notes.map(n =>
+        typeof n === "object" ? n._id : n
+      );
+      const subjectLectureIds = subject.lectures.map(l =>
+        typeof l === "object" ? l._id : l
+      );
+      const subjectMockIds = (subject.mockTests || []).map(m =>
+        typeof m === "object" ? (m._id || m.$oid) : m
+      );
 
-        const subjectLectureIds = subject.lectures.map(lecture =>
-          typeof lecture === 'object' ? lecture._id : lecture
-        );
+      // build notes checkboxes
+      setNotesCheckboxes(
+        notesRes.data.map(n => ({
+          label: n.noteDisplayName || n.title,
+          id: n._id,
+          checked: subjectNoteIds.includes(n._id),
+        }))
+      );
 
-        setNotesCheckboxes(
-          notesRes.data.map((n) => ({
-            label: n.noteDisplayName,
-            id: n._id,
-            checked: subjectNoteIds.includes(n._id),
-          }))
-        );
+      // build lectures checkboxes
+      setLecturesCheckboxes(
+        lecturesRes.data.map(l => ({
+          label: l.lectureName || l.title,
+          id: l._id,
+          checked: subjectLectureIds.includes(l._id),
+        }))
+      );
 
-        setLecturesCheckboxes(
-          lecturesRes.data.map((l) => ({
-            label: l.lectureName,
-            id: l._id,
-            checked: subjectLectureIds.includes(l._id),
-          }))
-        );
+      // **build mock-tests checkboxes** using the real mockRes.data
+      setMockTestCheckboxes(
+        mockRes.data.map(m => ({
+          label: m.title,
+          id: m._id,
+          checked: subjectMockIds.includes(m._id),
+        }))
+      );
 
-        setMockTestCheckboxes(prev =>
-          prev.map(m => ({
-            ...m,
-            checked: subject.mockTests?.some(mt =>
-              (typeof mt === 'object' && mt.$oid ? mt.$oid : mt) === m.id
-            ) ?? false
-          }))
-        );
+      // fill the rest of the form
+      setSubjectTitle(subject.subjectDisplayName || "");
+      setInternalTitle(subject.subjectName || "");
+      setVimeoId(subject.vimeoShowcaseID || "");
+      setShortDescription(subject.description || "");
+      if (subject.image) setPreviewUrl(subject.image);
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to fetch subject details");
+      navigate("/admin/subject-management");
+    }
+  };
 
-        setSubjectTitle(subject.subjectDisplayName || "");
-        setInternalTitle(subject.subjectName || "");
-        setVimeoId(subject.vimeoShowcaseID || "");
-        setShortDescription(subject.description || "");
-        if (subject.image) setPreviewUrl(subject.image);
-      } catch (err) {
-        console.error(err);
-        toast.error("Unable to fetch subject details");
-        navigate("/admin/subject-management");
-      }
-    };
+  fillForm();
 
-    fillForm();
+  return () => {
+    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+  };
+}, [id, navigate]);
 
-    return () =>
-      previewUrl?.startsWith("blob:") && URL.revokeObjectURL(previewUrl);
-  }, [id, navigate]);
 
   const handleCheckboxChange = (index, setFn) =>
     setFn((prev) =>

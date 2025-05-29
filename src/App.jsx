@@ -42,7 +42,7 @@ import AddAchievements from './module/admin/component/WebManagement/Achievement/
 import Notification from './module/admin/pages/WebManagement/Notification/Notification'
 import UserBaseLayout from './module/user/component/UserBaseLayout/UserBaseLayout'
 import UserDashboard from './module/user/pages/UserDashboard/UserDashboard';
-import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia'; 
+import SocialMedia from './module/admin/pages/WebManagement/SocialMedia/SocialMedia';
 import AddStudent from './module/admin/component/Student/AddStudent/AddStudent'
 import Mocktest from './module/admin/pages/Mocktest/Mocktest'
 import Staticpage from './module/admin/pages/Staticpage/Staticpage'
@@ -111,29 +111,32 @@ import TestResults from './module/user/pages/TestResults/TestResults'
 import TextQuestionPage from './module/user/pages/TextQuestionPage/TextQuestionPage'
 import AddMockTest from './module/admin/component/MockTestComponents/AddMockTests/AddMockTest'
 import ViewMockTest from './module/admin/component/MockTestComponents/ViewMockTest/ViewMockTest'
+import EditMockTest from './module/admin/component/MockTestComponents/EditMocktest/EditMocktest'
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function App() {
 
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
+         <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
-          <Route path='/signup' element={<SignUp/>} />
-          <Route path="/signupOtp" element={<OtpSignup/>} />
+          <Route path='/signup' element={<SignUp />} />
+          <Route path="/signupOtp" element={<OtpSignup />} />
           <Route path="/" element={<LandingPage />} />
-          <Route path="/aboutus" element={<AboutUs/>} />
+          <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/ourcourses" element={<OurCourses />} />
           <Route path="/coursedetails/:id" element={<CourseDetails />} />
           <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
-          <Route path='/results' element={<Results/>} />
+          <Route path='/results' element={<Results />} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
           <Route path="/course/liveclass/:courseId/:lectureId" element={<CoursesLiveclassPage />} />
-          
+
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
           <Route path='/kyc' element={<KYCpage />} />
@@ -141,25 +144,25 @@ function App() {
           <Route path='/userblog/post/:id' element={<ReadPost />} />
           <Route path="/test" element={<Test />} />
 
-          <Route path='/start-test' element={<StarttestPage/>} />
-          <Route path='/test-instructions' element={<TestInstructionsPage/>} />
-          <Route path='/test-submitted' element={<TestsubmittedPage/>} />
-          <Route path='/exam-summary' element={<ExamSummary/>} />
-          <Route path='/test-results' element={<TestResults />} />
+          <Route path='/start-test/:testId/:subjectId' element={<StarttestPage />} />
+          <Route path='/test-instructions/:testId/:subjectId' element={<TestInstructionsPage />} />
+          <Route path='/test-submitted' element={<TestsubmittedPage />} />
+          <Route path='/exam-summary' element={<ExamSummary />} />
+          <Route path='/test-results/:testId/:subjectId/:attemptId' element={<TestResults />} />
 
 
-<Route path='/text-question' element={<TextQuestionPage />} />
+          <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
             <Route path="profile/:id" element={<Profile />} />
             <Route path="tandc" element={<TandC />} />
-            <Route path='my-courses' element={<Mycourses/>} />
+            <Route path='my-courses' element={<Mycourses />} />
             <Route path="contactsupport" element={<ContactSupport />} />
             <Route path="notification" element={<UserNotifications />} />
 
             <Route path="completed-courses" element={<CompletedCoursesPage />} />
-          {/* </Route> */}
+            {/* </Route> */}
 
           </Route>
 
@@ -178,9 +181,10 @@ function App() {
             <Route path="student-management/edit/:id" element={<EditStudent />} />
             <Route path="student-management/view/:id" element={<ViewStudent />} />
 
-            <Route path="mock-test"element={<Mocktest/>} />
+            <Route path="mock-test" element={<Mocktest />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
-            <Route path="mock-test/view" element={<ViewMockTest />} />
+            <Route path="mock-test/view/:id" element={<ViewMockTest />} />
+            <Route path='mock-test/edit/:id' element={<EditMockTest />} />
 
             <Route path="payment-management" element={<Payment />} />
 
@@ -205,28 +209,28 @@ function App() {
 
             <Route path="static-page" element={<Staticpage />} />
 
-            
+
             {/* <Route path="static-pages" element={<StaticPage />} /> */}
-            
+
             <Route path="web-management/home" element={<Homepage />} />
 
             <Route path="web-management/faq" element={<FAQ />} />
             <Route path="web-management/faq/create" element={<AddFaq />} />
             <Route path="web-management/faq/edit/:id" element={<EditFaq />} />
 
-            <Route path="web-management/question-paper" element={< Questionpaper/>} />
+            <Route path="web-management/question-paper" element={< Questionpaper />} />
             <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />
-             <Route path="web-management/question-paper/edit/:id" element={<EditQuestionPaper />} />
+            <Route path="web-management/question-paper/edit/:id" element={<EditQuestionPaper />} />
             <Route path="web-management/question-paper/view/:id" element={<ViewQuestionPaper />} />
-             
+
             <Route path="web-management/live-classes" element={<LiveClass />} />
-            <Route path="web-management/live-classes/create" element={<AddLiveClass/>} />
-            <Route path="web-management/live-classes/edit/:id" element={<EditLiveclass/>} />
+            <Route path="web-management/live-classes/create" element={<AddLiveClass />} />
+            <Route path="web-management/live-classes/edit/:id" element={<EditLiveclass />} />
 
             <Route path="web-management/recorded-class" element={<RecordedClass />} />
-            <Route path="web-management/recorded-classes/create" element={<AddRecordedClass/>} />
-            <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass/>} />
-            <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass/>} />
+            <Route path="web-management/recorded-classes/create" element={<AddRecordedClass />} />
+            <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass />} />
+            <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass />} />
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
@@ -259,13 +263,14 @@ function App() {
             <Route path="web-management/blog/edit/:id" element={<EditBlog />} />
             <Route path="web-management/blog/view/:id" element={<ViewBlog />} />
 
-            <Route path="web-management/contact-support" element={<ContactSupportView/>} />
+            <Route path="web-management/contact-support" element={<ContactSupportView />} />
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
+            
           </Route>
 
-          
-                  </Routes>
+
+        </Routes>
       </Router>
     </ThemeProvider>
   )

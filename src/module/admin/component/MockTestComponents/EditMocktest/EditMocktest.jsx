@@ -19,15 +19,17 @@ import {
   CheckboxList,
   CheckboxInput,
   CheckboxLabel
-} from './AddMockTest.styles';
+} from './EditMocktest.style';
 import { Select as AntSelect } from 'antd';
 const { Option } = AntSelect;
 import { FiTrash } from 'react-icons/fi';
-import { createMocktest } from '../../../../../api/mocktestApi';
+import { updateMocktestById, getMocktestById } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-const AddMockTest = () => {
+import { useNavigate, useParams } from 'react-router-dom';
+
+const EditMockTest = () => {
+  const { id } = useParams();
   const [testDetails, setTestDetails] = useState({
     title: '',
     description: '',
@@ -39,7 +41,7 @@ const AddMockTest = () => {
     subject: [],
   });
   const navigate = useNavigate();
-   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const [questions, setQuestions] = useState([
     {
       questionType: 'mcq',
@@ -53,22 +55,77 @@ const AddMockTest = () => {
   const [errors, setErrors] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(()=>{
-    const apiCaller = async () => {
-       try {
-          const responseSubjects = await getSubjects();
-          const subjectsData = responseSubjects.data.map((item) => ({
-            label: item.subjectName,
-            id: item._id,
-            checked: false,
-          }));
-          setSubjectCheckboxes(subjectsData);
-      }catch (error) {
+useEffect(() => {
+  const fetchMockTestAndSubjects = async () => {
+    try {
+      // Fetch subjects first
+      const responseSubjects = await getSubjects();
+      const subjectsData = responseSubjects.data.map((item) => ({
+        label: item.subjectName,
+        id: item._id,
+        checked: false,
+      }));
+      
+      // Then fetch the mock test data
+      const response = await getMocktestById(id);
+      const mockTest = response.data;
+      
+      // Format the mock test data for the form
+      setTestDetails({
+        title: mockTest.title,
+        description: mockTest.description,
+        duration: mockTest.duration.toString(),
+        passingMarks: mockTest.passingMarks.toString(),
+        startDate: new Date(mockTest.startDate).toISOString().slice(0, 16),
+        endDate: new Date(mockTest.endDate).toISOString().slice(0, 16),
+        maxAttempts: mockTest.maxAttempts,
+        subject: mockTest.subject
+      });
+      
+      // Update subject checkboxes with the selected subject
+      const updatedSubjects = subjectsData.map(subject => ({
+        ...subject,
+        checked: subject.id === mockTest.subject._id || subject.id === mockTest.subject
+      }));
+      setSubjectCheckboxes(updatedSubjects);
+        
+        // Format questions for the form
+        const formattedQuestions = mockTest.questions.map(q => {
+          if (q.type === 'mcq') {
+            return {
+              questionType: 'mcq',
+              questionText: q.questionText,
+              marks: q.marks.toString(),
+              options: {
+                A: q.options[0].text,
+                B: q.options[1].text,
+                C: q.options[2].text,
+                D: q.options[3].text
+              },
+              correctAnswer: ['A', 'B', 'C', 'D'][q.correctAnswer],
+              subjectiveAnswer: ''
+            };
+          } else {
+            return {
+              questionType: 'subjective',
+              questionText: q.questionText,
+              marks: q.marks.toString(),
+              options: { A: '', B: '', C: '', D: '' },
+              correctAnswer: '',
+              subjectiveAnswer: q.expectedAnswer || ''
+            };
+          }
+        });
+        
+        setQuestions(formattedQuestions);
+      } catch (error) {
         console.error("Error fetching data:", error);
+        toast.error('Failed to load mock test data');
       }
     };
-    apiCaller();
-  },[]);
+    
+    fetchMockTestAndSubjects();
+  }, [id]);
 
   const handleTestDetailChange = (field, value) => {
     setTestDetails({
@@ -76,7 +133,7 @@ const AddMockTest = () => {
       [field]: value
     });
   };
-   const subjects = subjectCheckboxes.filter((i) => i.checked).map((i) => i.id);
+
   const handleQuestionChange = (index, field, value) => {
     const updated = [...questions];
     if (['A', 'B', 'C', 'D'].includes(field)) {
@@ -101,7 +158,7 @@ const AddMockTest = () => {
     ]);
   };
 
-   const handleCheckboxChange = (index, setFn) => {
+  const handleCheckboxChange = (index, setFn) => {
     setFn((prev) =>
       prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
     );
@@ -142,83 +199,81 @@ const AddMockTest = () => {
     });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const newErrors = [];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = [];
 
-  // Validate test details
-  if (!testDetails.title) newErrors.push("Test title is required");
-  if (!testDetails.description) newErrors.push("Test description is required");
-  if (!testDetails.duration) newErrors.push("Duration is required");
-  if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
-  if (!testDetails.startDate) newErrors.push("Start date is required");
-  if (!testDetails.endDate) newErrors.push("End date is required");
-  
-  // Add validation for subjects
-  const selectedSubjects = subjectCheckboxes.filter(subject => subject.checked).map(subject => subject.id);
-  if (selectedSubjects.length === 0) {
-    newErrors.push("At least one subject must be selected");
-  }
-
-  // Validate questions
-  questions.forEach((q, index) => {
-    if (!q.questionText || !q.marks) {
-      newErrors.push(`Question ${index + 1}: Question text and marks are required.`);
-    }
-
-    if (q.questionType === 'mcq') {
-      const { A, B, C, D } = q.options;
-      if (!A || !B || !C || !D || !q.correctAnswer) {
-        newErrors.push(`Question ${index + 1}: All MCQ options and correct answer are required.`);
-      }
-    }
-  });
-
-  if (newErrors.length > 0) {
-    setErrors(newErrors);
-    return;
-  }
-
-  setErrors([]);
-  setIsSubmitting(true);
-
-  try {
-    const formattedQuestions = formatQuestionsForApi();
-    const totalMarks = questions.reduce((sum, q) => sum + parseInt(q.marks), 0);
+    // Validate test details
+    if (!testDetails.title) newErrors.push("Test title is required");
+    if (!testDetails.description) newErrors.push("Test description is required");
+    if (!testDetails.duration) newErrors.push("Duration is required");
+    if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
+    if (!testDetails.startDate) newErrors.push("Start date is required");
+    if (!testDetails.endDate) newErrors.push("End date is required");
     
-    const mockTestData = {
-      title: testDetails.title,
-      description: testDetails.description,
-      duration: parseInt(testDetails.duration),
-      passingMarks: parseInt(testDetails.passingMarks),
-      startDate: new Date(testDetails.startDate).toISOString(),
-      endDate: new Date(testDetails.endDate).toISOString(),
-      maxAttempts: parseInt(testDetails.maxAttempts),
-      totalMarks: totalMarks,
-      subject: selectedSubjects[0],  // Use the filtered and mapped subjects
-      questions: formattedQuestions
-    };
-
-    const response = await createMocktest(mockTestData);
-    console.log('Mock test created successfully:', response);
-    toast.success('Mock test created successfully!');
-
-   navigate('/admin/mock-test');
-  } catch (error) {
-    console.error('Error creating mock test:', error);
-    let errorMessage = 'Failed to create mock test';
-    if (error.response && error.response.data && error.response.data.message) {
-      errorMessage = error.response.data.message;
+    // Add validation for subjects
+    const selectedSubjects = subjectCheckboxes.filter(subject => subject.checked).map(subject => subject.id);
+    if (selectedSubjects.length === 0) {
+      newErrors.push("At least one subject must be selected");
     }
-    setErrors([errorMessage]);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+
+    // Validate questions
+    questions.forEach((q, index) => {
+      if (!q.questionText || !q.marks) {
+        newErrors.push(`Question ${index + 1}: Question text and marks are required.`);
+      }
+
+      if (q.questionType === 'mcq') {
+        const { A, B, C, D } = q.options;
+        if (!A || !B || !C || !D || !q.correctAnswer) {
+          newErrors.push(`Question ${index + 1}: All MCQ options and correct answer are required.`);
+        }
+      }
+    });
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors([]);
+    setIsSubmitting(true);
+
+    try {
+      const formattedQuestions = formatQuestionsForApi();
+      const totalMarks = questions.reduce((sum, q) => sum + parseInt(q.marks), 0);
+      
+      const mockTestData = {
+        title: testDetails.title,
+        description: testDetails.description,
+        duration: parseInt(testDetails.duration),
+        passingMarks: parseInt(testDetails.passingMarks),
+        startDate: new Date(testDetails.startDate).toISOString(),
+        endDate: new Date(testDetails.endDate).toISOString(),
+        maxAttempts: parseInt(testDetails.maxAttempts),
+        totalMarks: totalMarks,
+        subject: selectedSubjects[0],
+        questions: formattedQuestions
+      };
+
+      await updateMocktestById(id, mockTestData);
+      toast.success('Mock test updated successfully!');
+      navigate('/admin/mock-test');
+    } catch (error) {
+      console.error('Error updating mock test:', error);
+      let errorMessage = 'Failed to update mock test';
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      setErrors([errorMessage]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Container>
-      <Title>Add Mock Test</Title>
+      <Title>Edit Mock Test</Title>
 
       {errors.length > 0 && (
         <div style={{ color: 'red', marginBottom: '1rem' }}>
@@ -311,23 +366,23 @@ const handleSubmit = async (e) => {
           />
         </FormGroup>
 
-       <CheckboxSection>
-  <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
-  <CheckboxList>
-    {subjectCheckboxes.map((item, index) => (
-      <CheckboxLabel key={item.id || index}>
-        <CheckboxInput
-          type="checkbox"
-          checked={item.checked}
-          onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
-        />
-        {item.label}
-      </CheckboxLabel>
-    ))}
-  </CheckboxList>
-</CheckboxSection>
+        <CheckboxSection>
+          <CheckboxSectionTitle>Select Subject</CheckboxSectionTitle>
+          <CheckboxList>
+            {subjectCheckboxes.map((item, index) => (
+              <CheckboxLabel key={item.id || index}>
+                <CheckboxInput
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                />
+                {item.label}
+              </CheckboxLabel>
+            ))}
+          </CheckboxList>
+        </CheckboxSection>
 
-        <QuestionTitle>Add Questions</QuestionTitle>
+        <QuestionTitle>Edit Questions</QuestionTitle>
 
         {questions.map((q, index) => (
           <div key={index} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', position: 'relative' }}>
@@ -450,11 +505,11 @@ const handleSubmit = async (e) => {
         </MoreButton>
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Submit Mock Test'}
+          {isSubmitting ? 'Updating...' : 'Update Mock Test'}
         </Button>
       </FormWrapper>
     </Container>
   );
 };
 
-export default AddMockTest;
+export default EditMockTest;

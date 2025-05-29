@@ -41,7 +41,7 @@ export default function Footer() {
           <li><Link to="/login"> Student Portal </Link></li>
           <li><Link to="/ourcourses"> Courses </Link></li>
            <li><Link to="/aboutus"> About </Link></li>
-          <li>Blogs</li>
+          <li><Link to="/userblog"> Blog </Link></li>
         </LinkList>
       </FooterSection>
       </LeftContainer>
