@@ -29,7 +29,7 @@ import {
 } from "../../../../../api/questionPaperApi";
 import { notification } from "antd";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
 const QuestionPaper = () => {
   const navigate = useNavigate();
@@ -162,7 +162,6 @@ const QuestionPaper = () => {
           </StyledTable>
         </TableWrapper>
 
-        {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -170,7 +169,7 @@ const QuestionPaper = () => {
             totalItems={data.length}
             itemsPerPage={ITEMS_PER_PAGE}
           />
-        )}
+
       </Container>
 
       {modal && (

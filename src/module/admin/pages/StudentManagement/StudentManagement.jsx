@@ -20,18 +20,15 @@ import {
   SearchIcon,
   SearchInput,
   StatusWrapper,
-  KycDot,
-  StatusDot
+  KycDot
 } from "../StudentManagement/StudentManagement.style";
 
-import { BiEditAlt } from "react-icons/bi";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { IoEyeOutline } from "react-icons/io5";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate } from 'react-router-dom';
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
-import { IoEyeOutline } from "react-icons/io5";
 import { getAllStudents } from '../../../../api/userApi';
 import { getAllCourses } from '../../../../api/courseApi';
 
@@ -42,8 +39,6 @@ export default function StudentManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [viewStudent, setViewStudent] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [data, setData] = useState([]);
   const [coursesMap, setCoursesMap] = useState({});
@@ -52,6 +47,10 @@ export default function StudentManagement() {
     direction: 'ascending'
   });
 
+  const [modalCourses, setModalCourses] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState('');
+
   useEffect(() => {
     const fetchStudentsAndCourses = async () => {
       try {
@@ -59,8 +58,9 @@ export default function StudentManagement() {
           getAllStudents(),
           getAllCourses()
         ]);
-        
+
         const students = studentResponse.data?.students || [];
+        console.log(students);
         setData(students);
 
         const courseMap = {};
@@ -73,10 +73,10 @@ export default function StudentManagement() {
         setData([]);
       }
     };
+
     fetchStudentsAndCourses();
   }, []);
 
-  // Sorting function
   const requestSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -85,61 +85,32 @@ export default function StudentManagement() {
     setSortConfig({ key, direction });
   };
 
-  // Apply sorting to the data
   const sortedData = React.useMemo(() => {
     let sortableItems = [...data];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
-        // Handle cases where values might be null or undefined
         const aValue = a[sortConfig.key] || '';
         const bValue = b[sortConfig.key] || '';
-        
-        if (aValue < bValue) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
+        return sortConfig.direction === 'ascending'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
       });
     }
     return sortableItems;
   }, [data, sortConfig]);
 
-  // Filter and paginate the sorted data
-  const filteredStudents = Array.isArray(sortedData)
-    ? sortedData.filter((student) =>
-        (student.displayName || "")
-          .toLowerCase()
-          .includes(searchText.toLowerCase())
-      )
-    : [];
+  const filteredStudents = sortedData.filter((student) =>
+    (student.displayName || "").toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const TOTAL_ENTRIES = filteredStudents.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = filteredStudents.slice(startIndex, endIndex);
+  const currentItems = filteredStudents.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
     setDeleteModalOpen(true);
-  };
-  
-  const handleViewClick = (student) => {
-    navigate(`/admin/student-management/view/${student._id}`, {
-      state: { student }
-    });
-    console.log("View student with ID:", student._id);
-  };
-  
-  const handleEdit = (_id) => {
-    const student = data.find((student) => student._id === _id);
-    if (student) {
-      navigate(`/admin/student-management/edit/${_id}`, {
-        state: { student }
-      });
-    }
   };
 
   const handleDeleteConfirm = () => {
@@ -147,14 +118,25 @@ export default function StudentManagement() {
     setDeleteModalOpen(false);
   };
 
-  const [modalCourses, setModalCourses] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
+  const handleViewClick = (student) => {
+    navigate(`/admin/student-management/view/${student._id}`, {
+      state: { student }
+    });
+  };
 
-  const handleViewCourses = (student) => {
-    const enrolledNames = (student.subscription || []).map(sub =>
-      coursesMap[sub.course_enrolled] || sub.course_enrolled
-    );
-    setModalCourses(enrolledNames);
+  const handleEdit = (_id) => {
+    const student = data.find((s) => s._id === _id);
+    if (student) {
+      navigate(`/admin/student-management/edit/${_id}`, {
+        state: { student }
+      });
+    }
+  };
+
+  const handleOpenModal = (type, subscription = []) => {
+    const courseNames = subscription.map(sub => coursesMap[sub.course_enrolled] || sub.course_enrolled);
+    setModalType(type);
+    setModalCourses(courseNames);
     setModalOpen(true);
   };
 
@@ -167,15 +149,15 @@ export default function StudentManagement() {
       <Container>
         <HeaderRow>
           <Title>
-            See All Students <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span>
+            See All Students{" "}
+            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+              ({currentItems.length}/{TOTAL_ENTRIES})
+            </span>
           </Title>
 
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect 
-              value={sortConfig.key}
-              onChange={(e) => requestSort(e.target.value)}
-            >
+            <SortSelect value={sortConfig.key} onChange={(e) => requestSort(e.target.value)}>
               <option value="displayName">Name</option>
               <option value="kyc_status">KYC Status</option>
             </SortSelect>
@@ -184,7 +166,11 @@ export default function StudentManagement() {
 
         <SearchWrapper>
           <SearchIcon><CiSearch size={18} /></SearchIcon>
-          <SearchInput placeholder="Search" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+          <SearchInput
+            placeholder="Search"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
         </SearchWrapper>
 
         <TableWrapper>
@@ -192,25 +178,13 @@ export default function StudentManagement() {
             <TableHead>
               <TableRow>
                 <TableHeader>#</TableHeader>
-                <TableHeader 
-                  onClick={() => requestSort('displayName')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Student Name
-                  {sortConfig.key === 'displayName' && (
-                    sortConfig.direction === 'ascending' ? ' ↑' : ' ↓'
-                  )}
+                <TableHeader onClick={() => requestSort('displayName')} style={{ cursor: 'pointer' }}>
+                  Student Name {sortConfig.key === 'displayName' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                 </TableHeader>
                 <TableHeader>Contact Details</TableHeader>
-                <TableHeader>Course enrolled</TableHeader>
-                <TableHeader 
-                  onClick={() => requestSort('kyc_status')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  KYC Status
-                  {sortConfig.key === 'kyc_status' && (
-                    sortConfig.direction === 'ascending' ? ' ↑' : ' ↓'
-                  )}
+                <TableHeader>Course Enrolled</TableHeader>
+                <TableHeader onClick={() => requestSort('kyc_status')} style={{ cursor: 'pointer' }}>
+                  KYC Status {sortConfig.key === 'kyc_status' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                 </TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
@@ -222,17 +196,16 @@ export default function StudentManagement() {
                   <TableCell>{item.displayName || "N/A"}</TableCell>
                   <TableCell>{item.phone}<br />{item.email}</TableCell>
                   <TableCell>
-                    {Array.isArray(item.subscription) && item.subscription.length > 0 ? (
-                      <>
-                        {item.subscription.length}{" "}
-                        <a href="#view" onClick={(e) => {
-                          e.preventDefault();
-                          handleViewCourses(item);
-                        }}>View</a>
-                      </>
-                    ) : (
-                      "No Courses"
-                    )}
+                    {(item.subscription?.length || 0)}{" "}
+                    <span
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenModal('Enrolled Courses', item.subscription);
+                      }}
+                      style={{ color: '#007bff', cursor: 'pointer', marginLeft: '5px' }}
+                    >
+                      View
+                    </span>
                   </TableCell>
                   <TableCell>
                     <StatusWrapper>
@@ -242,7 +215,12 @@ export default function StudentManagement() {
                   </TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <IoEyeOutline title="View" color="#000000" size={20} onClick={() => handleViewClick(item)} />
+                      <IoEyeOutline
+                        title="View"
+                        color="#000000"
+                        size={20}
+                        onClick={() => handleViewClick(item)}
+                      />
                     </ActionsContainer>
                   </TableCell>
                 </TableRow>
@@ -260,15 +238,13 @@ export default function StudentManagement() {
         />
       </Container>
 
-      {viewModalOpen && (
-        <CustomModal onClose={() => setViewModalOpen(false)}>
-          <h3>Subjects Enrolled</h3>
-          <ul>
-            {viewStudent.subjects.map((subject, i) => (
-              <li key={i}>{subject}</li>
-            ))}
-          </ul>
-        </CustomModal>
+      {modalOpen && (
+        <CustomModal
+          title={modalType === 'Enrolled Courses' ? 'Enrolled Courses' : 'Modal'}
+          type={modalType}
+          data={modalCourses}
+          onClose={() => setModalOpen(false)}
+        />
       )}
 
       {deleteModalOpen && (

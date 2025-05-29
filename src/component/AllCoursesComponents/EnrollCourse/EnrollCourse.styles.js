@@ -3,8 +3,7 @@ import styled from "styled-components";
 export const Container = styled.div`
   padding: 40px 20px;
   text-align: center;
-  max-width: 80%;
-  margin: 0 auto;
+
 
   @media (max-width: 1320px) {
     max-width: 90%;
@@ -32,6 +31,8 @@ export const Features = styled.div`
   justify-content: space-between;
   gap: 30px;
   margin-bottom: 30px;
+  overflow-x: scroll;
+  width: 100%;
 
   @media (max-width: 576px) {
     flex-direction: column;
@@ -39,7 +40,7 @@ export const Features = styled.div`
 `;
 
 export const FeatureCard = styled.div`
-  max-width: 450px;
+  min-width: 450px;
   text-align: center;
 `;
 

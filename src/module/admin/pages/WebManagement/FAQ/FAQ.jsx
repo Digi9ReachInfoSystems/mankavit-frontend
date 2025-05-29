@@ -24,6 +24,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllfaqs, deleteFaqById } from "../../../../../api/faqApi";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import Pagination from "../../../component/Pagination/Pagination";
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
@@ -182,20 +183,13 @@ const FAQ = () => {
             </Table>
           )}
         </TableWrapper>
-
-        {totalPages > 1 && (
-          <PaginationContainer>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PageButton
-                key={i + 1}
-                active={currentPage === i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </PageButton>
-            ))}
-          </PaginationContainer>
-        )}
+       <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+          totalItems={faqs.length}
+          itemsPerPage={faqsPerPage}
+        />
       </Header>
 
       {/* Delete confirmation modal */}

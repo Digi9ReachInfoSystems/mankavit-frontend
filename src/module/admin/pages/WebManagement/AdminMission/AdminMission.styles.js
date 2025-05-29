@@ -81,7 +81,7 @@ margin-top: 20px;
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
   border-radius: 12px;
-  min-height: 719px;
+  min-height: 800px;
 
     @media (max-width: 990px) {
   // width: 90%;
