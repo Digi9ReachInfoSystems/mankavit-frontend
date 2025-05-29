@@ -141,6 +141,8 @@ export const CourseCard = styled.div`
   border-bottom-right-radius: 12px;
   position: relative;
   height: 500px;
+  min-width: 230px;
+  margin-bottom: 20px;
  
   // &:hover {
   //   transform: translateY(-4px);
@@ -219,6 +221,7 @@ export const CourseTitle = styled.h3`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   width: 100%;
+  max-width: 100%;
  
   @media (max-width: 1320px) {
     font-size: 22px;
@@ -236,6 +239,14 @@ justify-content: left;
   color: #555;
   font-size: 16px;
   margin: 5px 0 0 0;
+    word-warp: warp;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  width: 100%;
+    max-width: 100%;
  
   @media (max-width: 1320px) {
     font-size: 14px;

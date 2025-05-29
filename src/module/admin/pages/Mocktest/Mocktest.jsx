@@ -207,6 +207,7 @@ const handlePublishToggle = async (id, currentStatus) => {
                 <TableHeader>Total marks</TableHeader>
                 <TableHeader>Published</TableHeader>
                 <TableHeader>Actions</TableHeader>
+                <TableHeader>View Result</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -249,6 +250,11 @@ const handlePublishToggle = async (id, currentStatus) => {
                         onClick={() => handleDeleteClick(item.id)}
                       />
                     </ActionsContainer>
+                  </TableCell>
+                  <TableCell>
+                    <a href="/admin/mock-test/user-result">
+                      View
+                    </a>
                   </TableCell>
                 </TableRow>
               ))}

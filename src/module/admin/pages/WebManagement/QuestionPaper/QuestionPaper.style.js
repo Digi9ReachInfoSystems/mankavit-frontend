@@ -7,6 +7,7 @@ export const TableWrapper = styled.div`
   background-color: ${(props) => props.theme.colors.secondary};
   border-radius: 4px;
   overflow-x: auto;
+    margin-bottom: 80px;
 
 `;
 
@@ -31,8 +32,10 @@ export const TableHeader = styled.th`
   color: ${(props) => props.theme.colors.test};
   white-space: nowrap;
 
+
   &:nth-child(2) {
     width: 40%;
+    
   }
 
   &:first-child {

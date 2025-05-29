@@ -182,7 +182,6 @@ const AdminMission = () => {
           )}
         </TableWrapper>
 
-        {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -190,7 +189,6 @@ const AdminMission = () => {
             totalItems={totalItems}
             itemsPerPage={ITEMS_PER_PAGE}
           />
-        )}
       </Container>
 
       <DeleteModal

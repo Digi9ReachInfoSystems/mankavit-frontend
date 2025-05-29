@@ -201,7 +201,6 @@ const [selectedImage, setSelectedImage] = useState(null);
           )}
         </TableWrapper>
 
-        {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -209,7 +208,6 @@ const [selectedImage, setSelectedImage] = useState(null);
             totalItems={achievers.length}
             itemsPerPage={ITEMS_PER_PAGE}
           />
-        )}
       </Container>
 
       {/* Delete Confirmation Modal */}

@@ -193,7 +193,6 @@ const Blog = () => {
           </Table>
         </TableWrapper>
 
-        {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -201,7 +200,6 @@ const Blog = () => {
             totalItems={totalItems}
             itemsPerPage={ITEMS_PER_PAGE}
           />
-        )}
       </Container>
 
       <DeleteModal

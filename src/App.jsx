@@ -115,6 +115,8 @@ import EditMockTest from './module/admin/component/MockTestComponents/EditMockte
 // import ContactSupport from './module/user/pages/ContactSupport/ContactSupport'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ViewUser from './module/admin/component/MockTestComponents/ViewUser/ViewUser'
+import ViewUserResults from './module/admin/component/MockTestComponents/ViewUserResults/ViewUserResults'
 function App() {
 
   return (
@@ -185,6 +187,8 @@ function App() {
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
             <Route path='mock-test/edit/:id' element={<EditMockTest />} />
+            <Route path='mock-test/user-result' element={<ViewUser />} />
+            <Route path='mock-test/user-result/view-result' element={<ViewUserResults />} />
 
             <Route path="payment-management" element={<Payment />} />
 
