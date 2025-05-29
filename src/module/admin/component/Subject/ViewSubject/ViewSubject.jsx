@@ -152,7 +152,7 @@ export default function ViewSubject() {
               </CheckboxList>
             </CheckboxSection>
           </Column>
-          <Column>
+          {/* <Column>
               <CheckboxSection>
               <Label>Mock Tests</Label>
               <CheckboxList>
@@ -163,7 +163,7 @@ export default function ViewSubject() {
                 )}
               </CheckboxList>
             </CheckboxSection>
-          </Column>
+          </Column> */}
         </FormRow>
         
         {/* Row 3 - Lectures */}
