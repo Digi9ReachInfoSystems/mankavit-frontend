@@ -402,7 +402,7 @@ useEffect(() => {
           </Column>
 
           <Column>
-            <CheckboxSection>
+            {/* <CheckboxSection>
               <CheckboxSectionTitle>Add Mock Test</CheckboxSectionTitle>
               <CheckboxList>
                 {mockTestCheckboxes.map((item, index) => (
@@ -416,7 +416,7 @@ useEffect(() => {
                   </CheckboxLabel>
                 ))}
               </CheckboxList>
-            </CheckboxSection>
+            </CheckboxSection> */}
           </Column>
         </FormRow>
 

@@ -17,11 +17,11 @@ import Allnotes from './Allnotes/Allnotes';
 import AllTests from './AllTests/AllTests';
 
 const tabLabels = [
-  { label: 'All Courses', component: <AllCourses /> },
-  { label: 'All Students', component: <AllStudents /> },
-  { label: 'All Subjects', component: <AllSubjects /> },
-  { label: 'All Notes', component: <Allnotes /> }, // Placeholder for now
-  { label: 'All Test', component: <AllTests /> }, // Placeholder for now
+  { label: 'All courses', component: <AllCourses /> },
+  { label: 'All students', component: <AllStudents /> },
+  { label: 'All subjects', component: <AllSubjects /> },
+  { label: 'All notes', component: <Allnotes /> }, // Placeholder for now
+  { label: 'All mock tests', component: <AllTests /> }, // Placeholder for now
 ];
 
 const CoursesList = () => {

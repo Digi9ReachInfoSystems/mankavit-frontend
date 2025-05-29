@@ -1,81 +1,93 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Container,
   Title,
   FormWrapper,
   FormGroup,
-    Label,
+  Label,
   QuestionTitle,
   FormRow,
-  Field,
-    FormGroupList,
-    FieldQusetion,
-    FieldCorrect,
-    FieldMarks,
-    FormRowText,
-    FieldText
+  FieldQusetion,
+  FieldCorrect,
+  FieldMarks,
+  FormRowText,
+  FieldText,
+  FormGroupList
 } from './ViewMockTest.styles';
-import { FileUploadItemName } from '@chakra-ui/react';
+import { getMocktestById } from '../../../../../api/mocktestApi';
 
 const ViewMockTest = () => {
-  const testDetails = {
-    testName: 'Sample Mock Test',
-    testTime: '60',
-    testDescription: 'This is a sample mock test containing MCQs and Subjective questions.',
-    passingMarks: '40',
-    questions: [
-      {
-        questionType: 'mcq',
-        questionText: 'What is the capital of France?',
-        marks: '5',
-        options: {
-          A: 'Berlin',
-          B: 'Madrid',
-          C: 'Paris',
-          D: 'Rome'
-        },
-        correctAnswer: 'Paris'
-      },
-      {
-        questionType: 'mcq',
-        questionText: 'Which of the following is a prime number?',
-        marks: '5',
-        options: {
-          A: '4',
-          B: '9',
-          C: '11',
-          D: '21'
-        },
-        correctAnswer: '11'
-      },
-      {
-        questionType: 'subjective',
-        questionText: 'Explain the concept of polymorphism in OOP.',
-        marks: '10',
-        subjectiveAnswer: 'Polymorphism allows objects to be treated as instances of their parent class rather than their actual class.'
-      },
-      {
-        questionType: 'subjective',
-        questionText: 'Describe the lifecycle methods of a React class component.',
-        marks: '10',
-        subjectiveAnswer: 'The lifecycle includes mounting, updating, and unmounting phases with methods like componentDidMount, componentDidUpdate, and componentWillUnmount.'
+  const { id } = useParams();
+  const [testDetails, setTestDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTest = async () => {
+      try {
+        const res = await getMocktestById(id);
+        if (!res.success) throw new Error('Failed to load mock test');
+        const t = res.data;
+
+        const questions = t.questions.map(q => {
+          if (q.type === 'mcq') {
+            // map array of options to A-D
+            const letters = ['A', 'B', 'C', 'D'];
+            const opts = {};
+            letters.forEach((l, idx) => {
+              opts[l] = q.options[idx]?.text || '';
+            });
+            return {
+              questionType: 'mcq',
+              questionText: q.questionText,
+              marks: q.marks,
+              options: opts,
+              correctAnswer: opts[letters[q.correctAnswer]]
+            };
+          }
+          // subjective
+          return {
+            questionType: 'subjective',
+            questionText: q.questionText,
+            marks: q.marks,
+            subjectiveAnswer: q.expectedAnswer || ''
+          };
+        });
+
+        setTestDetails({
+          testName: t.title,
+          testTime: t.duration,
+          testDescription: t.description,
+          passingMarks: t.passingMarks,
+          questions
+        });
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    ]
-  };
+    };
+
+    fetchTest();
+  }, [id]);
+
+  if (loading) return <Container>Loading mock test...</Container>;
+  if (error) return <Container style={{ color: 'red' }}>{error}</Container>;
+  if (!testDetails) return null;
 
   return (
     <Container>
       <Title>View Mock Test</Title>
       <FormWrapper>
-        {/* Test Details */}
         <FormRowText>
           <FormGroup>
             <Label>Test Name</Label>
             <FieldText>{testDetails.testName}</FieldText>
           </FormGroup>
-
           <FormGroup>
-            <Label>Duration (in minutes)</Label>
+            <Label>Duration (minutes)</Label>
             <FieldText>{testDetails.testTime}</FieldText>
           </FormGroup>
         </FormRowText>
@@ -92,46 +104,35 @@ const ViewMockTest = () => {
 
         <QuestionTitle>Questions</QuestionTitle>
 
-        {testDetails.questions.map((q, index) => (
-          <div key={index} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,   width: '100%' }}>
-            <Label>Question {index + 1}</Label>
-            <FieldMarks> Marks: {q.marks}</FieldMarks>
+        {testDetails.questions.map((q, idx) => (
+          <div key={idx} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Label>Question {idx + 1}</Label>
+              <FieldMarks>Marks: {q.marks}</FieldMarks>
             </div>
 
             <FormGroup>
-              <FieldQusetion> Q: {q.questionText}</FieldQusetion>
+              <FieldQusetion>Q: {q.questionText}</FieldQusetion>
             </FormGroup>
 
-            {q.questionType === 'mcq' && (
-              <>
+            {q.questionType === 'mcq' ? (
+              <>              
                 <FormRow>
-                  <FormGroupList>
-                    <Field> A: {q.options.A}</Field>
-                  </FormGroupList>
-                  <FormGroupList>
-                    <Field>B: {q.options.B}</Field>
-                  </FormGroupList>
-                  <FormGroupList>
-                    <Field> C: {q.options.C}</Field>
-                  </FormGroupList>
-                  <FormGroupList>
-                    <Field>D: {q.options.D}</Field>
-                  </FormGroupList>
+                  {Object.entries(q.options).map(([letter, text]) => (
+                    <FormGroupList key={letter}>
+                      <FieldQusetion>{letter}: {text}</FieldQusetion>
+                    </FormGroupList>
+                  ))}
                 </FormRow>
-                <FormGroupList>
-                  <FieldCorrect> Correct Answer: {q.correctAnswer}</FieldCorrect>
-                </FormGroupList>
+                <FormGroup>
+                  <FieldCorrect>Correct Answer: {q.correctAnswer}</FieldCorrect>
+                </FormGroup>
               </>
-            )}
-
-            {q.questionType === 'subjective' && (
+            ) : (
               <FormGroup>
-                <FieldCorrect> Subjective Answer: {q.subjectiveAnswer}</FieldCorrect>
+                <FieldCorrect>Subjective Answer: {q.subjectiveAnswer}</FieldCorrect>
               </FormGroup>
             )}
-
-
           </div>
         ))}
       </FormWrapper>

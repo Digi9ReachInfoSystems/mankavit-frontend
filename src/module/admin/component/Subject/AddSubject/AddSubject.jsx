@@ -27,6 +27,7 @@ import { getAllNotes } from "../../../../../api/notesApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 import { createSubject } from "../../../../../api/subjectApi";
 import { getAllLectures } from "../../../../../api/lecturesApi";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
 import { set } from "date-fns";
 
 export default function AddSubject() {
@@ -39,11 +40,7 @@ export default function AddSubject() {
 
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
-
-  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock1" },
-    { label: "Mankavit Mock Test – CLAT 2025", checked: false, id: "mock2" }
-  ]);
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
 
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -64,6 +61,39 @@ export default function AddSubject() {
     };
     apiCaller();
   }, []);
+
+
+  useEffect(() => {
+  const apiCaller = async () => {
+    try {
+      const mockTestsResponse = await getAllMocktest();
+
+      if (!mockTestsResponse || !mockTestsResponse.success || !mockTestsResponse.data) {
+        toast.error("Failed to load mock tests");
+        return;
+      }
+
+      // Normalize data
+      const mockTestsArray = Array.isArray(mockTestsResponse.data.docs)
+        ? mockTestsResponse.data.docs
+        : Array.isArray(mockTestsResponse.data)
+          ? mockTestsResponse.data
+          : [];
+
+      const mockTestsData = mockTestsArray.map((item) => ({
+        label: item.title,
+        id: item._id,
+        checked: false,
+      }));
+
+      setMockTestCheckboxes(mockTestsData);
+    } catch (error) {
+      console.error("Error fetching mock tests:", error);
+      toast.error("Error loading mock tests");
+    }
+  };
+  apiCaller();
+}, []);
 
   useEffect(() => {
     const apiCaller = async () => {

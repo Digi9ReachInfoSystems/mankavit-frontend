@@ -15,6 +15,7 @@ import {
 } from "./ViewSubject.styles";
 import { getSubjectById } from "../../../../../api/subjectApi";
 import { getAllNotes } from "../../../../../api/notesApi";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
 import toast from "react-hot-toast";
 import { getAllLectures } from "../../../../../api/lecturesApi";
 
@@ -24,37 +25,74 @@ export default function ViewSubject() {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lectures, setLectures] = useState([]);
+  const [mockTestNames, setMockTestNames ] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subjectRes, notesRes, lecturesRes] = await Promise.all([
+        const [subRes, notesRes, lecsRes, mockRes] = await Promise.all([
           getSubjectById(id),
           getAllNotes(),
-          getAllLectures()
+          getAllLectures(),
+          getAllMocktest(),
         ]);
 
-        console.log("Response subject by id",subjectRes.data);
-
-        const subjectData = subjectRes.data;
+        const subjectData = subRes.data;
         setSubject(subjectData);
 
-        // Get note details for the subject's notes
-        const subjectNotes = subjectData.notes.map(note => 
-          note.noteDisplayName || `Note (${note._id})`
-        );
-        setNotes(subjectNotes);
+        // 1) Build lookup maps
+        const noteMap = {};
+        if (notesRes.success && Array.isArray(notesRes.data)) {
+          notesRes.data.forEach(n => {
+            noteMap[n._id] = n.noteDisplayName || n.title || n.name;
+          });
+        }
 
-        // Get lecture details for the subject's lectures
-        const subjectLectures = subjectData.lectures.map(lecture => 
-          lecture.lectureName || `Lecture (${lecture._id})`
+        const lectureMap = {};
+        if (lecsRes.success && Array.isArray(lecsRes.data)) {
+          lecsRes.data.forEach(l => {
+            lectureMap[l._id] = l.lectureName || l.title;
+          });
+        }
+
+        const mockMap = {};
+        if (mockRes.success && Array.isArray(mockRes.data)) {
+          mockRes.data.forEach(m => {
+            mockMap[m._id] = m.title;
+          });
+        }
+
+        // 2) Turn subjectData.<collection> (array of IDs) into display-name arrays
+        const resolveId = item =>
+          typeof item === "object"
+            ? item._id || item.$oid
+            : item;
+
+        setNotes(
+          (subjectData.notes || []).map(item => {
+            const key = resolveId(item);
+            return noteMap[key] || `Note (${key})`;
+          })
         );
-        setLectures(subjectLectures);
+
+        setLectures(
+          (subjectData.lectures || []).map(item => {
+            const key = resolveId(item);
+            return lectureMap[key] || `Lecture (${key})`;
+          })
+        );
+
+        setMockTestNames(
+          (subjectData.mockTests || []).map(item => {
+            const key = resolveId(item);
+            return mockMap[key] || `Mock Test (${key})`;
+          })
+        );
 
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error('Failed to load subject data');
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load subject data");
         setLoading(false);
       }
     };
@@ -115,15 +153,11 @@ export default function ViewSubject() {
             </CheckboxSection>
           </Column>
           <Column>
-            <CheckboxSection>
+              <CheckboxSection>
               <Label>Mock Tests</Label>
               <CheckboxList>
-                {subject.mockTests?.length > 0 ? (
-                  subject.mockTests.map((test, index) => (
-                    <Field key={index}>
-                      {typeof test === 'object' ? test.id || test.$oid : test}
-                    </Field>
-                  ))
+                {mockTestNames.length > 0 ? (
+                  mockTestNames.map((t, i) => <Field key={i}>{t}</Field>)
                 ) : (
                   <Field>No mock tests associated</Field>
                 )}

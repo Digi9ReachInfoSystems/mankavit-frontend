@@ -29,6 +29,7 @@ import {
 } from "./ContinueCourse.styles";
 import courseImgFallback from "../../assets/courseDetails.png";
 import { getCourseById } from "../../api/courseApi";
+import { getMocktestBySubjectId } from "../../api/mocktestApi";
 import {getCourseByIdWithUSerProgress} from "../../api/userProgressApi";
 import { startCourse, startSubject, startLecturer } from "../../api/userProgressApi";
 import { getCookiesData } from "../../utils/cookiesService";
@@ -44,7 +45,8 @@ const AccordionList = ({
     handleStartSubject, 
     handleStartLecture, 
     completedLectures = [], 
-    completedSubjects = [] 
+    completedSubjects = [],
+    isMockTestTab = false
 }) => (
     <VideoList>
         {data && data.length === 0 && <p style={{ padding: 24 }}>No items found.</p>}
@@ -59,7 +61,7 @@ const AccordionList = ({
                     onClick={async () => {
                         const newIndex = idx === activeIndex ? null : idx;
                         onClick(newIndex);
-                        if (newIndex !== null) {
+                        if (newIndex !== null && !isMockTestTab) {
                             await handleStartSubject(item._id);
                         }
                     }}
@@ -70,7 +72,7 @@ const AccordionList = ({
                         </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {completedSubjects.includes(item._id) && (
+                        {completedSubjects.includes(item._id) && !isMockTestTab && (
                             <FaCheckCircle style={{ color: 'green', marginRight: 10 }} />
                         )}
                         <Playbutton>
@@ -93,8 +95,12 @@ const AccordionList = ({
                                         borderBottom: "1px solid #eee"
                                     }}
                                     onClick={async () => {
-                                        await handleStartLecture(item._id, lecture._id);
-                                        navigate(`/course/liveclass/${courseId}/${lecture._id}`);
+                                        if (isMockTestTab) {
+                                          navigate(`/start-test/${lecture._id}/${item._id}`);
+                                        } else {
+                                            await handleStartLecture(item._id, lecture._id);
+                                            navigate(`/course/liveclass/${courseId}/${lecture._id}`);
+                                        }
                                     }}
                                 >
                                     <div className="video-info" style={{ width: "100%" }}>
@@ -102,7 +108,7 @@ const AccordionList = ({
                                         <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
                                             <p style={{ fontSize: 16, fontWeight: 500 }}>
                                                 {lecture.lectureName}
-                                                {completedLectures.includes(lecture._id) && (
+                                                {!isMockTestTab && completedLectures.includes(lecture._id) && (
                                                     <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
                                                 )}
                                             </p>
@@ -110,7 +116,7 @@ const AccordionList = ({
                                             <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                                                 <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
                                                 <div style={{ fontSize: 14, color: "#007bff", textDecoration: "none" }}>
-                                                    Join Class
+                                                    {isMockTestTab ? "Start Test" : "Join Class"}
                                                 </div>
                                             </div>
                                         </div>
@@ -118,7 +124,7 @@ const AccordionList = ({
                                 </VideoItem>
                             ))
                         ) : (
-                            <div style={{ padding: "16px 8px", color: "#888" }}>No lectures found.</div>
+                            <div style={{ padding: "16px 8px", color: "#888" }}>No {isMockTestTab ? "mock tests" : "lectures"} found.</div>
                         )}
                     </div>
                 )}
@@ -139,6 +145,7 @@ const ContinueCourse = () => {
     const [completedLectures, setCompletedLectures] = useState([]);
     const [completedSubjects, setCompletedSubjects] = useState([]);
     const [progressData, setProgressData] = useState(null);
+    const [mockTestsBySubject, setMockTestsBySubject] = useState({});
 
     useEffect(() => {
         const init = async () => {
@@ -183,6 +190,17 @@ const ContinueCourse = () => {
         init();
     }, [id]);
 
+    const fetchMockTestsForSubject = async (subjectId) => {
+        try {
+            const response = await getMocktestBySubjectId(subjectId);
+            console.log("Mock tests for subject:", response.data);
+            return response.data || [];
+        } catch (error) {
+            console.error("Error fetching mock tests:", error);
+            return [];
+        }
+    };
+
     const handleStartCourse = async () => {
         if (!userId || !course?._id) return;
         try {
@@ -223,7 +241,7 @@ const ContinueCourse = () => {
         return stars;
     };
 
-    const getAccordionData = () => {
+    const getAccordionData = async () => {
         if (!course) return { Subjects: [], "Mock Test": [], "Recorded Class": [] };
 
         const subjects = (course.subjects || []).map(subject => ({
@@ -238,24 +256,47 @@ const ContinueCourse = () => {
             }))
         }));
 
-        const mockTests = (course.mockTests || []).map((test, idx) => ({
-            name: test.title || `Mock Test ${idx + 1}`,
-            lectures: [{
-                lectureName: test.title,
-                description: test.description || "Mock test for practice",
-                duration: `${test.totalQuestions || "N/A"} Qs | ${test.duration || "N/A"}`,
-                videoUrl: "#"
-            }]
-        }));
+        // For Mock Test tab, we'll show subjects with their mock tests
+        let mockTestData = [];
+        if (course.subjects && course.subjects.length > 0) {
+            mockTestData = await Promise.all(course.subjects.map(async (subject) => {
+                const mockTests = await fetchMockTestsForSubject(subject._id);
+                return {
+                    _id: subject._id,
+                    name: subject.subjectName || "Subject",
+                    lectures: mockTests.map((test, idx) => ({
+                        _id: test._id,
+                        lectureName: test.title || `Mock Test ${idx + 1}`,
+                        description: test.description || "Mock test for practice",
+                        duration: `${test.totalQuestions || "N/A"} Questions | ${test.duration || "N/A"} mins`,
+                        videoUrl: "#"
+                    }))
+                };
+            }));
+        }
 
         const recordedClasses = subjects; // same structure reused
 
         return {
             Subjects: subjects,
-            "Mock Test": mockTests,
+            "Mock Test": mockTestData,
             "Recorded Class": recordedClasses,
         };
     };
+
+    const [accordionData, setAccordionData] = useState({
+        Subjects: [],
+        "Mock Test": [],
+        "Recorded Class": []
+    });
+
+    useEffect(() => {
+        if (course) {
+            getAccordionData().then(data => {
+                setAccordionData(data);
+            });
+        }
+    }, [course, activeTab]);
 
     const calculateProgress = () => {
         if (!progressData || !progressData.subjects) return 0;
@@ -352,7 +393,7 @@ const ContinueCourse = () => {
                     </TabSection>
 
                     <AccordionList
-                        data={getAccordionData()[activeTab]}
+                        data={accordionData[activeTab]}
                         activeIndex={activeAccordion}
                         onClick={setActiveAccordion}
                         navigate={navigate}
@@ -361,6 +402,7 @@ const ContinueCourse = () => {
                         handleStartLecture={handleStartLecture}
                         completedLectures={completedLectures}
                         completedSubjects={completedSubjects}
+                        isMockTestTab={activeTab === 'Mock Test'}
                     />
                 </>
             )}

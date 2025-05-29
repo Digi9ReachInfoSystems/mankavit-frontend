@@ -224,4 +224,12 @@ export const FieldText = styled.p`
   box-sizing: border-box;
 `;
 
-
+// export const FormGroupList = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   gap: ${(props) => props.theme.spacing(1)};
+//   width: 100%;
+//   margin-bottom: ${(props) => props.theme.spacing(1)};
+//   align-items: center;
+//   justify-content: center;
+// `;

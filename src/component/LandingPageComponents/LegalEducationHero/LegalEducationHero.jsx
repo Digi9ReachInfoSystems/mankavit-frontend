@@ -16,6 +16,7 @@ import {
   StatsDescription,
 } from './LegalEducationHero.styles';
 import heroImage from '../../../assets/LandingBannerImag.png'; // Adjust the path as needed
+import { Link } from 'react-router-dom';
 
 const LegalEducationHero = () => {
   return (
@@ -27,11 +28,15 @@ const LegalEducationHero = () => {
             Ace exams like CLAT, AILET, and DU LL.M. with expert coaching and comprehensive resources.
           </SubTitle>
           <ButtonsGroup>
-            <StartButton>Get Started</StartButton>
+        <Link to="/login">
+          <StartButton>Start Now</StartButton>
+        </Link>
+          <Link to="/ourcourses">
             <ExploreButton>Explore Courses</ExploreButton>
+          </Link>
           </ButtonsGroup>
         </LeftContent>
-        <Circle> </Circle>
+        <Circle> </Circle>     
         <SecCircle> </SecCircle>
         <RightImage>
           <img src={heroImage} alt="Law Education Illustration" />
