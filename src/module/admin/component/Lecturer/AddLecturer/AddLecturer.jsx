@@ -16,12 +16,14 @@ import {
   SubmitButton,
   VideoControl
 } from "./AddLecturer.styles";
-import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { createLecture } from "../../../../../api/lecturesApi";
 import { getAllCourses } from "../../../../../api/courseApi";
 import { getSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddLecturer() {
   const [lectureName, setLectureName] = useState("");
@@ -52,6 +54,7 @@ export default function AddLecturer() {
       } catch (error) {
         toast.error("Failed to fetch data");
         console.error("Error fetching data:", error);
+
       } finally {
         setIsLoading(false);
       }
@@ -78,6 +81,7 @@ export default function AddLecturer() {
     e.preventDefault();
     if (!lectureName || !duration || !description || !videoFile) {
       toast.error("Please fill all required fields!");
+
       return;
     }
 
@@ -110,8 +114,11 @@ export default function AddLecturer() {
       };
 
       const response = await createLecture(submissionData);
-      toast.success("Lecture created successfully!");
-      navigate("/admin/lecturer-management");
+
+      toast.success("Lecture created successfully");
+      setTimeout(() => {
+        navigate("/admin/lectures");
+      }, 3000);
 
       setLectureName("");
       setDuration("");
@@ -222,6 +229,19 @@ export default function AddLecturer() {
           </SubmitButton>
         </FormRow>
       </FormWrapper>
+      
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
     </Container>
   );
 }
