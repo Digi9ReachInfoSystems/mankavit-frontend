@@ -30,7 +30,9 @@ import { useNavigate } from "react-router-dom";
 import { Select, Space } from "antd";
 import { getAllCourses, deleteCourseById } from "../../../../api/courseApi";
 import { IoEyeOutline } from "react-icons/io5";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -117,12 +119,12 @@ export default function CoursesTable() {
   const handleConfirmDelete = async () => {
     try {
       await deleteCourseById(selectedCourse);
-      toast.success("Course deleted successfully");
+      toast.success("Data deleted successfully");
       // Refresh the course list after deletion
       await fetchCourses();
     } catch (error) {
       console.error("Error deleting course:", error);
-      toast.error("Failed to delete course");
+      toast.error("Failed to delete data. Please try again.");
     } finally {
       setDeleteModalOpen(false);
       setSelectedCourse(null);
@@ -175,6 +177,20 @@ export default function CoursesTable() {
 
   return (
     <>
+
+    <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme='colored'
+          />
+    
       <ButtonContainer>
         <CreateButton onClick={() => navigate("/admin/course-management/create")}>
           Add Course

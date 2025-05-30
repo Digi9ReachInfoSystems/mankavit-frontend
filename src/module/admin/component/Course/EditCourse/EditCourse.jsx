@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+// import toast, { Toaster } from "react-hot-toast";
 import { Select } from "antd";
 import uplaod from "../../../../../assets/upload.png";
 import {
@@ -13,6 +13,9 @@ import { getSubjects } from "../../../../../api/subjectApi";
 import { getCategories } from "../../../../../api/categoryApi";
 import { updateCourseById, getCourseById } from "../../../../../api/courseApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 export default function EditCourse() {
   const { id } = useParams();
@@ -165,11 +168,11 @@ export default function EditCourse() {
       };
       
       await updateCourseById(id, payload);
-      toast.success("Course updated successfully");
-      setTimeout(() => navigate("/admin/course-management"), 1500);
+      toast.success("Data updated successfully");
+      setTimeout(() => navigate("/admin/course-management"), 5000);
     } catch (err) {
       console.error(err);
-      toast.error("Course update failed.");
+      toast.error("Failed to update data. Please try again.");
     }
   };
 
@@ -189,7 +192,20 @@ export default function EditCourse() {
 
   return (
     <Container>
-      <Toaster />
+      
+       <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
+
       <Title>Edit Course</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Course Title & Course Internal Title */}

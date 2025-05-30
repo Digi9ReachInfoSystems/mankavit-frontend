@@ -23,13 +23,16 @@ import {
   SubmitButton,
   ToggleSwitch,
 } from "../AddCourse/AddCourse.style"; // Adjust the path if needed
-import toast, { Toaster } from "react-hot-toast";
+// import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { getSubjects } from "../../../../../api/subjectApi";
 import { Select } from "antd";
 import { getCategories } from "../../../../../api/categoryApi";
 import { createCourse } from "../../../../../api/courseApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 export default function AddCourse() {
   // State for form fields (existing)
@@ -195,7 +198,7 @@ const handleSubmit = async (e) => {
 
     const createCourseResponse = await createCourse(payload);
     if (createCourseResponse) {
-      toast.success("Course created successfully.");
+      toast.success("Data created successfully.");
      
         // reset form
         setInternalTitle("");
@@ -221,17 +224,30 @@ const handleSubmit = async (e) => {
         setMockTestCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
         setThumbnailFile(null);
         setPreviewUrl(null);
-        setTimeout(() => navigate("/admin/course-management"), 2000);
+        setTimeout(() => navigate("/admin/course-management"), 5000);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Course creation failed.");
+      toast.error("Failed to create data. Please try again.");
     }
   };
 
   return (
     <Container>
-      <Toaster />
+      
+          <ToastContainer
+                 position="top-right"
+                 autoClose={5000}
+                 hideProgressBar={false}
+                 newestOnTop={false}
+                 closeOnClick
+                 rtl={false}
+                 pauseOnFocusLoss
+                 draggable
+                 pauseOnHover
+                 theme='colored'
+               />
+
       <Title>Add Course</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Course Title & Course Internal Title */}
