@@ -17,6 +17,10 @@ import uploadIcon from '../../../../../../assets/upload.png';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { getMissionById, updateMissionById } from '../../../../../../api/missionApi';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 const EditMission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,6 +41,7 @@ const EditMission = () => {
       } catch (err) {
         console.error('Error fetching mission:', err);
         setError('Failed to load mission. Please try again.');
+          toast.error('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -93,11 +98,14 @@ const EditMission = () => {
         image: imageUrl,
       };
       await updateMissionById(id, payload);
-      navigate('/admin/web-management/mission');
+      toast.success('Data updated successfully!');
+      setTimeout(() => navigate('/admin/web-management/mission'), 5000);
+
     } catch (err) {
       console.error('Error updating mission:', err.response || err);
       const serverMsg = err.response?.data?.message || err.message;
       setError(serverMsg || 'Failed to update mission. Please try again.');
+      toast.error('Failed to update data. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -165,6 +173,19 @@ const EditMission = () => {
       <UploadButton onClick={handleSubmit} disabled={submitting}>
         {submitting ? 'Updating...' : 'Update Mission'}
       </UploadButton>
+
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 };

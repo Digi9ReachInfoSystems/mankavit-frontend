@@ -16,6 +16,8 @@ import uploadIcon from '../../../../../../assets/upload.png';
 import { useNavigate } from 'react-router-dom';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { createMission } from '../../../../../../api/missionApi';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddMission = () => {
   const navigate = useNavigate();
@@ -34,11 +36,11 @@ const AddMission = () => {
     if (!file) return;
 
     if (!file.type.match('image.*')) {
-      setError('Please upload a valid image file.');
+      toast.error('Please upload a valid image file.');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB.');
+      toast.warning('Image size should be less than 5MB.');
       return;
     }
 
@@ -53,13 +55,12 @@ const AddMission = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (!formData.title.trim() || !formData.description.trim()) {
-      setError('Title and Description are required.');
+      toast.error('Title and Description are required.');
       return;
     }
     if (!formData.image) {
-      setError('Please select an image.');
+      toast.error('Please select an image.');
       return;
     }
 
@@ -67,12 +68,9 @@ const AddMission = () => {
     setLoading(true);
 
     try {
-      // 1. Upload image to Azure and get URL
       const uploadResponse = await uploadFileToAzureStorage(formData.image, 'mission');
-      // Use blobUrl returned from Azure
       const imageUrl = uploadResponse.blobUrl || uploadResponse.url || uploadResponse.fileUrl;
 
-      // 2. Create mission record with string URL
       const missionPayload = {
         title: formData.title,
         description: formData.description,
@@ -80,11 +78,12 @@ const AddMission = () => {
       };
 
       await createMission(missionPayload);
-      navigate('/admin/web-management/mission');
+      toast.success('Data created successfully!');
+      setTimeout(() => navigate('/admin/web-management/mission'), 3000);
     } catch (err) {
       console.error('Error creating mission:', err.response || err);
       const serverMsg = err.response?.data?.message || err.message;
-      setError(serverMsg || 'Failed to create mission. Please try again.');
+      toast.error(serverMsg || 'Failed to create data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -92,6 +91,18 @@ const AddMission = () => {
 
   return (
     <Container>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <Title>Add Mission</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -99,27 +110,23 @@ const AddMission = () => {
       <Input
         name="title"
         value={formData.title}
-      onChange={(e)=>
-      {
-        const filteredData = e.target.value.replace(/[^a-zA-Z]/g, '');
-        setFormData((prev) => ({ ...prev, title: filteredData }));
-      }
-      }
-        placeholder="Enter  title"
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z ]/g, '');
+          setFormData((prev) => ({ ...prev, title: filteredData }));
+        }}
+        placeholder="Enter title"
       />
 
       <Label>Mission Description *</Label>
       <TextArea
         name="description"
         value={formData.description}
-      onChange={(e)=>
-      {
-        const filteredData = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
-        setFormData((prev) => ({ ...prev, description: filteredData }));
-      }
-      }
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z0-9 ]/g, '');
+          setFormData((prev) => ({ ...prev, description: filteredData }));
+        }}
         rows={5}
-        placeholder="Enter  description"
+        placeholder="Enter description"
       />
 
       <Label>Upload Mission Image *</Label>

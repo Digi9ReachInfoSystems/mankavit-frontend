@@ -26,6 +26,10 @@ import { getAllfaqs, deleteFaqById } from "../../../../../api/faqApi";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import Pagination from "../../../component/Pagination/Pagination";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,10 +61,12 @@ const FAQ = () => {
           console.error("Unexpected FAQ format:", data);
           setFaqs([]);
           setError("Unexpected response format");
+          toast.error("Unexpected response format from server");
         }
       } catch (err) {
         console.error("Error fetching FAQs:", err);
         setError("Failed to load FAQs");
+        toast.error("Failed to load FAQs");
       } finally {
         setLoading(false);
       }
@@ -84,8 +90,10 @@ const FAQ = () => {
     try {
       await deleteFaqById(faqToDelete._id);
       setFaqs((prev) => prev.filter((f) => f._id !== faqToDelete._id));
+      toast.success("Data deleted successfully.");
     } catch {
-      alert("Failed to delete FAQ");
+      // alert("Failed to delete FAQ");
+      toast.error("Failed to delete data. Please try again.");
     } finally {
       setIsDeleteOpen(false);
       setFaqToDelete(null);
@@ -200,6 +208,18 @@ const FAQ = () => {
           onDelete={handleDelete}
         />
       )}
+
+            <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </FAQContainer>
   );
 };
