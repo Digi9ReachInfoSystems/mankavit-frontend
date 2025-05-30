@@ -1,21 +1,6 @@
 import styled from 'styled-components';
 import theme from '../../../../../theme/Theme';
 
-export const BtnAchieve = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  flex-wrap: wrap;
-  margin-top: 20px;
-
-//   @media (max-width: 480px) {
-//     margin-top:0;
-//   }
-
-
-`;
-
 export const Title = styled.h2`
   font-size: 18px;
   font-weight: 700;
@@ -23,50 +8,6 @@ export const Title = styled.h2`
   color: ${props => props.theme.colors.blueishblack};
 `;
 
-export const AddButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(to right, #0dcaf0, #007bff);
-  border: none;
-  color: white;
-  padding: 15px 40px;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s ease;
-  width:15%;
-justify-content: center;
-
-
-  &:hover {
-    background-color: #007ecc;
-  }
-
-  
-  @media (max-width: 1024px) {
-    width: 25%;
-  }
-      @media (max-width: 768px) {
-      margin-right: 20px;
-      width: 40%;
-  }
-
-  @media (max-width: 480px) {
-    padding: 15px 20px;
-    font-size: 14px;
-    width: 50%;
-
-  }
-`;
-
-export const Label = styled.p`
-font-size: 16px;
-font-weight: 400;
-color: #2A2A2A;
-margin-top: 5px;
-margin-bottom: 10px;
-`;
 
 export const Container = styled.div`
 position: relative; 
@@ -92,45 +33,9 @@ margin-top: 20px;
     padding: ${(props) => props.theme.spacing(1)};
   }
 `;
-
-export const Input = styled.input`
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
-  color: #AEAEAE;
-  outline: none;
-
-  &::placeholder {
-  color: #AEAEAE;
-  }
-`;
-
 export const TableHead = styled.thead`
   background: ${theme.colors.backgrounGrey};
 `;
-
-
-export const TextArea = styled.textarea`
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
-  color: #AEAEAE;
-  resize: none;
-  outline: none;
-
-  &::placeholder {
-  color: #AEAEAE;
-  }
-`;
-
 export const TableWrapper = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.secondary};
@@ -173,10 +78,63 @@ export const Td = styled.td`
   white-space: nowrap;
   border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
-  //    &:nth-child(2) {
-  //   width: 80%;
-  //   white-space: normal; /* allow text to wrap inside description */
-  //   word-break: break-word;
-  // }
  
 `;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+`;
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+export const ModalContent = styled.div`
+  background: white;
+  padding: 2rem;
+  width: 500px;
+  border-radius: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+`;
+
+export const ModalHeader = styled.h2`
+  margin-top: 0;
+  margin-bottom: 1rem;
+`;
+
+export const ModalBody = styled.p`
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+`;
+
+export const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+export const Button = styled.button`
+  padding: 0.5rem 1.2rem;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+

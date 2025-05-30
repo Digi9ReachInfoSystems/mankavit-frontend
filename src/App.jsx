@@ -118,6 +118,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ViewUser from './module/admin/component/MockTestComponents/ViewUser/ViewUser'
 import ViewUserResults from './module/admin/component/MockTestComponents/ViewUserResults/ViewUserResults'
 import CreateKYC from './module/user/component/CreateKYC/CreateKYC'
+import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStudentFeedback/ViewStudentFeedback'
 function App() {
 
   return (
@@ -274,6 +275,7 @@ function App() {
             <Route path="web-management/contact-support" element={<ContactSupportView />} />
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
+            <Route path= "web-management/user-feedback/view/view-student-feedback" element={<ViewStudentFeedback />} />
             
           </Route>
 
