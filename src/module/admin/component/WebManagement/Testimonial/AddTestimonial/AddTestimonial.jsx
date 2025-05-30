@@ -24,6 +24,8 @@ import { createTestimonials } from '../../../../../../api/testimonialApi';
 import { getAllCourses } from '../../../../../../api/courseApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddTestimonial = () => {
   const [formData, setFormData] = useState({
@@ -62,6 +64,7 @@ const AddTestimonial = () => {
         setCoursesCheckboxes(checkboxes);
       } catch (error) {
         console.error("Error fetching courses:", error);
+        toast.error("Failed to fetch courses");
       }
     };
     apiCaller();
@@ -73,11 +76,13 @@ const AddTestimonial = () => {
       // Validate image
       if (!file.type.match('image.*')) {
         setError('Please upload an image file');
+        toast.error('Please upload an image file');
         return;
       }
       
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
         setError('Image size should be less than 5MB');
+        toast.warn('Image size should be less than 5MB');
         return;
       }
 
@@ -95,6 +100,7 @@ const AddTestimonial = () => {
   const handleSubmit = async () => {
     if (!formData.studentName || !formData.course || !formData.testimonialDetails || !formData.image) {
       setError('Please fill all fields and upload an image');
+      toast.error('Please fill all fields and upload an image');
       return;
     }
   
@@ -119,14 +125,17 @@ const AddTestimonial = () => {
   
       const testimonialResponse = await createTestimonials(payload);
       console.log("Testimonial created:", testimonialResponse);
-  
-      navigate("/admin/web-management/testinomial", {
+      toast.success('Data added successfully');
+      setTimeout(() => {
+              navigate("/admin/web-management/testinomial", {
         state: { success: true }
-      });
+      }), 3000
+      })
   
     } catch (error) {
       console.error("Error uploading testimonial:", error);
       setError(error.message || 'Something went wrong. Please try again.');
+      toast.error(error.message || 'Failed to add data. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -211,6 +220,18 @@ const AddTestimonial = () => {
       >
         {isUploading ? "Uploading..." : "Upload Testimonial"}
       </UploadButton>
+
+                  <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 };

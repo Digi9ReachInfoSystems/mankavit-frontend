@@ -22,6 +22,9 @@ import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { getMissions, deleteMissionById } from "../../../../../api/missionApi";
 import { IoEyeOutline } from "react-icons/io5";
 
+import { toast, ToastContainer } from "react-toastify";  // <-- import toastify
+import "react-toastify/dist/ReactToastify.css";
+
 const ITEMS_PER_PAGE = 10;
 
 const AdminMission = () => {
@@ -44,7 +47,9 @@ const AdminMission = () => {
       setError(null);
     } catch (err) {
       console.error("Error fetching missions:", err);
-      setError("Failed to load missions. Please try again.");
+      const errMsg = "Failed to load missions. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg); // <-- toast error
     } finally {
       setLoading(false);
     }
@@ -68,9 +73,12 @@ const AdminMission = () => {
       await deleteMissionById(selectedId);
       setMissions((prev) => prev.filter((item) => item._id !== selectedId));
       setError(null);
+      toast.success("Data deleted successfully!");  // <-- success toast
     } catch (err) {
       console.error("Error deleting mission:", err);
-      setError("Failed to delete mission. Please try again.");
+      const errMsg = "Failed to delete data. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg);  // <-- error toast
     } finally {
       setDeleteModalOpen(false);
       setSelectedId(null);
@@ -91,6 +99,10 @@ const AdminMission = () => {
 
   // Open image modal
   const handleViewImage = (imageUrl) => {
+    if (!imageUrl) {
+      toast.warning("No image to display."); // just a precautionary warning toast
+      return;
+    }
     setSelectedImage(imageUrl);
     setModal(true);
   };
@@ -103,6 +115,18 @@ const AdminMission = () => {
 
   return (
     <>
+            <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <BtnAchieve>
         <AddButton onClick={handleAdd}>Add Mission</AddButton>
       </BtnAchieve>
@@ -182,13 +206,13 @@ const AdminMission = () => {
           )}
         </TableWrapper>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={totalItems}
-            itemsPerPage={ITEMS_PER_PAGE}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
       </Container>
 
       <DeleteModal
@@ -210,4 +234,3 @@ const AdminMission = () => {
 };
 
 export default AdminMission;
-  

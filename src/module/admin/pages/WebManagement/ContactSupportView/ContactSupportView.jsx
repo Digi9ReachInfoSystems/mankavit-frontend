@@ -2,9 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoEyeOutline, IoTrashOutline } from "react-icons/io5";
-import { getAllSupport, deleteSupportById, updateSupportById} from "../../../../../api/supportApi";
+import { getAllSupport, deleteSupportById, updateSupportById } from "../../../../../api/supportApi";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import Pagination from "../../../component/Pagination/Pagination";
+
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import {
   Container,
@@ -27,7 +30,6 @@ import {
 
 const ITEMS_PER_PAGE = 10;
 
-
 const ContactSupportView = () => {
   const navigate = useNavigate();
   const [supports, setSupports] = useState([]);
@@ -39,30 +41,30 @@ const ContactSupportView = () => {
   const [loading, setLoading] = useState(true);
   const [updateLoading, setUpdateLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchSupports = async () => {
+      try {
+        const response = await getAllSupport();
+        console.log("API Response:", response); // Debug log
 
-useEffect(() => {
-  const fetchSupports = async () => {
-    try {
-      const response = await getAllSupport();
-      console.log("API Response:", response); // Debug log
-      
-      // The response is directly the array of support tickets
-      if (Array.isArray(response)) {
-        setSupports(response);
-      } else {
-        console.error("Unexpected response format:", response);
-        setSupports([]);
+        if (Array.isArray(response)) {
+          setSupports(response);
+          toast.success("Support tickets loaded successfully");
+        } else {
+          console.error("Unexpected response format:", response);
+          toast.error("Unexpected response format from server");
+          setSupports([]);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching supports:", error);
+        toast.error("Failed to load support tickets");
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching supports:", error);
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchSupports();
-}, []);
-
+    fetchSupports();
+  }, []);
 
   const totalItems = supports.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -82,26 +84,27 @@ useEffect(() => {
   const handleDeleteConfirm = async () => {
     try {
       await deleteSupportById(selectedId);
-      setSupports(supports.filter(support => support._id !== selectedId));
+      setSupports(supports.filter((support) => support._id !== selectedId));
+      toast.success("Support ticket deleted successfully");
       setDeleteModalOpen(false);
     } catch (error) {
       console.error("Error deleting support:", error);
+      toast.error("Failed to delete support ticket");
     }
   };
 
   const getStatusBadgeColor = (status) => {
-    if (!status) return '#9e9e9e';
-    
+    if (!status) return "#9e9e9e";
+
     switch (status.toLowerCase()) {
-      case 'open':
-        return '#ff9800'; // orange
-      case 'in progress':
-        return '#2196f3'; // blue
-     
-      case 'closed':
-        return '#4caf50'; // gray
+      case "open":
+        return "#ff9800"; // orange
+      case "in progress":
+        return "#2196f3"; // blue
+      case "closed":
+        return "#4caf50"; // green
       default:
-        return '#9e9e9e'; // default gray
+        return "#9e9e9e"; // default gray
     }
   };
 
@@ -109,37 +112,35 @@ useEffect(() => {
     return <Container>Loading...</Container>;
   }
 
-const handleUpdateStatus = async (newStatus) => {
-  if (!selectedSupport) return;
+  const handleUpdateStatus = async (newStatus) => {
+    if (!selectedSupport) return;
 
-  setUpdateLoading(true);
-  try {
-    // Prepare update data — only sending { status: newStatus }
-    const updatedData = { status: newStatus };
+    if (selectedSupport.status?.toLowerCase() === newStatus.toLowerCase()) {
+      toast.warning(`Support ticket is already marked as ${newStatus}`);
+      return;
+    }
 
-    const updatedSupport = await updateSupportById(selectedSupport._id, updatedData);
+    setUpdateLoading(true);
+    try {
+      const updatedData = { status: newStatus };
+      const updatedSupport = await updateSupportById(selectedSupport._id, updatedData);
 
-    // Update the supports array with updatedSupport
-    setSupports((prevSupports) =>
-      prevSupports.map((support) =>
-        support._id === updatedSupport._id ? updatedSupport : support
-      )
-    );
+      setSupports((prevSupports) =>
+        prevSupports.map((support) =>
+          support._id === updatedSupport._id ? updatedSupport : support
+        )
+      );
 
-    // Also update the modal data (optional since modal will close)
-    setSelectedSupport(updatedSupport);
-
-    // Close the modal after successful update
-    setModalOpen(false);
-
-    setUpdateLoading(false);
-  } catch (error) {
-    console.error("Error updating support status:", error);
-    setUpdateLoading(false);
-  }
-};
-
-
+      setSelectedSupport(updatedSupport);
+      toast.success(`Support ticket marked as ${newStatus}`);
+      setModalOpen(false);
+      setUpdateLoading(false);
+    } catch (error) {
+      console.error("Error updating support status:", error);
+      toast.error("Failed to update support status");
+      setUpdateLoading(false);
+    }
+  };
 
   return (
     <>
@@ -162,11 +163,11 @@ const handleUpdateStatus = async (newStatus) => {
                 <tbody>
                   {currentPageData.map((item) => (
                     <tr key={item._id}>
-                      <Td>{item.userRef?.email || 'N/A'}</Td>
+                      <Td>{item.userRef?.email || "N/A"}</Td>
                       <Td>{item.description?.slice(0, 50)}...</Td>
                       <Td>
                         <StatusBadge color={getStatusBadgeColor(item.status)}>
-                          {item.status || 'N/A'}
+                          {item.status || "N/A"}
                         </StatusBadge>
                       </Td>
                       <Td>
@@ -199,67 +200,82 @@ const handleUpdateStatus = async (newStatus) => {
           </>
         )}
       </Container>
-{modalOpen && selectedSupport && (
-   <ImageModalOverlay
-    onClick={(e) => {
-      // Close modal only if click is on the overlay, not inside modal content
-      if (e.target === e.currentTarget) {
-        setModalOpen(false);
-      }
-    }}
-  >
-    <ImageModalContent>
-      <CloseButton onClick={() => setModalOpen(false)}> &times;</CloseButton>
-      <ViewContainer>
-        <Heading>View Contact Support Details</Heading>
-        <ViewTitle>
-          <strong style={{marginRight: "10px", fontWeight: "600"}}>Email: </strong> 
-          {selectedSupport.userRef?.email || 'N/A'}
-        </ViewTitle>
-        <ViewTitle>
-          <strong style={{marginRight: "10px", fontWeight: "600"}}>Status: </strong>
-          <StatusBadge color={getStatusBadgeColor(selectedSupport.status)}>
-            {selectedSupport.status || 'N/A'}
-          </StatusBadge>
-        </ViewTitle>
-        <ViewDescription>
-          <strong style={{marginRight: "10px", fontWeight: "600"}}>Description: </strong>
-          {selectedSupport.description || 'N/A'}
-        </ViewDescription>
-        <ViewTitle>
-          <strong style={{marginRight: "10px", fontWeight: "600"}}>Created At: </strong>
-          {selectedSupport.createdAt ? new Date(selectedSupport.createdAt).toLocaleString() : 'N/A'}
-        </ViewTitle>
 
-        {/* Buttons to update status */}
-        <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-          <button
-            disabled={updateLoading || selectedSupport.status?.toLowerCase() === "closed"}
-            onClick={() => handleUpdateStatus("closed")}
-            style={{
-              padding: "8px 16px",
-              background: "#4CAF50",
-              color: "#fff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              transition: "background-color 0.3s ease",
-              opacity: updateLoading || selectedSupport.status?.toLowerCase() === "closed" ? 0.5 : 1,
-            }}
-          >
-            Mark as Closed
-          </button>
+      {modalOpen && selectedSupport && (
+        <ImageModalOverlay
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setModalOpen(false);
+            }
+          }}
+        >
+          <ImageModalContent>
+            <CloseButton onClick={() => setModalOpen(false)}> &times;</CloseButton>
+            <ViewContainer>
+              <Heading>View Contact Support Details</Heading>
+              <ViewTitle>
+                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Email: </strong>
+                {selectedSupport.userRef?.email || "N/A"}
+              </ViewTitle>
+              <ViewTitle>
+                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Status: </strong>
+                <StatusBadge color={getStatusBadgeColor(selectedSupport.status)}>
+                  {selectedSupport.status || "N/A"}
+                </StatusBadge>
+              </ViewTitle>
+              <ViewDescription>
+                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Description: </strong>
+                {selectedSupport.description || "N/A"}
+              </ViewDescription>
+              <ViewTitle>
+                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Created At: </strong>
+                {selectedSupport.createdAt
+                  ? new Date(selectedSupport.createdAt).toLocaleString()
+                  : "N/A"}
+              </ViewTitle>
 
-        </div>
-      </ViewContainer>
-    </ImageModalContent>
-  </ImageModalOverlay>
-)}
+              {/* Buttons to update status */}
+              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+                <button
+                  disabled={updateLoading || selectedSupport.status?.toLowerCase() === "closed"}
+                  onClick={() => handleUpdateStatus("closed")}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#4CAF50",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    transition: "background-color 0.3s ease",
+                    opacity:
+                      updateLoading || selectedSupport.status?.toLowerCase() === "closed" ? 0.5 : 1,
+                  }}
+                >
+                  Mark as Closed
+                </button>
+              </div>
+            </ViewContainer>
+          </ImageModalContent>
+        </ImageModalOverlay>
+      )}
 
       <DeleteModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onDelete={handleDeleteConfirm}
+      />
+
+      {/* Toast Container must be added once in your app */}
+            <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
       />
     </>
   );

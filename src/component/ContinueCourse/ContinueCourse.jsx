@@ -203,6 +203,7 @@ const ContinueCourse = () => {
             return [];
         }
     };
+    
 
     const handleStartCourse = async () => {
         if (!userId || !course?._id) return;

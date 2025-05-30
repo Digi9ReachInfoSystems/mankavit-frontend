@@ -28,6 +28,9 @@ import {
   deleteQuestionPaper
 } from "../../../../../api/questionPaperApi";
 import { notification } from "antd";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -75,16 +78,10 @@ const QuestionPaper = () => {
       setLoading(true);
       await deleteQuestionPaper(deleteId);
       setData((prev) => prev.filter((item) => item._id !== deleteId));
-      notification.success({
-        message: "Success",
-        description: "Question paper deleted successfully"
-      });
+      toast.success("Data deleted successfully");
     } catch (error) {
       console.error("Error deleting question paper:", error);
-      notification.error({
-        message: "Error",
-        description: "Failed to delete question paper"
-      });
+      toast.error("Failed to delete. Please try again");
     } finally {
       setModal(false);
       setDeleteId(null);
@@ -98,6 +95,21 @@ const QuestionPaper = () => {
 
   return (
     <>
+
+     <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme='colored'
+          />
+
+
       <ButtonContainer>
         <CreateButton onClick={() => navigate("/admin/web-management/question-paper/create")}>
           Add Question Paper

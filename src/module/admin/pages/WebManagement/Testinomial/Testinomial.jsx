@@ -30,6 +30,9 @@ import {
 import { format } from 'date-fns'; // Import date-fns for formatting
 import { IoEyeOutline } from "react-icons/io5";
 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -52,9 +55,12 @@ const Testimonial = () => {
       const res = await getAlltestimonials();
       setData(res);
       console.log("Fetched testimonials:", res); // Log the response to see the data structure
+  
     } catch (err) {
       console.error("Failed to fetch testimonials", err);
+      toast.error("Failed to fetch testimonials");
     }
+
   };
 
   const handleDelete = (id) => {
@@ -71,8 +77,11 @@ const Testimonial = () => {
         currentPage > newTotalPages ? newTotalPages : currentPage;
       setData(updatedData);
       setCurrentPage(newCurrentPage);
+      toast.success("Testimonial deleted successfully");
+
     } catch (error) {
       console.error("Failed to delete testimonial", error);
+      toast.error("Failed to delete testimonial");
     } finally {
       setModal(false);
       setDeleteId(null);
@@ -208,6 +217,20 @@ const Testimonial = () => {
           </ModalContent>
         </ModalOverlay>
       )}
+
+      
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
     </>
   );
 };

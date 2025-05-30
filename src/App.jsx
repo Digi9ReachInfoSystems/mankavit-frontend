@@ -118,6 +118,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import ViewUser from './module/admin/component/MockTestComponents/ViewUser/ViewUser'
 import ViewUserResults from './module/admin/component/MockTestComponents/ViewUserResults/ViewUserResults'
 import CourseCompletionPage from './component/CourseCompletionPage/CourseCompletionPage'
+import CreateKYC from './module/user/component/CreateKYC/CreateKYC'
+import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStudentFeedback/ViewStudentFeedback'
 function App() {
 
   return (
@@ -152,6 +154,9 @@ function App() {
           <Route path='/test-submitted' element={<TestsubmittedPage />} />
           <Route path='/exam-summary' element={<ExamSummary />} />
           <Route path='/test-results/:testId/:subjectId/:attemptId' element={<TestResults />} />
+
+
+          <Route path='/createkyc' element={<CreateKYC />} />
 
 
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
@@ -272,6 +277,7 @@ function App() {
             <Route path="web-management/contact-support" element={<ContactSupportView />} />
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
+            <Route path= "web-management/user-feedback/view/view-student-feedback" element={<ViewStudentFeedback />} />
             
           </Route>
 

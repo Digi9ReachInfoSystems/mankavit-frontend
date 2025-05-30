@@ -1,5 +1,3 @@
-// src/pages/Admin/WebManagement/WhyStudyWithUs/AddWhyStudyWithUs.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +18,9 @@ import {
 import uploadIcon from '../../../../../../assets/upload.png';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { createWhy } from '../../../../../../api/whyApi';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddWhyStudyWithUs = () => {
   const navigate = useNavigate();
@@ -43,10 +44,12 @@ const AddWhyStudyWithUs = () => {
 
     if (!file.type.match('image.*')) {
       setError('Please upload a valid image file.');
+      toast.warn('Please upload a valid image file.');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
       setError('Image size should be less than 5MB.');
+      toast.warn('Image size should be less than 5MB.');
       return;
     }
 
@@ -62,11 +65,15 @@ const AddWhyStudyWithUs = () => {
     e.preventDefault();
 
     if (!formData.title.trim() || !formData.description.trim()) {
-      setError('Title and Description are required.');
+      const msg = 'Title and Description are required.';
+      setError(msg);
+      toast.warn(msg);
       return;
     }
     if (!formData.image) {
-      setError('Please select an image.');
+      const msg = 'Please select an image.';
+      setError(msg);
+      toast.warn(msg);
       return;
     }
 
@@ -105,15 +112,19 @@ const AddWhyStudyWithUs = () => {
         image: imageUrl
       });
 
-      // 4) Navigate back on success
-      navigate('/admin/web-management/why-study-with-us');
+      toast.success('Data created successfully!');
+      // 4) Navigate back on success after a short delay for toast visibility
+      setTimeout(() => {
+        navigate('/admin/web-management/why-study-with-us');
+      }, 1500);
     } catch (err) {
       console.error(err);
-      setError(
+      const errMsg =
         err.response?.data?.message ||
-          err.message ||
-          'Something went wrong, please try again.'
-      );
+        err.message ||
+        'Failed to create data, please try again.';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -128,10 +139,10 @@ const AddWhyStudyWithUs = () => {
       <Input
         name="title"
         value={formData.title}
-      onChange={(e)=>{
-        const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-        setFormData(prev => ({ ...prev, title: filteredData }));
-      }}
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+          setFormData((prev) => ({ ...prev, title: filteredData }));
+        }}
         placeholder="Enter title"
       />
 
@@ -139,10 +150,10 @@ const AddWhyStudyWithUs = () => {
       <TextArea
         name="description"
         value={formData.description}
-    onChange={(e)=>{
-      const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-      setFormData(prev => ({ ...prev, description: filteredData }));
-    }}
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+          setFormData((prev) => ({ ...prev, description: filteredData }));
+        }}
         rows={5}
         placeholder="Enter description"
       />
@@ -175,6 +186,18 @@ const AddWhyStudyWithUs = () => {
       <UploadButton onClick={handleSubmit} disabled={loading}>
         {loading ? 'Creating…' : 'Create'}
       </UploadButton>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 };
