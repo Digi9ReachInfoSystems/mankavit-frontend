@@ -21,11 +21,14 @@ import {
   SubmitButton,
 } from "../AddSubject/AddSubject.style";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast';
+// import toast, { Toaster } from 'react-hot-toast';
 import { getAllNotes } from "../../../../../api/notesApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 import { createSubject } from "../../../../../api/subjectApi";
 import { getAllLectures } from "../../../../../api/lecturesApi";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 export default function AddSubject() {
   const [subjectTitle, setSubjectTitle] = useState("");
@@ -121,7 +124,7 @@ export default function AddSubject() {
         courses: []
       });
 
-      toast.success("Subject created successfully");
+      toast.success("Data created successfully");
       // reset form
       setSubjectTitle("");
       setInternalTitle("");
@@ -130,16 +133,29 @@ export default function AddSubject() {
       setThumbnailFile(null);
       setNotesCheckboxes(ns => ns.map(n => ({ ...n, checked: false })));
       setLecturesCheckboxes(ls => ls.map(l => ({ ...l, checked: false })));
-      setTimeout(() => navigate("/admin/subject-management"), 1500);
+      setTimeout(() => navigate("/admin/subject-management"), 5000);
     } catch (err) {
       console.error(err);
-      toast.error("Subject creation failed");
+      toast.error("Failed to create data.Please try again");
     }
   };
 
   return (
     <Container>
-      <Toaster />
+      
+         <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
+
       <Title>Add Subject</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Titles & Vimeo */}

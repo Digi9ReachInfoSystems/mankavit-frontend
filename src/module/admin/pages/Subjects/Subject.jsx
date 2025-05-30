@@ -31,7 +31,9 @@ import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
 import { getSubjects, deleteSubjectByid} from "../../../../api/subjectApi";
 import { IoEyeOutline } from "react-icons/io5";
-import toast from "react-hot-toast";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const mockData = Array.from({ length: 15 }, (_, index) => ({
   id: index + 1,
@@ -196,10 +198,10 @@ const handleClickDelete = async () => {
        const newData = prevData.filter(item => item.id !== deleteId);
        return newData;
      });
-     toast.success("Subject deleted successfully");
+     toast.success("Data deleted successfully");
    } catch (error) {
      console.error("Failed to delete subject:", error);
-     toast.error("Could not delete subject. Please try again.");
+     toast.error("Failed to delete data. Please try again.");
    } finally {
      setModal(false);
      setDeleteId(null);
@@ -233,6 +235,20 @@ const handleClickDelete = async () => {
 
   return (
     <>
+
+       <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme='colored'
+          />
+
       <ButtonContainer>
         <CreateButton onClick={() => navigate("/admin/subject-management/create")}>
           Add Subject

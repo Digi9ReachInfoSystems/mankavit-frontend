@@ -1,7 +1,7 @@
 // src/module/admin/components/EditSubject/EditSubject.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+// import toast, { Toaster } from "react-hot-toast";
 
 import uploadIcon from "../../../../../assets/upload.png";
 import {
@@ -28,6 +28,9 @@ import { getAllNotes } from "../../../../../api/notesApi";
 import { getAllLectures } from "../../../../../api/lecturesApi";
 import { getSubjectById, updateSubjectById } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -153,10 +156,11 @@ export default function EditSubject() {
         lectures:           selectedLectures,
         image:              imageUrl,
       });
-      toast.success("Subject updated successfully");
-      setTimeout(() => navigate("/admin/subject-management"), 1500);
+      toast.success("Data updated successfully");
+      setTimeout(() => navigate("/admin/subject-management"), 5000);
     } catch (err) {
       console.error("Update failed:", err);
+      toast.error("Failed to update data. Please try again.");
       const msg = err.response?.data?.message || err.message || "Update failed";
       toast.error(msg);
     }
@@ -164,7 +168,20 @@ export default function EditSubject() {
 
   return (
     <Container>
-      <Toaster />
+      
+       <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
+
       <Title>Edit Subject</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
