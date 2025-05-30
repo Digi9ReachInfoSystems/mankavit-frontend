@@ -101,11 +101,25 @@ export const getCourseByIdWithUSerProgress = async (user_id,course_id) => {
         console.log("user_id,course_id",user_id,course_id);
         const response = await api.post(`/api/v1/course/coursebyId/withUserProgress`,
             {
-            user_id: user_id,
-            course_id: course_id
+            userId: user_id,
+            courseId: course_id
             }
         );
         console.log("Api response", response.data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+export const updateViewCertificate = async (user_id,course_id) => {
+    try {
+        const response = await api.put(`/userProgress/updateview`,
+            {
+                user_id: user_id,
+                course_id: course_id
+            }
+        );
         return response.data;
     } catch (error) {
         console.log(error);

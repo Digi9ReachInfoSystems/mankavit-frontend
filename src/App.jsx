@@ -117,6 +117,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ViewUser from './module/admin/component/MockTestComponents/ViewUser/ViewUser'
 import ViewUserResults from './module/admin/component/MockTestComponents/ViewUserResults/ViewUserResults'
+import CourseCompletionPage from './component/CourseCompletionPage/CourseCompletionPage'
 import CreateKYC from './module/user/component/CreateKYC/CreateKYC'
 import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStudentFeedback/ViewStudentFeedback'
 function App() {
@@ -139,7 +140,7 @@ function App() {
           <Route path='/results' element={<Results />} />
           <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
           <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
-          <Route path="/course/liveclass/:courseId/:lectureId" element={<CoursesLiveclassPage />} />
+          <Route path="/course/liveclass/:courseId/:subjectid/:lectureId" element={<CoursesLiveclassPage />} />
 
           <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
           <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
@@ -159,6 +160,7 @@ function App() {
 
 
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
+          <Route path='/courseComplte/:courseId' element={<CourseCompletionPage/>} />
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
