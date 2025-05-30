@@ -16,6 +16,9 @@ import { createAchiever, updateAchieverById} from '../../../../../../api/achieve
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { notification } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const AddAchievements = () => {
   const [formData, setFormData] = useState({
@@ -50,6 +53,7 @@ const navigate = useNavigate();
     const { studentName, rank, examDetails, image } = formData;
     
     if (!studentName || !rank || !examDetails || !image) {
+      toast.error("Please fill all fields and upload an image.");
         notification.warning({
             message: "Validation Error",
             description: "Please fill all fields and upload an image.",
@@ -86,10 +90,7 @@ const navigate = useNavigate();
             throw new Error(creationResponse?.message || "Achiever creation failed");
         }
 
-        notification.success({
-            message: "Success",
-            description: "Achiever created successfully!",
-        });
+               toast.success("Data added successfully!");
 
         // Reset form
         setFormData({
@@ -99,13 +100,15 @@ const navigate = useNavigate();
             image: null
         });
         setPreviewImage(null);
+
         setTimeout(() => {
           navigate("/admin/web-management/achievement");
-        })
+        },5000)
         
 
     } catch (error) {
         console.error("Detailed error:", error);
+        toast.error("Failed to add. Please try again")
         notification.error({
             message: "Error",
             description: error.response?.data?.message || 
@@ -119,6 +122,20 @@ const navigate = useNavigate();
 
   return (
     <Container>
+
+        <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
+
       <Title>Add Achievement</Title>
 
       <Label>Student Name</Label>

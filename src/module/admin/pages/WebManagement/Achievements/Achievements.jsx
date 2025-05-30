@@ -22,6 +22,9 @@ import Pagination from "../../../component/Pagination/Pagination"; // This is yo
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 // API functions
 import { getAllAchievers, deleteAchieverById } from "../../../../../api/achieverApi";
@@ -95,9 +98,10 @@ const [selectedImage, setSelectedImage] = useState(null);
     try {
       await deleteAchieverById(selectedId);
       setAchievers((prev) => prev.filter((item) => item._id !== selectedId));
+      toast.success("Data deleted successfully");
     } catch (err) {
       console.error("Error deleting achiever:", err);
-      alert("Failed to delete achiever.");
+      toast.error("Failed to delete. Please try again");
     } finally {
       setDeleteModalOpen(false);
       setSelectedId(null);
@@ -110,6 +114,20 @@ const [selectedImage, setSelectedImage] = useState(null);
 
   return (
     <>
+
+       <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme='colored'
+          />
+
       <BtnAchieve>
         <AddButton onClick={handleAdd}>
           Add Achievement

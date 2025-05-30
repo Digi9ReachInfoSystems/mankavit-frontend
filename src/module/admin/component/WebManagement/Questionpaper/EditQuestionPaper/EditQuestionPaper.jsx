@@ -22,6 +22,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getQuestionPaperById, updateQuestionPaperById } from "../../../../../../api/questionPaperApi";
 import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
 import { message } from "antd";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const years = [2024, 2023, 2022, 2021];
 
@@ -141,13 +144,16 @@ const EditQuestionPaper = () => {
       
       await updateQuestionPaperById(id, questionPaperData);
 
-      message.success({ content: 'Question paper updated successfully!', key: 'upload' });
-      navigate("/admin/web-management/question-paper");
+      toast.success("Data updated successfully!");
+setTimeout(() => {
+  navigate("/admin/web-management/question-paper");
+}, 5000);
 
     } catch (error) {
       console.error("Update error:", error);
-      message.error({ content: error.message || "Failed to update. Please try again.", key: 'upload' });
-      setError(error.message || "Failed to update. Please try again.");
+     toast.error("Failed to update. Please try again.");
+setError(error.message || "Failed to update. Please try again.");
+
     } finally {
       setIsSubmitting(false);
     }
@@ -159,6 +165,20 @@ const EditQuestionPaper = () => {
 
   return (
     <Container>
+
+        <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
+
       <h2>Edit Question Paper</h2>
       <Form onSubmit={handleSubmit}>
         {error && <ErrorMessage>{error}</ErrorMessage>}

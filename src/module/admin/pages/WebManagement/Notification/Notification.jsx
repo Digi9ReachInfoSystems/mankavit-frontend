@@ -16,6 +16,11 @@ import {
   FormItem
 } from "../Notification/Notification.style";
 import upload from "../../../../../assets/upload.png";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -27,7 +32,8 @@ const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
     if (f && f.type.startsWith("image/")) {
       setFile(f);
     } else {
-      alert("Please upload an image file");
+      // alert("Please upload an image file");
+      toast.error("Please upload an image file.");
     }
   };
 
@@ -44,6 +50,7 @@ const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
   const submit = (e) => {
     e.preventDefault();
     onSubmit({ title, description, file });
+    toast.success("Notification sent successfully.");
   };
 
   return (
@@ -107,6 +114,18 @@ const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
 
         <SubmitButton type="submit">Send Notification</SubmitButton>
       </form>
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
     </Container>
   );
 };
