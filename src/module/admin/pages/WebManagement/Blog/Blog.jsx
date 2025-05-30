@@ -21,7 +21,8 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import Pagination from "../../../component/Pagination/Pagination";
 import { getAllBlogs, deleteBlogById } from "../../../../../api/blogApi";
-import { message } from "antd";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -43,17 +44,16 @@ const Blog = () => {
         const response = await getAllBlogs();
         console.log("API Response:", response); // Debug log
         
-        // Corrected data extraction based on your API response
         if (response && response.success && response.blogs) {
           setBlog(response.blogs);
         } else {
           setBlog([]);
-          message.warning("No blogs found");
+          toast.warning("No blogs found");
         }
       } catch (err) {
         setError("Failed to load blogs. Please try again later.");
         console.error("Error loading blogs:", err);
-        message.error("Failed to load blogs");
+        toast.error("Failed to load blogs");
       } finally {
         setLoading(false);
       }
@@ -80,9 +80,9 @@ const Blog = () => {
     try {
       await deleteBlogById(selectedId);
       setBlog(blog.filter((item) => item._id !== selectedId));
-      message.success("Blog deleted successfully");
+      toast.success("Data deleted successfully");
     } catch (err) {
-      message.error("Failed to delete blog");
+      toast.error("Failed to delete data");
       console.error("Error deleting blog:", err);
     } finally {
       setDeleteModalOpen(false);
@@ -94,6 +94,7 @@ const Blog = () => {
       <Container>
         <Title>Blog</Title>
         <div>Loading blogs...</div>
+        <ToastContainer />
       </Container>
     );
   }
@@ -103,6 +104,7 @@ const Blog = () => {
       <Container>
         <Title>Blog</Title>
         <div style={{ color: "red" }}>{error}</div>
+        <ToastContainer />
       </Container>
     );
   }
@@ -193,13 +195,13 @@ const Blog = () => {
           </Table>
         </TableWrapper>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={totalItems}
-            itemsPerPage={ITEMS_PER_PAGE}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
       </Container>
 
       <DeleteModal
@@ -216,6 +218,18 @@ const Blog = () => {
           </ImageModalContent>
         </ImageModalOverlay>
       )}
+
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+            />
     </>
   );
 };

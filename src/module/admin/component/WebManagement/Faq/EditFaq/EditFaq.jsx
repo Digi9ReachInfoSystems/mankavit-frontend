@@ -14,6 +14,9 @@ import {
   updateFaqById
 } from '../../../../../../api/faqApi';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const EditFaq = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -32,6 +35,7 @@ const EditFaq = () => {
         setAnswer(data.answer);
       } catch {
         setError('Could not load FAQ');
+        toast.error('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -47,9 +51,11 @@ const EditFaq = () => {
     setError(null);
     try {
       await updateFaqById(id, { question, answer });
-      navigate(-1); // go back to the list
+      toast.success('Data updated successfully!');
+      setTimeout(() => navigate('/admin/web-management/faq'), 3000);
     } catch {
       setError('Failed to save changes.');
+      toast.error('Failed to update data. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -95,6 +101,20 @@ const EditFaq = () => {
           {saving ? 'Saving…' : 'Save Changes'}
         </SubmitButton>
       </form>
+
+      
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
     </Container>
   );
 };
