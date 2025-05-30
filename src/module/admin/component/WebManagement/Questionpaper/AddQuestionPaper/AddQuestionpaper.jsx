@@ -20,8 +20,12 @@ import {
 import upload from "../../../../../../assets/upload.png";
 import { createQuestionPaper } from "../../../../../../api/questionPaperApi";
 import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
-import { message } from "antd";
+// import { message } from "antd";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+
 const years = [2024, 2023, 2022, 2021];
 
 const AddQuestionPaper = ({ onSubmit = () => {} }) => {
@@ -69,11 +73,13 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
     
     if (!file) {
       setError("Please upload a PDF file first");
+      toast.warning("Please upload a PDF file first");
       return;
     }
 
     if (!title || !description) {
       setError("Please fill all fields");
+      toast.error("Please fill all fields");
       return;
     }
 
@@ -111,12 +117,15 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
       setTitle("");
       setDescription("");
       setFile(null);
+    
+toast.success("Data added successfully!");
 
-      setTimeout(() => {
-        navigate("/admin/web-management/question-paper");
-      })
+setTimeout(() => {
+  navigate("/admin/web-management/question-paper");
+},5000);
+
       
-      message.success("Question paper uploaded successfully!");
+
 
     } catch (error) {
       console.error("Upload error:", error);
@@ -124,8 +133,10 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
       if (error.message.includes("successfully")) {
         // If upload succeeded but we got here, there might be an issue with the record creation
         setError("File uploaded but there was an issue saving the record. Please try again.");
+            toast.error("Failed to upload the data. Please try again.");
       } else {
         setError(error.message || "Failed to upload. Please try again.");
+            toast.error("Failed to upload. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -134,6 +145,20 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
 
   return (
     <Container>
+
+               <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
+      
       <h2>Question Paper</h2>
       <Form onSubmit={submit}>
         {error && <ErrorMessage>{error}</ErrorMessage>}
