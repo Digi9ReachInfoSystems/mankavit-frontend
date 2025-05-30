@@ -25,6 +25,9 @@ import {
   deleteAboutUsById,
   updateAboutUsById
 } from "../../../../../api/aboutUsApi";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const AboutUs = () => {
   // the list
@@ -72,34 +75,42 @@ const AboutUs = () => {
   };
 
   // create or update
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.title.trim() || !formData.description.trim()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!formData.title.trim() || !formData.description.trim()) {
+    toast.error("Please fill in all fields.");
+    return;
+  }
+     
 
-    setSaving(true);
-    setError("");
-    try {
-      if (formData.id) {
-        await updateAboutUsById(formData.id, {
-          title: formData.title,
-          description: formData.description,
-        });
-      } else {
-        await createAboutUs({
-          title: formData.title,
-          description: formData.description,
-        });
-      }
-      // reset form & refresh list
-      setFormData({ id: "", title: "", description: "" });
-      await fetchItems();
-    } catch (err) {
-      console.error(err);
-      setError("Save failed. Please try again.");
-    } finally {
-      setSaving(false);
+  setSaving(true);
+  setError("");
+
+  try {
+    if (formData.id) {
+      await updateAboutUsById(formData.id, {
+        title: formData.title,
+        description: formData.description,
+      });
+      toast.success("Data updated successfully!");
+    } else {
+      await createAboutUs({
+        title: formData.title,
+        description: formData.description,
+      });
+      toast.success("Data Added successfully!");
     }
-  };
+    setFormData({ id: "", title: "", description: "" });
+    await fetchItems();
+  } catch (err) {
+    console.error(err);
+    const action = formData.id ? "update" : "create";
+    toast.error(`Failed to ${action}. Please try again.`);
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   // populate form for editing
   const handleEdit = (item) => {
@@ -121,13 +132,15 @@ const AboutUs = () => {
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
     setError("");
-    try {
-      await deleteAboutUsById(deleteId);
-      await fetchItems();
-    } catch (err) {
-      console.error(err);
-      setError("Delete failed. Please try again.");
-    } finally {
+   try {
+  await deleteAboutUsById(deleteId);
+  toast.success("Data deleted successfully!");
+  await fetchItems();
+} catch (err) {
+  console.error(err);
+  setError("Delete failed. Please try again.");
+  toast.error("Failed to delete. Please try again.");
+} finally {
       setIsDeleteOpen(false);
       setDeleteId(null);
     }
@@ -135,6 +148,20 @@ const AboutUs = () => {
 
   return (
     <Container>
+
+         <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
+
       <Title>About us</Title>
 
       {error && <p style={{ color: "red" }}>{error}</p>}

@@ -16,6 +16,9 @@ import upload from '../../../../../../assets/upload.png';
 import { getAchieverById, updateAchieverById } from '../../../../../../api/achieverApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { notification } from 'antd';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 const EditAchievement = () => {
   const { id } = useParams();
@@ -81,6 +84,7 @@ const EditAchievement = () => {
     const { studentName, rank, examDetails, image } = formData;
     
     if (!studentName || !rank || !examDetails) {
+          toast.error("Please fill all required fields.");
       notification.warning({
         message: "Validation Error",
         description: "Please fill all required fields.",
@@ -124,10 +128,14 @@ const EditAchievement = () => {
         description: "Achiever updated successfully!",
       });
 
+       toast.success("Data updated successfully!");
+    setTimeout(() => {
       navigate("/admin/web-management/achievement");
+    }, 5000);
 
     } catch (error) {
       console.error("Detailed error:", error);
+      toast.error("Failed to update. Please try again.");
       notification.error({
         message: "Error",
         description: error.response?.data?.message || 
@@ -141,6 +149,20 @@ const EditAchievement = () => {
 
   return (
     <Container>
+
+       <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
+
       <Title>Edit Achievement</Title>
 
       <Label>Student Name</Label>
