@@ -1,5 +1,3 @@
-// src/pages/Admin/WebManagement/WhyStudyWithUs/EditWhyStudyWithUs.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -20,6 +18,9 @@ import {
 import uploadIcon from '../../../../../../assets/upload.png';
 import { getWhyById, updateWhyById } from '../../../../../../api/whyApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
+
+import { toast, ToastContainer } from 'react-toastify';  // <-- import toast & ToastContainer
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditWhyStudyWithUs = () => {
   const { id } = useParams();
@@ -50,27 +51,27 @@ const EditWhyStudyWithUs = () => {
       } catch (err) {
         console.error('Error loading item:', err);
         setError('Failed to load the item.');
+        toast.error('Failed to load the item.');
       }
     };
 
     fetchWhy();
   }, [id]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (!file.type.match('image.*')) {
-      setError('Please upload a valid image file.');
+      const msg = 'Please upload a valid image file.';
+      setError(msg);
+      toast.warning(msg);
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB.');
+      const msg = 'Image size should be less than 5MB.';
+      setError(msg);
+      toast.warning(msg);
       return;
     }
 
@@ -87,7 +88,9 @@ const EditWhyStudyWithUs = () => {
     setError('');
 
     if (!formData.title.trim() || !formData.description.trim()) {
-      setError('Title and Description are required.');
+      const msg = 'Title and Description are required.';
+      setError(msg);
+      toast.warning(msg);
       return;
     }
 
@@ -100,9 +103,7 @@ const EditWhyStudyWithUs = () => {
           formData.imageFile,
           'why'
         );
-        console.log('Upload result:', uploadResult);
 
-        // Now include blobUrl in our extraction chain
         imageUrl =
           uploadResult?.url ??
           uploadResult?.fileUrl ??
@@ -125,14 +126,16 @@ const EditWhyStudyWithUs = () => {
         image: imageUrl,
       });
 
-      navigate('/admin/web-management/why-study-with-us');
+      toast.success('Updated successfully!');
+      setTimeout(() => navigate('/admin/web-management/why-study-with-us'), 5000);
     } catch (err) {
       console.error(err);
-      setError(
+      const msg =
         err.response?.data?.message ||
         err.message ||
-        'Something went wrong, please try again.'
-      );
+        'Something went wrong, please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -140,6 +143,18 @@ const EditWhyStudyWithUs = () => {
 
   return (
     <Container>
+           <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <Title>Edit Why Study With Us</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -147,10 +162,10 @@ const EditWhyStudyWithUs = () => {
       <Input
         name="title"
         value={formData.title}
-       onChange={(e)=>{
-        const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-        setFormData((prev) => ({ ...prev, title: filteredData }));
-       }}
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+          setFormData((prev) => ({ ...prev, title: filteredData }));
+        }}
         placeholder="Enter title"
       />
 
@@ -158,12 +173,10 @@ const EditWhyStudyWithUs = () => {
       <TextArea
         name="description"
         value={formData.description}
-       onChange={(e)=>
-       {
-        const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-        setFormData((prev) => ({ ...prev, description: filteredData }));
-       }
-       }
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+          setFormData((prev) => ({ ...prev, description: filteredData }));
+        }}
         rows={5}
         placeholder="Enter description"
       />

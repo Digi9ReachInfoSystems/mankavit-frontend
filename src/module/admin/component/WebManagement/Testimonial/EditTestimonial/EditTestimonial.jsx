@@ -25,6 +25,9 @@ import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageSe
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAllCourses } from '../../../../../../api/courseApi';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const EditTestimonial = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({
@@ -58,6 +61,7 @@ const EditTestimonial = () => {
       } catch (error) {
         console.error("Error fetching testimonial:", error);
         setError('Failed to load testimonial');
+        toast.error('Failed to load testimonial');
         setIsLoading(false);
       }
     };
@@ -80,6 +84,7 @@ const EditTestimonial = () => {
         setCoursesCheckboxes(checkboxes);
       } catch (error) {
         console.error("Error fetching courses:", error);
+        toast.error("Failed to fetch courses");
       }
     };
     apiCaller();
@@ -100,11 +105,13 @@ const EditTestimonial = () => {
       // Validate image
       if (!file.type.match('image.*')) {
         setError('Please upload an image file');
+        toast.error('Please upload an image file');
         return;
       }
       
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
         setError('Image size should be less than 5MB');
+        toast.warn('Image size should be less than 5MB');
         return;
       }
 
@@ -124,6 +131,7 @@ const EditTestimonial = () => {
     // Validate all fields except image (since we might keep existing image)
     if (!formData.studentName || !formData.course || !formData.testimonialDetails) {
       setError('Please fill all required fields');
+      toast.error('Please fill all required fields');
       return;
     }
 
@@ -153,14 +161,18 @@ const EditTestimonial = () => {
       // Update testimonial
       await updateTestimonialById(id, payload);
 
+      toast.success('Data updated successfully');
+
       // Success - redirect
-      navigate("/admin/web-management/testinomial", {
+      setTimeout(() => {
+         navigate("/admin/web-management/testinomial", {
         state: { success: true }
-      });
+      }), 2000});
 
     } catch (error) {
       console.error("Error updating testimonial:", error);
       setError(error.message || 'Something went wrong. Please try again.');
+      toast.error(error.message || 'Failed to update data. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -247,6 +259,20 @@ const EditTestimonial = () => {
       >
         {isUploading ? "Updating..." : "Update Testimonial"}
       </UploadButton>
+
+      
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 };

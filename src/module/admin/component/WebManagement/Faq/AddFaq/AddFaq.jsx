@@ -11,6 +11,9 @@ import {
 import { createFaq } from '../../../../../../api/faqApi';
 import { useNavigate } from 'react-router-dom';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+
 const AddFaq = ({ onAdd }) => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
@@ -36,11 +39,13 @@ const AddFaq = ({ onAdd }) => {
       // notify parent if they passed an onAdd callback
       if (onAdd) onAdd(newFaq);
 
-      navigate(-1);
+ toast.success('Data added successfully!');
+ setTimeout(() => navigate('/admin/web-management/faq'), 3000);
 
     } catch (err) {
       console.error(err);
       setError('Failed to add FAQ. Please try again.');
+      toast.error('Failed to add data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -83,6 +88,19 @@ const AddFaq = ({ onAdd }) => {
           {loading ? 'Adding…' : 'Add New FAQ'}
         </SubmitButton>
       </form>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 };

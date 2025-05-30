@@ -28,6 +28,10 @@ import Pagination from "../../../component/Pagination/Pagination";
 
 import { getAllWhy, deleteWhyById } from "../../../../../api/whyApi";
 
+// Import react-toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const ITEMS_PER_PAGE = 8;
 
 const WhyStudyWithUs = () => {
@@ -47,6 +51,7 @@ const WhyStudyWithUs = () => {
         setWhyStudy(response.data ?? response);
       } catch (err) {
         console.error("Error loading data:", err);
+        toast.error("Failed to load data.");
       }
     };
     fetchData();
@@ -71,9 +76,10 @@ const WhyStudyWithUs = () => {
     try {
       await deleteWhyById(selectedId);
       setWhyStudy((prev) => prev.filter((item) => item._id !== selectedId));
+      toast.success("Data deleted successfully.");
     } catch (err) {
       console.error("Failed to delete item:", err);
-      // optionally show user-facing error here
+      toast.error("Failed to delete data. Please try again.");
     } finally {
       setDeleteModalOpen(false);
     }
@@ -171,6 +177,19 @@ const WhyStudyWithUs = () => {
           </ImageModalContent>
         </ImageModalOverlay>
       )}
+
+      {/* Toast Container for react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 };
