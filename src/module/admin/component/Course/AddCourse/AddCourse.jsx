@@ -142,62 +142,61 @@ useEffect(() => {
       .filter(Boolean);
 
   // Static student feedback (as requested)
-  const staticStudentFeedback = [
-    { student_ref: null, review: "Great course!" },
-  ];
+const staticStudentFeedback = [
+  {
+    student_ref: null, // or a valid ObjectId if you have one
+    review: "Great course!",
+    rating: 5, // add rating if your schema requires it
+    createdAt: new Date() // add timestamp if needed
+  }
+];
 
   // Form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Basic required validations (keeping original & minimal additional)
-      if (!courseTitle) return toast.error("Please enter course title.");
-      if (!internalTitle) return toast.error("Please enter internal course title.");
-      if (!discountedPrice || isNaN(discountedPrice))
-        return toast.error("Discounted price should be a number.");
-      if (!actualPrice || isNaN(actualPrice))
-        return toast.error("Actual price should be a number.");
-      if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
-      if (!selectedCategory) return toast.error("Please select category.");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Basic validations
+    if (!courseTitle) return toast.error("Please enter course title.");
+    if (!internalTitle) return toast.error("Please enter internal course title.");
+    if (!discountedPrice || isNaN(discountedPrice))
+      return toast.error("Discounted price should be a number.");
+    if (!actualPrice || isNaN(actualPrice))
+      return toast.error("Actual price should be a number.");
+    if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
+    if (!selectedCategory) return toast.error("Please select category.");
 
-      // Upload image
-      const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
-      const fileURL = fileData.blobUrl;
+    // Upload image
+    const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
+    const fileURL = fileData.blobUrl;
 
-      // Subjects & mock tests
-      const subjects = subjectCheckboxes.filter((i) => i.checked).map((i) => i.id);
-      const mockTests = mockTestCheckboxes.filter((i) => i.checked).map((i) => i.id);
+    // Prepare payload
+    const payload = {
+      courseName: internalTitle,
+      courseDisplayName: courseTitle,
+      shortDescription,
+      description,
+      category: selectedCategory,
+      price: Number(actualPrice),
+      discountPrice: Number(discountedPrice),
+      discountActive: isKYCRequired,
+      duration,
+      no_of_videos: Number(noOfVideos) || 0,
+      successRate: Number(successRate) || 0,
+      course_includes: parseIncludes(courseIncludes),
+      student_feedback: [], // Initialize as empty array
+      live_class: liveClass,
+      recorded_class: recordedClass,
+      isPublished,
+      status,
+      subjects: subjectCheckboxes.filter((i) => i.checked).map((i) => i.id),
+      mockTests: mockTestCheckboxes.filter((i) => i.checked).map((i) => i.id),
+      image: fileURL,
+    };
 
-      // Prepare request body
-      const payload = {
-        courseName: internalTitle,
-        courseDisplayName: courseTitle,
-        shortDescription,
-        description,
-        category: selectedCategory,
-        price: Number(actualPrice),
-        discountPrice: Number(discountedPrice),
-        discountActive: isKYCRequired,
-        duration,
-        no_of_videos: Number(noOfVideos) || 0,
-        // no_of_subjects: Number(noOfSubjects) || 0,
-        // no_of_notes: Number(noOfNotes) || 0,
-        successRate: Number(successRate) || 0,
-        course_includes: parseIncludes(courseIncludes),
-        student_feedback: staticStudentFeedback,
-        live_class: liveClass,
-        recorded_class: recordedClass,
-        // rating: Number(rating) || 0,
-        isPublished,
-        status,
-        subjects,
-        mockTests,
-        image: fileURL,
-      };
-
-      const createCourseResponse = await createCourse(payload);
-      if (createCourseResponse) {
-        toast.success("Course created successfully.");
+    const createCourseResponse = await createCourse(payload);
+    if (createCourseResponse) {
+      toast.success("Course created successfully.");
+     
         // reset form
         setInternalTitle("");
         setCourseTitle("");
@@ -402,21 +401,7 @@ useEffect(() => {
           </Column>
 
           <Column>
-            {/* <CheckboxSection>
-              <CheckboxSectionTitle>Add Mock Test</CheckboxSectionTitle>
-              <CheckboxList>
-                {mockTestCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setMockTestCheckboxes)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection> */}
+        
           </Column>
         </FormRow>
 

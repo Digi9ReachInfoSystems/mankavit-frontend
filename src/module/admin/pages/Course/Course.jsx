@@ -233,8 +233,8 @@ export default function CoursesTable() {
                 <TableBody>
                   {currentItems.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.courseName}</TableCell>
-                      <TableCell>{item.internalName}</TableCell>
+                      <TableCell>{item.courseName.slice(0, 30)}.</TableCell>
+                      <TableCell>{item.internalName.slice(0, 30)}</TableCell>
                       <TableCell>
                         {getSubjectNames(item.subjects).length}
                         <a href="#view"
