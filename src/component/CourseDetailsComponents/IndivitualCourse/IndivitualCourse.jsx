@@ -24,7 +24,7 @@ import {
 import courseImage from '../../../assets/courseDetails.png';
 import { FaStar, FaVideo, FaBook, FaFileAlt, FaArrowLeft } from 'react-icons/fa';
 import { RiLock2Fill } from "react-icons/ri";
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getCourseById } from '../../../api/courseApi';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -40,7 +40,8 @@ const IndividualCourses = () => {
   const [error, setError] = useState(null);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
-
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const location = useLocation();
   useEffect(() => {
     const apiCaller = async () => {
       const cookieData = getCookiesData();
@@ -50,6 +51,8 @@ const IndividualCourses = () => {
         if (user) {
           setUserData(user.user);
           setUserLoggedIn(true);
+          setIsEnrolled(location.state.isEnrolled);
+
         }
       }
     };
@@ -138,7 +141,23 @@ const IndividualCourses = () => {
 
       <CourseButton>
         {userLoggedIn ?
-          (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />) :
+          <>
+            {
+              isEnrolled ?
+                (<EnrollButton
+                  onClick={() => { navigate(`/user`) }}>
+                 Continue Learning
+                    {/* ₹{course.discountActive ? course.discountPrice : course.price}/- */}
+                  {/* {course.discountActive && (
+                    <span style={{ textDecoration: 'line-through', marginLeft: '8px', color: '#999' }}>
+                      ₹{course.price}
+                    </span>
+                  )} */}
+                </EnrollButton>) :
+                (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />)
+            }
+          </>
+          :
           (<EnrollButton
             onClick={() => { navigate(`/login`) }}>
             Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-

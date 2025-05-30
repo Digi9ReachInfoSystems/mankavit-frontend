@@ -30,106 +30,109 @@ import {
 import courseImgFallback from "../../assets/courseDetails.png";
 import { getCourseById } from "../../api/courseApi";
 import { getMocktestBySubjectId } from "../../api/mocktestApi";
-import {getCourseByIdWithUSerProgress} from "../../api/userProgressApi";
+import { getCourseByIdWithUSerProgress } from "../../api/userProgressApi";
 import { startCourse, startSubject, startLecturer } from "../../api/userProgressApi";
 import { getCookiesData } from "../../utils/cookiesService";
 import { FaArrowLeft, FaPlay, FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
 import { MdLiveTv } from "react-icons/md";
 
-const AccordionList = ({ 
-    data, 
-    activeIndex, 
-    onClick, 
-    navigate, 
-    courseId, 
-    handleStartSubject, 
-    handleStartLecture, 
-    completedLectures = [], 
+const AccordionList = ({
+    data,
+    activeIndex,
+    onClick,
+    navigate,
+    courseId,
+    handleStartSubject,
+    handleStartLecture,
+    completedLectures = [],
     completedSubjects = [],
     isMockTestTab = false
 }) => (
     <VideoList>
         {data && data.length === 0 && <p style={{ padding: 24 }}>No items found.</p>}
-        {data && data.map((item, idx) => (
-            <div key={idx}>
-                <VideoItem
-                    style={{ 
-                        background: "#f5f6fa", 
-                        boxShadow: activeIndex === idx ? "0 2px 8px #eee" : "none",
-                        position: 'relative'
-                    }}
-                    onClick={async () => {
-                        const newIndex = idx === activeIndex ? null : idx;
-                        onClick(newIndex);
-                        if (newIndex !== null && !isMockTestTab) {
-                            await handleStartSubject(item._id);
-                        }
-                    }}
-                >
-                    <div className="video-info">
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <p style={{ fontWeight: 600 }}>{item.name}</p>
+        {data && data.map((item, idx) => {
+            console.log("item", item);
+            return (
+                <div key={idx}>
+                    <VideoItem
+                        style={{
+                            background: "#f5f6fa",
+                            boxShadow: activeIndex === idx ? "0 2px 8px #eee" : "none",
+                            position: 'relative'
+                        }}
+                        onClick={async () => {
+                            const newIndex = idx === activeIndex ? null : idx;
+                            onClick(newIndex);
+                            if (newIndex !== null && !isMockTestTab) {
+                                await handleStartSubject(item._id);
+                            }
+                        }}
+                    >
+                        <div className="video-info">
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <p style={{ fontWeight: 600 }}>{item.name}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {completedSubjects.includes(item._id) && !isMockTestTab && (
-                            <FaCheckCircle style={{ color: 'green', marginRight: 10 }} />
-                        )}
-                        <Playbutton>
-                            {activeIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
-                        </Playbutton>
-                    </div>
-                </VideoItem>
-                {activeIndex === idx && (
-                    <div style={{ paddingLeft: 24, background: "#fff", borderRadius: 8, marginTop: 4 }}>
-                        {item.lectures && item.lectures.length > 0 ? (
-                            item.lectures.map((lecture, i) => (
-                                <VideoItem
-                                    key={i}
-                                    style={{
-                                        boxShadow: "none",
-                                        background: "none",
-                                        cursor: "pointer",
-                                        marginBottom: 4,
-                                        padding: "12px 0",
-                                        borderBottom: "1px solid #eee"
-                                    }}
-                                    onClick={async () => {
-                                        if (isMockTestTab) {
-                                          navigate(`/start-test/${lecture._id}/${item._id}`);
-                                        } else {
-                                            await handleStartLecture(item._id, lecture._id);
-                                            navigate(`/course/liveclass/${courseId}/${lecture._id}`);
-                                        }
-                                    }}
-                                >
-                                    <div className="video-info" style={{ width: "100%" }}>
-                                        <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
-                                        <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
-                                            <p style={{ fontSize: 16, fontWeight: 500 }}>
-                                                {lecture.lectureName}
-                                                {!isMockTestTab && completedLectures.includes(lecture._id) && (
-                                                    <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
-                                                )}
-                                            </p>
-                                            <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
-                                            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                                                <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
-                                                <div style={{ fontSize: 14, color: "#007bff", textDecoration: "none" }}>
-                                                    {isMockTestTab ? "Start Test" : "Join Class"}
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {item.completed && (
+                                <FaCheckCircle style={{ color: 'green', marginRight: 10 }} />
+                            )}
+                            <Playbutton>
+                                {activeIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
+                            </Playbutton>
+                        </div>
+                    </VideoItem>
+                    {activeIndex === idx && (
+                        <div style={{ paddingLeft: 24, background: "#fff", borderRadius: 8, marginTop: 4 }}>
+                            {item.lectures && item.lectures.length > 0 ? (
+                                item.lectures.map((lecture, i) => (
+                                    <VideoItem
+                                        key={i}
+                                        style={{
+                                            boxShadow: "none",
+                                            background: "none",
+                                            cursor: "pointer",
+                                            marginBottom: 4,
+                                            padding: "12px 0",
+                                            borderBottom: "1px solid #eee"
+                                        }}
+                                        onClick={async () => {
+                                            if (isMockTestTab) {
+                                                navigate(`/start-test/${lecture._id}/${item._id}`);
+                                            } else {
+                                                await handleStartLecture(item._id, lecture._id);
+                                                navigate(`/course/liveclass/${courseId}/${item._id}/${lecture._id}`);
+                                            }
+                                        }}
+                                    >
+                                        <div className="video-info" style={{ width: "100%" }}>
+                                            <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                                            <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
+                                                <p style={{ fontSize: 16, fontWeight: 500 }}>
+                                                    {lecture.lectureName}
+                                                    {lecture.completed && (
+                                                        <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
+                                                    )}
+                                                </p>
+                                                <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
+                                                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                    <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
+                                                    <div style={{ fontSize: 14, color: "#007bff", textDecoration: "none" }}>
+                                                        {isMockTestTab ? "Start Test" : "Join Class"}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </VideoItem>
-                            ))
-                        ) : (
-                            <div style={{ padding: "16px 8px", color: "#888" }}>No {isMockTestTab ? "mock tests" : "lectures"} found.</div>
-                        )}
-                    </div>
-                )}
-            </div>
-        ))}
+                                    </VideoItem>
+                                ))
+                            ) : (
+                                <div style={{ padding: "16px 8px", color: "#888" }}>No {isMockTestTab ? "mock tests" : "lectures"} found.</div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )
+        })}
     </VideoList>
 );
 
@@ -158,11 +161,11 @@ const ContinueCourse = () => {
                 if (progressResponse?.success) {
                     setProgressData(progressResponse.data);
                     setCourse(progressResponse.data);
-                    
+
                     // Extract completed lectures and subjects
                     const lectures = [];
                     const subjects = [];
-                    
+
                     (progressResponse.data.subjects || []).forEach(subject => {
                         if (subject.completed) {
                             subjects.push(subject._id);
@@ -173,13 +176,13 @@ const ContinueCourse = () => {
                             }
                         });
                     });
-                    
+
                     setCompletedLectures(lectures);
                     setCompletedSubjects(subjects);
                 }
             } catch (error) {
                 console.error("Error fetching course with progress:", error);
-                
+
                 // Fallback to regular course fetch if progress fails
                 const response = await getCourseById(id);
                 if (response?.success) {
@@ -244,17 +247,24 @@ const ContinueCourse = () => {
     const getAccordionData = async () => {
         if (!course) return { Subjects: [], "Mock Test": [], "Recorded Class": [] };
 
-        const subjects = (course.subjects || []).map(subject => ({
-            _id: subject._id,
-            name: subject.subjectName || "Subject",
-            lectures: (subject.lectures || []).map(lec => ({
-                _id: lec._id,
-                lectureName: lec.lectureName || "Untitled Lecture",
-                description: lec.description || "No description available",
-                duration: lec.duration || "Duration not specified",
-                videoUrl: lec.videoUrl || "#"
-            }))
-        }));
+        const subjects = (course.subjects || []).map(subject => {
+            return ({
+                _id: subject._id,
+                name: subject.subjectName || "Subject",
+                completedPercentage
+                    : subject.completedPercentage || 0,
+                completed: subject.completed || false,
+                lectures: (subject.lectures || []).map(lec => ({
+                    _id: lec._id,
+                    lectureName: lec.lectureName || "Untitled Lecture",
+                    description: lec.description || "No description available",
+                    duration: lec.duration || "Duration not specified",
+                    videoUrl: lec.videoUrl || "#",
+                    completedPercentage: lec.completedPercentage || 0,
+                    completed: lec.completed || false
+                }))
+            })
+        });
 
         // For Mock Test tab, we'll show subjects with their mock tests
         let mockTestData = [];
@@ -300,10 +310,10 @@ const ContinueCourse = () => {
 
     const calculateProgress = () => {
         if (!progressData || !progressData.subjects) return 0;
-        
+
         let totalLectures = 0;
         let completed = 0;
-        
+
         progressData.subjects.forEach(subject => {
             if (subject.lectures) {
                 totalLectures += subject.lectures.length;
@@ -312,7 +322,7 @@ const ContinueCourse = () => {
                 });
             }
         });
-        
+
         return totalLectures > 0 ? Math.round((completed / totalLectures) * 100) : 0;
     };
 
@@ -351,16 +361,16 @@ const ContinueCourse = () => {
                             <div>
                                 <CourseSubject>{course?.courseDisplayName || "Course Title"}</CourseSubject>
                                 <CourseStats>
-                                    <StatLink>{course?.no_of_videos || 0} Videos</StatLink> | 
-                                    <StatLink>{course?.no_of_subjects || 0} Subjects</StatLink> | 
+                                    <StatLink>{course?.no_of_videos || 0} Videos</StatLink> |
+                                    <StatLink>{course?.no_of_subjects || 0} Subjects</StatLink> |
                                     <StatLink>{course?.no_of_notes || 0} Notes</StatLink>
                                 </CourseStats>
                             </div>
                         </div>
                         <Statdesc>
-                            📅 Duration: {course?.duration || "N/A"} | 
-                            🏆 Success Rate: {course?.successRate ? `${course.successRate}%` : "N/A"} | 
-                            ✅ Progress: {calculateProgress()}%
+                            📅 Duration: {course?.duration || "N/A"} |
+                            🏆 Success Rate: {course?.successRate ? `${course.successRate}%` : "N/A"} |
+                            ✅ Progress: {course?.completedPercentage}%
                         </Statdesc>
                     </CourseDetails>
                 </HeaderSection>
@@ -391,7 +401,6 @@ const ContinueCourse = () => {
                             <button className={activeTab === 'Recorded Class' ? 'active' : ''} onClick={() => { setActiveTab('Recorded Class'); setActiveAccordion(null); }}>Recorded Class</button>
                         )}
                     </TabSection>
-
                     <AccordionList
                         data={accordionData[activeTab]}
                         activeIndex={activeAccordion}

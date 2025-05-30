@@ -88,6 +88,7 @@ const AllCoursesDetails = () => {
           data = resp.data;
           // }
         }
+        console.log("data", data);
 
         const transformed = data.map(course => ({
           id: course._id,
@@ -99,8 +100,10 @@ const AllCoursesDetails = () => {
           price: course.price ? `₹${course.price}/-` : 'Price not available',
           rating: course.rating || 0,
           category: course.category || 'All',
-          image: course.image || lawimg
+          image: course.image || lawimg,
+          isEnrolled: course.isEnrolled || false
         }));
+        console.log("transformed", transformed);
         setCourses(transformed);
       } catch (err) {
         console.error('Error fetching courses:', err);
@@ -120,7 +123,10 @@ const AllCoursesDetails = () => {
     );
   });
 
-  const handleViewDetails = id => navigate(`/coursedetails/${id}`);
+  const handleViewDetails = (id, isEnrolled) => {
+    console.log("id", id, "isEnrolled", isEnrolled);
+    navigate(`/coursedetails/${id}`, { state: { isEnrolled } })
+  };
 
   if (loading) return <div>Loading courses...</div>;
 
@@ -177,7 +183,7 @@ const AllCoursesDetails = () => {
 
             <PriceActions>
               <Price>{course.price}</Price>
-              <ViewButton onClick={() => handleViewDetails(course.id)}>
+              <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
                 View details
               </ViewButton>
             </PriceActions>
