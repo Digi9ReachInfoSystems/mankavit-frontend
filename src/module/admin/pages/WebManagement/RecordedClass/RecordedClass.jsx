@@ -49,7 +49,7 @@ export default function RecordedClass() {
             ? response.data 
             : response.data.data || [];
           setData(responseData);
-          toast.success('Recorded classes loaded successfully!', { autoClose: 3000 });
+         
         } else {
           setData([]);
           toast.warn('No recorded classes found', { autoClose: 3000 });
