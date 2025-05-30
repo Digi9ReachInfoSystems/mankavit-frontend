@@ -14,7 +14,8 @@ import {
 import Pagination from '../../component/Pagination/Pagination';
 import DeleteModal from '../../component/DeleteModal/DeleteModal';
 import { deleteCategory, getCategories } from '../../../../api/categoryApi';
-import { notification } from 'antd';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -35,10 +36,9 @@ const Category = () => {
         const categories = Array.isArray(res) ? res : res.categories || [];
         setData(categories);
       } catch (error) {
-        notification.error({
-          message: "Failed to load categories",
-          description: error.message || "Something went wrong",
-        });
+        console.error('Error fetching categories:', error); 
+        toast.error('Failed to fetch categories');
+
       }
     };
   
@@ -68,14 +68,11 @@ const Category = () => {
     try {
       await deleteCategory(selectedCategory);
       setData(prev => prev.filter(cat => cat._id !== selectedCategory));
-      notification.success({
-        message: "Category deleted successfully",
-      });
+      toast.success("Category deleted successfully");
+
     } catch (error) {
-      notification.error({
-        message: "Failed to delete category",
-        description: error.message || "Something went wrong",
-      });
+      console.error("Error deleting category:", error);
+      toast.error("Failed to delete category. Please try again");
     } finally {
       setDeleteModalOpen(false);
       setSelectedCategory(null);
@@ -161,6 +158,20 @@ const Category = () => {
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleConfirmDelete}
         />
+
+        
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
       </Container>
     </>
   );
