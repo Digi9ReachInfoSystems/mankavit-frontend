@@ -32,8 +32,10 @@ import { useNavigate } from 'react-router-dom';
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import { IoEyeOutline } from "react-icons/io5";
-import toast from 'react-hot-toast';
-import { Select } from "antd";
+import {Select} from 'antd';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const ITEMS_PER_PAGE = 8;
 
@@ -57,6 +59,7 @@ export default function Lecturer() {
       setData(response.data || []);
     } catch (error) {
       console.error('Error fetching lectures:', error);
+      toast.error('Failed to fetch lectures');
     }
   };
 
@@ -265,6 +268,20 @@ export default function Lecturer() {
           </ImageModalContent>
         </ImageModalOverlay>
       )}
+
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </>
   );
 }

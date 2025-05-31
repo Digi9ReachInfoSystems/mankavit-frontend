@@ -23,8 +23,9 @@ import {
 import { getSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 import { getNotesById, updatenotesById } from "../../../../../api/notesApi";
-import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate, useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditNotes() {
   const { id } = useParams();
@@ -71,7 +72,6 @@ export default function EditNotes() {
       console.error("Error fetching data:", error);
       toast.error('Failed to load note data', {
         duration: 3000,
-        position: 'top-right',
       });
       navigate("/admin/notes-management");
     }
@@ -174,7 +174,6 @@ export default function EditNotes() {
 
   return (
     <Container>
-      <Toaster/>
       <Title>Edit Note</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Note Title & Note Internal Title */}
@@ -276,6 +275,19 @@ export default function EditNotes() {
           <SubmitButton type="submit">Update Note</SubmitButton>
         </FormRow>
       </FormWrapper>
+      
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 }

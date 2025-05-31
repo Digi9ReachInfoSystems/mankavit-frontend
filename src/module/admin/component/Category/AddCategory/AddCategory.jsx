@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { notification } from "antd";
 
 import {
   Container,
@@ -16,6 +15,9 @@ import {
 
 import { createCategory } from "../../../../../api/categoryApi";// Adjust path if needed
 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const AddCategory = () => {
   const navigate = useNavigate();
   const [categoryTitle, setCategoryTitle] = useState("");
@@ -24,10 +26,7 @@ const AddCategory = () => {
     e.preventDefault();
   
     if (!categoryTitle.trim()) {
-      notification.warning({
-        message: "Validation Error",
-        description: "Category title is required",
-      });
+      toast.warning("Category title is required");
       return;
     }
   
@@ -36,19 +35,12 @@ const AddCategory = () => {
       const response = await createCategory({ title: categoryTitle });
       console.log("Response:", response); // 👈 Log response
   
-      notification.success({
-        message: "Category Added",
-        description: "The category was successfully created.",
-      });
-  
-      setCategoryTitle("");
-      navigate("/admin/category-management");
+      toast.success("Category Added");
+      toast.success("The category was successfully created.");
+      setTimeout(() => navigate("/admin/category-management"), 3000);
     } catch (error) {
       console.error("Error creating category:", error); // 👈 Full error log
-      notification.error({
-        message: "Failed to Add Category",
-        description: error?.response?.data?.message || "Something went wrong",
-      });
+      toast.error("Failed to Add Category, Please try again");
     }
   };
 
@@ -81,6 +73,19 @@ const AddCategory = () => {
           <SubmitButton type="submit">Add Category</SubmitButton>
         </FormRow>
       </FormWrapper>
+      
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 };

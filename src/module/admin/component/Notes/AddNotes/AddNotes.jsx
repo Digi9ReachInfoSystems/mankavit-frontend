@@ -25,8 +25,9 @@ import {
 import { getSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 import { createNotes } from "../../../../../api/notesApi";
-import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 export default function AddNote() {
@@ -54,6 +55,7 @@ export default function AddNote() {
         setSubjectsCheckboxes(data);
       } catch (error) {
         console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data");
       }
     };
     apiCaller();
@@ -154,7 +156,7 @@ export default function AddNote() {
         }
       )
       if (createNotesResponse.success == true) {
-        toast.success("Note created with name "+noteTitle+" successfully.",
+        toast.success('Notes created successfully.',
           {
             duration: 3000, 
             position: 'top-right', 
@@ -168,11 +170,12 @@ export default function AddNote() {
         setNoteTitle("");
         setIsDownloadable(false);
         setSubjectsCheckboxes(subjectsCheckboxes.map((item) => ({ ...item, checked: false })));
+
         setTimeout(() => {
           navigate("/admin/notes-management")
         }, 2000);
       } else {
-        toast.error('Note creation failed.',
+        toast.error('Notes creation failed.',
           {
             duration: 3000, 
             position: 'top-right', 
@@ -185,7 +188,7 @@ export default function AddNote() {
       }
     } catch (error) {
       console.log(error);
-      toast.error('Note creation failed.',
+      toast.error('Notes creation failed.',
         {
           duration: 3000, 
           position: 'top-right', 
@@ -200,7 +203,6 @@ export default function AddNote() {
 
   return (
     <Container>
-      <Toaster/>
       <Title>Add notes</Title>
       <FormWrapper onSubmit={handleSubmit}>
         {/* Row 1: Note Title & Note Internal Title */}
@@ -306,6 +308,20 @@ export default function AddNote() {
           <SubmitButton type="submit">Add Notes</SubmitButton>
         </FormRow>
       </FormWrapper>
+
+      
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 }

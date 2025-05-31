@@ -18,9 +18,10 @@ import {
   VideoPlayer,
   ThumbnailPreview,
 } from "./EditLecturer.styles";
-import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -61,7 +62,7 @@ export default function EditLecturer() {
         setVideoPreviewUrl(lecture.videoUrl);
       } catch (error) {
         console.error("Failed to fetch lecture:", error);
-        toast.error("Failed to load lecture data");
+        toast.error("Failed to fetch lecture");
       }
     };
 
@@ -100,7 +101,7 @@ export default function EditLecturer() {
 
     const { lectureName, duration, description } = formData;
     if (!lectureName || !duration || !description) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill all required fields!");
       return;
     }
 
@@ -120,13 +121,13 @@ export default function EditLecturer() {
 
       if (response.success) {
         toast.success("Lecture updated successfully!");
-        navigate(-1);
+        setTimeout(() => navigate("/admin/lecturer"), 3000);
       } else {
         throw new Error(response.message || "Failed to update lecture");
       }
     } catch (error) {
       console.error("Update failed:", error);
-      toast.error(error.message || "Error updating lecture");
+      toast.error("Failed to update lecture");
     }
   };
 
