@@ -180,3 +180,87 @@ export const Td = styled.td`
   // }
  
 `;
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+export const ModalContent = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+`;
+
+export const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+`;
+
+export const ModalBody = styled.div`
+  margin-bottom: 20px;
+  p {
+    margin-bottom: 10px;
+  }
+`;
+
+export const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+export const ApproveButton = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+export const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  &:hover {
+    color: #333;
+  }
+`;
+
+export const StatusBadge = styled.span`
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  
+  &.approved {
+    background-color: #e6f7ee;
+    color: #28a745;
+  }
+  
+  &.pending {
+    background-color: #fff8e6;
+    color: #ffc107;
+  }
+`;

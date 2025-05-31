@@ -277,7 +277,7 @@ function App() {
             <Route path="web-management/contact-support" element={<ContactSupportView />} />
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
-            <Route path= "web-management/user-feedback/view/view-student-feedback" element={<ViewStudentFeedback />} />
+            <Route path= "web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
             
           </Route>
 
