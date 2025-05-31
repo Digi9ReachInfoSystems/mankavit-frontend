@@ -207,15 +207,18 @@ const CoursesLiveclass = () => {
                     return nextLecture._id;
                 } else if (nextLecture == null && nextSubject == null) {
                     // If no next lecture, navigate to course overview
-                    console.log("No next lecture found, navigating to course overview",course);
+                    console.log("No next lecture found, navigating to course overview", course);
                     // navigate(`/courseComplte/${courseId}`);
-                    if(course?.viewedCertificate) {
-                        navigate(`/user`);
-                    } else {
-                         navigate(`/continueCourse/${courseId}`);
-                    }
-                   
+                    if (course?.completed) {
+                        if (course?.viewedCertificate) {
+                            navigate(`/user`);
+                        } else {
+                            navigate(`/continueCourse/${courseId}`);
+                        }
 
+                    } else {
+                        navigate(`/continueCourse/${courseId}`);
+                    }
                 }
                 // setCompletedLectures(prev => [...prev, lectureId]);
 
@@ -379,8 +382,8 @@ const CoursesLiveclass = () => {
 
     const handleReviewSubmit = async ({ rating, review }) => {
         try {
-            
-            console.log("Review submitted:", );
+
+            console.log("Review submitted:",);
             // You might want to show a success message here
         } catch (error) {
             console.error("Error submitting review:", error);
@@ -437,7 +440,7 @@ const CoursesLiveclass = () => {
                 </ButtonGroup>
                 {renderTabContent()}
             </TabContentWrapper>
-            
+
         </Container>
 
     );
