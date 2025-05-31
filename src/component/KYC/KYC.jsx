@@ -33,6 +33,10 @@ import { useNavigate } from 'react-router-dom';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import profilePlaceholder from '../../assets/profile.png';
 import { uploadFileToAzureStorage } from '../../utils/azureStorageService';
+import { lastDayOfDecade } from 'date-fns';
+import { getCookiesData } from '../../utils/cookiesService';
+import { createKycApi } from '../../api/kycApi';
+import { toast } from "react-toastify";
 
 const KYC = () => {
   const passportPhotoInputRef = useRef(null);
@@ -41,8 +45,10 @@ const KYC = () => {
 
   const [profileData, setProfileData] = useState({
     name: '',
+    last: '',
     email: '',
-    mobile: ''
+    mobile: '',
+    age: ''
   });
 
   const [profileImage, setProfileImage] = useState(profilePlaceholder);
@@ -63,8 +69,8 @@ const KYC = () => {
     if (!file?.type.startsWith('image/')) return alert('Select a valid image');
     setIsLoading(true);
     try {
-      const { url } = await uploadFileToAzureStorage(file, 'users');
-      setPassportPhoto({ name: file.name, url, type: file.type });
+      // const { url } = await uploadFileToAzureStorage(file, 'users');
+      setPassportPhoto({ name: file.name, file, type: file.type });
     } catch {
       alert('Upload failed');
     } finally {
@@ -77,8 +83,8 @@ const KYC = () => {
     if (!file) return;
     setIsLoading(true);
     try {
-      const { url } = await uploadFileToAzureStorage(file, 'users');
-      setUploadedIDProof({ name: file.name, url, type: file.type });
+      // const { url } = await uploadFileToAzureStorage(file, 'users');
+      setUploadedIDProof({ name: file.name, file, type: file.type });
     } catch {
       alert('Upload failed');
     } finally {
@@ -91,9 +97,12 @@ const KYC = () => {
     if (name === 'mobile') {
       const digits = value.replace(/\D/g, '').slice(0, 10);
       setProfileData((prev) => ({ ...prev, mobile: digits }));
-    } else if (name === 'name') {
+    } else if (name === 'name' || name === 'last') {
       const letters = value.replace(/[^a-zA-Z\s]/g, '');
-      setProfileData((prev) => ({ ...prev, name: letters }));
+      setProfileData((prev) => ({ ...prev, [name]: letters }));
+    } else if (name === 'email') {
+      const letters = value.replace(/[^a-zA-Z0-9@.]/g, '');
+      setProfileData((prev) => ({ ...prev, [name]: letters }));
     } else {
       setProfileData((prev) => ({ ...prev, [name]: value }));
     }
@@ -108,18 +117,27 @@ const KYC = () => {
     setError('');
 
     try {
-      const updateData = {
-        displayName: profileData.name.trim(),
-        phone: profileData.mobile ? `+91${profileData.mobile}` : '',
-        email: profileData.email.trim(),
-        photo_url: profileImage !== profilePlaceholder ? profileImage : ''
-      };
 
       if (!updateData.displayName) throw new Error('Full name is required');
       if (!updateData.email) throw new Error('Email is required');
 
-      console.log('Submitting update:', updateData);
-
+      const cookieData = await getCookiesData();
+      const uploadedIDProofUrl = await uploadFileToAzureStorage(uploadedIDProof.file, 'id-proof');
+      const passportPhotoUrl = await uploadFileToAzureStorage(passportPhoto.file, 'photo-url');
+      const submissionData = {
+        first_name: profileData.name.trim(),
+        last_name: profileData.last.trim(),
+        age: profileData.age.trim(),
+        email: profileData.email.trim(),
+        mobile_number: `+91${profileData.mobile}`,
+        id_proof: uploadedIDProofUrl.blobUrl, // Base64-encoded image
+        passport_photo: passportPhotoUrl.blobUrl, // Base64-encoded photo
+        userref: cookieData.userId,
+      }
+      console.log('Submission Data:', submissionData);
+      await createKycApi(submissionData);
+       toast.success("KYC Form submitted successfully.");
+      navigate('/user');
       setShowSuccessGif(true);
       setTimeout(() => setShowSuccessGif(false), 3000);
     } catch (error) {
@@ -132,23 +150,41 @@ const KYC = () => {
 
   return (
     <FormContainer>
-
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
       <Header>
         <BackLink onClick={() => navigate(-1)}>
           <BackIcon><FaArrowLeft /></BackIcon>
         </BackLink>
         <Title>
-        KYC for CLAT <Highlight>Coaching</Highlight>
-      </Title>
+          KYC for CLAT <Highlight>Coaching</Highlight>
+        </Title>
       </Header>
 
-      <Form onSubmit={handleSubmit}>
+      <Form>
         <FormWrapper>
           <InputGroup>
-            <Label>Full Name</Label>
-            <InputField name="name" value={profileData.name} placeholder="Ryan" onChange={handleInputChange} />
+            <Label>First Name</Label>
+            <InputField name="name" value={profileData.name} placeholder="First Name" onChange={handleInputChange} />
           </InputGroup>
-
+          <InputGroup>
+            <Label>last Name</Label>
+            <InputField name="last" value={profileData.last} placeholder="Last Name" onChange={handleInputChange} />
+          </InputGroup>
+          <InputGroup>
+            <Label>Age</Label>
+            <InputField name="age" value={profileData.age} placeholder="eg. 28" onChange={handleInputChange} />
+          </InputGroup>
           <FlexRow>
             <InputGroup>
               <Label>Email</Label>
@@ -222,7 +258,7 @@ const KYC = () => {
             </UploadSection>
           </FlexRow>
 
-          <SubmitButton type="submit" disabled={isLoading}>
+          <SubmitButton type="submit" disabled={isLoading} onClick={handleSubmit}>
             {isLoading ? 'Saving...' : 'Save Changes'}
           </SubmitButton>
           {error && <ErrorMessage>{error}</ErrorMessage>}
