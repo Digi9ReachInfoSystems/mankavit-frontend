@@ -15,13 +15,21 @@ import {
   ModalFooter,
   ApproveButton,
   CloseButton,
-  StatusBadge
+  StatusBadge,
+    HeaderRow,
+  SortByContainer,
+  SortLabel,
 } from "./UserFeedback.styles";
 import Pagination from "../../../component/Pagination/Pagination";
 import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { getUserFeedback, approveFeedback } from "../../../../../api/feedbackApi";
 import { getCookiesData } from "../../../../../utils/cookiesService";
+import { getAllCourses } from "../../../../../api/courseApi";
+import {Select} from 'antd';
+
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,6 +41,9 @@ const UserFeedback = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+const [sortOption, setSortOption] = useState(null);
+
 
   useEffect(() => {
     const fetchUserFeedback = async () => {
@@ -45,6 +56,7 @@ const UserFeedback = () => {
         setFeedback(list);
       } catch (err) {
         console.error("Error fetching feedback:", err);
+        toast.error("Failed to load feedbacks. Please try again.");
         setError(err.message);
       } finally {
         setLoading(false);
@@ -53,6 +65,22 @@ const UserFeedback = () => {
 
     fetchUserFeedback();
   }, []);
+
+useEffect(() => {
+const fetchCourses = async () => {
+  try {
+    const response = await getAllCourses();
+    setCourses(response.data); // ⬅️ Correctly set the array of courses 
+  } catch (err) {
+    console.error("Error fetching courses:", err);
+    toast.error("Failed to load courses. Please try again.");
+  }
+};
+
+
+  fetchCourses();
+}, []);
+
 
   const handleViewFeedback = (feedback) => {
     setSelectedFeedback(feedback);
@@ -70,7 +98,8 @@ const UserFeedback = () => {
       
       setFeedback(updatedFeedback);
       setIsModalOpen(false);
-      alert("Feedback approved successfully!");
+      toast.success("Feedback approved successfully!");
+
     } catch (error) {
       console.error('Error approving feedback:', error);
       let errorMessage = error.message;
@@ -81,21 +110,54 @@ const UserFeedback = () => {
       }
       
       setError(errorMessage);
-      alert(`Failed to approve feedback: ${errorMessage}`);
+      toast.error("Failed to approve feedback. Please try again.");
     }
   };
 
   if (loading) return <div>Loading feedback…</div>;
   if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
 
-  const totalItems = feedback.length;
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentPageData = feedback.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const filteredFeedback = sortOption
+  ? feedback.filter(item => item.courseRef?._id === sortOption)
+  : feedback;
+
+const totalItems = filteredFeedback.length;
+const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const currentPageData = filteredFeedback.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <Container>
-      <Title>My Feedback</Title>
+        <HeaderRow>
+          <Title>
+            My Feedback{" "}
+            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+              ({currentPageData.length}/{totalItems})
+            </span>
+          </Title>
+          <SortByContainer>
+            <SortLabel>Sort by:</SortLabel>
+<Select
+  allowClear
+  value={sortOption}
+  style={{ width: 200 }}
+  onChange={(value) => {
+    setSortOption(value);
+    setCurrentPage(1); // reset to first page on change
+  }}
+  placeholder="Select course"
+  options={[
+    { label: "All Courses", value: null }, // ⬅️ Default option
+    ...courses.map(course => ({
+      label: course.courseName,
+      value: course._id
+    }))
+  ]}
+/>
+
+
+          </SortByContainer>
+        </HeaderRow>
 
       <TableWrapper>
         <Table>
@@ -182,6 +244,18 @@ const UserFeedback = () => {
           </ModalContent>
         </ModalOverlay>
       )}
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme='colored'
+            />
     </Container>
   );
 };
