@@ -120,6 +120,7 @@ import ViewUserResults from './module/admin/component/MockTestComponents/ViewUse
 import CourseCompletionPage from './component/CourseCompletionPage/CourseCompletionPage'
 import CreateKYC from './module/user/component/CreateKYC/CreateKYC'
 import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStudentFeedback/ViewStudentFeedback'
+import UpdateKYC from './module/admin/component/Student/updateKYC/updateKYC'
 function App() {
 
   return (
@@ -189,7 +190,7 @@ function App() {
             <Route path="student-management/create" element={<AddStudent />} />
             <Route path="student-management/edit/:id" element={<EditStudent />} />
             <Route path="student-management/view/:id" element={<ViewStudent />} />
-
+<Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
             <Route path="mock-test" element={<Mocktest />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
