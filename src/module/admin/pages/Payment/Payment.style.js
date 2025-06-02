@@ -203,3 +203,15 @@ export const PageButton = styled.button`
     border-color: ${(props) => props.theme.colors.primary};
   }
 `;
+
+export const SearchIcon = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+
+`;
