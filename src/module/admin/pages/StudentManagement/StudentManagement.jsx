@@ -34,6 +34,9 @@ import Pagination from "../../component/Pagination/Pagination";
 import { getAllStudents } from "../../../../api/userApi";
 import { getAllCourses } from "../../../../api/courseApi";
 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const ITEMS_PER_PAGE = 8;
 
 export default function StudentManagement() {
@@ -73,6 +76,7 @@ export default function StudentManagement() {
       } catch (err) {
         console.error("Error fetching data:", err);
         setData([]);
+        toast.error("Failed to load data. Please try again.");
       }
     };
     fetchStudentsAndCourses();
@@ -122,8 +126,14 @@ export default function StudentManagement() {
     setDeleteModalOpen(true);
   };
   const handleDeleteConfirm = () => {
+    try{
     setData(data.filter((s) => s._id !== selectedStudent));
     setDeleteModalOpen(false);
+    toast.success("Data deleted successfully.");
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+      toast.error("Failed to delete data. Please try again.");
+    }
   };
 
   // “View student details” stub
@@ -308,6 +318,19 @@ export default function StudentManagement() {
           onDelete={handleDeleteConfirm}
         />
       )}
+
+            {/* Toast Container for react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 }
