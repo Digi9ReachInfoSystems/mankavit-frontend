@@ -25,8 +25,10 @@ const { Option } = AntSelect;
 import { FiTrash } from 'react-icons/fi';
 import { updateMocktestById, getMocktestById } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
-import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditMockTest = () => {
   const { id } = useParams();
@@ -266,6 +268,7 @@ useEffect(() => {
         errorMessage = error.response.data.message;
       }
       setErrors([errorMessage]);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -508,6 +511,18 @@ useEffect(() => {
           {isSubmitting ? 'Updating...' : 'Update Mock Test'}
         </Button>
       </FormWrapper>
+            {/* Toast Container for react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 };
