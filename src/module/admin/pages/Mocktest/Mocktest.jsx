@@ -34,7 +34,9 @@ import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { getAllMocktest, deleteMocktestById, publishMocktestById } from "../../../../api/mocktestApi";
-import toast from "react-hot-toast";
+
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -82,6 +84,7 @@ export default function MockTestsTable() {
         setData(rows);
       } else {
         throw new Error("Failed to load mock tests");
+        toast.error("Failed to load mock tests");
       }
     } catch (err) {
       console.error(err);
@@ -114,11 +117,12 @@ export default function MockTestsTable() {
       // if ((filtered.length - 1) <= startIdx && currentPage > 1) {
       //   setCurrentPage(currentPage - 1);
       // }
-      toast.success("Mock test deleted successfully");
       await fetchMockTests();
+      toast.success("Mock test deleted successfully");
     } catch (error) {
       console.error("Delete failed:", error);
       setError("Failed to delete mock test");
+      toast.error("Failed to delete mock test");
     } finally {
       setDeleteModalOpen(false);
       setSelectedToDelete(null);
@@ -284,6 +288,19 @@ const handlePublishToggle = async (id, currentStatus) => {
             onClose={() => setViewModalOpen(false)}
           />
         )}
+
+              {/* Toast Container for react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       </Container>
     </>
   );
