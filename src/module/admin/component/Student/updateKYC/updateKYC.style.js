@@ -87,6 +87,14 @@ export const Input = styled.input`
   &:hover {
     outline: none;
   }
+
+  &:active {
+    outline: none;
+  }
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const StatusWrapper = styled.div`

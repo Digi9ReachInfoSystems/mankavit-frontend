@@ -30,14 +30,14 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddTestimonial = () => {
   const [formData, setFormData] = useState({
     studentName: '',
-    course: '',
+    course: '', // This will store the selected course ID
     testimonialDetails: '',
     image: null
   });
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
-  const [CoursesCheckboxes, setCoursesCheckboxes] = useState([]);
+  const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
 
   const navigate = useNavigate();
 
@@ -70,6 +70,23 @@ const AddTestimonial = () => {
     apiCaller();
   }, []);
 
+  // Handle checkbox selection
+  const handleCheckboxChange = (index) => {
+    const updatedCheckboxes = coursesCheckboxes.map((item, i) => ({
+      ...item,
+      checked: i === index ? !item.checked : false // Only allow one selection
+    }));
+
+    setCoursesCheckboxes(updatedCheckboxes);
+    
+    // Update the formData with the selected course ID
+    const selectedCourse = updatedCheckboxes.find(item => item.checked);
+    setFormData(prev => ({
+      ...prev,
+      course: selectedCourse ? selectedCourse.id : ''
+    }));
+  };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -97,6 +114,7 @@ const AddTestimonial = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleSubmit = async () => {
     if (!formData.studentName || !formData.course || !formData.testimonialDetails || !formData.image) {
       setError('Please fill all fields and upload an image');
@@ -119,7 +137,7 @@ const AddTestimonial = () => {
         name: formData.studentName,
         rank: formData.course,
         description: formData.testimonialDetails,
-        testimonial_image: uploadResult.blobUrl, // Fixed key here
+        testimonial_image: uploadResult.blobUrl,
       };
       console.log("payload", payload);
   
@@ -127,10 +145,10 @@ const AddTestimonial = () => {
       console.log("Testimonial created:", testimonialResponse);
       toast.success('Data added successfully');
       setTimeout(() => {
-              navigate("/admin/web-management/testinomial", {
-        state: { success: true }
-      }), 3000
-      })
+        navigate("/admin/web-management/testinomial", {
+          state: { success: true }
+        });
+      }, 3000);
   
     } catch (error) {
       console.error("Error uploading testimonial:", error);
@@ -140,7 +158,6 @@ const AddTestimonial = () => {
       setIsUploading(false);
     }
   };
-  
 
   return (
     <Container>
@@ -153,12 +170,11 @@ const AddTestimonial = () => {
         name="studentName"
         placeholder="Enter student name"
         value={formData.studentName}
-     onChange={(e)=>{
-      const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-      setFormData((prev) => ({ ...prev, studentName: filteredData }));
-     }}
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+          setFormData((prev) => ({ ...prev, studentName: filteredData }));
+        }}
       />
-
 
       <Label htmlFor='testimonialDetails'>Testimonial description *</Label>
       <TextArea
@@ -173,18 +189,19 @@ const AddTestimonial = () => {
         <Column>
           <CheckboxSectionTitle>
             Add Course (Click checkbox to Select)
-            </CheckboxSectionTitle>
-            <CheckboxList>
-                {CoursesCheckboxes.map((item, index) => (
-                  <CheckboxLabel  key={index}>
-                    <CheckboxInput 
-                    type="checkbox"
-                    checked={item.checked} 
-                    onChange={() => handleCheckboxChange(index, setCoursesCheckboxes)}
-                     />{item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>      
+          </CheckboxSectionTitle>
+          <CheckboxList>
+            {coursesCheckboxes.map((item, index) => (
+              <CheckboxLabel key={item.id}>
+                <CheckboxInput 
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => handleCheckboxChange(index)}
+                />
+                {item.label}
+              </CheckboxLabel>
+            ))}
+          </CheckboxList>      
         </Column>
       </FormRow>
 
@@ -221,7 +238,7 @@ const AddTestimonial = () => {
         {isUploading ? "Uploading..." : "Upload Testimonial"}
       </UploadButton>
 
-                  <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
