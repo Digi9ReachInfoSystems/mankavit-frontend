@@ -16,11 +16,54 @@ export const BtnAchieve = styled.div`
 
 `;
 
-export const Title = styled.h2`
-  font-size: 18px;
+// Header row: left title ("See All Students (14/24)") and right sort-by
+export const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: ${(props) => props.theme.spacing(2)};
+`;
+
+// Title text on the left
+export const Title = styled.h3`
+  margin: 0;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 1.2rem;
-  color: ${props => props.theme.colors.blueishblack};
+  color: ${(props) => props.theme.colors.black};
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-left: 0;
+  }
+`;
+
+// Container for "Sort by: Name"
+export const SortByContainer = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.test};
+`;
+
+// "Sort by:" label
+export const SortLabel = styled.span`
+  margin-right: 4px;
+`;
+
+// A <select> for the sort options
+export const SortSelect = styled.select`
+  border: 1px solid ${(props) => props.theme.colors.grey};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  padding: 4px;
+  font-family: ${(props) => props.theme.fonts.body};
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.test};
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: ${(props) => props.theme.colors.primary};
+  }
 `;
 
 export const AddButton = styled.button`

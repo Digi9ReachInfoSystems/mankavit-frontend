@@ -49,7 +49,7 @@ const ContactSupportView = () => {
 
         if (Array.isArray(response)) {
           setSupports(response);
-          toast.success("Support tickets loaded successfully");
+          // toast.success("Support tickets loaded successfully");
         } else {
           console.error("Unexpected response format:", response);
           toast.error("Unexpected response format from server");

@@ -25,8 +25,12 @@ const { Option } = AntSelect;
 import { FiTrash } from 'react-icons/fi';
 import { createMocktest } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
-import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 const AddMockTest = () => {
   const [testDetails, setTestDetails] = useState({
     title: '',
@@ -65,6 +69,7 @@ const AddMockTest = () => {
           setSubjectCheckboxes(subjectsData);
       }catch (error) {
         console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data");
       }
     };
     apiCaller();
@@ -110,6 +115,7 @@ const AddMockTest = () => {
   const deleteQuestion = (indexToDelete) => {
     if (questions.length === 1) {
       alert("At least one question is required.");
+      toast.error("At least one question is required.");
       return;
     }
     setQuestions(questions.filter((_, index) => index !== indexToDelete));
@@ -201,7 +207,7 @@ const handleSubmit = async (e) => {
 
     const response = await createMocktest(mockTestData);
     console.log('Mock test created successfully:', response);
-    toast.success('Mock test created successfully!');
+    toast.success('Mock test created successfully');
 
    navigate('/admin/mock-test');
   } catch (error) {
@@ -211,6 +217,7 @@ const handleSubmit = async (e) => {
       errorMessage = error.response.data.message;
     }
     setErrors([errorMessage]);
+    toast.error(errorMessage);
   } finally {
     setIsSubmitting(false);
   }
@@ -453,6 +460,18 @@ const handleSubmit = async (e) => {
           {isSubmitting ? 'Submitting...' : 'Submit Mock Test'}
         </Button>
       </FormWrapper>
+            {/* Toast Container for react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 };

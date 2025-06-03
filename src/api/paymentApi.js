@@ -9,3 +9,12 @@ export const createPayment = async (data) => {
         throw error;
     }
 };
+
+export const getAllPayments = async () => {
+    try {
+        const response = await api.get("/api/v1/payment/getAllPayments");
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
