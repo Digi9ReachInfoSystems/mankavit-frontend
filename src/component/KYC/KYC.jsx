@@ -37,7 +37,7 @@ import { lastDayOfDecade } from 'date-fns';
 import { getCookiesData } from '../../utils/cookiesService';
 import { createKycApi } from '../../api/kycApi';
 import { toast } from "react-toastify";
-
+import { ToastContainer } from 'react-toastify';
 const KYC = () => {
   const passportPhotoInputRef = useRef(null);
   const idProofInputRef = useRef(null);
