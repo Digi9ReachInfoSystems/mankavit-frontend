@@ -99,8 +99,8 @@ const Header = () => {
 
   const handleLoginButton = () => { navigate("/login") };
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    navigate("/");
+    // setIsLoggedIn(false);
+    navigate("/user");
   };
 
   useEffect(() => {

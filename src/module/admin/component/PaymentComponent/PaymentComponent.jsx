@@ -92,7 +92,7 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
             const cookieData = await getCookiesData();
             const user = await getUserByUserId(cookieData.userId);
             if (user.user.kyc_status == "not-applied") {
-              navigate('/user/kyc');
+              navigate('/kyc');
             } else {
               navigate('/user');
             }

@@ -37,7 +37,7 @@ import { lastDayOfDecade } from 'date-fns';
 import { getCookiesData } from '../../utils/cookiesService';
 import { createKycApi } from '../../api/kycApi';
 import { toast } from "react-toastify";
-
+import { ToastContainer } from 'react-toastify';
 const KYC = () => {
   const passportPhotoInputRef = useRef(null);
   const idProofInputRef = useRef(null);
@@ -118,12 +118,18 @@ const KYC = () => {
 
     try {
 
-      if (!updateData.displayName) throw new Error('Full name is required');
-      if (!updateData.email) throw new Error('Email is required');
+      if (!profileData.name) throw new Error('First name is required');
+      if (!profileData.last) throw new Error('Last name is required');
+      if (!profileData.age) throw new Error('Age is required');
+      if (!profileData.mobile || profileData.mobile.length < 10) throw new Error('Valid mobile number is required');
+     
+      if (!profileData.email) throw new Error('Email is required');
 
       const cookieData = await getCookiesData();
       const uploadedIDProofUrl = await uploadFileToAzureStorage(uploadedIDProof.file, 'id-proof');
       const passportPhotoUrl = await uploadFileToAzureStorage(passportPhoto.file, 'photo-url');
+       if (!passportPhotoUrl) throw new Error('Passport photo is required');
+      if (!uploadedIDProofUrl) throw new Error('ID proof is required');
       const submissionData = {
         first_name: profileData.name.trim(),
         last_name: profileData.last.trim(),
@@ -134,7 +140,7 @@ const KYC = () => {
         passport_photo: passportPhotoUrl.blobUrl, // Base64-encoded photo
         userref: cookieData.userId,
       }
-      console.log('Submission Data:', submissionData);
+      // console.log('Submission Data:', submissionData);
       await createKycApi(submissionData);
        toast.success("KYC Form submitted successfully.");
       navigate('/user');
