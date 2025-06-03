@@ -206,7 +206,7 @@ const handleSubmit = async (e) => {
     };
 
     const response = await createMocktest(mockTestData);
-    console.log('Mock test created successfully:', response);
+    console.log('Mock test created successfully:', response.data);
     toast.success('Mock test created successfully');
 
    navigate('/admin/mock-test');

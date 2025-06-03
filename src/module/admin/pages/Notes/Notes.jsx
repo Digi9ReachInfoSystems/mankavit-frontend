@@ -75,6 +75,7 @@ export default function NotesManagement() {
     let processedData = [...data];
 
     if (searchText) {
+      // Filter data based on search text
       processedData = processedData.filter((item) =>
         item.noteTitle.toLowerCase().includes(searchText.toLowerCase())
       );

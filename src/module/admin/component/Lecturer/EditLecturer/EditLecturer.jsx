@@ -48,7 +48,6 @@ export default function EditLecturer() {
       try {
         const response = await getLectureById(id);
         const lecture = response.data;
-        console.log(lecture);
 
         setFormData({
           lectureName: lecture.lectureName || "",
@@ -68,14 +67,6 @@ export default function EditLecturer() {
 
     if (id) fetchLecture();
   }, [id]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleThumbnailUploadClick = () => thumbnailInputRef.current.click();
   const handleVideoUploadClick = () => videoInputRef.current.click();
@@ -98,30 +89,25 @@ export default function EditLecturer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { lectureName, duration, description } = formData;
+
     if (!lectureName || !duration || !description) {
       toast.error("Please fill all required fields!");
       return;
     }
 
     try {
-      // Create a JSON payload instead of FormData
       const payload = {
         lectureName,
         duration,
         description,
-        // Note: If your API accepts file URLs directly, you'll need to handle file uploads separately
-        // thumbnail: thumbnailFile ? await uploadFile(thumbnailFile) : currentThumbnail,
-        // videoUrl: videoFile ? await uploadFile(videoFile) : currentVideo
+        // Add upload logic for video and thumbnail here if needed
       };
 
       const response = await updateLectureById(id, payload);
-      console.log("Update response:", response);
-
       if (response.success) {
         toast.success("Lecture updated successfully!");
-        setTimeout(() => navigate("/admin/lecturer"), 3000);
+        setTimeout(() => navigate("/admin/lecturer-management"), 3000);
       } else {
         throw new Error(response.message || "Failed to update lecture");
       }
@@ -133,10 +119,8 @@ export default function EditLecturer() {
 
   return (
     <Container>
-      <Toaster />
       <Title>Edit Lecture</Title>
       <FormWrapper onSubmit={handleSubmit}>
-        {/* Basic Fields */}
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -145,10 +129,9 @@ export default function EditLecturer() {
                 id="lectureName"
                 name="lectureName"
                 value={formData.lectureName}
-                // onChange={handleInputChange}
-                onchange={(e) => {
-                  const filterentData = formData.lectureName.replace(/[^a-zA-Z\s]/g, '');
-                  setFormData({ ...formData, lectureName: filterentData });
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                  setFormData({ ...formData, lectureName: filteredData });
                 }}
                 placeholder="Enter Lecture Name"
                 required
@@ -162,10 +145,9 @@ export default function EditLecturer() {
                 id="duration"
                 name="duration"
                 value={formData.duration}
-                // onChange={handleInputChange}
                 onChange={(e) => {
-                  const filterentData = e.target.value.replace(/[^0-9]/g, '');
-                  setFormData({ ...formData, duration: filterentData });
+                  const filteredData = e.target.value.replace(/[^0-9]/g, "");
+                  setFormData({ ...formData, duration: filteredData });
                 }}
                 placeholder="e.g. 20"
                 required
@@ -182,10 +164,10 @@ export default function EditLecturer() {
                 id="description"
                 name="description"
                 value={formData.description}
-               onChange={(e)=> {
-                const filterentData = formData.description.replace(/[^a-zA-Z\s]/g, '');
-                setFormData({ ...formData, description: filterentData });
-               }}
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                  setFormData({ ...formData, description: filteredData });
+                }}
                 rows="4"
                 placeholder="Enter detailed description"
                 required
@@ -194,43 +176,32 @@ export default function EditLecturer() {
           </Column>
         </FormRow>
 
-    
-
         <FormRow>
           <Column>
             <FieldWrapper>
               <Label>Update Video</Label>
               <UploadArea onClick={handleVideoUploadClick}>
-  {videoPreviewUrl ? (
-    <VideoContainer>
-      <VideoPlayer controls>
-        <source src={videoPreviewUrl} type="video/mp4" />
-        Your browser does not support the video tag.
-      </VideoPlayer>
-    </VideoContainer>
-  ) : currentVideo ? (
-    <VideoContainer>
-      <VideoPlayer controls>
-        <source src={currentVideo} type="video/mp4" />
-        Your browser does not support the video tag.
-      </VideoPlayer>
-    </VideoContainer>
-  ) : (
-    <>
-      <UploadPlaceholder>
-        <img src={upload} alt="Upload" />
-      </UploadPlaceholder>
-      <p>Click to upload new video</p>
-      <p><strong>or Browse Files</strong></p>
-    </>
-  )}
-  <FileInput
-    ref={videoInputRef}
-    type="file"
-    accept="video/*"
-    onChange={handleVideoChange}
-  />
-</UploadArea>
+                {videoPreviewUrl ? (
+                  <VideoContainer>
+                    <VideoPlayer controls>
+                      <source src={videoPreviewUrl} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </VideoPlayer>
+                  </VideoContainer>
+                ) : (
+                  <UploadPlaceholder>
+                    <img src={upload} alt="Upload" />
+                    <p>Click to upload new video</p>
+                    <p><strong>or Browse Files</strong></p>
+                  </UploadPlaceholder>
+                )}
+                <FileInput
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                />
+              </UploadArea>
             </FieldWrapper>
           </Column>
 
@@ -240,16 +211,16 @@ export default function EditLecturer() {
               <UploadArea onClick={handleThumbnailUploadClick}>
                 {previewUrl && previewUrl !== currentThumbnail ? (
                   <img src={previewUrl} alt="New Thumbnail" className="preview" />
+                ) : currentThumbnail ? (
+                  <ThumbnailPreview>
+                    <img src={currentThumbnail} alt="Current Thumbnail" />
+                  </ThumbnailPreview>
                 ) : (
-                  <>
-              {currentThumbnail ? (
-                <ThumbnailPreview>
-                  <img src={currentThumbnail} alt="Current Thumbnail"  />
-                </ThumbnailPreview>
-              ) : (
-                <p>No thumbnail available</p>
-              )}
-                  </>
+                  <UploadPlaceholder>
+                    <img src={upload} alt="Upload" />
+                    <p>No thumbnail available</p>
+                    <p><strong>Click to upload</strong></p>
+                  </UploadPlaceholder>
                 )}
                 <FileInput
                   ref={thumbnailInputRef}
@@ -262,13 +233,25 @@ export default function EditLecturer() {
           </Column>
         </FormRow>
 
-        {/* Submit */}
         <FormRow>
           <Column>
             <SubmitButton type="submit">Update Lecture</SubmitButton>
           </Column>
         </FormRow>
       </FormWrapper>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 }
