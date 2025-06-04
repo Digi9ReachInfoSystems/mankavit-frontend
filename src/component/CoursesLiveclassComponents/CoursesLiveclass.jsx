@@ -206,14 +206,17 @@ const CoursesLiveclass = () => {
                     setLecture(nextLecture);
                     return nextLecture._id;
                 } else if (nextLecture == null && nextSubject == null) {
+                    const cookies = await getCookiesData();
+                    const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
                     // If no next lecture, navigate to course overview
-                    console.log("No next lecture found, navigating to course overview", course);
+                    // console.log("No next lecture found, navigating to course overview", course);
                     // navigate(`/courseComplte/${courseId}`);
-                    if (course?.completed) {
-                        if (course?.viewedCertificate) {
+                    
+                    if (progressResponse.data?.completed) {
+                        if (progressResponse.data?.viewedCertificate) {
                             navigate(`/user`);
                         } else {
-                            navigate(`/continueCourse/${courseId}`);
+                            navigate(`/courseComplte/${courseId}`);
                         }
 
                     } else {
