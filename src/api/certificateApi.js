@@ -13,7 +13,8 @@ export const getCertificate = async (userId, courseId) => {
 
 export const getAllCertificates = async (userId) => {
     try {
-        const response = await api.get(`/certificates/user${userId}`);
+        const response = await api.get(`/certificates/user/${userId}`);
+        console.log("All certificates response", response.data);
         return response.data;
     } catch (error) {
         console.error('Error fetching all certificates:', error);
