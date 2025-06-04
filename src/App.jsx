@@ -127,7 +127,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
-         <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
@@ -161,7 +161,7 @@ function App() {
 
 
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
-          <Route path='/courseComplte/:courseId' element={<CourseCompletionPage/>} />
+          <Route path='/courseComplte/:courseId' element={<CourseCompletionPage />} />
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
@@ -190,7 +190,7 @@ function App() {
             <Route path="student-management/create" element={<AddStudent />} />
             <Route path="student-management/edit/:id" element={<EditStudent />} />
             <Route path="student-management/view/:id" element={<ViewStudent />} />
-<Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
+            <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
             <Route path="mock-test" element={<Mocktest />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
@@ -278,8 +278,8 @@ function App() {
             <Route path="web-management/contact-support" element={<ContactSupportView />} />
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
-            <Route path= "web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
-            
+            <Route path="web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
+
           </Route>
 
 

@@ -29,7 +29,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
-import { getSubjects, deleteSubjectByid} from "../../../../api/subjectApi";
+import { getSubjects, deleteSubjectByid } from "../../../../api/subjectApi";
 import { IoEyeOutline } from "react-icons/io5";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -68,15 +68,17 @@ export default function Subjects() {
     const appiCaller = async () => {
       try {
         const subjectResponse = await getSubjects();
+        console.log("Jayanth respone", subjectResponse);
         const subjectsData = subjectResponse.data.map((item) => ({
           id: item._id,
           subjectName: item.subjectDisplayName,
           internalName: item.subjectName,
-          mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
+          mockTest: item.mockTests.map((mockTest) => mockTest.title),
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
         }))
         console.log(subjectsData);
+        console.log("subjectsData", subjectsData);
         setData(subjectsData);
         const filteredValue = subjectsData.filter((item) =>
           item.subjectName.toLowerCase().includes(searchText.toLowerCase())
@@ -91,70 +93,71 @@ export default function Subjects() {
         const currentValue = filteredValue.slice(startIndex, endIndex);
         setCurrentItems(currentValue);
       } catch (error) {
-        console.log("error",error);
+        console.log("error", error);
       }
 
     }
     appiCaller();
-  }, [])
+  }, []);
 
-useEffect(() => {
-  const fetchSubjects = async () => {
-    try {
-      const subjectResponse = await getSubjects();
-      const subjectsData = subjectResponse.data.map((item) => ({
-        id: item._id,
-        subjectName: item.subjectDisplayName,
-        internalName: item.subjectName,
-        mockTest: item.mockTests.map((mockTest) => mockTest.courseName),
-        activeCourses: item.courses.map((course) => course.courseName),
-        dateandtime: item.updatedAt,
-      }));
-      setData(subjectsData);
-    } catch (error) {
-      console.log("error", error);
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const subjectResponse = await getSubjects();
+        const subjectsData = subjectResponse.data.map((item) => ({
+          id: item._id,
+          subjectName: item.subjectDisplayName,
+          internalName: item.subjectName,
+          mockTest: item.mockTests.map((mockTest) => mockTest.title),
+          activeCourses: item.courses.map((course) => course.courseName),
+          dateandtime: item.updatedAt,
+        }));
+        console.log("roshni", subjectsData);
+        setData(subjectsData);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    fetchSubjects();
+  }, []);
+
+
+  // ✅ Second useEffect for filtering, sorting and pagination (runs when data, search, sort, or page change)
+  useEffect(() => {
+    let processedData = [...data];
+
+    // Filter by search
+    if (searchText) {
+      processedData = processedData.filter((item) =>
+        item.subjectName.toLowerCase().includes(searchText.toLowerCase())
+      );
     }
-  };
-  fetchSubjects();
-}, []);
 
-
-// ✅ Second useEffect for filtering, sorting and pagination (runs when data, search, sort, or page change)
-useEffect(() => {
-  let processedData = [...data];
-
-  // Filter by search
-  if (searchText) {
-    processedData = processedData.filter((item) =>
-      item.subjectName.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }
-
-  // Sort based on option
-  if (sortOption === "Name") {
-    processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
+    // Sort based on option
+    if (sortOption === "Name") {
+      processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
     } else if (sortOption === 'Date') {
       processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
     }
 
-  // Update filteredData state
-  setFilteredData(processedData);
+    // Update filteredData state
+    setFilteredData(processedData);
 
-  // Update pagination
-  const TOTAL_ENTRIES_VALUES = processedData.length;
-  setTotalEntries(TOTAL_ENTRIES_VALUES);
-  const TOTAL_PAGES_VALUES = Math.ceil(TOTAL_ENTRIES_VALUES / ITEMS_PER_PAGE);
-  setTotalPages(TOTAL_PAGES_VALUES);
+    // Update pagination
+    const TOTAL_ENTRIES_VALUES = processedData.length;
+    setTotalEntries(TOTAL_ENTRIES_VALUES);
+    const TOTAL_PAGES_VALUES = Math.ceil(TOTAL_ENTRIES_VALUES / ITEMS_PER_PAGE);
+    setTotalPages(TOTAL_PAGES_VALUES);
 
-  // Reset to page 1 if currentPage exceeds total pages
-  const safePage = currentPage > TOTAL_PAGES_VALUES ? 1 : currentPage;
-  setCurrentPage(safePage);
+    // Reset to page 1 if currentPage exceeds total pages
+    const safePage = currentPage > TOTAL_PAGES_VALUES ? 1 : currentPage;
+    setCurrentPage(safePage);
 
-  const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentValue = processedData.slice(startIndex, endIndex);
-  setCurrentItems(currentValue);
-}, [data, searchText, sortOption, currentPage]);
+    const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentValue = processedData.slice(startIndex, endIndex);
+    setCurrentItems(currentValue);
+  }, [data, searchText, sortOption, currentPage]);
 
 
 
@@ -191,22 +194,22 @@ useEffect(() => {
     setModal(true);
   };
 
-const handleClickDelete = async () => {
- try {
-     await deleteSubjectByid(deleteId);
-    setData(prevData => {
-       const newData = prevData.filter(item => item.id !== deleteId);
-       return newData;
-     });
-     toast.success("Data deleted successfully");
-   } catch (error) {
-     console.error("Failed to delete subject:", error);
-     toast.error("Failed to delete data. Please try again.");
-   } finally {
-     setModal(false);
-     setDeleteId(null);
-   }
- };
+  const handleClickDelete = async () => {
+    try {
+      await deleteSubjectByid(deleteId);
+      setData(prevData => {
+        const newData = prevData.filter(item => item.id !== deleteId);
+        return newData;
+      });
+      toast.success("Data deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete subject:", error);
+      toast.error("Failed to delete data. Please try again.");
+    } finally {
+      setModal(false);
+      setDeleteId(null);
+    }
+  };
 
   const handleViewClick = (subject) => {
     navigate(`/admin/subject-management/view/${subject.id}`, {
@@ -236,18 +239,18 @@ const handleClickDelete = async () => {
   return (
     <>
 
-       <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme='colored'
-          />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
       <ButtonContainer>
         <CreateButton onClick={() => navigate("/admin/subject-management/create")}>
@@ -282,7 +285,7 @@ const handleClickDelete = async () => {
                 // { value: 'Active', label: 'Active' },
               ]}
             />
-           
+
           </SortByContainer>
         </HeaderRow>
 
@@ -337,7 +340,7 @@ const handleClickDelete = async () => {
                         style={{ cursor: "pointer" }}
                         onClick={() => handleViewClick(item)}
                       />
-                      <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }}  onClick ={() => handleEdit(item.id)}/>
+                      <BiEditAlt size={20} color="#000000" style={{ cursor: "pointer" }} onClick={() => handleEdit(item.id)} />
                       <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"

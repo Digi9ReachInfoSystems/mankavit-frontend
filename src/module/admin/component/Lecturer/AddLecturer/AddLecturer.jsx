@@ -117,8 +117,8 @@ export default function AddLecturer() {
 
       toast.success("Lecture created successfully");
       setTimeout(() => {
-        navigate("/admin/lectures");
-      }, 3000);
+        navigate("/admin/lecturer-management");
+      }, 2000);
 
       setLectureName("");
       setDuration("");
@@ -138,7 +138,6 @@ export default function AddLecturer() {
 
   return (
     <Container>
-      <Toaster />
       <Title>Add Lecture</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
