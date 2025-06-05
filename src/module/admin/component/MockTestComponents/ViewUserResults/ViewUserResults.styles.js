@@ -58,3 +58,25 @@ export const SubTitle = styled.h2`
   text-align: left;
   margin-bottom: 20px;
 `;
+
+export const MarkInput = styled.input`
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 60px;
+`;
+
+export const SubmitButton = styled.button`
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;

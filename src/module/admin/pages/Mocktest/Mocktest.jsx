@@ -61,6 +61,7 @@ export default function MockTestsTable() {
     fetchMockTests();
   }, []);
 
+
   const fetchMockTests = async () => {
     try {
       setLoading(true);
@@ -73,6 +74,7 @@ export default function MockTestsTable() {
           mockTitle: test.title,
           students: test.students || [],
           subjectName: test.subject?.subjectDisplayName || test.subject?.subjectName || '—',
+          subjectId: test.subject?._id || null, // Add this line
           questionTypes: Array.isArray(test.questions)
             ? [...new Set(test.questions.map(q => q.type))].join(', ')
             : '—',
@@ -128,36 +130,43 @@ export default function MockTestsTable() {
       setSelectedToDelete(null);
     }
   };
+  const handleViewResults = (mockTestId, subjectId) => {
+    if (!subjectId) {
+      toast.error("Subject ID is missing");
+      return;
+    }
+    navigate(`/admin/mock-test/user-result/${mockTestId}/${subjectId}`);
+  };
 
 
-const handlePublishToggle = async (id, currentStatus) => {
-  const newStatus = !currentStatus;
+  const handlePublishToggle = async (id, currentStatus) => {
+    const newStatus = !currentStatus;
 
-  // Optimistic update
-  setData(data.map(item => 
-    item.id === id ? { ...item, isPublished: newStatus } : item
-  ));
+    // Optimistic update
+    setData(data.map(item =>
+      item.id === id ? { ...item, isPublished: newStatus } : item
+    ));
 
-  try {
-    const response = await publishMocktestById(id, newStatus);
-    console.log("Publish toggle response:", response);
+    try {
+      const response = await publishMocktestById(id, newStatus);
+      console.log("Publish toggle response:", response);
 
-    if (!response.success) {
-      // Revert on failure
-      setData(data.map(item => 
+      if (!response.success) {
+        // Revert on failure
+        setData(data.map(item =>
+          item.id === id ? { ...item, isPublished: currentStatus } : item
+        ));
+        setError("Failed to update publish status");
+      }
+    } catch (error) {
+      // Revert on error
+      setData(data.map(item =>
         item.id === id ? { ...item, isPublished: currentStatus } : item
       ));
+      console.error("Publish toggle failed:", error);
       setError("Failed to update publish status");
     }
-  } catch (error) {
-    // Revert on error
-    setData(data.map(item => 
-      item.id === id ? { ...item, isPublished: currentStatus } : item
-    ));
-    console.error("Publish toggle failed:", error);
-    setError("Failed to update publish status");
-  }
-};
+  };
 
   const handleView = (students) => {
     setViewData(students);
@@ -256,9 +265,12 @@ const handlePublishToggle = async (id, currentStatus) => {
                     </ActionsContainer>
                   </TableCell>
                   <TableCell>
-                    <a href="/admin/mock-test/user-result">
+                    <button
+                      onClick={() => handleViewResults(item.id, item.subjectId)}
+                      disabled={!item.subjectId}
+                    >
                       View
-                    </a>
+                    </button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -289,18 +301,18 @@ const handlePublishToggle = async (id, currentStatus) => {
           />
         )}
 
-              {/* Toast Container for react-toastify */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+        {/* Toast Container for react-toastify */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
       </Container>
     </>
   );

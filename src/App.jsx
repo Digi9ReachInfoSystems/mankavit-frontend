@@ -195,8 +195,8 @@ function App() {
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
             <Route path='mock-test/edit/:id' element={<EditMockTest />} />
-            <Route path='mock-test/user-result' element={<ViewUser />} />
-            <Route path='mock-test/user-result/view-result' element={<ViewUserResults />} />
+            <Route path='mock-test/user-result/:mockTestId/:subjectId' element={<ViewUser />} />
+            <Route path='mock-test/user-result/view-result/:attemptId' element={<ViewUserResults />} />
 
             <Route path="payment-management" element={<Payment />} />
 
