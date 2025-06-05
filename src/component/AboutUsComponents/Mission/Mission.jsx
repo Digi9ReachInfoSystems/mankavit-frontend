@@ -17,25 +17,7 @@ import empower from "../../../assets/empowerment.png";
 import excellence from "../../../assets/excellence.png";
 import success from "../../../assets/success.png";
 
-// const missionData = [
-//   {
-//     title: "Empowerment",
-//     description: "Equipping students with the tools and confidence to excel.",
-//     image: empower,
-//   },
-//   {
-//     title: "Excellence",
-//     description:
-//       "Delivering high-quality coaching and resources for top results.",
-//     image: excellence,
-//   },
-//   {
-//     title: "Success",
-//     description:
-//       "Helping students achieve their goals and secure admissions to prestigious law schools.",
-//     image: success,
-//   },
-// ];
+
 import { getMissions } from "../../../api/missionApi";
 
 const Mission = () => {

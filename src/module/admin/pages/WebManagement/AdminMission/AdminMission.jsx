@@ -35,10 +35,9 @@ const AdminMission = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [error, setError] = useState(null);
   const [modal, setModal] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // ✅ Added
-  const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState(null); 
 
-  // Fetch all missions from the API
+  const navigate = useNavigate();
   const fetchMissions = async () => {
     setLoading(true);
     try {
@@ -67,7 +66,6 @@ const AdminMission = () => {
     navigate(`/admin/web-management/mission/edit/${id}`);
   };
 
-  // Confirm delete: call API then update state
   const handleConfirmDelete = async () => {
     try {
       await deleteMissionById(selectedId);

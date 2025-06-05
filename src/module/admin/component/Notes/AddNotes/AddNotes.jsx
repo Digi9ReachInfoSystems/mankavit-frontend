@@ -143,7 +143,10 @@ export default function AddNote() {
         )
         return;
       }
+      console.log("pdfFile", pdfFile);
       const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
+      
+      console.log("fileData", fileData);
       const fileURL = fileData.blobUrl;
       const subjects = subjectsCheckboxes.filter((item) => item.checked).map((item) => item.id);
       const createNotesResponse = await createNotes(

@@ -111,3 +111,22 @@ export const evaluateMocktest = async(data) =>{
         throw error;
     }
 }
+
+
+export const getUserAnswerByMocktestIdandSubjectId = async(mockTestId,subjectId) =>{
+    try{
+        const response = await api.get(`/userRanking/${mockTestId}/${subjectId}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const getAttemptById = async(attemptId) =>{
+    try{
+        const response = await api.get(`/userAttempt/${attemptId}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
