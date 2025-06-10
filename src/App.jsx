@@ -121,6 +121,8 @@ import CourseCompletionPage from './component/CourseCompletionPage/CourseComplet
 import CreateKYC from './module/user/component/CreateKYC/CreateKYC'
 import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStudentFeedback/ViewStudentFeedback'
 import UpdateKYC from './module/admin/component/Student/updateKYC/updateKYC'
+import ViewUserAttempts from './module/admin/component/MockTestComponents/ViewUserAttempts/ViewUserAttempts'
+import ViewUserRanking from './module/admin/component/MockTestComponents/ViewUserRanking/ViewUserRanking'
 function App() {
 
   return (
@@ -196,6 +198,8 @@ function App() {
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
             <Route path='mock-test/edit/:id' element={<EditMockTest />} />
             <Route path='mock-test/user-result/:mockTestId/:subjectId' element={<ViewUser />} />
+            <Route path='mock-test/user-ranking/:mockTestId/:subjectId' element={<ViewUserRanking />} />
+            <Route path='mock-test/user-attempts/:mockTestId/:userId' element={<ViewUserAttempts />} />
             <Route path='mock-test/user-result/view-result/:attemptId' element={<ViewUserResults />} />
 
             <Route path="payment-management" element={<Payment />} />

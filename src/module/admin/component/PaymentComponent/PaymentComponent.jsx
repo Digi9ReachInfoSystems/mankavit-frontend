@@ -90,7 +90,9 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
             alert('Payment Successful!');
             // Optionally, redirect or update UI
             const cookieData = await getCookiesData();
+            console.log("cookieData", cookieData);
             const user = await getUserByUserId(cookieData.userId);
+            console.log("user", user);
             if (user.user.kyc_status == "not-applied") {
               navigate('/kyc');
             } else {

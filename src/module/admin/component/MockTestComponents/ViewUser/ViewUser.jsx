@@ -21,8 +21,8 @@ import {
 import { CiSearch } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import Pagination from "../../../component/Pagination/Pagination";
-import { getUserAnswerByMocktestIdandSubjectId } from "../../../../../api/mocktestApi";
-
+import { getAttemptedUserListByMocktestId, getUserAnswerByMocktestIdandSubjectId } from "../../../../../api/mocktestApi";
+import { IoEyeOutline } from "react-icons/io5";
 const ITEMS_PER_PAGE = 10;
 
 export default function ViewUser() {
@@ -31,7 +31,7 @@ export default function ViewUser() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [sortBy, setSortBy] = useState("Name");
-const navigate = useNavigate();
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUserAnswers = async () => {
       try {
@@ -39,10 +39,11 @@ const navigate = useNavigate();
           console.error("Missing mockTestId or subjectId");
           return;
         }
-        const response = await getUserAnswerByMocktestIdandSubjectId(
+        const response = await getAttemptedUserListByMocktestId(
           mockTestId,
-          subjectId
+
         );
+        console.log("Fetching user answers for mockTestId:", response);
         console.log("subjectId", subjectId);
         console.log("mockTestId", mockTestId);
         console.log("View user answers response", response);
@@ -61,8 +62,8 @@ const navigate = useNavigate();
   }, [mockTestId, subjectId]);
 
   const filtered = data.filter((item) =>
-    item.userId.displayName.toLowerCase().includes(searchText.toLowerCase()) ||
-    item.userEmail.toLowerCase().includes(searchText.toLowerCase())
+    item.displayName.toLowerCase().includes(searchText.toLowerCase()) ||
+    item.email.toLowerCase().includes(searchText.toLowerCase())
   );
   const totalEntries = filtered.length;
   const totalPages = Math.ceil(totalEntries / ITEMS_PER_PAGE);
@@ -74,9 +75,9 @@ const navigate = useNavigate();
   };
 
 
-  const handleView = (attempt) => {
-    console.log("attempt", attempt);
-    navigate(`/admin/mock-test/user-result/view-results/${attempt._id}`);
+  const handleView = (userId, mocktestId) => {
+    console.log("attempt", userId);
+    navigate(`/admin/mock-test/user-attempts/${mocktestId}/${userId}`);
     // console.log("View attempt with ID:", attemptId);
   };
 
@@ -111,19 +112,27 @@ const navigate = useNavigate();
             <TableRow>
               <TableHeader>Username</TableHeader>
               <TableHeader>Email</TableHeader>
-              <TableHeader>View</TableHeader>
-              <TableHeader>Submitted At</TableHeader>
+              <TableHeader>View Attempts</TableHeader>
+              {/* <TableHeader>Submitted At</TableHeader> */}
             </TableRow>
           </TableHead>
           <TableBody>
             {pageItems.map((item) => (
               <TableRow key={item._id}>
-                <TableCell>{item.userId.displayName}</TableCell>
-                <TableCell>{item.userEmail}</TableCell>
+                <TableCell>{item.displayName}</TableCell>
+                <TableCell>{item.email}</TableCell>
                 <TableCell>
-                  <button onClick={() => handleView(item._id)}>View</button>
+                  <button
+                    style={{ border: "none", background: "none" }}
+                    onClick={() => handleView(item._id, mockTestId)}>
+                    <IoEyeOutline
+                      title="View Details"
+                      size={20}
+                      // onClick={() => goToViewDetail(item.id)}
+                    />
+                  </button>
                 </TableCell>
-                <TableCell>{new Date(item.submittedAt).toLocaleString()}</TableCell>
+                {/* <TableCell>{new Date(item.submittedAt).toLocaleString()}</TableCell> */}
               </TableRow>
             ))}
           </TableBody>

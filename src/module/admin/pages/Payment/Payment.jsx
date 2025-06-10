@@ -56,6 +56,7 @@ export default function Payment() {
       try {
         setLoading(true);
         const response = await getAllPayments();
+        console.log("API Response:", response);
         if (response && response.success && response.payments) {
           setPayments(response.payments);
           setFilteredPayments(response.payments);

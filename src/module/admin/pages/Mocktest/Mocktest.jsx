@@ -221,6 +221,7 @@ export default function MockTestsTable() {
                 <TableHeader>Published</TableHeader>
                 <TableHeader>Actions</TableHeader>
                 <TableHeader>View Result</TableHeader>
+                <TableHeader>View Ranking</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -264,12 +265,31 @@ export default function MockTestsTable() {
                       />
                     </ActionsContainer>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{textAlign:"center!important"}}>
                     <button
+                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" ,textAlign:"center"}}
                       onClick={() => handleViewResults(item.id, item.subjectId)}
                       disabled={!item.subjectId}
                     >
-                      View
+                      <IoEyeOutline
+                        title="View Details"
+                        size={20}
+                        onClick={() => goToViewDetail(item.id)}
+                      />
+
+                    </button>
+                  </TableCell>
+                  <TableCell>
+                    <button
+                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" }}
+                      onClick={() => { navigate(`/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`) }}
+                      disabled={!item.subjectId}
+                    >
+                      <IoEyeOutline
+                        title="View Details"
+                        size={20}
+                        onClick={() => goToViewDetail(item.id)}
+                      />
                     </button>
                   </TableCell>
                 </TableRow>
