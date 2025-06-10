@@ -185,10 +185,11 @@ export default function TextScreen() {
         attemptId: ans.attemptId,
         user_id:   userId
       });
+      console.log("res", res);
       const data = unwrap(res);
       if (data) {
         toast.success('Test submitted');
-        navigate(`/test-results/${testId}/${subjectId}/${ans.attemptId}`);
+        navigate(`/test-submitted`);
       }
     } catch (err) {
       console.error(err);

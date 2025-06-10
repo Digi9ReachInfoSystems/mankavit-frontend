@@ -196,7 +196,7 @@ const ContinueCourse = () => {
     const fetchMockTestsForSubject = async (subjectId) => {
         try {
             const response = await getMocktestBySubjectId(subjectId);
-            console.log("Mock tests for subject:", response.data);
+            console.log("Mock tests for subject:wm djj", response.data);
             return response.data || [];
         } catch (error) {
             console.error("Error fetching mock tests:", error);
@@ -272,6 +272,7 @@ const ContinueCourse = () => {
         if (course.subjects && course.subjects.length > 0) {
             mockTestData = await Promise.all(course.subjects.map(async (subject) => {
                 const mockTests = await fetchMockTestsForSubject(subject._id);
+                console.log("Mock tests for subject:", subject._id, mockTests);
                 return {
                     _id: subject._id,
                     name: subject.subjectName || "Subject",
