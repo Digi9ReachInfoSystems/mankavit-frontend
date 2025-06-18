@@ -67,6 +67,7 @@ const Sidebar = () => {
     { path: "/admin/web-management/blog", label: "Blog" },
     { path: "/admin/web-management/contact-support", label: "Contact Support" },
     { path: "/admin/web-management/user-feedback", label: "User Feedback" },
+    { path: "/admin/web-management/youtubelinks", label: "Youtube Links" },
   ];
 
   const appManagementItems = [

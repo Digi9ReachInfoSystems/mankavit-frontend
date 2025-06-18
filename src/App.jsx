@@ -124,6 +124,10 @@ import UpdateKYC from './module/admin/component/Student/updateKYC/updateKYC'
 import ViewUserAttempts from './module/admin/component/MockTestComponents/ViewUserAttempts/ViewUserAttempts'
 import ViewUserRanking from './module/admin/component/MockTestComponents/ViewUserRanking/ViewUserRanking'
 import CreateMockTest from './module/admin/component/MockTestComponents/CreateMockTest/CreateMockTest'
+import YouTube from './module/admin/pages/WebManagement/YouTube/YouTube'
+import AddYoutube from './module/admin/component/WebManagement/YoutubeComponents/AddYoutube/AddYoutube'
+import EditYoutube from './module/admin/component/WebManagement/YoutubeComponents/EditYoutube/EditYoutube.'
+import ViewYoutube from './module/admin/component/WebManagement/YoutubeComponents/ViewYoutube/ViewYoutube'
 function App() {
 
   return (
@@ -285,7 +289,11 @@ function App() {
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
             <Route path="web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
-
+            
+            <Route path='web-management/youtubelinks' element={<YouTube />} />
+            <Route path='web-management/youtubelinks/create' element={<AddYoutube />} />
+            <Route path='web-management/youtubelinks/edit/:id' element={<EditYoutube />} />
+            <Route path="web-management/youtubelinks/view/:id" element={<ViewYoutube />} />
           </Route>
 
 
