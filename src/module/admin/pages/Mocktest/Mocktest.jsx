@@ -173,7 +173,7 @@ export default function MockTestsTable() {
     setViewModalOpen(true);
   };
 
-  const goToCreate = () => navigate("/admin/mock-test/create");
+  // const goToCreate = () => navigate("/admin/mock-test/create-mock-test");
   const goToViewDetail = (id) => navigate(`/admin/mock-test/view/${id}`);
 
   if (loading) return <div>Loading mock tests…</div>;
@@ -181,9 +181,10 @@ export default function MockTestsTable() {
 
   return (
     <>
-      <ButtonContainer>
-        <CreateButton onClick={goToCreate}>Add Mock Test</CreateButton>
-      </ButtonContainer>
+      {/* <ButtonContainer>
+        <CreateButton onClick={goToCreate}>Results</CreateButton>
+        <CreateButton onClick={goToCreate}>Create Mock Test</CreateButton>
+      </ButtonContainer> */}
 
       <Container>
         <HeaderRow>
@@ -213,14 +214,14 @@ export default function MockTestsTable() {
           <StyledTable>
             <TableHead>
               <TableRow>
-                <TableHeader>Title</TableHeader>
-                <TableHeader>Subject</TableHeader>
+                <TableHeader>Mock Test Name</TableHeader>
+                {/* <TableHeader>Subject</TableHeader> */}
                 <TableHeader>Created on</TableHeader>
                 <TableHeader>Question type</TableHeader>
                 <TableHeader>Total marks</TableHeader>
                 <TableHeader>Published</TableHeader>
                 <TableHeader>Actions</TableHeader>
-                <TableHeader>View Result</TableHeader>
+                <TableHeader>View Submission</TableHeader>
                 <TableHeader>View Ranking</TableHeader>
               </TableRow>
             </TableHead>
@@ -228,7 +229,7 @@ export default function MockTestsTable() {
               {pageItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.mockTitle}</TableCell>
-                  <TableCell>{item.subjectName}</TableCell>
+                  {/* <TableCell>{item.subjectName}</TableCell> */}
                   <TableCell>{item.createdOn}</TableCell>
                   <TableCell>{item.questionTypes}</TableCell>
                   <TableCell>{item.totalMarks}</TableCell>

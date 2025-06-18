@@ -123,6 +123,7 @@ import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStud
 import UpdateKYC from './module/admin/component/Student/updateKYC/updateKYC'
 import ViewUserAttempts from './module/admin/component/MockTestComponents/ViewUserAttempts/ViewUserAttempts'
 import ViewUserRanking from './module/admin/component/MockTestComponents/ViewUserRanking/ViewUserRanking'
+import CreateMockTest from './module/admin/component/MockTestComponents/CreateMockTest/CreateMockTest'
 function App() {
 
   return (
@@ -194,6 +195,7 @@ function App() {
             <Route path="student-management/view/:id" element={<ViewStudent />} />
             <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
             <Route path="mock-test" element={<Mocktest />} />
+            <Route path="mock-test/create-mock-test" element={<CreateMockTest />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
             <Route path='mock-test/edit/:id' element={<EditMockTest />} />
