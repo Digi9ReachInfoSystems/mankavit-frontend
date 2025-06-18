@@ -31,10 +31,16 @@ const Sidebar = () => {
   const menuItems = [
     { path: "/admin", label: "Dashboard" },
     { path: "/admin/student-management", label: "Student Management" },
-    { path: "/admin/mock-test", label: "Mock Test" },
+    // { path: "/admin/mock-test", label: "Mock Test" },
     { path: "/admin/payment-management", label: "Payment" },
     { path: "/admin/static-page", label: "Static Page" },
   ];
+
+  const mocktextItems = [
+    { path: "/admin/mock-test", label: "View Mock Test" },
+    { path: "/admin/mock-test/create-mock-test", label: "Create Mock Test" },
+    { path: "/admin/test-management", label: "Results" },
+  ]
 
   const courseManagementItems = [
     { path: "/admin/course-management", label: "Courses" },
@@ -74,6 +80,7 @@ const Sidebar = () => {
   useEffect(() => {
     const newOpenSections = {};
     const sections = {
+      "Mock Test": mocktextItems,
       "Course Management": courseManagementItems,
       "Web management": webmanagement,
       "App Management": appManagementItems,
@@ -173,6 +180,7 @@ const Sidebar = () => {
         <SidebarTitle>Mankavit</SidebarTitle>
         <MenuList>
           {menuItems.map((item, index) => renderMenuItem(item, index))}
+          {renderSection("Mock Test", mocktextItems)}
           {renderSection("Course Management", courseManagementItems)}
           {renderSection("Web management", webmanagement)}
           {/* {renderSection("App Management", appManagementItems)} */}

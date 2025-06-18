@@ -34,7 +34,9 @@ import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { getAllMocktest, deleteMocktestById, publishMocktestById } from "../../../../api/mocktestApi";
-import toast from "react-hot-toast";
+
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -59,6 +61,7 @@ export default function MockTestsTable() {
     fetchMockTests();
   }, []);
 
+
   const fetchMockTests = async () => {
     try {
       setLoading(true);
@@ -71,6 +74,7 @@ export default function MockTestsTable() {
           mockTitle: test.title,
           students: test.students || [],
           subjectName: test.subject?.subjectDisplayName || test.subject?.subjectName || '—',
+          subjectId: test.subject?._id || null, // Add this line
           questionTypes: Array.isArray(test.questions)
             ? [...new Set(test.questions.map(q => q.type))].join(', ')
             : '—',
@@ -82,6 +86,7 @@ export default function MockTestsTable() {
         setData(rows);
       } else {
         throw new Error("Failed to load mock tests");
+        toast.error("Failed to load mock tests");
       }
     } catch (err) {
       console.error(err);
@@ -114,53 +119,61 @@ export default function MockTestsTable() {
       // if ((filtered.length - 1) <= startIdx && currentPage > 1) {
       //   setCurrentPage(currentPage - 1);
       // }
-      toast.success("Mock test deleted successfully");
       await fetchMockTests();
+      toast.success("Mock test deleted successfully");
     } catch (error) {
       console.error("Delete failed:", error);
       setError("Failed to delete mock test");
+      toast.error("Failed to delete mock test");
     } finally {
       setDeleteModalOpen(false);
       setSelectedToDelete(null);
     }
   };
+  const handleViewResults = (mockTestId, subjectId) => {
+    if (!subjectId) {
+      toast.error("Subject ID is missing");
+      return;
+    }
+    navigate(`/admin/mock-test/user-result/${mockTestId}/${subjectId}`);
+  };
 
 
-const handlePublishToggle = async (id, currentStatus) => {
-  const newStatus = !currentStatus;
+  const handlePublishToggle = async (id, currentStatus) => {
+    const newStatus = !currentStatus;
 
-  // Optimistic update
-  setData(data.map(item => 
-    item.id === id ? { ...item, isPublished: newStatus } : item
-  ));
+    // Optimistic update
+    setData(data.map(item =>
+      item.id === id ? { ...item, isPublished: newStatus } : item
+    ));
 
-  try {
-    const response = await publishMocktestById(id, newStatus);
-    console.log("Publish toggle response:", response);
+    try {
+      const response = await publishMocktestById(id, newStatus);
+      console.log("Publish toggle response:", response);
 
-    if (!response.success) {
-      // Revert on failure
-      setData(data.map(item => 
+      if (!response.success) {
+        // Revert on failure
+        setData(data.map(item =>
+          item.id === id ? { ...item, isPublished: currentStatus } : item
+        ));
+        setError("Failed to update publish status");
+      }
+    } catch (error) {
+      // Revert on error
+      setData(data.map(item =>
         item.id === id ? { ...item, isPublished: currentStatus } : item
       ));
+      console.error("Publish toggle failed:", error);
       setError("Failed to update publish status");
     }
-  } catch (error) {
-    // Revert on error
-    setData(data.map(item => 
-      item.id === id ? { ...item, isPublished: currentStatus } : item
-    ));
-    console.error("Publish toggle failed:", error);
-    setError("Failed to update publish status");
-  }
-};
+  };
 
   const handleView = (students) => {
     setViewData(students);
     setViewModalOpen(true);
   };
 
-  const goToCreate = () => navigate("/admin/mock-test/create");
+  // const goToCreate = () => navigate("/admin/mock-test/create-mock-test");
   const goToViewDetail = (id) => navigate(`/admin/mock-test/view/${id}`);
 
   if (loading) return <div>Loading mock tests…</div>;
@@ -168,9 +181,10 @@ const handlePublishToggle = async (id, currentStatus) => {
 
   return (
     <>
-      <ButtonContainer>
-        <CreateButton onClick={goToCreate}>Add Mock Test</CreateButton>
-      </ButtonContainer>
+      {/* <ButtonContainer>
+        <CreateButton onClick={goToCreate}>Results</CreateButton>
+        <CreateButton onClick={goToCreate}>Create Mock Test</CreateButton>
+      </ButtonContainer> */}
 
       <Container>
         <HeaderRow>
@@ -200,21 +214,22 @@ const handlePublishToggle = async (id, currentStatus) => {
           <StyledTable>
             <TableHead>
               <TableRow>
-                <TableHeader>Title</TableHeader>
-                <TableHeader>Subject</TableHeader>
+                <TableHeader>Mock Test Name</TableHeader>
+                {/* <TableHeader>Subject</TableHeader> */}
                 <TableHeader>Created on</TableHeader>
                 <TableHeader>Question type</TableHeader>
                 <TableHeader>Total marks</TableHeader>
                 <TableHeader>Published</TableHeader>
                 <TableHeader>Actions</TableHeader>
-                <TableHeader>View Result</TableHeader>
+                <TableHeader>View Submission</TableHeader>
+                <TableHeader>View Ranking</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
               {pageItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.mockTitle}</TableCell>
-                  <TableCell>{item.subjectName}</TableCell>
+                  {/* <TableCell>{item.subjectName}</TableCell> */}
                   <TableCell>{item.createdOn}</TableCell>
                   <TableCell>{item.questionTypes}</TableCell>
                   <TableCell>{item.totalMarks}</TableCell>
@@ -251,10 +266,32 @@ const handlePublishToggle = async (id, currentStatus) => {
                       />
                     </ActionsContainer>
                   </TableCell>
+                  <TableCell style={{textAlign:"center!important"}}>
+                    <button
+                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" ,textAlign:"center"}}
+                      onClick={() => handleViewResults(item.id, item.subjectId)}
+                      disabled={!item.subjectId}
+                    >
+                      <IoEyeOutline
+                        title="View Details"
+                        size={20}
+                        onClick={() => goToViewDetail(item.id)}
+                      />
+
+                    </button>
+                  </TableCell>
                   <TableCell>
-                    <a href="/admin/mock-test/user-result">
-                      View
-                    </a>
+                    <button
+                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" }}
+                      onClick={() => { navigate(`/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`) }}
+                      disabled={!item.subjectId}
+                    >
+                      <IoEyeOutline
+                        title="View Details"
+                        size={20}
+                        onClick={() => goToViewDetail(item.id)}
+                      />
+                    </button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -284,6 +321,19 @@ const handlePublishToggle = async (id, currentStatus) => {
             onClose={() => setViewModalOpen(false)}
           />
         )}
+
+        {/* Toast Container for react-toastify */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
       </Container>
     </>
   );

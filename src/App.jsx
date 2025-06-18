@@ -120,6 +120,10 @@ import ViewUserResults from './module/admin/component/MockTestComponents/ViewUse
 import CourseCompletionPage from './component/CourseCompletionPage/CourseCompletionPage'
 import CreateKYC from './module/user/component/CreateKYC/CreateKYC'
 import ViewStudentFeedback from './module/admin/component/WebManagement/ViewStudentFeedback/ViewStudentFeedback'
+import UpdateKYC from './module/admin/component/Student/updateKYC/updateKYC'
+import ViewUserAttempts from './module/admin/component/MockTestComponents/ViewUserAttempts/ViewUserAttempts'
+import ViewUserRanking from './module/admin/component/MockTestComponents/ViewUserRanking/ViewUserRanking'
+import CreateMockTest from './module/admin/component/MockTestComponents/CreateMockTest/CreateMockTest'
 import YouTube from './module/admin/pages/WebManagement/YouTube/YouTube'
 import AddYoutube from './module/admin/component/WebManagement/YoutubeComponents/AddYoutube/AddYoutube'
 import EditYoutube from './module/admin/component/WebManagement/YoutubeComponents/EditYoutube/EditYoutube.'
@@ -130,7 +134,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
-         <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
           <Route path="/login" element={<Login />} />
           <Route path="/loginOtp" element={<OtpLogin />} />
@@ -164,7 +168,7 @@ function App() {
 
 
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
-          <Route path='/courseComplte/:courseId' element={<CourseCompletionPage/>} />
+          <Route path='/courseComplte/:courseId' element={<CourseCompletionPage />} />
 
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />
@@ -193,13 +197,16 @@ function App() {
             <Route path="student-management/create" element={<AddStudent />} />
             <Route path="student-management/edit/:id" element={<EditStudent />} />
             <Route path="student-management/view/:id" element={<ViewStudent />} />
-
+            <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
             <Route path="mock-test" element={<Mocktest />} />
+            <Route path="mock-test/create-mock-test" element={<CreateMockTest />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
             <Route path='mock-test/edit/:id' element={<EditMockTest />} />
-            <Route path='mock-test/user-result' element={<ViewUser />} />
-            <Route path='mock-test/user-result/view-result' element={<ViewUserResults />} />
+            <Route path='mock-test/user-result/:mockTestId/:subjectId' element={<ViewUser />} />
+            <Route path='mock-test/user-ranking/:mockTestId/:subjectId' element={<ViewUserRanking />} />
+            <Route path='mock-test/user-attempts/:mockTestId/:userId' element={<ViewUserAttempts />} />
+            <Route path='mock-test/user-result/view-result/:attemptId' element={<ViewUserResults />} />
 
             <Route path="payment-management" element={<Payment />} />
 
@@ -281,7 +288,7 @@ function App() {
             <Route path="web-management/contact-support" element={<ContactSupportView />} />
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
-            <Route path= "web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
+            <Route path="web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
             
             <Route path='web-management/youtubelinks' element={<YouTube />} />
             <Route path='web-management/youtubelinks/create' element={<AddYoutube />} />

@@ -114,9 +114,10 @@ const Testimonial = () => {
           <Table>
             <TableHead>
               <tr>
-                <TableHeader>Details</TableHeader>
+                {/* <TableHeader>Details</TableHeader> */}
+                  <TableHeader>Student</TableHeader>
                 <TableHeader>Testimonial</TableHeader>
-                <TableHeader>Student</TableHeader>
+              
                 <TableHeader>View Image/Video</TableHeader>
                 <TableHeader>Date Updated</TableHeader>
                 <TableHeader>Actions</TableHeader>
@@ -125,9 +126,10 @@ const Testimonial = () => {
             <tbody>
               {currentItems.map((item, index) => (
                 <TableRow key={item._id || index}>
-                  <TableCell>{item.rank}</TableCell>
+                  {/* <TableCell>{item.rank}</TableCell> */}
+                       <TableCell>{item.name}</TableCell>
                   <TableCelldiscription>{item.description}</TableCelldiscription>
-                  <TableCell>{item.name}</TableCell>
+             
                   <TableCell>
                     {item.testimonial_image ? (
                       <span

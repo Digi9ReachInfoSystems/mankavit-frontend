@@ -64,7 +64,7 @@ export const CertificateCard = styled.div`
  padding: 10px;
  width: 100%;
   // min-width: 300px; 
-  max-width: 350px; 
+  max-width: 650px; 
  overflow: hidden;
  flex-shrink: 0; 
 

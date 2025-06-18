@@ -111,3 +111,39 @@ export const evaluateMocktest = async(data) =>{
         throw error;
     }
 }
+
+
+export const getUserAnswerByMocktestIdandSubjectId = async(mockTestId,subjectId) =>{
+    try{
+        const response = await api.get(`/userRanking/${mockTestId}/${subjectId}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const getAttemptById = async(attemptId) =>{
+    try{
+        const response = await api.get(`/userAttempt/get/byId/${attemptId}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const getAttemptedUserListByMocktestId = async(mockTestId) =>{
+    try{
+        const response = await api.get(`/userAttempt/get/submitedUser/byMockTest/${mockTestId}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+export const getRankingByMockTestSubject= async(mockTestId,subjectId)=>{
+    try{
+        const response = await api.get(`/userRanking/${mockTestId}/${subjectId}`);
+        return response.data;
+    }catch(error){
+        throw error
+    }
+}

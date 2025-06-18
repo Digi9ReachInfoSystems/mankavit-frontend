@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { razorPayKeys } from '../../../../config/razorpayConfig';
 import CryptoJS from 'crypto-js';
 import { getUserByUserId } from '../../../../api/authApi';
+import { getCookiesData } from '../../../../utils/cookiesService';
 
-const PaymentComponent = ({ userId, amount, courseRef,discountActive ,actualPrice,discountPrice}) => {
+const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPrice, discountPrice }) => {
   console.log("userId", userId, "amount", amount, "courseRef", courseRef);
   const navigate = useNavigate();
   const [isPaying, setIsPaying] = React.useState(false);
@@ -19,10 +20,10 @@ const PaymentComponent = ({ userId, amount, courseRef,discountActive ,actualPric
       // Step 1: Create Order on Backend
       const orderResponse = await axiosInstance.post('/api/v1/payment/createpayment', {
         userRef: userId,
-        courseRef:courseRef,
-        amountPaid:amount,
-        paymentType:'WEB',
-        callback_url:'' // Optional
+        courseRef: courseRef,
+        amountPaid: amount,
+        paymentType: 'WEB',
+        callback_url: '' // Optional
       });
       const userData = await getUserByUserId(userId);
       console.log("userData", userData);
@@ -32,7 +33,7 @@ const PaymentComponent = ({ userId, amount, courseRef,discountActive ,actualPric
 
       const options = {
         key: razorPayKeys.key_id, // Your Razorpay Key ID
-        amount: Number(amount*100), // Amount in paise
+        amount: Number(amount * 100), // Amount in paise
         currency: "INR",
         name: razorPayKeys.name,
         // description: order.notes.description,
@@ -88,7 +89,15 @@ const PaymentComponent = ({ userId, amount, courseRef,discountActive ,actualPric
             // if (verificationResponse.data.message === 'Payment verified successfully') {
             alert('Payment Successful!');
             // Optionally, redirect or update UI
-            navigate('/user');
+            const cookieData = await getCookiesData();
+            console.log("cookieData", cookieData);
+            const user = await getUserByUserId(cookieData.userId);
+            console.log("user", user);
+            if (user.user.kyc_status == "not-applied") {
+              navigate('/kyc');
+            } else {
+              navigate('/user');
+            }
             // } else {
             //   alert('Payment Verification Failed!');
             // }
@@ -100,7 +109,7 @@ const PaymentComponent = ({ userId, amount, courseRef,discountActive ,actualPric
         prefill: {
           name: userData.user.displayName, // Replace with actual student name
           email: userData.user.email, // Replace with actual student email
-          contact:userData.user.phone, // Replace with actual contact number
+          contact: userData.user.phone, // Replace with actual contact number
         },
         // notes: {
         //   address: 'Student Address', // Optional
@@ -124,7 +133,7 @@ const PaymentComponent = ({ userId, amount, courseRef,discountActive ,actualPric
 
   return (
     <EnrollButton onClick={handlePayment}>
-      {isPaying ? 'Processing Payment...' : `Enroll Now ₹${discountActive? discountPrice: actualPrice}/-`}
+      {isPaying ? 'Processing Payment...' : `Enroll Now ₹${discountActive ? discountPrice : actualPrice}/-`}
     </EnrollButton>
 
   )

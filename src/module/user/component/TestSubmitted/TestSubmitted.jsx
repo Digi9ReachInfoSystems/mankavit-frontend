@@ -8,6 +8,7 @@ import {
   GoToCourseButton
 } from "./TestSubmitted.styles";
 import { FcOk } from "react-icons/fc";
+import { useNavigate } from "react-router-dom";
 
 // Sample data to map
 const testDetails = [
@@ -16,6 +17,7 @@ const testDetails = [
 ];
 
 const TestSubmitted = () => {
+  const navigate =useNavigate();
   return (
     <Wrapper>
       <SuccessIcon>
@@ -30,7 +32,7 @@ const TestSubmitted = () => {
       </TestTitle>
 
       <ButtonWrapper>
-        <GoToCourseButton>Go to Course</GoToCourseButton>
+        <GoToCourseButton onClick={() => { navigate("/user")}}>Go to Course</GoToCourseButton>
       </ButtonWrapper>
     </Wrapper>
   );

@@ -132,7 +132,7 @@ export default function ResultScreen() {
             Retake Test
           </ActionButton>
         )}
-        <ActionButton primary onClick={() => navigate('/courses')}>
+        <ActionButton primary onClick={() => navigate('/user')}>
           Go to Courses
         </ActionButton>
       </ButtonGroup>

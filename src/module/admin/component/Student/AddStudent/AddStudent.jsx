@@ -13,7 +13,9 @@ import {
 import { createStudent } from '../../../../../api/userApi';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import toast from 'react-hot-toast';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddStudent = () => {
   const navigate = useNavigate();
@@ -50,7 +52,6 @@ const AddStudent = () => {
 
     try {
       const response = await createStudent(studentData);
-      toast.success('Student added successfully!');
       console.log('Response:', response);
 
       // Reset form
@@ -61,10 +62,11 @@ const AddStudent = () => {
         password: ''
       });
       setFormErrors({});
+      toast.success('Student created successfully!');
       setTimeout(()=> navigate('/admin/student-management'),1000);
     } catch (error) {
       console.error('Error creating student:', error);
-      toast.error('Failed to create student.');
+      toast.error('Failed to create student. Please try again.');
     }
   };
 
@@ -127,6 +129,19 @@ const AddStudent = () => {
       </InputGroup>
 
       <SubmitButton type="submit">Add Student</SubmitButton>
+
+            {/* Toast Container for react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </FormContainer>
   );
 };

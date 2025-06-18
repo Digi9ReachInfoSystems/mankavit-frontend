@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaDownload, FaArrowRight } from 'react-icons/fa';
 import FeedbackModal from '../FeedbackModal/FeedbackModal';
@@ -7,6 +7,7 @@ import { createFeedApi } from '../../api/feedbackApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import Confetti from 'react-confetti';
 import { updateViewCertificate } from '../../api/userProgressApi';
+import { getCertificate } from '../../api/certificateApi';
 
 // Custom hook to get window size
 const useWindowSize = () => {
@@ -14,6 +15,7 @@ const useWindowSize = () => {
         width: window.innerWidth,
         height: window.innerHeight,
     });
+
 
     React.useEffect(() => {
         const handleResize = () =>
@@ -31,6 +33,21 @@ const CourseCompletionPage = () => {
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const params = useParams();
     const navigate = useNavigate();
+    const [certificatePdfUrl, setCertificatePdfUrl] = useState('');
+
+    useEffect(() => {
+        const fetchCertificate = async () => {
+            try {
+                const cookieData = await getCookiesData();
+                const response = await getCertificate(cookieData.userId, params.courseId);
+                console.log("Certificate response", response);
+                setCertificatePdfUrl(response.data[0].certificate_url);
+            } catch (error) {
+                console.error('Error fetching certificate:', error);
+            }
+        };
+        fetchCertificate();
+    }, []);
 
     const handleReviewSubmit = async ({ rating, title, review }) => {
         try {
@@ -62,9 +79,26 @@ const CourseCompletionPage = () => {
                     <Subheader>You've successfully completed the course.</Subheader>
 
                     <CertificateContainer>
-                        <CertificateImage src="/certificate-placeholder.png" alt="Course Certificate" />
+                        {/* <embed src={certificatePdfUrl} type="application/pdf" width="100%" height="500px" /> */}
+                        <iframe
+                            src={`${certificatePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                            width="600"
+                            height="415px"
+                            style={{
+                                border: "none",
+                                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                                borderRadius: "10px"
+                            }}
+                            title="Certificate Preview"
+                        />
+                        {/* <CertificateImage src="/certificate-placeholder.png" alt="Course Certificate" /> */}
                         <br />
-                        <DownloadButton>
+                        <DownloadButton onClick={() => {
+                            if (certificatePdfUrl) {
+                                // Open in new tab
+                                window.open(certificatePdfUrl, "_blank");
+                            }
+                        }}>
                             <FaDownload /> Download Certificate
                         </DownloadButton>
                     </CertificateContainer>

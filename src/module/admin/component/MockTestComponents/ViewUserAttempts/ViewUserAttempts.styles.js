@@ -216,7 +216,6 @@ export const ButtonContainer = styled.div`
   align-items: center;
   margin-bottom: ${(props) => props.theme.spacing(0)};
   margin-top: ${(props) => props.theme.spacing(2)};
-  gap: 10px;
 
  @media (max-width: 768px) {
     margin: 10px 5px;

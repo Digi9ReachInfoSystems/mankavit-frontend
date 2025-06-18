@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-// import toast, { Toaster } from "react-hot-toast";
 import { Select } from "antd";
 import uplaod from "../../../../../assets/upload.png";
 import {
@@ -16,35 +15,36 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
 
 export default function EditCourse() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [courseTitle, setCourseTitle] = useState("");
-  const [internalTitle, setInternalTitle] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [discountedPrice, setDiscountedPrice] = useState("");
-  const [actualPrice, setActualPrice] = useState("");
-  const [isKYCRequired, setIsKYCRequired] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [description, setDescription] = useState("");
-  const [duration, setDuration] = useState("");
-  const [noOfVideos, setNoOfVideos] = useState("");
-  const [successRate, setSuccessRate] = useState("");
-  const [courseIncludes, setCourseIncludes] = useState("");
-  const [liveClass, setLiveClass] = useState(false);
-  const [recordedClass, setRecordedClass] = useState(false);
-  const [isPublished, setIsPublished] = useState(false);
-  const [status, setStatus] = useState("active");
-  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
-  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([
-    { label: "Mock Test 1", checked: false, id: "mock1" },
-    { label: "Mock Test 2", checked: false, id: "mock2" },
-  ]);
-  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [formData, setFormData] = useState({
+    courseTitle: "",
+    internalTitle: "",
+    shortDescription: "",
+    discountedPrice: "",
+    actualPrice: "",
+    isKYCRequired: false,
+    previewUrl: null,
+    categories: [],
+    selectedCategory: null,
+    description: "",
+    duration: "",
+    noOfVideos: "",
+    successRate: "",
+    courseIncludes: "",
+    liveClass: false,
+    recordedClass: false,
+    isPublished: false,
+    status: "active",
+    subjectCheckboxes: [],
+    mockTestCheckboxes: [],
+    thumbnailFile: null
+  });
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -54,31 +54,18 @@ export default function EditCourse() {
         const response = await getCourseById(id);
         const data = response.data;
         
-        // Set basic fields
-        setCourseTitle(data.courseDisplayName || "");
-        setInternalTitle(data.courseName || "");
-        setShortDescription(data.shortDescription || "");
-        setActualPrice(data.price?.toString() || "");
-        setDiscountedPrice(data.discountPrice?.toString() || "");
-        setIsKYCRequired(data.discountActive || false);
-        setDuration(data.duration || "");
-        setNoOfVideos(data.no_of_videos?.toString() || "");
-        setSuccessRate(data.successRate?.toString() || "");
-        setCourseIncludes(Array.isArray(data.course_includes) ? data.course_includes.join(", ") : "");
-        setDescription(data.description || "");
-        setLiveClass(data.live_class || false);
-        setRecordedClass(data.recorded_class || false);
-        setIsPublished(data.isPublished || false);
-        setStatus(data.status || "active");
-        setSelectedCategory(data.category?._id || data.category || null);
-        setPreviewUrl(data.image || null);
+        // Fetch subjects and categories in parallel
+        const [subjectsResponse, categoriesResponse, mockTestsResponse] = await Promise.all([
+          getSubjects(),
+          getCategories(),
+          getAllMocktest()
+        ]);
 
-        // Fetch subjects and set checkboxes
-        const responseSubjects = await getSubjects();
-        const subjectsArray = Array.isArray(responseSubjects?.data)
-          ? responseSubjects.data
-          : Array.isArray(responseSubjects)
-            ? responseSubjects
+        // Process subjects
+        const subjectsArray = Array.isArray(subjectsResponse?.data)
+          ? subjectsResponse.data
+          : Array.isArray(subjectsResponse)
+            ? subjectsResponse
             : [];
             
         const subjectsData = subjectsArray.map((item) => ({
@@ -88,30 +75,56 @@ export default function EditCourse() {
             (typeof s === 'object' ? s._id : s) === item._id
           ) || false,
         }));
-        setSubjectCheckboxes(subjectsData);
 
-        // Set mock tests if they exist in the data
-        if (data.mockTests && data.mockTests.length > 0) {
-          setMockTestCheckboxes(prev => 
-            prev.map(item => ({
-              ...item,
-              checked: data.mockTests.includes(item.id)
-            })))
-        }
+        // Process mock tests
+        const mockTestsArray = Array.isArray(mockTestsResponse?.data)
+          ? mockTestsResponse.data
+          : Array.isArray(mockTestsResponse)
+            ? mockTestsResponse
+            : [];
+            
+        const mockTestsData = mockTestsArray.map((item) => ({
+          label: item.title || `Mock Test ${item._id}`,
+          id: item._id,
+          checked: data.mockTests?.includes(item._id) || false,
+        }));
 
-        // Fetch and set categories
-        const responseCategories = await getCategories();
-        const categoryArray = Array.isArray(responseCategories?.data)
-          ? responseCategories.data
-          : Array.isArray(responseCategories)
-            ? responseCategories
+        // Process categories
+        const categoryArray = Array.isArray(categoriesResponse?.data)
+          ? categoriesResponse.data
+          : Array.isArray(categoriesResponse)
+            ? categoriesResponse
             : [];
             
         const formattedCategories = categoryArray.map((item) => ({
           label: item.title,
           value: item._id,
         }));
-        setCategories(formattedCategories);
+
+        // Set all form data at once
+        setFormData({
+          courseTitle: data.courseDisplayName || "",
+          internalTitle: data.courseName || "",
+          shortDescription: data.shortDescription || "",
+          actualPrice: data.price?.toString() || "",
+          discountedPrice: data.discountPrice?.toString() || "",
+          isKYCRequired: data.discountActive || false,
+          duration: data.duration || "",
+          noOfVideos: data.no_of_videos?.toString() || "",
+          successRate: data.successRate?.toString() || "",
+          courseIncludes: Array.isArray(data.course_includes) ? data.course_includes.join(", ") : "",
+          description: data.description || "",
+          liveClass: data.live_class || false,
+          recordedClass: data.recorded_class || false,
+          isPublished: data.isPublished || false,
+          status: data.status || "active",
+          selectedCategory: data.category?._id || data.category || null,
+          previewUrl: data.image || null,
+          subjectCheckboxes: subjectsData,
+          mockTestCheckboxes: mockTestsData,
+          categories: formattedCategories,
+          thumbnailFile: null
+        });
 
       } catch (error) {
         console.error("Error fetching course data:", error);
@@ -121,61 +134,105 @@ export default function EditCourse() {
     fetchCourse();
   }, [id]);
 
-  const handleCheckboxChange = (index, setFn) => {
-    setFn((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleToggleChange = () => setIsKYCRequired((prev) => !prev);
-  const handleLiveClassToggle = () => setLiveClass((prev) => !prev);
-  const handleRecordedClassToggle = () => setRecordedClass((prev) => !prev);
-  const handlePublishedToggle = () => setIsPublished((prev) => !prev);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      let fileURL = previewUrl;
-      if (thumbnailFile) {
-        const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
-        fileURL = fileData.blobUrl;
-      }
-
-      const subjects = subjectCheckboxes.filter((i) => i.checked).map((i) => i.id);
-      const mockTests = mockTestCheckboxes.filter((i) => i.checked).map((i) => i.id);
-      
-      const payload = {
-        courseName: internalTitle,
-        courseDisplayName: courseTitle,
-        shortDescription,
-        description,
-        category: selectedCategory,
-        price: Number(actualPrice),
-        discountPrice: Number(discountedPrice),
-        discountActive: isKYCRequired,
-        duration,
-        no_of_videos: Number(noOfVideos),
-        successRate: Number(successRate),
-        course_includes: courseIncludes.split(',').map(i => i.trim()),
-        student_feedback: [{ student_ref: null, review: "Great course!" }],
-        live_class: liveClass,
-        recorded_class: recordedClass,
-        isPublished,
-        status,
-        subjects,
-        mockTests,
-        image: fileURL,
+  const handleCheckboxChange = (index, checkboxType) => {
+    setFormData(prev => {
+      const updatedCheckboxes = [...prev[checkboxType]];
+      updatedCheckboxes[index] = {
+        ...updatedCheckboxes[index],
+        checked: !updatedCheckboxes[index].checked
       };
-      
-      await updateCourseById(id, payload);
-      toast.success("Data updated successfully");
-      setTimeout(() => navigate("/admin/course-management"), 5000);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update data. Please try again.");
-    }
+      return {
+        ...prev,
+        [checkboxType]: updatedCheckboxes
+      };
+    });
   };
 
+  const handleToggleChange = (field) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // 1. Convert to Numbers ("" → 0)
+  const actual = Number(formData.actualPrice || 0);
+  const discount = Number(formData.discountedPrice || 0);
+
+  // 2. Client‐side validation: 
+  //    If your server disallows discount > price (but allows equality):
+  if (discount > actual) {
+    toast.error("Discount price cannot exceed regular price");
+    return;
+  }
+
+  // 3. If you want to disallow discount === price as well, use:
+  //    if (discount >= actual) { … }
+
+  try {
+    let fileURL = formData.previewUrl;
+    if (formData.thumbnailFile) {
+      const fileData = await uploadFileToAzureStorage(
+        formData.thumbnailFile,
+        "course"
+      );
+      fileURL = fileData.blobUrl;
+    }
+
+    const subjects = formData.subjectCheckboxes
+      .filter(item => item.checked)
+      .map(item => item.id);
+
+    const mockTests = formData.mockTestCheckboxes
+      .filter(item => item.checked)
+      .map(item => item.id);
+
+    const payload = {
+      courseName: formData.internalTitle,
+      courseDisplayName: formData.courseTitle,
+      shortDescription: formData.shortDescription,
+      description: formData.description,
+      category: formData.selectedCategory,
+      price: actual,               // already a Number
+      discountPrice: discount,     // already a Number
+      discountActive: formData.isKYCRequired,
+      duration: formData.duration,
+      no_of_videos: Number(formData.noOfVideos || 0),
+      successRate: Number(formData.successRate || 0),
+      course_includes: formData.courseIncludes
+        .split(",")
+        .map(i => i.trim())
+        .filter(i => i.length > 0),
+      live_class: formData.liveClass,
+      recorded_class: formData.recordedClass,
+      isPublished: formData.isPublished,
+      status: formData.status,
+      subjects,
+      mockTests,
+      image: fileURL,
+    };
+    console.log("payload", payload);
+
+    await updateCourseById(id, payload);
+    toast.success("Course updated successfully");
+    setTimeout(() => navigate("/admin/course-management"), 2000);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update course. Please try again.");
+  }
+};
+
+  
   const handleUploadAreaClick = () => fileInputRef.current?.click();
   
   const handleFileChange = (e) => {
@@ -185,26 +242,36 @@ export default function EditCourse() {
         toast.error("Please select an image file.");
         return;
       }
-      setThumbnailFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      setFormData(prev => ({
+        ...prev,
+        thumbnailFile: file,
+        previewUrl: URL.createObjectURL(file)
+      }));
     }
+  };
+
+  // Helper function to sanitize input
+  const sanitizeInput = (value, type = 'text') => {
+    if (type === 'number') {
+      return value.replace(/[^0-9]/g, '');
+    }
+    return value.replace(/[^a-zA-Z0-9\s.,-]/g, '');
   };
 
   return (
     <Container>
-      
-       <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
       <Title>Edit Course</Title>
       <FormWrapper onSubmit={handleSubmit}>
@@ -215,12 +282,8 @@ export default function EditCourse() {
               <Label htmlFor="courseTitle">Course Title</Label>
               <Input
                 id="courseTitle"
-                value={courseTitle}
-                // onChange={(e) => setCourseTitle(e.target.value)}
-                onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setCourseTitle(filteredData);
-                }}
+                value={formData.courseTitle}
+                onChange={(e) => handleInputChange('courseTitle', sanitizeInput(e.target.value))}
                 placeholder="Enter Course Title"
               />
             </FieldWrapper>
@@ -231,11 +294,8 @@ export default function EditCourse() {
               <Label htmlFor="internalTitle">Course Internal Title</Label>
               <Input
                 id="internalTitle"
-                value={internalTitle}
-                onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setInternalTitle(filteredData);
-                }}
+                value={formData.internalTitle}
+                onChange={(e) => handleInputChange('internalTitle', sanitizeInput(e.target.value))}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -250,11 +310,8 @@ export default function EditCourse() {
               <TextArea
                 id="shortDescription"
                 rows="3"
-                value={shortDescription}
-                  onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setShortDescription(filteredData);
-                }}
+                value={formData.shortDescription}
+                onChange={(e) => handleInputChange('shortDescription', sanitizeInput(e.target.value))}
                 placeholder="Enter short description"
               />
             </FieldWrapper>
@@ -269,11 +326,8 @@ export default function EditCourse() {
               <PriceInput
                 id="discountedPrice"
                 type="number"
-                value={discountedPrice}
-                onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
-                  setDiscountedPrice(filteredData);
-                }}
+                value={formData.discountedPrice}
+                onChange={(e) => handleInputChange('discountedPrice', sanitizeInput(e.target.value, 'number'))}
                 placeholder="Enter Discounted Price in ₹ (eg: 2999)"
               />
             </FieldWrapper>
@@ -285,11 +339,8 @@ export default function EditCourse() {
               <PriceInput
                 id="actualPrice"
                 type="number"
-                value={actualPrice}
-                  onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
-                  setActualPrice(filteredData);
-                }}
+                value={formData.actualPrice}
+                onChange={(e) => handleInputChange('actualPrice', sanitizeInput(e.target.value, 'number'))}
                 placeholder="Enter Actual Price in ₹ (eg: 3999)"
               />
             </FieldWrapper>
@@ -302,10 +353,10 @@ export default function EditCourse() {
             <FieldWrapper>
               <Label>Category</Label>
               <Select
-                value={selectedCategory}
+                value={formData.selectedCategory}
                 style={{ width: "100%" }}
-                onChange={(value) => setSelectedCategory(value)}
-                options={categories}
+                onChange={(value) => handleInputChange('selectedCategory', value)}
+                options={formData.categories}
                 placeholder="Select a category"
               />
             </FieldWrapper>
@@ -320,12 +371,12 @@ export default function EditCourse() {
                 Add Subject
               </CheckboxSectionTitle>
               <CheckboxList>
-                {subjectCheckboxes.map((item, index) => (
+                {formData.subjectCheckboxes.map((item, index) => (
                   <CheckboxLabel key={item.id}>
                     <CheckboxInput
                       type="checkbox"
                       checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                      onChange={() => handleCheckboxChange(index, 'subjectCheckboxes')}
                     />
                     {item.label}
                   </CheckboxLabel>
@@ -340,12 +391,12 @@ export default function EditCourse() {
                 Add Mock Test (Click Checkbox to Select)
               </CheckboxSectionTitle>
               <CheckboxList>
-                {mockTestCheckboxes.map((item, index) => (
+                {formData.mockTestCheckboxes.map((item, index) => (
                   <CheckboxLabel key={item.id}>
                     <CheckboxInput
                       type="checkbox"
                       checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setMockTestCheckboxes)}
+                      onChange={() => handleCheckboxChange(index, 'mockTestCheckboxes')}
                     />
                     {item.label}
                   </CheckboxLabel>
@@ -362,8 +413,8 @@ export default function EditCourse() {
               <Label htmlFor="duration">Duration</Label>
               <Input
                 id="duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
+                value={formData.duration}
+                onChange={(e) => handleInputChange('duration', e.target.value)}
                 placeholder="e.g. 4 months"
               />
             </FieldWrapper>
@@ -374,11 +425,8 @@ export default function EditCourse() {
               <Input
                 id="noOfVideos"
                 type="number"
-                value={noOfVideos}
-                 onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
-                  setNoOfVideos(filteredData);
-                }}
+                value={formData.noOfVideos}
+                onChange={(e) => handleInputChange('noOfVideos', sanitizeInput(e.target.value, 'number'))}
                 placeholder="e.g. 120"
               />
             </FieldWrapper>
@@ -392,8 +440,8 @@ export default function EditCourse() {
               <Input
                 id="successRate"
                 type="number"
-                value={successRate}
-                onChange={(e) => setSuccessRate(e.target.value)}
+                value={formData.successRate}
+                onChange={(e) => handleInputChange('successRate', sanitizeInput(e.target.value, 'number'))}
                 placeholder="e.g. 95"
               />
             </FieldWrapper>
@@ -403,8 +451,8 @@ export default function EditCourse() {
               <Label htmlFor="courseIncludes">Course Includes (comma separated)</Label>
               <Input
                 id="courseIncludes"
-                value={courseIncludes}
-                onChange={(e) => setCourseIncludes(e.target.value)}
+                value={formData.courseIncludes}
+                onChange={(e) => handleInputChange('courseIncludes', e.target.value)}
                 placeholder="e.g. Video lectures, PDF notes, Mock tests"
               />
             </FieldWrapper>
@@ -414,16 +462,16 @@ export default function EditCourse() {
         {/* Row 6: Description */}
         <FormRow>
           <Column>
-            {/* <FieldWrapper> */}
-              {/* <Label htmlFor="description">Description</Label>
+            <FieldWrapper>
+              <Label htmlFor="description">Description</Label>
               <TextArea
                 id="description"
                 rows="4"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Enter detailed description"
               />
-            </FieldWrapper> */}
+            </FieldWrapper>
           </Column>
         </FormRow>
 
@@ -432,10 +480,10 @@ export default function EditCourse() {
           <Column style={{ flex: 1 }}>
             <Label>Upload Thumbnail</Label>
             <UploadArea onClick={handleUploadAreaClick}>
-              {previewUrl ? (
+              {formData.previewUrl ? (
                 <>
                   <img 
-                    src={previewUrl} 
+                    src={formData.previewUrl} 
                     alt="Preview" 
                     style={{ 
                       width: '100%', 
@@ -444,7 +492,7 @@ export default function EditCourse() {
                       borderRadius: '8px'
                     }} 
                   />
-                  {thumbnailFile && <p>{thumbnailFile.name}</p>}
+                  {formData.thumbnailFile && <p>{formData.thumbnailFile.name}</p>}
                 </>
               ) : (
                 <>
@@ -468,36 +516,36 @@ export default function EditCourse() {
             <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
               <Label style={{ marginBottom: "0px" }}>Is Discount Active?</Label>
               <ToggleSwitch
-              type="checkbox"
-                checked={isKYCRequired}
-                onChange={handleToggleChange}
+                type="checkbox"
+                checked={formData.isKYCRequired}
+                onChange={() => handleToggleChange('isKYCRequired')}
               />
             </FieldWrapper>
 
             <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
               <Label style={{ marginBottom: "0px" }}>Live Class Available?</Label>
               <ToggleSwitch
-              type="checkbox"
-                checked={liveClass}
-                onChange={handleLiveClassToggle}
+                type="checkbox"
+                checked={formData.liveClass}
+                onChange={() => handleToggleChange('liveClass')}
               />
             </FieldWrapper>
 
             <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
               <Label style={{ marginBottom: "0px" }}>Recorded Class Available?</Label>
               <ToggleSwitch
-              type="checkbox"
-                checked={recordedClass}
-                onChange={handleRecordedClassToggle}
+                type="checkbox"
+                checked={formData.recordedClass}
+                onChange={() => handleToggleChange('recordedClass')}
               />
             </FieldWrapper>
 
             <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
               <Label style={{ marginBottom: "0px" }}>Publish Course?</Label>
               <ToggleSwitch
-              type="checkbox"
-                checked={isPublished}
-                onChange={handlePublishedToggle}
+                type="checkbox"
+                checked={formData.isPublished}
+                onChange={() => handleToggleChange('isPublished')}
               />
             </FieldWrapper>
           </Column>
