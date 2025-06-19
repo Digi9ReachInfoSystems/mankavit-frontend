@@ -162,3 +162,31 @@ export const DropdownIcon = styled.span`
     font-size: 14px;
   }
 `;
+export const LogoutContainer = styled.div`
+  padding: ${theme.spacing(2)} ${theme.spacing(3)};
+`;
+
+export const LogoutButton = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: ${theme.spacing(2)} 0;
+  background: ${theme.colors.lightwhite};
+  border: none;
+  border-radius: ${theme.spacing(0.5)};
+  font-family: ${theme.fonts.body};
+  font-size: 1rem;
+  color: ${theme.colors.logoutButtonColor};
+  cursor: pointer;
+  transition: background 0.2s;
+  justify-content: center;
+
+  svg {
+    margin-right: ${theme.spacing(2)};
+    font-size: 1.2rem;
+  }
+
+  &:hover {
+    background: ${theme.colors.backgrounGrey};
+  }
+`;
