@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const Container = styled.div`
 margin-left: 40px;
@@ -27,10 +27,29 @@ export const Title = styled.h2`
   color: ${(props) => props.theme.colors.primary};
 `;
 
+export const SubTitle = styled.h3`
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 1.2rem;
+  margin-bottom: ${(props) => props.theme.spacing(1)};
+  margin-top: 0;
+  color: ${(props) => props.theme.colors.primary};
+`;
+
 export const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(2)};
+`;
+
+export const FormRow = styled.div`
+  display: flex;
+  gap: ${(props) => props.theme.spacing(3)};
+  align-items: flex-start;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    flex-direction: column;
+  }
+    
 `;
 
 export const FormGroup = styled.div`
@@ -80,20 +99,6 @@ export const TextInput = styled.textarea`
   }
 `;
 
-export const Select = styled.select`
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  margin-bottom: 8px;
-`;
-
-export const QuestionTitle = styled.h3`
-  font-size: 22px;
-  margin-top: 24px;
-  color: #333;
-`;
-
 export const Button = styled.button`
   padding: 12px;
   margin-top: 12px;
@@ -109,121 +114,11 @@ export const Button = styled.button`
     background-color: #0056b3;
   }
 `;
-export const FormRow = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing(3)};
-  align-items: flex-start;
-
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    flex-direction: column;
-  }
-`;
-
-export const DeleteButton = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: Flex-end;
-
-`;
-
-export const AddButton = styled.button`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: ${(props) => props.theme.colors.primary};
-    border: none;
-    border-radius: 8px;
-    color: ${(props) => props.theme.colors.white};
-    cursor: pointer;
-  padding: 12px;
-    width: 300px;
-    margin-right: 20px;
-
-
-    &:hover {
-        background-color: ${(props) => props.theme.colors.primaryDark};
-    }
-`;
-
-export const DeleteButtonIcon = styled.div`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: #ff4d4f;
-  font-size: 20px;
-  cursor: pointer;
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: scale(1.2);
-    color: #d9363e;
-  }
-`;
-
-export const MoreButton = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-`;
-
-export const TrashIcon = styled.div`
-  font-size: 20px;
-  color: #ff4d4f;
-  cursor: pointer;
-  background: rgb(255, 227, 227);
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-
-  &:hover {
-    color: #d9363e;
-    transform: scale(1.05);
-  }
-`;
-
-
-/** Wrapper for sets of checkboxes with a title */
-export const CheckboxSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: ${(props) => props.theme.spacing(1)};
-`;
-
-/** Title for each checkbox section (e.g. "Add Notes" and "Add Mock Test") */
-export const CheckboxSectionTitle = styled.h4`
-  font-family: ${(props) => props.theme.fonts.heading};
+export const Select = styled.select`
+  /* Add your styles here matching your Input component */
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 1rem;
-  font-weight: normal;
-  margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
-  color: ${(props) => props.theme.colors.test};
-  padding: ${(props) => props.theme.spacing(1)};
-  //done
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
-  border-radius: 6px;
-`;
-
-/** The container that holds multiple checkbox rows */
-export const CheckboxList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.spacing(1)};
-  overflow-y: auto;
-  max-height: 80px;
-`;
-
-/** A single checkbox + label line */
-export const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing(1)};
-  font-size: 0.9rem;
-  color: ${(props) => props.theme.colors.black};
-`;
-
-export const CheckboxInput = styled.input`
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  background-color: ${(props) => props.theme.colors.black};
 `;

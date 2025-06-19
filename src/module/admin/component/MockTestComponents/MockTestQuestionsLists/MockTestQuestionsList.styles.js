@@ -82,3 +82,10 @@ export const PageControl = styled.div`
   display: flex;
   gap: 0.25rem;
 `;
+
+export const QuestionTextDisplay = styled.div`
+  flex: 1;
+  margin: 0 10px;
+  padding: 5px;
+  word-break: break-word;
+`;
