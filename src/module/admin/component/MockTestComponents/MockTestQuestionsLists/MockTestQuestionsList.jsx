@@ -41,14 +41,24 @@ const MockTestQuestionsList = () => {
   const deletePage = (pi) =>
     setPages(prev => prev.filter((_, i) => i !== pi));
 
-  const addQuestion = (pi = 0) =>
-setPages(prev =>
-  prev.map((page, idx) =>
-    idx === pi
-      ? { ...page, questions: [...page.questions, createEmptyQuestion()] }
-      : page
-  )
-);
+const addQuestion = (pi = 0) => {
+  setPages(prev => {
+    const newPages = [...prev];
+    while (newPages.length <= pi) newPages.push({ questions: [] });
+
+    const questions = newPages[pi].questions;
+    const nextIndex = questions.length;
+    newPages[pi] = {
+      ...newPages[pi],
+      questions: [...questions, createEmptyQuestion()],
+    };
+
+    setEditingRef({ page: pi, q: nextIndex }); // Open only this one
+
+    return newPages;
+  });
+};
+
 
   const deleteQuestion = (pi, qi) =>
     setPages(prev => {
@@ -137,31 +147,33 @@ const addOption = (pi, qi) =>
                 </IconButton>
               </PageHeader>
 
-              {page.questions.map((q, qi) => (
-                <QuestionContainer key={qi}>
-                  <Question>
-                    <QuestionNumber>{qi + 1}.</QuestionNumber>
-                    <QuestionActions>
-                      <IconButton onClick={() => setEditingRef({ page: pi, q: qi })}>
-                        <FaEdit />
-                      </IconButton>
-                      <IconButton onClick={() => deleteQuestion(pi, qi)}>
-                        <FaTrash color="red" />
-                      </IconButton>
-                      <PageControl>
-                        {qi > 0 && (
-                          <IconButton onClick={() => moveQuestion(pi, qi, 'up')}>
-                            <FaArrowUp color="green" />
-                          </IconButton>
-                        )}
-                        {qi < page.questions.length - 1 && (
-                          <IconButton onClick={() => moveQuestion(pi, qi, 'down')}>
-                            <FaArrowDown color="red" />
-                          </IconButton>
-                        )}
-                      </PageControl>
-                    </QuestionActions>
-                  </Question>
+{page.questions.map((q, qi) => {
+  const isThisEditing = isEditing(pi, qi);
+  return (
+    <QuestionContainer key={qi}>
+      <Question>
+        <QuestionNumber>{qi + 1}.</QuestionNumber>
+        <QuestionActions>
+          <IconButton onClick={() => setEditingRef({ page: pi, q: qi })}>
+            <FaEdit />
+          </IconButton>
+          <IconButton onClick={() => deleteQuestion(pi, qi)}>
+            <FaTrash color="red" />
+          </IconButton>
+          <PageControl>
+            {qi > 0 && (
+              <IconButton onClick={() => moveQuestion(pi, qi, 'up')}>
+                <FaArrowUp color="green" />
+              </IconButton>
+            )}
+            {qi < page.questions.length - 1 && (
+              <IconButton onClick={() => moveQuestion(pi, qi, 'down')}>
+                <FaArrowDown color="red" />
+              </IconButton>
+            )}
+          </PageControl>
+        </QuestionActions>
+      </Question>
 
                   {isEditing(pi, qi) && (
                     <div
@@ -286,9 +298,10 @@ const addOption = (pi, qi) =>
                         </CreateButton>
                       </div>
                     </div>
-                  )}
-                </QuestionContainer>
-              ))}
+      )}
+    </QuestionContainer>
+  );
+})}
 
               <PageFooter>
                 <CreateButton onClick={() => addQuestion(pi)}>
