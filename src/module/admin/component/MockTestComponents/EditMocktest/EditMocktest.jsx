@@ -10,7 +10,11 @@ import {
   FormRow,
   SubTitle,
   TextInput,
-  Select,
+  CheckboxSection,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxLabel,
+  CheckboxInput,
 } from './EditMocktest.style';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -32,7 +36,7 @@ const EditMockTest = () => {
     startDate: '',
     endDate: '',
     maxAttempts: 1,
-    subjectId: '',
+    selectedSubjects: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +79,7 @@ const EditMockTest = () => {
           startDate: formatDateTimeLocal(data.startDate),
           endDate: formatDateTimeLocal(data.endDate),
           maxAttempts: data.maxAttempts || 1,
-          subjectId: data.subject || '', // This should match backend structure
+          selectedSubjects: Array.isArray(data.subject) ? data.subject : [data.subject],
         });
 
         setIsLoading(false);
@@ -100,6 +104,22 @@ const EditMockTest = () => {
     }));
   };
 
+  const handleSubjectCheckboxChange = (subjectId) => {
+    setTestDetails((prev) => {
+      const selected = new Set(prev.selectedSubjects);
+      if (selected.has(subjectId)) {
+        selected.delete(subjectId);
+      } else {
+        selected.add(subjectId);
+      }
+      return {
+        ...prev,
+        selectedSubjects: Array.from(selected),
+      };
+    });
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = [];
@@ -111,7 +131,7 @@ const EditMockTest = () => {
     if (!testDetails.maxAttempts) newErrors.push("Max attempts are required");
     if (!testDetails.startDate) newErrors.push("Start date is required");
     if (!testDetails.endDate) newErrors.push("End date is required");
-    if (!testDetails.subjectId) newErrors.push("Subject is required");
+    if (!testDetails.selectedSubjects.length) newErrors.push("At least one subject must be selected");
 
     if (newErrors.length > 0) {
       setErrors(newErrors);
@@ -130,7 +150,7 @@ const EditMockTest = () => {
         maxAttempts: testDetails.maxAttempts,
         startDate: testDetails.startDate,
         endDate: testDetails.endDate,
-        subject: testDetails.subjectId,
+        subject: testDetails.selectedSubjects, // instead of subjectId
       };
 
       await updateMocktestById(mockTestId, updatedData);
@@ -207,27 +227,29 @@ const EditMockTest = () => {
 
         <SubTitle>Mock Test Settings</SubTitle>
 
-        <FormRow>
-          <FormGroup>
-            <Label htmlFor="subjectId">Subject:</Label>
-            <Select
-              id="subjectId"
-              value={testDetails.subjectId}
-              onChange={(e) =>
-                handleTestDetailChange('subjectId', e.target.value)
-              }
-              disabled={isLoading}
-              required
-            >
-              <option value="">Select a subject</option>
-              {subjects.map(subject => (
-                <option key={subject._id} value={subject._id}>
-                  {subject.subjectDisplayName || subject.subjectName}
-                </option>
-              ))}
-            </Select>
-          </FormGroup>
-        </FormRow>
+       <FormRow>
+  <FormGroup>
+    <CheckboxSection>
+      <CheckboxSectionTitle>
+        Add Subject
+      </CheckboxSectionTitle>
+
+      <CheckboxList>
+        {subjects.map(subject => (
+          <CheckboxLabel key={subject._id}>
+            <CheckboxInput
+              type="checkbox"
+              checked={testDetails.selectedSubjects.includes(subject._id)}
+              onChange={() => handleSubjectCheckboxChange(subject._id)}
+            />
+            {subject.subjectDisplayName || subject.subjectName}
+          </CheckboxLabel>
+        ))}
+      </CheckboxList>
+    </CheckboxSection>
+  </FormGroup>
+</FormRow>
+
 
         <FormRow>
           <FormGroup>
