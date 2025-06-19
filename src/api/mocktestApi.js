@@ -147,3 +147,31 @@ export const getRankingByMockTestSubject= async(mockTestId,subjectId)=>{
         throw error
     }
 }
+
+
+export const addmocktestquestions = async(mocktestId,data) =>{
+    try{
+        const response = await api.put(`/mockTest/addQuestion/${mocktestId}`,data);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const removemocktestquestions = async(questionId,mocktestId,data) =>{
+    try{
+        const response = await api.put(`/mockTest/removeQuestion/${mocktestId}/${questionId}`,data);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const updatemocktestquestions = async(questionId,mocktestId,data) =>{
+    try{
+        const response = await api.patch(`/mockTest/editQuestion/${mocktestId}/${questionId}`,data);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}

@@ -114,3 +114,11 @@ export const Button = styled.button`
     background-color: #0056b3;
   }
 `;
+export const Select = styled.select`
+  /* Add your styles here matching your Input component */
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+`;
