@@ -9,16 +9,21 @@ import {
   LogoutContainer,
   LogoutButton,
   SidebarWrapper,
-  ToggleButton
+  ToggleButton,
+  ModalOverlay,
+  ModalContainer,
+  ModalContent,
+  ModalButtons,
+  ModalButton
 } from './UserSidebar.style';
-import { 
-  FaTachometerAlt, 
-  FaBookOpen, 
-  FaUser, 
-  FaFileContract, 
-  FaBell, 
-  FaHeadset, 
-  FaPowerOff 
+import {
+  FaTachometerAlt,
+  FaBookOpen,
+  FaUser,
+  FaFileContract,
+  FaBell,
+  FaHeadset,
+  FaPowerOff
 } from 'react-icons/fa';
 import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
 import { MdOutlineMenuOpen } from "react-icons/md";
@@ -27,8 +32,9 @@ import { getUserByUserId, logoutUser } from '../../../../api/authApi';
 const UserSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const [ id, setId] = useState('');
-  const navigate =useNavigate();
+  const [id, setId] = useState('');
+  const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   useEffect(() => {
     const { userId } = getCookiesData();
     setId(userId);
@@ -60,20 +66,27 @@ const UserSidebar = () => {
       setIsSidebarOpen(false);
     }
   };
-  const handleLogout = async () => {
-   const userData= await getUserByUserId(id);
-   const response = await logoutUser({email:userData.user.email});
-   if(response.success){
-    navigate("/");
-   }
+  const handleConfirmLogout = async () => {
+    const userData = await getUserByUserId(id);
+    const response = await logoutUser({ email: userData.user.email });
+    if (response.success) {
+      navigate("/");
+    }
   };
-  
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };
+
+
 
   return (
     <>
       {/* Toggle Button */}
       <ToggleButton onClick={toggleSidebar} >
-       <MdOutlineMenuOpen size={24} /> 
+        <MdOutlineMenuOpen size={24} />
       </ToggleButton>
 
       {/* Sidebar */}
@@ -113,12 +126,25 @@ const UserSidebar = () => {
           </MenuList>
 
           <LogoutContainer>
-            <LogoutButton onClick={handleLogout}>
+            <LogoutButton onClick={handleLogoutClick}>
               <FaPowerOff size={28} /> Log out
             </LogoutButton>
           </LogoutContainer>
         </SidebarContainer>
       </SidebarWrapper>
+      {showLogoutModal && (
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalContent>
+              <p>Are you sure you want to logout?</p>
+              <ModalButtons>
+                <ModalButton $primary onClick={handleConfirmLogout}>Yes</ModalButton>
+                <ModalButton onClick={handleCancelLogout}>No</ModalButton>
+              </ModalButtons>
+            </ModalContent>
+          </ModalContainer>
+        </ModalOverlay>
+      )}
     </>
   );
 };

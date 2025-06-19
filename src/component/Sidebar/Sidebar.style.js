@@ -190,3 +190,75 @@ export const LogoutButton = styled.button`
     background: ${theme.colors.backgrounGrey};
   }
 `;
+// Modal Styles
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+export const ModalContainer = styled.div`
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+`;
+
+export const ModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+
+  p {
+    font-size: 1.1rem;
+    color: #333;
+    text-align: center;
+    margin: 0;
+  }
+`;
+
+export const ModalButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+`;
+
+export const ModalButton = styled.button`
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  min-width: 80px;
+
+  ${props => props.$primary ? `
+    background-color: #ff4d4f;
+    color: white;
+
+    &:hover {
+      background-color: #ff7875;
+    }
+  ` : `
+    background-color: #f0f0f0;
+    color: #333;
+
+    &:hover {
+      background-color: #d9d9d9;
+    }
+  `}
+`;
+
+
+
