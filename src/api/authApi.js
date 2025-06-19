@@ -79,6 +79,8 @@ export const logoutUser = async (data) => {
         throw error;
     }
 };
+
+
 export const getUserDetails = async (id) => {
     try {
         console.log("id inside api",id);

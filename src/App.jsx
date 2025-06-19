@@ -205,10 +205,10 @@ function App() {
             <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
             <Route path="mock-test" element={<Mocktest />} />
             <Route path="mock-test/create-mock-test" element={<CreateMockTest />} />
-            <Route path="mock-test/questions-list" element={<MockTestQuestionsList />} />
+            <Route path="mock-test/questions-list/:mockTestId" element={<MockTestQuestionsList />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
-            <Route path='mock-test/edit/:id' element={<EditMockTest />} />
+            <Route path='mock-test/edit/:mockTestId' element={<EditMockTest />} />
             <Route path='mock-test/user-result/:mockTestId/:subjectId' element={<ViewUser />} />
             <Route path='mock-test/user-ranking/:mockTestId/:subjectId' element={<ViewUserRanking />} />
             <Route path='mock-test/user-attempts/:mockTestId/:userId' element={<ViewUserAttempts />} />
