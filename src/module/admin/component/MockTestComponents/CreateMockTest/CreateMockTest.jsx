@@ -1,19 +1,77 @@
 import React, { useState } from 'react';
 import { Container, Title, FormWrapper, FormGroup, Label, Input, Button, FormRow, SubTitle, TextInput } from './CreateMockTest.styles';
+import { createMocktest } from '../../../../../api/mocktestApi';
+import { useNavigate } from 'react-router-dom';
 
 
 const CreateMockTest = () => {
       const [errors, setErrors] = useState([]);
-      const [title, setTitle] = useState('');
-      const [description, setDescription] = useState('');
-      const [duration, setDuration] = useState('');
-      const [mockAttempts, setMockAttempts] = useState('');
-      const [maxMarks, setMaxMarks] = useState('');
-      const [startDate, setStartDate] = useState('');
-      const [endDate, setEndDate] = useState('');
+  const [testDetails, setTestDetails] = useState({
+    title: '',
+    description: '',
+    duration: '',
+    passingMarks: '',
+    startDate: '',
+    endDate: '',
+    maxAttempts: 1,
+  });
 
-      const handleSubmit =  (e) => {
-          console("submit");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+      const navigate = useNavigate();
+
+        const handleTestDetailChange = (field, value) => {
+    setTestDetails({
+      ...testDetails,
+      [field]: value
+    });
+  };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        const newErrors = [];
+
+        if (!title) newErrors.push("Test title is required");
+        if (!description) newErrors.push("Test description is required");
+        if (!duration) newErrors.push("Duration is required");
+        if (!mockAttempts) newErrors.push("Mock attempts are required");
+        if (!maxMarks) newErrors.push("Max marks are required");
+        if (!startDate) newErrors.push("Start date is required");
+        if (!endDate) newErrors.push("End date is required");
+
+        if (newErrors.length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+        setErrors([]);
+        setIsSubmitting(true);
+
+        try {
+            const mockTestData ={
+                title: testDetails.title,
+                description: testDetails.description,
+                duration: testDetails.duration,
+                mockAttempts: testDetails.mockAttempts,
+                maxMarks: testDetails.maxMarks,
+                startDate: testDetails.startDate,
+                endDate: testDetails.endDate,
+            }
+            console.log("Mock test data", mockTestData);
+            const response = await createMocktest(mockTestData);
+            console.log("Mock test created successfully", response.data);
+            navigate('/admin/mock-test-question-list');
+        } catch (error) {
+            console.error("Error creating mock test", error);
+            let errorMessage = 'Failed to create mock test';
+            if(error.response && error.response.data && error.response.data.message) {
+                errorMessage = error.response.data.message;
+            }
+            setErrors([errorMessage]);
+            
+        } finally {
+            setIsSubmitting(false);
+        }
       }
 
     return (
@@ -37,8 +95,9 @@ const CreateMockTest = () => {
           <Input
             type="text"
             id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={testDetails.title}
+            onChange={(e) => handleTestDetailChange("title",e.target.value)}
+            placeholder='Enter test title'
           />
         </FormGroup>
         </FormRow>
@@ -49,8 +108,10 @@ const CreateMockTest = () => {
           <TextInput
             type="textarea"
             id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={testDetails.description}
+            onChange={(e) => handleTestDetailChange("description",e.target.value)}
+            placeholder='Enter test description'
+            required
           />
         </FormGroup>
         </FormRow>
@@ -62,8 +123,10 @@ const CreateMockTest = () => {
           <Input
             type="number"
             id="duration"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
+            value={testDetails.duration}
+            onChange={(e) => handleTestDetailChange("duration",e.target.value)}
+            placeholder='Enter duration'
+            required
           />
         </FormGroup>
         <FormGroup>
@@ -71,8 +134,10 @@ const CreateMockTest = () => {
           <Input
             type="number"
             id="mockAttempts"
-            value={mockAttempts}
-            onChange={(e) => setMockAttempts(e.target.value)}
+            value={testDetails.mockAttempts}
+            onChange={(e) => handleTestDetailChange("mockAttempts",e.target.value)}
+            placeholder='Enter mock attempts'
+            required
           />
         </FormGroup>
         </FormRow>
@@ -83,8 +148,10 @@ const CreateMockTest = () => {
           <Input
             type="number"
             id="maxMarks"
-            value={maxMarks}
-            onChange={(e) => setMaxMarks(e.target.value)}
+            value={testDetails.maxMarks}
+            onChange={(e) => handleTestDetailChange("maxMarks",e.target.value)}
+            placeholder='Enter max marks'
+            required
           />
         </FormGroup>
         </FormRow>
@@ -93,25 +160,27 @@ const CreateMockTest = () => {
             <FormGroup>
                 <Label htmlFor="startDate">Start Date:</Label>
                 <Input
-                    type="date"
+                    type="datetime-local"
                     id="startDate"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    value={testDetails.startDate}
+                    onChange={(e) => handleTestDetailChange("startDate",e.target.value)}
+                    required
                 />
             </FormGroup>
 
             <FormGroup>
                 <Label htmlFor="endDate">End Date:</Label>
                 <Input
-                    type="date"
+                    type="datetime-local"
                     id="endDate"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    value={testDetails.endDate}
+                    onChange={(e) => handleTestDetailChange("endDate",e.target.value)}
+                    required
                 />
             </FormGroup>
         </FormRow>
 
-        <Button type="submit">Create</Button>
+        <Button type="submit">Create Mock Test</Button>
       </FormWrapper>
         </Container>
     );
