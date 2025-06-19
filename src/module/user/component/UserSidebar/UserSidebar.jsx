@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   SidebarContainer,
   Logo,
@@ -23,11 +23,12 @@ import {
 import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
 import { MdOutlineMenuOpen } from "react-icons/md";
 import { getCookiesData } from '../../../../utils/cookiesService';
+import { getUserByUserId, logoutUser } from '../../../../api/authApi';
 const UserSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const [ id, setId] = useState('');
-
+  const navigate =useNavigate();
   useEffect(() => {
     const { userId } = getCookiesData();
     setId(userId);
@@ -58,6 +59,13 @@ const UserSidebar = () => {
     if (window.innerWidth <= 576) {
       setIsSidebarOpen(false);
     }
+  };
+  const handleLogout = async () => {
+   const userData= await getUserByUserId(id);
+   const response = await logoutUser({email:userData.user.email});
+   if(response.success){
+    navigate("/");
+   }
   };
   
 
@@ -105,7 +113,7 @@ const UserSidebar = () => {
           </MenuList>
 
           <LogoutContainer>
-            <LogoutButton onClick={() => {/* your logout logic */}}>
+            <LogoutButton onClick={handleLogout}>
               <FaPowerOff size={28} /> Log out
             </LogoutButton>
           </LogoutContainer>
