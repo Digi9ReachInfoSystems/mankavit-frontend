@@ -20,7 +20,7 @@ export const TableHeader = styled.th`
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 16px;
   font-weight: normal;
-  color: ${(props) => props.theme.colors.test};
+  color: ${(props) => props.theme.colors.white};
   white-space: nowrap;
 //   border-bottom: 1px solid ${(props) => props.theme.colors.test};
 
@@ -121,7 +121,7 @@ export const Table = styled.table`
 `;
 
 export const TableHead = styled.thead`
-  background: ${theme.colors.backgrounGrey};
+  background: ${theme.colors.black};
 `;
 
 export const TableBody = styled.tbody`

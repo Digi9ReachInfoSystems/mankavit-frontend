@@ -96,7 +96,7 @@ export const StyledTable = styled.table`
 
 // Table Head
 export const TableHead = styled.thead`
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.black};
 `;
 
 // Table Header Cell
@@ -106,7 +106,7 @@ export const TableHeader = styled.th`
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 16px;
   font-weight: normal;
-  color: ${(props) => props.theme.colors.test};
+  color: ${(props) => props.theme.colors.white};
   white-space: nowrap;
 //   border-bottom: 1px solid ${(props) => props.theme.colors.test};
 
@@ -128,9 +128,9 @@ export const TableBody = styled.tbody``;
 export const TableRow = styled.tr`
 
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.backgrounGrey};
-  }
+  // &:hover {
+  //   background-color: ${(props) => props.theme.colors.backgrounGrey};
+  // }
 
 `;
 
