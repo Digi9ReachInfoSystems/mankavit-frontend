@@ -129,6 +129,10 @@ import AddYoutube from './module/admin/component/WebManagement/YoutubeComponents
 import EditYoutube from './module/admin/component/WebManagement/YoutubeComponents/EditYoutube/EditYoutube.'
 import ViewYoutube from './module/admin/component/WebManagement/YoutubeComponents/ViewYoutube/ViewYoutube'
 import MockTestQuestionsList from './module/admin/component/MockTestComponents/MockTestQuestionsLists/MockTestQuestionsList'
+import AllmocktestResults from './module/admin/component/MockTestComponents/MocktestResults/AllmocktestResults/AllmocktestResults'
+import ViewMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/ViewmocktestResults/ViewmocktestResults'
+import EditMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/EditmocktestResults/EditmocktestResults'
+import StudentResults from './module/admin/component/MockTestComponents/MocktestResults/AllmocktestResults/StudentResult/StudentResult'
 function App() {
 
   return (
@@ -209,6 +213,11 @@ function App() {
             <Route path='mock-test/user-ranking/:mockTestId/:subjectId' element={<ViewUserRanking />} />
             <Route path='mock-test/user-attempts/:mockTestId/:userId' element={<ViewUserAttempts />} />
             <Route path='mock-test/user-result/view-result/:attemptId' element={<ViewUserResults />} />
+
+            <Route path='results' element={<AllmocktestResults />} />
+            <Route path='results/view/:id' element={<ViewMockTestResult />} />
+            <Route path="results/edit/:id" element={<EditMockTestResult />} />
+            <Route path='results/studentName/:studentName' element={<StudentResults />} />
 
             <Route path="payment-management" element={<Payment />} />
 
