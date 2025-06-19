@@ -14,6 +14,11 @@ import {
   StyledNavLink,
   LogoutContainer,
   LogoutButton,
+  ModalOverlay,
+  ModalContainer,
+  ModalContent,
+  ModalButtons,
+  ModalButton
 } from "./Sidebar.style";
 import { getUserByUserId, logoutUser } from "../../api/authApi";
 import { getCookiesData } from "../../utils/cookiesService";
@@ -26,6 +31,7 @@ const Sidebar = () => {
   const [openSections, setOpenSections] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -35,7 +41,7 @@ const Sidebar = () => {
       [section]: !prev[section],
     }));
   };
-  const handleLogout = async () => {
+  const handleConfirmLogout = async () => {
     const cookieData = await getCookiesData();
     const id = cookieData.userId;
     const userData = await getUserByUserId(id);
@@ -43,6 +49,12 @@ const Sidebar = () => {
     if (response.success) {
       navigate("/");
     }
+  };
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   const menuItems = [
@@ -205,11 +217,26 @@ const Sidebar = () => {
           {/* {renderSection("App Management", appManagementItems)} */}
         </MenuList>
         <LogoutContainer>
-          <LogoutButton onClick={handleLogout}>
-            <FaPowerOff size={28} /> Log out
+          <LogoutButton onClick={() => {
+             handleLogoutClick()
+          }}>
+            <FaPowerOff size={28} /> Log out  
           </LogoutButton>
         </LogoutContainer>
       </SidebarContainer>
+      {showLogoutModal && (
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalContent>
+              <p>Are you sure you want to logout?</p>
+              <ModalButtons>
+                <ModalButton $primary onClick={handleConfirmLogout}>Yes</ModalButton>
+                <ModalButton onClick={handleCancelLogout}>No</ModalButton>
+              </ModalButtons>
+            </ModalContent>
+          </ModalContainer>
+        </ModalOverlay>
+      )}
     </>
   );
 };
