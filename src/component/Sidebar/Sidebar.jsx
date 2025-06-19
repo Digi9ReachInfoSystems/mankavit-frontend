@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import theme from "../../theme/Theme";
 import {
@@ -12,12 +12,26 @@ import {
   Backdrop,
   DropdownIcon,
   StyledNavLink,
+  LogoutContainer,
+  LogoutButton,
+  ModalOverlay,
+  ModalContainer,
+  ModalContent,
+  ModalButtons,
+  ModalButton
 } from "./Sidebar.style";
+import { getUserByUserId, logoutUser } from "../../api/authApi";
+import { getCookiesData } from "../../utils/cookiesService";
+import {
+  FaPowerOff
+} from 'react-icons/fa';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const location = useLocation();
+  const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -26,6 +40,21 @@ const Sidebar = () => {
       ...prev,
       [section]: !prev[section],
     }));
+  };
+  const handleConfirmLogout = async () => {
+    const cookieData = await getCookiesData();
+    const id = cookieData.userId;
+    const userData = await getUserByUserId(id);
+    const response = await logoutUser({ email: userData.user.email });
+    if (response.success) {
+      navigate("/");
+    }
+  };
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   const menuItems = [
@@ -127,6 +156,7 @@ const Sidebar = () => {
         location.pathname.startsWith(item.path)
     );
 
+
     return (
       <React.Fragment key={title}>
         <MenuItem
@@ -168,6 +198,7 @@ const Sidebar = () => {
     );
   };
 
+
   return (
     <>
       <HamburgerIcon onClick={toggleSidebar}>
@@ -185,7 +216,27 @@ const Sidebar = () => {
           {renderSection("Web management", webmanagement)}
           {/* {renderSection("App Management", appManagementItems)} */}
         </MenuList>
+        <LogoutContainer>
+          <LogoutButton onClick={() => {
+             handleLogoutClick()
+          }}>
+            <FaPowerOff size={28} /> Log out  
+          </LogoutButton>
+        </LogoutContainer>
       </SidebarContainer>
+      {showLogoutModal && (
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalContent>
+              <p>Are you sure you want to logout?</p>
+              <ModalButtons>
+                <ModalButton $primary onClick={handleConfirmLogout}>Yes</ModalButton>
+                <ModalButton onClick={handleCancelLogout}>No</ModalButton>
+              </ModalButtons>
+            </ModalContent>
+          </ModalContainer>
+        </ModalOverlay>
+      )}
     </>
   );
 };

@@ -128,6 +128,7 @@ import YouTube from './module/admin/pages/WebManagement/YouTube/YouTube'
 import AddYoutube from './module/admin/component/WebManagement/YoutubeComponents/AddYoutube/AddYoutube'
 import EditYoutube from './module/admin/component/WebManagement/YoutubeComponents/EditYoutube/EditYoutube.'
 import ViewYoutube from './module/admin/component/WebManagement/YoutubeComponents/ViewYoutube/ViewYoutube'
+import MockTestQuestionsList from './module/admin/component/MockTestComponents/MockTestQuestionsLists/MockTestQuestionsList'
 import AllmocktestResults from './module/admin/component/MockTestComponents/MocktestResults/AllmocktestResults/AllmocktestResults'
 import ViewMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/ViewmocktestResults/ViewmocktestResults'
 import EditMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/EditmocktestResults/EditmocktestResults'
@@ -204,6 +205,7 @@ function App() {
             <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
             <Route path="mock-test" element={<Mocktest />} />
             <Route path="mock-test/create-mock-test" element={<CreateMockTest />} />
+            <Route path="mock-test/questions-list" element={<MockTestQuestionsList />} />
             <Route path="mock-test/create" element={<AddMockTest />} />
             <Route path="mock-test/view/:id" element={<ViewMockTest />} />
             <Route path='mock-test/edit/:id' element={<EditMockTest />} />
