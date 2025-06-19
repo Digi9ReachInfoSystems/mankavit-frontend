@@ -68,7 +68,7 @@ const Sidebar = () => {
   const mocktextItems = [
     { path: "/admin/mock-test", label: "View Mock Test" },
     { path: "/admin/mock-test/create-mock-test", label: "Create Mock Test" },
-    { path: "/admin/test-management", label: "Results" },
+    { path: "/admin/results", label: "Results" },
   ]
 
   const courseManagementItems = [
