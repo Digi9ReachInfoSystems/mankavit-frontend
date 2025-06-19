@@ -122,3 +122,62 @@ export const Select = styled.select`
   border-radius: 4px;
   font-size: 1rem;
 `;
+
+export const CheckboxSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: ${(props) => props.theme.spacing(1)};
+`;
+
+export const CheckboxSectionTitle = styled.h4`
+  font-family: ${(props) => props.theme.fonts.heading};
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
+  color: ${(props) => props.theme.colors.test};
+  padding: ${(props) => props.theme.spacing(1)};
+  //done
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  border-radius: 6px;
+`;
+
+export const CheckboxList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(1)};
+  overflow-y: auto;
+  max-height: 80px;
+`;
+
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing(1)};
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.black};
+`;
+
+export const CheckboxInput = styled.input`
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  background-color: ${(props) => props.theme.colors.black};
+`;
+
+export const Column = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(2)};
+
+  .toggle-column{
+  display: flex;
+  flex-direction: space-between;
+  align-items: center;
+  justify-content: space-between;
+  }
+
+  @media (max-width: 990px) {
+  width: 100%;
+}
+`;
