@@ -18,20 +18,19 @@ import {
   SearchIcon,
   SearchInput
 } from "./AllmocktestResults.styles";
-
+import { getAllUserAttempts } from "../../../../../../api/mocktestApi";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import { IoEyeOutline } from "react-icons/io5";
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import Pagination from "../../../Pagination/Pagination";
 import DeleteModal from "../../../DeleteModal/DeleteModal";
 
 const ITEMS_PER_PAGE = 10;
+
 
 export default function AllmocktestResults() {
   const navigate = useNavigate();
@@ -39,95 +38,86 @@ export default function AllmocktestResults() {
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error] = useState(null);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [sortOption, setSortOption] = useState("Select");
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
+  // Fetch real data from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setData([
-        {
-          id: 1,
-          testName: "React Fundaaaaamentals",
-          studentName: "Alice Johnson",
-          email: "alice@example.com",
-          marks: "0 / 20 - correct(0.00%)",
-          timeToComplete: "0 minutes and 6 seconds",
-          submissionDate: "April 9, 2025, 16:37:30 IST",
-          subjectId: "react101"
-        },
-        {
-          id: 2,
-          testName: "JavaScript Basics",
-          studentName: "Bob Smith",
-          email: "bob@example.com",
-          marks: "15 / 20 - correct(75.00%)",
-          timeToComplete: "12 minutes and 30 seconds",
-          submissionDate: "April 10, 2025, 10:22:11 IST",
-          subjectId: "js101"
-        },
-        {
-          id: 3,
-          testName: "CSS Flexbox & Grid",
-          studentName: "Alice Johnson",
-          email: "carol@example.com",
-          marks: "18 / 20 - correct(90.00%)",
-          timeToComplete: "8 minutes and 45 seconds",
-          submissionDate: "April 11, 2025, 11:15:45 IST",
-          subjectId: "css201"
-        },
-        {
-          id: 4,
-          testName: "Node.js Fundamentals",
-          studentName: "Bob Smith",
-          email: "david@example.com",
-          marks: "12 / 20 - correct(60.00%)",
-          timeToComplete: "15 minutes and 10 seconds",
-          submissionDate: "April 12, 2025, 13:30:00 IST",
-          subjectId: "node101"
-        },
-        {
-          id: 5,
-          testName: "React Fundaaaaamentals",
-          studentName: "John",
-          email: "alice@example.com",
-          marks: "0 / 20 - correct(0.00%)",
-          timeToComplete: "0 minutes and 6 seconds",
-          submissionDate: "April 9, 2025, 16:37:30 IST",
-          subjectId: "react101"
-        },
+    const fetchData = async () => {
+      try {
+        const response = await getAllUserAttempts();
+console.log("All mocktest user response", response);
+        // 🔁 Map the data to expected format
+        const mappedData = (response.data || []).map(item => ({
+          _id: item._id,
+          testName: item.mockTestId?.title || "Untitled Test",
+          studentName: item.userId?.displayName || "Anonymous",
+          email: item.userId?.email || "-",
+          marks: `${item.totalMarks || 0}`,
+          mcqScore: item.mcqScore || 0,
+          subjectiveScore: item.subjectiveScore || 0,
+          timeToComplete: formatTime(item.submittedAt, item.startedAt),
+          submissionDate: formatDate(item.submittedAt),
+          status: item.status,
+          userId: item.userId?._id
 
-      ]);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
+        }));
+
+        setData(mappedData);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user attempts", err);
+        setError("Failed to load mock test results");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  // Show success toast if redirected with updated result
   useEffect(() => {
     if (!loading && location.state?.updatedResult) {
       const updated = location.state.updatedResult;
-
       setData(prev =>
-        prev.map(item => (item.id === updated.id ? updated : item))
+        prev.map(item => (item._id === updated._id ? updated : item))
       );
-
       toast.success("Mock test result updated!");
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [loading, location.state, navigate]);
 
-  const getPercentage = marks =>
-    parseFloat(marks.match(/\(([\d.]+)%\)/)?.[1] || 0);
+  // Format date helper
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
 
+  // Format time taken
+  const formatTime = (submittedAt, startedAt) => {
+    if (!submittedAt || !startedAt) return "N/A";
+
+    const start = new Date(startedAt);
+    const submit = new Date(submittedAt);
+    const diffSeconds = Math.round((submit - start) / 1000);
+    const minutes = Math.floor(diffSeconds / 60);
+    const seconds = diffSeconds % 60;
+
+    return `${minutes} minute(s) and ${seconds} second(s)`;
+  };
+
+  // Sorting helpers
+  const getPercentage = marks => ((marks / 20) * 100).toFixed(2) + "%"; // Example: based on max marks
   const getTimeSec = str => {
-    const m = str.match(/(\d+)\s*minutes? and\s*(\d+)\s*seconds/);
+    const m = str.match(/(\d+)\s*minute.*?(\d+)\s*second/);
     return m ? +m[1] * 60 + +m[2] : 0;
   };
 
+  // Sorting logic
   const sortData = list => {
     const arr = [...list];
     switch (sortOption) {
@@ -135,7 +125,7 @@ export default function AllmocktestResults() {
         arr.sort((a, b) => a.testName.localeCompare(b.testName));
         break;
       case "Percentage":
-        arr.sort((a, b) => getPercentage(b.marks) - getPercentage(a.marks));
+        arr.sort((a, b) => b.totalMarks - a.totalMarks);
         break;
       case "Time Taken":
         arr.sort((a, b) => getTimeSec(a.timeToComplete) - getTimeSec(b.timeToComplete));
@@ -146,8 +136,9 @@ export default function AllmocktestResults() {
     return arr;
   };
 
+  // Filter by search text
   const filtered = data.filter(d =>
-    d.testName.toLowerCase().includes(searchText.toLowerCase())
+    (d.testName || '').toLowerCase().includes(searchText.toLowerCase())
   );
 
   const sorted = sortData(filtered);
@@ -158,25 +149,26 @@ export default function AllmocktestResults() {
     currentPage * ITEMS_PER_PAGE
   );
 
+  // Delete handlers
   const handleDeleteClick = id => {
-    setItemToDelete(data.find(d => d.id === id));
+    setItemToDelete(data.find(d => d._id === id));
     setDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = () => {
-    setData(prev => prev.filter(d => d.id !== itemToDelete.id));
+    setData(prev => prev.filter(d => d._id !== itemToDelete._id));
     toast.success("Deleted successfully");
     setDeleteModalOpen(false);
     setItemToDelete(null);
   };
 
   if (loading) return <div>Loading mock tests…</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (error)
+    return <div style={{ color: "red" }}>{error}</div>;
 
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
-
       <Container>
         <HeaderRow>
           <Title>
@@ -201,12 +193,10 @@ export default function AllmocktestResults() {
         </HeaderRow>
 
         <SearchWrapper>
-          <SearchIcon>
-            <CiSearch size={18} />
-          </SearchIcon>
+          <SearchIcon><CiSearch size={18} /></SearchIcon>
           <SearchInput
             value={searchText}
-            placeholder="Search"
+            placeholder="Search by quiz name..."
             onChange={e => {
               setSearchText(e.target.value);
               setCurrentPage(1);
@@ -222,38 +212,22 @@ export default function AllmocktestResults() {
                 <TableHeader>Student Name</TableHeader>
                 <TableHeader>Email</TableHeader>
                 <TableHeader>Marks</TableHeader>
+                <TableHeader>MCQ Score</TableHeader>
+                <TableHeader>Subjective Score</TableHeader>
                 <TableHeader>Time to complete</TableHeader>
                 <TableHeader>Submission Date</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {pageSlice.map(item => (
-                <TableRow key={item.id}>
+              {pageSlice.map(item =>(
+                <TableRow key={item._id}>
                   <TableCell>{item.testName}</TableCell>
-                  <TableCell>
-                    {item.studentName}
-                    <br />
-                    <div
-                      style={{
-                        marginTop: "8px",
-                        cursor: "pointer",
-                        color: "#1d72e8",
-                        fontSize: "0.95rem",
-                        textDecoration: "none"
-                      }}
-                      onClick={() =>
-                        navigate(`/admin/results/studentName/${encodeURIComponent(item.studentName)}`, {
-                          state: { studentName: item.studentName, allResults: data }
-                        })
-                      }
-                    >
-                      Results by name
-                    </div>
-
-                  </TableCell>
+                  <TableCell>{item.studentName}</TableCell>
                   <TableCell>{item.email}</TableCell>
                   <TableCell>{item.marks}</TableCell>
+                  <TableCell>{item.mcqScore}</TableCell>
+                  <TableCell>{item.subjectiveScore}</TableCell>
                   <TableCell>{item.timeToComplete}</TableCell>
                   <TableCell>{item.submissionDate}</TableCell>
                   <TableCell>
@@ -261,35 +235,20 @@ export default function AllmocktestResults() {
                       <IoEyeOutline
                         size={20}
                         title="View"
-                        onClick={() =>
-                          navigate(`/admin/results/view/${item.id}`, {
-                            state: item
-                          })
-                        }
+                        onClick={() => navigate(`/admin/results/studentName/${item.userId}`,  { state: { studentName: item.studentName } })}
                       />
                       <BiEditAlt
                         size={20}
                         title="Edit"
-                        onClick={() => {
-                          // Convert the human-readable date string to an ISO string
-                          const rawDate = item.submissionDate;
-                          const parsedDate = new Date(rawDate.replace(" IST", " GMT+0530")); // Fix for Indian time
-                          const isoDate = parsedDate.toISOString().slice(0, 16); // format: "YYYY-MM-DDTHH:mm"
-
-                          navigate(`/admin/results/edit/${item.id}`, {
-                            state: {
-                              ...item,
-                              submissionDate: isoDate
-                            }
-                          });
-                        }}
+                        onClick={() => navigate(`/admin/results/edit/${item._id}`, { state: data,
+                            currentResult: item
+                         })}
                       />
-
                       <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"
                         title="Delete"
-                        onClick={() => handleDeleteClick(item.id)}
+                        onClick={() => handleDeleteClick(item._id)}
                       />
                     </ActionsContainer>
                   </TableCell>
@@ -308,7 +267,6 @@ export default function AllmocktestResults() {
             itemsPerPage={ITEMS_PER_PAGE}
           />
         )}
-
       </Container>
 
       <DeleteModal

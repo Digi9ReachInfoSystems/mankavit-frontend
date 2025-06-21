@@ -261,7 +261,3 @@ export const SearchInput = styled.input`
     font-size: 14px;
   }
 `;
-
-
-
-

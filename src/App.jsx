@@ -133,6 +133,7 @@ import AllmocktestResults from './module/admin/component/MockTestComponents/Mock
 import ViewMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/ViewmocktestResults/ViewmocktestResults'
 import EditMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/EditmocktestResults/EditmocktestResults'
 import StudentResults from './module/admin/component/MockTestComponents/MocktestResults/AllmocktestResults/StudentResult/StudentResult'
+import MocktestStudentResult from './module/admin/component/MockTestComponents/MocktestResults/MocktestStudentResult/MocktestStudentResult'
 function App() {
 
   return (
@@ -217,7 +218,8 @@ function App() {
             <Route path='results' element={<AllmocktestResults />} />
             <Route path='results/view/:id' element={<ViewMockTestResult />} />
             <Route path="results/edit/:id" element={<EditMockTestResult />} />
-            <Route path='results/studentName/:studentName' element={<StudentResults />} />
+            <Route path='results/studentName/:userId' element={<StudentResults />} />
+            <Route path='results/user-attempts/attempt/:attemptId' element={<MocktestStudentResult />} />
 
             <Route path="payment-management" element={<Payment />} />
 
