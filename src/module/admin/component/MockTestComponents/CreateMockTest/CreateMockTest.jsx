@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, FormWrapper, FormGroup, Label, Input, Button, FormRow, SubTitle, TextInput, Select } from './CreateMockTest.styles';
+import { Container, Title, FormWrapper, FormGroup, Label, Input, Button, FormRow, SubTitle, TextInput,   CheckboxSection,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxLabel,
+  CheckboxInput, } from './CreateMockTest.styles';
 import { createMocktest } from '../../../../../api/mocktestApi';
 import { useNavigate } from 'react-router-dom';
 import { getSubjects } from '../../../../../api/subjectApi';
@@ -14,7 +18,7 @@ const CreateMockTest = () => {
     startDate: '',
     endDate: '',
     maxAttempts: 1,
-    subjectId: '',
+    selectedSubjects: [], 
   });
 
   const [subjects, setSubjects] = useState([]);
@@ -58,7 +62,7 @@ const CreateMockTest = () => {
   if (!testDetails.maxAttempts) newErrors.push("Max attempts are required");
   if (!testDetails.startDate) newErrors.push("Start date is required");
   if (!testDetails.endDate) newErrors.push("End date is required");
-  if (!testDetails.subjectId) newErrors.push("Subject is required");
+    if (!testDetails.selectedSubjects.length) newErrors.push("At least one subject must be selected");
 
   if (newErrors.length > 0) {
     setErrors(newErrors);
@@ -77,7 +81,7 @@ const CreateMockTest = () => {
       maxAttempts: testDetails.maxAttempts,
       startDate: testDetails.startDate,
       endDate: testDetails.endDate,
-      subject: testDetails.subjectId, // This matches your DB structure
+      subject: testDetails.selectedSubjects,
     };
 
     console.log("Mock test data", mockTestData);
@@ -108,6 +112,15 @@ const CreateMockTest = () => {
     setIsSubmitting(false);
   }
 };
+
+const handleSubjectToggle = (subjectId) => {
+  setTestDetails((prev) => {
+    const set = new Set(prev.selectedSubjects);
+    set.has(subjectId) ? set.delete(subjectId) : set.add(subjectId);
+    return { ...prev, selectedSubjects: Array.from(set) };
+  });
+};
+
 
   return (
     <Container>
@@ -155,22 +168,23 @@ const CreateMockTest = () => {
 
         <FormRow>
           <FormGroup>
-            <Label htmlFor="subjectId">Subject:</Label>
-         <Select
-  id="subjectId"
-  value={testDetails.subjectId}
-  onChange={(e) => handleTestDetailChange("subjectId", e.target.value)}
-  disabled={isLoadingSubjects}
-  required
->
-  <option value="">Select a subject</option>
-  {subjects.map(subject => (
-    <option key={subject._id} value={subject._id}>
-      {/* Use subjectDisplayName or subjectName */}
-      {subject.subjectDisplayName || subject.subjectName}
-    </option>
-  ))}
-</Select>
+           <CheckboxSection>
+  <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+  <CheckboxList>
+    {subjects.map((subject) => (
+      <CheckboxLabel key={subject._id}>
+        <CheckboxInput
+          type="checkbox"
+          checked={testDetails.selectedSubjects.includes(subject._id)}
+          onChange={() => handleSubjectToggle(subject._id)}
+          disabled={isLoadingSubjects}
+        />
+        {subject.subjectDisplayName || subject.subjectName}
+      </CheckboxLabel>
+    ))}
+  </CheckboxList>
+</CheckboxSection>
+
           </FormGroup>
         </FormRow>
 
