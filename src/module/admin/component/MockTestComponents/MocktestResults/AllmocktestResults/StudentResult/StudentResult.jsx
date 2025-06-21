@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 
@@ -18,70 +18,140 @@ import {
     TableHeader,
     TableBody,
     TableRow,
+    ActionsContainer,
     TableCell,
 } from "./StudentResult.styles";
+import { useNavigate } from "react-router-dom";
+import { IoEyeOutline } from "react-icons/io5";
+import {
+    getusersAllmocktestsAttempts,
 
+} from "../../../../../../../api/mocktestApi";
+import { getUserByUserId } from "../../../../../../../api/authApi";
+import { Tab } from "../../../../CourseList/CoursesList.styles";
 export default function StudentResults() {
-    const { studentName: name } = useParams();
-    const { state } = useLocation();
-
-    // Fallback if user refreshes
-    const allResults =
-        state?.allResults ||
-        JSON.parse(sessionStorage.getItem("allResults") || "[]");
-
-    if (state?.allResults) {
-        sessionStorage.setItem("allResults", JSON.stringify(state.allResults));
-    }
-
-    const studentResults = allResults.filter(
-        (r) =>
-            r.studentName.toLowerCase() === decodeURIComponent(name).toLowerCase()
-    );
-
+    const { userId } = useParams(); // Get userId from URL
+    const { state } = useLocation(); // Optional: get studentName from navigation state
+    const [studentResults, setStudentResults] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [searchText, setSearchText] = useState("");
     const [sortOption, setSortOption] = useState("Select");
+    const [studentInfo, setStudentInfo] = useState({
+        displayName: "Anonymous",
+        email: "-"
+    });
+    const navigate = useNavigate();
+    // Format helpers
+    const formatTime = (submittedAt, startedAt) => {
+        if (!submittedAt || !startedAt) return "N/A";
+        const start = new Date(startedAt);
+        const submit = new Date(submittedAt);
+        const diffSeconds = Math.round((submit - start) / 1000);
+        const minutes = Math.floor(diffSeconds / 60);
+        const seconds = diffSeconds % 60;
+        return `${minutes} minute(s) and ${seconds} second(s)`;
+    };
 
-    const getPercentage = (marks) =>
-        parseFloat(marks.match(/\(([\d.]+)%\)/)?.[1] || 0);
+    const formatDate = (iso) =>
+        new Date(iso).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
 
-    const getTimeSec = (str) => {
-        const m = str.match(/(\d+)\s*minutes? and\s*(\d+)\s*seconds/);
+    // Load mock test results + student info
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+
+                // 1️⃣ Get student info
+                const userResponse = await getUserByUserId(userId);
+                const user = userResponse.data;
+
+                setStudentInfo({
+                    displayName: user?.displayName || "Anonymous",
+                    email: user?.email || "-"
+                });
+
+                // 2️⃣ Get all attempts by student
+                const res = await getusersAllmocktestsAttempts(userId);
+                const formatted = res.data.map(item => ({
+                    _id: item._id,
+                    testName: item.mockTestId?.title || "Untitled Test",
+                    marks: item.totalMarks ?? 0,
+                    timeToComplete: formatTime(item.submittedAt, item.startedAt),
+                    submissionDate: formatDate(item.submissionDate || item.submittedAt),
+                    attemptId: item._id
+                }));
+
+                setStudentResults(formatted);
+            } catch (err) {
+                console.error("Error loading student results:", err);
+                setError("Failed to load student results");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [userId]);
+
+    // Sorting logic
+    const getTimeSec = str => {
+        const m = str.match(/(\d+)\s*minute.*?(\d+)\s*second/);
         return m ? +m[1] * 60 + +m[2] : 0;
     };
 
-    const filteredResults = useMemo(() => {
-        const filtered = studentResults.filter((result) =>
-            result.testName.toLowerCase().includes(searchText.toLowerCase())
-        );
+    const sortedAndFiltered = useMemo(() => {
+        let list = [...studentResults];
 
+        // Filter by search text
+        if (searchText.trim()) {
+            const term = searchText.toLowerCase();
+            list = list.filter(r => r.testName.toLowerCase().includes(term));
+        }
+
+        // Sort
         switch (sortOption) {
             case "Quiz Name":
-                return filtered.sort((a, b) =>
-                    a.testName.localeCompare(b.testName)
-                );
+                list.sort((a, b) => a.testName.localeCompare(b.testName));
+                break;
             case "Percentage":
-                return filtered.sort(
-                    (a, b) => getPercentage(b.marks) - getPercentage(a.marks)
-                );
+                list.sort((a, b) => b.marks - a.marks);
+                break;
             case "Time Taken":
-                return filtered.sort(
-                    (a, b) =>
-                        getTimeSec(a.timeToComplete) - getTimeSec(b.timeToComplete)
-                );
+                list.sort((a, b) => getTimeSec(a.timeToComplete) - getTimeSec(b.timeToComplete));
+                break;
             default:
-                return filtered;
+                break;
         }
+
+        return list;
     }, [studentResults, searchText, sortOption]);
+
+    const totalItems = sortedAndFiltered.length;
+    const ITEMS_PER_PAGE = 10;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const currentPage = 1;
+    const pageSlice = sortedAndFiltered.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    if (loading) return <Container>Loading...</Container>;
+    if (error) return <div style={{ color: "red" }}>{error}</div>;
 
     return (
         <Container>
             <HeaderRow>
                 <Title>
-                    <strong>{decodeURIComponent(name)}'s Result</strong>&nbsp;
-                    <small>({filteredResults.length})</small>
+                    <strong>{studentInfo.displayName}'s Results</strong>&nbsp;
+                    <small>({totalItems})</small>
                 </Title>
-
                 <SortByContainer>
                     <SortLabel>Sort by:</SortLabel>
                     <SortSelect
@@ -97,9 +167,7 @@ export default function StudentResults() {
             </HeaderRow>
 
             <SearchWrapper>
-                <SearchIcon>
-                    <CiSearch size={18} />
-                </SearchIcon>
+                <SearchIcon><CiSearch size={18} /></SearchIcon>
                 <SearchInput
                     value={searchText}
                     placeholder="Search Test Name"
@@ -112,22 +180,32 @@ export default function StudentResults() {
                     <TableHead>
                         <TableRow>
                             <TableHeader>Test Name</TableHeader>
-                            <TableHeader>Student Name</TableHeader>
+                            <TableHeader>Student</TableHeader>
                             <TableHeader>Email</TableHeader>
                             <TableHeader>Marks</TableHeader>
                             <TableHeader>Time to complete</TableHeader>
                             <TableHeader>Submission Date</TableHeader>
+                            <TableHeader>Actions</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredResults.map((item) => (
-                            <TableRow key={item.id}>
+                        {pageSlice.map((item) => (
+                            <TableRow key={item._id}>
                                 <TableCell>{item.testName}</TableCell>
-                                <TableCell>{item.studentName}</TableCell>
-                                <TableCell>{item.email}</TableCell>
+                                <TableCell>{studentInfo.displayName}</TableCell>
+                                <TableCell>{studentInfo.email}</TableCell>
                                 <TableCell>{item.marks}</TableCell>
                                 <TableCell>{item.timeToComplete}</TableCell>
                                 <TableCell>{item.submissionDate}</TableCell>
+                                <TableCell>
+                                    <ActionsContainer>
+                                        <IoEyeOutline
+                                            size={20}
+                                            title="View"
+                                            onClick={() => navigate(`/admin/results/user-attempts/attempt/${item.attemptId}`)}
+                                        />
+                                    </ActionsContainer>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

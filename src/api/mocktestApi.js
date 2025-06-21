@@ -175,3 +175,21 @@ export const updatemocktestquestions = async(questionId,mocktestId,data) =>{
         throw error;
     }
 }
+
+export const getAllUserAttempts = async() =>{
+    try{
+        const response = await api.get('/userAttempt/get/getAll/userAttempts');
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const getusersAllmocktestsAttempts = async(user_id) =>{
+    try{
+        const response = await api.get(`/userAttempt/get/userAllAttempts/${user_id}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
