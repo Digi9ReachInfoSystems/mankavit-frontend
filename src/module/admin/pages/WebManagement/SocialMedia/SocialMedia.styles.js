@@ -80,3 +80,17 @@ export const SubmitButton = styled.button`
     cursor: not-allowed;
   }
 `;
+
+export const ErrorText = styled.p`
+  margin-top: ${theme.spacing(1)};
+  color: ${theme.colors.red};
+  font-family: ${theme.fonts.body};
+  font-size: 0.875rem;
+`;
+
+export const SuccessText = styled.p`
+  margin-top: ${theme.spacing(1)};
+  color: ${theme.colors.green};
+  font-family: ${theme.fonts.body};
+  font-size: 0.875rem;
+`;  
