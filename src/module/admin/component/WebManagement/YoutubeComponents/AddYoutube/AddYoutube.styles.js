@@ -200,3 +200,9 @@ export const CheckboxInput = styled.input`
   cursor: pointer;
   background-color: ${(props) => props.theme.colors.black};
 `;
+
+export const ErrorText = styled.div`
+  color: red;
+  margin-top: 0.5rem;
+  font-size: 12px;
+`;
