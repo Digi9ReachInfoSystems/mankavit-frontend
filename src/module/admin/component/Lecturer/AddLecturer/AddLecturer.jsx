@@ -79,11 +79,11 @@ export default function AddLecturer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!lectureName || !duration || !description || !videoFile) {
-      toast.error("Please fill all required fields!");
+    // if (!lectureName || !duration || !description || !videoFile) {
+    //   toast.error("Please fill all required fields!");
 
-      return;
-    }
+    //   return;
+    // }
 
     try {
       setIsLoading(true);

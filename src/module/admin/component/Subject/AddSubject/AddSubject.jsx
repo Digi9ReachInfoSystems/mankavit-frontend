@@ -99,10 +99,14 @@ export default function AddSubject() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!subjectTitle || !internalTitle || !vimeoId || !thumbnailFile) {
-      toast.error("All fields are required");
-      return;
-    }
+    // if (!subjectTitle || !internalTitle || !vimeoId || !thumbnailFile) {
+    //   toast.error("All fields are required");
+    //   return;
+    // }
+    if (!internalTitle.trim()) {
+      toast.error("Subject Name is required");
+            return;
+}
 
     try {
       // upload thumbnail
