@@ -50,19 +50,28 @@ const AboutUs = () => {
   const [error, setError] = useState("");
 
   // fetch (or re-fetch) the list
-  const fetchItems = async () => {
-    setLoadingList(true);
-    setError("");
-    try {
-      const data = await getAllAboutUs();
-      setItems(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load entries.");
-    } finally {
-      setLoadingList(false);
-    }
-  };
+// fetch (or re-fetch) the list
+const fetchItems = async () => {
+  setLoadingList(true);
+  setError("");
+  try {
+    const data = await getAllAboutUs();
+
+    // 🔥 Sort newest first by createdAt or updatedAt
+    const sorted = (Array.isArray(data) ? data : []).sort(
+      (a, b) =>
+        new Date(b.createdAt || b.updatedAt) -
+        new Date(a.createdAt || a.updatedAt)
+    );
+
+    setItems(sorted);
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load entries.");
+  } finally {
+    setLoadingList(false);
+  }
+};
 
   useEffect(() => {
     fetchItems();
@@ -94,11 +103,15 @@ const handleSubmit = async (e) => {
       });
       toast.success("Data updated successfully!");
     } else {
-      await createAboutUs({
-        title: formData.title,
-        description: formData.description,
-      });
-      toast.success("Data Added successfully!");
+      const newItem = await createAboutUs({
+  title: formData.title,
+  description: formData.description,
+});
+toast.success("Data added successfully!");
+
+// Insert the new item at the top
+setItems((prev) => [newItem, ...prev]);
+
     }
     setFormData({ id: "", title: "", description: "" });
     await fetchItems();

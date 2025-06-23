@@ -177,7 +177,7 @@ function App() {
           <Route path='/courseComplte/:courseId' element={<CourseCompletionPage />} />
 
           <Route path="/user" element={<UserBaseLayout />}>
-            <Route index element={<UserDashboard />} />
+            <Route index element={<UserDashboard />} />t
             <Route path="profile/:id" element={<Profile />} />
             <Route path="tandc" element={<TandC />} />
             <Route path='my-courses' element={<Mycourses />} />

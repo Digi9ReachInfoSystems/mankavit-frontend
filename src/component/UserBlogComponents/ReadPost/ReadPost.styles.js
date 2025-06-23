@@ -127,6 +127,7 @@ export const SocialIcons = styled.div`
   display: flex;
   gap: 30px;
   padding: 16px;
+  cursor: pointer;
 
   @media (max-width: 1320px) {
     gap: 20px;

@@ -59,7 +59,7 @@ export const DropZone = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 30%;
+    width: 80%;
 
     @media (max-width: 1024px) {
       width: 40%;
@@ -205,4 +205,62 @@ export const ErrorText = styled.div`
   color: red;
   margin-top: 0.5rem;
   font-size: 12px;
+`;
+
+export const ToggleSwitch = styled.input.attrs({ type: "checkbox" })`
+  width: 40px;
+  height: 20px;
+  appearance: none;
+  background: #bdbdbd;
+  border-radius: 20px;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s ease;
+  }
+
+  &:checked {
+    background: #2290ac;
+  }
+
+  &:checked:before {
+    transform: translateX(20px);
+  }
+`;
+
+export const ImgAndToggle = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+export const HalfColumn = styled.div`
+  flex: 1 1 48%; // allows wrapping and maintains 50%-ish width
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    flex: 1 1 100%;
+  }
+`;
+
+export const ThumbnailImg = styled.img`
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
 `;

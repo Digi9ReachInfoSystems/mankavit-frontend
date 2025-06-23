@@ -50,18 +50,23 @@ const Testimonial = () => {
     fetchTestimonials();
   }, []);
 
-  const fetchTestimonials = async () => {
-    try {
-      const res = await getAlltestimonials();
-      setData(res);
-      console.log("Fetched testimonials:", res); // Log the response to see the data structure
-  
-    } catch (err) {
-      console.error("Failed to fetch testimonials", err);
-      toast.error("Failed to fetch testimonials");
-    }
+const fetchTestimonials = async () => {
+  try {
+    const res = await getAlltestimonials();
 
-  };
+    // Sort by createdAt, updatedAt, or _id (as fallback)
+    const sorted = res.sort((a, b) =>
+      new Date(b.createdAt || b.updatedAt || b._id) -
+      new Date(a.createdAt || a.updatedAt || a._id)
+    );
+
+    setData(sorted);
+  } catch (err) {
+    console.error("Failed to fetch testimonials", err);
+    toast.error("Failed to fetch testimonials");
+  }
+};
+
 
   const handleDelete = (id) => {
     setDeleteId(id);
