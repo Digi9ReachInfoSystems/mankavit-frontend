@@ -9,6 +9,10 @@ import {
   PreviewImage,
   UploadButton,
   ErrorText,
+  ToggleSwitch,
+  ImgAndToggle,
+  HalfColumn,
+  ThumbnailImg
 } from "./AddYoutube.styles";
 import uploadIcon from "../../../../../../assets/upload.png";
 import { useNavigate } from "react-router-dom";
@@ -17,86 +21,59 @@ import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageSe
 
 const AddYoutube = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ link: "", image: null });
+  const [formData, setFormData] = useState({
+    link: "",
+    image: null,
+    homepage: false,
+  });
   const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Validate YouTube URL
+  /* --- helpers --- */
   const isValidYouTubeUrl = (url) =>
     /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);
 
-  // Handle image selection
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (!file.type.startsWith("image/")) return setError("Please upload a valid image.");
+    if (file.size > 5 * 1024 * 1024) return setError("Image must be < 5 MB.");
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload a valid image file.");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image size should be less than 5 MB.");
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, image: file }));
+    setFormData((p) => ({ ...p, image: file }));
     setError("");
 
-    // Local preview
     const reader = new FileReader();
     reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
 
+  const handleToggleHome = (e) =>
+    setFormData((p) => ({ ...p, homepage: e.target.checked }));
+
   const handleSubmit = async () => {
-    if (!formData.link || !formData.image) {
-      setError("Please provide both a YouTube link and an image.");
-      return;
-    }
-
-    if (!isValidYouTubeUrl(formData.link)) {
-      setError("Please enter a valid YouTube URL.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
+    if (!formData.link || !formData.image) return setError("Link and image required.");
+    if (!isValidYouTubeUrl(formData.link)) return setError("Invalid YouTube URL.");
 
     try {
-      // Step 1: Upload image to Azure Storage
-      const uploadResponse = await uploadFileToAzureStorage(
-        formData.image,
-        "youtube-channels"
-      );
+      setLoading(true);
+      const up = await uploadFileToAzureStorage(formData.image, "youtube-channels");
+      const url = up.blobUrl || up.fileUrl || up.url;
+      if (!url) throw new Error("Image upload failed");
 
-      const blobUrl = uploadResponse.blobUrl || uploadResponse.fileUrl || uploadResponse.url;
-      if (!blobUrl) {
-        throw new Error("Image upload failed");
-      }
-
-      // Step 2: Send YouTube link + image URL to backend
       const payload = {
         video_link: formData.link,
-        thumbnailImage: blobUrl
+        thumbnailImage: url,
+        homePage: formData.homepage,
       };
 
-      const response = await createYoutube(payload);
-
-      console.log("YouTube link created:", response);
-
-      // Step 3: Navigate back
-      navigate("/admin/web-management/youtubelinks");
+      await createYoutube(payload);
+      console.log("Viderrrrrrrrrrrrrrrrrro added successfully.", payload);
+      navigate("/admin/web-management/youtubelinks");   // no optimistic state injection
     } catch (err) {
-      let errorMessage = "Something went wrong. Please try again.";
-      if (err.response && err.response.data && err.response.data.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      setError(errorMessage);
-      console.error("Error submitting YouTube link:", err);
+      const msg = err.response?.data?.message || err.message || "Something went wrong.";
+      setError(msg);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -112,37 +89,50 @@ const AddYoutube = () => {
         type="url"
         placeholder="https://www.youtube.com/watch?v=..."
         value={formData.link}
-        onChange={(e) => setFormData((prev) => ({ ...prev, link: e.target.value }))}
-        required
+        onChange={(e) => setFormData((p) => ({ ...p, link: e.target.value }))}
       />
 
-      <Label>Thumbnail Image</Label>
-      <DropZone hasImage={!!previewUrl}>
-        <input
-          type="file"
-          accept="image/*"
-          id="upload-image"
-          style={{ display: "none" }}
-          onChange={handleImageUpload}
-        />
-        <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
-          {previewUrl ? (
-            <PreviewImage src={previewUrl} alt="Thumbnail Preview" />
-          ) : (
-            <>
-              <ImageIcon>
-                <img src={uploadIcon} alt="Upload" width="50" />
-              </ImageIcon>
-              <DropZoneText>
-                Drag & drop image here, or click to select
-              </DropZoneText>
-            </>
-          )}
-        </label>
-      </DropZone>
+
+      <ImgAndToggle>
+  <HalfColumn>
+    <Label>Thumbnail Image</Label>
+    <DropZone hasImage={!!previewUrl}>
+      <input
+        type="file"
+        accept="image/*"
+        id="upload-image"
+        style={{ display: "none" }}
+        onChange={handleImageUpload}
+      />
+      <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
+        {previewUrl ? (
+          <ThumbnailImg src={previewUrl} alt="preview" />
+        ) : (
+          <>
+            <ImageIcon>
+              <img src={uploadIcon} alt="upload" width="50" />
+            </ImageIcon>
+            <DropZoneText>Drag & drop or click to upload</DropZoneText>
+          </>
+        )}
+      </label>
+    </DropZone>
+  </HalfColumn>
+
+  <HalfColumn>
+    <Label>Home Page</Label>
+    <ToggleSwitch
+      checked={formData.homepage}
+      onChange={(e) =>
+        setFormData((p) => ({ ...p, homepage: e.target.checked }))
+      }
+    />
+  </HalfColumn>
+</ImgAndToggle>
+
 
       <UploadButton onClick={handleSubmit} disabled={loading}>
-        {loading ? "Creating..." : "Create YouTube Link"}
+        {loading ? "Creating…" : "Create YouTube Link"}
       </UploadButton>
     </Container>
   );

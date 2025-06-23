@@ -1,41 +1,23 @@
+// Lecturer.js
 import React, { useEffect, useState, useMemo } from 'react';
-import {
-  Container,
-  HeaderRow,
-  Title,
-  SortByContainer,
-  SortLabel,
-  TableWrapper,
-  StyledTable,
-  TableHead,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-  ActionsContainer,
-  ButtonContainer,
-  CreateButton,
-  SearchWrapper,
-  SearchIcon,
-  SearchInput,
-  ImageModalOverlay,
-  ImageModalContent,
-  ModalImage,
-  CloseButton,
-  ModalVideo
-} from "./Lecturer.style";
-import { getAllLectures, deleteLectureById } from '../../../../api/lecturesApi';
-import { BiEditAlt } from "react-icons/bi";
-import { RiDeleteBin6Line } from "react-icons/ri";
-import { CiSearch } from "react-icons/ci";
 import { useNavigate } from 'react-router-dom';
-import DeleteModal from "../../component/DeleteModal/DeleteModal";
-import Pagination from "../../component/Pagination/Pagination";
-import { IoEyeOutline } from "react-icons/io5";
-import {Select} from 'antd';
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import { CiSearch } from 'react-icons/ci';
+import { BiEditAlt } from 'react-icons/bi';
+import { RiDeleteBin6Line } from 'react-icons/ri';
+import {
+  Container, HeaderRow, Title, SortByContainer, SortLabel,
+  TableWrapper, StyledTable, TableHead, TableHeader, TableBody,
+  TableRow, TableCell, ActionsContainer, ButtonContainer, CreateButton,
+  SearchWrapper, SearchIcon, SearchInput, ImageModalOverlay,
+  ImageModalContent, ModalImage, CloseButton, ModalVideo
+} from './Lecturer.style';
+import { getAllLectures, deleteLectureById } from '../../../../api/lecturesApi';
+import DeleteModal from '../../component/DeleteModal/DeleteModal';
+import Pagination from '../../component/Pagination/Pagination';
+import { IoEyeOutline } from 'react-icons/io5';
+import { Select } from 'antd';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -50,8 +32,10 @@ export default function Lecturer() {
   const [modalOpenVideo, setModalOpenVideo] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [sortOption, setSortOption] = useState('Name');
-  const [sortDirection, setSortDirection] = useState('asc');
+
+  // NEW: default sort = Latest ↓
+  const [sortOption, setSortOption] = useState('Latest');
+  const [sortDirection, setSortDirection] = useState('desc');
 
   const fetchLectures = async () => {
     try {
@@ -67,57 +51,74 @@ export default function Lecturer() {
     fetchLectures();
   }, []);
 
+  /** ----------------------------------------------------------------
+   *  Sorting
+   * ----------------------------------------------------------------*/
   const sortedLectures = useMemo(() => {
-    const sortableItems = [...data];
+    const items = [...data];
     if (sortOption === 'Name') {
-      sortableItems.sort((a, b) => {
+      items.sort((a, b) => {
         const nameA = a.lectureName?.toLowerCase() || '';
         const nameB = b.lectureName?.toLowerCase() || '';
-        return sortDirection === 'asc' 
+        return sortDirection === 'asc'
           ? nameA.localeCompare(nameB)
           : nameB.localeCompare(nameA);
       });
     } else if (sortOption === 'Duration') {
-      sortableItems.sort((a, b) => {
-        const durationA = parseInt(a.duration) || 0;
-        const durationB = parseInt(b.duration) || 0;
-        return sortDirection === 'asc' 
-          ? durationA - durationB
-          : durationB - durationA;
+      items.sort((a, b) => {
+        const durA = parseInt(a.duration) || 0;
+        const durB = parseInt(b.duration) || 0;
+        return sortDirection === 'asc' ? durA - durB : durB - durA;
+      });
+    } else if (sortOption === 'Latest') {
+      // Sort by createdAt (if available) else fallback to ObjectId timestamp
+      items.sort((a, b) => {
+        const timeA = new Date(a.createdAt || a._id);
+        const timeB = new Date(b.createdAt || b._id);
+        return sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
       });
     }
-    return sortableItems;
+    return items;
   }, [data, sortOption, sortDirection]);
 
-  const filteredLectures = sortedLectures.filter((lecture) =>
-    lecture?.lectureName?.toLowerCase().includes(searchText.toLowerCase())
+  /** ----------------------------------------------------------------
+   *  Filtering + Pagination
+   * ----------------------------------------------------------------*/
+  const filteredLectures = sortedLectures.filter(l =>
+    l?.lectureName?.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const TOTAL_ENTRIES = filteredLectures.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = filteredLectures.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentItems = filteredLectures.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
 
-  const handleSortChange = (value) => {
+  /** ----------------------------------------------------------------
+   *  Handlers
+   * ----------------------------------------------------------------*/
+  const handleSortChange = value => {
     if (value === sortOption) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortOption(value);
       setSortDirection('asc');
     }
   };
 
-  const handleDeleteClick = (id) => {
+  const handleDeleteClick = id => {
     setSelectedLecture(id);
     setDeleteModalOpen(true);
   };
 
-  const handleViewImage = (url) => {
+  const handleViewImage = url => {
     setSelectedImage(url);
     setModalOpenImage(true);
   };
 
-  const handleViewVideo = (url) => {
+  const handleViewVideo = url => {
     setSelectedVideo(url);
     setModalOpenVideo(true);
   };
@@ -125,36 +126,39 @@ export default function Lecturer() {
   const handleDeleteConfirm = async () => {
     try {
       await deleteLectureById(selectedLecture);
-      toast.success("Lecturer deleted successfully");
+      toast.success('Lecturer deleted successfully');
       await fetchLectures();
     } catch (error) {
-      console.error("Error deleting lecturer:", error);
-      toast.error("Failed to delete lecturer");
+      console.error('Error deleting lecturer:', error);
+      toast.error('Failed to delete lecturer');
     } finally {
       setDeleteModalOpen(false);
       setSelectedLecture(null);
     }
   };
 
-  const handleViewClick = (lecture) => {
+  const handleViewClick = lecture => {
     navigate(`/admin/lecturer-management/view/${lecture._id}`, {
-      state: { lecture }
+      state: { lecture },
     });
   };
 
-  const handleEdit = (id) => {
-    const lecture = data.find((lecture) => lecture._id === id);
+  const handleEdit = id => {
+    const lecture = data.find(l => l._id === id);
     if (lecture) {
       navigate(`/admin/lecturer-management/edit/${id}`, {
-        state: { lecture }
+        state: { lecture },
       });
     }
   };
 
+  /** ----------------------------------------------------------------
+   *  Render
+   * ----------------------------------------------------------------*/
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/lecturer-management/create")}>
+        <CreateButton onClick={() => navigate('/admin/lecturer-management/create')}>
           Add Lecturer
         </CreateButton>
       </ButtonContainer>
@@ -162,26 +166,36 @@ export default function Lecturer() {
       <Container>
         <HeaderRow>
           <Title>
-            See All Lecturers <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>({currentItems.length}/{TOTAL_ENTRIES})</span>
+            See All Lecturers{' '}
+            <span style={{ color: '#6d6e75', fontSize: '12px', fontWeight: '400' }}>
+              ({currentItems.length}/{TOTAL_ENTRIES})
+            </span>
           </Title>
 
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
             <Select
               value={sortOption}
-              style={{ width: 120 }}
+              style={{ width: 140 }}
               onChange={handleSortChange}
               options={[
-                { value: 'Name', label: `Name ${sortOption === 'Name' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}` },
-                { value: 'Duration', label: `Duration ${sortOption === 'Duration' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}` },
+                { value: 'Latest', label: `Latest ${sortDirection === 'asc' && sortOption === 'Latest' ? '↑' : sortOption === 'Latest' ? '↓' : ''}` },
+                { value: 'Name', label: `Name ${sortDirection === 'asc' && sortOption === 'Name' ? '↑' : sortOption === 'Name' ? '↓' : ''}` },
+                { value: 'Duration', label: `Duration ${sortDirection === 'asc' && sortOption === 'Duration' ? '↑' : sortOption === 'Duration' ? '↓' : ''}` },
               ]}
             />
           </SortByContainer>
         </HeaderRow>
 
         <SearchWrapper>
-          <SearchIcon><CiSearch size={18} /></SearchIcon>
-          <SearchInput placeholder="Search" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+          <SearchIcon>
+            <CiSearch size={18} />
+          </SearchIcon>
+          <SearchInput
+            placeholder="Search"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+          />
         </SearchWrapper>
 
         <TableWrapper>
@@ -206,23 +220,52 @@ export default function Lecturer() {
                   <TableCell>{item.duration || '-'}</TableCell>
                   <TableCell>
                     {item.videoUrl ? (
-                      <a href="#" onClick={(e) => { e.preventDefault(); handleViewVideo(item.videoUrl); }}>
+                      <a
+                        href="#"
+                        onClick={e => {
+                          e.preventDefault();
+                          handleViewVideo(item.videoUrl);
+                        }}
+                      >
                         View Video
                       </a>
-                    ) : "No video"}
+                    ) : (
+                      'No video'
+                    )}
                   </TableCell>
                   <TableCell>
                     {item.thumbnail ? (
-                      <a href="#" onClick={(e) => { e.preventDefault(); handleViewImage(item.thumbnail); }}>
+                      <a
+                        href="#"
+                        onClick={e => {
+                          e.preventDefault();
+                          handleViewImage(item.thumbnail);
+                        }}
+                      >
                         View Image
                       </a>
-                    ) : "No image"}
+                    ) : (
+                      'No image'
+                    )}
                   </TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <IoEyeOutline title="View" size={20} onClick={() => handleViewClick(item)} />
-                      <BiEditAlt title="Edit" size={20} onClick={() => handleEdit(item._id)} />
-                      <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item._id)} />
+                      <IoEyeOutline
+                        title="View"
+                        size={20}
+                        onClick={() => handleViewClick(item)}
+                      />
+                      <BiEditAlt
+                        title="Edit"
+                        size={20}
+                        onClick={() => handleEdit(item._id)}
+                      />
+                      <RiDeleteBin6Line
+                        title="Delete"
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDeleteClick(item._id)}
+                      />
                     </ActionsContainer>
                   </TableCell>
                 </TableRow>
@@ -234,7 +277,7 @@ export default function Lecturer() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
+          onPageChange={setCurrentPage}
           totalItems={TOTAL_ENTRIES}
           itemsPerPage={ITEMS_PER_PAGE}
         />
@@ -262,13 +305,12 @@ export default function Lecturer() {
           <ImageModalContent>
             <CloseButton onClick={() => setModalOpenVideo(false)}>X</CloseButton>
             <ModalVideo controls autoPlay>
-              <source src={selectedVideo} type="video/mp4" width={"500px"} height={"500px"}/>
+              <source src={selectedVideo} type="video/mp4" />
               Your browser does not support the video tag.
             </ModalVideo>
           </ImageModalContent>
         </ImageModalOverlay>
       )}
-
 
       <ToastContainer
         position="top-right"
@@ -280,7 +322,7 @@ export default function Lecturer() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme='colored'
+        theme="colored"
       />
     </>
   );

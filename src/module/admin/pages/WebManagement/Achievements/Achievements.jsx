@@ -45,26 +45,34 @@ const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
 
   // Fetch all achievers
-  useEffect(() => {
-    const fetchAchievers = async () => {
-      try {
-        const data = await getAllAchievers();
-        if (Array.isArray(data)) {
-          setAchievers(data);
-        } else {
-          console.error("Unexpected response format:", data);
-          setAchievers([]);
-        }
-      } catch (err) {
-        console.error("Error fetching achievers:", err);
-        setError("Failed to load achievers");
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchAchievers = async () => {
+    try {
+      const res = await getAllAchievers();        
 
-    fetchAchievers();
-  }, []);
+      // convert a MongoDB ObjectId into a Date (fallback)
+      const idToDate = (id) =>
+        new Date(parseInt(id.substring(0, 8), 16) * 1000);
+
+      // 🔥 sort: newest first
+      const sorted = (Array.isArray(res) ? res : []).sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.updatedAt) || idToDate(a._id);
+        const dateB = new Date(b.createdAt || b.updatedAt) || idToDate(b._id);
+        return dateB - dateA;                       // descending
+      });
+
+      setAchievers(sorted);
+    } catch (err) {
+      console.error("Error fetching achievers:", err);
+      setError("Failed to load achievers");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAchievers();
+}, []);
+
   const getCreatedAtFromId = (id) => {
     if (!id || id.length < 8) return "Invalid Date";
 
