@@ -35,7 +35,7 @@ export default function AddNote() {
   const [noteTitle, setNoteTitle] = useState(null);
   const [internalTitle, setInternalTitle] = useState(null);
   // const [shortDescription, setShortDescription] = useState("");
-  const [isDownloadable, setIsDownloadable] = useState(false);
+  const [isDownloadable, setIsDownloadable] = useState(true);
   const [subjectsCheckboxes, setSubjectsCheckboxes] = useState([]);
 
   // File upload state

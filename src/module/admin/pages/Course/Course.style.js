@@ -292,3 +292,9 @@ export const SearchInput = styled.input`
   }
 `;
 
+export const ToastContainer = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+`;

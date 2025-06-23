@@ -18,7 +18,8 @@ import {
   CreateButton,
   SearchWrapper,
   SearchIcon,
-  SearchInput
+  SearchInput,
+  ToastContainer
 } from "./Course.style";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -31,7 +32,6 @@ import { Select, Space } from "antd";
 import { getAllCourses, deleteCourseById } from "../../../../api/courseApi";
 import { IoEyeOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ITEMS_PER_PAGE = 10;
@@ -61,16 +61,19 @@ export default function CoursesTable() {
     setLoading(true);
     try {
       const response = await getAllCourses();
+
+      // Only courseName is mandatory; others are optional
       const courseData = response.data.map((item) => ({
-        id: item._id,
-        courseName: item.courseDisplayName,
-        internalName: item.courseName,
-        subjects: item.subjects,
-        mockTests: item.mockTests || ["Test 1", "Test 2", "Test 3"],
+        id: item._id || '',
+        courseName: item.courseDisplayName, // Mandatory
+        internalName: item.courseName || '',
+        subjects: item.subjects || [],
+        mockTests: item.mockTests || [],
         enrolled: item.student_enrolled || [],
-        dateAndTime: item.updatedAt,
+        dateAndTime: item.updatedAt || new Date().toISOString(),
         students: item.student_enrolled || [],
       }));
+
       setData(courseData);
     } catch (error) {
       console.log("Error fetching courses:", error);
@@ -79,31 +82,31 @@ export default function CoursesTable() {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     let processedData = [...data];
-  
+
     // Sort
     if (sortOption === 'Name') {
       processedData.sort((a, b) => a.courseName.localeCompare(b.courseName));
     } else if (sortOption === 'Date') {
       processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
     }
-  
+
     // Filter
     if (searchText) {
       processedData = processedData.filter((item) =>
         item.courseName.toLowerCase().includes(searchText.toLowerCase())
       );
     }
-  
+
     // Pagination
     const totalEntries = processedData.length;
     const totalPagesValue = Math.ceil(totalEntries / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const currentPageItems = processedData.slice(startIndex, endIndex);
-  
+
     // Set all states
     setFilteredData(processedData);
     setTotalEntries(totalEntries);
@@ -140,7 +143,6 @@ export default function CoursesTable() {
   const formatToIST = (isoString, options = {}) => {
     try {
       const date = new Date(isoString);
-
       const defaultOptions = {
         timeZone: 'Asia/Kolkata',
         year: 'numeric',
@@ -152,7 +154,6 @@ export default function CoursesTable() {
         hour12: true,
         ...options
       };
-
       return new Intl.DateTimeFormat('en-IN', defaultOptions).format(date);
     } catch (error) {
       console.error('Invalid date format:', isoString);
@@ -170,27 +171,25 @@ export default function CoursesTable() {
 
   const getSubjectNames = (subjects) => {
     if (!subjects || subjects.length === 0) return [];
-    return subjects.map(subject => 
+    return subjects.map(subject =>
       typeof subject === 'object' ? subject.subjectName || subject.label : subject
     );
   };
 
   return (
     <>
-
-    <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme='colored'
-          />
-    
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
       <ButtonContainer>
         <CreateButton onClick={() => navigate("/admin/course-management/create")}>
           Add Course
@@ -217,18 +216,16 @@ export default function CoursesTable() {
             />
           </SortByContainer>
         </HeaderRow>
-
         <SearchWrapper>
           <SearchIcon>
             <CiSearch size={18} />
           </SearchIcon>
-          <SearchInput 
-            placeholder="Search" 
+          <SearchInput
+            placeholder="Search"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)} 
+            onChange={(e) => setSearchText(e.target.value)}
           />
         </SearchWrapper>
-
         {loading ? (
           <div>Loading courses...</div>
         ) : (
@@ -254,11 +251,10 @@ export default function CoursesTable() {
                       <TableCell>
                         {getSubjectNames(item.subjects).length}
                         <a href="#view"
-                        
-                        onClick={(e) => {
-                          e.preventDefault();
-                          openModal("subjects", getSubjectNames(item.subjects));
-                        }}> View</a>
+                          onClick={(e) => {
+                            e.preventDefault();
+                            openModal("subjects", getSubjectNames(item.subjects));
+                          }}> View</a>
                       </TableCell>
                       <TableCell>
                         {item.mockTests.length}
@@ -277,23 +273,23 @@ export default function CoursesTable() {
                       <TableCell>{formatToIST(item.dateAndTime)}</TableCell>
                       <TableCell>
                         <ActionsContainer>
-                          <IoEyeOutline 
-                            title="View" 
-                            color="#000000" 
-                            size={20} 
-                            onClick={() => handleViewClick(item)} 
+                          <IoEyeOutline
+                            title="View"
+                            color="#000000"
+                            size={20}
+                            onClick={() => handleViewClick(item)}
                           />
-                          <BiEditAlt 
-                            title="Edit" 
-                            color="#000000" 
-                            size={20} 
-                            onClick={() => handleEdit(item.id)} 
+                          <BiEditAlt
+                            title="Edit"
+                            color="#000000"
+                            size={20}
+                            onClick={() => handleEdit(item.id)}
                           />
-                          <RiDeleteBin6Line 
-                            title="Delete" 
-                            size={20} 
-                            color="#FB4F4F" 
-                            onClick={() => handleDeleteClick(item.id)} 
+                          <RiDeleteBin6Line
+                            title="Delete"
+                            size={20}
+                            color="#FB4F4F"
+                            onClick={() => handleDeleteClick(item.id)}
                           />
                         </ActionsContainer>
                       </TableCell>
@@ -302,7 +298,6 @@ export default function CoursesTable() {
                 </TableBody>
               </StyledTable>
             </TableWrapper>
-
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -312,13 +307,11 @@ export default function CoursesTable() {
             />
           </>
         )}
-
         <DeleteModal
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleConfirmDelete}
         />
-
         {modalOpen && (
           <CustomModal
             title={
