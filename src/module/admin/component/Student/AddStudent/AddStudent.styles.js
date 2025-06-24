@@ -225,3 +225,11 @@ export const PasswordToggle = styled.span`
     color: #333;
   }
 `;
+
+export const UploadedFileName = styled.div`
+  margin-top: 10px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+`;
