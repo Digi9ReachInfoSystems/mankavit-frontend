@@ -18,101 +18,180 @@ import {
 import { createStudent } from '../../../../../api/userApi';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-
+import { MdOutlineFileUpload } from 'react-icons/md';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Input } from 'antd';
-import { MdOutlineFileUpload } from 'react-icons/md';
+import { uploadFileToAzureStorage } from '../../../../../utils/azureStorageService';
 
 const AddStudent = () => {
   const navigate = useNavigate();
-    const passportPhotoInputRef = useRef(null);
-    const idProofInputRef = useRef(null);
-    const [passportPhoto, setPassportPhoto] = useState(null);
-    const [uploadedIDProof, setUploadedIDProof] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [modalFile, setModalFile] = useState(null);
+  const passportPhotoInputRef = useRef(null);
+  const idProofInputRef = useRef(null);
+
+  const [passportPhoto, setPassportPhoto] = useState(null);
+  const [idProof, setIdProof] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const [studentData, setStudentData] = useState({
-    name: '',
     email: '',
+    password: '',
     phone: '',
-    password: ''
+    name: '',
+    photo_url: '',
+    first_name: '',
+    last_name: '',
+    age: '',
+    id_proof: '',
+    passport_photo: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-
-    const handlePassportPhotoUploadClick = () => passportPhotoInputRef.current.click();
-    const handleIDProofUploadClick = () => idProofInputRef.current.click();
-    const handleFileClick = (file) => setModalFile(file);
-
-    const handlePassportPhotoFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file?.type.startsWith('image/')) return alert('Select a valid image');
-    setIsLoading(true);
-    try {
-      // const { url } = await uploadFileToAzureStorage(file, 'users');
-      setPassportPhoto({ name: file.name, file, type: file.type });
-    } catch {
-      alert('Upload failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-    const handleIDProofFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setIsLoading(true);
-    try {
-      // const { url } = await uploadFileToAzureStorage(file, 'users');
-      setUploadedIDProof({ name: file.name, file, type: file.type });
-    } catch {
-      alert('Upload failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleChange = (e) => {
-    setStudentData({
-      ...studentData,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+    setStudentData(prev => {
+      const updated = { ...prev, [name]: value };
+      // auto-populate `name` for the API
+      if (name === 'first_name' || name === 'last_name') {
+        updated.name = `${updated.first_name} ${updated.last_name}`.trim();
+      }
+      return updated;
     });
   };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setShowPassword(v => !v);
+  };
+
+  const handlePassportPhotoUploadClick = () => {
+    passportPhotoInputRef.current.click();
+  };
+  const handleIDProofUploadClick = () => {
+    idProofInputRef.current.click();
+  };
+
+  const uploadFile = async (file, containerName) => {
+    try {
+      const response = await uploadFileToAzureStorage(file, containerName);
+      console.log('Upload response:', response);
+      if (!response?.blobUrl) {
+        throw new Error('Upload failed - no URL returned');
+      }
+      return response.blobUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  };
+
+  const handlePassportPhotoFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file?.type.startsWith('image/')) {
+      return toast.error('Please select a valid image for passport photo');
+    }
+    setIsLoading(true);
+    try {
+      const url = await uploadFile(file, 'users');
+      setStudentData(prev => ({
+        ...prev,
+        passport_photo: url,
+        photo_url: url, // mirror into photo_url as well
+      }));
+      setPassportPhoto(file);
+      toast.success('Passport photo uploaded!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Passport photo upload failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleIDProofFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      return toast.error('Please select a valid image (JPEG/PNG) or PDF file');
+    }
+
+    setIsLoading(true);
+    try {
+      const url = await uploadFile(file, 'users');
+      setStudentData(prev => ({ ...prev, id_proof: url }));
+      setIdProof(file);
+      toast.success('ID proof uploaded!');
+    } catch (err) {
+      console.error(err);
+      toast.error('ID proof upload failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const validateForm = () => {
+    const errs = {};
+    if (!studentData.first_name) errs.first_name = 'First name is required';
+    if (!studentData.last_name) errs.last_name = 'Last name is required';
+    if (!studentData.age) errs.age = 'Age is required';
+    if (!studentData.email) errs.email = 'Email is required';
+    if (!studentData.phone) errs.phone = 'Phone is required';
+    if (!studentData.password) errs.password = 'Password is required';
+    if (!studentData.passport_photo) errs.passport_photo = 'Passport photo is required';
+    if (!studentData.id_proof) errs.id_proof = 'ID proof is required';
+
+    // Email validation
+    if (studentData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(studentData.email)) {
+      errs.email = 'Invalid email format';
+    }
+
+    // Phone validation
+    if (studentData.phone && !/^\+?\d{10,15}$/.test(studentData.phone)) {
+      errs.phone = 'Invalid phone number';
+    }
+
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = {};
-    if (!studentData.name) errors.name = 'Name is required';
-    if (!studentData.email) errors.email = 'Email is required';
-    if (!studentData.phone) errors.phone = 'Phone is required';
-    if (!studentData.password) errors.password = 'Password is required';
+    
+    if (!validateForm()) return;
 
-    setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return;
+    setIsLoading(true);
 
     try {
-      const response = await createStudent(studentData);
-      console.log('Response:', response);
+      // Final check if files were uploaded
+      let finalPassportPhoto = studentData.passport_photo;
+      let finalIdProof = studentData.id_proof;
 
-      // Reset form
-      setStudentData({
-        name: '',
-        email: '',
-        phone: '',
-        password: ''
-      });
-      setFormErrors({});
+      // If we have file objects but no URLs, upload them now
+      if (passportPhoto && !finalPassportPhoto) {
+        finalPassportPhoto = await uploadFile(passportPhoto, 'users');
+      }
+      if (idProof && !finalIdProof) {
+        finalIdProof = await uploadFile(idProof, 'users');
+      }
+
+      const payload = {
+        ...studentData,
+        passport_photo: finalPassportPhoto,
+        id_proof: finalIdProof,
+        photo_url: finalPassportPhoto, // mirror passport photo as photo_url
+      };
+
+      console.log('Submitting payload:', payload);
+      await createStudent(payload);
+      
       toast.success('Student created successfully!');
-      setTimeout(()=> navigate('/admin/student-management'),1000);
-    } catch (error) {
-      console.error('Error creating student:', error);
-      toast.error('Failed to create student. Please try again.');
+      setTimeout(() => navigate('/admin/student-management'), 1000);
+    } catch (err) {
+      console.error('Submission error:', err);
+      toast.error(err.response?.data?.message || 'Failed to create student');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -120,131 +199,168 @@ const AddStudent = () => {
     <FormContainer onSubmit={handleSubmit}>
       <Title>Add Student</Title>
 
-       <FlexRow>
-      <InputGroup>
-        <Label>First Name</Label>
-        <InputField
-          placeholder="Enter First Name"
-          name="name"
-          value={studentData.name}
-          onChange={handleChange}
-        />
-        {formErrors.name && <p style={{ color: 'red' }}>{formErrors.name}</p>}
-      </InputGroup>
-
-      <InputGroup>
-        <Label>Last Name</Label>
-        <InputField
-          placeholder="Enter Last Name"
-          name="username"
-          value={studentData.lastname}
-          onChange={handleChange}
-        />
-      </InputGroup>
+      <FlexRow>
+        <InputGroup>
+          <Label>First Name*</Label>
+          <InputField
+            name="first_name"
+            value={studentData.first_name}
+            onChange={handleChange}
+            placeholder="Enter First Name"
+            disabled={isLoading}
+          />
+          {formErrors.first_name && <p className="error">{formErrors.first_name}</p>}
+        </InputGroup>
+        <InputGroup>
+          <Label>Last Name*</Label>
+          <InputField
+            name="last_name"
+            value={studentData.last_name}
+            onChange={handleChange}
+            placeholder="Enter Last Name"
+            disabled={isLoading}
+          />
+          {formErrors.last_name && <p className="error">{formErrors.last_name}</p>}
+        </InputGroup>
       </FlexRow>
 
       <InputGroup>
-        <Label>Age</Label>
+        <Label>Age*</Label>
         <InputField
-          placeholder="Enter age"
-          name="username"
+          type="number"
+          name="age"
           value={studentData.age}
           onChange={handleChange}
+          placeholder="Enter Age"
+          min="10"
+          max="100"
+          disabled={isLoading}
         />
-        </InputGroup>
+        {formErrors.age && <p className="error">{formErrors.age}</p>}
+      </InputGroup>
 
       <FlexRow>
         <InputGroup>
-          <Label>Email</Label>
+          <Label>Email*</Label>
           <InputField
             type="email"
-            placeholder="Enter Email Address"
             name="email"
             value={studentData.email}
             onChange={handleChange}
+            placeholder="Enter Email"
+            disabled={isLoading}
           />
-          {formErrors.email && <p style={{ color: 'red' }}>{formErrors.email}</p>}
+          {formErrors.email && <p className="error">{formErrors.email}</p>}
         </InputGroup>
         <InputGroup>
-          <Label>Mobile Number</Label>
+          <Label>Phone*</Label>
           <InputField
             type="tel"
-            placeholder="Enter Mobile Number"
             name="phone"
             value={studentData.phone}
             onChange={handleChange}
-            maxLength={10}
+            placeholder="Enter Phone (e.g. +919876543210)"
+            maxLength="15"
+            disabled={isLoading}
           />
-          {formErrors.phone && <p style={{ color: 'red' }}>{formErrors.phone}</p>}
+          {formErrors.phone && <p className="error">{formErrors.phone}</p>}
         </InputGroup>
       </FlexRow>
 
       <InputGroup>
-        <Label>Password</Label>
+        <Label>Password*</Label>
         <PasswordInputWrapper>
           <InputField
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter Password"
+            type={showPassword ? 'text' : 'password'}
             name="password"
             value={studentData.password}
             onChange={handleChange}
+            placeholder="Enter Password"
+            disabled={isLoading}
           />
-          <PasswordToggle onClick={togglePasswordVisibility}>
+          <PasswordToggle onClick={togglePasswordVisibility} disabled={isLoading}>
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </PasswordToggle>
         </PasswordInputWrapper>
-        {formErrors.password && <p style={{ color: 'red' }}>{formErrors.password}</p>}
+        {formErrors.password && <p className="error">{formErrors.password}</p>}
       </InputGroup>
 
-       <FlexRow>
-                  <UploadSection>
-                    <Label>Passport Photo</Label>
-                    <FlexUpload>
-                      <UploadButton onClick={handlePassportPhotoUploadClick}>
-                        <MdOutlineFileUpload /> Upload
-                      </UploadButton>
-                      <BrowseButton onClick={handlePassportPhotoUploadClick}>Browse</BrowseButton>
-                    </FlexUpload>
-                    <input
-                      type="file"
-                      ref={passportPhotoInputRef}
-                      style={{ display: 'none' }}
-                      accept="image/*"
-                      onChange={handlePassportPhotoFileChange}
-                    />
-                    {passportPhoto && (
-                      <UploadedFileName onClick={() => handleFileClick(passportPhoto)}>
-                        {passportPhoto.name}
-                      </UploadedFileName>
-                    )}
-                  </UploadSection>
-      
-                  <UploadSection>
-                    <Label>ID Proof</Label>
-                    <FlexUpload>
-                      <UploadButton onClick={handleIDProofUploadClick}>
-                        <MdOutlineFileUpload /> Upload
-                      </UploadButton>
-                      <BrowseButton onClick={handleIDProofUploadClick}>Browse</BrowseButton>
-                    </FlexUpload>
-                    <input
-                      type="file"
-                      ref={idProofInputRef}
-                      style={{ display: 'none' }}
-                      accept="image/*,application/pdf"
-                      onChange={handleIDProofFileChange}
-                    />
-                    {uploadedIDProof && (
-                      <UploadedFileName onClick={() => handleFileClick(uploadedIDProof)}>
-                        {uploadedIDProof.name}
-                      </UploadedFileName>
-                    )}
-                  </UploadSection>
-                </FlexRow>
+      <FlexRow>
+        <UploadSection>
+          <Label>Passport Photo*</Label>
+          <FlexUpload>
+            <UploadButton 
+              type="button" 
+              onClick={handlePassportPhotoUploadClick}
+              disabled={isLoading}
+            >
+              <MdOutlineFileUpload /> Upload
+            </UploadButton>
+            <BrowseButton 
+              onClick={handlePassportPhotoUploadClick}
+              disabled={isLoading}
+            >
+              Browse
+            </BrowseButton>
+          </FlexUpload>
+          <input
+            type="file"
+            ref={passportPhotoInputRef}
+            style={{ display: 'none' }}
+            accept="image/*"
+            onChange={handlePassportPhotoFileChange}
+            disabled={isLoading}
+          />
+          {passportPhoto && (
+            <UploadedFileName>
+              {passportPhoto.name}
+            </UploadedFileName>
+          )}
+          {formErrors.passport_photo && (
+            <p className="error">{formErrors.passport_photo}</p>
+          )}
+        </UploadSection>
 
-      <SubmitButton type="submit">Add Student</SubmitButton>
+        <UploadSection>
+          <Label>ID Proof*</Label>
+          <FlexUpload>
+            <UploadButton 
+              type="button" 
+              onClick={handleIDProofUploadClick}
+              disabled={isLoading}
+            >
+              <MdOutlineFileUpload /> Upload
+            </UploadButton>
+            <BrowseButton 
+              onClick={handleIDProofUploadClick}
+              disabled={isLoading}
+            >
+              Browse
+            </BrowseButton>
+          </FlexUpload>
+          <input
+            type="file"
+            ref={idProofInputRef}
+            style={{ display: 'none' }}
+            accept="image/*,application/pdf"
+            onChange={handleIDProofFileChange}
+            disabled={isLoading}
+          />
+          {idProof && (
+            <UploadedFileName>
+              {idProof.name}
+            </UploadedFileName>
+          )}
+          {formErrors.id_proof && (
+            <p className="error">{formErrors.id_proof}</p>
+          )}
+        </UploadSection>
+      </FlexRow>
 
-            {/* Toast Container for react-toastify */}
+      <SubmitButton type="submit" disabled={isLoading}>
+        {isLoading ? 'Creating Student...' : 'Add Student'}
+      </SubmitButton>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
