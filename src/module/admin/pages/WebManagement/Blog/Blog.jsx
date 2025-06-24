@@ -38,26 +38,42 @@ const Blog = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await getAllBlogs();
-        console.log("API Response:", response); // Debug log
-        
-        if (response && response.success && response.blogs) {
-          setBlog(response.blogs);
-        } else {
-          setBlog([]);
-          toast.warning("No blogs found");
-        }
-      } catch (err) {
-        setError("Failed to load blogs. Please try again later.");
-        console.error("Error loading blogs:", err);
-        toast.error("Failed to load blogs");
-      } finally {
-        setLoading(false);
-      }
-    };
+   const fetchData = async () => {
+  try {
+    setLoading(true);
+    const response = await getAllBlogs();
+
+    if (response && response.success && Array.isArray(response.blogs)) {
+      // 🔥 newest first
+      const sortedBlogs = response.blogs.sort((a, b) => {
+        // prefer createdAt / updatedAt; fall back to ObjectId timestamp
+        const tsA = new Date(
+          a.createdAt ||
+          a.updatedAt ||
+          parseInt(a._id.substring(0, 8), 16) * 1000
+        );
+        const tsB = new Date(
+          b.createdAt ||
+          b.updatedAt ||
+          parseInt(b._id.substring(0, 8), 16) * 1000
+        );
+        return tsB - tsA;  
+      });
+
+      setBlog(sortedBlogs);
+    } else {
+      setBlog([]);
+      toast.warning("No blogs found");
+    }
+  } catch (err) {
+    setError("Failed to load blogs. Please try again later.");
+    console.error("Error loading blogs:", err);
+    toast.error("Failed to load blogs");
+  } finally {
+    setLoading(false);
+  }
+};
+
     fetchData();
   }, []);
 

@@ -56,14 +56,20 @@ const FAQ = () => {
 
         // ✅ Use `data` directly instead of `data.body`
         if (Array.isArray(data)) {
-          setFaqs(data);
-        } else {
-          console.error("Unexpected FAQ format:", data);
-          setFaqs([]);
-          setError("Unexpected response format");
-          toast.error("Unexpected response format from server");
-        }
-      } catch (err) {
+  const sortedFaqs = data.sort((a, b) => {
+    const dateA = new Date(a.createdAt || parseInt(a._id?.substring(0, 8), 16) * 1000);
+    const dateB = new Date(b.createdAt || parseInt(b._id?.substring(0, 8), 16) * 1000);
+    return dateB - dateA; // Descending order: latest first
+  });
+  setFaqs(sortedFaqs);
+} else {
+  console.error("Unexpected FAQ format:", data);
+  setFaqs([]);
+  setError("Unexpected response format");
+  toast.error("Unexpected response format from server");
+}
+      }
+       catch (err) {
         console.error("Error fetching FAQs:", err);
         setError("Failed to load FAQs");
         toast.error("Failed to load FAQs");

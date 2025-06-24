@@ -45,7 +45,7 @@ export default function CoursesTable() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
   const [modalData, setModalData] = useState([]);
-  const [sortOption, setSortOption] = useState('Name');
+  const [sortOption, setSortOption] = useState('Latest');
   const [filteredData, setFilteredData] = useState([]);
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
@@ -82,37 +82,38 @@ export default function CoursesTable() {
       setLoading(false);
     }
   };
+  
+useEffect(() => {
+  let processedData = [...data];
 
-  useEffect(() => {
-    let processedData = [...data];
+  // ✅ Fix: Check for "Latest"
+  if (sortOption === "Latest") {
+    processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
+  } else if (sortOption === "Name") {
+    processedData.sort((a, b) => a.courseName.localeCompare(b.courseName));
+  }
 
-    // Sort
-    if (sortOption === 'Name') {
-      processedData.sort((a, b) => a.courseName.localeCompare(b.courseName));
-    } else if (sortOption === 'Date') {
-      processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
-    }
+  // Filter
+  if (searchText) {
+    processedData = processedData.filter((item) =>
+      item.courseName.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }
 
-    // Filter
-    if (searchText) {
-      processedData = processedData.filter((item) =>
-        item.courseName.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
+  // Pagination
+  const totalEntries = processedData.length;
+  const totalPagesValue = Math.ceil(totalEntries / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentPageItems = processedData.slice(startIndex, endIndex);
 
-    // Pagination
-    const totalEntries = processedData.length;
-    const totalPagesValue = Math.ceil(totalEntries / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentPageItems = processedData.slice(startIndex, endIndex);
+  // Set all states
+  setFilteredData(processedData);
+  setTotalEntries(totalEntries);
+  setTotalPages(totalPagesValue);
+  setCurrentItems(currentPageItems);
+}, [data, sortOption, searchText, currentPage]);
 
-    // Set all states
-    setFilteredData(processedData);
-    setTotalEntries(totalEntries);
-    setTotalPages(totalPagesValue);
-    setCurrentItems(currentPageItems);
-  }, [data, sortOption, searchText, currentPage]);
 
   const handleDeleteClick = (id) => {
     setSelectedCourse(id);
@@ -206,14 +207,15 @@ export default function CoursesTable() {
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
             <Select
-              defaultValue={sortOption}
-              style={{ width: 120 }}
-              onChange={(value) => setSortOption(value)}
-              options={[
-                { value: 'Name', label: 'Name' },
-                { value: 'Date', label: 'Date' },
-              ]}
-            />
+  value={sortOption}
+  style={{ width: 120 }}
+  onChange={(value) => setSortOption(value)}
+  options={[
+    { value: 'Latest', label: 'Latest' }, // Correct this line
+    { value: 'Name', label: 'Name' },
+  ]}
+/>
+
           </SortByContainer>
         </HeaderRow>
         <SearchWrapper>
@@ -246,7 +248,7 @@ export default function CoursesTable() {
                 <TableBody>
                   {currentItems.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.courseName.slice(0, 30)}.</TableCell>
+                      <TableCell>{item.courseName.slice(0, 30)}</TableCell>
                       <TableCell>{item.internalName.slice(0, 30)}</TableCell>
                       <TableCell>
                         {getSubjectNames(item.subjects).length}

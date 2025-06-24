@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FormContainer,
   Title,
@@ -8,7 +8,12 @@ import {
   SubmitButton,
   FlexRow,
   PasswordInputWrapper,
-  PasswordToggle
+  PasswordToggle,
+  UploadSection,
+  UploadButton,
+  UploadedFileName,
+  BrowseButton,
+  FlexUpload,
 } from './AddStudent.styles';
 import { createStudent } from '../../../../../api/userApi';
 import { useNavigate } from 'react-router-dom';
@@ -16,9 +21,18 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Input } from 'antd';
+import { MdOutlineFileUpload } from 'react-icons/md';
 
 const AddStudent = () => {
   const navigate = useNavigate();
+    const passportPhotoInputRef = useRef(null);
+    const idProofInputRef = useRef(null);
+    const [passportPhoto, setPassportPhoto] = useState(null);
+    const [uploadedIDProof, setUploadedIDProof] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [modalFile, setModalFile] = useState(null);
+
   const [studentData, setStudentData] = useState({
     name: '',
     email: '',
@@ -27,6 +41,38 @@ const AddStudent = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+
+    const handlePassportPhotoUploadClick = () => passportPhotoInputRef.current.click();
+    const handleIDProofUploadClick = () => idProofInputRef.current.click();
+    const handleFileClick = (file) => setModalFile(file);
+
+    const handlePassportPhotoFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file?.type.startsWith('image/')) return alert('Select a valid image');
+    setIsLoading(true);
+    try {
+      // const { url } = await uploadFileToAzureStorage(file, 'users');
+      setPassportPhoto({ name: file.name, file, type: file.type });
+    } catch {
+      alert('Upload failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+    const handleIDProofFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIsLoading(true);
+    try {
+      // const { url } = await uploadFileToAzureStorage(file, 'users');
+      setUploadedIDProof({ name: file.name, file, type: file.type });
+    } catch {
+      alert('Upload failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setStudentData({
@@ -74,16 +120,38 @@ const AddStudent = () => {
     <FormContainer onSubmit={handleSubmit}>
       <Title>Add Student</Title>
 
+       <FlexRow>
       <InputGroup>
-        <Label>Full Name</Label>
+        <Label>First Name</Label>
         <InputField
-          placeholder="Enter Full Name"
+          placeholder="Enter First Name"
           name="name"
           value={studentData.name}
           onChange={handleChange}
         />
         {formErrors.name && <p style={{ color: 'red' }}>{formErrors.name}</p>}
       </InputGroup>
+
+      <InputGroup>
+        <Label>Last Name</Label>
+        <InputField
+          placeholder="Enter Last Name"
+          name="username"
+          value={studentData.lastname}
+          onChange={handleChange}
+        />
+      </InputGroup>
+      </FlexRow>
+
+      <InputGroup>
+        <Label>Age</Label>
+        <InputField
+          placeholder="Enter age"
+          name="username"
+          value={studentData.age}
+          onChange={handleChange}
+        />
+        </InputGroup>
 
       <FlexRow>
         <InputGroup>
@@ -127,6 +195,52 @@ const AddStudent = () => {
         </PasswordInputWrapper>
         {formErrors.password && <p style={{ color: 'red' }}>{formErrors.password}</p>}
       </InputGroup>
+
+       <FlexRow>
+                  <UploadSection>
+                    <Label>Passport Photo</Label>
+                    <FlexUpload>
+                      <UploadButton onClick={handlePassportPhotoUploadClick}>
+                        <MdOutlineFileUpload /> Upload
+                      </UploadButton>
+                      <BrowseButton onClick={handlePassportPhotoUploadClick}>Browse</BrowseButton>
+                    </FlexUpload>
+                    <input
+                      type="file"
+                      ref={passportPhotoInputRef}
+                      style={{ display: 'none' }}
+                      accept="image/*"
+                      onChange={handlePassportPhotoFileChange}
+                    />
+                    {passportPhoto && (
+                      <UploadedFileName onClick={() => handleFileClick(passportPhoto)}>
+                        {passportPhoto.name}
+                      </UploadedFileName>
+                    )}
+                  </UploadSection>
+      
+                  <UploadSection>
+                    <Label>ID Proof</Label>
+                    <FlexUpload>
+                      <UploadButton onClick={handleIDProofUploadClick}>
+                        <MdOutlineFileUpload /> Upload
+                      </UploadButton>
+                      <BrowseButton onClick={handleIDProofUploadClick}>Browse</BrowseButton>
+                    </FlexUpload>
+                    <input
+                      type="file"
+                      ref={idProofInputRef}
+                      style={{ display: 'none' }}
+                      accept="image/*,application/pdf"
+                      onChange={handleIDProofFileChange}
+                    />
+                    {uploadedIDProof && (
+                      <UploadedFileName onClick={() => handleFileClick(uploadedIDProof)}>
+                        {uploadedIDProof.name}
+                      </UploadedFileName>
+                    )}
+                  </UploadSection>
+                </FlexRow>
 
       <SubmitButton type="submit">Add Student</SubmitButton>
 

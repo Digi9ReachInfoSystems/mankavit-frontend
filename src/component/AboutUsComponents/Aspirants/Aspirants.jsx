@@ -72,7 +72,7 @@ const Aspirants = () => {
             <Avatar src={t.image || placeholder} alt={t.name} />
             <Quote>&quot;{t.quote}&quot;</Quote>
             <Name>{t.name}</Name>
-            <Role>{t.role}</Role>
+            <Role>{t.quote}</Role>
           </Card>
         ))}
       </CardWrapper>

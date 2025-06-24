@@ -330,3 +330,34 @@ export const CloseButton = styled.button`
 `;
 
 
+export const ToggleSwitch = styled.input.attrs({ type: "checkbox" })`
+  width: 40px;
+  height: 20px;
+  appearance: none;
+  background: #bdbdbd;
+  border-radius: 20px;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s ease;
+  }
+
+  &:checked {
+    background: #3b82f6;
+  }
+
+  &:checked:before {
+    transform: translateX(20px);
+  }
+`;

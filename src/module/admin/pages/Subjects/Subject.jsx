@@ -49,7 +49,7 @@ export default function Subjects() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState([]);
-  const [sortOption, setSortOption] = useState('Name');
+  const [sortOption, setSortOption] = useState('Latest');
   const [filteredData, setFilteredData] = useState([]);
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
@@ -125,12 +125,11 @@ export default function Subjects() {
       );
     }
 
-    // Sort based on option
-    if (sortOption === "Name") {
+    if (sortOption === "Latest") {
+      processedData.sort((a, b) => new Date(b.dateandtime) - new Date(a.dateandtime)); // latest first
+    } else if (sortOption === "Name") {
       processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
-    } else if (sortOption === 'Date') {
-      processedData.sort((a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime));
-    }
+    } 
 
     // Update filteredData state
     setFilteredData(processedData);
@@ -268,13 +267,12 @@ export default function Subjects() {
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
             <Select
-              defaultValue={sortOption}
-              style={{ width: 120 }}
+              value={sortOption}
               onChange={(value) => setSortOption(value)}
+              style={{ width: 120 }}
               options={[
+                { value: 'Latest', label: 'Latest' },
                 { value: 'Name', label: 'Name' },
-                { value: 'Date', label: 'Date' },
-                // { value: 'Active', label: 'Active' },
               ]}
             />
 
