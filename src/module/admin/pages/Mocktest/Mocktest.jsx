@@ -222,7 +222,7 @@ export default function MockTestsTable() {
                 <TableHeader>Published</TableHeader>
                 <TableHeader>Actions</TableHeader>
                 <TableHeader>View Submission</TableHeader>
-                <TableHeader>View Ranking</TableHeader>
+                {/* <TableHeader>View Ranking</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -280,7 +280,7 @@ export default function MockTestsTable() {
 
                     </button>
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <button
                       style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" }}
                       onClick={() => { navigate(`/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`) }}
@@ -292,7 +292,7 @@ export default function MockTestsTable() {
                         onClick={() => goToViewDetail(item.id)}
                       />
                     </button>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
