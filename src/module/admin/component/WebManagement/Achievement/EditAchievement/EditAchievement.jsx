@@ -131,7 +131,7 @@ const EditAchievement = () => {
        toast.success("Data updated successfully!");
     setTimeout(() => {
       navigate("/admin/web-management/achievement");
-    }, 5000);
+    }, 1000);
 
     } catch (error) {
       console.error("Detailed error:", error);

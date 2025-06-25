@@ -1,3 +1,4 @@
+// src/pages/Admin/SocialMedia/SocialMedia.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -7,8 +8,10 @@ import {
   SubmitButton,
   ErrorText,
   SuccessText
-} from './SocialMedia.styles'; // Adjust path as needed
+} from './SocialMedia.styles';
 import { updateSocialMediaLinks, getSocialMediaLinks } from '../../../../../api/youtuubeApi';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SocialMedia = () => {
   const [links, setLinks] = useState({
@@ -22,36 +25,29 @@ const SocialMedia = () => {
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
-  // Load existing links from API
   useEffect(() => {
     const fetchLinks = async () => {
       try {
-        const response = await getSocialMediaLinks(); // GET request
-        console.log("Social media", response);
-
-        const data = response.data?.[0] || {}; // 👈 Get first item from array
-
+        const response = await getSocialMediaLinks();
+        const data = Array.isArray(response.data) ? response.data[0] : response.data || {};
         setLinks(prev => ({
           ...prev,
-          youtubeChannel: data.youtubeChannel || prev.youtubeChannel,
-          facebook: data.facebook || prev.facebook,
-          instagram: data.instagram || prev.instagram,
-          twitter: data.twitter || prev.twitter,
-          Whatsapp: data.Whatsapp || prev.Whatsapp,
-          linkedin: data.linkedin || prev.linkedin,
-          teligram: data.teligram || prev.teligram
+          youtubeChannel: data.youtubeChannel || '',
+          facebook: data.facebook || '',
+          instagram: data.instagram || '',
+          twitter: data.twitter || '',
+          Whatsapp: data.Whatsapp || '',
+          linkedin: data.linkedin || '',
+          teligram: data.teligram || ''
         }));
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to load social media links", error);
-        setErrorMessage("Could not load current links");
+      } catch (err) {
+        console.error('Failed to load social media links', err);
+        toast.error('Could not load current links');
+      } finally {
         setLoading(false);
       }
     };
-
     fetchLinks();
   }, []);
 
@@ -63,22 +59,19 @@ const SocialMedia = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     setSubmitting(true);
-    setSuccessMessage('');
-    setErrorMessage('');
-
     try {
       const response = await updateSocialMediaLinks(links);
       if (response.success) {
-        setSuccessMessage('Social media links updated successfully!');
+        toast.success('Social media links updated successfully!');
       } else {
-        throw new Error(response.message || 'Update failed');
+        toast.error(response.message || 'Update failed');
       }
     } catch (err) {
-      console.error("Error updating social media links", err);
-      setErrorMessage(
+      console.error('Error updating social media links', err);
+      toast.error(
         err.response?.data?.message ||
         err.message ||
-        "Failed to update social media links"
+        'Failed to update social media links'
       );
     } finally {
       setSubmitting(false);
@@ -91,10 +84,9 @@ const SocialMedia = () => {
 
   return (
     <Container>
-      <h2>Add or Update Social Media Links</h2>
+      <ToastContainer position="top-right" autoClose={3000} />
 
-      {successMessage && <SuccessText>{successMessage}</SuccessText>}
-      {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
+      <h2>Add or Update Social Media Links</h2>
 
       <form onSubmit={handleSubmit}>
         <FormGroup>
@@ -102,7 +94,7 @@ const SocialMedia = () => {
           <TextInput
             id="youtubeChannel"
             name="youtubeChannel"
-            placeholder="https://www.youtube.com/channel/..." 
+            placeholder="https://www.youtube.com/channel/..."
             value={links.youtubeChannel}
             onChange={handleChange}
           />
@@ -113,7 +105,7 @@ const SocialMedia = () => {
           <TextInput
             id="facebook"
             name="facebook"
-            placeholder="https://www.facebook.com/..." 
+            placeholder="https://www.facebook.com/..."
             value={links.facebook}
             onChange={handleChange}
           />
@@ -124,7 +116,7 @@ const SocialMedia = () => {
           <TextInput
             id="instagram"
             name="instagram"
-            placeholder="https://www.instagram.com/..." 
+            placeholder="https://www.instagram.com/..."
             value={links.instagram}
             onChange={handleChange}
           />
@@ -135,7 +127,7 @@ const SocialMedia = () => {
           <TextInput
             id="twitter"
             name="twitter"
-            placeholder="https://x.com/..." 
+            placeholder="https://x.com/..."
             value={links.twitter}
             onChange={handleChange}
           />
@@ -146,7 +138,7 @@ const SocialMedia = () => {
           <TextInput
             id="Whatsapp"
             name="Whatsapp"
-            placeholder="https://wa.me/..." 
+            placeholder="https://wa.me/..."
             value={links.Whatsapp}
             onChange={handleChange}
           />
@@ -157,7 +149,7 @@ const SocialMedia = () => {
           <TextInput
             id="linkedin"
             name="linkedin"
-            placeholder="https://www.linkedin.com/company/..." 
+            placeholder="https://www.linkedin.com/company/..."
             value={links.linkedin}
             onChange={handleChange}
           />
@@ -168,7 +160,7 @@ const SocialMedia = () => {
           <TextInput
             id="teligram"
             name="teligram"
-            placeholder="https://t.me/..." 
+            placeholder="https://t.me/..."
             value={links.teligram}
             onChange={handleChange}
           />

@@ -15,7 +15,7 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
-import { getAllMocktest } from "../../../../../api/mocktestApi";
+// import { getAllMocktest } from "../../../../../api/mocktestApi";
 
 export default function EditCourse() {
   const { id } = useParams();
@@ -41,7 +41,7 @@ export default function EditCourse() {
     isPublished: false,
     status: "active",
     subjectCheckboxes: [],
-    mockTestCheckboxes: [],
+    // mockTestCheckboxes: [],
     thumbnailFile: null
   });
 
@@ -52,13 +52,14 @@ export default function EditCourse() {
       try {
         // Fetch course data
         const response = await getCourseById(id);
+        console.log("Course by id response", response);
         const data = response.data;
         
         // Fetch subjects and categories in parallel
-        const [subjectsResponse, categoriesResponse, mockTestsResponse] = await Promise.all([
+        const [subjectsResponse, categoriesResponse] = await Promise.all([
           getSubjects(),
           getCategories(),
-          getAllMocktest()
+          // getAllMocktest()
         ]);
 
         // Process subjects
@@ -77,17 +78,17 @@ export default function EditCourse() {
         }));
 
         // Process mock tests
-        const mockTestsArray = Array.isArray(mockTestsResponse?.data)
-          ? mockTestsResponse.data
-          : Array.isArray(mockTestsResponse)
-            ? mockTestsResponse
-            : [];
+        // const mockTestsArray = Array.isArray(mockTestsResponse?.data)
+        //   ? mockTestsResponse.data
+        //   : Array.isArray(mockTestsResponse)
+        //     ? mockTestsResponse
+        //     : [];
             
-        const mockTestsData = mockTestsArray.map((item) => ({
-          label: item.title || `Mock Test ${item._id}`,
-          id: item._id,
-          checked: data.mockTests?.includes(item._id) || false,
-        }));
+        // const mockTestsData = mockTestsArray.map((item) => ({
+        //   label: item.title || `Mock Test ${item._id}`,
+        //   id: item._id,
+        //   checked: data.mockTests?.includes(item._id) || false,
+        // }));
 
         // Process categories
         const categoryArray = Array.isArray(categoriesResponse?.data)
@@ -121,7 +122,7 @@ export default function EditCourse() {
           selectedCategory: data.category?._id || data.category || null,
           previewUrl: data.image || null,
           subjectCheckboxes: subjectsData,
-          mockTestCheckboxes: mockTestsData,
+          // mockTestCheckboxes: mockTestsData,
           categories: formattedCategories,
           thumbnailFile: null
         });
@@ -193,9 +194,9 @@ const handleSubmit = async (e) => {
       .filter(item => item.checked)
       .map(item => item.id);
 
-    const mockTests = formData.mockTestCheckboxes
-      .filter(item => item.checked)
-      .map(item => item.id);
+    // const mockTests = formData.mockTestCheckboxes
+    //   .filter(item => item.checked)
+    //   .map(item => item.id);
 
     const payload = {
       courseName: formData.internalTitle,
@@ -218,14 +219,15 @@ const handleSubmit = async (e) => {
       isPublished: formData.isPublished,
       status: formData.status,
       subjects,
-      mockTests,
+      // mockTests,
       image: fileURL,
     };
     console.log("payload", payload);
 
     await updateCourseById(id, payload);
+    console.log("Course updated successfully", payload);
     toast.success("Course updated successfully");
-    setTimeout(() => navigate("/admin/course-management"), 2000);
+    setTimeout(() => navigate("/admin/course-management"), 1000);
   } catch (err) {
     console.error(err);
     toast.error("Failed to update course. Please try again.");
@@ -387,10 +389,10 @@ const handleSubmit = async (e) => {
 
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>
+              {/* <CheckboxSectionTitle>
                 Add Mock Test (Click Checkbox to Select)
-              </CheckboxSectionTitle>
-              <CheckboxList>
+              </CheckboxSectionTitle> */}
+              {/* <CheckboxList>
                 {formData.mockTestCheckboxes.map((item, index) => (
                   <CheckboxLabel key={item.id}>
                     <CheckboxInput
@@ -401,7 +403,7 @@ const handleSubmit = async (e) => {
                     {item.label}
                   </CheckboxLabel>
                 ))}
-              </CheckboxList>
+              </CheckboxList> */}
             </CheckboxSection>
           </Column>
         </FormRow>
@@ -419,7 +421,7 @@ const handleSubmit = async (e) => {
               />
             </FieldWrapper>
           </Column>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="noOfVideos">Number of Videos</Label>
               <Input
@@ -430,7 +432,7 @@ const handleSubmit = async (e) => {
                 placeholder="e.g. 120"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
 
         <FormRow>

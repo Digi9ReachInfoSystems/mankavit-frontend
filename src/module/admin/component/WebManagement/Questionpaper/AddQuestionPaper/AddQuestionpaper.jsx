@@ -122,7 +122,7 @@ toast.success("Data added successfully!");
 
 setTimeout(() => {
   navigate("/admin/web-management/question-paper");
-},5000);
+},1000);
 
       
 

@@ -156,7 +156,7 @@ export default function EditNotes() {
         });
         setTimeout(() => {
           navigate("/admin/notes-management");
-        }, 2000);
+        }, 1000);
       } else {
         toast.error('Note update failed.', {
           duration: 3000,

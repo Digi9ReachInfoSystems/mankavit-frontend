@@ -124,7 +124,7 @@ const EditBlog = () => {
       if (updateResponse?.success) {
         toast.success("Data updated successfully!");
         // Navigate after a short delay so user can see toast
-        setTimeout(() => navigate('/admin/web-management/blog'), 5000);
+        setTimeout(() => navigate('/admin/web-management/blog'), 1000);
       } else {
         throw new Error(updateResponse?.message || 'Update failed');
       }

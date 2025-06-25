@@ -224,7 +224,7 @@ const handleSubmit = async (e) => {
         setMockTestCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
         setThumbnailFile(null);
         setPreviewUrl(null);
-        setTimeout(() => navigate("/admin/course-management"), 5000);
+        setTimeout(() => navigate("/admin/course-management"), 1000);
       }
     } catch (err) {
       console.error(err);
@@ -259,7 +259,7 @@ const handleSubmit = async (e) => {
                 id="courseTitle"
                 value={courseTitle}
                   onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
                   setCourseTitle(filteredData);
                 }}
                 placeholder="Enter Course Title"
@@ -273,7 +273,7 @@ const handleSubmit = async (e) => {
                 id="internalTitle"
                 value={internalTitle}
                  onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
                   setInternalTitle(filteredData);
                 }}
                 placeholder="Enter Internal Title"
@@ -292,7 +292,7 @@ const handleSubmit = async (e) => {
                 rows="3"
                 value={shortDescription}
                onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
                   setShortDescription(filteredData);
                 }}
                 placeholder="Enter short description"
@@ -346,7 +346,7 @@ const handleSubmit = async (e) => {
               />
             </FieldWrapper>
           </Column>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="noOfVideos">Number of Videos</Label>
               <Input
@@ -360,7 +360,7 @@ const handleSubmit = async (e) => {
                 placeholder="e.g. 120"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
 
         <FormRow>

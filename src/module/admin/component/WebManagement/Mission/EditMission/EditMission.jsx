@@ -99,7 +99,7 @@ const EditMission = () => {
       };
       await updateMissionById(id, payload);
       toast.success('Data updated successfully!');
-      setTimeout(() => navigate('/admin/web-management/mission'), 5000);
+      setTimeout(() => navigate('/admin/web-management/mission'), 1000);
 
     } catch (err) {
       console.error('Error updating mission:', err.response || err);

@@ -157,7 +157,7 @@ export default function EditSubject() {
         image:              imageUrl,
       });
       toast.success("Data updated successfully");
-      setTimeout(() => navigate("/admin/subject-management"), 5000);
+      setTimeout(() => navigate("/admin/subject-management"), 1000);
     } catch (err) {
       console.error("Update failed:", err);
       toast.error("Failed to update data. Please try again.");

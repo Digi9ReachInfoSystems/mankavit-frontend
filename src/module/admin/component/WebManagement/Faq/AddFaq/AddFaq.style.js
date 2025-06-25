@@ -172,3 +172,9 @@ export const SubmitButton = styled.button`
     background: ${theme.colors.vividblue};
   }
 `;
+
+export const ErrorText = styled.div`
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: ${theme.spacing(1)};
+`;

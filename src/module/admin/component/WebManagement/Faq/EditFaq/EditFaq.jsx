@@ -7,13 +7,13 @@ import {
   Label,
   TextInput,
   TextArea,
-  SubmitButton
+  SubmitButton,
+  ErrorText
 } from './EditFaq.style';
 import {
-    getFaqById,
+  getFaqById,
   updateFaqById
 } from '../../../../../../api/faqApi';
-
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -23,9 +23,10 @@ const EditFaq = () => {
 
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [errors, setErrors] = useState({ question: '', answer: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
     const fetchFaq = async () => {
@@ -33,8 +34,9 @@ const EditFaq = () => {
         const data = await getFaqById(id);
         setQuestion(data.question);
         setAnswer(data.answer);
-      } catch {
-        setError('Could not load FAQ');
+      } catch (err) {
+        console.error(err);
+        setFetchError('Could not load FAQ');
         toast.error('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
@@ -43,18 +45,25 @@ const EditFaq = () => {
     fetchFaq();
   }, [id]);
 
-  const handleSubmit = async (e) => {
+  const validate = () => {
+    const errs = { question: '', answer: '' };
+    if (!question.trim()) errs.question = 'Question is required';
+    if (!answer.trim())   errs.answer   = 'Answer is required';
+    setErrors(errs);
+    return !errs.question && !errs.answer;
+  };
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!question.trim() || !answer.trim()) return;
+    if (!validate()) return;
 
     setSaving(true);
-    setError(null);
     try {
       await updateFaqById(id, { question, answer });
-      toast.success('Data updated successfully!');
-      setTimeout(() => navigate('/admin/web-management/faq'), 3000);
-    } catch {
-      setError('Failed to save changes.');
+      toast.success('FAQ updated successfully!');
+      setTimeout(() => navigate('/admin/web-management/faq'), 1000);
+    } catch (err) {
+      console.error(err);
       toast.error('Failed to update data. Please try again.');
     } finally {
       setSaving(false);
@@ -62,7 +71,7 @@ const EditFaq = () => {
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error)   return <p style={{ color: 'red' }}>{error}</p>;
+  if (fetchError) return <p style={{ color: 'red' }}>{fetchError}</p>;
 
   return (
     <Container>
@@ -74,11 +83,15 @@ const EditFaq = () => {
             id="question"
             placeholder="Edit question"
             value={question}
-           onChange={(e)=>{
-            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-            setQuestion(filteredData);
-           }}
+            onChange={e => {
+              const filtered = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setQuestion(filtered);
+              if (errors.question) {
+                setErrors(prev => ({ ...prev, question: '' }));
+              }
+            }}
           />
+          {errors.question && <ErrorText>{errors.question}</ErrorText>}
         </FormGroup>
 
         <FormGroup>
@@ -88,33 +101,34 @@ const EditFaq = () => {
             rows={4}
             placeholder="Edit answer"
             value={answer}
-         onChange={(e)=>{
-            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-            setAnswer(filteredData);
-         }}
+            onChange={e => {
+              const filtered = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setAnswer(filtered);
+              if (errors.answer) {
+                setErrors(prev => ({ ...prev, answer: '' }));
+              }
+            }}
           />
+          {errors.answer && <ErrorText>{errors.answer}</ErrorText>}
         </FormGroup>
-
-        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <SubmitButton type="submit" disabled={saving}>
           {saving ? 'Saving…' : 'Save Changes'}
         </SubmitButton>
       </form>
 
-      
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 };

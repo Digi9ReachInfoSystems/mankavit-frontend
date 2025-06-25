@@ -176,7 +176,7 @@ export default function AddNote() {
 
         setTimeout(() => {
           navigate("/admin/notes-management")
-        }, 2000);
+        }, 1000);
       } else {
         toast.error('Notes creation failed.',
           {
