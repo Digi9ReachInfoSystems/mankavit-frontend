@@ -103,10 +103,16 @@ const handleConfirmDelete = async () => {
 
 /* ----- TOGGLE ----- */
 const handleToggleHome = async (id) => {
-  const updatedArray = data.map((d) =>
-    d._id === id ? { ...d, homepage: !d.homepage } : d
-  );
-  setData(updatedArray);
+  const clickedItem = data.find((d) => d._id === id);
+  const isTurningOn = !clickedItem.homepage;
+
+  // If turning ON, ensure all others are false
+  const updatedArray = data.map((d) => ({
+    ...d,
+    homepage: isTurningOn ? d._id === id : false,
+  }));
+
+  setData(updatedArray); // Optimistic UI update
 
   try {
     await updateSocialMediaLinks({ youtube_videoLink: updatedArray });

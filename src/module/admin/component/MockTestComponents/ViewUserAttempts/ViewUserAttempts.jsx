@@ -135,7 +135,7 @@ export default function ViewUserAttempts() {
                                 <TableCell>{item.totalMarks || "0"}</TableCell>
                                 <TableCell>{item.status}</TableCell>
                                 <TableCell>
-                                    <button  style={{ border: "none", background: "none" }} onClick={() => handleView(item._id)}> <IoEyeOutline
+                                    <button  style={{ border: "none", background: "none", cursor: "pointer" }} onClick={() => handleView(item._id)}> <IoEyeOutline
                                                           title="View Details"
                                                           size={20}
                                                           // onClick={() => goToViewDetail(item.id)}
