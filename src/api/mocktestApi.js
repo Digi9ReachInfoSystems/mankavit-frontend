@@ -103,14 +103,7 @@ export const getMocktestAttempts = async(user_id,mockTestId) =>{
     }
 }
 
-export const evaluateMocktest = async(data) =>{
-    try{
-        const response = await api.put('/userAttempt/evaluate',data);
-        return response.data;
-    }catch(error){
-        throw error;
-    }
-}
+
 
 
 export const getUserAnswerByMocktestIdandSubjectId = async(mockTestId,subjectId) =>{
@@ -188,6 +181,25 @@ export const getAllUserAttempts = async() =>{
 export const getusersAllmocktestsAttempts = async(user_id) =>{
     try{
         const response = await api.get(`/userAttempt/get/userAllAttempts/${user_id}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+
+export const evaluateSingleSubjectiveQuestion = async(data) =>{
+    try{
+        const response = await api.post('/userAttempt/evaluateSingleQuestion',data);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+export const evaluateMocktest = async(data) =>{
+    try{
+        const response = await api.post('/userAttempt/completeEvaluation',data);
         return response.data;
     }catch(error){
         throw error;

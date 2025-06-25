@@ -71,16 +71,20 @@ const EditMockTest = () => {
         const response = await getMocktestById(mockTestId);
         const data = response.data;
 
-        setTestDetails({
-          title: data.title || '',
-          description: data.description || '',
-          duration: data.duration || '',
-          passingMarks: data.passingMarks || '',
-          startDate: formatDateTimeLocal(data.startDate),
-          endDate: formatDateTimeLocal(data.endDate),
-          maxAttempts: data.maxAttempts || 1,
-          selectedSubjects: Array.isArray(data.subject) ? data.subject : [data.subject],
-        });
+       setTestDetails({
+  title: data.title || '',
+  description: data.description || '',
+  duration: data.duration || '',
+  passingMarks: data.passingMarks || '',
+  startDate: formatDateTimeLocal(data.startDate),
+  endDate: formatDateTimeLocal(data.endDate),
+  maxAttempts: data.maxAttempts || 1,
+  selectedSubjects: Array.isArray(data.subject)
+    ? data.subject.map(s => (typeof s === 'object' ? s._id : s)) // extract _id if it's object
+    : typeof data.subject === 'object' && data.subject !== null
+      ? [data.subject._id] // handle single object case
+      : [data.subject], // assume already ID
+});
 
         setIsLoading(false);
       } catch (error) {

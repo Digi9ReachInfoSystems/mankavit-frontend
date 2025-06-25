@@ -35,22 +35,14 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 
-const mockData = Array.from({ length: 15 }, (_, index) => ({
-  id: index + 1,
-  subjectName: "CLAT Coaching",
-  internalName: "Anuja Admin",
-  mockTest: ["Mock Test 1", "Mock Test 2", "Mock Test 3", "Mock Test 4", "Mock Test 5", "Mock Test 6", "Mock Test 7", "Mock Test 8", "Mock Test 9"],
-  activeCourses: ["Course A", "Course B", "Course C", "Course D", "Course E", "Course F", "Course G", "Course H", "Course I"],
-  dateandtime: "2023-06-01 10:00 AM",
-}));
 
 
-// const TOTAL_ENTRIES = 100;       // e.g. total number of subjects
+
 const ITEMS_PER_PAGE = 10;
 export default function Subjects() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(mockData);
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [Modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
