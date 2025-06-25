@@ -57,44 +57,55 @@ export default function MockTestsTable() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
 
+  const ts = (item) =>
+  item.createdAt        ? new Date(item.createdAt).getTime()
+: item.updatedAt        ? new Date(item.updatedAt).getTime()
+: item.id?.length >= 8  ? parseInt(item.id.substring(0, 8), 16) * 1000 // fallback: ObjectId time
+: 0;
+
   useEffect(() => {
     fetchMockTests();
   }, []);
 
 
-  const fetchMockTests = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await getAllMocktest();
-      console.log("Fetched mocktests", res);
-      if (res.success) {
-        const rows = res.data.map((test) => ({
-          id: test._id,
-          mockTitle: test.title,
-          students: test.students || [],
-          subjectName: test.subject?.subjectDisplayName || test.subject?.subjectName || '—',
-          subjectId: test.subject?._id || null, // Add this line
-          questionTypes: Array.isArray(test.questions)
-            ? [...new Set(test.questions.map(q => q.type))].join(', ')
-            : '—',
-          totalMarks: test.totalMarks,
-          createdOn: new Date(test.createdAt).toLocaleString(),
-          lastModified: new Date(test.updatedAt).toLocaleString(),
-          isPublished: test.isPublished || false,
-        }));
-        setData(rows);
-      } else {
-        throw new Error("Failed to load mock tests");
-        toast.error("Failed to load mock tests");
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchMockTests = async () => {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const res = await getAllMocktest();
+    if (!res.success) throw new Error("Failed to load mock tests");
+
+    /** build row objects, then sort newest-first */
+    const rows = res.data
+      .map((test) => ({
+        id          : test._id,
+        mockTitle   : test.title,
+        students    : test.students || [],
+        subjectName : test.subject?.subjectDisplayName ||
+                      test.subject?.subjectName ||
+                      "—",
+        subjectId   : test.subject?._id || null,
+        questionTypes: Array.isArray(test.questions)
+          ? [...new Set(test.questions.map((q) => q.type))].join(", ")
+          : "—",
+        totalMarks  : test.totalMarks,
+        createdOn   : new Date(test.createdAt).toLocaleString(),
+        lastModified: new Date(test.updatedAt).toLocaleString(),
+        isPublished : test.isPublished || false,
+        createdAt   : test.createdAt,          // keep raw date for sort
+      }))
+      .sort((a, b) => ts(b) - ts(a));           // ← NEWEST FIRST
+
+    setData(rows);
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Unknown error");
+    toast.error(err.message || "Failed to load mock tests");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // --- filters & pagination
   const filtered = data.filter((item) =>

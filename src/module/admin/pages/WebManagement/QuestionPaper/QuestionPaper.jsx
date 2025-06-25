@@ -42,12 +42,24 @@ const QuestionPaper = () => {
   const [modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
+  // helper ─ put this above the component or inside it
+  const ts = (item) => {
+    if (item.createdAt) return new Date(item.createdAt).getTime();
+    if (item.updatedAt) return new Date(item.updatedAt).getTime();
+    if (item._id && item._id.length >= 8) {
+      return parseInt(item._id.substring(0, 8), 16) * 1000; // fallback
+    }
+    return 0;                       // unknown → oldest
+  };
+
   useEffect(() => {
     const fetchQuestionPapers = async () => {
       try {
         setLoading(true);
         const response = await getAllQuestionPapers();
-        setData(response);
+        const sorted = (response.data ?? response).sort((a, b) => ts(b) - ts(a));
+        setData(sorted);
+
       } catch (error) {
         console.error("Error fetching question papers:", error);
         notification.error({
@@ -77,7 +89,11 @@ const QuestionPaper = () => {
     try {
       setLoading(true);
       await deleteQuestionPaper(deleteId);
-      setData((prev) => prev.filter((item) => item._id !== deleteId));
+      setData((prev) =>
+        prev
+          .filter((item) => item._id !== deleteId)
+          .sort((a, b) => ts(b) - ts(a))
+      );
       toast.success("Data deleted successfully");
     } catch (error) {
       console.error("Error deleting question paper:", error);
@@ -96,18 +112,18 @@ const QuestionPaper = () => {
   return (
     <>
 
-     <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme='colored'
-          />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
 
       <ButtonContainer>
@@ -174,13 +190,13 @@ const QuestionPaper = () => {
           </StyledTable>
         </TableWrapper>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={data.length}
-            itemsPerPage={ITEMS_PER_PAGE}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={data.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
 
       </Container>
 
