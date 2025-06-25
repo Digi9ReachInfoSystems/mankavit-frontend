@@ -42,6 +42,22 @@ const YouTube = () => {
   const [loading, setLoading]         = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const getTimestamp = (item) => {
+  // 1) use createdAt if present
+  if (item.createdAt) return new Date(item.createdAt).getTime();
+
+  // 2) use updatedAt if present
+  if (item.updatedAt) return new Date(item.updatedAt).getTime();
+
+  // 3) extract from MongoDB ObjectId
+  if (item._id && typeof item._id === "string" && item._id.length >= 8) {
+    const seconds = parseInt(item._id.substring(0, 8), 16);
+    return seconds * 1000;             // convert to ms
+  }
+
+  return 0;                            // unknown date → oldest
+};
+
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -49,13 +65,22 @@ useEffect(() => {
       const res = await getAllYoutube();
       let fetched = res.data || [];
 
-      // Sort by creation date (assuming there's a `createdAt` field)
-      fetched.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      // If a new item was passed via state, insert it at the top
+      // merge new link (avoid duplicate)
       if (location.state?.link) {
-        fetched = [location.state.link, ...fetched];
+        const exists = fetched.find((v) => v._id === location.state.link._id);
+        if (!exists) fetched.unshift(location.state.link);
       }
+
+      // *** latest first ***
+      const getTimestamp = (it) => {
+        if (it.createdAt) return new Date(it.createdAt).getTime();
+        if (it.updatedAt) return new Date(it.updatedAt).getTime();
+        if (it._id && it._id.length >= 8) {
+          return parseInt(it._id.slice(0, 8), 16) * 1000;
+        }
+        return 0;
+      };
+      fetched.sort((a, b) => getTimestamp(b) - getTimestamp(a));
 
       setData(fetched);
     } catch (err) {
@@ -68,6 +93,7 @@ useEffect(() => {
 
   fetchData();
 }, [location.state]);
+
 
 
   const handleAdd = () =>

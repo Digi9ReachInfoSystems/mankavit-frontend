@@ -36,6 +36,7 @@ import { getAllCourses } from "../../../../api/courseApi";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Table } from "antd";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -48,13 +49,23 @@ export default function StudentManagement() {
   const [data, setData] = useState([]);
   const [coursesMap, setCoursesMap] = useState({});
   const [sortConfig, setSortConfig] = useState({
-    key: "displayName",
-    direction: "ascending",
+    key: "createdAt", // default sort by creation time
+    direction: "descending", // newest first
   });
+
 
   const [modalCourses, setModalCourses] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
+
+  const ts = (item) => {
+    if (item.createdAt) return new Date(item.createdAt).getTime();
+    if (item.updatedAt) return new Date(item.updatedAt).getTime();
+    if (item._id && item._id.length >= 8) {
+      return parseInt(item._id.substring(0, 8), 16) * 1000;
+    }
+    return 0;
+  };
 
   // 1) Fetch all students + courses on mount
   useEffect(() => {
@@ -66,7 +77,7 @@ export default function StudentManagement() {
         ]);
 
         const students = studentResponse.data?.students || [];
-        setData(students);
+        setData(students.sort((a, b) => ts(b) - ts(a)));
 
         const courseMap = {};
         (courseResponse.data || []).forEach((course) => {
@@ -93,8 +104,19 @@ export default function StudentManagement() {
 
   const sortedData = React.useMemo(() => {
     let sortableItems = [...data];
-    if (sortConfig !== null) {
+
+    if (sortConfig) {
       sortableItems.sort((a, b) => {
+        // Handle time-based sort
+        if (sortConfig.key === "createdAt") {
+          const timeA = ts(a);
+          const timeB = ts(b);
+          return sortConfig.direction === "ascending"
+            ? timeA - timeB
+            : timeB - timeA;
+        }
+
+        // Handle text-based sorting
         const aValue = (a[sortConfig.key] || "").toString();
         const bValue = (b[sortConfig.key] || "").toString();
         return sortConfig.direction === "ascending"
@@ -102,8 +124,10 @@ export default function StudentManagement() {
           : bValue.localeCompare(aValue);
       });
     }
+
     return sortableItems;
   }, [data, sortConfig]);
+
 
   // Filtering by “displayName”
   const filteredStudents = sortedData.filter((student) =>
@@ -127,9 +151,9 @@ export default function StudentManagement() {
   };
   const handleDeleteConfirm = () => {
     try{
-    setData(data.filter((s) => s._id !== selectedStudent));
-    setDeleteModalOpen(false);
-    toast.success("Data deleted successfully.");
+      setData(data.filter((s) => s._id !== selectedStudent));
+      setDeleteModalOpen(false);
+      toast.success("Data deleted successfully.");
     } catch (err) {
       console.error("Failed to delete item:", err);
       toast.error("Failed to delete data. Please try again.");
@@ -170,13 +194,12 @@ export default function StudentManagement() {
 
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect
-              value={sortConfig.key}
-              onChange={(e) => requestSort(e.target.value)}
-            >
+            <SortSelect value={sortConfig.key} onChange={(e) => requestSort(e.target.value)}>
+              <option value="createdAt">Latest</option>
               <option value="displayName">Name</option>
               <option value="kyc_status">KYC Status</option>
             </SortSelect>
+
           </SortByContainer>
         </HeaderRow>
 
@@ -319,7 +342,7 @@ export default function StudentManagement() {
         />
       )}
 
-            {/* Toast Container for react-toastify */}
+      {/* Toast Container for react-toastify */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
