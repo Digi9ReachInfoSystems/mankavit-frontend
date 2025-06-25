@@ -21,13 +21,19 @@ import {
   SearchIcon,
   SearchInput,
   StatusWrapper,
-  KycDot
+  KycDot,
+  ModalOverlay,
+  ModalContent,
+  CourseList,
+  CourseItem,
+  CloseButton,
+  CloseButtonContainer
 } from "../StudentManagement/StudentManagement.style";
 
 import { FiEdit } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
 import { CiSearch } from "react-icons/ci";
-
+import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
@@ -57,6 +63,8 @@ export default function StudentManagement() {
   const [modalCourses, setModalCourses] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
+  const [coursesModalOpen, setCoursesModalOpen] = useState(false);
+  const [coursesList, setCoursesList] = useState([]);
 
   const ts = (item) => {
     if (item.createdAt) return new Date(item.createdAt).getTime();
@@ -143,6 +151,19 @@ export default function StudentManagement() {
     startIndex,
     startIndex + ITEMS_PER_PAGE
   );
+
+  const handleViewCourses = (userId) => {
+    // 📝 Replace this with an API call if needed
+    const dummyCourses = [
+      "React Bootcamp",
+      "JavaScript Mastery",
+      "Node.js Basics",
+      "MongoDB Essentials"
+    ];
+
+    setCoursesList(dummyCourses);
+    setCoursesModalOpen(true);
+  };
 
   // “Delete student” stubs
   const handleDeleteClick = (id) => {
@@ -239,6 +260,7 @@ export default function StudentManagement() {
                 </TableHeader>
                 <TableHeader>Actions</TableHeader>
                 <TableHeader>Update</TableHeader>
+                <TableHeader>All Courses</TableHeader>
               </TableRow>
             </TableHead>
 
@@ -290,6 +312,12 @@ export default function StudentManagement() {
                         size={20}
                         onClick={() => handleViewClick(item)}
                       />
+                      <RiDeleteBin6Line
+                        title="Delete"
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDeleteClick(item.id)}
+                      />
                     </ActionsContainer>
                   </TableCell>
                   <TableCell>
@@ -309,6 +337,17 @@ export default function StudentManagement() {
                       }
                     />
                   </TableCell>
+                  <TableCell>
+                    {(item.subscripti?.length || 0)}{" "}
+
+                    <span
+                      onClick={() => handleViewCourses(item)}
+                      style={{ cursor: "pointer", color: "#007bff", marginLeft: 5 }}
+                    >
+                      View
+                    </span>
+                  </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
@@ -354,6 +393,27 @@ export default function StudentManagement() {
         pauseOnHover
         theme="colored"
       />
+
+      {coursesModalOpen && (
+        <ModalOverlay>
+          <ModalContent>
+            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>All Courses</h2>
+            {coursesList.length === 0 ? (
+              <p>No courses enrolled.</p>
+            ) : (
+              <CourseList>
+                {coursesList.map((course, index) => (
+                  <CourseItem key={index}>{course}</CourseItem>
+                ))}
+              </CourseList>
+            )}
+            <CloseButtonContainer>
+              <CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton>
+            </CloseButtonContainer>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
     </>
   );
 }
