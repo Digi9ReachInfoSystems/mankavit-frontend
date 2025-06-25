@@ -268,7 +268,7 @@ export default function MockTestsTable() {
                   </TableCell>
                   <TableCell style={{textAlign:"center!important"}}>
                     <button
-                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" ,textAlign:"center"}}
+                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" ,textAlign:"center", cursor:"pointer" }}
                       onClick={() => handleViewResults(item.id, item.subjectId)}
                       disabled={!item.subjectId}
                     >

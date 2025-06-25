@@ -123,7 +123,7 @@ export default function ViewUser() {
                 <TableCell>{item.email}</TableCell>
                 <TableCell>
                   <button
-                    style={{ border: "none", background: "none" }}
+                    style={{ border: "none", background: "none", cursor: "pointer" }}
                     onClick={() => handleView(item._id, mockTestId)}>
                     <IoEyeOutline
                       title="View Details"
