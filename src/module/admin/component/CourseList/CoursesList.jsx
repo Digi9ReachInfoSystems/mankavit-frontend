@@ -37,12 +37,12 @@ const CoursesList = () => {
   return (
     <Container>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
-        <Title>Courses List <span className='number'>(1424)</span></Title>
-        <DivRight>
+        <Title>Courses Lists</Title>
+        {/* <DivRight>
           <Sort>Sort by:</Sort>
           <Name>Name <IoIosArrowDown size={16} /></Name>
           <Seen>See All</Seen>
-        </DivRight>
+        </DivRight> */}
       </div>
 
       <Tabs>
