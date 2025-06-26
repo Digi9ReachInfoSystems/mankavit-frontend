@@ -419,7 +419,7 @@ export default function Meeting() {
                                                                     meetingNumber: item?.meetingNumber,
                                                                     passWord: item?.passWord,
                                                                     meetingTitle: item?.meetingTitle,
-                                                                    role: 0,
+                                                                    role: 0 ,
                                                                     userName: userData.user.displayName || "React",
                                                                     userEmail: userData.user.email || "",
                                                                     leaveUrl: `/admin/meeting-management`,

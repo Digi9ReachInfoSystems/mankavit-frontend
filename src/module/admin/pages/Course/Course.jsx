@@ -18,7 +18,8 @@ import {
   CreateButton,
   SearchWrapper,
   SearchIcon,
-  SearchInput
+  SearchInput,
+  CloseButtonContainer
 } from "./Course.style";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -61,6 +62,7 @@ export default function CoursesTable() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState([]);
+  const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchCourses();
@@ -84,6 +86,7 @@ export default function CoursesTable() {
         dateAndTime: item.updatedAt || new Date().toISOString(),
         isPublished: !!item.isPublished,
       }));
+      console.log("courseData", courseData);
       setData(courseData);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -160,9 +163,18 @@ export default function CoursesTable() {
 
   const openModal = (type, data) => {
     setModalType(type);
+    console.log(data);
     setModalData(Array.isArray(data) ? data : []);
     setModalOpen(true);
   };
+  const returnMockTestCount = (subjects) => {
+  
+    let mockTestData = [];
+    subjects.map((s) => {
+      mockTestData = mockTestData.concat(s.mockTests);
+    });
+    return mockTestData.length
+  }
 
   const formatToIST = (iso) =>
     new Intl.DateTimeFormat("en-IN", {
@@ -247,19 +259,25 @@ export default function CoursesTable() {
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            openModal("Subjects", c.subjects);
+                            console.log("c.subjects", c.subjects);
+                            openModal("subjects", c.subjects);
                           }}
                         >
                           View
                         </a>
                       </TableCell>
                       <TableCell>
-                        {c.mockTests.length}{" "}
+                        {returnMockTestCount(c.subjects)}{" "}
                         <a
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            openModal("Mock Tests", c.mockTests);
+                            console.log("c.mockTests", c.subjects);
+                            let mockTestData = [];
+                            c.subjects.map((s) => {
+                              mockTestData = mockTestData.concat(s.mockTests);
+                            });
+                            openModal("mockTests", mockTestData);
                           }}
                         >
                           View
@@ -271,7 +289,7 @@ export default function CoursesTable() {
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            openModal("Enrolled Students", c.students);
+                            openModal("students", c.students);
                           }}
                         >
                           View
@@ -337,10 +355,30 @@ export default function CoursesTable() {
           <CustomModal
             title={modalType}
             data={modalData}
+            type={modalType}
             onClose={() => setModalOpen(false)}
           />
         )}
       </Container>
+      {subjectsModalOpen && (
+        <ModalOverlay>
+          <ModalContent>
+            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>All Courses</h2>
+            {coursesList.length === 0 ? (
+              <p>No courses enrolled.</p>
+            ) : (
+              <CourseList>
+                {coursesList.map((course, index) => (
+                  <CourseItem key={index}>{course}</CourseItem>
+                ))}
+              </CourseList>
+            )}
+            <CloseButtonContainer>
+              <CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton>
+            </CloseButtonContainer>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </>
   );
 }
