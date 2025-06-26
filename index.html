@@ -19,10 +19,7 @@
       rel="stylesheet"
       href="https://source.zoom.us/3.13.5/css/react-select.css"
     />
-    <link
-      rel="stylesheet"
-      href="https://source.zoom.us/3.13.5/css/zoom.css"
-    />
+    <link rel="stylesheet" href="https://source.zoom.us/3.13.5/css/zoom.css" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mankavit</title>
@@ -32,11 +29,19 @@
       html,
       body,
       #root {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* margin: 0; */
+        /* padding: 0; */
+        min-height: 100vh; /* Changed from height: 100% to min-height: 100vh */
+        width: 100%;
+        /* font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; */
+        overflow-x: hidden; /* Prevent horizontal scrolling */
       }
+
+      /* Ensure the root element can grow beyond viewport height */
+      /* #root {
+        min-height: 100vh;
+        position: relative;
+      } */
 
       #zmmtg-root {
         display: none;
@@ -47,18 +52,6 @@
         width: 100vw;
         height: 100vh;
         background-color: #fff;
-      }
-
-      @keyframes blink {
-        0% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.3;
-        }
-        100% {
-          opacity: 1;
-        }
       }
     </style>
   </head>
