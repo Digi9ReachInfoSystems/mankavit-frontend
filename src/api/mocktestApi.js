@@ -213,20 +213,5 @@ export const evaluateSingleSubjectiveQuestion = async(data) =>{
     }
 }
 
-export const evaluateMocktest = async(data) =>{
-    try{
-        const response = await api.post('/userAttempt/completeEvaluation',data);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-}
 
-export const getAllUpcomingMocktest = async (userId) => {
-    try {
-        const response = await api.get(`/mockTest/get/allupcomingMockTests/${userId}`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-}
+
