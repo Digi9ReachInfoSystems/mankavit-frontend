@@ -105,23 +105,23 @@ export default function AddSubject() {
     // }
     if (!internalTitle.trim()) {
       toast.error("Subject Name is required");
-            return;
-}
+      return;
+    }
 
     try {
       // upload thumbnail
       const { blobUrl } = await uploadFileToAzureStorage(thumbnailFile, "subjects");
 
       // collect checked IDs
-      const notes    = notesCheckboxes.filter(i => i.checked).map(i => i.id);
+      const notes = notesCheckboxes.filter(i => i.checked).map(i => i.id);
       const lectures = lecturesCheckboxes.filter(i => i.checked).map(i => i.id);
 
       // create
       await createSubject({
-        subjectName:       internalTitle,
+        subjectName: internalTitle,
         subjectDisplayName: subjectTitle,
-        vimeoShowcaseID:    vimeoId,
-        description:        shortDescription,
+        vimeoShowcaseID: vimeoId,
+        description: shortDescription,
         notes,
         lectures,
         image: blobUrl,
@@ -139,26 +139,31 @@ export default function AddSubject() {
       setLecturesCheckboxes(ls => ls.map(l => ({ ...l, checked: false })));
       setTimeout(() => navigate("/admin/subject-management"), 1000);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to create data.Please try again");
+      console.error(err)
+      if (err.status == 400 && err.response.data.message === "Subject with this name already exists") {
+        toast.error("Subject with this name already exists")
+      } else {
+        toast.error("Failed to create subject.Please try again");
+      }
+
     }
   };
 
   return (
     <Container>
-      
-         <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
       <Title>Add Subject</Title>
       <FormWrapper onSubmit={handleSubmit}>
@@ -208,7 +213,7 @@ export default function AddSubject() {
             <CheckboxSection>
               <CheckboxSectionTitle>Add Notes</CheckboxSectionTitle>
               <CheckboxList>
-                {notesCheckboxes.map((n,i) => (
+                {notesCheckboxes.map((n, i) => (
                   <CheckboxLabel key={n.id}>
                     <CheckboxInput
                       type="checkbox"
@@ -227,7 +232,7 @@ export default function AddSubject() {
             <CheckboxSection>
               <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>
               <CheckboxList>
-                {lecturesCheckboxes.map((l,i) => (
+                {lecturesCheckboxes.map((l, i) => (
                   <CheckboxLabel key={l.id}>
                     <CheckboxInput
                       type="checkbox"

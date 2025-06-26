@@ -61,215 +61,232 @@ const EditRecordedClass = () => {
       try {
         // If we don't have editingData in location state, fetch it
         const dataToEdit = editingData || (id ? (await getRecordedClassById(id)).data : null);
-        
+
         if (dataToEdit) {
           setTitle(dataToEdit.title);
           setDescription(dataToEdit.description);
           setDuration(dataToEdit.duration || "");
 
           // Normalize and set the course reference
-          const courseId = normalizeCourseId(dataToEdit.course_ref);
-          if (courseId) {
-            setSelectedCourses(new Set([courseId]));
-          }
+          // const courseId = normalizeCourseId(dataToEdit.course_ref);
+          // console.log("courseIdasa",new Set(dataToEdit.course_ref));
+          // if (courseId) {
+          //   setSelectedCourses(new Set([courseId]));
+          // }
+          //   setSelectedCourses(new Set(dataToEdit.course_ref));
         }
+        // Initialize selected courses
+        if (dataToEdit.course_ref) {
+          // Handle both single course (string/object) and array of courses
+          const courses = Array.isArray(dataToEdit.course_ref)
+            ? dataToEdit.course_ref
+            : [dataToEdit.course_ref];
+
+          const normalizedIds = courses
+            .map(normalizeCourseId)
+            .filter(id => id !== null);
+
+          setSelectedCourses(new Set(normalizedIds));
+        }
+      
+
 
         // Fetch all courses
         const res = await getAllCourses();
-        setCoursesList(res.data || []);
-      } catch (err) {
-        console.error("Error fetching data", err);
-        setError("Failed to load data");
-      }
-    };
-
-    fetchData();
-  }, [editingData, id]);
-
-  const handleFile = (f) => {
-    if (f) {
-      if (!f.type.startsWith("video/")) {
-        setError("Please upload a valid video file.");
-        return;
-      }
-      const maxSize = 100 * 1024 * 1024;
-      if (f.size > maxSize) {
-        setError("Video file too large (max 100MB).");
-        return;
-      }
-      setFile(f);
-      setError("");
+      setCoursesList(res.data || []);
+    } catch (err) {
+      console.error("Error fetching data", err);
+      setError("Failed to load data");
     }
   };
 
-  const onDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    handleFile(e.dataTransfer.files[0]);
-  };
+  fetchData();
+}, [editingData, id]);
 
-  const onFileChange = (e) => {
-    handleFile(e.target.files[0]);
-  };
-
-  const toggleCourse = (id) => {
-    setSelectedCourses((prev) => {
-      const next = new Set(prev);
-      const normalizedId = normalizeCourseId(id);
-      if (next.has(normalizedId)) {
-        next.delete(normalizedId);
-      } else {
-        next.clear(); // Clear all first since only one is allowed
-        next.add(normalizedId);
-      }
-      return next;
-    });
-  };
-
-  const submit = async (e) => {
-    e.preventDefault();
-
-    if (!title || !description || !duration || selectedCourses.size === 0) {
-      setError("Please fill all fields and select a course.");
+const handleFile = (f) => {
+  if (f) {
+    if (!f.type.startsWith("video/")) {
+      setError("Please upload a valid video file.");
       return;
     }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      let videoUrl = editingData?.videoUrl || (id ? (await getRecordedClassById(id)).data.videoUrl : "");
-
-      // Upload new video if changed
-      if (file) {
-        const uploadRes = await uploadFileToAzureStorage(file, "recorded-class");
-        if (!uploadRes?.blobUrl) {
-          setError(uploadRes?.message || "Video upload failed");
-          return;
-        }
-        videoUrl = uploadRes.blobUrl;
-      }
-
-      const payload = {
-        title,
-        description,
-        duration,
-        videoUrl,
-        course_ref: Array.from(selectedCourses)[0] // Send the first (only) selected course
-      };
-      console.log("pay;load",payload);
-
-      const updateRes = await updateRecordedClassById(editingData?._id || id, payload);
-      console.log("updated c lass",updateRes);
-      if (updateRes?.success) {
-        toast.success("Recorded class updated successfully!");
-        navigate(-1); // go back
-      } else {
-        setError(updateRes?.message || "Update failed.");
-      }
-    } catch (err) {
-      console.error("Error updating recorded class", err);
-      setError("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
+    const maxSize = 100 * 1024 * 1024;
+    if (f.size > maxSize) {
+      setError("Video file too large (max 100MB).");
+      return;
     }
-  };
+    setFile(f);
+    setError("");
+  }
+};
 
-  return (
-    <Container>
-      <h2>Edit Recorded Class</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={submit}>
-        <FormGroup>
-          <Label htmlFor="title">Title</Label>
-          <TextInput
-            id="title"
-            placeholder="Write here"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </FormGroup>
+const onDrop = (e) => {
+  e.preventDefault();
+  setDragOver(false);
+  handleFile(e.dataTransfer.files[0]);
+};
 
-        <FormGroup>
-          <Label htmlFor="description">Description</Label>
-          <TextArea
-            id="description"
-            rows={4}
-            placeholder="Write here"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </FormGroup>
+const onFileChange = (e) => {
+  handleFile(e.target.files[0]);
+};
 
-        <FormGroup>
-          <Label htmlFor="duration">Duration</Label>
-          <TextInput
-            id="duration"
-            placeholder="e.g. 2 hours"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-          />
-        </FormGroup>
+const toggleCourse = (id) => {
+  setSelectedCourses((prev) => {
+    const next = new Set(prev);
+    const normalizedId = normalizeCourseId(id);
+    if (next.has(normalizedId)) {
+      next.delete(normalizedId);
+    } else {
+      // next.clear(); // Clear all first since only one is allowed
+      next.add(normalizedId);
+    }
+    return next;
+  });
+};
 
-        <FormRow>
-          <FormColumn>
-            <Label>Upload Class Video</Label>
-            <UploadBox
-              dragOver={dragOver}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
-              }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={onDrop}
-              onClick={() => fileRef.current.click()}
-            >
-              <UploadInput
-                ref={fileRef}
-                type="file"
-                accept="video/*"
-                onChange={onFileChange}
-              />
-              <UploadContent>
-                <UploadIcon>
-                  <img src={upload} alt="upload" />
-                </UploadIcon>
-                <UploadText>
-                  {file ? file.name : "Drag and drop video here, or click to add video"}
-                </UploadText>
-                {!file && <UploadButton>Replace Video</UploadButton>}
-              </UploadContent>
-            </UploadBox>
-          </FormColumn>
+const submit = async (e) => {
+  e.preventDefault();
 
-          <FormColumn>
-            <CoursesContainer>
-              <CoursesHeader>Select Course</CoursesHeader>
-              <CourseList>
-                {coursesList.map((course) => {
-                  const courseId = normalizeCourseId(course._id);
-                  return (
-                    <CourseItem key={courseId}>
-                      <CourseCheckbox
-                        type="checkbox"
-                        checked={selectedCourses.has(courseId)}
-                        onChange={() => toggleCourse(courseId)}
-                      />
-                      <CourseLabel>{course.courseName}</CourseLabel>
-                    </CourseItem>
-                  );
-                })}
-              </CourseList>
-            </CoursesContainer>
-          </FormColumn>
-        </FormRow>
+  if (!title || !description || !duration || selectedCourses.size === 0) {
+    setError("Please fill all fields and select a course.");
+    return;
+  }
 
-        <SubmitButton type="submit" disabled={loading}>
-          {loading ? "Updating..." : "Update Recorded Class"}
-        </SubmitButton>
-      </form>
-    </Container>
-  );
+  setLoading(true);
+  setError("");
+
+  try {
+    let videoUrl = editingData?.videoUrl || (id ? (await getRecordedClassById(id)).data.videoUrl : "");
+
+    // Upload new video if changed
+    if (file) {
+      const uploadRes = await uploadFileToAzureStorage(file, "recorded-class");
+      if (!uploadRes?.blobUrl) {
+        setError(uploadRes?.message || "Video upload failed");
+        return;
+      }
+      videoUrl = uploadRes.blobUrl;
+    }
+
+    const payload = {
+      title,
+      description,
+      duration,
+      videoUrl,
+      course_ref: Array.from(selectedCourses),  // Send the first (only) selected course
+    };
+    console.log("pay;load", payload);
+
+    const updateRes = await updateRecordedClassById(editingData?._id || id, payload);
+    console.log("updated c lass", updateRes);
+    if (updateRes?.success) {
+      toast.success("Recorded class updated successfully!");
+      navigate(-1); // go back
+    } else {
+      setError(updateRes?.message || "Update failed.");
+    }
+  } catch (err) {
+    console.error("Error updating recorded class", err);
+    setError("An unexpected error occurred.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+return (
+  <Container>
+    <h2>Edit Recorded Class</h2>
+    {error && <p style={{ color: "red" }}>{error}</p>}
+    <form onSubmit={submit}>
+      <FormGroup>
+        <Label htmlFor="title">Title</Label>
+        <TextInput
+          id="title"
+          placeholder="Write here"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </FormGroup>
+
+      <FormGroup>
+        <Label htmlFor="description">Description</Label>
+        <TextArea
+          id="description"
+          rows={4}
+          placeholder="Write here"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </FormGroup>
+
+      <FormGroup>
+        <Label htmlFor="duration">Duration</Label>
+        <TextInput
+          id="duration"
+          placeholder="e.g. 2 hours"
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+        />
+      </FormGroup>
+
+      <FormRow>
+        <FormColumn>
+          <Label>Upload Class Video</Label>
+          <UploadBox
+            dragOver={dragOver}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+            onClick={() => fileRef.current.click()}
+          >
+            <UploadInput
+              ref={fileRef}
+              type="file"
+              accept="video/*"
+              onChange={onFileChange}
+            />
+            <UploadContent>
+              <UploadIcon>
+                <img src={upload} alt="upload" />
+              </UploadIcon>
+              <UploadText>
+                {file ? file.name : "Drag and drop video here, or click to add video"}
+              </UploadText>
+              {!file && <UploadButton>Replace Video</UploadButton>}
+            </UploadContent>
+          </UploadBox>
+        </FormColumn>
+
+        <FormColumn>
+          <CoursesContainer>
+            <CoursesHeader>Select Course</CoursesHeader>
+            <CourseList>
+              {coursesList.map((course) => {
+                const courseId = normalizeCourseId(course._id);
+                return (
+                  <CourseItem key={courseId}>
+                    <CourseCheckbox
+                      type="checkbox"
+                      checked={selectedCourses.has(courseId)}
+                      onChange={() => toggleCourse(courseId)}
+                    />
+                    <CourseLabel>{course.courseName}</CourseLabel>
+                  </CourseItem>
+                );
+              })}
+            </CourseList>
+          </CoursesContainer>
+        </FormColumn>
+      </FormRow>
+
+      <SubmitButton type="submit" disabled={loading}>
+        {loading ? "Updating..." : "Update Recorded Class"}
+      </SubmitButton>
+    </form>
+  </Container>
+);
 };
 
 export default EditRecordedClass;
