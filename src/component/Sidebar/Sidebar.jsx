@@ -78,6 +78,9 @@ const Sidebar = () => {
     { path: "/admin/category-management", label: "Category" },
     { path: "/admin/lecturer-management", label: "Lectures" },
   ];
+  const meetingsItems = [
+    { path: "/admin/meeting-management", label: "Meeting" },
+  ];
 
   const webmanagement = [
     // { path: "/admin/web-management/home", label: "Home page" },
@@ -213,6 +216,8 @@ const Sidebar = () => {
           {menuItems.map((item, index) => renderMenuItem(item, index))}
           {renderSection("Mock Test", mocktextItems)}
           {renderSection("Course Management", courseManagementItems)}
+          {renderSection("Meetings Management", meetingsItems
+          )}
           {renderSection("Web management", webmanagement)}
           {/* {renderSection("App Management", appManagementItems)} */}
         </MenuList>

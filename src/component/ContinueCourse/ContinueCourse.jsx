@@ -35,6 +35,8 @@ import { startCourse, startSubject, startLecturer } from "../../api/userProgress
 import { getCookiesData } from "../../utils/cookiesService";
 import { FaArrowLeft, FaPlay, FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
 import { MdLiveTv } from "react-icons/md";
+import { getLiveMeetings } from "../../api/meetingApi";
+import { getUserByUserId } from "../../api/authApi";
 
 const AccordionList = ({
     data,
@@ -149,6 +151,22 @@ const ContinueCourse = () => {
     const [completedSubjects, setCompletedSubjects] = useState([]);
     const [progressData, setProgressData] = useState(null);
     const [mockTestsBySubject, setMockTestsBySubject] = useState({});
+    const [liveClass, setLiveClass] = useState(false);
+    const [liveClassData,setLiveClassData] = useState(null);
+    useEffect(() => {
+        const apiCaller = async () => {
+            const cookies = await getCookiesData();
+            const liveClass = await getLiveMeetings({ courseIds: [id], studentId: cookies.userId });
+            console.log("liveClass", liveClass);
+            if (liveClass.data.length > 0) {
+                setLiveClass(true);
+                setLiveClassData(liveClass.data[0]);
+            }
+        }
+        apiCaller();
+        const intervalId = setInterval(apiCaller, 30000);
+        return () => clearInterval(intervalId);
+    }, [])
 
     useEffect(() => {
         const init = async () => {
@@ -203,7 +221,7 @@ const ContinueCourse = () => {
             return [];
         }
     };
-    
+
 
     const handleStartCourse = async () => {
         if (!userId || !course?._id) return;
@@ -335,6 +353,17 @@ const ContinueCourse = () => {
             ["Regular Mock Tests", "Personalized Guidance", "Daily Updates"]
         ];
 
+    const styles = {
+        blinkAnimation: {
+            animation: 'blink 1.5s infinite',
+            '@keyframes blink': {
+                '0%': { opacity: 1 },
+                '50%': { opacity: 0.3 },
+                '100%': { opacity: 1 }
+            }
+        }
+    };
+
     return (
         <PageWrapper>
             <Header>
@@ -369,6 +398,65 @@ const ContinueCourse = () => {
                                 </CourseStats>
                             </div>
                         </div>
+                        <button
+                            style={{
+                                // backgroundColor: true ? '#ff4757' : '#1e90ff',
+                                border: 'none',
+                                background: 'transparent',
+
+                                // ... other styles
+                            }}
+                            onClick={async() => {
+                                console.log("Clicked");
+                                const cookiesData =getCookiesData();
+                                const userData= await getUserByUserId(cookiesData.userId);
+                                console.log("userData", userData);
+                                navigate(`/zoom-meeting`, {
+                                    state: {
+                                        meetingNumber: liveClassData?.zoom_meeting_id,
+                                        // meetingNumber:"85017587469",
+                                        passWord: liveClassData?.zoom_passcode,
+                                        // passWord:"12356",
+                                        meetingTitle: liveClassData?.meeting_title,
+                                        role:1,
+                                        userName: userData.user.displayName|| "React",
+                                        userEmail: userData.user.email || "",
+                                        leaveUrl:`/continueCourse/${id}`,
+                                    }
+                                })
+                            }}
+                        >
+                            {liveClass ?
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <p style={{ fontSize: '24px' }}>  {liveClass ? 'Join Live Class Now' : 'No Live Class'}</p>
+                                    <MdLiveTv
+                                        color={liveClass ? '#ff4757' : '#1e90ff'}
+                                        size={28}
+                                        style={liveClass ? {
+                                            animation: 'blink 1.5s infinite',
+                                            '@keyframes blink': {
+                                                '0%': { opacity: 1 },
+                                                '50%': {
+                                                    opacity: 0
+
+                                                },
+                                                '100%': {
+                                                    opacity: 1,
+                                                    fontSize: '24px'
+                                                }
+                                            }
+                                        } : {}}
+                                    />
+                                </div>
+                                :
+                                <div>
+                                </div>
+                            }
+
+
+
+
+                        </button>
                         <Statdesc>
                             📅 Duration: {course?.duration || "N/A"} |
                             🏆 Success Rate: {course?.successRate ? `${course.successRate}%` : "N/A"} |
