@@ -77,7 +77,7 @@ export const SortSelect = styled.select`
   font-family: ${(props) => props.theme.fonts.body};
   font-size: 12px;
   color: ${(props) => props.theme.colors.test};
-  cursor: pointer;
+  // cursor: pointer;
 
   &:focus {
     outline: none;
@@ -102,7 +102,7 @@ export const StyledTable = styled.table`
 
 // Table head
 export const TableHead = styled.thead`
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.black};
 `;
 
 // Table header cell
@@ -112,7 +112,7 @@ export const TableHeader = styled.th`
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 16px;
   font-weight: normal;
-  color: ${(props) => props.theme.colors.test};
+  color: ${(props) => props.theme.colors.white};
   white-space: nowrap;
 
   &:first-child {
@@ -132,9 +132,9 @@ export const TableBody = styled.tbody``;
 // Table row
 export const TableRow = styled.tr`
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.backgrounGrey};
-  }
+  // &:hover {
+  //   background-color: ${(props) => props.theme.colors.backgrounGrey};
+  // }
 `;
 
 // Table cell
@@ -255,18 +255,18 @@ export const CreateButton = styled.button`
 `;
 
 
-export const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
+// export const ModalOverlay = styled.div`
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   background-color: rgba(0, 0, 0, 0.6);
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   z-index: 1000;
+// `;
 
 export const ModalContainer = styled.div`
   background: #ffffff;
@@ -328,6 +328,9 @@ export const CloseButton = styled.button`
   font-weight: 500;
   font-size: 18px;
   width: 70%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
 
   &:hover {
     background-color: #0069d9;
@@ -424,3 +427,39 @@ export const KycDot = styled.span`
   background-color: ${({ status }) =>
     status?.toLowerCase() === "approved" ? "#28a745" : "#ffc107"};
 `;
+
+// Courses Modal styles
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+export const ModalContent = styled.div`
+  background: white;
+  padding: 0;  /* top and side padding only */
+  border-radius: 10px;
+  width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+`;
+
+export const CourseList = styled.ul`
+  padding: 1rem;
+  margin-top: 0rem;
+`;
+
+export const CourseItem = styled.li`
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  list-style-type: none;
+  border-bottom: 1.5px solid #eee;
+  padding: 0.5rem 0;
+`;
+

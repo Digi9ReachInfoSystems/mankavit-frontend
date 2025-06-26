@@ -181,3 +181,10 @@ export const Column = styled.div`
   width: 100%;
 }
 `;
+
+
+export const ErrorText = styled.div`
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 4px;
+`;

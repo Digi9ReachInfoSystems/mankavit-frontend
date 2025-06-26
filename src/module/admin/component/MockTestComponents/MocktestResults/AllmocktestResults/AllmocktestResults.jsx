@@ -45,36 +45,44 @@ export default function AllmocktestResults() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
+  const ts = (item) =>
+  item.submittedAt
+    ? new Date(item.submittedAt).getTime()
+    : item.createdAt
+    ? new Date(item.createdAt).getTime()
+    : item._id?.length >= 8
+    ? parseInt(item._id.substring(0, 8), 16) * 1000
+    : 0;
+
   // Fetch real data from API
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await getAllUserAttempts();
-console.log("All mocktest user response", response);
-        // 🔁 Map the data to expected format
-        const mappedData = (response.data || []).map(item => ({
-          _id: item._id,
-          testName: item.mockTestId?.title || "Untitled Test",
-          studentName: item.userId?.displayName || "Anonymous",
-          email: item.userId?.email || "-",
-          marks: `${item.totalMarks || 0}`,
-          mcqScore: item.mcqScore || 0,
-          subjectiveScore: item.subjectiveScore || 0,
-          timeToComplete: formatTime(item.submittedAt, item.startedAt),
-          submissionDate: formatDate(item.submittedAt),
-          status: item.status,
-          userId: item.userId?._id
+  try {
+    const response = await getAllUserAttempts();          // API call
+    const mapped = (response.data || []).map((item) => ({
+      _id:            item._id,
+      testName:       item.mockTestId?.title || "Untitled Test",
+      studentName:    item.userId?.displayName || "Anonymous",
+      email:          item.userId?.email || "-",
+      marks:          `${item.totalMarks || 0}`,
+      mcqScore:       item.mcqScore || 0,
+      subjectiveScore:item.subjectiveScore || 0,
+      timeToComplete: formatTime(item.submittedAt, item.startedAt),
+      submissionDate: formatDate(item.submittedAt),
+      status:         item.status,
+      userId:         item.userId?._id,
+      submittedAt:    item.submittedAt,        // keep raw date for sort
+    }));
 
-        }));
-
-        setData(mappedData);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching user attempts", err);
-        setError("Failed to load mock test results");
-        setLoading(false);
-      }
-    };
+    // newest-first
+    setData(mapped.sort((a, b) => ts(b) - ts(a)));
+    setLoading(false);
+  } catch (err) {
+    console.error("Error fetching user attempts", err);
+    setError("Failed to load mock test results");
+    setLoading(false);
+  }
+};
 
     fetchData();
   }, []);
@@ -107,7 +115,9 @@ console.log("All mocktest user response", response);
     const minutes = Math.floor(diffSeconds / 60);
     const seconds = diffSeconds % 60;
 
-    return `${minutes} minute(s) and ${seconds} second(s)`;
+    // return `${minutes} minute(s) and ${seconds} second(s)`;
+    // if it is mnore than one minutes then it should be minutes an dif it is more than one secvomnd then it should be seconds
+  return `${minutes} ${minutes > 1 ? "minutes" : "minute"} & ${seconds} ${seconds > 1 ? "seconds" : "second"}`;
   };
 
   // Sorting helpers
@@ -156,11 +166,15 @@ console.log("All mocktest user response", response);
   };
 
   const handleConfirmDelete = () => {
-    setData(prev => prev.filter(d => d._id !== itemToDelete._id));
-    toast.success("Deleted successfully");
-    setDeleteModalOpen(false);
-    setItemToDelete(null);
-  };
+  setData((prev) =>
+    prev
+      .filter((d) => d._id !== itemToDelete._id)
+      .sort((a, b) => ts(b) - ts(a))   // ensure newest-first after delete
+  );
+  toast.success("Deleted successfully");
+  setDeleteModalOpen(false);
+  setItemToDelete(null);
+};
 
   if (loading) return <div>Loading mock tests…</div>;
   if (error)

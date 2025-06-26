@@ -97,7 +97,7 @@ const AddBlog = () => {
       toast.success('Data created successfully!');
       setTimeout(() => {
         navigate('/admin/web-management/blog');
-      }, 5000); // wait for toast to show before navigating
+      }, 1000); // wait for toast to show before navigating
     } catch (err) {
       console.error('Error creating blog:', err.response || err);
       const serverMsg = err.response?.data?.message || err.message;

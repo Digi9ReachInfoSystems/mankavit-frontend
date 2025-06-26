@@ -145,8 +145,13 @@ const FAQ = () => {
                   currentFaqs.map((faq) => (
                     <TableRow key={faq._id}>
                       {console.log("FAQ item:", faq)}
-                      <TableCell>{faq.question || faq.questionText || "No Question"}</TableCell>
-                      <TableCell>{faq.answer || faq.answerText || "No Answer"}</TableCell>
+                      <TableCell>
+                        {/* {faq.question || faq.questionText || "No Question"} */}
+{/* i want to limit the question character to 30 then i have to put ..  */}
+                    {faq.question.length > 30 ? faq.question.substring(0, 30) + "..." : faq.question}
+
+                        </TableCell>
+                      <TableCell>{faq.answer.length > 30 ? faq.answer.substring(0, 30) + "..." : faq.answer  || faq.answerText || "No Answer"}</TableCell>
                       <TableCell>
                         {(() => {
                           let dateObj;

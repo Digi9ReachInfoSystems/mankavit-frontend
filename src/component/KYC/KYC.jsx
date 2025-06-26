@@ -145,7 +145,7 @@ const KYC = () => {
        toast.success("KYC Form submitted successfully.");
       navigate('/user');
       setShowSuccessGif(true);
-      setTimeout(() => setShowSuccessGif(false), 3000);
+      setTimeout(() => setShowSuccessGif(false), 1000);
     } catch (error) {
       console.error('Update error:', error);
       setError(error.message || 'Failed to update profile. Please try again.');

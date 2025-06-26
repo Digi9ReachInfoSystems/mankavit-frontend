@@ -8,18 +8,17 @@ import {
   Section,
   Label,
   QuestionText,
-
   AnswerText,
   SubTitle,
   MarkInput,
   SubmitButton,
-
-
+  SaveButton,
+  ButtonContainer
 } from "./MocktestStudentResult.style";
-
-import { getAttemptById, evaluateMocktest } from "../../../../../../api/mocktestApi";
-import { set } from "date-fns";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { getAttemptById, evaluateMocktest, evaluateSingleSubjectiveQuestion } from "../../../../../../api/mocktestApi";
+// MocktestStudentResult
 const MocktestStudentResult = () => {
   const { attemptId } = useParams();
   const [attemptData, setAttemptData] = useState(null);
@@ -28,7 +27,8 @@ const MocktestStudentResult = () => {
   const [evaluations, setEvaluations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [evaluationStatus, setEvaluationStatus] = useState(null);
-  const naviagate = useNavigate();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -48,7 +48,7 @@ const MocktestStudentResult = () => {
             })
             .map(a => ({
               questionId: a.questionId,
-              isCorrect: false,
+              isCorrect: a.marksAwarded === (response.data.mockTestId.questions.find(q => q._id === a.questionId)?.marks || 0),
               marks: a.marksAwarded || 0
             }));
           setEvaluations(subjEvals);
@@ -64,21 +64,7 @@ const MocktestStudentResult = () => {
     fetchData();
   }, [attemptId]);
 
-  const initializeEvaluations = (answers) => {
-    const subjEvals = answers
-      .filter(a => {
-        const question = attemptData?.mockTestId?.questions?.find(q => q._id === a.questionId);
-        return question?.type === "subjective";
-      })
-      .map(a => ({
-        questionId: a.questionId,
-        marks: a.marksAwarded || 0
-      }));
-    setEvaluations(subjEvals);
-  };
-
   const handleMarkChange = (questionId, isCorrect, value) => {
-    console.log("handleMarkChange", questionId, isCorrect, value);
     const updated = evaluations.map(e =>
       e.questionId === questionId
         ? { ...e, isCorrect: isCorrect, marks: parseInt(value) || 0 }
@@ -87,13 +73,46 @@ const MocktestStudentResult = () => {
     setEvaluations(updated);
   };
 
+  const handleSaveSingleQuestion = async (questionId) => {
+    try {
+      const evaluation = evaluations.find(e => e.questionId === questionId);
+      if (!evaluation) return;
+
+      const question = attemptData.mockTestId.questions.find(q => q._id === questionId);
+      const isCorrect = evaluation.marks === question.marks;
+
+      const payload = {
+        attemptId,
+        questionId,
+        marks: evaluation.marks,
+        isCorrect
+      };
+
+      const response = await evaluateSingleSubjectiveQuestion(payload);
+      if (response.success) {
+        toast.success("Single subjective question evaluation saved successfully");
+        // console.log("Single question evaluation saved successfully", response);
+        // Update the local state with the saved data
+        const updatedAttemptData = { ...attemptData };
+        const answerIndex = updatedAttemptData.answers.findIndex(a => a.questionId === questionId);
+        if (answerIndex !== -1) {
+          updatedAttemptData.answers[answerIndex].marksAwarded = evaluation.marks;
+          setAttemptData(updatedAttemptData);
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to save single question evaluation");
+      console.error("Failed to save single question evaluation", error);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const payload = {
         attemptId,
         evaluations: evaluations.map(e => ({
           questionId: e.questionId,
-          isCorrect: false,
+          isCorrect: e.isCorrect,
           marks: e.marks
         }))
       };
@@ -101,9 +120,8 @@ const MocktestStudentResult = () => {
       const response = await evaluateMocktest(payload);
       if (response.success) {
         console.log("Evaluation submitted successfully", response);
-        naviagate(`/admin/mock-test/user-attempts/${mockTestId}/${userId}`);
+        navigate(`/admin/mock-test/user-attempts/${mockTestId}/${userId}`);
       }
-
     } catch (error) {
       console.error("Failed to submit evaluation", error);
     }
@@ -137,6 +155,7 @@ const MocktestStudentResult = () => {
           <QuestionCard key={`mcq-${index}`}>
             <QuestionText>{question.questionText}</QuestionText>
             <AnswerText><strong>Your Answer:</strong> {a.answer}</AnswerText>
+            <AnswerText><strong>Correct Answer:</strong> {question.correctAnswer}</AnswerText>
             <AnswerText><strong>Marks:</strong> {a.marksAwarded}</AnswerText>
           </QuestionCard>
         );
@@ -146,33 +165,60 @@ const MocktestStudentResult = () => {
       {subjectiveAnswers.map((a, index) => {
         const question = attemptData.mockTestId.questions.find(q => q._id === a.questionId);
         const evalItem = evaluations.find(e => e.questionId === a.questionId);
+        const maxMarks = question.marks;
+        const currentMarks = evalItem?.marks || 0;
+        
         return (
           <QuestionCard key={`subj-${index}`}>
             <QuestionText>{question.questionText}</QuestionText>
             <AnswerText><strong>Your Answer:</strong> {a.answer}</AnswerText>
             <Label>Evaluate to:</Label>
-            <input type="radio" name={`subj-${index}`} value="correct" checked={evalItem?.marks === question.marks} /> Correct
-            <input type="radio" name={`subj-${index}`} value="Incorrect" checked={evalItem?.marks !== question.marks} /> Incorrect
+            <input 
+              type="radio" 
+              name={`subj-${index}`} 
+              value="correct" 
+              checked={currentMarks === maxMarks} 
+              onChange={() => handleMarkChange(a.questionId, true, maxMarks)}
+              disabled={evaluationStatus !== "submitted"}
+            /> Correct
+            <input 
+              type="radio" 
+              name={`subj-${index}`} 
+              value="Incorrect" 
+              checked={currentMarks !== maxMarks} 
+              onChange={() => handleMarkChange(a.questionId, false, 0)}
+              disabled={evaluationStatus !== "submitted"}
+            /> Incorrect
             <Label>Max Marks:</Label>
-            <AnswerText>{question.marks}</AnswerText>
+            <AnswerText>{maxMarks}</AnswerText>
             <Label>Marks:</Label>
             <MarkInput
               type="number"
               min="0"
               disabled={evaluationStatus !== "submitted"}
-              max={question.marks}
-              value={evalItem?.marks ?? ""}
+              max={maxMarks}
+              value={currentMarks}
               onChange={(e) => {
-                if (e.target.value > question.marks) return;
-                handleMarkChange(a.questionId, e.target.value == question.marks, e.target.value)
+                const value = parseInt(e.target.value) || 0;
+                if (value > maxMarks) return;
+                handleMarkChange(a.questionId, value === maxMarks, value);
               }}
-              placeholder={`0-${question.marks}`}
+              placeholder={`0-${maxMarks}`}
             />
+            {evaluationStatus === "submitted" && (
+              <ButtonContainer>
+                <SaveButton onClick={() => handleSaveSingleQuestion(a.questionId)}>
+                  Save Subjective Marks
+                </SaveButton>
+              </ButtonContainer>
+            )}
           </QuestionCard>
         );
       })}
-      {evaluationStatus === "submitted" &&
-        <SubmitButton onClick={handleSubmit}>Submit Evaluation</SubmitButton>}
+      {evaluationStatus === "submitted" && (
+        <SubmitButton onClick={handleSubmit}>Submit Final Evaluation</SubmitButton>
+      )}
+      <ToastContainer />
     </Container>
   );
 };

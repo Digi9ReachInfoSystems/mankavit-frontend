@@ -79,7 +79,7 @@ const AddMission = () => {
 
       await createMission(missionPayload);
       toast.success('Data created successfully!');
-      setTimeout(() => navigate('/admin/web-management/mission'), 3000);
+      setTimeout(() => navigate('/admin/web-management/mission'), 1000);
     } catch (err) {
       console.error('Error creating mission:', err.response || err);
       const serverMsg = err.response?.data?.message || err.message;

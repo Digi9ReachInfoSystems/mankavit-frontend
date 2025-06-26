@@ -1,3 +1,4 @@
+// src/components/.../EditMockTest.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -15,6 +16,7 @@ import {
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
+  ErrorText,           // ← import this from your styles
 } from './EditMocktest.style';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -24,10 +26,11 @@ import {
 import { getSubjects } from '../../../../../api/subjectApi';
 
 const EditMockTest = () => {
-  const { mockTestId } = useParams(); // Get mockTestId from URL
+  const { mockTestId } = useParams();
   const navigate = useNavigate();
 
-  const [errors, setErrors] = useState([]);
+  // errors keyed by field name or 'form'
+  const [errors, setErrors] = useState({});
   const [testDetails, setTestDetails] = useState({
     title: '',
     description: '',
@@ -42,35 +45,28 @@ const EditMockTest = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [subjects, setSubjects] = useState([]);
 
-  // Load subjects
+  // fetch subjects
   useEffect(() => {
-    const fetchSubjects = async () => {
+    (async () => {
       try {
-        const response = await getSubjects();
-        setSubjects(response.data || []);
-      } catch (error) {
-        console.error("Error fetching subjects", error);
+        const resp = await getSubjects();
+        setSubjects(resp.data || []);
+      } catch (e) {
+        console.error(e);
       }
-    };
-
-    fetchSubjects();
+    })();
   }, []);
 
-  // Load mock test on mount
+  // fetch existing mock test
   useEffect(() => {
-    const fetchMockTest = async () => {
-      if (!mockTestId || mockTestId === 'undefined') {
-        console.error("No valid mockTestId provided");
-        setErrors(["Invalid Mock Test ID"]);
+    (async () => {
+      if (!mockTestId) {
+        setErrors({ form: 'Invalid Mock Test ID' });
         setIsLoading(false);
         return;
       }
-
       try {
-        console.log("Fetching mock test with ID:", mockTestId); // 🔍 Debugging
-        const response = await getMocktestById(mockTestId);
-        const data = response.data;
-
+        const { data } = await getMocktestById(mockTestId);
         setTestDetails({
           title: data.title || '',
           description: data.description || '',
@@ -79,70 +75,57 @@ const EditMockTest = () => {
           startDate: formatDateTimeLocal(data.startDate),
           endDate: formatDateTimeLocal(data.endDate),
           maxAttempts: data.maxAttempts || 1,
-          selectedSubjects: Array.isArray(data.subject) ? data.subject : [data.subject],
+          selectedSubjects: Array.isArray(data.subject)
+            ? data.subject.map(s => (typeof s === 'object' ? s._id : s))
+            : typeof data.subject === 'object' && data.subject !== null
+            ? [data.subject._id]
+            : [data.subject],
         });
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching mock test', error);
-        let errorMessage = 'Failed to load mock test';
-        if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
-        }
-        setErrors([errorMessage]);
+      } catch (e) {
+        console.error(e);
+        setErrors({ form: e.response?.data?.message || 'Failed to load mock test' });
+      } finally {
         setIsLoading(false);
       }
-    };
-
-    fetchMockTest();
+    })();
   }, [mockTestId]);
 
   const handleTestDetailChange = (field, value) => {
-    setTestDetails((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setTestDetails(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
-  const handleSubjectCheckboxChange = (subjectId) => {
-    setTestDetails((prev) => {
-      const selected = new Set(prev.selectedSubjects);
-      if (selected.has(subjectId)) {
-        selected.delete(subjectId);
-      } else {
-        selected.add(subjectId);
-      }
-      return {
-        ...prev,
-        selectedSubjects: Array.from(selected),
-      };
+  const handleSubjectCheckboxChange = id => {
+    setTestDetails(prev => {
+      const sel = new Set(prev.selectedSubjects);
+      sel.has(id) ? sel.delete(id) : sel.add(id);
+      return { ...prev, selectedSubjects: Array.from(sel) };
     });
+    setErrors(prev => ({ ...prev, selectedSubjects: '' }));
   };
 
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    const newErrors = [];
+    const newErr = {};
 
-    if (!testDetails.title) newErrors.push("Test title is required");
-    if (!testDetails.description) newErrors.push("Test description is required");
-    if (!testDetails.duration) newErrors.push("Duration is required");
-    if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
-    if (!testDetails.maxAttempts) newErrors.push("Max attempts are required");
-    if (!testDetails.startDate) newErrors.push("Start date is required");
-    if (!testDetails.endDate) newErrors.push("End date is required");
-    if (!testDetails.selectedSubjects.length) newErrors.push("At least one subject must be selected");
+    if (!testDetails.title) newErr.title = 'Test title is required';
+    if (!testDetails.description) newErr.description = 'Description is required';
+    if (!testDetails.duration) newErr.duration = 'Duration is required';
+    if (!testDetails.passingMarks) newErr.passingMarks = 'Passing marks are required';
+    if (!testDetails.maxAttempts) newErr.maxAttempts = 'Max attempts is required';
+    if (!testDetails.startDate) newErr.startDate = 'Start date is required';
+    if (!testDetails.endDate) newErr.endDate = 'End date is required';
+    if (!testDetails.selectedSubjects.length) newErr.selectedSubjects = 'Select at least one subject';
 
-    if (newErrors.length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(newErr).length) {
+      setErrors(newErr);
       return;
     }
 
-    setErrors([]);
+    setErrors({});
     setIsSubmitting(true);
-
     try {
-      const updatedData = {
+      await updateMocktestById(mockTestId, {
         title: testDetails.title,
         description: testDetails.description,
         duration: testDetails.duration,
@@ -150,62 +133,42 @@ const EditMockTest = () => {
         maxAttempts: testDetails.maxAttempts,
         startDate: testDetails.startDate,
         endDate: testDetails.endDate,
-        subject: testDetails.selectedSubjects, // instead of subjectId
-      };
-
-      await updateMocktestById(mockTestId, updatedData);
+        subject: testDetails.selectedSubjects,
+      });
       navigate(`/admin/mock-test/questions-list/${mockTestId}`);
-    } catch (error) {
-      console.error('Error updating mock test', error);
-      let errorMessage = 'Failed to update mock test';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      setErrors([errorMessage]);
+    } catch (e) {
+      console.error(e);
+      setErrors({ form: e.response?.data?.message || 'Failed to update mock test' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Helper to format ISO date for datetime-local input
-  const formatDateTimeLocal = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const pad = (n) => n.toString().padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-      date.getDate()
-    )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  const formatDateTimeLocal = s => {
+    if (!s) return '';
+    const d = new Date(s);
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  if (isLoading) {
-    return <Container>Loading...</Container>;
-  }
+  if (isLoading) return <Container>Loading...</Container>;
 
   return (
     <Container>
       <Title>Edit Mock Test</Title>
-
-      {errors.length > 0 && (
-        <div style={{ color: 'red', marginBottom: '1rem' }}>
-          <ul>
-            {errors.map((err, idx) => (
-              <li key={idx}>{err}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {errors.form && <ErrorText>{errors.form}</ErrorText>}
 
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <FormGroup>
             <Label htmlFor="title">Title:</Label>
             <Input
-              type="text"
               id="title"
               value={testDetails.title}
-              onChange={(e) => handleTestDetailChange('title', e.target.value)}
+              onChange={e => handleTestDetailChange('title', e.target.value)}
               placeholder="Enter test title"
             />
+            {errors.title && <ErrorText>{errors.title}</ErrorText>}
           </FormGroup>
         </FormRow>
 
@@ -216,70 +179,58 @@ const EditMockTest = () => {
               as="textarea"
               id="description"
               value={testDetails.description}
-              onChange={(e) =>
-                handleTestDetailChange('description', e.target.value)
-              }
+              onChange={e => handleTestDetailChange('description', e.target.value)}
               placeholder="Enter test description"
-              required
             />
+            {errors.description && <ErrorText>{errors.description}</ErrorText>}
           </FormGroup>
         </FormRow>
 
         <SubTitle>Mock Test Settings</SubTitle>
-
-       <FormRow>
-  <FormGroup>
-    <CheckboxSection>
-      <CheckboxSectionTitle>
-        Add Subject
-      </CheckboxSectionTitle>
-
-      <CheckboxList>
-        {subjects.map(subject => (
-          <CheckboxLabel key={subject._id}>
-            <CheckboxInput
-              type="checkbox"
-              checked={testDetails.selectedSubjects.includes(subject._id)}
-              onChange={() => handleSubjectCheckboxChange(subject._id)}
-            />
-            {subject.subjectDisplayName || subject.subjectName}
-          </CheckboxLabel>
-        ))}
-      </CheckboxList>
-    </CheckboxSection>
-  </FormGroup>
-</FormRow>
-
+        <FormRow>
+          <FormGroup>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Subjects</CheckboxSectionTitle>
+              <CheckboxList>
+                {subjects.map(sub => (
+                  <CheckboxLabel key={sub._id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={testDetails.selectedSubjects.includes(sub._id)}
+                      onChange={() => handleSubjectCheckboxChange(sub._id)}
+                    />
+                    {sub.subjectDisplayName || sub.subjectName}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+            {errors.selectedSubjects && <ErrorText>{errors.selectedSubjects}</ErrorText>}
+          </FormGroup>
+        </FormRow>
 
         <FormRow>
           <FormGroup>
             <Label htmlFor="duration">Duration (minutes):</Label>
             <Input
-              type="number"
               id="duration"
+              type="number"
               value={testDetails.duration}
-              onChange={(e) =>
-                handleTestDetailChange('duration', e.target.value)
-              }
+              onChange={e => handleTestDetailChange('duration', e.target.value)}
               placeholder="Enter duration"
-              required
             />
+            {errors.duration && <ErrorText>{errors.duration}</ErrorText>}
           </FormGroup>
-
           <FormGroup>
             <Label htmlFor="passingMarks">Passing Marks (%):</Label>
             <Input
-              type="number"
               id="passingMarks"
-              min="0"
-              max="100"
+              type="number"
+              min="0" max="100"
               value={testDetails.passingMarks}
-              onChange={(e) =>
-                handleTestDetailChange('passingMarks', e.target.value)
-              }
+              onChange={e => handleTestDetailChange('passingMarks', e.target.value)}
               placeholder="Enter passing percentage"
-              required
             />
+            {errors.passingMarks && <ErrorText>{errors.passingMarks}</ErrorText>}
           </FormGroup>
         </FormRow>
 
@@ -287,16 +238,14 @@ const EditMockTest = () => {
           <FormGroup>
             <Label htmlFor="maxAttempts">Max Attempts:</Label>
             <Input
-              type="number"
               id="maxAttempts"
+              type="number"
               min="1"
               value={testDetails.maxAttempts}
-              onChange={(e) =>
-                handleTestDetailChange('maxAttempts', e.target.value)
-              }
+              onChange={e => handleTestDetailChange('maxAttempts', e.target.value)}
               placeholder="Enter max attempts"
-              required
             />
+            {errors.maxAttempts && <ErrorText>{errors.maxAttempts}</ErrorText>}
           </FormGroup>
         </FormRow>
 
@@ -304,31 +253,26 @@ const EditMockTest = () => {
           <FormGroup>
             <Label htmlFor="startDate">Start Date:</Label>
             <Input
-              type="datetime-local"
               id="startDate"
+              type="datetime-local"
               value={testDetails.startDate}
-              onChange={(e) =>
-                handleTestDetailChange('startDate', e.target.value)
-              }
-              required
+              onChange={e => handleTestDetailChange('startDate', e.target.value)}
             />
+            {errors.startDate && <ErrorText>{errors.startDate}</ErrorText>}
           </FormGroup>
-
           <FormGroup>
             <Label htmlFor="endDate">End Date:</Label>
             <Input
-              type="datetime-local"
               id="endDate"
+              type="datetime-local"
               value={testDetails.endDate}
-              onChange={(e) =>
-                handleTestDetailChange('endDate', e.target.value)
-              }
-              required
+              onChange={e => handleTestDetailChange('endDate', e.target.value)}
             />
+            {errors.endDate && <ErrorText>{errors.endDate}</ErrorText>}
           </FormGroup>
         </FormRow>
 
-        <Button type="submit" disabled={isSubmitting || isLoading}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Updating...' : 'Update Mock Test'}
         </Button>
       </FormWrapper>

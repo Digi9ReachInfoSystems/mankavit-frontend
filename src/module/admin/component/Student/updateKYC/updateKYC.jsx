@@ -35,7 +35,7 @@ import {
   StatusInfo,
   Modal,
   ModalCloseButton,
-  ModalOverlay
+  ModalOverlay,
 } from "./updateKYC.style";
 
 export default function UpdateKYC() {
@@ -53,27 +53,41 @@ export default function UpdateKYC() {
     const fetchAll = async () => {
       setLoading(true);
       try {
+        // 1) fetch user
         const userResp = await getUserDetails(userId);
-        if (!userResp || !userResp.user) {
+        if (!userResp?.user) {
           throw new Error("User data not found");
         }
         setUser(userResp.user);
 
         let kyc = null;
+        // 2) try by kycRef
         if (userResp.user.kycRef) {
-          const kycResp = await getKYCById(userResp.user.kycRef);
-          kyc = kycResp?.data?.kyc || kycResp?.data || null;
+          try {
+            const kycResp = await getKYCById(userResp.user.kycRef);
+            kyc = kycResp.data?.kyc || kycResp.data || null;
+          } catch (err) {
+            // swallow 404 only
+            if (err.response?.status !== 404) throw err;
+          }
         }
-
+        // 3) fallback by userId
         if (!kyc) {
-          const fallbackResp = await getKYCbyUserId(userId);
-          kyc = fallbackResp?.data?.kyc || fallbackResp?.data || null;
+          try {
+            const fallbackResp = await getKYCbyUserId(userId);
+            kyc = fallbackResp.data?.kyc || fallbackResp.data || null;
+          } catch (err) {
+            if (err.response?.status !== 404) throw err;
+          }
         }
 
         setKycRecord(kyc);
       } catch (error) {
         console.error("Error fetching KYC:", error);
-        toast.error(error.message || "Failed to load KYC data");
+        // only show toast if not a 404/no-KYC situation
+        if (!(error.response?.status === 404)) {
+          toast.error(error.message || "Failed to load KYC data");
+        }
       } finally {
         setLoading(false);
       }
@@ -82,36 +96,33 @@ export default function UpdateKYC() {
     fetchAll();
   }, [userId]);
 
-const handleStatusUpdate = async (newStatus) => {
-  if (isSubmitting) return;
-  setIsSubmitting(true);
-  try {
+  const handleStatusUpdate = async (newStatus) => {
+    if (isSubmitting) return;
     if (!kycRecord) {
       toast.warn("Cannot update - no KYC record found");
       return;
     }
 
-    await approveKYC(kycRecord._id, newStatus);
+    setIsSubmitting(true);
+    try {
+      await approveKYC(kycRecord._id, newStatus);
 
-    // ✅ Explicit toast message
-    if (newStatus === "approved") {
-      toast.success("KYC approved successfully");
-    } else if (newStatus === "rejected") {
-      toast.success("KYC rejected successfully");
+      toast.success(
+        newStatus === "approved"
+          ? "KYC approved successfully"
+          : "KYC rejected successfully"
+      );
+
+      // refresh record
+      const updatedResp = await getKYCById(kycRecord._id);
+      setKycRecord(updatedResp.data?.kyc || null);
+    } catch (err) {
+      console.error("Error updating status:", err);
+      toast.error(err.response?.data?.message || "Status update failed");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const updatedResp = await getKYCById(kycRecord._id);
-    if (updatedResp && updatedResp.data?.kyc) {
-      setKycRecord(updatedResp.data.kyc);
-    }
-  } catch (err) {
-    console.error("Error updating status:", err);
-    toast.error(err.response?.data?.message || "Status update failed");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+  };
 
   const handleImageClick = (url) => {
     setModal(true);
@@ -150,6 +161,29 @@ const handleStatusUpdate = async (newStatus) => {
     </FormRow>
   );
 
+  // if user hasn't applied => kycRecord is null AND user.kyc_status is "not-applied"
+  if (!kycRecord && user.kyc_status === "not-applied") {
+    return (
+      <Container>
+        <Title>KYC Status for {user.displayName || user.email}</Title>
+        <NoKycContainer>
+          <NoKycMessage>
+            This user has not applied for KYC yet.
+          </NoKycMessage>
+          <BackButton onClick={() => navigate(-1)}>
+            Back to Student List
+          </BackButton>
+        </NoKycContainer>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="colored"
+        />
+      </Container>
+    );
+  }
+
+  // otherwise render form or approved-without-record
   return (
     <Container>
       <Title>KYC Status for {user.displayName || user.email}</Title>
@@ -192,7 +226,11 @@ const handleStatusUpdate = async (newStatus) => {
               <Column>
                 <FieldWrapper>
                   <Label>ID Proof</Label>
-                  <DocumentLink href={kycRecord.id_proof} target="_blank">
+                  <DocumentLink
+                    href={kycRecord.id_proof}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     View ID Document
                   </DocumentLink>
                 </FieldWrapper>
@@ -208,7 +246,9 @@ const handleStatusUpdate = async (newStatus) => {
                   <DocumentImage
                     src={kycRecord.passport_photo}
                     alt="Passport"
-                    onClick={() => handleImageClick(kycRecord.passport_photo)}
+                    onClick={() =>
+                      handleImageClick(kycRecord.passport_photo)
+                    }
                   />
                 </FieldWrapper>
               </Column>
@@ -220,13 +260,17 @@ const handleStatusUpdate = async (newStatus) => {
               <ButtonContainer>
                 <SubmitButton
                   onClick={() => handleStatusUpdate("approved")}
-                  disabled={isSubmitting || kycRecord.status === "approved"}
+                  disabled={
+                    isSubmitting || kycRecord.status === "approved"
+                  }
                 >
                   {isSubmitting ? "Processing..." : "Approve KYC"}
                 </SubmitButton>
                 <RejectButton
                   onClick={() => handleStatusUpdate("rejected")}
-                  disabled={isSubmitting || kycRecord.status === "rejected"}
+                  disabled={
+                    isSubmitting || kycRecord.status === "rejected"
+                  }
                 >
                   {isSubmitting ? "Processing..." : "Reject KYC"}
                 </RejectButton>
@@ -238,11 +282,10 @@ const handleStatusUpdate = async (newStatus) => {
           </FormRow>
         </FormWrapper>
       ) : (
+        // fallback: KYC status is something else but no record
         <NoKycContainer>
           <NoKycMessage>
-            {user.kyc_status === "not-applied"
-              ? "This user has not applied for KYC yet."
-              : "No KYC record found for this user."}
+            No KYC record found for this user.
           </NoKycMessage>
           <BackButton onClick={() => navigate(-1)}>
             Back to Student List
@@ -252,25 +295,23 @@ const handleStatusUpdate = async (newStatus) => {
 
       {modal && (
         <ModalOverlay>
-          <Modal onClose={() => setModal(false)}>
-            <ModalCloseButton onClick={() => setModal(false)}>X</ModalCloseButton>
-            <h2 className="modal-title">Passport Photo</h2>
-            <img src={modalImage} alt="KYC Document" className="modal-image" />
+          <Modal>
+            <ModalCloseButton onClick={() => setModal(false)}>
+              ×
+            </ModalCloseButton>
+            <h2>Passport Photo</h2>
+            <img
+              src={modalImage}
+              alt="KYC Document"
+              style={{ width: "100%" }}
+            />
           </Modal>
         </ModalOverlay>
       )}
 
-      {/* ✅ Toast Container */}
-      {/* Toast Container for react-toastify */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
         theme="colored"
       />
     </Container>

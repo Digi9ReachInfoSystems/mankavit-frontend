@@ -157,8 +157,10 @@ const EditRecordedClass = () => {
         videoUrl,
         course_ref: Array.from(selectedCourses)[0] // Send the first (only) selected course
       };
+      console.log("pay;load",payload);
 
       const updateRes = await updateRecordedClassById(editingData?._id || id, payload);
+      console.log("updated c lass",updateRes);
       if (updateRes?.success) {
         toast.success("Recorded class updated successfully!");
         navigate(-1); // go back

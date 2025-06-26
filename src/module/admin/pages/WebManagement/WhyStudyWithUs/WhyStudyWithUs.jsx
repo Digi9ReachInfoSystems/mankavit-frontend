@@ -43,19 +43,31 @@ const WhyStudyWithUs = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
-  // fetch once on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getAllWhy();
-        setWhyStudy(response.data ?? response);
-      } catch (err) {
-        console.error("Error loading data:", err);
-        toast.error("Failed to load data.");
-      }
-    };
-    fetchData();
-  }, []);
+  const getTimestamp = (item) => {
+  if (item.createdAt) return new Date(item.createdAt).getTime();
+  if (item.updatedAt) return new Date(item.updatedAt).getTime();
+  if (item._id && item._id.length >= 8) {
+    return parseInt(item._id.substring(0, 8), 16) * 1000; // fallback: from MongoDB ObjectId
+  }
+  return 0;
+};
+
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await getAllWhy();
+      const sorted = (response.data ?? response).sort(
+        (a, b) => getTimestamp(b) - getTimestamp(a)
+      );
+      setWhyStudy(sorted);
+    } catch (err) {
+      console.error("Error loading data:", err);
+      toast.error("Failed to load data.");
+    }
+  };
+  fetchData();
+}, []);
+
 
   const totalItems = whyStudy.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);

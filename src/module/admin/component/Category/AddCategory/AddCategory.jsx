@@ -37,7 +37,7 @@ const AddCategory = () => {
   
       toast.success("Category Added");
       toast.success("The category was successfully created.");
-      setTimeout(() => navigate("/admin/category-management"), 3000);
+      setTimeout(() => navigate("/admin/category-management"), 1000);
     } catch (error) {
       console.error("Error creating category:", error); // 👈 Full error log
       toast.error("Failed to Add Category, Please try again");

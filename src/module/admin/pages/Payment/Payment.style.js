@@ -90,7 +90,7 @@ export const StyledTable = styled.table`
 `;
 
 export const TableHead = styled.thead`
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.black};
 `;
 
 export const TableHeader = styled.th`
@@ -99,7 +99,7 @@ export const TableHeader = styled.th`
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 16px;
   font-weight: normal;
-  color: ${(props) => props.theme.colors.test};
+  color: ${(props) => props.theme.colors.white};
   white-space: nowrap;
 
       &:first-child {
@@ -117,9 +117,9 @@ export const TableBody = styled.tbody``;
 
 export const TableRow = styled.tr`
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.backgrounGrey};
-  }
+  // &:hover {
+  //   background-color: ${(props) => props.theme.colors.backgrounGrey};
+  // }
 `;
 
 export const TableCell = styled.td`

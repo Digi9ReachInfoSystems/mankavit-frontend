@@ -167,7 +167,7 @@ const EditTestimonial = () => {
       setTimeout(() => {
          navigate("/admin/web-management/testinomial", {
         state: { success: true }
-      }), 2000});
+      }), 1000});
 
     } catch (error) {
       console.error("Error updating testimonial:", error);

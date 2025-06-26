@@ -21,13 +21,19 @@ import {
   SearchIcon,
   SearchInput,
   StatusWrapper,
-  KycDot
+  KycDot,
+  ModalOverlay,
+  ModalContent,
+  CourseList,
+  CourseItem,
+  CloseButton,
+  CloseButtonContainer
 } from "../StudentManagement/StudentManagement.style";
 
 import { FiEdit } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
 import { CiSearch } from "react-icons/ci";
-
+import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
@@ -36,6 +42,7 @@ import { getAllCourses } from "../../../../api/courseApi";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Table } from "antd";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -48,13 +55,25 @@ export default function StudentManagement() {
   const [data, setData] = useState([]);
   const [coursesMap, setCoursesMap] = useState({});
   const [sortConfig, setSortConfig] = useState({
-    key: "displayName",
-    direction: "ascending",
+    key: "createdAt", // default sort by creation time
+    direction: "descending", // newest first
   });
+
 
   const [modalCourses, setModalCourses] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
+  const [coursesModalOpen, setCoursesModalOpen] = useState(false);
+  const [coursesList, setCoursesList] = useState([]);
+
+  const ts = (item) => {
+    if (item.createdAt) return new Date(item.createdAt).getTime();
+    if (item.updatedAt) return new Date(item.updatedAt).getTime();
+    if (item._id && item._id.length >= 8) {
+      return parseInt(item._id.substring(0, 8), 16) * 1000;
+    }
+    return 0;
+  };
 
   // 1) Fetch all students + courses on mount
   useEffect(() => {
@@ -62,12 +81,13 @@ export default function StudentManagement() {
       try {
         const [studentResponse, courseResponse] = await Promise.all([
           getAllStudents(), // returns { data: { students: [...] } }
+
           getAllCourses(),  // returns { data: [ { _id, course_name, … }, … ] }
         ]);
 
+        console.log("studentResponse", studentResponse);
         const students = studentResponse.data?.students || [];
-        setData(students);
-
+        setData(students.sort((a, b) => ts(b) - ts(a)));
         const courseMap = {};
         (courseResponse.data || []).forEach((course) => {
           courseMap[course._id] = course.course_name;
@@ -93,8 +113,19 @@ export default function StudentManagement() {
 
   const sortedData = React.useMemo(() => {
     let sortableItems = [...data];
-    if (sortConfig !== null) {
+
+    if (sortConfig) {
       sortableItems.sort((a, b) => {
+        // Handle time-based sort
+        if (sortConfig.key === "createdAt") {
+          const timeA = ts(a);
+          const timeB = ts(b);
+          return sortConfig.direction === "ascending"
+            ? timeA - timeB
+            : timeB - timeA;
+        }
+
+        // Handle text-based sorting
         const aValue = (a[sortConfig.key] || "").toString();
         const bValue = (b[sortConfig.key] || "").toString();
         return sortConfig.direction === "ascending"
@@ -102,8 +133,10 @@ export default function StudentManagement() {
           : bValue.localeCompare(aValue);
       });
     }
+
     return sortableItems;
   }, [data, sortConfig]);
+
 
   // Filtering by “displayName”
   const filteredStudents = sortedData.filter((student) =>
@@ -120,6 +153,19 @@ export default function StudentManagement() {
     startIndex + ITEMS_PER_PAGE
   );
 
+  const handleViewCourses = (userId) => {
+    // 📝 Replace this with an API call if needed
+    const dummyCourses = [
+      "React Bootcamp",
+      "JavaScript Mastery",
+      "Node.js Basics",
+      "MongoDB Essentials"
+    ];
+
+    setCoursesList(dummyCourses);
+    setCoursesModalOpen(true);
+  };
+
   // “Delete student” stubs
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
@@ -127,9 +173,9 @@ export default function StudentManagement() {
   };
   const handleDeleteConfirm = () => {
     try{
-    setData(data.filter((s) => s._id !== selectedStudent));
-    setDeleteModalOpen(false);
-    toast.success("Data deleted successfully.");
+      setData(data.filter((s) => s._id !== selectedStudent));
+      setDeleteModalOpen(false);
+      toast.success("Data deleted successfully.");
     } catch (err) {
       console.error("Failed to delete item:", err);
       toast.error("Failed to delete data. Please try again.");
@@ -170,13 +216,12 @@ export default function StudentManagement() {
 
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect
-              value={sortConfig.key}
-              onChange={(e) => requestSort(e.target.value)}
-            >
+            <SortSelect value={sortConfig.key} onChange={(e) => requestSort(e.target.value)}>
+              <option value="createdAt">Latest</option>
               <option value="displayName">Name</option>
               <option value="kyc_status">KYC Status</option>
             </SortSelect>
+
           </SortByContainer>
         </HeaderRow>
 
@@ -216,6 +261,7 @@ export default function StudentManagement() {
                 </TableHeader>
                 <TableHeader>Actions</TableHeader>
                 <TableHeader>Update</TableHeader>
+                <TableHeader>All Courses</TableHeader>
               </TableRow>
             </TableHead>
 
@@ -227,7 +273,9 @@ export default function StudentManagement() {
                   <TableCell>
                     {item.phone}
                     <br />
-                    {item.email}
+                    {/* {item.email} */}
+                  {/* email character should be maximum of 30 characters then urts hgsould be ... */}
+                    {item.email.length > 23 ? item.email.substring(0, 20) + "..." : item.email}
                   </TableCell>
                   <TableCell>
                     {(item.subscription?.length || 0)}{" "}
@@ -267,6 +315,12 @@ export default function StudentManagement() {
                         size={20}
                         onClick={() => handleViewClick(item)}
                       />
+                      <RiDeleteBin6Line
+                        title="Delete"
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDeleteClick(item.id)}
+                      />
                     </ActionsContainer>
                   </TableCell>
                   <TableCell>
@@ -286,6 +340,17 @@ export default function StudentManagement() {
                       }
                     />
                   </TableCell>
+                  <TableCell>
+                    {(item.subscripti?.length || 0)}{" "}
+
+                    <span
+                      onClick={() => handleViewCourses(item)}
+                      style={{ cursor: "pointer", color: "#007bff", marginLeft: 5 }}
+                    >
+                      View
+                    </span>
+                  </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
@@ -319,7 +384,7 @@ export default function StudentManagement() {
         />
       )}
 
-            {/* Toast Container for react-toastify */}
+      {/* Toast Container for react-toastify */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -331,6 +396,27 @@ export default function StudentManagement() {
         pauseOnHover
         theme="colored"
       />
+
+      {coursesModalOpen && (
+        <ModalOverlay>
+          <ModalContent>
+            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>All Courses</h2>
+            {coursesList.length === 0 ? (
+              <p>No courses enrolled.</p>
+            ) : (
+              <CourseList>
+                {coursesList.map((course, index) => (
+                  <CourseItem key={index}>{course}</CourseItem>
+                ))}
+              </CourseList>
+            )}
+            <CloseButtonContainer>
+              <CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton>
+            </CloseButtonContainer>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
     </>
   );
 }

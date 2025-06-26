@@ -148,7 +148,7 @@ const AddTestimonial = () => {
         navigate("/admin/web-management/testinomial", {
           state: { success: true }
         });
-      }, 3000);
+      }, 1000);
   
     } catch (error) {
       console.error("Error uploading testimonial:", error);

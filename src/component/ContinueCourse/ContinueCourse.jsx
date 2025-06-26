@@ -298,7 +298,7 @@ const ContinueCourse = () => {
                         _id: test._id,
                         lectureName: test.title || `Mock Test ${idx + 1}`,
                         description: test.description || "Mock test for practice",
-                        duration: `${test.totalQuestions || "N/A"} Questions | ${test.duration || "N/A"} mins`,
+                        duration: `${test.number_of_questions || "N/A"} Questions | ${test.duration || "N/A"} mins`,
                         videoUrl: "#"
                     }))
                 };

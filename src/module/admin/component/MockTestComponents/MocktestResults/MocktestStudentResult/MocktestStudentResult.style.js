@@ -80,3 +80,25 @@ export const SubmitButton = styled.button`
     background-color: #45a049;
   }
 `;
+
+
+export const SaveButton = styled.button`
+  margin-top: 10px;
+  padding: 6px 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+`;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+`;
