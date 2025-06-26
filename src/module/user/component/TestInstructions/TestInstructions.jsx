@@ -287,7 +287,6 @@
 
 // export default TestInstructions;
 // src/module/user/component/TestInstructions/TestInstructions.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -302,11 +301,24 @@ import {
   Checkbox,
   CheckboxLabel,
   ReadyBtn,
-  StartButton
+  StartButton,
+  TestCard,
+  TestDetails,
+  DetailItem,
+  IconWrapper,
+  TimeIcon,
+  QuestionIcon,
+  TypeIcon,
+  RulesSection,
+  ImportantNote,
+  NoteIcon,
+  TipsSection,
+  TipItem
 } from "./TestInstructions.styles";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMocktestById, startMocktest } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
+import { FaClock, FaListOl, FaQuestionCircle, FaExclamationTriangle, FaLightbulb } from "react-icons/fa";
 
 export default function TestInstructions() {
   const { testId, subjectId } = useParams();
@@ -337,7 +349,6 @@ export default function TestInstructions() {
       if (!res.success) {
         throw new Error(res.message || "Could not start test");
       }
-      // here res.data is your attempt object
       const attempt = res.data;
       navigate(`/test-question/${testId}/${subjectId}/${attempt._id}`);
     } catch (err) {
@@ -353,27 +364,96 @@ export default function TestInstructions() {
     new Set(mockTest.questions.map(q => q.type === "mcq" ? "MCQs" : "Subjective"))
   );
 
+  // Calculate question type counts
+  const mcqCount = mockTest.questions.filter(q => q.type === "mcq").length;
+  const subjectiveCount = mockTest.questions.filter(q => q.type === "subjective").length;
+
   return (
     <Container>
-      <Title>All the best!!</Title>
+      <Title>Mock Test Instructions</Title>
+      
+      <TestCard>
+        <TestDetails>
+          <DetailItem>
+            <IconWrapper>
+              <TimeIcon><FaClock /></TimeIcon>
+            </IconWrapper>
+            <div >
+              <h4>Duration</h4>
+              <h5>{mockTest.duration} minutes</h5>
+            </div>
+          </DetailItem>
+          
+          <DetailItem>
+            <IconWrapper>
+              <QuestionIcon><FaListOl /></QuestionIcon>
+            </IconWrapper>
+            <div>
+              <h4>Total Questions</h4>
+              <p>{mockTest.questions.length}</p>
+            </div>
+          </DetailItem>
+          
+          <DetailItem>
+            <IconWrapper>
+              <TypeIcon><FaQuestionCircle /></TypeIcon>
+            </IconWrapper>
+            <div>
+              <h4>Question Types</h4>
+              <p>
+                {mcqCount > 0 && `${mcqCount} MCQs`}
+                {mcqCount > 0 && subjectiveCount > 0 && ", "}
+                {subjectiveCount > 0 && `${subjectiveCount} Subjective`}
+              </p>
+            </div>
+          </DetailItem>
+        </TestDetails>
+      </TestCard>
+
       <InstructionsContainer>
         <Instructions>
-          <SectionTitle>General Instructions</SectionTitle>
+          <SectionTitle>Test Guidelines</SectionTitle>
           <List>
             <ListItem>
-              Test Duration:
-              <SubList><li>{mockTest.duration} minutes</li></SubList>
+              <strong>Navigation:</strong> Use the navigation buttons to move between questions.
             </ListItem>
             <ListItem>
-              Sections & Types:
-              <SubList>
-                <li>Total questions: {mockTest.questions.length}</li>
-                <li>Types: {questionTypes.join(", ")}</li>
-              </SubList>
+              <strong>Time Management:</strong> The timer will be visible throughout the test.
+            </ListItem>
+            <ListItem>
+              <strong>Submission:</strong> All answers are auto-saved. Submit when finished.
             </ListItem>
           </List>
+
+          <RulesSection>
+            <SectionTitle>Rules & Regulations</SectionTitle>
+            <List>
+              <ListItem>Do not refresh or close the browser during the test.</ListItem>
+              <ListItem>All questions are mandatory unless specified otherwise.</ListItem>
+              <ListItem>Use of external resources is strictly prohibited.</ListItem>
+            </List>
+          </RulesSection>
+
+          <ImportantNote>
+            <NoteIcon><FaExclamationTriangle /></NoteIcon>
+            <div>
+              <strong>Important:</strong> Once started, you cannot pause the test. 
+              The timer will continue running even if you close the browser.
+            </div>
+          </ImportantNote>
+
+          <TipsSection>
+            <SectionTitle><FaLightbulb /> Helpful Tips</SectionTitle>
+            <List>
+              <TipItem>Read each question carefully before answering.</TipItem>
+              <TipItem>Manage your time wisely - don't spend too long on one question.</TipItem>
+              <TipItem>For MCQs, eliminate obviously wrong options first.</TipItem>
+              <TipItem>Review your answers if time permits.</TipItem>
+            </List>
+          </TipsSection>
         </Instructions>
       </InstructionsContainer>
+
       <CheckboxContainer>
         <Checkbox
           id="accept"
@@ -382,12 +462,13 @@ export default function TestInstructions() {
           onChange={() => setAccepted(a => !a)}
         />
         <CheckboxLabel htmlFor="accept">
-          I accept the terms and conditions.
+          I have read and understood all the instructions. I agree to abide by the test rules.
         </CheckboxLabel>
       </CheckboxContainer>
+
       <ReadyBtn>
         <StartButton disabled={!accepted} onClick={handleStart}>
-          I am Ready to Begin
+          Start Test Now
         </StartButton>
       </ReadyBtn>
     </Container>

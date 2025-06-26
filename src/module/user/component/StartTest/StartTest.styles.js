@@ -5,7 +5,6 @@ export const CardContainer = styled.div`
   margin: 60px auto;
   text-align: center;
   font-family: 'Segoe UI', sans-serif;
-
    @media (max-width: 1024px) {
       margin: 40px auto;
   }
@@ -21,7 +20,7 @@ export const Title = styled.h2`
 background: linear-gradient(to right, #00c6ff, #0072ff);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
-  padding: 10px;
+  padding: 20px;
   margin-top: 0px;
   margin-bottom: 20px;
   text-align: center;
@@ -36,7 +35,7 @@ background: linear-gradient(to right, #00c6ff, #0072ff);
 `;
 
 export const Card = styled.div`
-  padding: 2px; /* Thickness of the border */
+  padding: 20px; /* Thickness of the border */
   border-radius: 12px;
   background: linear-gradient(90deg, #00c6ff, #0072ff); 
 
@@ -62,7 +61,7 @@ export const TestName = styled.h3`
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 0px;
-    margin-top: 10px;
+    margin-top: 20px;
   color: #000000;
   text-align: left;
   line-height: 28px;
@@ -70,9 +69,9 @@ export const TestName = styled.h3`
 
 export const Subject = styled.p`
   font-size: 20px;
-  font-weight: 400;
-  color: #444;
-  margin-top: 0;
+  font-weight: 600;
+  color: #000000;
+  margin-top: 20px;
   margin-bottom: 20px;
   line-height: 1.4;
   text-align: left;
@@ -91,7 +90,7 @@ export const DetailsList = styled.ul`
 export const DetailItem = styled.li`
   font-size: 18px;
   font-weight: 400;
-  color: #555;
+  color: #000;
   margin-bottom: 8px;
 `;
 

@@ -47,7 +47,7 @@ const StartTest = () => {
         <Subject>Subject: {test.subject?.subjectName || "General"}</Subject>
         <DetailsList>
           <DetailItem>Duration: {test.duration} minutes</DetailItem>
-          <DetailItem>Total Questions: {test.totalQuestions}</DetailItem>
+          <DetailItem>Total Questions: {test.number_of_questions}</DetailItem>
           {test.description && <DetailItem>Description: {test.description}</DetailItem>}
         </DetailsList>
       </Card>

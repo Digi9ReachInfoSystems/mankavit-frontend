@@ -161,3 +161,70 @@ export const StartButton = styled.button`
     padding: 16px;
   }
 `;
+export const DetailItem = styled.li`
+display: flex;
+flex-direction: row;
+justify-content: flex-start;
+  font-size: 18px;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: 8px;
+`;
+
+export const IconWrapper = styled.div`
+  margin-right: 10px;
+`;
+
+export const ImportantNote = styled.p`
+  margin-top: 20px;
+  color: #FF0000;
+  font-size: 16px;
+  font-weight: 400;
+`;
+export const NoteIcon = styled.i`
+  margin-right: 10px;
+`;
+
+export const QuestionIcon = styled.i`
+  margin-right: 10px;
+`;
+
+export const RulesSection = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;
+
+export const TestCard = styled.div`
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+`;
+
+export const TestDetails = styled.div`
+  margin-bottom: 20px;
+`;
+export const TimeIcon = styled.i`
+  margin-right: 10px;
+`;
+
+export const TipItem  = styled.li`
+  font-size: 18px;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: 8px;
+`;
+
+export const TipsSection = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;
+
+export const TypeIcon = styled.i`
+  margin-right: 10px;
+`;
+
+
+
+// export const
