@@ -38,9 +38,13 @@ const AddCategory = () => {
       toast.success("Category Added");
       toast.success("The category was successfully created.");
       setTimeout(() => navigate("/admin/category-management"), 1000);
-    } catch (error) {
-      console.error("Error creating category:", error); // 👈 Full error log
-      toast.error("Failed to Add Category, Please try again");
+    } catch (err) {
+      console.error(err)
+           if (err.status == 400 && err.response?.data?.message === "Category with this title already exists") {
+             toast.error("Category with this title already exists")
+           } else {
+             toast.error("Failed to create Category.Please try again");
+           }
     }
   };
 

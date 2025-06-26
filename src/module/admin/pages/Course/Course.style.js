@@ -298,3 +298,9 @@ export const ToastContainer = styled.div`
   right: 20px;
   z-index: 9999;
 `;
+
+export const CloseButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+`;

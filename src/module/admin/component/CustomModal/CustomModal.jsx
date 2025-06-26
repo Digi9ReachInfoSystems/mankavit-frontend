@@ -67,7 +67,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
 
     if (type === "students" || type === "enrolled") {
       return data.map((student, index) => (
-        <MocktestItem key={index}>{student.name}</MocktestItem>
+        <MocktestItem key={index}>{student.displayName}</MocktestItem>
       ));
     }
 
@@ -138,6 +138,18 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           </MocktestItem>
         );
       });
+             }
+             if(type === "mockTests") {
+              return data.map((mockTest, index) => (
+                <MocktestItem key={index}>
+                  <Link
+                      to={`/admin/subject-management/view/${mockTest._id}`}
+                      className="subject-link"
+                  >
+                    {mockTest.title}
+                  </Link>
+                </MocktestItem>
+              ));
              }
 
     return data.map((item, index) => (
