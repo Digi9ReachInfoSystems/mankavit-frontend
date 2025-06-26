@@ -127,7 +127,7 @@ const EditWhyStudyWithUs = () => {
       });
 
       toast.success('Updated successfully!');
-      setTimeout(() => navigate('/admin/web-management/why-study-with-us'), 5000);
+      setTimeout(() => navigate('/admin/web-management/why-study-with-us'), 1000);
     } catch (err) {
       console.error(err);
       const msg =

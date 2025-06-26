@@ -107,7 +107,7 @@ export default function EditLecturer() {
       const response = await updateLectureById(id, payload);
       if (response.success) {
         toast.success("Lecture updated successfully!");
-        setTimeout(() => navigate("/admin/lecturer-management"), 3000);
+        setTimeout(() => navigate("/admin/lecturer-management"), 1000);
       } else {
         throw new Error(response.message || "Failed to update lecture");
       }

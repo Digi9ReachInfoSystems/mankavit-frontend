@@ -6,7 +6,8 @@ import {
   Label,
   TextInput,
   TextArea,
-  SubmitButton
+  SubmitButton,
+  ErrorText
 } from '../AddFaq/AddFaq.style';
 import { createFaq } from '../../../../../../api/faqApi';
 import { useNavigate } from 'react-router-dom';
@@ -17,35 +18,35 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddFaq = ({ onAdd }) => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [errors, setErrors] = useState({ question: '', answer: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const validate = () => {
+    const errs = { question: '', answer: '' };
+    if (!question.trim()) errs.question = 'Question is required';
+    if (!answer.trim())   errs.answer   = 'Answer is required';
+    setErrors(errs);
+    return !errs.question && !errs.answer;
+  };
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!question.trim() || !answer.trim()) return;
+    if (!validate()) return;
 
     setLoading(true);
-    setError(null);
-
     try {
-      // call your API
       const newFaq = await createFaq({ question, answer });
-
-      // clear form
       setQuestion('');
       setAnswer('');
+      setErrors({ question: '', answer: '' });
 
-      // notify parent if they passed an onAdd callback
       if (onAdd) onAdd(newFaq);
-
- toast.success('Data added successfully!');
- setTimeout(() => navigate('/admin/web-management/faq'), 3000);
-
+      toast.success('FAQ added successfully!');
+      setTimeout(() => navigate('/admin/web-management/faq'), 1000);
     } catch (err) {
       console.error(err);
-      setError('Failed to add FAQ. Please try again.');
-      toast.error('Failed to add data. Please try again.');
+      toast.error('Failed to add FAQ. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -61,11 +62,15 @@ const AddFaq = ({ onAdd }) => {
             id="question"
             placeholder="Enter question"
             value={question}
-          onChange={(e)=>{
-            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-            setQuestion(filteredData);
-          }}
+            onChange={e => {
+              const filtered = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setQuestion(filtered);
+              if (errors.question) {
+                setErrors(prev => ({ ...prev, question: '' }));
+              }
+            }}
           />
+          {errors.question && <ErrorText>{errors.question}</ErrorText>}
         </FormGroup>
 
         <FormGroup>
@@ -75,14 +80,16 @@ const AddFaq = ({ onAdd }) => {
             rows={4}
             placeholder="Enter answer"
             value={answer}
-          onChange={(e)=>{
-            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-            setAnswer(filteredData);
-          }}
+            onChange={e => {
+              const filtered = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setAnswer(filtered);
+              if (errors.answer) {
+                setErrors(prev => ({ ...prev, answer: '' }));
+              }
+            }}
           />
+          {errors.answer && <ErrorText>{errors.answer}</ErrorText>}
         </FormGroup>
-
-        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <SubmitButton type="submit" disabled={loading}>
           {loading ? 'Adding…' : 'Add New FAQ'}
@@ -91,15 +98,8 @@ const AddFaq = ({ onAdd }) => {
 
       <ToastContainer
         position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='colored'
+        autoClose={3000}
+        theme="colored"
       />
     </Container>
   );

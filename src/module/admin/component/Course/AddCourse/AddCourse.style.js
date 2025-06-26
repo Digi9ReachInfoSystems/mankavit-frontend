@@ -133,6 +133,7 @@ export const CheckboxSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
+
 `;
 
 /** Title for each checkbox section (e.g. "Add Notes" and "Add Mock Test") */
@@ -154,7 +155,7 @@ export const CheckboxList = styled.div`
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
   overflow-y: auto;
-  max-height: 80px;
+  max-height: 280px;
 `;
 
 /** A single checkbox + label line */

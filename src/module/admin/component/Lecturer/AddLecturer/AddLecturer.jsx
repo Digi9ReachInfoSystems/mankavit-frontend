@@ -118,7 +118,7 @@ export default function AddLecturer() {
       toast.success("Lecture created successfully");
       setTimeout(() => {
         navigate("/admin/lecturer-management");
-      }, 2000);
+      }, 1000);
 
       setLectureName("");
       setDuration("");

@@ -115,7 +115,9 @@ export default function AllmocktestResults() {
     const minutes = Math.floor(diffSeconds / 60);
     const seconds = diffSeconds % 60;
 
-    return `${minutes} minute(s) and ${seconds} second(s)`;
+    // return `${minutes} minute(s) and ${seconds} second(s)`;
+    // if it is mnore than one minutes then it should be minutes an dif it is more than one secvomnd then it should be seconds
+  return `${minutes} ${minutes > 1 ? "minutes" : "minute"} & ${seconds} ${seconds > 1 ? "seconds" : "second"}`;
   };
 
   // Sorting helpers

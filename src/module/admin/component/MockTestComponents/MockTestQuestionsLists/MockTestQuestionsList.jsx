@@ -27,6 +27,7 @@ import {
   getMocktestById
 } from '../../../../../api/mocktestApi';
 import { useParams } from 'react-router-dom';
+import DeleteModal from '../../../component/DeleteModal/DeleteModal';
 
 // Helper Functions
 const createEmptyOption = () => ({ text: '', marks: 0, isCorrect: false });
@@ -53,43 +54,96 @@ const MockTestQuestionsList = () => {
   const [pages, setPages] = useState([]);
   const [editingRef, setEditingRef] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    type: null, // 'question' or 'page'
+    index: null, // question index or page index
+    pageIndex: null, // for question deletion
+  });
 
   if (!mockTestId) {
     return <div>Error: Mock Test ID not found</div>;
   }
 
   // Load questions from server on mount
-useEffect(() => {
-  const loadQuestions = async () => {
-    try {
-      const response = await getMocktestById(mockTestId);
-      const questionsFromServer = response.data?.questions || [];
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const response = await getMocktestById(mockTestId);
+        const questionsFromServer = response.data?.questions || [];
 
-      // Transform questions to match frontend structure
-      const transformedQuestions = questionsFromServer.map(q => ({
-        text: q.questionText,
-        type: q.type,
-        options: q.options || [],
-        marks: q.marks || 0,
-        _id: q._id,
-      }));
+        // Transform questions to match frontend structure
+        const transformedQuestions = questionsFromServer.map(q => ({
+          text: q.questionText,
+          type: q.type,
+          options: q.options || [],
+          marks: q.marks || 0,
+          _id: q._id,
+        }));
 
-      const initialPages = groupIntoPages(transformedQuestions);
-      setPages(initialPages);
-      setLoading(false);
-    } catch (error) {
-      console.error("Failed to load questions", error);
-      alert("Could not load existing questions");
-      setLoading(false);
-    }
-  };
+        const initialPages = groupIntoPages(transformedQuestions);
+        setPages(initialPages);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to load questions", error);
+        alert("Could not load existing questions");
+        setLoading(false);
+      }
+    };
 
-  loadQuestions();
-}, [mockTestId]);
+    loadQuestions();
+  }, [mockTestId]);
 
   const addPage = () => setPages(prev => [...prev, { questions: [] }]);
-  const deletePage = (pi) =>
-    setPages(prev => prev.filter((_, i) => i !== pi));
+
+  const handleDeletePage = (pi) => {
+    setDeleteModal({
+      isOpen: true,
+      type: 'page',
+      index: pi,
+      pageIndex: null,
+    });
+  };
+
+  const handleDeleteQuestion = (pi, qi) => {
+    setDeleteModal({
+      isOpen: true,
+      type: 'question',
+      index: qi,
+      pageIndex: pi,
+    });
+  };
+
+  const confirmDelete = async () => {
+    const { type, index, pageIndex } = deleteModal;
+    
+    try {
+      if (type === 'question') {
+        const questionId = pages[pageIndex].questions[index]._id;
+        if (questionId) {
+          await removemocktestquestions(questionId, mockTestId);
+          console.log('Question removed successfully', questionId);
+        }
+
+        setPages(prev => {
+          const copy = [...prev];
+          copy[pageIndex].questions.splice(index, 1);
+          // Remove page if it's now empty
+          if (copy[pageIndex].questions.length === 0) {
+            return copy.filter((_, i) => i !== pageIndex);
+          }
+          return copy;
+        });
+      } else if (type === 'page') {
+        setPages(prev => prev.filter((_, i) => i !== index));
+      }
+    } catch (error) {
+      alert('Failed to remove item');
+      console.error(error);
+    } finally {
+      setDeleteModal({ isOpen: false, type: null, index: null, pageIndex: null });
+    }
+  };
 
   const addQuestion = (pi = 0) => {
     setPages(prev => {
@@ -106,36 +160,34 @@ useEffect(() => {
     });
   };
 
-  const deleteQuestion = async (pi, qi) => {
-    const questionId = pages[pi].questions[qi]._id;
-    if (questionId) {
-      try {
-        await removemocktestquestions(questionId, mockTestId);
-        console.log('Question removed successfully', questionId);
-      } catch (error) {
-        alert('Failed to remove question');
-        console.error(error);
-      }
-    }
-
+  const moveQuestion = (pi, qi, dir) => {
     setPages(prev => {
-      const copy = [...prev];
-      copy[pi].questions.splice(qi, 1);
-      return copy;
+      const newPages = [...prev];
+      const newQi = dir === 'up' ? qi - 1 : qi + 1;
+      
+      // Check if new position is valid
+      if (newQi < 0 || newQi >= newPages[pi].questions.length) {
+        return prev; // No change if move is invalid
+      }
+      
+      // Create a new array for questions
+      const newQuestions = [...newPages[pi].questions];
+      
+      // Swap the questions
+      [newQuestions[qi], newQuestions[newQi]] = [
+        newQuestions[newQi], 
+        newQuestions[qi]
+      ];
+      
+      // Update the page with new questions
+      newPages[pi] = {
+        ...newPages[pi],
+        questions: newQuestions
+      };
+      
+      return newPages;
     });
   };
-
-  const moveQuestion = (pi, qi, dir) =>
-    setPages(prev => {
-      const copy = [...prev];
-      const swap = dir === 'up' ? qi - 1 : qi + 1;
-      if (swap < 0 || swap >= copy[pi].questions.length) return prev;
-      [copy[pi].questions[qi], copy[pi].questions[swap]] = [
-        copy[pi].questions[swap],
-        copy[pi].questions[qi],
-      ];
-      return copy;
-    });
 
   const updateQuestionField = (pi, qi, field, value) =>
     setPages(prev => {
@@ -166,19 +218,39 @@ useEffect(() => {
       prev.map((page, pIdx) =>
         pIdx === pi
           ? {
-              ...page,
-              questions: page.questions.map((question, qIdx) =>
-                qIdx === qi
-                  ? {
-                      ...question,
-                      options: [...question.options, createEmptyOption()],
-                    }
-                  : question
-              ),
-            }
+            ...page,
+            questions: page.questions.map((question, qIdx) =>
+              qIdx === qi
+                ? {
+                  ...question,
+                  options: [...question.options, createEmptyOption()],
+                }
+                : question
+            ),
+          }
           : page
       )
     );
+
+  const deleteOption = (pi, qi, oi) => {
+    setPages(prev =>
+      prev.map((page, pIdx) =>
+        pIdx === pi
+          ? {
+            ...page,
+            questions: page.questions.map((question, qIdx) =>
+              qIdx === qi
+                ? {
+                  ...question,
+                  options: question.options.filter((_, optIdx) => optIdx !== oi),
+                }
+                : question
+            ),
+          }
+          : page
+      )
+    );
+  };
 
   const saveQuestion = async (pi, qi) => {
     const question = pages[pi].questions[qi];
@@ -192,13 +264,25 @@ useEffect(() => {
       payload.expectedAnswer = '';
       payload.marks = Number(question.marks) || 0;
     } else {
-      payload.options = question.options.map(opt => ({
+      // Filter out empty options (where text is empty or whitespace)
+      const validOptions = question.options.filter(opt =>
+        opt.text && opt.text.trim() !== ''
+      );
+
+      // If no valid options, show error and return
+      if (validOptions.length === 0) {
+        alert('Please add at least one valid option');
+        return;
+      }
+
+      payload.options = validOptions.map(opt => ({
         text: opt.text,
         marks: Number(opt.marks),
       }));
-      const correctIndex = question.options.findIndex(o => o.isCorrect);
+
+      const correctIndex = validOptions.findIndex(o => o.isCorrect);
       payload.correctAnswer = correctIndex >= 0 ? correctIndex : 0;
-      payload.marks = Number(question.options[correctIndex]?.marks) || 0;
+      payload.marks = Number(validOptions[correctIndex]?.marks) || 0;
     }
 
     try {
@@ -254,7 +338,7 @@ useEffect(() => {
             <PageContainer key={pi}>
               <PageHeader>
                 Page {pi + 1} (Total Questions: {page.questions.length})
-                <IconButton onClick={() => deletePage(pi)}>
+                <IconButton onClick={() => handleDeletePage(pi)}>
                   <FaTrash color="red" />
                 </IconButton>
               </PageHeader>
@@ -263,26 +347,30 @@ useEffect(() => {
                 return (
                   <QuestionContainer key={qi}>
                     <Question>
-                      <QuestionNumber>{qi + 1}.{q.text }</QuestionNumber>
+                      <QuestionNumber>{qi + 1}.{q.text}</QuestionNumber>
                       <QuestionActions>
                         <IconButton onClick={() => setEditingRef({ page: pi, q: qi })}>
                           <FaEdit />
                         </IconButton>
-                        <IconButton onClick={() => deleteQuestion(pi, qi)}>
+                        <IconButton onClick={() => handleDeleteQuestion(pi, qi)}>
                           <FaTrash color="red" />
                         </IconButton>
-                        {/* <PageControl>
-                          {qi > 0 && (
-                            <IconButton onClick={() => moveQuestion(pi, qi, 'up')}>
-                              <FaArrowUp color="green" />
-                            </IconButton>
-                          )}
-                          {qi < page.questions.length - 1 && (
-                            <IconButton onClick={() => moveQuestion(pi, qi, 'down')}>
-                              <FaArrowDown color="red" />
-                            </IconButton>
-                          )}
-                        </PageControl> */}
+                        <PageControl>
+                          <IconButton 
+                            onClick={() => moveQuestion(pi, qi, 'up')} 
+                            disabled={qi === 0}
+                            title="Move question up"
+                          >
+                            <FaArrowUp color={qi === 0 ? "gray" : "green"} />
+                          </IconButton>
+                          <IconButton 
+                            onClick={() => moveQuestion(pi, qi, 'down')} 
+                            disabled={qi === page.questions.length - 1}
+                            title="Move question down"
+                          >
+                            <FaArrowDown color={qi === page.questions.length - 1 ? "gray" : "red"} />
+                          </IconButton>
+                        </PageControl>
                       </QuestionActions>
                     </Question>
                     {isThisEditing && (
@@ -312,7 +400,10 @@ useEffect(() => {
                             placeholder="Type your question here…"
                             value={q.text}
                             rows={4}
-                            style={{ width: '100%' }}
+                            style={{ width: '100%',
+                              padding: '0.5rem',
+                               fontSize: '16px',
+                             }}
                             onChange={(e) =>
                               updateQuestionField(pi, qi, 'text', e.target.value)
                             }
@@ -326,9 +417,10 @@ useEffect(() => {
                                 key={oi}
                                 style={{
                                   display: 'grid',
-                                  gridTemplateColumns: '1fr 100px 100px',
+                                  gridTemplateColumns: '1fr 100px 100px 30px',
                                   gap: '0.5rem',
                                   marginBottom: '0.5rem',
+                                  alignItems: 'center',
                                 }}
                               >
                                 <input
@@ -343,6 +435,10 @@ useEffect(() => {
                                       e.target.value
                                     )
                                   }
+                                  style={{ width: '90%',
+                                    padding: '0.5rem',
+                                       fontSize: '16px',
+                                   }}
                                 />
                                 <input
                                   type="number"
@@ -358,12 +454,17 @@ useEffect(() => {
                                       Number(e.target.value)
                                     )
                                   }
+                                     style={{ width: '90%',
+                                    padding: '0.5rem',
+                                    fontSize: '16px',
+                                   }}
                                 />
                                 <label
                                   style={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.25rem',
+                                       fontSize: '16px',
                                   }}
                                 >
                                   <input
@@ -378,9 +479,19 @@ useEffect(() => {
                                         e.target.checked
                                       )
                                     }
+                                       style={{ width: '90%',
+                                    padding: '0.5rem',
+                                       fontSize: '16px',
+                                   }}
                                   />
                                   Correct
                                 </label>
+                                <IconButton
+                                  onClick={() => deleteOption(pi, qi, oi)}
+                                  style={{ color: 'red', padding: '0.25rem' }}
+                                >
+                                  <FaTrash size={14} />
+                                </IconButton>
                               </div>
                             ))}
                             <CreateButton onClick={() => addOption(pi, qi)}>
@@ -436,6 +547,12 @@ useEffect(() => {
           </CreateButton>
         </>
       )}
+
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, type: null, index: null, pageIndex: null })}
+        onDelete={confirmDelete}
+      />
     </MockTestQuestionsListContainer>
   );
 };

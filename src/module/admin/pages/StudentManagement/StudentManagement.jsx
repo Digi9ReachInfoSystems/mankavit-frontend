@@ -81,12 +81,13 @@ export default function StudentManagement() {
       try {
         const [studentResponse, courseResponse] = await Promise.all([
           getAllStudents(), // returns { data: { students: [...] } }
+
           getAllCourses(),  // returns { data: [ { _id, course_name, … }, … ] }
         ]);
 
+        console.log("studentResponse", studentResponse);
         const students = studentResponse.data?.students || [];
         setData(students.sort((a, b) => ts(b) - ts(a)));
-
         const courseMap = {};
         (courseResponse.data || []).forEach((course) => {
           courseMap[course._id] = course.course_name;
@@ -272,7 +273,9 @@ export default function StudentManagement() {
                   <TableCell>
                     {item.phone}
                     <br />
-                    {item.email}
+                    {/* {item.email} */}
+                  {/* email character should be maximum of 30 characters then urts hgsould be ... */}
+                    {item.email.length > 23 ? item.email.substring(0, 20) + "..." : item.email}
                   </TableCell>
                   <TableCell>
                     {(item.subscription?.length || 0)}{" "}

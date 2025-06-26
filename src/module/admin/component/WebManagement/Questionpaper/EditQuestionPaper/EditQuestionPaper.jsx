@@ -147,7 +147,7 @@ const EditQuestionPaper = () => {
       toast.success("Data updated successfully!");
 setTimeout(() => {
   navigate("/admin/web-management/question-paper");
-}, 5000);
+}, 1000);
 
     } catch (error) {
       console.error("Update error:", error);

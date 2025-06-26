@@ -103,7 +103,7 @@ const navigate = useNavigate();
 
         setTimeout(() => {
           navigate("/admin/web-management/achievement");
-        },5000)
+        },1000)
         
 
     } catch (error) {

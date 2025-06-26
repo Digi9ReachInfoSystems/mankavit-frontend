@@ -137,7 +137,7 @@ export default function AddSubject() {
       setThumbnailFile(null);
       setNotesCheckboxes(ns => ns.map(n => ({ ...n, checked: false })));
       setLecturesCheckboxes(ls => ls.map(l => ({ ...l, checked: false })));
-      setTimeout(() => navigate("/admin/subject-management"), 5000);
+      setTimeout(() => navigate("/admin/subject-management"), 1000);
     } catch (err) {
       console.error(err);
       toast.error("Failed to create data.Please try again");
@@ -169,7 +169,7 @@ export default function AddSubject() {
               <Label>Subject Title</Label>
               <Input
                 value={subjectTitle}
-                onChange={e => setSubjectTitle(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+                onChange={e => setSubjectTitle(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
                 placeholder="Enter Subject Title"
               />
             </FieldWrapper>
@@ -177,7 +177,7 @@ export default function AddSubject() {
               <Label>Internal Title</Label>
               <Input
                 value={internalTitle}
-                onChange={e => setInternalTitle(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+                onChange={e => setInternalTitle(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -195,7 +195,7 @@ export default function AddSubject() {
               <Label>Short Description</Label>
               <Input
                 value={shortDescription}
-                onChange={e => setShortDescription(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+                onChange={e => setShortDescription(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
                 placeholder="Enter Short Description"
               />
             </FieldWrapper>

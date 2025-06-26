@@ -63,6 +63,7 @@ useEffect(() => {
     try {
       setLoading(true);
       const res = await getAllYoutube();
+      console.log("res", res);
       let fetched = res.data || [];
 
       // merge new link (avoid duplicate)

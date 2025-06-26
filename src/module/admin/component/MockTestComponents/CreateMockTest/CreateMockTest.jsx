@@ -1,15 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, FormWrapper, FormGroup, Label, Input, Button, FormRow, SubTitle, TextInput,   CheckboxSection,
+import {
+  Container,
+  Title,
+  FormWrapper,
+  FormGroup,
+  Label,
+  Input,
+  Button,
+  FormRow,
+  SubTitle,
+  TextInput,
+  CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
   CheckboxLabel,
-  CheckboxInput, } from './CreateMockTest.styles';
+  CheckboxInput,
+  ErrorText
+} from './CreateMockTest.styles';
 import { createMocktest } from '../../../../../api/mocktestApi';
 import { useNavigate } from 'react-router-dom';
 import { getSubjects } from '../../../../../api/subjectApi';
 
 const CreateMockTest = () => {
-  const [errors, setErrors] = useState([]);
+  // errors keyed by field name
+  const [errors, setErrors] = useState({});
   const [testDetails, setTestDetails] = useState({
     title: '',
     description: '',
@@ -18,7 +32,7 @@ const CreateMockTest = () => {
     startDate: '',
     endDate: '',
     maxAttempts: 1,
-    selectedSubjects: [], 
+    selectedSubjects: [],
   });
 
   const [subjects, setSubjects] = useState([]);
@@ -30,228 +44,194 @@ const CreateMockTest = () => {
     const fetchSubjects = async () => {
       try {
         const response = await getSubjects();
-        // Assuming the API returns an array of subjects with _id and name
-        console.log("Subjects:", response.data);
         setSubjects(response.data);
-        setIsLoadingSubjects(false);
       } catch (error) {
-        console.error("Error fetching subjects", error);
+        console.error('Error fetching subjects', error);
+      } finally {
         setIsLoadingSubjects(false);
-        setErrors(prev => [...prev, 'Failed to load subjects']);
       }
     };
-
     fetchSubjects();
   }, []);
 
   const handleTestDetailChange = (field, value) => {
-    setTestDetails({
-      ...testDetails,
-      [field]: value
-    });
+    setTestDetails(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: '' })); // clear field error on change
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  const newErrors = [];
+  const handleSubjectToggle = subjectId => {
+    setTestDetails(prev => {
+      const set = new Set(prev.selectedSubjects);
+      set.has(subjectId) ? set.delete(subjectId) : set.add(subjectId);
+      return { ...prev, selectedSubjects: Array.from(set) };
+    });
+    setErrors(prev => ({ ...prev, selectedSubjects: '' }));
+  };
 
-  if (!testDetails.title) newErrors.push("Test title is required");
-  if (!testDetails.description) newErrors.push("Test description is required");
-  if (!testDetails.duration) newErrors.push("Duration is required");
-  if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
-  if (!testDetails.maxAttempts) newErrors.push("Max attempts are required");
-  if (!testDetails.startDate) newErrors.push("Start date is required");
-  if (!testDetails.endDate) newErrors.push("End date is required");
-    if (!testDetails.selectedSubjects.length) newErrors.push("At least one subject must be selected");
+  const handleSubmit = async e => {
+    e.preventDefault();
+    const newErrors = {};
 
-  if (newErrors.length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+    if (!testDetails.title) newErrors.title = 'Test title is required';
+    if (!testDetails.description) newErrors.description = 'Description is required';
+    if (!testDetails.duration) newErrors.duration = 'Duration is required';
+    if (!testDetails.passingMarks) newErrors.passingMarks = 'Passing marks are required';
+    if (!testDetails.maxAttempts) newErrors.maxAttempts = 'Max attempts is required';
+    if (!testDetails.startDate) newErrors.startDate = 'Start date is required';
+    if (!testDetails.endDate) newErrors.endDate = 'End date is required';
+    if (!testDetails.selectedSubjects.length) newErrors.selectedSubjects = 'Select at least one subject';
 
-  setErrors([]);
-  setIsSubmitting(true);
-
-  try {
-    const mockTestData = {
-      title: testDetails.title,
-      description: testDetails.description,
-      duration: testDetails.duration,
-      passingMarks: testDetails.passingMarks,
-      maxAttempts: testDetails.maxAttempts,
-      startDate: testDetails.startDate,
-      endDate: testDetails.endDate,
-      subject: testDetails.selectedSubjects,
-    };
-
-    console.log("Mock test data", mockTestData);
-    const response = await createMocktest(mockTestData);
-
-    console.log("API Response:", response.data); // 🔍 Debugging log
-
-    // ✅ Safely extract _id from different possible response structures
-    const mockTestId =
-      response?.data?.mockTest?._id ||
-      response?.data?._id ||
-      response?.mockTest?._id ||
-      response?._id;
-
-    if (!mockTestId) {
-      throw new Error("Server did not return a valid mock test ID");
+    if (Object.keys(newErrors).length) {
+      setErrors(newErrors);
+      return;
     }
 
-    navigate(`/admin/mock-test/questions-list/${mockTestId}`);
-  } catch (error) {
-    console.error("Error creating mock test", error);
-    let errorMessage = 'Failed to create mock test';
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        title: testDetails.title,
+        description: testDetails.description,
+        duration: testDetails.duration,
+        passingMarks: testDetails.passingMarks,
+        maxAttempts: testDetails.maxAttempts,
+        startDate: testDetails.startDate,
+        endDate: testDetails.endDate,
+        subject: testDetails.selectedSubjects,
+      };
+      const response = await createMocktest(payload);
+      const mockTestId = response?.data?.mockTest?._id || response?.data?._id;
+      if (!mockTestId) throw new Error('No test ID returned');
+      navigate(`/admin/mock-test/questions-list/${mockTestId}`);
+    } catch (error) {
+      console.error(error);
+      setErrors({ form: error.response?.data?.message || 'Failed to create mock test' });
+    } finally {
+      setIsSubmitting(false);
     }
-    setErrors([errorMessage]);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-const handleSubjectToggle = (subjectId) => {
-  setTestDetails((prev) => {
-    const set = new Set(prev.selectedSubjects);
-    set.has(subjectId) ? set.delete(subjectId) : set.add(subjectId);
-    return { ...prev, selectedSubjects: Array.from(set) };
-  });
-};
-
+  };
 
   return (
     <Container>
       <Title>Create Mock Test</Title>
 
-      {errors.length > 0 && (
-        <div style={{ color: 'red', marginBottom: '1rem' }}>
-          <ul>
-            {errors.map((err, idx) => (
-              <li key={idx}>{err}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {errors.form && <ErrorText>{errors.form}</ErrorText>}
 
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <FormGroup>
-            <Label htmlFor="title">Title:</Label>
+            <Label htmlFor="title">Title</Label>
             <Input
-              type="text"
               id="title"
               value={testDetails.title}
-              onChange={(e) => handleTestDetailChange("title", e.target.value)}
-              placeholder='Enter test title'
+              onChange={e => handleTestDetailChange('title', e.target.value)}
+              placeholder="Enter test title"
             />
+            {errors.title && <ErrorText>{errors.title}</ErrorText>}
           </FormGroup>
         </FormRow>
-        
+
         <FormRow>
           <FormGroup>
-            <Label htmlFor="description">Description:</Label>
+            <Label htmlFor="description">Description</Label>
             <TextInput
               as="textarea"
               id="description"
               value={testDetails.description}
-              onChange={(e) => handleTestDetailChange("description", e.target.value)}
-              placeholder='Enter test description'
-              required
+              onChange={e => handleTestDetailChange('description', e.target.value)}
+              placeholder="Enter test description"
             />
+            {errors.description && <ErrorText>{errors.description}</ErrorText>}
           </FormGroup>
         </FormRow>
 
-        <SubTitle>Mock Test Settings</SubTitle>
+        <SubTitle>Settings</SubTitle>
 
         <FormRow>
           <FormGroup>
-           <CheckboxSection>
-  <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
-  <CheckboxList>
-    {subjects.map((subject) => (
-      <CheckboxLabel key={subject._id}>
-        <CheckboxInput
-          type="checkbox"
-          checked={testDetails.selectedSubjects.includes(subject._id)}
-          onChange={() => handleSubjectToggle(subject._id)}
-          disabled={isLoadingSubjects}
-        />
-        {subject.subjectDisplayName || subject.subjectName}
-      </CheckboxLabel>
-    ))}
-  </CheckboxList>
-</CheckboxSection>
-
+            <CheckboxSection>
+              <CheckboxSectionTitle>Subjects </CheckboxSectionTitle>
+              <CheckboxList>
+                {subjects.map(sub => (
+                  <CheckboxLabel key={sub._id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={testDetails.selectedSubjects.includes(sub._id)}
+                      onChange={() => handleSubjectToggle(sub._id)}
+                      disabled={isLoadingSubjects}
+                    />
+                    {sub.subjectDisplayName || sub.subjectName}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+              {errors.selectedSubjects && <ErrorText>{errors.selectedSubjects}</ErrorText>}
+            </CheckboxSection>
           </FormGroup>
         </FormRow>
 
         <FormRow>
           <FormGroup>
-            <Label htmlFor="duration">Duration (minutes):</Label>
+            <Label htmlFor="duration">Duration (minutes)</Label>
             <Input
-              type="number"
               id="duration"
-              value={testDetails.duration}
-              onChange={(e) => handleTestDetailChange("duration", e.target.value)}
-              placeholder='Enter duration'
-              required
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label htmlFor="passingMarks">Passing Marks (%):</Label>
-            <Input
               type="number"
+              value={testDetails.duration}
+              onChange={e => handleTestDetailChange('duration', e.target.value)}
+              placeholder="Enter duration"
+            />
+            {errors.duration && <ErrorText>{errors.duration}</ErrorText>}
+          </FormGroup>
+
+          <FormGroup>
+            <Label htmlFor="passingMarks">Passing Marks (%)</Label>
+            <Input
               id="passingMarks"
+              type="number"
               value={testDetails.passingMarks}
-              onChange={(e) => handleTestDetailChange("passingMarks", e.target.value)}
-              placeholder='Enter passing percentage'
+              onChange={e => handleTestDetailChange('passingMarks', e.target.value)}
+              placeholder="Enter passing percentage"
               min="0"
               max="100"
-              required
             />
+            {errors.passingMarks && <ErrorText>{errors.passingMarks}</ErrorText>}
           </FormGroup>
         </FormRow>
 
         <FormRow>
           <FormGroup>
-            <Label htmlFor="maxAttempts">Max Attempts:</Label>
+            <Label htmlFor="maxAttempts">Max Attempts</Label>
             <Input
-              type="number"
               id="maxAttempts"
+              type="number"
               value={testDetails.maxAttempts}
-              onChange={(e) => handleTestDetailChange("maxAttempts", e.target.value)}
-              placeholder='Enter max attempts'
+              onChange={e => handleTestDetailChange('maxAttempts', e.target.value)}
+              placeholder="Enter max attempts"
               min="1"
-              required
             />
+            {errors.maxAttempts && <ErrorText>{errors.maxAttempts}</ErrorText>}
           </FormGroup>
         </FormRow>
 
         <FormRow>
           <FormGroup>
-            <Label htmlFor="startDate">Start Date:</Label>
+            <Label htmlFor="startDate">Start Date</Label>
             <Input
-              type="datetime-local"
               id="startDate"
+              type="datetime-local"
               value={testDetails.startDate}
-              onChange={(e) => handleTestDetailChange("startDate", e.target.value)}
-              required
+              onChange={e => handleTestDetailChange('startDate', e.target.value)}
             />
+            {errors.startDate && <ErrorText>{errors.startDate}</ErrorText>}
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="endDate">End Date:</Label>
+            <Label htmlFor="endDate">End Date</Label>
             <Input
-              type="datetime-local"
               id="endDate"
+              type="datetime-local"
               value={testDetails.endDate}
-              onChange={(e) => handleTestDetailChange("endDate", e.target.value)}
-              required
+              onChange={e => handleTestDetailChange('endDate', e.target.value)}
             />
+            {errors.endDate && <ErrorText>{errors.endDate}</ErrorText>}
           </FormGroup>
         </FormRow>
 
