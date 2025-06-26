@@ -1,4 +1,3 @@
-// src/components/Sidebar/Sidebar.jsx
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp, FaPowerOff } from "react-icons/fa";
@@ -23,27 +22,27 @@ import {
 } from "./Sidebar.style";
 import { getUserByUserId, logoutUser } from "../../api/authApi";
 import { getCookiesData } from "../../utils/cookiesService";
-
+ 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-
+ 
   const menuItems = [
     { path: "/admin", label: "Dashboard" },
     { path: "/admin/student-management", label: "Student Management" },
     { path: "/admin/payment-management", label: "Payment" },
     { path: "/admin/static-page", label: "Static Page" },
   ];
-
+ 
   const mockTestItems = [
     { path: "/admin/mock-test", label: "View Mock Test" },
     { path: "/admin/mock-test/create-mock-test", label: "Create Mock Test" },
     { path: "/admin/results", label: "Results" },
   ];
-
+ 
   const courseManagementItems = [
     { path: "/admin/course-management", label: "Courses" },
     { path: "/admin/subject-management", label: "Subjects" },
@@ -51,10 +50,7 @@ const Sidebar = () => {
     { path: "/admin/category-management", label: "Category" },
     { path: "/admin/lecturer-management", label: "Lectures" },
   ];
-  const meetingsItems = [
-    { path: "/admin/meeting-management", label: "Meeting" },
-  ];
-
+ 
   const webManagementItems = [
     { path: "/admin/web-management/aboutus", label: "About us" },
     { path: "/admin/web-management/question-paper", label: "Question Paper" },
@@ -72,13 +68,18 @@ const Sidebar = () => {
     { path: "/admin/web-management/user-feedback", label: "User Feedback" },
     { path: "/admin/web-management/youtubelinks", label: "YouTube Links" },
   ];
-
+  const meetingsItems = [
+    { path: "/admin/meeting-management", label: "Meeting" },
+  ];
+ 
   const sections = {
     "Mock Test": mockTestItems,
     "Course Management": courseManagementItems,
     "Web Management": webManagementItems,
+    "Meeting": meetingsItems
   };
 
+ 
   useEffect(() => {
     // Auto‐expand the current section
     const newState = {};
@@ -89,11 +90,11 @@ const Sidebar = () => {
     });
     setOpenSections(newState);
   }, [location.pathname]);
-
+ 
   const toggleSidebar = () => setIsOpen(open => !open);
   const toggleSection = sec =>
     setOpenSections(prev => ({ ...prev, [sec]: !prev[sec] }));
-
+ 
   const handleLogoutClick = () => setShowLogoutModal(true);
   const handleCancelLogout = () => setShowLogoutModal(false);
   const handleConfirmLogout = async () => {
@@ -106,7 +107,7 @@ const Sidebar = () => {
       console.error(err);
     }
   };
-
+ 
   // 💡 Always pass `end` so NavLink is exact-match only
   const renderLink = ({ path, label }, key, indented = false) => (
     <StyledNavLink
@@ -120,7 +121,7 @@ const Sidebar = () => {
       {label}
     </StyledNavLink>
   );
-
+ 
   return (
     <>
       <HamburgerIcon onClick={toggleSidebar}>
@@ -130,13 +131,6 @@ const Sidebar = () => {
       <SidebarContainer isOpen={isOpen}>
         <SidebarTitle>Mankavit</SidebarTitle>
         <MenuList>
-          {menuItems.map((item, index) => renderMenuItem(item, index))}
-          {renderSection("Mock Test", mocktextItems)}
-          {renderSection("Course Management", courseManagementItems)}
-          {renderSection("Meetings Management", meetingsItems
-          )}
-          {renderSection("Web management", webmanagement)}
-          {/* {renderSection("App Management", appManagementItems)} */}
           {menuItems.map((item, i) => renderLink(item, i))}
           {Object.entries(sections).map(([title, items]) => (
             <React.Fragment key={title}>
@@ -167,7 +161,7 @@ const Sidebar = () => {
           </LogoutButton>
         </LogoutContainer>
       </SidebarContainer>
-
+ 
       {showLogoutModal && (
         <ModalOverlay>
           <ModalContainer>
@@ -186,5 +180,5 @@ const Sidebar = () => {
     </>
   );
 };
-
+ 
 export default Sidebar;
