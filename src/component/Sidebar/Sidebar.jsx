@@ -51,6 +51,9 @@ const Sidebar = () => {
     { path: "/admin/category-management", label: "Category" },
     { path: "/admin/lecturer-management", label: "Lectures" },
   ];
+  const meetingsItems = [
+    { path: "/admin/meeting-management", label: "Meeting" },
+  ];
 
   const webManagementItems = [
     { path: "/admin/web-management/aboutus", label: "About us" },
@@ -127,6 +130,13 @@ const Sidebar = () => {
       <SidebarContainer isOpen={isOpen}>
         <SidebarTitle>Mankavit</SidebarTitle>
         <MenuList>
+          {menuItems.map((item, index) => renderMenuItem(item, index))}
+          {renderSection("Mock Test", mocktextItems)}
+          {renderSection("Course Management", courseManagementItems)}
+          {renderSection("Meetings Management", meetingsItems
+          )}
+          {renderSection("Web management", webmanagement)}
+          {/* {renderSection("App Management", appManagementItems)} */}
           {menuItems.map((item, i) => renderLink(item, i))}
           {Object.entries(sections).map(([title, items]) => (
             <React.Fragment key={title}>

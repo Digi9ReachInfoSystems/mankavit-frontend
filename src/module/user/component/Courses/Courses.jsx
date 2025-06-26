@@ -135,8 +135,8 @@ const Courses = () => {
                             <CourseContent>
                                 <CourseMain>
                                     {/* <CourseHead> */}
-                                        <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
-                                        <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle>
+                                    <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
+                                    <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle>
                                     {/* </CourseHead> */}
                                     <CourseDesc>{course.description || 'Course description not available'}</CourseDesc>
                                 </CourseMain>
@@ -158,9 +158,24 @@ const Courses = () => {
                             <PriceActions>
                                 <ViewButton
                                     completed={course.course_status === "completed"}
-                                    onClick={() => navigate(`/continueCourse/${course._id}`)}
+                                    onClick={() => {
+                                        if (course.kycStatus) {
+                                            navigate(`/continueCourse/${course._id}`)
+                                        } else {
+                                            if (course.userKycStatus == "not-applied" || course.userKycStatus == "rejected") {
+                                                navigate(`/kyc`)
+                                            } else {
+                                                navigate(`/continueCourse/${course._id}`)
+                                            }
+                                        }
+
+
+                                    }
+                                    }
                                 >
-                                    {course.course_status === "completed" ? 'Completed' : 'Continue Learning'}
+                                    {
+                                        course.kycStatus ? (course.course_status === "completed" ? 'Completed' : 'Continue Learning') : course.userKycStatus == "not-applied" || course.userKycStatus == "rejected" ? "Complete KYC to continue" : "Continue Learning"
+                                    }
                                 </ViewButton>
 
                             </PriceActions>

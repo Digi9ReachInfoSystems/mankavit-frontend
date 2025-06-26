@@ -134,6 +134,9 @@ import ViewMockTestResult from './module/admin/component/MockTestComponents/Mock
 import EditMockTestResult from './module/admin/component/MockTestComponents/MocktestResults/EditmocktestResults/EditmocktestResults'
 import StudentResults from './module/admin/component/MockTestComponents/MocktestResults/AllmocktestResults/StudentResult/StudentResult'
 import MocktestStudentResult from './module/admin/component/MockTestComponents/MocktestResults/MocktestStudentResult/MocktestStudentResult'
+import Meeting from './module/admin/pages/Meeting/Meeting'
+import AddMeeting from './module/admin/pages/AddMeeting/AddMeeting'
+import ZoomMeeting from './pages/ZoomMeeting/ZoomMeeting'
 function App() {
 
   return (
@@ -175,7 +178,7 @@ function App() {
 
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
           <Route path='/courseComplte/:courseId' element={<CourseCompletionPage />} />
-
+          <Route path='/zoom-meeting' element={<ZoomMeeting/>} />  
           <Route path="/user" element={<UserBaseLayout />}>
             <Route index element={<UserDashboard />} />t
             <Route path="profile/:id" element={<Profile />} />
@@ -185,6 +188,7 @@ function App() {
             <Route path="notification" element={<UserNotifications />} />
 
             <Route path="completed-courses" element={<CompletedCoursesPage />} />
+         
             {/* </Route> */}
 
           </Route>
@@ -198,6 +202,9 @@ function App() {
             <Route path="course-management/create" element={<AddCourse />} />
             <Route path="course-management/edit/:id" element={<EditCourse />} />
             <Route path="course-management/view/:id" element={<ViewCourse />} />
+
+            <Route path="meeting-management" element={<Meeting/>} />
+            <Route path="meeting-management/create" element={<AddMeeting/>} />
 
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />

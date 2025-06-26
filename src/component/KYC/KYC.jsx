@@ -86,7 +86,7 @@ const KYC = () => {
       // const { url } = await uploadFileToAzureStorage(file, 'users');
       setUploadedIDProof({ name: file.name, file, type: file.type });
     } catch {
-      alert('Upload failed');
+      toast.error('Upload failed');
     } finally {
       setIsLoading(false);
     }

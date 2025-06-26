@@ -2,19 +2,79 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Favicon -->
     <link
       rel="icon"
       type="image/svg+xml"
-      href="./src//assets/mankavith-login-logo.svg"
+      href="./src/assets/mankavith-login-logo.svg"
     />
-    <link rel="stylesheet" href="https://source.zoom.us/3.13.5/css/zoom.css" />
+
+    <!-- Zoom Meeting SDK Required CSS -->
+    <link
+      rel="stylesheet"
+      href="https://source.zoom.us/3.13.5/css/bootstrap.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://source.zoom.us/3.13.5/css/react-select.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://source.zoom.us/3.13.5/css/zoom.css"
+    />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mankavit</title>
+
+    <!-- Optional: Custom global style -->
+    <style>
+      html,
+      body,
+      #root {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      #zmmtg-root {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #fff;
+      }
+
+      @keyframes blink {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
   </head>
+
   <body>
+    <!-- React App Mount Point -->
     <div id="root"></div>
+
+    <!-- Zoom Meeting SDK Required Root Containers -->
+    <div id="zmmtg-root"></div>
+    <div id="aria-notify-area"></div>
+
+    <!-- React Entry Point -->
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Razorpay SDK (if used in your app) -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </body>
 </html>

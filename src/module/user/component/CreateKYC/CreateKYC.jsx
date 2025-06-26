@@ -18,6 +18,7 @@ import {
 import Header from '../../../../pages/LandingPage/LandingHeader/LandingHeader';
 import Footer from '../../../../pages/LandingPage/Footer/Footer';
 import { FcOk } from "react-icons/fc";
+import { toast } from 'react-toastify';
 
 const CreateKYC = () => {
   const [fullName, setFullName] = useState('');
@@ -85,7 +86,7 @@ const CreateKYC = () => {
       photo
     });
 
-    alert('KYC submitted successfully!');
+    toast.success("KYC submitted successfully!");
   };
 
   return (
