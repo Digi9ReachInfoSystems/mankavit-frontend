@@ -17,3 +17,12 @@ export const getAllStudents = () => {
     throw error;
    }
 };
+
+export const verifyUser = (data) => {
+   try{
+    const response = api.post("/user/verifyRoles", data);
+    return response;
+   }catch(error){
+    throw error;
+   }
+}; 

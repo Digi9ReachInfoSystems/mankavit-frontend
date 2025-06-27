@@ -28,6 +28,7 @@ export const updateAccessToken = async () => {
         if (!coookies) {
             return;
         }   
+        console.log("coookies",coookies);
         if (coookies?.refreshToken) {
             const response = await api.post('/user/refreshToken',{refreshToken:coookies.refreshToken});
             if (response.status === 200) {  
