@@ -65,6 +65,7 @@ const Login = () => {
                 document.cookie = `accessToken=${accessToken}; path=/; max-age=604800;`;
                 document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800;`;
                 document.cookie = `userId=${userId}; path=/; max-age=604800;`;
+               
                 if (userResponse.user.role === 'user') {
                     navigate('/user');
                 } if (userResponse.user.role === 'admin') {

@@ -137,6 +137,9 @@ import MocktestStudentResult from './module/admin/component/MockTestComponents/M
 import Meeting from './module/admin/pages/Meeting/Meeting'
 import AddMeeting from './module/admin/pages/AddMeeting/AddMeeting'
 import ZoomMeeting from './pages/ZoomMeeting/ZoomMeeting'
+import ProtectedRoute from './pages/ProtectedAndPublicRoutes/ProtectedRoute'
+import PublicRoute from './pages/ProtectedAndPublicRoutes/PublicRoute'
+import UserRoute from './pages/ProtectedAndPublicRoutes/UserRoutes'
 function App() {
 
   return (
@@ -145,41 +148,41 @@ function App() {
         <GlobalStyle />
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/loginOtp" element={<OtpLogin />} />
-          <Route path='/signup' element={<SignUp />} />
+          <Route path='/signup' element={<PublicRoute><SignUp /></PublicRoute>} />
           <Route path="/signupOtp" element={<OtpSignup />} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/aboutus" element={<AboutUs />} />
-          <Route path="/ourcourses" element={<OurCourses />} />
-          <Route path="/coursedetails/:id" element={<CourseDetails />} />
-          <Route path="/why-entrance-courses" element={<WhyEntranceCourses />} />
-          <Route path='/results' element={<Results />} />
-          <Route path="/prev-years-question" element={<PrevYearsQuestion />} />
-          <Route path="/ourcoursedetails" element={<OurCoursesDetails />} />
-          <Route path="/course/liveclass/:courseId/:subjectid/:lectureId" element={<CoursesLiveclassPage />} />
+          <Route path="/" element={<UserRoute><LandingPage /></UserRoute>} />
+          <Route path="/aboutus" element={<UserRoute><AboutUs /></UserRoute>} />
+          <Route path="/ourcourses" element={<UserRoute><OurCourses /></UserRoute>} />
+          <Route path="/coursedetails/:id" element={<UserRoute><CourseDetails /></UserRoute>} />
+          <Route path="/why-entrance-courses" element={<UserRoute><WhyEntranceCourses /></UserRoute>} />
+          <Route path='/results' element={<UserRoute><Results /></UserRoute>} />
+          <Route path="/prev-years-question" element={<UserRoute><PrevYearsQuestion /></UserRoute>} />
+          <Route path="/ourcoursedetails" element={<UserRoute> <OurCoursesDetails /> </UserRoute>} />
+          <Route path="/course/liveclass/:courseId/:subjectid/:lectureId" element={<UserRoute><CoursesLiveclassPage /></UserRoute>} />
 
-          <Route path="/coursedetails/completed-courses" element={<CompletedCoursesPage />} />
-          <Route path='/continueCourse/:id' element={<ContinueCoursePage />} />
-          <Route path='/kyc' element={<KYCpage />} />
-          <Route path="/userblog" element={<UserBlog />} />
-          <Route path='/userblog/post/:id' element={<ReadPost />} />
-          <Route path="/test" element={<Test />} />
+          <Route path="/coursedetails/completed-courses" element={<UserRoute><CompletedCoursesPage /></UserRoute>} />
+          <Route path='/continueCourse/:id' element={<UserRoute><ContinueCoursePage /></UserRoute>} />
+          <Route path='/kyc' element={<UserRoute><KYCpage /></UserRoute>} />
+          <Route path="/userblog" element={<UserRoute><UserBlog /></UserRoute>} />
+          <Route path='/userblog/post/:id' element={<UserRoute><ReadPost /></UserRoute>} />
+          <Route path="/test" element={<UserRoute><Test /></UserRoute>} />
 
-          <Route path='/start-test/:testId/:subjectId' element={<StarttestPage />} />
-          <Route path='/test-instructions/:testId/:subjectId' element={<TestInstructionsPage />} />
-          <Route path='/test-submitted' element={<TestsubmittedPage />} />
-          <Route path='/exam-summary' element={<ExamSummary />} />
-          <Route path='/test-results/:testId/:subjectId/:attemptId' element={<TestResults />} />
-
-
-          <Route path='/createkyc' element={<CreateKYC />} />
+          <Route path='/start-test/:testId/:subjectId' element={<UserRoute><StarttestPage /></UserRoute>} />
+          <Route path='/test-instructions/:testId/:subjectId' element={<UserRoute><TestInstructionsPage /></UserRoute>} />
+          <Route path='/test-submitted' element={<UserRoute><TestsubmittedPage /></UserRoute>} />
+          <Route path='/exam-summary' element={<UserRoute><ExamSummary /></UserRoute>} />
+          <Route path='/test-results/:testId/:subjectId/:attemptId' element={<UserRoute><TestResults /></UserRoute>} />
 
 
-          <Route path='/test-question/:testId/:subjectId/:attemptId' element={<TextQuestionPage />} />
-          <Route path='/courseComplte/:courseId' element={<CourseCompletionPage />} />
-          <Route path='/zoom-meeting' element={<ZoomMeeting/>} />  
-          <Route path="/user" element={<UserBaseLayout />}>
+          <Route path='/createkyc' element={<UserRoute><CreateKYC /></UserRoute>} />
+
+
+          <Route path='/test-question/:testId/:subjectId/:attemptId' element={<UserRoute><TextQuestionPage /></UserRoute>} />
+          <Route path='/courseComplte/:courseId' element={<UserRoute><CourseCompletionPage /></UserRoute>} />
+          <Route path='/zoom-meeting' element={<ZoomMeeting />} />
+          <Route path="/user" element={<ProtectedRoute roles={['user']}><UserBaseLayout /></ProtectedRoute>}>
             <Route index element={<UserDashboard />} />t
             <Route path="profile/:id" element={<Profile />} />
             <Route path="tandc" element={<TandC />} />
@@ -188,7 +191,7 @@ function App() {
             <Route path="notification" element={<UserNotifications />} />
 
             <Route path="completed-courses" element={<CompletedCoursesPage />} />
-         
+
             {/* </Route> */}
 
           </Route>
@@ -196,15 +199,15 @@ function App() {
 
 
 
-          <Route path="/admin" element={<BaseLayout />}>
+          <Route path="/admin" element={<ProtectedRoute roles={['admin']}><BaseLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="course-management" element={<Course />} />
             <Route path="course-management/create" element={<AddCourse />} />
             <Route path="course-management/edit/:id" element={<EditCourse />} />
             <Route path="course-management/view/:id" element={<ViewCourse />} />
 
-            <Route path="meeting-management" element={<Meeting/>} />
-            <Route path="meeting-management/create" element={<AddMeeting/>} />
+            <Route path="meeting-management" element={<Meeting />} />
+            <Route path="meeting-management/create" element={<AddMeeting />} />
 
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
@@ -309,7 +312,7 @@ function App() {
 
             <Route path="web-management/user-feedback" element={<UserFeedback />} />
             <Route path="web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
-            
+
             <Route path='web-management/youtubelinks' element={<YouTube />} />
             <Route path='web-management/youtubelinks/create' element={<AddYoutube />} />
             <Route path='web-management/youtubelinks/edit/:id' element={<EditYoutube />} />
