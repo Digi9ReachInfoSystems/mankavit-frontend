@@ -1,8 +1,9 @@
 // src/components/routes/PublicRoute.jsx
-import React,{ useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { getAuth } from '../../utils/authService';
-
+import Lottie from "lottie-react";
+import loadingAnimation from "../../assets/Lottie/loading.json";
 
 const PublicRoute = ({ children }) => {
 
@@ -34,20 +35,28 @@ const PublicRoute = ({ children }) => {
     }, []);
 
     if (authStatus.isLoading) {
-        return <div>Loading...</div>; // Or a loading spinner
+        return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <Lottie
+                className="Lottie"
+                animationData={loadingAnimation}
+                loop={true}
+                style={{ width: "100%", height: "100%" }}
+            />
+        </div>; // Or a loading spinner
     }
-    if(authStatus.isAuthenticated){
-      if(authStatus.role === "user"){
-        return <Navigate to="/user" />
-    
-       }else if(authStatus.role === "admin"){
-        return <Navigate to="/admin" />
-       }
-      }else{
-        return children;
-      }
 
-    
+    if (authStatus.isAuthenticated) {
+        if (authStatus.role === "user") {
+            return <Navigate to="/user" />
+
+        } else if (authStatus.role === "admin") {
+            return <Navigate to="/admin" />
+        }
+    } else {
+        return children;
+    }
+
+
 };
 
 export default PublicRoute;
