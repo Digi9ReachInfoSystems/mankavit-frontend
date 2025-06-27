@@ -140,6 +140,7 @@ import ZoomMeeting from './pages/ZoomMeeting/ZoomMeeting'
 import ProtectedRoute from './pages/ProtectedAndPublicRoutes/ProtectedRoute'
 import PublicRoute from './pages/ProtectedAndPublicRoutes/PublicRoute'
 import UserRoute from './pages/ProtectedAndPublicRoutes/UserRoutes'
+import NotFound from './pages/NotFound/NotFound'
 function App() {
 
   return (
@@ -182,6 +183,7 @@ function App() {
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<UserRoute><TextQuestionPage /></UserRoute>} />
           <Route path='/courseComplte/:courseId' element={<UserRoute><CourseCompletionPage /></UserRoute>} />
           <Route path='/zoom-meeting' element={<ZoomMeeting />} />
+          <Route path='/*' element={<UserRoute><NotFound /></UserRoute>} />
           <Route path="/user" element={<ProtectedRoute roles={['user']}><UserBaseLayout /></ProtectedRoute>}>
             <Route index element={<UserDashboard />} />t
             <Route path="profile/:id" element={<Profile />} />

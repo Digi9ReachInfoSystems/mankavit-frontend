@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { getAuth } from '../../utils/authService';
-
+import Lottie from "lottie-react";
+import loadingAnimation from "../../assets/Lottie/loading.json";
 const UserRoute = ({ children, }) => {
     const [authStatus, setAuthStatus] = useState({
         isAuthenticated: false,
@@ -31,11 +32,18 @@ const UserRoute = ({ children, }) => {
     }, []);
 
     if (authStatus.isLoading) {
-        return <div>Loading...</div>; // Or a loading spinner
+        return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <Lottie
+                className="Lottie"
+                animationData={loadingAnimation}
+                loop={true}
+                style={{ width: "100%", height: "100%" }}
+            />
+        </div>;
     }
 
     if (!authStatus.isAuthenticated) {
-       return children;
+        return children;
     }
     if (authStatus.isAuthenticated) {
 
@@ -47,7 +55,7 @@ const UserRoute = ({ children, }) => {
         }
     }
 
-   
+
 
     //   return children;
 };
