@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import mankavit_logo from '..//../assets/mankavith-login-logo.svg';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import {
     Container,
     Logo,
@@ -28,7 +29,17 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [loging, setLogin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [deviceId, setDeviceId] = useState('');
     const navigate = useNavigate();
+    useEffect(() => {
+        const getDeviceId = async () => {
+            const fp = await FingerprintJS.load();
+            const result = await fp.get();
+            setDeviceId(result.visitorId);
+        };
+
+        getDeviceId();
+    }, []);
 
     const handleLogin = async (e) => {
         try {
@@ -43,7 +54,9 @@ const Login = () => {
                 return;
             }
             console.log(email, password);
-            const userResponse = await loginUser({ email, password });
+            console.log("deviceId",deviceId);
+            const userResponse = await loginUser({ email, password ,deviceId});
+            console.log("userResponse",userResponse);
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;
