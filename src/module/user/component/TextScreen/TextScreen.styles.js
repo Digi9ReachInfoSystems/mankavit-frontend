@@ -75,7 +75,7 @@ export const PassageBox = styled.div`
   flex: 1;
   background-color: white;
   padding: 15px;
-  height: 700px;
+  height: 600px;
   overflow-y: auto;
 
   p {
@@ -94,12 +94,12 @@ export const QuestionBox = styled.div`
   flex: 1;
   background-color: white;
   padding: 15px;
-  height: 700px;
+  height: 600px;
   overflow-y: auto;
 
   .textarea {
     width: 100%;
-    height: 400px;
+    height: 350px;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -116,7 +116,7 @@ export const QuestionBox = styled.div`
 
 export const HorizontalLine = styled.div`
     width: 1px;
-    height: 700px;
+    height: 600px;
     background-color: #ccc;
     margin: 20px 0;
 
@@ -423,7 +423,7 @@ export const LegendItem = styled.div`
   &.answered { background: #7bd37b; clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); }
   &.not-answered { background: #f44336; clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); }
   &.marked { background: #a855f7; border-radius: 50%; }
-  &.not-visited { background: #e5e7eb; border-radius: 10px; border: 1px solid #ccc; }
+  &.not-visited { background:rgb(247, 247, 248); border-radius: 10px; border: 1px solid #ccc; }
   &.marked-answered { background: #c084fc; border-radius: 50%; }
 
   @media (max-width: 1360px) {
@@ -494,7 +494,7 @@ export const GridButton = styled.button`
   &.answered { background: #7bd37b; clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); }
   &.not-answered { background: #f44336; clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); }
   &.marked { background: #a855f7; border-radius: 50%; }
-  &.not-visited { background: #e5e7eb; border-radius: 10px; border: 1px solid #ccc; }
+  &.not-visited { background:rgb(253, 253, 255); border-radius: 10px; border: 1px solid #ccc; }
   &.marked-answered { background: #c084fc; border-radius: 50%; }
 `;
 
@@ -591,7 +591,7 @@ export const LeftButton = styled.div`
 
 export const RightButton = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
 `;
 
