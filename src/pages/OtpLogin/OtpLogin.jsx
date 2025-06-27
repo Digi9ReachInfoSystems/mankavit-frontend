@@ -14,6 +14,7 @@ import {
     ResendOtp,
 
 } from './OtpLogin.styles';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { resendLoginOtp, verifyLoginOtp } from '../../api/authApi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { clearCookies } from '../../utils/cookiesService';
@@ -29,6 +30,16 @@ const OtpLogin = () => {
     const [verifying, setVerifying] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const [deviceId, setDeviceId] = useState('');
+    useEffect(() => {
+        const getDeviceId = async () => {
+            const fp = await FingerprintJS.load();
+            const result = await fp.get();
+            setDeviceId(result.visitorId);
+        };
+
+        getDeviceId();
+    }, []);
 
     const focusInput = (index) => {
         const input = document.getElementById(`otp-${index}`);
