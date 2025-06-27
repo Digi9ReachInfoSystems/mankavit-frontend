@@ -299,6 +299,7 @@ const ContinueCourse = () => {
                         lectureName: test.title || `Mock Test ${idx + 1}`,
                         description: test.description || "Mock test for practice",
                         duration: `${test.number_of_questions || "N/A"} Questions | ${test.duration || "N/A"} mins`,
+                         maxAttempts: `${test.maxAttempts || "N/A"} attempts`,
                         videoUrl: "#"
                     }))
                 };
