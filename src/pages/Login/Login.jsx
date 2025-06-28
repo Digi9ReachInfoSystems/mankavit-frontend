@@ -17,7 +17,7 @@ import {
     LoginSubTitle,
     Label,
 } from './Login.styles';
-import { loginUser, loginWithOtp } from '../../api/authApi';
+import { loginUser, loginWithOtp, logoutUser } from '../../api/authApi';
 import { clearCookies } from '../../utils/cookiesService';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
@@ -54,9 +54,9 @@ const Login = () => {
                 return;
             }
             console.log(email, password);
-            console.log("deviceId",deviceId);
-            const userResponse = await loginUser({ email, password ,deviceId});
-            console.log("userResponse",userResponse);
+            console.log("deviceId", deviceId);
+            const userResponse = await loginUser({ email, password, deviceId });
+            console.log("userResponse", userResponse);
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;
@@ -65,9 +65,15 @@ const Login = () => {
                 document.cookie = `accessToken=${accessToken}; path=/; max-age=604800;`;
                 document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800;`;
                 document.cookie = `userId=${userId}; path=/; max-age=604800;`;
-               
+
                 if (userResponse.user.role === 'user') {
-                    navigate('/user');
+                    const logoutResponse = await logoutUser({ email });
+                    const resepose = await loginWithOtp({ email });
+                    if (resepose.success === true) {
+                        clearCookies();
+                        navigate('/loginOtp', { state: { email: email } });
+                    }
+                    // navigate('/user');
                 } if (userResponse.user.role === 'admin') {
                     navigate('/admin');
                 }
@@ -168,7 +174,7 @@ const Login = () => {
                     }
 
                     <Button type="submit">{loging ? "Login..." : "Login"}</Button>
-                    <OTPButton type="button" onClick={handleLoginOtpClick}>{loginPhone ? "Login with Password" : "Login with OTP"}</OTPButton>
+                    {/* <OTPButton type="button" onClick={handleLoginOtpClick}>{loginPhone ? "Login with Password" : "Login with OTP"}</OTPButton> */}
 
                     <SignUpLink>
                         Create new account? <Link to="/signup">Sign Up</Link>
