@@ -14,7 +14,7 @@ import {
     ResendOtp,
 
 } from './OtpSignup.styles';
-import { resendLoginOtp, resendSignupOtp, verifyLoginOtp, verifySignupOtp } from '../../api/authApi';
+import { resendLoginOtp, resendPhoneOtp, resendSignupOtp, verifyLoginOtp, verifyPhoneOtp, verifySignupOtp } from '../../api/authApi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { clearCookies } from '../../utils/cookiesService';
 
@@ -84,7 +84,8 @@ const OtpSignup = () => {
                 setErrorMessage('Please enter all 6 digits of the OTP.');
                 return;
             }
-            const userResponse = await verifySignupOtp({ email: location.state.email, otp: otpValue });
+            // const userResponse = await verifySignupOtp({ email: location.state.email, otp: otpValue });
+            const userResponse= await verifyPhoneOtp({ email: location.state.email, otp: otpValue });
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;
@@ -121,7 +122,8 @@ const OtpSignup = () => {
 
             console.log('Resending new OTP...');
             setResendingOtp(true);
-            const userResponse = await resendSignupOtp({ email: location.state.email });
+            // const userResponse = await resendSignupOtp({ email: location.state.email });
+            const userResponse = await resendPhoneOtp({ email: location.state.email });
             if (userResponse.success === true) {
                 const now = Date.now();
                 const expiry = now + ONE_MINUTE * 1000;

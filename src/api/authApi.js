@@ -142,3 +142,33 @@ export const getNoOfStudents = async () => {
         throw error;
     }
 };
+
+export const generatePhoneOtp = async (data) => {
+    try {
+        const response = await api.post("/user/sendPhoneOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const verifyPhoneOtp = async (data) => {
+    try {
+        const response = await api.post("/user/verifyPhoneOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const resendPhoneOtp = async (data) => {
+    try {
+        const response = await api.post("/user/resendPhoneOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

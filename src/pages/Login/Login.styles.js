@@ -66,8 +66,12 @@ export const Form = styled.form`
   height: 80%;
   flex:2;
 margin: 105px 105px 105px 0px!important;
-
-   @media (min-width: 760px) {
+ @media (min-width:  1200px) and (min-height: 800px) {
+       padding-top: 180px;
+       max-width: 700px;
+       margin: 105px 105px 105px 105px !important;
+   }
+   @media (min-width: 760px and max-width: 1200px) {
        max-width: 500px;
        margin: 105px 105px 105px 105px !important;
    }

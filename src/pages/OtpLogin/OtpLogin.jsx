@@ -104,7 +104,7 @@ const OtpLogin = () => {
                 document.cookie = `accessToken=${accessToken}; path=/; max-age=604800;`;
                 document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800;`;
                 document.cookie = `userId=${userId}; path=/; max-age=604800;`;
-                navigate('/test');
+                navigate('/user');
             }
         } catch (error) {
             if (error?.response?.data?.success == false) {
@@ -209,7 +209,7 @@ const OtpLogin = () => {
                     )}
 
                     {/* Six OTP inputs in a row */}
-                    <div style={{ display: 'flex', gap: '10px', margin: '30px 0' }}>
+                    <div style={{ display: 'flex', gap: '20px', margin: '30px ' }}>
                         {otpDigits.map((digit, idx) => (
                             <Input
                                 key={idx}
