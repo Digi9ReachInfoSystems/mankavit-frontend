@@ -19,25 +19,46 @@ export const loginUser = async (data) => {
         console.log(error);
         throw error;
     }
-}; 
+};
 
-export const updateAccessToken = async () => {   
-    console.log("updateAccessToken"); 
+export const updateAccessToken = async () => {
+    console.log("updatedAccessToken");
+
     try {
         const coookies = getCookiesData();
         if (!coookies) {
+            window.location.href = '/login';
+            console.log("No cookies found, redirecting to login");
             return;
-        }   
-        console.log("coookies",coookies);
+        }
+        // console.log("coookies", coookies);
         if (coookies?.refreshToken) {
-            const response = await api.post('/user/refreshToken',{refreshToken:coookies.refreshToken});
-            if (response.status === 200) {  
+            const response = await api.post('/user/refreshToken', { refreshToken: coookies.refreshToken });
+            // console.log("response refresh token", response.data);
+            if (response.status === 200) {
                 document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=604800;`;
+            } else if (!response.data.success) {
+                // console.log("Refresh token expired or invalid, redirecting to login");
+                clearCookies();
+
+                window.location.href = '/';
             }
         }
     } catch (error) {
-        //console.error('Error updating access token:', error);
-        throw error;
+        console.log("Error updating access token:", error);
+        if (error.response && error.response.status === 405) {
+            console.log("Refresh token expired or invalid, redirecting to login");
+            clearCookies();
+            // Clear all authentication cookies
+            // document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            // document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+            // Redirect to login page
+            window.location.href = '/';
+            return;
+        }
+        console.error('Error updating access token:', error);
+        // throw error;
     }
 };
 
@@ -71,7 +92,7 @@ export const resendLoginOtp = async (data) => {
 export const logoutUser = async (data) => {
     try {
         const response = await api.post("/user/logout", data);
-        if(response.status === 200){
+        if (response.status === 200) {
             clearCookies();
         }
         return response.data;
@@ -84,9 +105,7 @@ export const logoutUser = async (data) => {
 
 export const getUserDetails = async (id) => {
     try {
-        console.log("id inside api",id);
         const response = await api.get(`/user/get/userById/${id}`);
-        console.log("response.data",response.data);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -172,3 +191,13 @@ export const resendPhoneOtp = async (data) => {
         throw error;
     }
 };
+
+export const forceLogin = async (data) => {
+    try {
+        const response = await api.post("/user/forceLogin", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
