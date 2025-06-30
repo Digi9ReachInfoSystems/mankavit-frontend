@@ -215,3 +215,11 @@ export const evaluateSingleSubjectiveQuestion = async(data) =>{
 
 
 
+export const rearrangeMocktestQuestions = async (mocktestId, data) => {
+    try {
+        const response = await api.put(`/mockTest/rearrangeQuestions/${mocktestId}`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
