@@ -26,10 +26,8 @@ import { FiTrash } from 'react-icons/fi';
 import { createMocktest } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
 import { useNavigate } from 'react-router-dom';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 const AddMockTest = () => {
   const [testDetails, setTestDetails] = useState({
@@ -42,8 +40,8 @@ const AddMockTest = () => {
     maxAttempts: 1,
     subject: [],
   });
-  const navigate = useNavigate();
-   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
+  const [minDate, setMinDate] = useState('');
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const [questions, setQuestions] = useState([
     {
       questionType: 'mcq',
@@ -57,31 +55,50 @@ const AddMockTest = () => {
   const [errors, setErrors] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(()=>{
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 1) Compute “now” in the format the input expects (trim seconds)
+    const now = new Date();
+    setMinDate(now.toISOString().slice(0, 16));
+
+    // 2) Fetch subjects
     const apiCaller = async () => {
-       try {
-          const responseSubjects = await getSubjects();
-          const subjectsData = responseSubjects.data.map((item) => ({
-            label: item.subjectName,
-            id: item._id,
-            checked: false,
-          }));
-          setSubjectCheckboxes(subjectsData);
-      }catch (error) {
+      try {
+        const responseSubjects = await getSubjects();
+        const subjectsData = responseSubjects.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: false,
+        }));
+        setSubjectCheckboxes(subjectsData);
+      } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to fetch data");
       }
     };
     apiCaller();
-  },[]);
+  }, []);
 
   const handleTestDetailChange = (field, value) => {
+    // If they pick a start date before “now”, bump it up
+    if (field === 'startDate' && minDate && value < minDate) {
+      value = minDate;
+    }
     setTestDetails({
       ...testDetails,
       [field]: value
     });
   };
-   const subjects = subjectCheckboxes.filter((i) => i.checked).map((i) => i.id);
+
+  const handleCheckboxChange = (index, setFn) => {
+    setFn((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, checked: !item.checked } : item
+      )
+    );
+  };
+
   const handleQuestionChange = (index, field, value) => {
     const updated = [...questions];
     if (['A', 'B', 'C', 'D'].includes(field)) {
@@ -104,12 +121,6 @@ const AddMockTest = () => {
         subjectiveAnswer: ''
       }
     ]);
-  };
-
-   const handleCheckboxChange = (index, setFn) => {
-    setFn((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
   };
 
   const deleteQuestion = (indexToDelete) => {
@@ -148,80 +159,77 @@ const AddMockTest = () => {
     });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const newErrors = [];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = [];
 
-  // Validate test details
-  if (!testDetails.title) newErrors.push("Test title is required");
-  if (!testDetails.description) newErrors.push("Test description is required");
-  if (!testDetails.duration) newErrors.push("Duration is required");
-  if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
-  if (!testDetails.startDate) newErrors.push("Start date is required");
-  if (!testDetails.endDate) newErrors.push("End date is required");
-  
-  // Add validation for subjects
-  const selectedSubjects = subjectCheckboxes.filter(subject => subject.checked).map(subject => subject.id);
-  if (selectedSubjects.length === 0) {
-    newErrors.push("At least one subject must be selected");
-  }
+    // Validate test details
+    if (!testDetails.title) newErrors.push("Test title is required");
+    if (!testDetails.description) newErrors.push("Test description is required");
+    if (!testDetails.duration) newErrors.push("Duration is required");
+    if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
+    if (!testDetails.startDate) newErrors.push("Start date is required");
+    if (!testDetails.endDate) newErrors.push("End date is required");
 
-  // Validate questions
-  questions.forEach((q, index) => {
-    if (!q.questionText || !q.marks) {
-      newErrors.push(`Question ${index + 1}: Question text and marks are required.`);
+    // Subjects
+    const selectedSubjects = subjectCheckboxes
+      .filter(subject => subject.checked)
+      .map(subject => subject.id);
+    if (selectedSubjects.length === 0) {
+      newErrors.push("At least one subject must be selected");
     }
 
-    if (q.questionType === 'mcq') {
-      const { A, B, C, D } = q.options;
-      if (!A || !B || !C || !D || !q.correctAnswer) {
-        newErrors.push(`Question ${index + 1}: All MCQ options and correct answer are required.`);
+    // Questions
+    questions.forEach((q, index) => {
+      if (!q.questionText || !q.marks) {
+        newErrors.push(`Question ${index + 1}: Question text and marks are required.`);
       }
+      if (q.questionType === 'mcq') {
+        const { A, B, C, D } = q.options;
+        if (!A || !B || !C || !D || !q.correctAnswer) {
+          newErrors.push(`Question ${index + 1}: All MCQ options and correct answer are required.`);
+        }
+      }
+    });
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      return;
     }
-  });
 
-  if (newErrors.length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+    setErrors([]);
+    setIsSubmitting(true);
 
-  setErrors([]);
-  setIsSubmitting(true);
+    try {
+      const formattedQuestions = formatQuestionsForApi();
+      const totalMarks = questions.reduce((sum, q) => sum + parseInt(q.marks), 0);
 
-  try {
-    const formattedQuestions = formatQuestionsForApi();
-    const totalMarks = questions.reduce((sum, q) => sum + parseInt(q.marks), 0);
-    
-    const mockTestData = {
-      title: testDetails.title,
-      description: testDetails.description,
-      duration: parseInt(testDetails.duration),
-      passingMarks: parseInt(testDetails.passingMarks),
-      startDate: new Date(testDetails.startDate).toISOString(),
-      endDate: new Date(testDetails.endDate).toISOString(),
-      maxAttempts: parseInt(testDetails.maxAttempts),
-      totalMarks: totalMarks,
-      subject: selectedSubjects[0],  // Use the filtered and mapped subjects
-      questions: formattedQuestions
-    };
+      const mockTestData = {
+        title: testDetails.title,
+        description: testDetails.description,
+        duration: parseInt(testDetails.duration),
+        passingMarks: parseInt(testDetails.passingMarks),
+        startDate: new Date(testDetails.startDate).toISOString(),
+        endDate: new Date(testDetails.endDate).toISOString(),
+        maxAttempts: parseInt(testDetails.maxAttempts),
+        totalMarks,
+        subject: selectedSubjects[0],
+        questions: formattedQuestions
+      };
 
-    const response = await createMocktest(mockTestData);
-    console.log('Mock test created successfully:', response.data);
-    toast.success('Mock test created successfully');
-
-   navigate('/admin/mock-test');
-  } catch (error) {
-    console.error('Error creating mock test:', error);
-    let errorMessage = 'Failed to create mock test';
-    if (error.response && error.response.data && error.response.data.message) {
-      errorMessage = error.response.data.message;
+      const response = await createMocktest(mockTestData);
+      toast.success('Mock test created successfully');
+      navigate('/admin/mock-test');
+    } catch (error) {
+      console.error('Error creating mock test:', error);
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to create mock test';
+      setErrors([errorMessage]);
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
-    setErrors([errorMessage]);
-    toast.error(errorMessage);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   return (
     <Container>
@@ -241,45 +249,45 @@ const handleSubmit = async (e) => {
         {/* Test Details */}
         <FormGroup>
           <Label htmlFor="title">Test Title</Label>
-          <Input 
-            type="text" 
-            id="title" 
+          <Input
+            type="text"
+            id="title"
             value={testDetails.title}
             onChange={(e) => handleTestDetailChange('title', e.target.value)}
-            placeholder="Enter test title" 
+            placeholder="Enter test title"
           />
         </FormGroup>
 
         <FormGroup>
           <Label htmlFor="description">Test Description</Label>
-          <TextInput 
-            id="description" 
+          <TextInput
+            id="description"
             value={testDetails.description}
             onChange={(e) => handleTestDetailChange('description', e.target.value)}
-            placeholder="Enter test description" 
+            placeholder="Enter test description"
           />
         </FormGroup>
 
         <FormRow>
           <FormGroup>
             <Label htmlFor="duration">Duration (minutes)</Label>
-            <Input 
-              type="number" 
-              id="duration" 
+            <Input
+              type="number"
+              id="duration"
               value={testDetails.duration}
               onChange={(e) => handleTestDetailChange('duration', e.target.value)}
-              placeholder="Enter duration" 
+              placeholder="Enter duration"
             />
           </FormGroup>
 
           <FormGroup>
             <Label htmlFor="passingMarks">Passing Marks</Label>
-            <Input 
-              type="number" 
-              id="passingMarks" 
+            <Input
+              type="number"
+              id="passingMarks"
               value={testDetails.passingMarks}
               onChange={(e) => handleTestDetailChange('passingMarks', e.target.value)}
-              placeholder="Enter passing marks" 
+              placeholder="Enter passing marks"
             />
           </FormGroup>
         </FormRow>
@@ -287,57 +295,72 @@ const handleSubmit = async (e) => {
         <FormRow>
           <FormGroup>
             <Label htmlFor="startDate">Start Date</Label>
-            <Input 
-              type="datetime-local" 
-              id="startDate" 
+            <Input
+              type="datetime-local"
+              id="startDate"
               value={testDetails.startDate}
               onChange={(e) => handleTestDetailChange('startDate', e.target.value)}
+              onBlur={() => {
+                if (testDetails.startDate < minDate) {
+                  handleTestDetailChange('startDate', minDate);
+                }
+              }}
+              min={minDate}
             />
           </FormGroup>
 
           <FormGroup>
             <Label htmlFor="endDate">End Date</Label>
-            <Input 
-              type="datetime-local" 
-              id="endDate" 
+            <Input
+              type="datetime-local"
+              id="endDate"
               value={testDetails.endDate}
               onChange={(e) => handleTestDetailChange('endDate', e.target.value)}
+              placeholder="Select end date"
             />
           </FormGroup>
         </FormRow>
 
         <FormGroup>
           <Label htmlFor="maxAttempts">Max Attempts</Label>
-          <Input 
-            type="number" 
-            id="maxAttempts" 
+          <Input
+            type="number"
+            id="maxAttempts"
             value={testDetails.maxAttempts}
             onChange={(e) => handleTestDetailChange('maxAttempts', e.target.value)}
-            placeholder="Enter max attempts" 
+            placeholder="Enter max attempts"
             min="1"
           />
         </FormGroup>
 
-       <CheckboxSection>
-  <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
-  <CheckboxList>
-    {subjectCheckboxes.map((item, index) => (
-      <CheckboxLabel key={item.id || index}>
-        <CheckboxInput
-          type="checkbox"
-          checked={item.checked}
-          onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
-        />
-        {item.label}
-      </CheckboxLabel>
-    ))}
-  </CheckboxList>
-</CheckboxSection>
+        <CheckboxSection>
+          <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+          <CheckboxList>
+            {subjectCheckboxes.map((item, index) => (
+              <CheckboxLabel key={item.id || index}>
+                <CheckboxInput
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                />
+                {item.label}
+              </CheckboxLabel>
+            ))}
+          </CheckboxList>
+        </CheckboxSection>
 
         <QuestionTitle>Add Questions</QuestionTitle>
-
         {questions.map((q, index) => (
-          <div key={index} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', position: 'relative' }}>
+          <div
+            key={index}
+            style={{
+              border: '1px solid #ccc',
+              padding: '1rem',
+              marginBottom: '1rem',
+              position: 'relative'
+            }}
+          >
+            {/* Question Type */}
             <FormGroup>
               <Label>Question Type</Label>
               <AntSelect
@@ -350,6 +373,7 @@ const handleSubmit = async (e) => {
               </AntSelect>
             </FormGroup>
 
+            {/* Question Text */}
             <FormGroup>
               <Label>Question Text</Label>
               <Input
@@ -360,6 +384,7 @@ const handleSubmit = async (e) => {
               />
             </FormGroup>
 
+            {/* MCQ Options */}
             {q.questionType === 'mcq' && (
               <>
                 <FormRow>
@@ -419,6 +444,7 @@ const handleSubmit = async (e) => {
               </>
             )}
 
+            {/* Subjective Answer */}
             {q.questionType === 'subjective' && (
               <FormGroup>
                 <Label>Expected Answer (optional)</Label>
@@ -431,6 +457,7 @@ const handleSubmit = async (e) => {
               </FormGroup>
             )}
 
+            {/* Marks */}
             <FormGroup>
               <Label>Marks</Label>
               <Input
@@ -453,14 +480,16 @@ const handleSubmit = async (e) => {
         ))}
 
         <MoreButton>
-          <AddButton type="button" onClick={addQuestion}>Add Another Question</AddButton>
+          <AddButton type="button" onClick={addQuestion}>
+            Add Another Question
+          </AddButton>
         </MoreButton>
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Submit Mock Test'}
         </Button>
       </FormWrapper>
-            {/* Toast Container for react-toastify */}
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

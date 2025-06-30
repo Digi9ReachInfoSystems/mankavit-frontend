@@ -24,10 +24,12 @@ import {
   addmocktestquestions,
   removemocktestquestions,
   updatemocktestquestions,
-  getMocktestById
+  getMocktestById,
+  rearrangeMocktestQuestions
 } from '../../../../../api/mocktestApi';
 import { useParams } from 'react-router-dom';
 import DeleteModal from '../../../component/DeleteModal/DeleteModal';
+import { toast } from 'react-toastify';
 
 // Helper Functions
 const createEmptyOption = () => ({ text: '', marks: 0, isCorrect: false });
@@ -86,7 +88,8 @@ const MockTestQuestionsList = () => {
         setLoading(false);
       } catch (error) {
         console.error("Failed to load questions", error);
-        alert("Could not load existing questions");
+        // alert("Could not load existing questions");
+        toast.error("Could not load existing questions");
         setLoading(false);
       }
     };
@@ -138,7 +141,8 @@ const MockTestQuestionsList = () => {
         setPages(prev => prev.filter((_, i) => i !== index));
       }
     } catch (error) {
-      alert('Failed to remove item');
+      // alert('Failed to remove item');
+      toast.error('Failed to remove item');
       console.error(error);
     } finally {
       setDeleteModal({ isOpen: false, type: null, index: null, pageIndex: null });
@@ -160,18 +164,17 @@ const MockTestQuestionsList = () => {
     });
   };
 
-  const moveQuestion = (pi, qi, dir) => {
-    setPages(prev => {
-      const newPages = [...prev];
-      const newQi = dir === 'up' ? qi - 1 : qi + 1;
-      
-      // Check if new position is valid
-      if (newQi < 0 || newQi >= newPages[pi].questions.length) {
-        return prev; // No change if move is invalid
-      }
-      
+  const moveQuestion = async (pi, qi, dir) => {
+    const newQi = dir === 'up' ? qi - 1 : qi + 1;
+    
+    // Check if new position is valid
+    if (newQi < 0 || newQi >= pages[pi].questions.length) {
+      return; // No change if move is invalid
+    }
+    
+    try {
       // Create a new array for questions
-      const newQuestions = [...newPages[pi].questions];
+      const newQuestions = [...pages[pi].questions];
       
       // Swap the questions
       [newQuestions[qi], newQuestions[newQi]] = [
@@ -179,14 +182,41 @@ const MockTestQuestionsList = () => {
         newQuestions[qi]
       ];
       
-      // Update the page with new questions
-      newPages[pi] = {
-        ...newPages[pi],
-        questions: newQuestions
-      };
-      
-      return newPages;
-    });
+      // Prepare the data for the API call
+      const questionsForApi = newQuestions.map(q => {
+        const isMcq = q.type === 'mcq';
+        return {
+          type: q.type,
+          questionText: q.text,
+          options: isMcq ? q.options.map(opt => ({
+            text: opt.text,
+            marks: opt.marks
+          })) : [],
+          correctAnswer: isMcq ? q.options.findIndex(o => o.isCorrect) : null,
+          marks: q.marks,
+          _id: q._id
+        };
+      });
+
+      // Call the API to rearrange questions
+      await rearrangeMocktestQuestions(mockTestId, {
+        questions: questionsForApi
+      });
+
+      // Update the UI only after successful API call
+      setPages(prev => {
+        const copy = [...prev];
+        copy[pi] = {
+          ...copy[pi],
+          questions: newQuestions
+        };
+        return copy;
+      });
+    } catch (error) {
+      console.error("Failed to rearrange questions:", error);
+      // alert("Failed to rearrange questions. Please try again.");
+toast.error("Failed to rearrange questions. Please try again.");
+    }
   };
 
   const updateQuestionField = (pi, qi, field, value) =>
@@ -271,7 +301,8 @@ const MockTestQuestionsList = () => {
 
       // If no valid options, show error and return
       if (validOptions.length === 0) {
-        alert('Please add at least one valid option');
+        // alert('Please add at least one valid option');
+        toast.error('Please add at least one valid option');
         return;
       }
 
@@ -300,7 +331,8 @@ const MockTestQuestionsList = () => {
 
         const newQuestion = res?.mockTest?.questions?.find(q => !q.__isNew);
         if (!newQuestion) {
-          alert('Server did not return a valid question');
+          // alert('Server did not return a valid question');
+          toast.error('Server did not return a valid question');
           console.error("No question returned in response", res);
           return;
         }
@@ -315,7 +347,8 @@ const MockTestQuestionsList = () => {
       setEditingRef(null);
     } catch (err) {
       console.error("Save question error:", err);
-      alert('Error saving question. Please try again.');
+      // alert('Error saving question. Please try again.');
+      toast.error('Error saving question. Please try again.');
     }
   };
 
@@ -442,7 +475,7 @@ const MockTestQuestionsList = () => {
                                 />
                                 <input
                                   type="number"
-                                  min={0}
+                                  // min={0}
                                   placeholder="Marks"
                                   value={opt.marks}
                                   onChange={(e) =>
@@ -502,9 +535,10 @@ const MockTestQuestionsList = () => {
                         {q.type === 'subjective' && (
                           <div style={{ marginTop: '1.5rem' }}>
                             <label>Marks</label>
+
                             <input
                               type="number"
-                              min={0}
+                              // min={0}
                               placeholder="Marks"
                               value={q.marks}
                               onChange={(e) =>
@@ -521,6 +555,8 @@ const MockTestQuestionsList = () => {
                                 marginTop: '0.5rem',
                               }}
                             />
+
+                            
                           </div>
                         )}
                         <div
