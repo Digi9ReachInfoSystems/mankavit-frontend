@@ -18,6 +18,7 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { resendLoginOtp, verifyLoginOtp } from '../../api/authApi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { clearCookies } from '../../utils/cookiesService';
+import { getDeviceInfo } from '../../utils/deviceInfo';
 
 const ONE_MINUTE = 60;
 
@@ -95,7 +96,8 @@ const OtpLogin = () => {
                 setErrorMessage('Please enter all 6 digits of the OTP.');
                 return;
             }
-            const userResponse = await verifyLoginOtp({ email: location.state.email, loginOtp: otpValue });
+             const DeviceData = await getDeviceInfo();
+            const userResponse = await verifyLoginOtp({ email: location.state.email, loginOtp: otpValue, device: DeviceData });
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;

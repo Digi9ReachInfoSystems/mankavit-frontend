@@ -16,10 +16,20 @@ import {
     LoginTitle,
     LoginSubTitle,
     Label,
+    Overlay,
+    Modal,
+    TitleModel,
+    Text,
+    InfoList,
+    Actions,
+    ButtonModel
 } from './Login.styles';
-import { loginUser, loginWithOtp, logoutUser } from '../../api/authApi';
+import { forceLogin, loginUser, loginWithOtp, logoutUser } from '../../api/authApi';
 import { clearCookies } from '../../utils/cookiesService';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { getDeviceInfo } from '../../utils/deviceInfo';
+import Lottie from "lottie-react";
+import multipleDevicesAnimation from "../../assets/Lottie/multiple-login.json";
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -30,6 +40,9 @@ const Login = () => {
     const [loging, setLogin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [deviceId, setDeviceId] = useState('');
+    const [showDevicePopup, setShowDevicePopup] = useState(false);
+    const [existingDeviceInfo, setExistingDeviceInfo] = useState(null);
+    const [forceLoginData, setForceLoginData] = useState(null);
     const navigate = useNavigate();
     useEffect(() => {
         const getDeviceId = async () => {
@@ -46,6 +59,7 @@ const Login = () => {
             clearCookies();
             e.preventDefault();
             setLogin(true);
+
             const emailRegex = /\S+@\S+\.\S+/;
             if (!emailRegex.test(email)) {
 
@@ -53,10 +67,12 @@ const Login = () => {
                 setErrorMessage('Please enter a valid email address.');
                 return;
             }
-            console.log(email, password);
-            console.log("deviceId", deviceId);
-            const userResponse = await loginUser({ email, password, deviceId });
-            console.log("userResponse", userResponse);
+            // console.log(email, password);
+            // console.log("deviceId", deviceId);
+            const DeviceData = await getDeviceInfo();
+            console.log("DeviceData", DeviceData);
+            const userResponse = await loginUser({ email, password, device: DeviceData });
+            // console.log("userResponse", userResponse);
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;
@@ -77,8 +93,11 @@ const Login = () => {
                 } if (userResponse.user.role === 'admin') {
                     navigate('/admin');
                 }
-            } else {
-
+            } else if (userResponse.success === false && userResponse.currentDevice) {
+                setExistingDeviceInfo(userResponse.currentDevice);
+                setForceLoginData(userResponse.forceLoginData);
+                setShowDevicePopup(true);
+                return;
             }
         } catch (error) {
             // console.log(error);
@@ -120,6 +139,44 @@ const Login = () => {
         }
         // Add your OTP login logic here (e.g., API call)
     };
+    const handleForceLogin = async () => {
+        try {
+            setShowDevicePopup(false);
+            setLogin(true);
+            if (!forceLoginData) {
+                console.error("No force login data available");
+                return;
+            }
+            const userResponse = await forceLogin({ forceLoginData: forceLoginData });
+            if (userResponse.success === true) {
+                const accessToken = userResponse.accessToken;
+                const refreshToken = userResponse.refreshToken;
+                const userId = userResponse.user._id;
+                // (60s * 60m * 24h * 7days = 604800 seconds)
+                document.cookie = `accessToken=${accessToken}; path=/; max-age=604800;`;
+                document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800;`;
+                document.cookie = `userId=${userId}; path=/; max-age=604800;`;
+
+                if (userResponse.user.role === 'user') {
+                    const logoutResponse = await logoutUser({ email });
+                    const resepose = await loginWithOtp({ email });
+                    if (resepose.success === true) {
+                        clearCookies();
+                        navigate('/loginOtp', { state: { email: email } });
+                    }
+                    // navigate('/user');
+                } if (userResponse.user.role === 'admin') {
+                    navigate('/admin');
+                }
+            }else{
+
+            }
+        } catch (error) {
+            console.error("Error during force login:", error);
+        } finally {
+            setLogin(false);
+        }
+    }
 
     return (
         <Container>
@@ -181,6 +238,33 @@ const Login = () => {
                     </SignUpLink>
                 </FormContent>
             </Form>
+            {showDevicePopup && existingDeviceInfo && (
+                <Overlay>
+                    <Modal>
+                        <TitleModel>Account Already Logged In</TitleModel>
+                        <Text>This account is already active on another device:</Text>
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", }}>
+                            <Lottie
+                                className="Lottie"
+                                animationData={multipleDevicesAnimation}
+                                loop={true}
+                                style={{ width: "100%", height: "100%" }}
+                            />
+                        </div>;
+                        <InfoList>
+                            <li><strong>Device ID:</strong> {existingDeviceInfo.deviceId}</li>
+                            <li><strong>Device Type:</strong> {existingDeviceInfo.deviceType}</li>
+                            <li><strong>Browser:</strong> {existingDeviceInfo.browser_name}</li>
+                            <li><strong>IP Address:</strong> {existingDeviceInfo.ipAddress}</li>
+                        </InfoList>
+                        <Text>Would you like to logout from that device and continue here?</Text>
+                        <Actions>
+                            <ButtonModel variant="cancel" onClick={() => setShowDevicePopup(false)}>Cancel</ButtonModel>
+                            <ButtonModel onClick={handleForceLogin}>Continue</ButtonModel>
+                        </Actions>
+                    </Modal>
+                </Overlay>
+            )}
         </Container>
     );
 };
