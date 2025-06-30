@@ -67,7 +67,7 @@ export const Form = styled.form`
   flex:2;
 margin: 105px 105px 105px 0px!important;
  @media (min-width:  1200px) and (min-height: 800px) {
-       padding-top: 180px;
+      //  padding-top: 180px;
        max-width: 700px;
        margin: 105px 105px 105px 105px !important;
    }
@@ -226,4 +226,97 @@ line-height: normal;
         
          margin:10px;
     }
+`;
+export const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const Modal = styled.div`
+  background-color: #ffffff;
+  padding: 30px 25px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-in-out;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+export const TitleModel = styled.h3`
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+`;
+
+export const Text = styled.p`
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 10px;
+`;
+
+export const InfoList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+
+  li {
+    font-size: 13px;
+    margin-bottom: 6px;
+
+    strong {
+      font-weight: 600;
+      color: #222;
+    }
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+`;
+
+export const ButtonModel = styled.button`
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+
+  ${({ variant }) =>
+    variant === "cancel"
+      ? `
+    background-color: #ccc;
+    color: #333;
+    &:hover {
+      background-color: #bbb;
+    }
+  `
+      : `
+    background-color: #007bff;
+    color: white;
+    &:hover {
+      background-color: #0056b3;
+    }
+  `}
 `;
