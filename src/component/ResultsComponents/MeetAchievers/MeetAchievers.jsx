@@ -68,7 +68,7 @@ const MeetAchievers = () => {
                 Join us and start your journey toward achieving your law career goals today!
             </Description>
 
-            <Filterbar>
+            {/* <Filterbar>
                 {TABS.map((tab, index) => (
                     <FilterButton
                         key={index}
@@ -78,6 +78,9 @@ const MeetAchievers = () => {
                         {tab}
                     </FilterButton>
                 ))}
+            </Filterbar> */}
+            <Filterbar>
+                
             </Filterbar>
 
             <CardSlider ref={sliderRef} onScroll={handleScroll}>

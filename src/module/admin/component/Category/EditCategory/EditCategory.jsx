@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { notification } from "antd";
 
 import {
@@ -14,11 +14,27 @@ import {
   FormWrapper
 } from "../AddCategory/AddCategory.styles";
 
-import { createCategory } from "../../../../../api/categoryApi"; // Adjust path if needed
+import { createCategory, getCategoryById, updateCategory } from "../../../../../api/categoryApi"; // Adjust path if needed
 
 const EditCategory = () => {
   const navigate = useNavigate();
   const [categoryTitle, setCategoryTitle] = useState("");
+  const location = useLocation();
+  const params = useParams();
+
+  useEffect(() => {
+   const apiCaller = async () => {
+    try {
+      console.log("location.state.categoryId", location,params);
+      const response = await getCategoryById(params.id);
+      console.log("Response:", response);
+      setCategoryTitle(response.data.title);
+    } catch (error) {
+      console.error("Error creating category:", error); // 👈 Full error log
+    }
+   }
+   apiCaller();
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,12 +49,12 @@ const EditCategory = () => {
   
     try {
       console.log("Sending data:", { title: categoryTitle }); // 👈 Log data
-      const response = await createCategory({ title: categoryTitle });
+      const response = await updateCategory (params.id,{ title: categoryTitle });
       console.log("Response:", response); // 👈 Log response
   
       notification.success({
-        message: "Category Added",
-        description: "The category was successfully created.",
+        message: "Category Updated",
+        description: "The category was updated successfully created.",
       });
   
       setCategoryTitle("");
@@ -68,7 +84,7 @@ const EditCategory = () => {
           </FieldWrapper>
         </Column>
         <FormRow>
-          <SubmitButton type="submit">Add Category</SubmitButton>
+          <SubmitButton type="submit">Update Category</SubmitButton>
         </FormRow>
       </FormWrapper>
     </Container>

@@ -17,11 +17,17 @@ import {
   VideoContainer,
   VideoPlayer,
   ThumbnailPreview,
+  CheckboxSection,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxLabel,
+  CheckboxInput,
 } from "./EditLecturer.styles";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getSubjects } from "../../../../../api/subjectApi";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -31,6 +37,7 @@ export default function EditLecturer() {
     lectureName: "",
     duration: "",
     description: "",
+
   });
 
   const [thumbnailFile, setThumbnailFile] = useState(null);
@@ -39,7 +46,7 @@ export default function EditLecturer() {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [currentThumbnail, setCurrentThumbnail] = useState("");
   const [currentVideo, setCurrentVideo] = useState("");
-
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const thumbnailInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
@@ -54,6 +61,13 @@ export default function EditLecturer() {
           duration: lecture.duration || "",
           description: lecture.description || "",
         });
+        const responseSubjects = await getSubjects();
+        const subjectsData = responseSubjects.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: lecture.subjectRef.includes(item._id),
+        }));
+        setSubjectCheckboxes(subjectsData);
 
         setCurrentThumbnail(lecture.thumbnail);
         setCurrentVideo(lecture.videoUrl);
@@ -78,7 +92,11 @@ export default function EditLecturer() {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-
+  const handleCheckboxChange = (index, setFn) => {
+    setFn((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
+    );
+  };
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -101,6 +119,7 @@ export default function EditLecturer() {
         lectureName,
         duration,
         description,
+        subjectRef: subjectCheckboxes.filter((item) => item.checked).map((item) => item.id),
         // Add upload logic for video and thumbnail here if needed
       };
 
@@ -175,7 +194,25 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+              <CheckboxList>
+                {subjectCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={item.id || index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column>
             <FieldWrapper>

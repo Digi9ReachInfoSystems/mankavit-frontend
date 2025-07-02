@@ -35,7 +35,7 @@ const AddCategory = () => {
       const response = await createCategory({ title: categoryTitle });
       console.log("Response:", response); // 👈 Log response
   
-      toast.success("Category Added");
+      // toast.success("Category Added");
       toast.success("The category was successfully created.");
       setTimeout(() => navigate("/admin/category-management"), 1000);
     } catch (err) {

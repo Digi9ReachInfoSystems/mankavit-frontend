@@ -34,8 +34,11 @@ import image3 from "../../../assets/Study3.png";
 //   },
 // ];
 import { getAllWhy } from "../../../api/whyApi";
+import { getCookiesData } from "../../../utils/cookiesService";
+import { useNavigate } from "react-router-dom";
 const EnrollCourse = () => {
   const [ whys, setWhys ] = React.useState([]);
+  const naviagate= useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,6 +50,13 @@ const EnrollCourse = () => {
     };
     fetchData();
   }, []);
+  const handleEnrollNow = async() => {
+    const cookieData= await getCookiesData()
+    
+     
+      naviagate("/login");
+   
+  }
  
   return (
     <Container>
@@ -66,7 +76,7 @@ const EnrollCourse = () => {
       <Description>
         Take the first step towards your legal career. Choose the course that best suits your goals and enroll now. Our team is here to assist you every step of the way!
       </Description>
-      <EnrollButton>Enroll Now</EnrollButton>
+      <EnrollButton onClick={handleEnrollNow}>Enroll Now</EnrollButton>
     </Container>
   );
 };

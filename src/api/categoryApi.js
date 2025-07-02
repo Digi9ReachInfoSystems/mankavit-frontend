@@ -41,3 +41,23 @@ export const updateCategory = async (id, data) => {
         throw error;
     }
 };
+
+export const getCategoryById = async (id) => {
+    try {
+        const response = await api.get(`/category/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching category by ID:', error);
+        throw error;
+    }
+};
+
+export const bulkDeleteCategory = async (categoryIds) => {
+    try {
+        const response = await api.delete('/category/bulk/delete', { data: { categoryIds } });
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting categories:', error);
+        throw error;
+    }
+};

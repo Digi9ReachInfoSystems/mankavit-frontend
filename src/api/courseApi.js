@@ -19,7 +19,7 @@ export const getAllCourses = async () => {
         console.log(error);
         throw error;
     }
-};  
+};
 
 
 
@@ -77,17 +77,7 @@ export const getNoOfCourses = async () => {
 
 export const getAllUserCourses = async (userID) => {
     try {
-        const response = await api.get( `/api/v1/course/getAllCourses/users/${userID}`);
-        console.log("response", response);
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}; 
-export const getAllUserCourseByCategory = async (userID,categoryName) => {
-    try {
-        const response = await api.get( `api/v1/course/getAllCourses/users/category/${userID}/${categoryName}`);
+        const response = await api.get(`/api/v1/course/getAllCourses/users/${userID}`);
         console.log("response", response);
         return response.data;
     } catch (error) {
@@ -95,3 +85,30 @@ export const getAllUserCourseByCategory = async (userID,categoryName) => {
         throw error;
     }
 };
+export const getAllUserCourseByCategory = async (userID, categoryName) => {
+    try {
+        const response = await api.get(`api/v1/course/getAllCourses/users/category/${userID}/${categoryName}`);
+        console.log("response", response);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const bulkDeleteCourse = async (courseIds) => {
+    try {
+
+        const response = await api.delete('/api/v1/course/bulk/delete', {
+            data: { courseIds },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
