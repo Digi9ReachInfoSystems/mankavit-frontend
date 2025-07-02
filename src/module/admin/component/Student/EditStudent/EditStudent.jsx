@@ -1,242 +1,263 @@
-import React, { useState, useEffect, useRef } from 'react';
+/* EditStudent.jsx — full component */
+import React, { useEffect, useState } from "react";
 import {
-  FormContainer,
-  Title,
-  InputGroup,
-  InputField,
-  Label,
-  UploadSection,
-  UploadButton,
-  BrowseButton,
-  SubmitButton,
-  FlexRow,
-  FlexUpload
-} from '../AddStudent/AddStudent.styles';
-import { MdOutlineFileUpload, MdDelete } from "react-icons/md";  // Removed stray backslash here
-import { useLocation } from 'react-router-dom';
+  FormContainer, Title, InputGroup, Label, InputField, SubmitButton, FlexRow,
+  ReadOnlyField, CourseSelection, CourseCheckbox, CourseLabel,
+  CourseList, CourseItem, ErrorMessage, LoadingSpinner
+} from "./EditStudent.style";
 
+import { useNavigate, useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { getAllCourses }              from "../../../../../api/courseApi";
+import { addCourseToStudent,
+         removeCourseFromStudent     } from "../../../../../api/userApi";
+import { getUserByUserId,
+         updateUserById              } from "../../../../../api/authApi";
+
+const EMAIL_RGX  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RGX  = /^\+?\d{7,15}$/;   // simple international check
+
+/* ==================================================================== */
 const EditStudent = () => {
-  const location = useLocation();
-  const initialData = location.state?.student;
+  const { userId } = useParams();                  // route param :userId
+  const navigate   = useNavigate();
 
-  const [studentData, setStudentData] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    subjects: '',
-    kycStatus: '',
-    status: ''
-  });
+  /* ─── local state ─────────────────────────────────────────────────── */
+  const [student,        setStudent]        = useState(null);
+  const [loadingStudent, setLoadingStudent] = useState(true);
 
-  const [photoPreview, setPhotoPreview] = useState('');
-  const [photoFile, setPhotoFile] = useState(null);
-  const photoInputRef = useRef(null);
+  const [courses,        setCourses]        = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
 
-  const [idProofPreview, setIDProofPreview] = useState('');
-  const [idProofFile, setIDProofFile] = useState(null);
-  const idProofInputRef = useRef(null);
+  const [form,           setForm]           = useState({ displayName: "", email: "", phone: "" });
+  const [selected,       setSelected]       = useState([]);    // course ids (checked)
 
-  const [formErrors, setFormErrors] = useState({});
+  const [processing,     setProcessing]     = useState(false);
+  const [formErrors,     setFormErrors]     = useState({});
 
+  /* ─── fetch student ───────────────────────────────────────────────── */
   useEffect(() => {
-    if (initialData) {
-      setStudentData({
-        fullName: initialData.name || '',
-        phone: initialData.phone || '',
-        email: initialData.email || '',
-        subjects: initialData.subjects ? initialData.subjects.join(', ') : '',
-        kycStatus: initialData.kycStatus || '',
-        status: initialData.status || '',
+    (async () => {
+      try {
+        setLoadingStudent(true);
+        const res = await getUserByUserId(userId);
+        if (!res.success || !res.user) throw new Error("Student not found");
+        const stu = res.user;
+
+        /* derive current course ids */
+        const currentIds =
+          stu.courseIds?.length
+            ? stu.courseIds
+            : (stu.subscription || []).map(s => s.course_enrolled?._id || s.course_enrolled);
+
+        setStudent(stu);
+        setSelected(currentIds);
+        setForm({ displayName: stu.displayName || "", email: stu.email || "", phone: stu.phone || "" });
+      } catch (err) {
+        console.error(err);
+        toast.error(err.message || "Failed to load student");
+        navigate("/admin/student-management");
+      } finally {
+        setLoadingStudent(false);
+      }
+    })();
+  }, [userId, navigate]);
+
+  /* ─── fetch courses ──────────────────────────────────────────────── */
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingCourses(true);
+        const res  = await getAllCourses();
+        const list = res?.data || res || [];
+        setCourses(Array.isArray(list) ? list : []);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load courses");
+      } finally {
+        setLoadingCourses(false);
+      }
+    })();
+  }, []);
+
+  const currentIds = student?.courseIds?.length
+    ? student.courseIds
+    : (student?.subscription || []).map(s => s.course_enrolled?._id || s.course_enrolled);
+
+  const available = courses.filter(c => !currentIds.includes(c._id));
+  const enrolled  = courses.filter(c =>  currentIds.includes(c._id));
+
+  const toggleCourse = (id) =>
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const onFormChange = (e) =>
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const validate = () => {
+    const errs = {};
+    if (!form.displayName.trim()) errs.displayName = "Name required";
+    if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
+    if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
+    if (selected.length === 0) errs.courseIds = "Select at least one course";
+
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!student || !validate()) return;
+    setProcessing(true);
+
+    try {
+      await updateUserById(student._id, {
+        displayName: form.displayName.trim(),
+        email:       form.email.trim(),
+        phone:       form.phone.trim()
       });
 
-      setPhotoPreview(initialData.passport || '');
-      setIDProofPreview(initialData.idProof || '');
-    }
-  }, [initialData]);
+      /* 2️⃣ update courses */
+      const toAdd    = selected.filter(id => !currentIds.includes(id));
+      const toRemove = currentIds.filter(id => !selected.includes(id));
 
-  const handleChange = (e) => {
-    setStudentData({ ...studentData, [e.target.name]: e.target.value });
-  };
+      if (toAdd.length)    await addCourseToStudent   ({ userId: student._id, courseIds: toAdd });
+      if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
 
-  const handlePhotoFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPhotoFile(file);
-      setPhotoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleIDProofFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setIDProofFile(file);
-      setIDProofPreview(URL.createObjectURL(file));
+      toast.success("Student updated");
+      navigate("/admin/student-management");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Update failed");
+    } finally {
+      setProcessing(false);
     }
   };
 
-  const handleDeletePhoto = () => {
-    setPhotoFile(null);
-    setPhotoPreview('');
-    if (photoInputRef.current) photoInputRef.current.value = null;
-  };
+  /* ─── guards ─────────────────────────────────────────────────────── */
+  if (loadingStudent)
+    return (
+      <FormContainer>
+        <LoadingSpinner />
+        <p>Loading student data…</p>
+      </FormContainer>
+    );
+  if (!student) return null;
 
-  const handleDeleteIDProof = () => {
-    setIDProofFile(null);
-    setIDProofPreview('');
-    if (idProofInputRef.current) idProofInputRef.current.value = null;
-  };
-
-  const handlePhotoUploadClick = () => {
-    photoInputRef.current?.click();
-  };
-
-  const handleIDProofUploadClick = () => {
-    idProofInputRef.current?.click();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Example validation (optional)
-    const errors = {};
-    if (!studentData.fullName.trim()) errors.fullName = 'Full name is required';
-    if (!studentData.email.trim()) errors.email = 'Email is required';
-    if (!studentData.phone.trim()) errors.phone = 'Phone number is required';
-
-    setFormErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-
-    // Prepare form data or API payload
-    console.log('Updated Student Data:', studentData);
-    console.log('Photo File:', photoFile);
-    console.log('ID Proof File:', idProofFile);
-
-    alert('Student updated!');
-  };
-
+  /* ─── render ─────────────────────────────────────────────────────── */
   return (
-    <FormContainer onSubmit={handleSubmit}>
+    <FormContainer>
       <Title>Edit Student</Title>
 
+      {/* BASIC DETAILS */}
       <InputGroup>
-        <Label>Full Name</Label>
+        <Label>Name*</Label>
         <InputField
-          placeholder="Enter Full Name"
-          name="fullName"
-          value={studentData.fullName}
-          onChange={handleChange}
+          name="displayName"
+          value={form.displayName}
+          onChange={onFormChange}
+          disabled={processing}
         />
-        {formErrors.fullName && <p style={{ color: 'red' }}>{formErrors.fullName}</p>}
+        {formErrors.displayName && <ErrorMessage>{formErrors.displayName}</ErrorMessage>}
       </InputGroup>
 
       <FlexRow>
         <InputGroup>
-          <Label>Email</Label>
+          <Label>Email*</Label>
           <InputField
-            type="email"
-            placeholder="Enter Email Address"
             name="email"
-            value={studentData.email}
-            onChange={handleChange}
+            value={form.email}
+            onChange={onFormChange}
+            disabled={processing}
           />
-          {formErrors.email && <p style={{ color: 'red' }}>{formErrors.email}</p>}
+          {formErrors.email && <ErrorMessage>{formErrors.email}</ErrorMessage>}
         </InputGroup>
-
         <InputGroup>
-          <Label>Mobile Number</Label>
+          <Label>Phone*</Label>
           <InputField
-            type="tel"
-            placeholder="Enter Mobile Number"
             name="phone"
-            value={studentData.phone}
-            onChange={handleChange}
-            maxLength={10} // Optional: you can remove if you want more flexible input
+            value={form.phone}
+            onChange={onFormChange}
+            disabled={processing}
           />
-          {formErrors.phone && <p style={{ color: 'red' }}>{formErrors.phone}</p>}
+          {formErrors.phone && <ErrorMessage>{formErrors.phone}</ErrorMessage>}
         </InputGroup>
       </FlexRow>
 
-      <FlexRow>
-        <UploadSection>
-          <Label>Upload Photo <small>(Passport Size)</small></Label>
-          <FlexUpload>
-            <UploadButton type="button" onClick={handlePhotoUploadClick}>
-              <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-              Upload Document
-            </UploadButton>
-            <BrowseButton type="button" onClick={handlePhotoUploadClick}>Browse</BrowseButton>
-            <input
-              type="file"
-              ref={photoInputRef}
-              onChange={handlePhotoFileChange}
-              style={{ display: 'none' }}
-              accept="image/*"
-            />
-          </FlexUpload>
-          {formErrors.passport && <p style={{ color: 'red' }}>{formErrors.passport}</p>}
-          {photoPreview && (
-            <div style={{
-              marginTop: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              padding: '10px',
-              gap: "50px",
-              width: '50%',
-              border: '1px solid #ccc',
-              borderRadius: '8px'
-            }}>
-              <img src={photoPreview} alt="Photo Preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} />
-              <p style={{ color: 'green', marginTop: '5px' }}>Photo selected!</p>
-              <MdDelete onClick={handleDeletePhoto} color="red" style={{ cursor: 'pointer' }} title="Remove Photo" />
-            </div>
-          )}
-        </UploadSection>
+      {/* COURSE LISTS */}
+      <CourseSelection 
+     
+      >
+        <Label style={{backgroundColor:"lightgrey",
+          padding:"5px",
+          borderRadius:"5px",
+          width:"50%",
+        }}>Enrolled Courses (uncheck to remove)</Label>
+        {loadingCourses ? (
+          <p>Loading…</p>
+        ) : enrolled.length === 0 ? (
+          <p>No courses enrolled</p>
+        ) : (
+          <CourseList>
+            {enrolled.map(c => (
+              <CourseItem key={c._id}>
+                <CourseCheckbox
+                  id={`en-${c._id}`}
+                  type="checkbox"
+                  checked={selected.includes(c._id)}
+                  onChange={() => toggleCourse(c._id)}
+                  disabled={processing}
+                />
+                <CourseLabel htmlFor={`en-${c._id}`}>
+                  {c.courseDisplayName || c.course_name}
+                </CourseLabel>
+              </CourseItem>
+            ))}
+          </CourseList>
+        )}
+      </CourseSelection>
 
-        <UploadSection>
-          <Label>Upload ID Proof <small>(Aadhar / Driving License)</small></Label>
-          <FlexUpload>
-            <UploadButton type="button" onClick={handleIDProofUploadClick}>
-              <MdOutlineFileUpload color='#C5C6C7' fontSize={20} style={{ marginRight: '10px' }} />
-              Upload Document
-            </UploadButton>
-            <BrowseButton type="button" onClick={handleIDProofUploadClick}>Browse</BrowseButton>
-            <input
-              type="file"
-              ref={idProofInputRef}
-              onChange={handleIDProofFileChange}
-              style={{ display: 'none' }}
-              accept="image/*,.pdf"
-            />
-          </FlexUpload>
-          {formErrors.idProof && <p style={{ color: 'red' }}>{formErrors.idProof}</p>}
-          {idProofPreview && (
-            <div style={{
-              marginTop: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              padding: '10px',
-              gap: "30px",
-              width: '50%',
-              border: '1px solid #ccc',
-              borderRadius: '8px'
-            }}>
-              {(idProofPreview.includes('.pdf') || idProofFile?.type === 'application/pdf') ? (
-                <a href={idProofPreview} target="_blank" rel="noopener noreferrer" style={{ color: 'blue' }}>
-                  {idProofFile ? idProofFile.name : 'View Document'}
-                </a>
-              ) : (
-                <>
-                  <img src={idProofPreview} alt="ID Proof Preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} />
-                  <p style={{ color: 'green', margin: 0, marginTop: '5px', marginBottom: "5px" }}>ID Proof selected!</p>
-                </>
-              )}
-              <MdDelete onClick={handleDeleteIDProof} color="red" style={{ cursor: 'pointer' }} title="Remove ID Proof" />
-            </div>
-          )}
-        </UploadSection>
+      <CourseSelection $hasError={!!formErrors.courseIds}>
+       <Label style={{backgroundColor:"lightgrey",
+          padding:"5px",
+          borderRadius:"5px",
+          width:"50%",
+        }}>Available Courses (check to add)*</Label>
+        {loadingCourses ? (
+          <p>Loading…</p>
+        ) : available.length === 0 ? (
+          <p>All courses already enrolled</p>
+        ) : (
+          <>
+            <CourseList>
+              {available.map(c => (
+                <CourseItem key={c._id}>
+                  <CourseCheckbox
+                    id={`av-${c._id}`}
+                    type="checkbox"
+                    checked={selected.includes(c._id)}
+                    onChange={() => toggleCourse(c._id)}
+                    disabled={processing}
+                  />
+                  <CourseLabel htmlFor={`av-${c._id}`}>
+                    {c.courseDisplayName || c.course_name}
+                  </CourseLabel>
+                </CourseItem>
+              ))}
+            </CourseList>
+            {formErrors.courseIds && <ErrorMessage>{formErrors.courseIds}</ErrorMessage>}
+          </>
+        )}
+      </CourseSelection>
+
+      {/* ACTION */}
+      <FlexRow>
+        <SubmitButton type="button" disabled={processing} onClick={handleSave}>
+          {processing ? "Saving…" : "Save Changes"}
+        </SubmitButton>
       </FlexRow>
 
-      <SubmitButton type="submit">Update Student</SubmitButton>
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </FormContainer>
   );
 };

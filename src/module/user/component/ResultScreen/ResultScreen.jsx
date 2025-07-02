@@ -30,6 +30,8 @@ export default function ResultScreen() {
   const [test,    setTest]    = useState(null);
   const [attempt, setAttempt]= useState(null);
   const [loading, setLoading]= useState(true);
+  const [attemptData, setAttemptData] = useState(null);
+  const[resultData, setResultData] = useState(null);
 
   // unwrap either { data } or { body:{ data } }
   const unwrap = r => r?.data?.body?.data ?? r?.data;
@@ -44,6 +46,15 @@ export default function ResultScreen() {
 
         // 2) load all attempts for this user+test
         const resAtts = await getMocktestAttempts(userId, testId);
+        console.log('resAtts', resAtts.data[resAtts.data.length - 1]);
+        setResultData([
+            { label: 'MCQ Score',        value: resAtts.data[resAtts.data.length - 1].mcqScore       || 0 },
+            { label: 'Subjective Score', value: resAtts.data[resAtts.data.length - 1].subjectiveScore || 0 },
+            { label: 'Total Marks',      value: resAtts.data[resAtts.data.length - 1].totalMarks      || 0 },
+            { label: 'Status',           value: resAtts.data[resAtts.data.length - 1].status          || 'unknown' }
+          ])
+         
+        setAttemptData(resAtts.data[resAtts.data.length - 1]);
         const arr      = unwrap(resAtts) || [];
         let att        = arr.find(a => a._id === attemptId);
         if (!att) {
@@ -75,12 +86,12 @@ export default function ResultScreen() {
             }
           });
 
-          const resEval = await evaluateMocktest({
-            attemptId,
-            userId,
-            evaluations
-          });
-          att = unwrap(resEval);
+          // const resEval = await evaluateMocktest({
+          //   attemptId,
+          //   userId,
+          //   evaluations
+          // });
+          // att = unwrap(resEval);
         }
 
         // 5) store final attempt (now status should be “evaluated”)
@@ -104,18 +115,13 @@ export default function ResultScreen() {
     <CardContainer>
       <ResultsContainer>
         <Greeting>
-          Dear {attempt.userName || 'Student'},
+          Dear {attemptData.user?.displayName || 'Student'},
         </Greeting>
         <Message>
           Thank you for taking this test{test?.title ? `: "${test.title}"` : ''}!
         </Message>
         <ScoreTable>
-          {[
-            { label: 'MCQ Score',        value: attempt.mcqScore        || 0 },
-            { label: 'Subjective Score', value: attempt.subjectiveScore || 0 },
-            { label: 'Total Marks',      value: attempt.totalMarks      || 0 },
-            { label: 'Status',           value: attempt.status          || 'unknown' }
-          ].map((row,i) => (
+          {resultData.map((row,i) => (
             <ScoreRow key={i}>
               <Label>{row.label}</Label>
               <Value>{row.value}</Value>
