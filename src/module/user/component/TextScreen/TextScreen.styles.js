@@ -423,9 +423,22 @@ export const LegendItem = styled.div`
   &.answered { background: #7bd37b; clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); }
   &.not-answered { background: #f44336; clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); }
   &.marked { background: #a855f7; border-radius: 50%; }
-  &.not-visited { background:rgb(247, 247, 248); border-radius: 10px; border: 1px solid #ccc; }
-  &.marked-answered { background: #c084fc; border-radius: 50%; }
-
+  &.unattempted  { background:rgb(253, 253, 255); border-radius: 10px; border: 1px solid #ccc; }
+   &.answered-marked {
+    background: #c084fc;
+    border-radius: 50%;
+    
+    &::after {
+      content: "✓";
+      bottom: 10px;
+      position: relative;
+      color: green;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+  &.not-answered-marked { background: #c084fc; border-radius: 50%; }
+  
   @media (max-width: 1360px) {
     width: 20px;
     height: 20px;
@@ -494,15 +507,37 @@ export const GridButton = styled.button`
   &.answered { background: #7bd37b; clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); }
   &.not-answered { background: #f44336; clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); }
   &.marked { background: #a855f7; border-radius: 50%; }
-  &.not-visited { background:rgb(253, 253, 255); border-radius: 10px; border: 1px solid #ccc; }
-  &.marked-answered { background: #c084fc; border-radius: 50%; }
+ 
+  &.unattempted  { 
+  background:rgb(253, 253, 255); 
+  border-radius: 10px;
+   border: 1px solid #ccc;
+  
+    }
+
+  &.answered-marked {
+    background: #c084fc;
+    border-radius: 50%;
+    
+    &::after {
+      content: "✓";
+      bottom: 10px;
+      position: relative;
+      color: green;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+  &.not-answered-marked { background: #c084fc; border-radius: 50%; }
 `;
 
 export const FooterButtons = styled.div`
   display: flex;
   justify-content: space-between;
+// flex-direction: column;
   width: 100%;
-  margin-top: 5rem;
+  //  margin-top: 550px;
+  margin:auto;
 `;
 
 export const SaveButton = styled.button`
@@ -594,5 +629,4 @@ export const RightButton = styled.div`
     flex-direction: row;
     gap: 10px;
 `;
-
 
