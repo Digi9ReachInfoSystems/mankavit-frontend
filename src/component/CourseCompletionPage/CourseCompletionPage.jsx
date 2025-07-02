@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Confetti from 'react-confetti';
 import { updateViewCertificate } from '../../api/userProgressApi';
 import { getCertificate } from '../../api/certificateApi';
+import { toast } from 'react-toastify';
 
 // Custom hook to get window size
 const useWindowSize = () => {
@@ -61,10 +62,11 @@ const CourseCompletionPage = () => {
                 courseRef: params.courseId,
                 title,
             });
-
+            toast.success("Review submitted successfully!");
             console.log("Review submitted");
         } catch (error) {
             console.error("Error submitting review:", error);
+            toast.error("Failed to submit review. Please try again.");
         }
     };
 
@@ -78,12 +80,19 @@ const CourseCompletionPage = () => {
                     <Header>Congratulations!</Header>
                     <Subheader>You've successfully completed the course.</Subheader>
 
-                    <CertificateContainer>
+                    <CertificateContainer
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',  
+                            alignItems: 'center',
+                            justifyContent: 'center',}}
+                            >
                         {/* <embed src={certificatePdfUrl} type="application/pdf" width="100%" height="500px" /> */}
                         <iframe
                             src={`${certificatePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                             width="600"
                             height="415px"
+
                             style={{
                                 border: "none",
                                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",

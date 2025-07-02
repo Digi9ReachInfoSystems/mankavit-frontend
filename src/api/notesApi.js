@@ -59,3 +59,21 @@ export const getNoOfNotes = async () => {
         throw error;
     }
 }
+
+export const bulkDeleteNotes = async (notesIds) => {
+    try {
+        const response = await api.delete('/notes/notes/bulk/delete ', 
+             {
+            data: { notesIds },  // Axios requires DELETE payload to be in 'data'
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            }
+        }
+        );
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

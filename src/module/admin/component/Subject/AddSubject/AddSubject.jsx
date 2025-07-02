@@ -29,6 +29,8 @@ import { getAllLectures } from "../../../../../api/lecturesApi";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
+import { getAllCourses } from "../../../../../api/courseApi";
 
 export default function AddSubject() {
   const [subjectTitle, setSubjectTitle] = useState("");
@@ -40,6 +42,8 @@ export default function AddSubject() {
 
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
+  const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
 
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -66,6 +70,34 @@ export default function AddSubject() {
         const lectResp = await getAllLectures();
         setLecturesCheckboxes(
           lectResp.data.map(l => ({ id: l._id, label: l.lectureName, checked: false }))
+        );
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load lectures");
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const lectResp = await getAllMocktest();
+
+        setMockTestCheckboxes(
+          lectResp.data.map(l => ({ id: l._id, label: l.title, checked: false }))
+        );
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load lectures");
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const lectResp = await getAllCourses();
+
+        setCoursesCheckboxes(
+          lectResp.data.map(l => ({ id: l._id, label: l.courseName, checked: false }))
         );
       } catch (err) {
         console.error(err);
@@ -125,7 +157,8 @@ export default function AddSubject() {
         notes,
         lectures,
         image: blobUrl,
-        courses: []
+        courses: coursesCheckboxes.filter(i => i.checked).map(i => i.id),
+        mockTests: mockTestCheckboxes.filter(i => i.checked).map(i => i.id)
       });
 
       toast.success("Data created successfully");
@@ -238,6 +271,43 @@ export default function AddSubject() {
                       type="checkbox"
                       checked={l.checked}
                       onChange={() => handleCheckboxChange(i, setLecturesCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
+        {/* Mock Test */}
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>
+              <CheckboxList>
+                {mockTestCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setMockTestCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Courses</CheckboxSectionTitle>
+              <CheckboxList>
+                {coursesCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setCoursesCheckboxes)}
                     />
                     {l.label}
                   </CheckboxLabel>

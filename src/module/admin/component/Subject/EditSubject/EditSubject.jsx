@@ -31,6 +31,8 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
+import { getAllCourses } from "../../../../../api/courseApi";
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -38,27 +40,30 @@ export default function EditSubject() {
   const fileInputRef = useRef(null);
 
   // form fields
-  const [subjectTitle, setSubjectTitle]       = useState("");
-  const [internalTitle, setInternalTitle]     = useState("");
-  const [vimeoId, setVimeoId]                 = useState("");
+  const [subjectTitle, setSubjectTitle] = useState("");
+  const [internalTitle, setInternalTitle] = useState("");
+  const [vimeoId, setVimeoId] = useState("");
   const [shortDescription, setShortDescription] = useState("");
 
   // checkboxes
-  const [notesCheckboxes, setNotesCheckboxes]       = useState([]);
+  const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
-
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
+  const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
   // image upload
   const [thumbnailFile, setThumbnailFile] = useState(null);
-  const [previewUrl, setPreviewUrl]       = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   // fetch existing subject, notes & lectures
   useEffect(() => {
     async function fetchData() {
       try {
-        const [subRes, notesRes, lecturesRes] = await Promise.all([
+        const [subRes, notesRes, lecturesRes, mockRes, courseRes] = await Promise.all([
           getSubjectById(id),
           getAllNotes(),
           getAllLectures(),
+          getAllMocktest(),
+          getAllCourses(),
         ]);
         const subject = subRes.data;
 
@@ -72,8 +77,26 @@ export default function EditSubject() {
         }
 
         // IDs already assigned
-        const noteIds    = subject.notes.map(n => n._id || n);
+        const noteIds = subject.notes.map(n => n._id || n);
         const lectureIds = subject.lectures.map(l => l._id || l);
+        const mockIds = subject.mockTests.map(m => m._id || m);
+        const courseIds = subject.courses.map(c => c._id || c);
+
+        // build mock tests checkboxes
+        setMockTestCheckboxes(
+          mockRes.data.map(m => ({
+            label: m.title || m.mockTestName,
+            id: m._id,
+            checked: mockIds.includes(m._id),
+          }))
+        );
+
+        // build course checkboxes
+        setCoursesCheckboxes(courseRes.data.map(c => ({
+          label: c.title || c.courseName,
+          id: c._id,
+          checked: courseIds.includes(c._id),
+        })))
 
         // build notes checkboxes
         setNotesCheckboxes(
@@ -128,9 +151,9 @@ export default function EditSubject() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!subjectTitle.trim())       return toast.error("Enter subject title.");
-    if (!internalTitle.trim())      return toast.error("Enter internal title.");
-    if (!vimeoId.trim())            return toast.error("Enter Vimeo ID.");
+    if (!subjectTitle.trim()) return toast.error("Enter subject title.");
+    if (!internalTitle.trim()) return toast.error("Enter internal title.");
+    if (!vimeoId.trim()) return toast.error("Enter Vimeo ID.");
 
     let imageUrl = previewUrl;
     if (thumbnailFile) {
@@ -143,18 +166,22 @@ export default function EditSubject() {
       }
     }
 
-    const selectedNotes    = notesCheckboxes.filter(n => n.checked).map(n => n.id);
+    const selectedNotes = notesCheckboxes.filter(n => n.checked).map(n => n.id);
     const selectedLectures = lecturesCheckboxes.filter(l => l.checked).map(l => l.id);
+    const selectedMockTests = mockTestCheckboxes.filter(m => m.checked).map(m => m.id);
+    const selectedCourses = coursesCheckboxes.filter(c => c.checked).map(c => c.id);
 
     try {
       await updateSubjectById(id, {
-        subjectName:        internalTitle,
+        subjectName: internalTitle,
         subjectDisplayName: subjectTitle,
-        vimeoShowcaseID:    vimeoId,
-        description:        shortDescription,
-        notes:              selectedNotes,
-        lectures:           selectedLectures,
-        image:              imageUrl,
+        vimeoShowcaseID: vimeoId,
+        description: shortDescription,
+        notes: selectedNotes,
+        lectures: selectedLectures,
+        image: imageUrl,
+        courses: selectedCourses,
+        mockTests: selectedMockTests,
       });
       toast.success("Data updated successfully");
       setTimeout(() => navigate("/admin/subject-management"), 1000);
@@ -168,19 +195,19 @@ export default function EditSubject() {
 
   return (
     <Container>
-      
-       <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
       <Title>Edit Subject</Title>
       <FormWrapper onSubmit={handleSubmit}>
@@ -259,7 +286,42 @@ export default function EditSubject() {
             </CheckboxSection>
           </Column>
         </FormRow>
-
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Select MockTests</CheckboxSectionTitle>
+              <CheckboxList>
+                {mockTestCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setMockTestCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Select Courses</CheckboxSectionTitle>
+              <CheckboxList>
+                {coursesCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setCoursesCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column>
             <Label>Upload Thumbnail</Label>
