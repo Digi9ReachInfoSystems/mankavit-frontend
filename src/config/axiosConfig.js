@@ -60,7 +60,7 @@ api.interceptors.request.use(
         if (config.headers['Content-Type']?.startsWith('multipart/form-data')) {
             return config;
         }
-        if (config.data && ['post', 'put', 'patch'].includes(config.method.toLowerCase())) {
+        if (config.data && ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase())) {
             if (typeof config.data === "string") {
                 if (config.data.includes('"dataEncrypted":"true"')) {
                     return config;

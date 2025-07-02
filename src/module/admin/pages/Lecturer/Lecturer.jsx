@@ -11,13 +11,14 @@ import {
   SearchWrapper, SearchIcon, SearchInput, ImageModalOverlay,
   ImageModalContent, ModalImage, CloseButton, ModalVideo
 } from './Lecturer.style';
-import { getAllLectures, deleteLectureById } from '../../../../api/lecturesApi';
+import { getAllLectures, deleteLectureById, bulkDeleteLectures } from '../../../../api/lecturesApi';
 import DeleteModal from '../../component/DeleteModal/DeleteModal';
 import Pagination from '../../component/Pagination/Pagination';
 import { IoEyeOutline } from 'react-icons/io5';
 import { Select } from 'antd';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { set } from 'date-fns';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -32,7 +33,9 @@ export default function Lecturer() {
   const [modalOpenVideo, setModalOpenVideo] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedLectures, setSelectedLectures] = useState([]);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   // NEW: default sort = Latest ↓
   const [sortOption, setSortOption] = useState('Latest');
   const [sortDirection, setSortDirection] = useState('desc');
@@ -151,6 +154,46 @@ export default function Lecturer() {
       });
     }
   };
+  const handleBulkDeleteClick = () => {
+    setBulkDeleteModalOpen(true);
+  }
+  const handleCheckboxChange = (lectureId) => {
+    setSelectedLectures((prev) =>
+      prev.includes(lectureId)
+        ? prev.filter((id) => id !== lectureId)
+        : [...prev, lectureId]
+    );
+  };
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedLectures([]);
+    } else {
+      setSelectedLectures(currentItems.map((c) => c.id));
+    }
+    setSelectAll(!selectAll);
+  };
+  const handleBulkDelete = async () => {
+    try {
+      // setLoading(true);
+      await bulkDeleteLectures(selectedLectures);
+      toast.success("Selected Lectures deleted successfully", {
+        autoClose: 3000, // Ensure this matches your toast duration
+        // onClose: () => {
+
+        //   window.location.reload();
+        // }
+      });
+      setSelectedLectures([]);
+      setSelectAll(false);
+      // await fetchCourses();
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      // setLoading(false);
+      setBulkDeleteModalOpen(false);
+    }
+  };
 
   /** ----------------------------------------------------------------
    *  Render
@@ -186,7 +229,16 @@ export default function Lecturer() {
             />
           </SortByContainer>
         </HeaderRow>
-
+        <ButtonContainer>
+          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+            Add Course
+          </CreateButton> */}
+          {selectedLectures.length > 0 && (
+            <CreateButton onClick={handleBulkDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+              Delete Selected ({selectedLectures.length})
+            </CreateButton>
+          )}
+        </ButtonContainer>
         <SearchWrapper>
           <SearchIcon>
             <CiSearch size={18} />
@@ -202,20 +254,45 @@ export default function Lecturer() {
           <StyledTable>
             <TableHead>
               <TableRow>
-                <TableHeader>#</TableHeader>
+                {/* <TableHeader>#</TableHeader> */}
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </TableHeader>
                 <TableHeader>Lecture Name</TableHeader>
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Duration</TableHeader>
                 <TableHeader>Video</TableHeader>
                 <TableHeader>Image</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {currentItems.map((item, index) => (
                 <TableRow key={item._id}>
-                  <TableCell>{startIndex + index + 1}</TableCell>
-                  <TableCell>{item.lectureName}</TableCell>
+                  {/* <TableCell>{startIndex + index + 1}</TableCell> */}
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedLectures.includes(item._id)}
+                      onChange={() => handleCheckboxChange(item._id)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href="#"
+                      onClick={() =>
+                        navigate(`/admin/lecturer-management/edit/${item._id}`, {
+                          state: { item },
+                        })
+                      }
+                    >
+                      {item.lectureName}
+                    </a>
+                  </TableCell>
                   <TableCell>{item.description || '-'}</TableCell>
                   <TableCell>{item.duration || '-'}</TableCell>
                   <TableCell>
@@ -248,7 +325,7 @@ export default function Lecturer() {
                       'No image'
                     )}
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <ActionsContainer>
                       <IoEyeOutline
                         title="View"
@@ -267,7 +344,7 @@ export default function Lecturer() {
                         onClick={() => handleDeleteClick(item._id)}
                       />
                     </ActionsContainer>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -281,7 +358,7 @@ export default function Lecturer() {
           totalItems={TOTAL_ENTRIES}
           itemsPerPage={ITEMS_PER_PAGE}
         />
-      </Container>
+      </Container >
 
       {deleteModalOpen && (
         <DeleteModal
@@ -289,28 +366,41 @@ export default function Lecturer() {
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleDeleteConfirm}
         />
-      )}
+      )
+      }
+      {bulkDeleteModalOpen && (
+        <DeleteModal
+          isOpen={bulkDeleteModalOpen}
+          onClose={() => setBulkDeleteModalOpen(false)}
+          onDelete={handleBulkDelete}
+        />
+      )
+      }
 
-      {modalOpenImage && selectedImage && (
-        <ImageModalOverlay>
-          <ImageModalContent>
-            <CloseButton onClick={() => setModalOpenImage(false)}>X</CloseButton>
-            <ModalImage src={selectedImage} alt="Selected" />
-          </ImageModalContent>
-        </ImageModalOverlay>
-      )}
+      {
+        modalOpenImage && selectedImage && (
+          <ImageModalOverlay>
+            <ImageModalContent>
+              <CloseButton onClick={() => setModalOpenImage(false)}>X</CloseButton>
+              <ModalImage src={selectedImage} alt="Selected" />
+            </ImageModalContent>
+          </ImageModalOverlay>
+        )
+      }
 
-      {modalOpenVideo && selectedVideo && (
-        <ImageModalOverlay>
-          <ImageModalContent>
-            <CloseButton onClick={() => setModalOpenVideo(false)}>X</CloseButton>
-            <ModalVideo controls autoPlay>
-              <source src={selectedVideo} type="video/mp4" />
-              Your browser does not support the video tag.
-            </ModalVideo>
-          </ImageModalContent>
-        </ImageModalOverlay>
-      )}
+      {
+        modalOpenVideo && selectedVideo && (
+          <ImageModalOverlay>
+            <ImageModalContent>
+              <CloseButton onClick={() => setModalOpenVideo(false)}>X</CloseButton>
+              <ModalVideo controls autoPlay>
+                <source src={selectedVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </ModalVideo>
+            </ImageModalContent>
+          </ImageModalOverlay>
+        )
+      }
 
       <ToastContainer
         position="top-right"

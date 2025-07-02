@@ -29,7 +29,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
-import { getSubjects, deleteSubjectByid } from "../../../../api/subjectApi";
+import { getSubjects, deleteSubjectByid, bulkDeleteSubjects } from "../../../../api/subjectApi";
 import { IoEyeOutline } from "react-icons/io5";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -54,7 +54,10 @@ export default function Subjects() {
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
+  const [selectedSubject, setSelectedSubject] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [BulkDelete, setBulkDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const appiCaller = async () => {
@@ -90,7 +93,7 @@ export default function Subjects() {
 
     }
     appiCaller();
-  }, []);
+  }, [setBulkDelete]);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -111,7 +114,7 @@ export default function Subjects() {
       }
     };
     fetchSubjects();
-  }, []);
+  }, [setBulkDelete]);
 
 
   // ✅ Second useEffect for filtering, sorting and pagination (runs when data, search, sort, or page change)
@@ -129,7 +132,7 @@ export default function Subjects() {
       processedData.sort((a, b) => new Date(b.dateandtime) - new Date(a.dateandtime)); // latest first
     } else if (sortOption === "Name") {
       processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
-    } 
+    }
 
     // Update filteredData state
     setFilteredData(processedData);
@@ -148,7 +151,7 @@ export default function Subjects() {
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const currentValue = processedData.slice(startIndex, endIndex);
     setCurrentItems(currentValue);
-  }, [data, searchText, sortOption, currentPage]);
+  }, [data, searchText, sortOption, currentPage, setBulkDelete]);
 
 
 
@@ -225,7 +228,50 @@ export default function Subjects() {
     console.log("Edit subject with ID:", id);
     console.log("Subject data:", subject);
   }
+  const handleDeleteClick = () => {
+    setBulkDelete(true);
+  }
 
+  const handleCheckboxChange = (subId) => {
+    setSelectedSubject((prev) =>
+      prev.includes(subId)
+        ? prev.filter((id) => id !== subId)
+        : [...prev, subId]
+    );
+  };
+
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedSubject([]);
+    } else {
+      setSelectedSubject(currentItems.map((c) => c.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setLoading(true);
+      await bulkDeleteSubjects(selectedSubject);
+      toast.success("Selected Subject deleted successfully", {
+        autoClose: 3000, // Ensure this matches your toast duration
+        onClose: () => {
+
+          window.location.reload();
+        }
+      });
+      setSelectedSubject([]);
+      setSelectAll(false);
+      // await fetchCourses();
+      // window.location.reload(); // Reload the page to reflect changes
+      setBulkDelete(false);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -278,6 +324,16 @@ export default function Subjects() {
 
           </SortByContainer>
         </HeaderRow>
+        <ButtonContainer>
+          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+                    Add Course
+                  </CreateButton> */}
+          {selectedSubject.length > 0 && (
+            <CreateButton onClick={handleDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+              Delete Selected ({selectedSubject.length})
+            </CreateButton>
+          )}
+        </ButtonContainer>
 
         {/* Search Bar */}
         <SearchWrapper>
@@ -296,23 +352,64 @@ export default function Subjects() {
           <StyledTable>
             <TableHead>
               <TableRow>
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </TableHeader>
                 <TableHeader>Subject Name</TableHeader>
                 <TableHeader>Internal Name</TableHeader>
                 <TableHeader>No. of Mock Test</TableHeader>
                 <TableHeader>Active Courses</TableHeader>
                 <TableHeader>Date and Time IST</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {currentItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.subjectName}</TableCell>
-                  <TableCell>{item.internalName}</TableCell>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedSubject.includes(item.id)}
+                      onChange={() => handleCheckboxChange(item.id)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href="#"
+                      onClick={() => {
+                        navigate(`/admin/subject-management/edit/${item.id}`, { state: { item } });
+                      }
+
+                      }
+                    >
+                      {item.subjectName}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href="#"
+                      onClick={() => {
+                        navigate(`/admin/subject-management/edit/${item.id}`, { state: { item } });
+                      }
+
+                      }
+                    >
+                      {item.internalName}
+                    </a>
+                  </TableCell>
 
                   <TableCell>
                     {item.mockTest?.length || 0}{" "}
-                    <a href="#view" onClick={() => handleOpenModal("mockTests", item.mockTest)}>View</a>
+                    <a href="#view" onClick={() => {
+
+                      const mockTest = item.mockTest.map((mockTest) => { return ({ title: mockTest }) });
+                      console.log("mockTestwew", mockTest);
+                      handleOpenModal("mockTests", mockTest)
+                    }}>View</a>
 
                   </TableCell>
 
@@ -322,7 +419,7 @@ export default function Subjects() {
                   </TableCell>
 
                   <TableCell>{formatToIST(item.dateandtime)}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <ActionsContainer>
                       <IoEyeOutline
                         size={20}
@@ -338,7 +435,7 @@ export default function Subjects() {
                         style={{ cursor: "pointer" }}
                       />
                     </ActionsContainer>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -362,7 +459,13 @@ export default function Subjects() {
           onDelete={handleClickDelete}
         />
       )}
-
+      {BulkDelete && (
+        <DeleteModal
+          isOpen={BulkDelete}
+          onClose={() => setBulkDelete(false)}
+          onDelete={handleBulkDelete}
+        />
+      )}
 
       {modalOpen && (
         <CustomModal

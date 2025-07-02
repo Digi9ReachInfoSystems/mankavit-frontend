@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 
 const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
   console.log(type);
+  console.log(data);
   const [subjectData, setSubjectData] = useState([]);
   const [courseData, setCourseData] = useState([]);
 

@@ -14,7 +14,12 @@ import {
   FileInput,
   UploadPlaceholder,
   SubmitButton,
-  VideoControl
+  VideoControl,
+  CheckboxSection,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxLabel,
+  CheckboxInput,
 } from "./AddLecturer.styles";
 import { useNavigate } from "react-router-dom";
 import { createLecture } from "../../../../../api/lecturesApi";
@@ -39,6 +44,7 @@ export default function AddLecturer() {
   const [isLoading, setIsLoading] = useState(false);
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +57,14 @@ export default function AddLecturer() {
         ]);
         setSubjects(subjectsResponse.data || []);
         setCourses(coursesResponse.data || []);
+        const responseSubjects = await getSubjects();
+        const subjectsData = responseSubjects.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: false,
+        }));
+        setSubjectCheckboxes(subjectsData);
+
       } catch (error) {
         toast.error("Failed to fetch data");
         console.error("Error fetching data:", error);
@@ -75,6 +89,11 @@ export default function AddLecturer() {
       setThumbnailFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+  const handleCheckboxChange = (index, setFn) => {
+    setFn((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -110,8 +129,12 @@ export default function AddLecturer() {
         description,
         duration,
         videoUrl: videoResponse.blobUrl,
-        thumbnail: thumbnailUrl
+        thumbnail: thumbnailUrl,
+        subjectRef: subjectCheckboxes
+          .filter((item) => item.checked)
+          .map((item) => item.id),
       };
+      console.log("submissionData", submissionData);
 
       const response = await createLecture(submissionData);
 
@@ -128,6 +151,7 @@ export default function AddLecturer() {
       setVideoFile(null);
       setThumbnailFile(null);
       setPreviewUrl("");
+      setSubjectCheckboxes(subjectCheckboxes.map((item) => ({ ...item, checked: false })));
     } catch (error) {
       toast.error("Failed to create lecture");
       console.error("Error creating lecture:", error);
@@ -145,22 +169,22 @@ export default function AddLecturer() {
             <FieldWrapper>
               <Label htmlFor="lectureName">Lecture Name *</Label>
               <Input id="lectureName" value={lectureName}
-               onChange={(e)=>{
-                const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                setLectureName(filteredData);
-               }}
-               placeholder="Enter Lecture Name" />
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setLectureName(filteredData);
+                }}
+                placeholder="Enter Lecture Name" />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
               <Label htmlFor="duration">Duration *</Label>
-              <Input id="duration" value={duration} 
-              onChange={(e)=>{
-                const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
-                setDuration(filteredData);
-              }}
-              placeholder="e.g. 20 min" />
+              <Input id="duration" value={duration}
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setDuration(filteredData);
+                }}
+                placeholder="e.g. 20 min" />
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -169,16 +193,34 @@ export default function AddLecturer() {
           <Column>
             <FieldWrapper>
               <Label htmlFor="description">Description *</Label>
-              <TextArea id="description" rows="3" value={description} 
-           onChange={(e)=>{
-            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-            setDescription(filteredData);
-           }}
-               placeholder="Enter description" />
+              <TextArea id="description" rows="3" value={description}
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setDescription(filteredData);
+                }}
+                placeholder="Enter description" />
             </FieldWrapper>
           </Column>
         </FormRow>
-
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+              <CheckboxList>
+                {subjectCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={item.id || index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column style={{ flex: 1 }}>
             <FieldWrapper>
@@ -186,10 +228,10 @@ export default function AddLecturer() {
               <UploadArea onClick={() => videoInputRef.current.click()}>
                 {videoFile ? (
                   <>
-                  <VideoControl controls>
-                    <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
-                  </VideoControl>
-                  <p>{videoFile.name}</p>
+                    <VideoControl controls>
+                      <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
+                    </VideoControl>
+                    <p>{videoFile.name}</p>
                   </>
                 ) : (
                   <>
@@ -228,19 +270,19 @@ export default function AddLecturer() {
           </SubmitButton>
         </FormRow>
       </FormWrapper>
-      
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 }

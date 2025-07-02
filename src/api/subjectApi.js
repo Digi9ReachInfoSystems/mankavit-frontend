@@ -2,7 +2,7 @@ import api from "../config/axiosConfig";
 
 export const getSubjects = async () => {
     try {
-        const response = await api.get('/api/v1/subject/'); 
+        const response = await api.get('/api/v1/subject/');
         return response.data;
     } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -44,7 +44,7 @@ export const deleteSubjectByid = async (id) => {
     try {
         const response = await api.delete(`/api/v1/subject/${id}`);
         return response.data;
-    } catch (error) {   
+    } catch (error) {
         console.error('Error deleting subject by ID:', error);
         throw error;
     }
@@ -59,3 +59,27 @@ export const getNoOfSubjects = async () => {
         throw error;
     }
 };
+export const bulkDeleteSubjects = async (subjectIds) => {
+    try {
+        
+        
+        // Proper axios DELETE request with data in the correct format
+        const response = await api.delete('/api/v1/subject/bulk/delete', {
+            data: { subjectIds },  // Axios requires DELETE payload to be in 'data'
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            }
+        });
+        
+        return response.data;
+    } catch (error) {
+        // Enhanced error logging
+        console.error('Error bulk deleting subjects:', {
+            message: error.message,
+            response: error.response?.data,
+            stack: error.stack
+        });
+        throw error;
+    }
+}

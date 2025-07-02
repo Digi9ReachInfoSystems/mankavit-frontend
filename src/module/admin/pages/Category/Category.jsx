@@ -8,14 +8,16 @@ import {
   ButtonContainer, CreateButton, Container, Title,
   SearchWrapper, SearchIcon, SearchInput,
   TableWrapper, StyledTable, TableBody, TableCell,
-  TableHeader, TableHead, TableRow, ActionsContainer
+  TableHeader, TableHead, TableRow, ActionsContainer,
+
 } from "./Category.styles";
 
 import Pagination from '../../component/Pagination/Pagination';
 import DeleteModal from '../../component/DeleteModal/DeleteModal';
-import { deleteCategory, getCategories } from '../../../../api/categoryApi';
+import { bulkDeleteCategory, deleteCategory, getCategories } from '../../../../api/categoryApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { set } from 'date-fns';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -27,7 +29,10 @@ const Category = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
+  const [selectAll, setSelectAll] = useState(false);
+  const [BulkDelete, setBulkDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -36,23 +41,28 @@ const Category = () => {
         const categories = Array.isArray(res) ? res : res.categories || [];
         setData(categories);
       } catch (error) {
-        console.error('Error fetching categories:', error); 
+        console.error('Error fetching categories:', error);
         toast.error('Failed to fetch categories');
 
       }
     };
-  
+
     fetchCategories();
   }, []);
-  
+
   // const filteredData = data.filter(item =>
   //   item.categoryName.toLowerCase().includes(searchText.toLowerCase())
   // );
+  const handleBulkDeleteClick = () => {
+    setBulkDelete(true);
+  };
+
+
 
   const filteredData = data.filter(item =>
     item.title && item.title.toLowerCase().includes(searchText.toLowerCase())
   );
-  
+
 
   const TOTAL_ENTRIES = filteredData.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
@@ -85,6 +95,46 @@ const Category = () => {
     });
   };
 
+  const handleCheckboxChange = (catId) => {
+    setSelectedCategories((prev) =>
+      prev.includes(catId)
+        ? prev.filter((id) => id !== catId)
+        : [...prev, catId]
+    );
+  };
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedCategories([]);
+    } else {
+      setSelectedCategories(currentItems.map((c) => c._id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setLoading(true);
+      await bulkDeleteCategory(selectedCategories);
+      toast.success("Selected Categories deleted successfully", {
+        autoClose: 3000, // Ensure this matches your toast duration
+        onClose: () => {
+
+          window.location.reload();
+        }
+      });
+      setSelectedCategories([]);
+      setSelectAll(false);
+      // await fetchCourses();
+      // window.location.reload(); // Reload the page to reflect changes
+      setBulkDelete(false);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <ButtonContainer>
@@ -100,7 +150,16 @@ const Category = () => {
             ({currentItems.length}/{TOTAL_ENTRIES})
           </span>
         </Title>
-
+        <ButtonContainer>
+          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+                    Add Course
+                  </CreateButton> */}
+          {selectedCategories.length > 0 && (
+            <CreateButton onClick={handleBulkDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+              Delete Selected ({selectedCategories.length})
+            </CreateButton>
+          )}
+        </ButtonContainer>
         <SearchWrapper>
           <SearchIcon><CiSearch size={18} /></SearchIcon>
           <SearchInput
@@ -114,31 +173,57 @@ const Category = () => {
           <StyledTable>
             <TableHead>
               <TableRow>
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </TableHeader>
                 <TableHeader>Category Name</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {currentItems.map((item) => (
-              <TableRow key={item._id}>
-              <TableCell>{item.title}</TableCell>
-              <TableCell>
-                <ActionsContainer>
-                  {/* <BiEditAlt
-                    title="Edit"
-                    color="#000000"
-                    size={20}
-                    onClick={() => handleEditClick(item._id)}
-                  /> */}
-                  <RiDeleteBin6Line
-                    title="Delete"
-                    size={20}
-                    color="#FB4F4F"
-                    onClick={() => handleDeleteClick(item._id)}
-                  />
-                </ActionsContainer>
-              </TableCell>
-            </TableRow>
+                <TableRow key={item._id}>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(item._id)}
+                      onChange={() => handleCheckboxChange(item._id)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href="#"
+                      onClick={() => {
+                        // console.log("Edit category with ID:", item._id);
+                        navigate(`/admin/category-management/edit/${item._id}`, { state: { categoryId: item._id } });
+                      }
+
+                      }
+                    >
+                      {item.title}
+                    </a>
+                  </TableCell>
+                  {/* <TableCell>
+                    <ActionsContainer>
+                      <BiEditAlt
+                        title="Edit"
+                        color="#000000"
+                        size={20}
+                        onClick={() => handleEditClick(item._id)}
+                      />
+                      <RiDeleteBin6Line
+                        title="Delete"
+                        size={20}
+                        color="#FB4F4F"
+                        onClick={() => handleDeleteClick(item._id)}
+                      />
+                    </ActionsContainer>
+                  </TableCell> */}
+                </TableRow>
               ))}
             </TableBody>
           </StyledTable>
@@ -159,19 +244,23 @@ const Category = () => {
           onDelete={handleConfirmDelete}
         />
 
-        
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='colored'
-      />
+        <DeleteModal
+          isOpen={BulkDelete}
+          onClose={() => setBulkDelete(false)}
+          onDelete={handleBulkDelete}
+        />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='colored'
+        />
       </Container>
     </>
   );

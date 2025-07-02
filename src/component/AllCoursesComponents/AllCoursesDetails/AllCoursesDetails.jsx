@@ -69,24 +69,26 @@ const AllCoursesDetails = () => {
       console.log("cookiesData", cookiesData, "activeTab", activeTab);
       setLoading(true);
       try {
+        console.log("Fetching courses for user:", cookiesData?.userId || 'Guest', "Category:", activeTab);
+        // Fetch courses based on user and active tab
         let data = [];
         if (cookiesData && cookiesData.userId) {
-          // if (activeTab === 'All') {
-          //   const resp = await getAllUserCourses(cookiesData.userId);
-          //   data = resp.data;
-          // } else {
+          if (activeTab === 'All') {
+            const resp = await getAllUserCourses(cookiesData.userId);
+            data = resp.data;
+          } else {
           const resp = await getAllUserCourseByCategory(cookiesData.userId, activeTab);
           console.log("resp", resp);
           data = resp.data;
-          // }
+          }
         } else {
-          // if (activeTab === 'All') {
-          //   const resp = await getAllCourses();
-          //   data = resp.data;
-          // } else {
+          if (activeTab === 'All') {
+            const resp = await getAllCourses();
+            data = resp.data;
+          } else {
           const resp = await getCourseByCategory(activeTab);
           data = resp.data;
-          // }
+          }
         }
         console.log("data", data);
 
@@ -137,6 +139,13 @@ const AllCoursesDetails = () => {
       </Title>
 
       <FilterBar>
+        <FilterButton
+            key={"All"}
+            active={activeTab === 'All'}
+            onClick={() => setActiveTab("All")}
+          >
+            All
+          </FilterButton>
         {categories.map(cat => (
           <FilterButton
             key={cat}
