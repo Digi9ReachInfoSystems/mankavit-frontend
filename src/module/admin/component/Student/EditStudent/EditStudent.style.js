@@ -237,7 +237,7 @@ export const UploadedFileName = styled.div`
 export const CourseSelection = styled.div`
   margin-bottom: 20px;
   margin-top: 20px;
-  width: 50%;
+  width: 100%;
   background-color: ${(props) => props.theme.colors.white};
 
   /* For lists */
@@ -253,10 +253,9 @@ export const CourseSelection = styled.div`
 export const CourseList = styled.div`
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
+//   flex-wrap: wrap;
   gap: 15px;
   margin-top: 10px;
-  width: 50%;
 `;
 
 export const CourseItem = styled.div`
@@ -282,4 +281,20 @@ export const ErrorMessage = styled.p`
   font-size: 0.8rem;
   margin-top: 0.25rem;
   margin-bottom: 0;
+`;
+
+export const LoadingSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+`;
+
+export const ReadOnlyField = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
 `;
