@@ -15,7 +15,7 @@ margin-top: 20px;
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
     border-radius: 12px;
-    min-height: 720px;
+    min-height: 820px;
     border-radius: 12px;
 
 //     @media (max-width: 990px) {
@@ -463,3 +463,44 @@ export const CourseItem = styled.li`
   padding: 0.5rem 0;
 `;
 
+export const PaymentStatus = styled.span`
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: ${props => 
+    props.status === 'success' ? '#d4edda' : 
+    props.status === 'pending' ? '#fff3cd' : 
+    '#f8d7da'};
+  color: ${props => 
+    props.status === 'success' ? '#155724' : 
+    props.status === 'pending' ? '#856404' : 
+    '#721c24'};
+`;
+
+export const PaymentDetailItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+`;
+
+export const PaymentDetailsList = styled.ul`
+  padding: 1rem;
+  margin-top: 0.5rem;
+`;
+export const ActivityDot = styled.span`
+  height: 10px;
+  width: 10px;
+  background-color: ${props => props.color || '#F44336'};
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+`;
+
+export const ActivityWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${props => props.color || '#F44336'};
+  font-weight: 500;
+`;

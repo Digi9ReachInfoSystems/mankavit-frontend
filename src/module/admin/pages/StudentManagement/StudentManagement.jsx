@@ -27,7 +27,12 @@ import {
   CourseList,
   CourseItem,
   CloseButton,
-  CloseButtonContainer
+  CloseButtonContainer,
+  PaymentStatus,
+  PaymentDetailsList,
+  PaymentDetailItem,
+   ActivityDot,
+  ActivityWrapper
 } from "../StudentManagement/StudentManagement.style";
 
 import { FiEdit } from "react-icons/fi";
@@ -59,12 +64,13 @@ export default function StudentManagement() {
     direction: "descending", // newest first
   });
 
-
   const [modalCourses, setModalCourses] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [coursesModalOpen, setCoursesModalOpen] = useState(false);
   const [coursesList, setCoursesList] = useState([]);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   const ts = (item) => {
     if (item.createdAt) return new Date(item.createdAt).getTime();
@@ -75,22 +81,33 @@ export default function StudentManagement() {
     return 0;
   };
 
+  // Format date to display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   // 1) Fetch all students + courses on mount
   useEffect(() => {
     const fetchStudentsAndCourses = async () => {
       try {
         const [studentResponse, courseResponse] = await Promise.all([
           getAllStudents(), // returns { data: { students: [...] } }
-
           getAllCourses(),  // returns { data: [ { _id, course_name, … }, … ] }
         ]);
 
         console.log("studentResponse", studentResponse);
         const students = studentResponse.data?.students || [];
         setData(students.sort((a, b) => ts(b) - ts(a)));
+        
         const courseMap = {};
         (courseResponse.data || []).forEach((course) => {
-          courseMap[course._id] = course.course_name;
+          courseMap[course._id] = course.courseName; // Changed from course_name to courseName to match your data
         });
         setCoursesMap(courseMap);
       } catch (err) {
@@ -117,9 +134,9 @@ export default function StudentManagement() {
     if (sortConfig) {
       sortableItems.sort((a, b) => {
         // Handle time-based sort
-        if (sortConfig.key === "createdAt") {
-          const timeA = ts(a);
-          const timeB = ts(b);
+        if (sortConfig.key === "createdAt" || sortConfig.key === "signedUpAt") {
+          const timeA = new Date(a[sortConfig.key] || 0).getTime();
+          const timeB = new Date(b[sortConfig.key] || 0).getTime();
           return sortConfig.direction === "ascending"
             ? timeA - timeB
             : timeB - timeA;
@@ -137,8 +154,7 @@ export default function StudentManagement() {
     return sortableItems;
   }, [data, sortConfig]);
 
-
-  // Filtering by “displayName”
+  // Filtering by "displayName"
   const filteredStudents = sortedData.filter((student) =>
     (student.displayName || "")
       .toLowerCase()
@@ -153,26 +169,37 @@ export default function StudentManagement() {
     startIndex + ITEMS_PER_PAGE
   );
 
-  const handleViewCourses = (userId) => {
-    // 📝 Replace this with an API call if needed
-    const dummyCourses = [
-      "React Bootcamp",
-      "JavaScript Mastery",
-      "Node.js Basics",
-      "MongoDB Essentials"
-    ];
-
-    setCoursesList(dummyCourses);
+  const handleViewCourses = (subscriptions) => {
+    const courses = subscriptions.map(sub => ({
+      courseName: sub.course_enrolled?.courseName || coursesMap[sub.course_enrolled?._id] || "Unknown Course",
+      enrolledDate: formatDate(sub.created_at)
+    }));
+    setCoursesList(courses);
     setCoursesModalOpen(true);
   };
 
-  // “Delete student” stubs
+  const handleViewPaymentDetails = (subscription) => {
+    if (subscription && subscription.length > 0) {
+      setPaymentDetails({
+        status: subscription[0].payment_Status,
+        razorpay_payment_id: subscription[0].payment_id?.razorpay_payment_id || "N/A",
+        razorpay_order_id: subscription[0].payment_id?.razorpay_order_id || "N/A",
+        amountPaid: subscription[0].payment_id?.amountPaid || "N/A",
+        paymentType: subscription[0].payment_id?.paymentType || "N/A",
+        transactionId: subscription[0].payment_id?.transactionId || "N/A",
+        paymentDate: formatDate(subscription[0].payment_id?.createdAt)
+      });
+      setPaymentModalOpen(true);
+    }
+  };
+
+  // "Delete student" stubs
   const handleDeleteClick = (id) => {
     setSelectedStudent(id);
     setDeleteModalOpen(true);
   };
   const handleDeleteConfirm = () => {
-    try{
+    try {
       setData(data.filter((s) => s._id !== selectedStudent));
       setDeleteModalOpen(false);
       toast.success("Data deleted successfully.");
@@ -182,12 +209,23 @@ export default function StudentManagement() {
     }
   };
 
-  // “View student details” stub
+  // "View student details" stub
   const handleViewClick = (student) => {
     navigate(`/admin/student-management/view/${student._id}`, {
       state: { student },
     });
   };
+
+    const renderActivityStatus = (isActive) => {
+    const statusColor = isActive ? '#4CAF50' : '#F44336';
+    return (
+      <ActivityWrapper color={statusColor}>
+        <ActivityDot color={statusColor} />
+        {isActive ? "Active" : "Inactive"}
+      </ActivityWrapper>
+    );
+  };
+
 
   return (
     <>
@@ -217,11 +255,10 @@ export default function StudentManagement() {
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
             <SortSelect value={sortConfig.key} onChange={(e) => requestSort(e.target.value)}>
-              <option value="createdAt">Latest</option>
+              <option value="signedUpAt">Latest</option>
               <option value="displayName">Name</option>
               <option value="kyc_status">KYC Status</option>
             </SortSelect>
-
           </SortByContainer>
         </HeaderRow>
 
@@ -245,12 +282,14 @@ export default function StudentManagement() {
                   onClick={() => requestSort("displayName")}
                   style={{ cursor: "pointer" }}
                 >
-                  Student Name{" "}
+                  Student name{" "}
                   {sortConfig.key === "displayName" &&
                     (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </TableHeader>
-                <TableHeader>Contact Details</TableHeader>
-                <TableHeader>Course Enrolled</TableHeader>
+ 
+                <TableHeader>Contact details</TableHeader>
+                <TableHeader>Course enrolled</TableHeader>
+                <TableHeader>Payment Status</TableHeader>
                 <TableHeader
                   onClick={() => requestSort("kyc_status")}
                   style={{ cursor: "pointer" }}
@@ -259,9 +298,16 @@ export default function StudentManagement() {
                   {sortConfig.key === "kyc_status" &&
                     (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </TableHeader>
-                <TableHeader>Actions</TableHeader>
-                <TableHeader>Update</TableHeader>
-                <TableHeader>All Courses</TableHeader>
+                <TableHeader
+                  onClick={() => requestSort("signedUpAt")}
+                  style={{ cursor: "pointer" }}
+                >
+                  Signed up date{" "}
+                  {sortConfig.key === "signedUpAt" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                </TableHeader>
+
+                <TableHeader>Activity Status</TableHeader> {/* New column */}
               </TableRow>
             </TableHead>
 
@@ -269,12 +315,18 @@ export default function StudentManagement() {
               {currentItems.map((item, idx) => (
                 <TableRow key={item._id}>
                   <TableCell>{startIndex + idx + 1}</TableCell>
-                  <TableCell>{item.displayName || "N/A"}</TableCell>
+
+                  <TableCell
+                    style={{ cursor: "pointer", color: "#007bff" }}
+                    onClick={() => navigate(`/admin/student-management/edit/${item._id}`)}
+                  >
+                    {item.displayName || "N/A"}
+                  </TableCell>
+
+ 
                   <TableCell>
                     {item.phone}
                     <br />
-                    {/* {item.email} */}
-                  {/* email character should be maximum of 30 characters then urts hgsould be ... */}
                     {item.email.length > 23 ? item.email.substring(0, 20) + "..." : item.email}
                   </TableCell>
                   <TableCell>
@@ -282,15 +334,7 @@ export default function StudentManagement() {
                     <span
                       onClick={(e) => {
                         e.preventDefault();
-                        setModalType("Enrolled Courses");
-                        setModalCourses(
-                          (item.subscription || []).map(
-                            (sub) =>
-                              coursesMap[sub.course_enrolled] ||
-                              sub.course_enrolled
-                          )
-                        );
-                        setModalOpen(true);
+                        handleViewCourses(item.subscription || []);
                       }}
                       style={{
                         color: "#007bff",
@@ -302,54 +346,34 @@ export default function StudentManagement() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <StatusWrapper>
-                      <KycDot status={item.kyc_status} />
-                      {item.kyc_status}
-                    </StatusWrapper>
+                    {item.subscription?.length > 0 ? (
+                      <PaymentStatus 
+                        status={item.subscription[0].payment_Status}
+                        onClick={() => handleViewPaymentDetails(item.subscription)}
+                      >
+                        {item.subscription[0].payment_Status}
+                      </PaymentStatus>
+                    ) : "N/A"}
                   </TableCell>
                   <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline
-                        title="View"
-                        color="#000000"
-                        size={20}
-                        onClick={() => handleViewClick(item)}
-                      />
-                      <RiDeleteBin6Line
-                        title="Delete"
-                        size={20}
-                        color="#FB4F4F"
-                        onClick={() => handleDeleteClick(item.id)}
-                      />
-                    </ActionsContainer>
-                  </TableCell>
-                  <TableCell>
-                    {/*
-                      Instead of fetching KYC here, we simply navigate
-                      to the UpdateKYC page with the user’s ID.
-                    */}
-                    <FiEdit
-                      title="Update KYC"
-                      color="#000000"
-                      size={20}
+                    <StatusWrapper
                       style={{ cursor: "pointer" }}
                       onClick={() =>
                         navigate(
                           `/admin/student-management/update-kyc/${item._id}`
                         )
                       }
-                    />
+                    >
+                      <KycDot status={item.kyc_status} />
+                      {item.kyc_status}
+                    </StatusWrapper>
                   </TableCell>
                   <TableCell>
-                    {(item.subscripti?.length || 0)}{" "}
-
-                    <span
-                      onClick={() => handleViewCourses(item)}
-                      style={{ cursor: "pointer", color: "#007bff", marginLeft: 5 }}
-                    >
-                      View
-                    </span>
+                    {formatDate(item.signedUpAt)}
                   </TableCell>
+                  <TableCell>
+                  {renderActivityStatus(item.isActive || false)}
+                </TableCell>
 
                 </TableRow>
               ))}
@@ -365,17 +389,6 @@ export default function StudentManagement() {
           itemsPerPage={ITEMS_PER_PAGE}
         />
       </Container>
-
-      {modalOpen && (
-        <CustomModal
-          title={
-            modalType === "Enrolled Courses" ? "Enrolled Courses" : "Modal"
-          }
-          type={modalType}
-          data={modalCourses}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
 
       {deleteModalOpen && (
         <DeleteModal
@@ -400,13 +413,18 @@ export default function StudentManagement() {
       {coursesModalOpen && (
         <ModalOverlay>
           <ModalContent>
-            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>All Courses</h2>
+            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>Enrolled Courses</h2>
             {coursesList.length === 0 ? (
               <p>No courses enrolled.</p>
             ) : (
               <CourseList>
                 {coursesList.map((course, index) => (
-                  <CourseItem key={index}>{course}</CourseItem>
+                  <CourseItem key={index}>
+                    <div>
+                      <strong>{course.courseName}</strong>
+                      <div>Enrolled Date: {course.enrolledDate}</div>
+                    </div>
+                  </CourseItem>
                 ))}
               </CourseList>
             )}
@@ -417,6 +435,39 @@ export default function StudentManagement() {
         </ModalOverlay>
       )}
 
+      {paymentModalOpen && paymentDetails && (
+        <ModalOverlay>
+          <ModalContent>
+            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>Payment Details</h2>
+            <PaymentDetailsList>
+              <PaymentDetailItem>
+                <strong>Status:</strong> <PaymentStatus status={paymentDetails.status}>{paymentDetails.status}</PaymentStatus>
+              </PaymentDetailItem>
+              <PaymentDetailItem>
+                <strong>Razorpay Payment ID:</strong> {paymentDetails.razorpay_payment_id}
+              </PaymentDetailItem>
+              <PaymentDetailItem>
+                <strong>Razorpay Order ID:</strong> {paymentDetails.razorpay_order_id}
+              </PaymentDetailItem>
+              <PaymentDetailItem>
+                <strong>Amount Paid:</strong> {paymentDetails.amountPaid}
+              </PaymentDetailItem>
+              <PaymentDetailItem>
+                <strong>Payment Type:</strong> {paymentDetails.paymentType}
+              </PaymentDetailItem>
+              <PaymentDetailItem>
+                <strong>Transaction ID:</strong> {paymentDetails.transactionId}
+              </PaymentDetailItem>
+              <PaymentDetailItem>
+                <strong>Payment Date:</strong> {paymentDetails.paymentDate}
+              </PaymentDetailItem>
+            </PaymentDetailsList>
+            <CloseButtonContainer>
+              <CloseButton onClick={() => setPaymentModalOpen(false)}>Close</CloseButton>
+            </CloseButtonContainer>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </>
   );
 }

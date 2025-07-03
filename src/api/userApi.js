@@ -26,3 +26,21 @@ export const verifyUser = (data) => {
     throw error;
    }
 }; 
+
+export const addCourseToStudent = (data) => {
+   try{
+    const response = api.put("/user/addCourseToStudent", data);
+    return response;
+   }catch(error){
+    throw error;
+   }
+};
+
+export const removeCourseFromStudent = (data) => {
+   try{
+    const response = api.put("/user/removeCourseFromStudent", data);
+    return response;
+   }catch(error){
+    throw error;
+   }
+}
