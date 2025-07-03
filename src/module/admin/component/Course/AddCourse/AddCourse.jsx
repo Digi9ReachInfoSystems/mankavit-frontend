@@ -1,5 +1,5 @@
 // AddCourse.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import uplaod from "../../../../../assets/upload.png";
 import {
   Container,
@@ -33,6 +33,8 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import JoditEditor from 'jodit-react';
+import { set } from "date-fns";
 
 export default function AddCourse() {
   // State for form fields (existing)
@@ -60,6 +62,8 @@ export default function AddCourse() {
   const [isPublished, setIsPublished] = useState(false);
   const [status, setStatus] = useState("active");
   const [ratting, setRatting] = useState(0);
+  const editor = useRef(null);
+
 
   const navigate = useNavigate();
 
@@ -113,7 +117,50 @@ export default function AddCourse() {
     };
     apiCaller();
   }, []);
-
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: shortDescription || 'Start typings...',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
+  const configDis = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: description || 'Start typings...',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
 
   // Handlers for toggles & checkboxes
   const handleCheckboxChange = (index, setFn) => {
@@ -172,7 +219,7 @@ export default function AddCourse() {
       if (!actualPrice || isNaN(actualPrice))
         return toast.error("Actual price should be a number.");
       if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
-    
+
 
       // Upload image
       const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
@@ -268,8 +315,8 @@ export default function AddCourse() {
                 id="courseTitle"
                 value={courseTitle}
                 onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-                  setCourseTitle(filteredData);
+                  // const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+                  setCourseTitle(e.target.value);
                 }}
                 placeholder="Enter Course Title"
               />
@@ -282,18 +329,34 @@ export default function AddCourse() {
                 id="internalTitle"
                 value={internalTitle}
                 onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-                  setInternalTitle(filteredData);
+                  // const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+                  setInternalTitle(e.target.value);
                 }}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
           </Column>
         </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                config={configDis}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setDescription(newContent) }}
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
 
         {/* Row 2: Course Short Description */}
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="shortDescription">Course Short Description</Label>
               <TextArea
@@ -307,8 +370,25 @@ export default function AddCourse() {
                 placeholder="Enter short description"
               />
             </FieldWrapper>
+          </Column> */}
+
+
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="shortDescription">Course Short Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={shortDescription}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setShortDescription(newContent) }}
+              />
+            </FieldWrapper>
           </Column>
+
         </FormRow>
+
 
         {/* Row 3: Discounted Price & Actual Price */}
         <FormRow>
@@ -395,12 +475,13 @@ export default function AddCourse() {
                 min={0}
                 max={5}
                 value={rating}
-                onChange={(e) =>{ 
+                onChange={(e) => {
                   if (e.target.value < 0 || e.target.value > 5) {
                     toast.error("Rating must be between 0 and 5.");
                     return;
                   }
-                  setRating(e.target.value)}}
+                  setRating(e.target.value)
+                }}
                 placeholder="e.g. 4"
               />
             </FieldWrapper>

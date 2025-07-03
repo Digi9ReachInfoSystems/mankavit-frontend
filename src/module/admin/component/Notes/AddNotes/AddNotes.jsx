@@ -218,7 +218,7 @@ export default function AddNote() {
                 value={noteTitle}
                 onChange={(e) =>{
                   const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setNoteTitle(filteredData);
+                  setNoteTitle(e.target.value);
                 }}
                 placeholder="Enter Note Title"
               />
@@ -233,8 +233,8 @@ export default function AddNote() {
                 value={internalTitle}
                 // onChange={(e) => setInternalTitle(e.target.value)}
                 onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setInternalTitle(filteredData);
+                  // const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setInternalTitle(e.target.value);
                 }}
                 placeholder="Enter Internal Title"
               />

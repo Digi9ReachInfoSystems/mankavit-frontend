@@ -202,14 +202,14 @@ export default function Lecturer() {
     <>
       <ButtonContainer>
         <CreateButton onClick={() => navigate('/admin/lecturer-management/create')}>
-          Add Lecturer
+          Add Video
         </CreateButton>
       </ButtonContainer>
 
       <Container>
         <HeaderRow>
           <Title>
-            See All Lecturers{' '}
+            See All Videos{' '}
             <span style={{ color: '#6d6e75', fontSize: '12px', fontWeight: '400' }}>
               ({currentItems.length}/{TOTAL_ENTRIES})
             </span>
@@ -262,7 +262,7 @@ export default function Lecturer() {
                     onChange={handleSelectAllChange}
                   />
                 </TableHeader>
-                <TableHeader>Lecture Name</TableHeader>
+                <TableHeader>Video Title</TableHeader>
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Duration</TableHeader>
                 <TableHeader>Video</TableHeader>
