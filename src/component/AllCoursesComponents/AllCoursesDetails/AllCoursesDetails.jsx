@@ -182,7 +182,7 @@ const AllCoursesDetails = () => {
                   <CourseTitle>{course.title}</CourseTitle>
                   <CourseMinititle>{course.minititle}</CourseMinititle>
                 </CourseHead>
-                <CourseDesc>{course.desc}</CourseDesc>
+              <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc }} /> 
               </CourseMain>
               <Details>
                 <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>

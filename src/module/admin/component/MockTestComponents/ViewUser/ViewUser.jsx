@@ -25,7 +25,7 @@ import { getAttemptedUserListByMocktestId, getUserAnswerByMocktestIdandSubjectId
 import { IoEyeOutline } from "react-icons/io5";
 const ITEMS_PER_PAGE = 10;
 
-export default function ViewUser() {
+export default function             ViewUser() {
   const { mockTestId, subjectId } = useParams();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
