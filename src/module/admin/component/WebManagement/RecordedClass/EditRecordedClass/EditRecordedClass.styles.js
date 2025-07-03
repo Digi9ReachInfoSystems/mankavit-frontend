@@ -221,3 +221,53 @@ export const FormRow = styled.div`
     grid-template-columns: 1fr;
   }
 `;
+export const VideoPreview = styled.video`
+  width: 100%;
+  max-height: 150px;
+  border-radius: 4px;
+  margin-top: 10px;
+  background: #000;
+`;
+
+export const VideoContainer = styled.div`
+  width: 100%;
+  margin-top: 10px;
+`;
+
+export const PreviewControls = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+  
+  button {
+    padding: 4px 8px;
+    background: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    
+    &:hover {
+      background: #303f9f;
+    }
+  }
+`;
+
+export const FileNameShort = styled.span`
+  font-size: 12px;
+  color: #666;
+  display: inline-block;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+export const VideoPlayer = styled.video`
+  width: 100%;
+  max-height: 300px;
+  margin-top: 15px;
+  border-radius: 4px;
+  background: #000;
+`;

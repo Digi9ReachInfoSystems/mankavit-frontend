@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   MockTestQuestionsListContainer,
   Title,
@@ -30,7 +30,7 @@ import {
 import { useParams } from 'react-router-dom';
 import DeleteModal from '../../../component/DeleteModal/DeleteModal';
 import { toast } from 'react-toastify';
-
+import JoditEditor from 'jodit-react';
 // Helper Functions
 const createEmptyOption = () => ({ text: '', marks: 0, isCorrect: false });
 const createEmptyQuestion = () => ({
@@ -51,6 +51,7 @@ const groupIntoPages = (questions = [], pageSize = 5) => {
   return result;
 };
 
+
 const MockTestQuestionsList = () => {
   const { mockTestId } = useParams(); // Get mockTestId from URL
   const [pages, setPages] = useState([]);
@@ -62,7 +63,28 @@ const MockTestQuestionsList = () => {
     index: null, // question index or page index
     pageIndex: null, // for question deletion
   });
-
+  const editor = useRef(null);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: "Type here...",
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
   if (!mockTestId) {
     return <div>Error: Mock Test ID not found</div>;
   }
@@ -119,7 +141,7 @@ const MockTestQuestionsList = () => {
 
   const confirmDelete = async () => {
     const { type, index, pageIndex } = deleteModal;
-    
+
     try {
       if (type === 'question') {
         const questionId = pages[pageIndex].questions[index]._id;
@@ -166,22 +188,22 @@ const MockTestQuestionsList = () => {
 
   const moveQuestion = async (pi, qi, dir) => {
     const newQi = dir === 'up' ? qi - 1 : qi + 1;
-    
+
     // Check if new position is valid
     if (newQi < 0 || newQi >= pages[pi].questions.length) {
       return; // No change if move is invalid
     }
-    
+
     try {
       // Create a new array for questions
       const newQuestions = [...pages[pi].questions];
-      
+
       // Swap the questions
       [newQuestions[qi], newQuestions[newQi]] = [
-        newQuestions[newQi], 
+        newQuestions[newQi],
         newQuestions[qi]
       ];
-      
+
       // Prepare the data for the API call
       const questionsForApi = newQuestions.map(q => {
         const isMcq = q.type === 'mcq';
@@ -215,7 +237,7 @@ const MockTestQuestionsList = () => {
     } catch (error) {
       console.error("Failed to rearrange questions:", error);
       // alert("Failed to rearrange questions. Please try again.");
-toast.error("Failed to rearrange questions. Please try again.");
+      toast.error("Failed to rearrange questions. Please try again.");
     }
   };
 
@@ -380,7 +402,7 @@ toast.error("Failed to rearrange questions. Please try again.");
                 return (
                   <QuestionContainer key={qi}>
                     <Question>
-                      <QuestionNumber>{qi + 1}.{q.text}</QuestionNumber>
+                      <QuestionNumber>{qi + 1}. <div dangerouslySetInnerHTML={{ __html: q.text }}></div></QuestionNumber>
                       <QuestionActions>
                         <IconButton onClick={() => setEditingRef({ page: pi, q: qi })}>
                           <FaEdit />
@@ -389,15 +411,15 @@ toast.error("Failed to rearrange questions. Please try again.");
                           <FaTrash color="red" />
                         </IconButton>
                         <PageControl>
-                          <IconButton 
-                            onClick={() => moveQuestion(pi, qi, 'up')} 
+                          <IconButton
+                            onClick={() => moveQuestion(pi, qi, 'up')}
                             disabled={qi === 0}
                             title="Move question up"
                           >
                             <FaArrowUp color={qi === 0 ? "gray" : "green"} />
                           </IconButton>
-                          <IconButton 
-                            onClick={() => moveQuestion(pi, qi, 'down')} 
+                          <IconButton
+                            onClick={() => moveQuestion(pi, qi, 'down')}
                             disabled={qi === page.questions.length - 1}
                             title="Move question down"
                           >
@@ -429,18 +451,27 @@ toast.error("Failed to rearrange questions. Please try again.");
                           </select>
                         </label>
                         <div style={{ marginTop: '1rem' }}>
-                          <textarea
+                          <JoditEditor
+                            ref={editor}
+                            value={q.text}
+                            config={config}
+                            tabIndex={1}
+                            onBlur={newContent => { console.log("new", newContent); }}
+                            onChange={newContent => { updateQuestionField(pi, qi, 'text', newContent) }}
+                          />
+                          {/* <textarea
                             placeholder="Type your question here…"
                             value={q.text}
                             rows={4}
-                            style={{ width: '100%',
+                            style={{
+                              width: '100%',
                               padding: '0.5rem',
-                               fontSize: '16px',
-                             }}
+                              fontSize: '16px',
+                            }}
                             onChange={(e) =>
                               updateQuestionField(pi, qi, 'text', e.target.value)
                             }
-                          />
+                          /> */}
                         </div>
                         {q.type === 'mcq' && (
                           <div style={{ marginTop: '1.5rem' }}>
@@ -468,36 +499,51 @@ toast.error("Failed to rearrange questions. Please try again.");
                                       e.target.value
                                     )
                                   }
-                                  style={{ width: '90%',
-                                    padding: '0.5rem',
-                                       fontSize: '16px',
-                                   }}
-                                />
-                                <input
-                                  type="number"
-                                  // min={0}
-                                  placeholder="Marks"
-                                  value={opt.marks}
-                                  onChange={(e) =>
-                                    updateOptionField(
-                                      pi,
-                                      qi,
-                                      oi,
-                                      'marks',
-                                      Number(e.target.value)
-                                    )
-                                  }
-                                     style={{ width: '90%',
+                                  style={{
+                                    width: '90%',
                                     padding: '0.5rem',
                                     fontSize: '16px',
-                                   }}
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                  }}
                                 />
+                                <input
+                                  type="text"
+                                  placeholder="Marks"
+                                  value={opt.raw ?? opt.marks.toString()}
+                                  onChange={(e) => {
+                                    const input = e.target.value;
+
+                                    // Regex to allow optional +/-, optional digits, optional decimal, optional digits
+                                    const validInput = /^[-+]?(\d+)?(\.\d*)?$/.test(input);
+
+                                    if (validInput) {
+                                      // Allow intermediate invalid numbers like "-" or "." or "-."
+                                      updateOptionField(pi, qi, oi, 'raw', input);
+
+                                      // Convert only when it's a valid number
+                                      const numberValue = Number(input);
+                                      if (!isNaN(numberValue)) {
+                                        updateOptionField(pi, qi, oi, 'marks', numberValue);
+                                      }
+                                    }
+                                  }}
+                                  style={{
+                                    width: '90%',
+                                    padding: '0.5rem',
+                                    fontSize: '16px',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                  }}
+                                />
+
+
                                 <label
                                   style={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.25rem',
-                                       fontSize: '16px',
+                                    fontSize: '16px',
                                   }}
                                 >
                                   <input
@@ -512,10 +558,13 @@ toast.error("Failed to rearrange questions. Please try again.");
                                         e.target.checked
                                       )
                                     }
-                                       style={{ width: '90%',
-                                    padding: '0.5rem',
-                                       fontSize: '16px',
-                                   }}
+                                    style={{
+                                      width: '90%',
+                                      padding: '0.5rem',
+                                      fontSize: '16px',
+                                      border: '1px solid #ccc',
+                                      borderRadius: '4px',
+                                    }}
                                   />
                                   Correct
                                 </label>
@@ -536,27 +585,37 @@ toast.error("Failed to rearrange questions. Please try again.");
                           <div style={{ marginTop: '1.5rem' }}>
                             <label>Marks</label>
 
+
                             <input
-                              type="number"
-                              // min={0}
+                              type="text"
                               placeholder="Marks"
-                              value={q.marks}
-                              onChange={(e) =>
-                                updateQuestionField(
-                                  pi,
-                                  qi,
-                                  'marks',
-                                  Number(e.target.value)
-                                )
-                              }
+                              value={q.raw ?? q.marks.toString()}
+                              onChange={(e) => {
+                                const input = e.target.value;
+
+                                // Regex: optional +/-, then digits, optional decimal point and digits
+                                const validInput = /^[-+]?(\d+)?(\.\d*)?$/.test(input);
+
+                                if (validInput) {
+                                  updateQuestionField(pi, qi, 'raw', input);
+
+                                  const parsed = Number(input);
+                                  if (!isNaN(parsed)) {
+                                    updateQuestionField(pi, qi, 'marks', parsed);
+                                  }
+                                }
+                              }}
                               style={{
                                 width: '100%',
                                 padding: '0.5rem',
                                 marginTop: '0.5rem',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
                               }}
                             />
 
-                            
+
+
                           </div>
                         )}
                         <div
@@ -578,9 +637,9 @@ toast.error("Failed to rearrange questions. Please try again.");
               </PageFooter>
             </PageContainer>
           ))}
-          <CreateButton onClick={addPage}>
+          {/* <CreateButton onClick={addPage}>
             <FaPlus /> Create New Page
-          </CreateButton>
+          </CreateButton> */}
         </>
       )}
 

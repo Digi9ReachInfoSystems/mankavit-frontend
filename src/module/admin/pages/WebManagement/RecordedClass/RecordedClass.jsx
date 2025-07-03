@@ -24,7 +24,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../../component/CustomModal/CustomModal";
-import { getAllRecordedClasses, deleteRecordedClassById } from "../../../../../api/recordedAPi";
+import { getAllRecordedClasses, deleteRecordedClassById, bulkDeleteRecordedClasses } from "../../../../../api/recordedAPi";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -38,18 +38,20 @@ export default function RecordedClass() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCoursesModal, setShowCoursesModal] = useState(false);
   const [coursesModalData, setCoursesModalData] = useState([]);
-
+  const [selectAll, setSelectAll] = useState(false);
+  const [BulkDelete, setBulkDelete] = useState(false);
+  const [selectedRecordedClasses, setSelectedRecordedClasses] = useState([]);
   useEffect(() => {
     const fetchRecordedClasses = async () => {
       setLoading(true);
       try {
         const response = await getAllRecordedClasses();
         if (response && response.data) {
-          const responseData = Array.isArray(response.data) 
-            ? response.data 
+          const responseData = Array.isArray(response.data)
+            ? response.data
             : response.data.data || [];
           setData(responseData);
-         
+
         } else {
           setData([]);
           toast.warn('No recorded classes found', { autoClose: 3000 });
@@ -76,7 +78,7 @@ export default function RecordedClass() {
     setDeleteId(id);
     setShowDeleteModal(true);
   };
-  
+
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -105,25 +107,67 @@ export default function RecordedClass() {
 
   const handleView = (row) => {
     navigate(
-      `/admin/web-management/recorded-classes/view/${row._id}`,
+      `/admin/recorded-classes/view/${row._id}`,
       { state: { row } }
     );
   };
 
   const handleEdit = (row) => {
     navigate(
-      `/admin/web-management/recorded-classes/edit/${row._id}`,
+      `/admin/recorded-classes/edit/${row._id}`,
       { state: { row } }
     );
   };
 
   const handleCreate = () => {
-    navigate("/admin/web-management/recorded-classes/create");
+    navigate("/admin/recorded-classes/create");
+  };
+  const handleBulkDeleteClick = () => {
+    setBulkDelete(true);
+
+  };
+  const handleCheckboxChange = (itemId) => {
+    setSelectedRecordedClasses((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedRecordedClasses([]);
+    } else {
+      setSelectedRecordedClasses(currentItems.map((c) => c._id));
+    }
+    setSelectAll(!selectAll);
+  };
+  const handleBulkDelete = async () => {
+    try {
+      setLoading(true);
+      await bulkDeleteRecordedClasses(selectedRecordedClasses);
+      toast.success("Selected Recorded Class deleted successfully", {
+        autoClose: 3000, // Ensure this matches your toast duration
+        onClose: () => {
+
+          window.location.reload();
+        }
+      });
+      setSelectedRecordedClasses([]);
+      setSelectAll(false);
+      // await fetchCourses();
+      // window.location.reload(); // Reload the page to reflect changes
+      setBulkDelete(false);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
@@ -135,11 +179,21 @@ export default function RecordedClass() {
         pauseOnHover
         theme="colored"
       />
-      
+
       <ButtonContainer>
         <CreateButton onClick={handleCreate}>
           Upload recorded class
         </CreateButton>
+      </ButtonContainer>
+      <ButtonContainer>
+        {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+                          Add Course
+                        </CreateButton> */}
+        {selectedRecordedClasses.length > 0 && (
+          <CreateButton onClick={handleBulkDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+            Delete Selected ({selectedRecordedClasses.length})
+          </CreateButton>
+        )}
       </ButtonContainer>
 
       <Container>
@@ -154,10 +208,17 @@ export default function RecordedClass() {
           <StyledTable>
             <TableHead>
               <tr>
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </TableHeader>
                 <TableHeader>Title</TableHeader>
-                <TableHeader>Description</TableHeader>
+                {/* <TableHeader>Description</TableHeader> */}
                 <TableHeader>Courses</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
               </tr>
             </TableHead>
             <TableBody>
@@ -168,10 +229,31 @@ export default function RecordedClass() {
                     ? [row.course_ref]
                     : [];
 
+
+
                 return (
                   <TableRow key={row._id}>
-                    <TableCell>{row.title}</TableCell>
-                    <TableCell>{row.description}</TableCell>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedRecordedClasses.includes(row._id)}
+                        onChange={() => handleCheckboxChange(row._id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <a
+                        href="#"
+                        onClick={() => {
+                          navigate(`/admin/recorded-classes/edit/${row._id}`, { state: { row } });
+                        }
+
+                        }
+                        style={{ textDecoration: "none", }}
+                      >
+                        {row.title}
+                      </a>
+                    </TableCell>
+                    {/* <TableCell>{row.description}</TableCell> */}
                     <TableCell>
                       {courses.length}{" "}
                       {courses.length > 0 && (
@@ -180,7 +262,7 @@ export default function RecordedClass() {
                         </ViewLink>
                       )}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <ActionsWrapper>
                         <IoEyeOutline
                           size={20}
@@ -199,7 +281,7 @@ export default function RecordedClass() {
                           onClick={() => confirmDelete(row._id)}
                         />
                       </ActionsWrapper>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 );
               })}
@@ -227,6 +309,15 @@ export default function RecordedClass() {
           isLoading={loading}
         />
       )}
+      <DeleteModal
+        isOpen={BulkDelete}
+        onClose={() => {
+          setBulkDelete(false);
+          toast.info('Deletion cancelled', { autoClose: 2000 });
+        }}
+        onDelete={handleBulkDelete}
+        isLoading={loading}
+      />
 
       {showCoursesModal && (
         <CustomModal

@@ -46,3 +46,12 @@ export const getAllRecordedClasses = async () => {
      throw error;
     }
  };
+
+ export const bulkDeleteRecordedClasses = async (sessionIds) => {
+    try{
+     const response = await api.delete('/recordedSession/bulk/delete', { data: { sessionIds } });
+     return response.data;
+    }catch(error){
+     throw error;
+    }
+ };

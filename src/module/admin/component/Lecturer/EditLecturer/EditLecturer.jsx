@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -28,6 +28,7 @@ import { getLectureById, updateLectureById } from "../../../../../api/lecturesAp
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getSubjects } from "../../../../../api/subjectApi";
+import JoditEditor from 'jodit-react';
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -49,6 +50,7 @@ export default function EditLecturer() {
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const thumbnailInputRef = useRef(null);
   const videoInputRef = useRef(null);
+  const editor = useRef(null);
 
   useEffect(() => {
     const fetchLecture = async () => {
@@ -135,15 +137,37 @@ export default function EditLecturer() {
       toast.error("Failed to update lecture");
     }
   };
+  const configDis = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.description,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
 
   return (
     <Container>
-      <Title>Edit Lecture</Title>
+      <Title>Edit Video</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="lectureName">Lecture Name*</Label>
+              <Label htmlFor="lectureName">Video Title*</Label>
               <Input
                 id="lectureName"
                 name="lectureName"
@@ -152,7 +176,7 @@ export default function EditLecturer() {
                   const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
                   setFormData({ ...formData, lectureName: filteredData });
                 }}
-                placeholder="Enter Lecture Name"
+                placeholder="Enter Video Name"
                 required
               />
             </FieldWrapper>
@@ -174,8 +198,23 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-
         <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={formData.description}
+                config={configDis}
+                tabIndex={1}
+                onBlur={newContent => { console.log("new", newContent); }}
+                onChange={newContent => { setFormData({ ...formData, description: newContent }) }}
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label htmlFor="description">Description*</Label>
@@ -193,7 +232,7 @@ export default function EditLecturer() {
               />
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
         <FormRow>
           <Column>
             <CheckboxSection>

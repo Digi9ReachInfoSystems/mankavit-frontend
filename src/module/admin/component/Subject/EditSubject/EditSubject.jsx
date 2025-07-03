@@ -1,5 +1,5 @@
 // src/module/admin/components/EditSubject/EditSubject.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 // import toast, { Toaster } from "react-hot-toast";
 
@@ -33,6 +33,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 import { getAllMocktest } from "../../../../../api/mocktestApi";
 import { getAllCourses } from "../../../../../api/courseApi";
+import JoditEditor from 'jodit-react';
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -53,7 +54,7 @@ export default function EditSubject() {
   // image upload
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-
+ const editor = useRef(null);
   // fetch existing subject, notes & lectures
   useEffect(() => {
     async function fetchData() {
@@ -192,6 +193,27 @@ export default function EditSubject() {
       toast.error(msg);
     }
   };
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: shortDescription,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
 
   return (
     <Container>
@@ -239,12 +261,27 @@ export default function EditSubject() {
                 placeholder="Enter Vimeo ID"
               />
             </FieldWrapper>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label>Short Description</Label>
               <Input
                 value={shortDescription}
                 onChange={e => setShortDescription(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
                 placeholder="Enter Short Description"
+              />
+            </FieldWrapper> */}
+          </Column>
+        </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="shortDescription">Course Short Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={shortDescription}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setShortDescription(newContent); }}
               />
             </FieldWrapper>
           </Column>

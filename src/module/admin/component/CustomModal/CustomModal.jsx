@@ -11,7 +11,7 @@ import {
   MocktestItem,
 } from "./CustomModal.styles";
 import { getSubjects } from "../../../../api/subjectApi";
-import {getAllCourses} from "../../../../api/courseApi"
+import { getAllCourses } from "../../../../api/courseApi"
 import { Link } from "react-router-dom";
 
 const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
@@ -23,7 +23,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
   const getEmptyMessage = () => {
     if (type === "mockTests") return "No mock tests available.";
     if (type === "activeCourses") return "No active courses available.";
-    if(type === "courses") return "No courses available.";
+    if (type === "courses") return "No courses available.";
     if (type === "subjects") return "No subjects available.";
     if (type === "students" || type === "enrolled") return "No students available.";
     return "No data available.";
@@ -68,8 +68,18 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
 
     if (type === "students" || type === "enrolled") {
       return data.map((student, index) => (
-        <MocktestItem key={index}>{student.displayName}</MocktestItem>
+        <MocktestItem key={index}>
+          <Link
+            to={`/admin/student-management/edit/${student._id}`}
+            className="subject-link"
+          >
+            {student.displayName}
+          </Link>
+        </MocktestItem>
       ));
+      // return data.map((student, index) => (
+      //   <MocktestItem key={index}>{student.displayName}</MocktestItem>
+      // ));
     }
 
     if (type === "activeCourses") {
@@ -87,8 +97,8 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           <MocktestItem key={index}>
             {matchedCourse ? (
               <Link
-                  to={`/admin/course-management/view/${matchedCourse._id}`}
-                  className="subject-link"
+                to={`/admin/course-management/edit/${matchedCourse._id}`}
+                className="subject-link"
               >
                 {matchedCourse.courseName}
               </Link>
@@ -100,14 +110,14 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
       });
     }
     console.log(type);
-    
-    if(type === "courses") {
+
+    if (type === "courses") {
       console.log(data);
       return data.map((course, index) => (
         <MocktestItem key={index}>
           <Link
-              to={`/admin/course-management/view/${course._id}`}
-              className="subject-link"
+            to={`/admin/course-management/edit/${course._id}`}
+            className="subject-link"
           >
             {course.courseName}
           </Link>
@@ -118,18 +128,18 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
     if (type === "subjects") {
       return data.map((subjectObj, index) => {
         const subjectName = typeof subjectObj === 'string' ? subjectObj : subjectObj.subjectName;
-      
+
         const matchedSubject = subjectData.find(
           (subject) =>
             subject.subjectName?.toLowerCase().trim() === subjectName?.toLowerCase().trim()
         );
-      
+
         return (
           <MocktestItem key={index}>
             {matchedSubject ? (
               <Link
-                  to={`/admin/subject-management/view/${matchedSubject._id}`}
-                  className="subject-link"
+                to={`/admin/subject-management/edit/${matchedSubject._id}`}
+                className="subject-link"
               >
                 {matchedSubject.subjectName}
               </Link>
@@ -139,24 +149,26 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           </MocktestItem>
         );
       });
-             }
-             if(type === "mockTests") {
-              return data.map((mockTest, index) => (
-                <MocktestItem key={index}>
-                  <Link
-                      to={`/admin/subject-management/view/${mockTest._id}`}
-                      className="subject-link"
-                  >
-                    {mockTest.title}
-                  </Link>
-                </MocktestItem>
-              ));
-             }
+    }
+    if (type === "mockTests") {
+      return data.map((mockTest, index) => (
+        <MocktestItem key={index}>
+          <Link
+            to={`/admin/mock-test/edit/${mockTest._id}`}
+            className="subject-link"
+          >
+            {mockTest.title}
+          </Link>
+        </MocktestItem>
+      ));
+    }
+
 
     return data.map((item, index) => (
       <MocktestItem key={index}>{item}</MocktestItem>
     ));
   };
+
 
   return (
     <Overlay>

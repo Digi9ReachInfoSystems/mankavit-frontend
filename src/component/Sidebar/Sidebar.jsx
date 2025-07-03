@@ -48,14 +48,14 @@ const Sidebar = () => {
     { path: "/admin/subject-management", label: "Subjects" },
     { path: "/admin/notes-management", label: "Notes" },
     { path: "/admin/category-management", label: "Category" },
-    { path: "/admin/lecturer-management", label: "Lectures" },
+    { path: "/admin/lecturer-management", label: "Videos" },
+    { path: "/admin/recorded-class", label: "Recorded Class" },
   ];
  
   const webManagementItems = [
     { path: "/admin/web-management/aboutus", label: "About us" },
     { path: "/admin/web-management/question-paper", label: "Question Paper" },
     { path: "/admin/web-management/live-classes", label: "Live Classes" },
-    { path: "/admin/web-management/recorded-class", label: "Recorded Class" },
     { path: "/admin/web-management/testinomial", label: "Testimonial" },
     { path: "/admin/web-management/achievement", label: "Achievement" },
     { path: "/admin/web-management/notification", label: "Notification" },
