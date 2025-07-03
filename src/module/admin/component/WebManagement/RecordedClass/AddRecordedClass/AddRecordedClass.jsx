@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Container,
   FormRow,
@@ -27,6 +27,7 @@ import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageSe
 import { createRecordedClass } from "../../../../../../api/recordedAPi";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
+import JoditEditor from 'jodit-react';
 
 const AddRecordedClass = ({ onSubmit }) => {
   const [title, setTitle] = useState("");
@@ -39,6 +40,7 @@ const AddRecordedClass = ({ onSubmit }) => {
   const [error, setError] = useState("");
   const [duration, setDuration] = useState("");
   const navigate = useNavigate();
+  const editor = useRef(null);
 
   const fileRef = useRef();
 
@@ -66,14 +68,14 @@ const AddRecordedClass = ({ onSubmit }) => {
         setError("Please upload a valid video file");
         return;
       }
-      
+
       // 10MB limit (adjust as needed)
       const maxSize = 100 * 1024 * 1024; // 100MB
       if (f.size > maxSize) {
-        setError(`Video file too large (max ${maxSize/1024/1024}MB)`);
+        setError(`Video file too large (max ${maxSize / 1024 / 1024}MB)`);
         return;
       }
-      
+
       setFile(f);
       setError("");
     }
@@ -105,10 +107,10 @@ const AddRecordedClass = ({ onSubmit }) => {
       setError("Please fill all fields, upload a video, and select at least one course");
       return;
     }
-    
+
     setError("");
     setLoading(true);
-    
+
     try {
       console.log("Starting video upload...");
       console.log("File details:", {
@@ -116,37 +118,37 @@ const AddRecordedClass = ({ onSubmit }) => {
         type: file.type,
         size: file.size
       });
-      
+
       // 1. Upload video to Azure
       const uploadRes = await uploadFileToAzureStorage(file, "recorded-class");
       console.log("Upload response:", uploadRes);
-      
-  if (!(uploadRes?.blobUrl)) {
-  const errorMsg = uploadRes?.message || "Video upload failed";
-  console.error("Upload failed:", errorMsg);
-  setError(errorMsg);
-  return;
-}
+
+      if (!(uploadRes?.blobUrl)) {
+        const errorMsg = uploadRes?.message || "Video upload failed";
+        console.error("Upload failed:", errorMsg);
+        setError(errorMsg);
+        return;
+      }
 
       console.log("Video uploaded successfully. URL:", uploadRes.blobUrl);
-      
-const data = {
-  title,
-  description,
-  duration: Number(duration), // Convert to number if API expects that
-  videoUrl: uploadRes.blobUrl,
-  course_ref: Array.from(selectedCourses),
-};
-// In your submit function, before making the API call
-if (!duration || isNaN(Number(duration))) {
-  setError("Please enter a valid duration (numeric value)");
-  return;
-}
+
+      const data = {
+        title,
+        description,
+        duration: Number(duration), // Convert to number if API expects that
+        videoUrl: uploadRes.blobUrl,
+        course_ref: Array.from(selectedCourses),
+      };
+      // In your submit function, before making the API call
+      if (!duration || isNaN(Number(duration))) {
+        setError("Please enter a valid duration (numeric value)");
+        return;
+      }
 
 
       console.log("Creating recorded class with data:", data);
       const createRes = await createRecordedClass(data);
-      navigate('/admin/web-management/recorded-class')
+      navigate('/admin/recorded-class')
       console.log("Create response:", createRes);
       if (createRes?.success) {
         console.log("Recorded class created successfully");
@@ -169,6 +171,27 @@ if (!duration || isNaN(Number(duration))) {
       setLoading(false);
     }
   };
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: description,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
 
   return (
     <Container>
@@ -184,8 +207,24 @@ if (!duration || isNaN(Number(duration))) {
             onChange={(e) => setTitle(e.target.value)}
           />
         </FormGroup>
-
         <FormGroup>
+         
+           
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                config={config}
+                tabIndex={1}
+                onBlur={newContent => { console.log("new", newContent); }}
+                onChange={newContent => { setDescription(newContent); }}
+              />
+           
+         
+
+        </FormGroup>
+
+        {/* <FormGroup>
           <Label htmlFor="description">Description</Label>
           <TextArea
             id="description"
@@ -194,16 +233,16 @@ if (!duration || isNaN(Number(duration))) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-        </FormGroup>
+        </FormGroup> */}
         <FormGroup>
-  <Label htmlFor="duration">Duration</Label>
-  <TextInput
-    id="duration"
-    placeholder="e.g. 2 hours"
-    value={duration}
-    onChange={(e) => setDuration(e.target.value)}
-  />
-</FormGroup>
+          <Label htmlFor="duration">Duration</Label>
+          <TextInput
+            id="duration"
+            placeholder="e.g. 2 hours"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+          />
+        </FormGroup>
 
 
         <FormRow>

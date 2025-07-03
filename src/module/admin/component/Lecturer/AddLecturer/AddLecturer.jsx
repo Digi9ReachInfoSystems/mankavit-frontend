@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect,useMemo } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -29,6 +29,7 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import JoditEditor from 'jodit-react';
 
 export default function AddLecturer() {
   const [lectureName, setLectureName] = useState("");
@@ -46,6 +47,7 @@ export default function AddLecturer() {
   const thumbnailInputRef = useRef(null);
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const navigate = useNavigate();
+  const editor = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -159,21 +161,41 @@ export default function AddLecturer() {
       setIsLoading(false);
     }
   };
-
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: description,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
   return (
     <Container>
-      <Title>Add Lecture</Title>
+      <Title>Add Video</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="lectureName">Lecture Name *</Label>
+              <Label htmlFor="lectureName">Video title *</Label>
               <Input id="lectureName" value={lectureName}
                 onChange={(e) => {
                   const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setLectureName(filteredData);
+                  setLectureName(e.target.value);
                 }}
-                placeholder="Enter Lecture Name" />
+                placeholder="Enter Video Title" />
             </FieldWrapper>
           </Column>
           <Column>
@@ -188,8 +210,23 @@ export default function AddLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-
         <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                config={config}
+                tabIndex={1}
+                onBlur={newContent => { console.log("new", newContent); }}
+                onChange={newContent => { setDescription(newContent); }}
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label htmlFor="description">Description *</Label>
@@ -201,7 +238,7 @@ export default function AddLecturer() {
                 placeholder="Enter description" />
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
         <FormRow>
           <Column>
             <CheckboxSection>

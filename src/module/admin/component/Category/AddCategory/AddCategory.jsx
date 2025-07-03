@@ -61,7 +61,7 @@ const AddCategory = () => {
               // onChange={(e) => setCategoryTitle(e.target.value)}
               onChange={(e)=>{
                 const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                setCategoryTitle(filteredData);
+                setCategoryTitle(e.target.value);
               }}
               placeholder="Enter category title"
               rules={[

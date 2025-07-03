@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Select } from "antd";
 import uplaod from "../../../../../assets/upload.png";
@@ -15,6 +15,7 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import JoditEditor from 'jodit-react';
 // import { getAllMocktest } from "../../../../../api/mocktestApi";
 
 export default function EditCourse() {
@@ -45,7 +46,7 @@ export default function EditCourse() {
     thumbnailFile: null,
     ratting: 0
   });
-
+  const editor = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -140,6 +141,49 @@ export default function EditCourse() {
     };
     fetchCourse();
   }, [id]);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.shortDescription ,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
+  const configDis = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.description ,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -313,10 +357,26 @@ export default function EditCourse() {
             </FieldWrapper>
           </Column>
         </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={formData.description}
+                config={configDis}
+                tabIndex={1} 
+                onBlur={newContent => { console.log("new", newContent); }} 
+                onChange={newContent => { setFormData({ ...formData, description: newContent }) }} 
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
 
         {/* Row 2: Course Short Description */}
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="shortDescription">Course Short Description</Label>
               <TextArea
@@ -325,6 +385,19 @@ export default function EditCourse() {
                 value={formData.shortDescription}
                 onChange={(e) => handleInputChange('shortDescription', sanitizeInput(e.target.value))}
                 placeholder="Enter short description"
+              />
+            </FieldWrapper>
+          </Column> */}
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="shortDescription">Course Short Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={formData.shortDescription}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setFormData({ ...formData, shortDescription: newContent }) }}
               />
             </FieldWrapper>
           </Column>
