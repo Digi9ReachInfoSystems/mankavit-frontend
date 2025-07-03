@@ -298,3 +298,23 @@ export const ReadOnlyField = styled.div`
   text-decoration: underline;
   font-size: 14px;
 `;
+
+export const LogoutButton = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: ${(props) => props.theme.spacing(2)} 0;
+  background: ${(props) => props.theme.colors.lightwhite};
+  border: none;
+  border-radius: ${(props) => props.theme.spacing(0.5)};
+  font-family: ${(props) => props.theme.fonts.body};
+  font-size: 1rem;
+  color: ${(props) => props.theme.colors.logoutButtonColor};
+  cursor: pointer;
+  transition: background 0.2s;
+  justify-content: center;
+
+  &:hover {
+    background: ${(props) => props.theme.colors.logoutButtonHover};
+  }
+`;

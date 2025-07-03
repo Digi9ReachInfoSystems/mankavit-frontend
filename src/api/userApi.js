@@ -44,3 +44,41 @@ export const removeCourseFromStudent = (data) => {
     throw error;
    }
 }
+
+export const studentBulkDelete = (userIds) => {
+   try{
+    const response = api.delete("/user/bulkDelete", {
+      data: { userIds },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+      }
+    });
+    return response.data;
+   }catch(error){
+    throw error;
+   }
+}
+
+export const deleteStudentById = (id) => {
+   try{
+    const response = api.delete(`/user/delete/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+      }
+    });
+    return response.data;
+   }catch(error){
+    throw error;
+   }
+}
+
+export const forceUserLogout = async(data) => {
+   try{
+    const response = await api.post("/user/logout", data);
+    return response.data;
+   }catch(error){
+    throw error;
+   }
+}

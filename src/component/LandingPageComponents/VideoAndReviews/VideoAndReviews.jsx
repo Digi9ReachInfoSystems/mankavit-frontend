@@ -157,7 +157,8 @@ const VideoAndReviews = () => {
         {testimonials.map((t) => (
           <Card key={t.id}>
             <Avatar src={t.image || placeholder} alt={t.name} />
-            <Quote>&quot;{t.quote}&quot;</Quote>
+            {/* <Quote>&quot;{t.quote}&quot;</Quote> */}
+            <Quote dangerouslySetInnerHTML={{ __html: t.quote }} />
             <Name>{t.name}</Name>
             <Role>{t.role}</Role> 
           </Card>

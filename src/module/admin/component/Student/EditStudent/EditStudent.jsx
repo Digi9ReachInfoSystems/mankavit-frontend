@@ -3,50 +3,49 @@ import React, { useEffect, useState } from "react";
 import {
   FormContainer, Title, InputGroup, Label, InputField, SubmitButton, FlexRow,
   ReadOnlyField, CourseSelection, CourseCheckbox, CourseLabel,
-  CourseList, CourseItem, ErrorMessage, LoadingSpinner
+  CourseList, CourseItem, ErrorMessage, LoadingSpinner, LogoutButton
 } from "./EditStudent.style";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { getAllCourses }              from "../../../../../api/courseApi";
-import { addCourseToStudent,
-         removeCourseFromStudent     } from "../../../../../api/userApi";
-import { getUserByUserId,
-         updateUserById              } from "../../../../../api/authApi";
+import { getAllCourses } from "../../../../../api/courseApi";
+import {
+  addCourseToStudent,
+  removeCourseFromStudent,
+  forceUserLogout
+} from "../../../../../api/userApi";
+import {
+  getUserByUserId,
+  updateUserById,
+} from "../../../../../api/authApi";
 
-const EMAIL_RGX  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RGX  = /^\+?\d{7,15}$/;   // simple international check
+const EMAIL_RGX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RGX = /^\+?\d{7,15}$/;
 
-/* ==================================================================== */
 const EditStudent = () => {
-  const { userId } = useParams();                  // route param :userId
-  const navigate   = useNavigate();
-
-  /* ─── local state ─────────────────────────────────────────────────── */
-  const [student,        setStudent]        = useState(null);
+  const { userId } = useParams();
+  const navigate = useNavigate();
+  const [student, setStudent] = useState(null);
   const [loadingStudent, setLoadingStudent] = useState(true);
-
-  const [courses,        setCourses]        = useState([]);
+  const [courses, setCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
+  const [form, setForm] = useState({ displayName: "", email: "", phone: "" });
+  const [selected, setSelected] = useState([]);
+  const [processing, setProcessing] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [hasBeenForcedLoggedOut, setHasBeenForcedLoggedOut] = useState(false);
 
-  const [form,           setForm]           = useState({ displayName: "", email: "", phone: "" });
-  const [selected,       setSelected]       = useState([]);    // course ids (checked)
-
-  const [processing,     setProcessing]     = useState(false);
-  const [formErrors,     setFormErrors]     = useState({});
-
-  /* ─── fetch student ───────────────────────────────────────────────── */
   useEffect(() => {
     (async () => {
       try {
         setLoadingStudent(true);
         const res = await getUserByUserId(userId);
+        console.log("User data", res);
         if (!res.success || !res.user) throw new Error("Student not found");
         const stu = res.user;
 
-        /* derive current course ids */
         const currentIds =
           stu.courseIds?.length
             ? stu.courseIds
@@ -54,23 +53,28 @@ const EditStudent = () => {
 
         setStudent(stu);
         setSelected(currentIds);
-        setForm({ displayName: stu.displayName || "", email: stu.email || "", phone: stu.phone || "" });
+        setForm({ 
+          displayName: stu.displayName || "", 
+          email: stu.email || "", 
+          phone: stu.phone || "" 
+        });
+        setHasBeenForcedLoggedOut(false);
       } catch (err) {
         console.error(err);
         toast.error(err.message || "Failed to load student");
-        navigate("/admin/student-management");
+        // navigate("/admin/student-management");
+        setTimeout(() => navigate("/admin/student-management"), 1000);
       } finally {
         setLoadingStudent(false);
       }
     })();
   }, [userId, navigate]);
 
-  /* ─── fetch courses ──────────────────────────────────────────────── */
   useEffect(() => {
     (async () => {
       try {
         setLoadingCourses(true);
-        const res  = await getAllCourses();
+        const res = await getAllCourses();
         const list = res?.data || res || [];
         setCourses(Array.isArray(list) ? list : []);
       } catch (err) {
@@ -87,7 +91,7 @@ const EditStudent = () => {
     : (student?.subscription || []).map(s => s.course_enrolled?._id || s.course_enrolled);
 
   const available = courses.filter(c => !currentIds.includes(c._id));
-  const enrolled  = courses.filter(c =>  currentIds.includes(c._id));
+  const enrolled = courses.filter(c => currentIds.includes(c._id));
 
   const toggleCourse = (id) =>
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -113,18 +117,17 @@ const EditStudent = () => {
     try {
       await updateUserById(student._id, {
         displayName: form.displayName.trim(),
-        email:       form.email.trim(),
-        phone:       form.phone.trim()
+        email: form.email.trim(),
+        phone: form.phone.trim()
       });
 
-      /* 2️⃣ update courses */
-      const toAdd    = selected.filter(id => !currentIds.includes(id));
+      const toAdd = selected.filter(id => !currentIds.includes(id));
       const toRemove = currentIds.filter(id => !selected.includes(id));
 
-      if (toAdd.length)    await addCourseToStudent   ({ userId: student._id, courseIds: toAdd });
+      if (toAdd.length) await addCourseToStudent({ userId: student._id, courseIds: toAdd });
       if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
 
-      toast.success("Student updated");
+      toast.success("Student updated successfully");
       navigate("/admin/student-management");
     } catch (err) {
       console.error(err);
@@ -134,22 +137,53 @@ const EditStudent = () => {
     }
   };
 
-  /* ─── guards ─────────────────────────────────────────────────────── */
-  if (loadingStudent)
+  const handleForceLogout = async () => {
+    if (!student?.email) {
+      toast.error("No student email available");
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      const response = await forceUserLogout({ email: student.email });
+      console.log("Force logout response:", response);
+      
+      if (response.success) {
+        toast.success(response.message || "User has been forcibly logged out");
+        setHasBeenForcedLoggedOut(true);
+        setTimeout(() => navigate("/admin/student-management"), 1000);
+        
+        // Refresh student data
+        const res = await getUserByUserId(userId);
+        if (res.success && res.user) {
+          setStudent(res.user);
+        }
+      } else {
+        toast.error(response.message || "Failed to force logout");
+      }
+    } catch (err) {
+      console.error("Force logout error:", err);
+      toast.error(err.response?.data?.message || "Failed to force logout");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (loadingStudent) {
     return (
       <FormContainer>
         <LoadingSpinner />
         <p>Loading student data…</p>
       </FormContainer>
     );
+  }
+
   if (!student) return null;
 
-  /* ─── render ─────────────────────────────────────────────────────── */
   return (
     <FormContainer>
       <Title>Edit Student</Title>
 
-      {/* BASIC DETAILS */}
       <InputGroup>
         <Label>Name*</Label>
         <InputField
@@ -184,15 +218,15 @@ const EditStudent = () => {
         </InputGroup>
       </FlexRow>
 
-      {/* COURSE LISTS */}
-      <CourseSelection 
-     
-      >
-        <Label style={{backgroundColor:"lightgrey",
-          padding:"5px",
-          borderRadius:"5px",
-          width:"50%",
-        }}>Enrolled Courses (uncheck to remove)</Label>
+      <CourseSelection>
+        <Label style={{
+          backgroundColor: "lightgrey",
+          padding: "5px",
+          borderRadius: "5px",
+          width: "50%",
+        }}>
+          Enrolled Courses (uncheck to remove)
+        </Label>
         {loadingCourses ? (
           <p>Loading…</p>
         ) : enrolled.length === 0 ? (
@@ -218,11 +252,14 @@ const EditStudent = () => {
       </CourseSelection>
 
       <CourseSelection $hasError={!!formErrors.courseIds}>
-       <Label style={{backgroundColor:"lightgrey",
-          padding:"5px",
-          borderRadius:"5px",
-          width:"50%",
-        }}>Available Courses (check to add)*</Label>
+        <Label style={{
+          backgroundColor: "lightgrey",
+          padding: "5px",
+          borderRadius: "5px",
+          width: "50%",
+        }}>
+          Available Courses (check to add)*
+        </Label>
         {loadingCourses ? (
           <p>Loading…</p>
         ) : available.length === 0 ? (
@@ -250,14 +287,35 @@ const EditStudent = () => {
         )}
       </CourseSelection>
 
-      {/* ACTION */}
       <FlexRow>
-        <SubmitButton type="button" disabled={processing} onClick={handleSave}>
+        <SubmitButton 
+          type="button" 
+          disabled={processing} 
+          onClick={handleSave}
+        >
           {processing ? "Saving…" : "Save Changes"}
         </SubmitButton>
+        <LogoutButton 
+          type="button" 
+          disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
+          onClick={handleForceLogout}
+        >
+          {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
+        </LogoutButton>
       </FlexRow>
 
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </FormContainer>
   );
 };

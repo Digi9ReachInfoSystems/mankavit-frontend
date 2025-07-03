@@ -133,8 +133,10 @@ const IndividualCourses = () => {
           ))
         ) : (
           <>
-            <ListBull>{course.shortDescription}</ListBull>
-            <ListBull>{course.description}</ListBull>
+            {/* <ListBull>{course.shortDescription}</ListBull> */}
+            <ListBull dangerouslySetInnerHTML={{ __html: course.shortDescription }} />
+            {/* <ListBull >{course.description}</ListBull> */}
+            <ListBull dangerouslySetInnerHTML={{ __html: course.description }} />
           </>
         )}
       </Description>
