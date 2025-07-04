@@ -154,3 +154,17 @@ export const ViewAllButton = styled.button`
     background-color: #0056cc;
   }
 `;
+
+export const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+`;
+
+export const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #ff0000;
+`;

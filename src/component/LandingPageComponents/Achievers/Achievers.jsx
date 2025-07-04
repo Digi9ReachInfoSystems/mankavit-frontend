@@ -10,26 +10,38 @@ import {
   Name,
   Achievement,
   ProgressBarWrapper,
-  ProgressBar
+  ProgressBar,
+  LoadingMessage,
+  ErrorMessage
 } from './Achievers.styles';
-import achieverImage from '../../../assets/Study1.png'; // Replace with your actual image path
-
-
-
 import { getAllAchievers } from '../../../api/achieverApi';
 
 const Achievers = () => {
   const sliderRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [achievers, setAchievers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchAchievers = async () => {
       try {
-        const achieversData = await getAllAchievers();
-        setAchievers(achieversData);
+        setLoading(true);
+        const response = await getAllAchievers();
+        
+        // Handle different response formats
+        if (Array.isArray(response)) {
+          setAchievers(response);
+        } else if (response.data && Array.isArray(response.data)) {
+          setAchievers(response.data);
+        } else {
+          throw new Error('Invalid data format received from API');
+        }
       } catch (error) {
         console.error('Error fetching achievers:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -40,8 +52,12 @@ const Achievers = () => {
     const { scrollLeft, scrollWidth, clientWidth } = e.target;
     const maxScrollLeft = scrollWidth - clientWidth;
     const scrolled = (scrollLeft / maxScrollLeft) * 100;
-    setScrollProgress(scrolled || 0); // fallback to 0 if NaN
+    setScrollProgress(scrolled || 0);
   };
+
+  if (loading) return <LoadingMessage>Loading achievers...</LoadingMessage>;
+  if (error) return <ErrorMessage>Error: {error}</ErrorMessage>;
+  if (!achievers || achievers.length === 0) return <LoadingMessage>No achievers data available</LoadingMessage>;
 
   return (
     <AchieversSection>
@@ -56,9 +72,11 @@ const Achievers = () => {
       <CardSlider ref={sliderRef} onScroll={handleScroll}>
         {achievers.map((achiever, index) => (
           <Card key={index}>
-            <Avatar src={achiever.image} alt={achiever.name} />
+            <Avatar src={achiever.image || 'default-avatar.png'} alt={achiever.name} />
             <Name>{achiever.name}</Name>
-            <Achievement>{achiever.exam_name}, AIR {achiever.rank}</Achievement>
+            <Achievement>
+              {achiever.exam_name}, AIR {achiever.rank}
+            </Achievement>
           </Card>
         ))}
       </CardSlider>

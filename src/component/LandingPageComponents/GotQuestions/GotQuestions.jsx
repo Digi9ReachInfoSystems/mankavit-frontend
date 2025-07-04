@@ -1,4 +1,3 @@
-// src/components/GotQuestions/GotQuestions.jsx
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -12,6 +11,9 @@ import {
   ArrowIcon,
   Answer,
   ViewAllButton,
+  LoadingMessage,
+  ErrorMessage,
+  NoFaqMessage
 } from "./GotQuestions.styles";
 import { getAllfaqs } from "../../../api/faqApi";
 import ladyJustice from "../../../assets/Study2.png";
@@ -30,12 +32,22 @@ const GotQuestion = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getAllfaqs();
-        console.log("API raw response:", data);
-        setFaqs(data);
+        const response = await getAllfaqs();
+        console.log("API Response:", response); // Debug log
+        
+        // Handle different response formats
+        if (Array.isArray(response)) {
+          setFaqs(response);
+        } else if (response.data && Array.isArray(response.data)) {
+          setFaqs(response.data);
+        } else if (response.faqs && Array.isArray(response.faqs)) {
+          setFaqs(response.faqs);
+        } else {
+          throw new Error("Invalid FAQ data format");
+        }
       } catch (err) {
         console.error("Error fetching FAQs:", err);
-        setError("Could not load FAQs.");
+        setError(err.message || "Could not load FAQs");
       } finally {
         setLoading(false);
       }
@@ -55,14 +67,14 @@ const GotQuestion = () => {
         <RightSection>
           <Heading>Got Questions?</Heading>
 
-          {loading && <p>Loading FAQs…</p>}
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {loading && <LoadingMessage>Loading FAQs…</LoadingMessage>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
 
           {!loading && !error && (
             <>
               {faqs.length > 0 ? (
                 faqs.map((faq, idx) => (
-                  <QuestionItem key={faq._id}>
+                  <QuestionItem key={faq._id || idx}>
                     <QuestionHeader onClick={() => toggleQuestion(idx)}>
                       <QuestionText>{faq.question}</QuestionText>
                       <ArrowIcon>
@@ -73,19 +85,19 @@ const GotQuestion = () => {
                         )}
                       </ArrowIcon>
                     </QuestionHeader>
-                    {openIndex === idx && faq.answer && (
-                      <Answer>{faq.answer}</Answer>
+                    {openIndex === idx && (
+                      <Answer>{faq.answer || "No answer available"}</Answer>
                     )}
                   </QuestionItem>
                 ))
               ) : (
-                <p>No FAQs found.</p>
+                <NoFaqMessage>No FAQs found.</NoFaqMessage>
               )}
             </>
           )}
 
-          {/* 
-          <ViewAllButton onClick={() => navigate('/faq')}>
+          {/* Optionally keep this if you have an FAQ page */}
+          {/* <ViewAllButton onClick={() => navigate('/faq')}>
             View All Questions
           </ViewAllButton> */}
         </RightSection>

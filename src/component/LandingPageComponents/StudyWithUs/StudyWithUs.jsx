@@ -35,40 +35,71 @@ import Study3 from "../../../assets/Study3.png";
 //       "Receive tailored study plans and one-on-one attention to maximize your potential.",
 //     image: Study3,
 //   },
-// ];
+// ];import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Title,
+  Highlight,
+  Divider,
+  CardsWrapper,
+  Card,
+  CardImage,
+  CardTitle,
+  CardDescription,
+  Content
+} from "./StudyWithUs.styles";
 import { getAllWhy } from "../../../api/whyApi";
+
 const StudyWithUs = () => {
-  const [ whys, setWhys ] = React.useState([]);
+  const [whys, setWhys] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await getAllWhy();
-        setWhys(response);
+        
+        // Ensure response is an array before setting state
+        if (Array.isArray(response)) {
+          setWhys(response);
+        } else if (response.data && Array.isArray(response.data)) {
+          // Handle case where data is nested in response object
+          setWhys(response.data);
+        } else {
+          throw new Error("Invalid data format received from API");
+        }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching why data:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
-  const cardData = whys;
+
+  if (loading) return <Container><Content>Loading...</Content></Container>;
+  if (error) return <Container><Content>Error: {error}</Content></Container>;
+  if (!whys || whys.length === 0) return <Container><Content>No data available</Content></Container>;
+
   return (
     <Container>
-        <Content>
-      <Title>
-        Why Study <Highlight>With Us</Highlight>
-      </Title>
-      <Divider />
-      <CardsWrapper>
-        {whys.map((card, index) => (
-          <Card key={index}>
-            <CardImage src={card.image} alt={card.title} />
-            <CardTitle>{card.title}</CardTitle>
-            {/* <CardDescription>{card.description}</CardDescription> */}
-            <CardDescription dangerouslySetInnerHTML={{ __html: card.description }} />
-          </Card>
-        ))}
-      </CardsWrapper>
+      <Content>
+        <Title>
+          Why Study <Highlight>With Us</Highlight>
+        </Title>
+        <Divider />
+        <CardsWrapper>
+          {whys.map((card, index) => (
+            <Card key={index}>
+              <CardImage src={card.image} alt={card.title} />
+              <CardTitle>{card.title}</CardTitle>
+              <CardDescription dangerouslySetInnerHTML={{ __html: card.description }} />
+            </Card>
+          ))}
+        </CardsWrapper>
       </Content>
     </Container>
   );
