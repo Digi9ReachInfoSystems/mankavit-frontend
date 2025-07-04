@@ -13,7 +13,10 @@ import {
     ButtonGroup,
     ActionButton,
     TabContentWrapper,
-    ContentText
+    ContentText,
+    MovingOverlay,
+    VideoPlayerContainer,
+    FullscreenButton
 } from './CoursesLiveclass.styles';
 import { FaUser, FaDownload, FaPlay, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
 import { getCourseById } from '../../api/courseApi';
@@ -21,6 +24,9 @@ import { getCourseByIdWithUSerProgress } from '../../api/userProgressApi';
 import { completeLecturer, startSubject, startLecturer } from '../../api/userProgressApi';
 import { getCookiesData } from '../../utils/cookiesService';
 import FeedbackModal from '../FeedbackModal/FeedbackModal';
+import { getUserByUserId } from '../../api/authApi';
+import { set } from 'date-fns';
+
 
 const CoursesLiveclass = () => {
     const { courseId, subjectid, lectureId } = useParams();
@@ -40,11 +46,38 @@ const CoursesLiveclass = () => {
     const [completedSubjects, setCompletedSubjects] = useState([]);
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const [showFeedbackButton, setShowFeedbackButton] = useState(false);
+    const [overlayPosition, setOverlayPosition] = useState({ top: 50, left: 50 });
+    const [userPhoneNumber, setUserPhoneNumber] = useState('');
+    const videoContainerRef = useRef(null);
+
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const top = Math.floor(Math.random() * 80) + 5;  // 5–85%
+            const left = Math.floor(Math.random() * 80) + 5;
+            setOverlayPosition({ top, left });
+        }, 4000); // every 3 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+    useEffect(() => {
+        const player = videoRef.current;
+        if (player) {
+            const onPlay = () => handleFullscreen();
+            player.addEventListener('play', onPlay);
+            return () => player.removeEventListener('play', onPlay);
+        }
+    }, []);
+
+
 
     useEffect(() => {
         const fetchData = async () => {
             const cookies = await getCookiesData();
+            const userData = await getUserByUserId(cookies.userId);
+            console.log("userData", userData);
             setUserId(cookies.userId);
+            setUserPhoneNumber(userData.user.phone);
 
             try {
                 const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
@@ -211,7 +244,7 @@ const CoursesLiveclass = () => {
                     // If no next lecture, navigate to course overview
                     // console.log("No next lecture found, navigating to course overview", course);
                     // navigate(`/courseComplte/${courseId}`);
-                    
+
                     if (progressResponse.data?.completed) {
                         if (progressResponse.data?.viewedCertificate) {
                             navigate(`/user`);
@@ -274,17 +307,20 @@ const CoursesLiveclass = () => {
             const allNotes = (course.subjects || []).flatMap(subject => subject.notes || []);
             if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
 
-            return allNotes.map((note, i) => (
-                <ContentText key={i}>
-                    <div className="note-header">
-                        <span className="pdf-title">{note.noteName || `Note ${i + 1}`}</span>
-                        <a href={note.fileUrl} download target="_blank" rel="noopener noreferrer" className="download-link">
-                            <FaDownload />
-                        </a>
-                    </div>
-                    <p>{note.noteDisplayName || 'No description available'}</p>
-                </ContentText>
-            ));
+            return allNotes.map((note, i) => {
+                console.log("note", note, "allNotes", allNotes);
+                return (
+                    <ContentText key={i}>
+                        <div className="note-header">
+                            <span className="pdf-title">{note.noteName || `Note ${i + 1}`}</span>
+                            <a href={note.fileUrl} download target="_blank" rel="noopener noreferrer" className="download-link">
+                                <FaDownload />
+                            </a>
+                        </div>
+                        <p>{note.noteDisplayName || 'No description available'}</p>
+                    </ContentText>
+                )
+            });
         }
 
         if (activeTab === 'Overview') {
@@ -349,7 +385,7 @@ const CoursesLiveclass = () => {
                                                 )}
                                             </p>
                                             <p style={{ margin: '4px 0', color: '#666' }}>{lec.description}</p>
-                                            <p style={{ fontSize: 12, color: '#888' }}><strong>Duration:</strong> {lec.duration}</p>
+                                            <p style={{ fontSize: 12, color: '#888' }}><strong>Duration:</strong> {lec.duration} min</p>
                                         </div>
                                     </div>
                                 );
@@ -393,27 +429,73 @@ const CoursesLiveclass = () => {
         }
     };
 
+    const handleFullscreen = () => {
+        const container = videoContainerRef.current;
+        if (container.requestFullscreen) container.requestFullscreen();
+        else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+        else if (container.msRequestFullscreen) container.msRequestFullscreen();
+    };
 
     return (
         <Container>
             <VideoContainer>
-                <StyledVideo>
-                    {lecture && <VideoPlayer
-                        controls
-                        key={lecture?._id}
-                        ref={videoRef}
-                        onError={handleVideoError}
-                        onEnded={handleVideoEnd}
-                        poster={course?.image || ""}
-                    >
-                        {lecture?.videoUrl && !videoError ? (
-                            <source src={lecture.videoUrl} type="video/mp4" />
-                        ) : (
-                            <div className="video-error">
-                                {videoError ? "Error loading video" : "Your browser does not support the video tag or video URL is missing."}
-                            </div>
-                        )}
-                    </VideoPlayer>}
+
+
+                <StyledVideo ref={videoContainerRef}>
+                    {lecture && (
+                        <>
+
+
+                            <VideoPlayerContainer ref={videoContainerRef}>
+                                <VideoPlayer
+                                    ref={videoRef}
+                                    onError={handleVideoError}
+                                    onEnded={handleVideoEnd}
+                                    poster={course?.image || ""}
+                                    controls
+                                    controlsList="nodownload nofullscreen noremoteplayback"
+                                    disablePictureInPicture
+                                >
+                                    {lecture?.videoUrl && !videoError ? (
+                                        <source src={lecture.videoUrl} type="video/mp4" />
+                                    ) : (
+                                        <div className="video-error">
+                                            {videoError
+                                                ? "Error loading video"
+                                                : "Your browser does not support the video tag"}
+                                        </div>
+                                    )}
+                                    {userId && (
+                                        <MovingOverlay style={{
+                                            top: `${overlayPosition.top}%`,
+                                            left: `${overlayPosition.left}%`
+                                        }}>
+                                            {userPhoneNumber || userId}
+                                        </MovingOverlay>
+                                    )}
+                                </VideoPlayer>
+
+                                {/* ✅ Overlay within the same fullscreen container */}
+                                {userId && (
+                                    <MovingOverlay style={{
+                                        top: `${overlayPosition.top}%`,
+                                        left: `${overlayPosition.left}%`
+                                    }}>
+                                        {userPhoneNumber || userId}
+                                    </MovingOverlay>
+                                )}
+                                {/* ✅ Manual fullscreen button */}
+                                {/* <FullscreenButton onClick={() => {
+                                    const container = videoContainerRef.current;
+                                    if (container.requestFullscreen) container.requestFullscreen();
+                                    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                                    else if (container.msRequestFullscreen) container.msRequestFullscreen();
+                                }}>
+                                    Enter Fullscreen
+                                </FullscreenButton> */}
+                            </VideoPlayerContainer>
+                        </>
+                    )}
 
                     <TopBar>
                         <OverlayText>

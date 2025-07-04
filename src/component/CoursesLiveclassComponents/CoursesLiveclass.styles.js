@@ -41,6 +41,8 @@ export const VideoPlayer = styled.video`
   height: auto;
   border-radius: 12px;
   display: block;
+  position: relative;
+  z-index: 0;
 `;
 
 export const TopBar = styled.div`
@@ -188,3 +190,57 @@ export const CompletedBadge = styled.div`
   font-size: 14px;
 `;
 
+
+
+
+export const MovingOverlay = styled.div`
+  position: absolute;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: none;
+  transition: top 1s ease, left 1s ease;
+`;
+
+export const VideoPlayerContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: auto;
+
+  &:fullscreen,
+  &:-webkit-full-screen,
+  &:-moz-full-screen,
+  &:-ms-fullscreen {
+    width: 100vw;
+    height: 100vh;
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+`;
+
+
+
+export const FullscreenButton = styled.button`
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 20;
+  padding: 8px 12px;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border-radius: 6px;
+  font-size: 24px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0,0,0,0.8);
+  }
+`;
