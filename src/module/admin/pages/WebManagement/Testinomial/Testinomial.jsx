@@ -122,7 +122,7 @@ const fetchTestimonials = async () => {
                 {/* <TableHeader>Details</TableHeader> */}
                   <TableHeader>Student</TableHeader>
                 <TableHeader>Testimonial</TableHeader>
-              
+              <TableHeader>Rank</TableHeader>
                 <TableHeader>View Image/Video</TableHeader>
                 <TableHeader>Date Updated</TableHeader>
                 <TableHeader>Actions</TableHeader>
@@ -134,7 +134,7 @@ const fetchTestimonials = async () => {
                   {/* <TableCell>{item.rank}</TableCell> */}
                        <TableCell>{item.name}</TableCell>
                   <TableCelldiscription>{item.description}</TableCelldiscription>
-             
+             <TableCell>{item.rank}</TableCell>
                   <TableCell>
                     {item.testimonial_image ? (
                       <span

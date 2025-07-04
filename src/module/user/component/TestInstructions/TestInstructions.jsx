@@ -1,292 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   Container,
-//   InstructionsContainer,
-//   Title,
-//   Instructions,
-//   SectionTitle,
-//   List,
-//   ListItem,
-//   SubList,
-//   CheckboxContainer,
-//   Checkbox,
-//   CheckboxLabel,
-//   ReadyBtn,
-//   StartButton
-// } from "./TestInstructions.styles";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { getMocktestById } from "../../../../api/mocktestApi";
-
-// const TestInstructions = () => {
-//   const [accepted, setAccepted] = useState(false);
-//   const [mockTest, setMockTest] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const fetchMockTest = async () => {
-//       try {
-//         const response = await getMocktestById(id);
-//         if (response?.success) {
-//           setMockTest(response.data);
-//         }
-//       } catch (error) {
-//         console.error("Error fetching mock test:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchMockTest();
-//   }, [id]);
-
-//   const handleCheckboxChange = () => setAccepted(!accepted);
-
-//   const getQuestionTypes = () => {
-//     if (!mockTest?.questions) return [];
-    
-//     const types = new Set();
-//     mockTest.questions.forEach(question => {
-//       types.add(question.type === "mcq" ? "Multiple Choice Questions (MCQs)" : "Subjective Questions");
-//     });
-//     return Array.from(types);
-//   };
-
-//   const getDynamicInstructions = () => {
-//     const questionTypes = getQuestionTypes();
-    
-//     return [
-//       {
-//         title: "Test Duration:",
-//         points: [
-//           `The total time allotted for this mock test is ${mockTest?.duration || '--'} minutes. Please manage your time accordingly.`
-//         ]
-//       },
-//       {
-//         title: "Test Sections:",
-//         points: [
-//           `The test consists of ${mockTest?.questions?.length || '--'} questions with ${questionTypes.length} types: ${questionTypes.join(", ")}. Ensure you read the instructions carefully before attempting each question.`
-//         ]
-//       },
-//       {
-//         title: "Navigating Through Questions:",
-//         points: [
-//           'You can move between questions freely within the test. Use the "Next" button to proceed to the next question.',
-//           'If you wish to go back to a previous question, simply click on the question number or use the "Previous" button.'
-//         ]
-//       },
-//       {
-//         title: "Saving Your Progress:",
-//         points: [
-//           'Save and Next: Click on "Save and Next" to save your answer and move to the next question. This ensures your response is recorded',
-//           'Save for Later: If unsure about an answer, click "Save for Later". This will mark the question for review, and you can revisit it any time during the test',
-//           'Mark for Review: To revisit a question later, click "Mark for Review". This will allow you to revisit the question at the end of the test'
-//         ]
-//       }
-//     ];
-//   };
-
-//   if (loading) {
-//     return (
-//       <Container>
-//         <Title>Loading instructions...</Title>
-//       </Container>
-//     );
-//   }
-
-//   if (!mockTest) {
-//     return (
-//       <Container>
-//         <Title>Test not found</Title>
-//       </Container>
-//     );
-//   }
-
-//   return (
-//     <Container>
-//       <Title>All the best !!</Title>
-
-//       <InstructionsContainer>
-//         <Instructions>
-//           <SectionTitle>General Instructions for Mock Test</SectionTitle>
-//           <List>
-//             {getDynamicInstructions().map((instruction, index) => (
-//               <ListItem key={index}>
-//                 {instruction.title}
-//                 <SubList>
-//                   {instruction.points.map((point, idx) => (
-//                     <li key={idx}>{point}</li>
-//                   ))}
-//                 </SubList>
-//               </ListItem>
-//             ))}
-//           </List>
-//         </Instructions>
-//       </InstructionsContainer>
-
-//       <CheckboxContainer>
-//         <Checkbox
-//           type="checkbox"
-//           id="accept"
-//           checked={accepted}
-//           onChange={handleCheckboxChange}
-//         />
-//         <CheckboxLabel htmlFor="accept">
-//           I accept. By entering this exam, I agree to abide by all terms and conditions and ensure academic integrity.
-//         </CheckboxLabel>
-//       </CheckboxContainer>
-
-//       <ReadyBtn>
-//         <StartButton 
-//           disabled={!accepted} 
-//           onClick={() => navigate(`/test-question/${id}`)}
-//         >
-//           I am Ready to Begin
-//         </StartButton>
-//       </ReadyBtn>
-//     </Container>
-//   );
-// };
-
-// export default TestInstructions;
-// // TestInstructions.js
-// import React, { useState, useEffect } from "react";
-// import {
-//   Container, InstructionsContainer, Title, Instructions,
-//   SectionTitle, List, ListItem, SubList,
-//   CheckboxContainer, Checkbox, CheckboxLabel,
-//   ReadyBtn, StartButton
-// } from "./TestInstructions.styles";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { getMocktestById } from "../../../../api/mocktestApi";
-
-// const TestInstructions = () => {
-//   const { testId, subjectId } = useParams();
-//   const navigate = useNavigate();
-//   const [accepted, setAccepted] = useState(false);
-//   const [mockTest, setMockTest] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchMockTest = async () => {
-//       try {
-//         const response = await getMocktestById(testId);
-//         if (response?.success) {
-//           setMockTest(response.data);
-//         }
-//       } catch (error) {
-//         console.error("Error fetching mock test:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchMockTest();
-//   }, [testId]);
-
-//   const handleCheckboxChange = () => setAccepted(!accepted);
-
-//   const getQuestionTypes = () => {
-//     if (!mockTest?.questions) return [];
-    
-//     const types = new Set();
-//     mockTest.questions.forEach(question => {
-//       types.add(question.type === "mcq" ? "Multiple Choice Questions (MCQs)" : "Subjective Questions");
-//     });
-//     return Array.from(types);
-//   };
-
-//   const getDynamicInstructions = () => {
-//     const questionTypes = getQuestionTypes();
-    
-//     return [
-//       {
-//         title: "Test Duration:",
-//         points: [
-//           `The total time allotted for this mock test is ${mockTest?.duration || '--'} minutes. Please manage your time accordingly.`
-//         ]
-//       },
-//       {
-//         title: "Test Sections:",
-//         points: [
-//           `The test consists of ${mockTest?.questions?.length || '--'} questions with ${questionTypes.length} types: ${questionTypes.join(", ")}. Ensure you read the instructions carefully before attempting each question.`
-//         ]
-//       },
-//       {
-//         title: "Navigating Through Questions:",
-//         points: [
-//           'You can move between questions freely within the test. Use the "Next" button to proceed to the next question.',
-//           'If you wish to go back to a previous question, simply click on the question number or use the "Previous" button.'
-//         ]
-//       }
-//     ];
-//   };
-
-//   if (loading) {
-//     return (
-//       <Container>
-//         <Title>Loading instructions...</Title>
-//       </Container>
-//     );
-//   }
-
-//   if (!mockTest) {
-//     return (
-//       <Container>
-//         <Title>Test not found</Title>
-//       </Container>
-//     );
-//   }
-
-//   return (
-//     <Container>
-//       <Title>All the best !!</Title>
-
-//       <InstructionsContainer>
-//         <Instructions>
-//           <SectionTitle>General Instructions for Mock Test</SectionTitle>
-//           <List>
-//             {getDynamicInstructions().map((instruction, index) => (
-//               <ListItem key={index}>
-//                 {instruction.title}
-//                 <SubList>
-//                   {instruction.points.map((point, idx) => (
-//                     <li key={idx}>{point}</li>
-//                   ))}
-//                 </SubList>
-//               </ListItem>
-//             ))}
-//           </List>
-//         </Instructions>
-//       </InstructionsContainer>
-
-//       <CheckboxContainer>
-//         <Checkbox
-//           type="checkbox"
-//           id="accept"
-//           checked={accepted}
-//           onChange={handleCheckboxChange}
-//         />
-//         <CheckboxLabel htmlFor="accept">
-//           I accept. By entering this exam, I agree to abide by all terms and conditions and ensure academic integrity.
-//         </CheckboxLabel>
-//       </CheckboxContainer>
-
-//       <ReadyBtn>
-//         <StartButton 
-//           disabled={!accepted} 
-//           onClick={() => navigate(`/test-question/${testId}/${subjectId}`)}
-//         >
-//           I am Ready to Begin
-//         </StartButton>
-//       </ReadyBtn>
-//     </Container>
-//   );
-// };
-
-// export default TestInstructions;
-// src/module/user/component/TestInstructions/TestInstructions.jsx
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -313,7 +24,14 @@ import {
   ImportantNote,
   NoteIcon,
   TipsSection,
-  TipItem
+  TipItem,
+  DetailGrid,
+  DetailContent,
+  DetailTitle,
+  DetailValue,
+  CardHeader,
+  CardBody,
+  GradientBar
 } from "./TestInstructions.styles";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMocktestById, startMocktest } from "../../../../api/mocktestApi";
@@ -373,46 +91,56 @@ export default function TestInstructions() {
       <Title>Mock Test Instructions</Title>
       
       <TestCard>
-        <TestDetails>
-          <DetailItem>
-            <IconWrapper>
-              <TimeIcon><FaClock /></TimeIcon>
-            </IconWrapper>
-            <div >
-              <h4>Duration</h4>
-              <h5>{mockTest.duration} minutes</h5>
-            </div>
-          </DetailItem>
-          
-          <DetailItem>
-            <IconWrapper>
-              <QuestionIcon><FaListOl /></QuestionIcon>
-            </IconWrapper>
-            <div>
-              <h4>Total Questions</h4>
-              <p>{mockTest.questions.length}</p>
-            </div>
-          </DetailItem>
-          
-          <DetailItem>
-            <IconWrapper>
-              <TypeIcon><FaQuestionCircle /></TypeIcon>
-            </IconWrapper>
-            <div>
-              <h4>Question Types</h4>
-              <p>
-                {mcqCount > 0 && `${mcqCount} MCQs`}
-                {mcqCount > 0 && subjectiveCount > 0 && ", "}
-                {subjectiveCount > 0 && `${subjectiveCount} Subjective`}
-              </p>
-            </div>
-          </DetailItem>
-        </TestDetails>
+        <CardHeader>
+          <h3>Test Overview</h3>
+          <GradientBar />
+        </CardHeader>
+        <CardBody>
+          <TestDetails>
+            <DetailGrid>
+              <DetailItem>
+                <IconWrapper>
+                  <TimeIcon><FaClock /></TimeIcon>
+                </IconWrapper>
+                <DetailContent>
+                  <DetailTitle>Duration</DetailTitle>
+                  <DetailValue>{mockTest.duration} minutes</DetailValue>
+                </DetailContent>
+              </DetailItem>
+              
+              <DetailItem>
+                <IconWrapper>
+                  <QuestionIcon><FaListOl /></QuestionIcon>
+                </IconWrapper>
+                <DetailContent>
+                  <DetailTitle>Total Questions</DetailTitle>
+                  <DetailValue>{mockTest.questions.length}</DetailValue>
+                </DetailContent>
+              </DetailItem>
+              
+              <DetailItem>
+                <IconWrapper>
+                  <TypeIcon><FaQuestionCircle /></TypeIcon>
+                </IconWrapper>
+                <DetailContent>
+                  <DetailTitle>Question Types</DetailTitle>
+                  <DetailValue>
+                    {mcqCount > 0 && `${mcqCount} MCQs`}
+                    {mcqCount > 0 && subjectiveCount > 0 && ", "}
+                    {subjectiveCount > 0 && `${subjectiveCount} Subjective`}
+                  </DetailValue>
+                </DetailContent>
+              </DetailItem>
+            </DetailGrid>
+          </TestDetails>
+        </CardBody>
       </TestCard>
 
       <InstructionsContainer>
         <Instructions>
-          <SectionTitle>Test Guidelines</SectionTitle>
+          <SectionTitle>
+            <span>📝</span> Test Guidelines
+          </SectionTitle>
           <List>
             <ListItem>
               <strong>Navigation:</strong> Use the navigation buttons to move between questions.
@@ -426,11 +154,14 @@ export default function TestInstructions() {
           </List>
 
           <RulesSection>
-            <SectionTitle>Rules & Regulations</SectionTitle>
+            <SectionTitle>
+              <span>⚖️</span> Rules & Regulations
+            </SectionTitle>
             <List>
               <ListItem>Do not refresh or close the browser during the test.</ListItem>
               <ListItem>All questions are mandatory unless specified otherwise.</ListItem>
               <ListItem>Use of external resources is strictly prohibited.</ListItem>
+              <ListItem>You must complete the test in one sitting.</ListItem>
             </List>
           </RulesSection>
 
@@ -443,7 +174,9 @@ export default function TestInstructions() {
           </ImportantNote>
 
           <TipsSection>
-            <SectionTitle><FaLightbulb /> Helpful Tips</SectionTitle>
+            <SectionTitle>
+              <span>💡</span> Helpful Tips
+            </SectionTitle>
             <List>
               <TipItem>Read each question carefully before answering.</TipItem>
               <TipItem>Manage your time wisely - don't spend too long on one question.</TipItem>

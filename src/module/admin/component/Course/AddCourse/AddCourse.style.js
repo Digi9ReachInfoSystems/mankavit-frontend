@@ -86,7 +86,7 @@ export const Label = styled.label`
   font-weight: normal;
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 
 `;
 
@@ -166,6 +166,20 @@ export const CheckboxLabel = styled.label`
   gap: ${(props) => props.theme.spacing(1)};
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.black};
+
+  padding: ${(props) => props.theme.spacing(1)};
+  /* Alternate row colors */
+  &:nth-child(odd) {
+    background-color: ${(props) => props.theme.colors.white};
+  }
+  &:nth-child(even) {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  /* Hover effect */
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryLight};
+  }
 `;
 
 export const CheckboxInput = styled.input`

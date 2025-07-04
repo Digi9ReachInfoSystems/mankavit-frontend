@@ -5,7 +5,7 @@ import {
   FlexRow, ErrorMessage, LoadingSpinner, LogoutButton,
   CourseSelection, CourseCheckbox, CourseLabel,
   CourseList, CourseItem, AttemptsTable, TableHead,
-  TableRow, TableCell
+  TableRow, TableCell, PaymentModal, ModalOverlay, CloseButton
 } from "./EditStudent.style";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -42,11 +42,13 @@ const EditStudent = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [attempts, setAttempts] = useState([]);
   const [loadingAttempts, setLoadingAttempts] = useState(true);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   useEffect(() => {
     (async () => {
       try {
         setLoadingStudent(true);
         const res = await getUserByUserId(userId);
+        console.log("Student data:", res);
         if (!res.success || !res.user) throw new Error("Student not found");
 
         const stu = res.user;
@@ -204,6 +206,10 @@ const EditStudent = () => {
     }
   };
 
+  const handleViewPayments = () => {
+    setIsPaymentModalOpen(true);
+  };
+
   /* ─────────────────────────── render ─────────────────────────────────────── */
   if (loadingStudent) {
     return (
@@ -312,15 +318,34 @@ const EditStudent = () => {
         )}
       </CourseSelection>
 
-      {/* ============== ACTION BUTTONS ============== */}
       <FlexRow style={{ marginTop: 24 }}>
         <SubmitButton
           type="button"
           disabled={processing}
           onClick={handleSave}
         >
-          {processing ? "Saving…" : "Save Changes"}
+          {processing ? "Saving…" : "Save changes"}
         </SubmitButton>
+
+
+
+        <LogoutButton
+          type="button"
+          disabled={processing}
+          onClick={() => navigate(`/admin/student-management/update-kyc/${student._id}`)}
+          style={{ background: "#4CAF50", color: "white" }}
+        >
+          View KYC
+        </LogoutButton>
+
+        <LogoutButton
+          type="button"
+          disabled={processing || !student.subscription?.length}
+          onClick={handleViewPayments}
+          style={{ background: "#2196F3", color: "white" }}
+        >
+          View Payments
+        </LogoutButton>
 
         <LogoutButton
           type="button"
@@ -330,26 +355,29 @@ const EditStudent = () => {
           {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
         </LogoutButton>
 
-        {/* NEW delete button shares the row */}
-        <LogoutButton     /* reuse style but customise color via props if you like */
+        <LogoutButton
           type="button"
           disabled={processing}
           onClick={confirmDelete}
           style={{ background: "#d32f2f", color: "white" }}
         >
-          Delete
+          Delete student
         </LogoutButton>
+
+
+
+
+
       </FlexRow>
 
-      {/* ============== MOCK-TEST ATTEMPTS TABLE ============== */}
-      <Title style={{ marginTop: 40 }}>Mock-test Attempts</Title>
+      <Title style={{ marginTop: 40 }}>Mock-test attempts</Title>
       {loadingAttempts ? (
         <p>Loading attempts…</p>
       ) : attempts.length === 0 ? (
         <p>No attempts found</p>
       ) : (
         <AttemptsTable>
-          <thead>
+          <thead style={{ backgroundColor: 'black', color: 'white' }}>
             <TableHead>Mock Test</TableHead>
             <TableHead>Attempts</TableHead>
             <TableHead>Total Marks</TableHead>
@@ -376,12 +404,40 @@ const EditStudent = () => {
         </AttemptsTable>
       )}
 
-      {/* ============== MODAL + TOAST ============== */}
+
+      {isPaymentModalOpen && (
+        <>
+          <ModalOverlay onClick={() => setIsPaymentModalOpen(false)} />
+          <PaymentModal>
+            <CloseButton onClick={() => setIsPaymentModalOpen(false)}>
+              &times;
+            </CloseButton>
+            <h3>Payment Details</h3>
+            {student.subscription?.length ? (
+              student.subscription.map((sub, index) => (
+                <div key={sub._id} style={{ marginBottom: '20px' }}>
+                  <p><strong>Course:</strong> {sub.course_enrolled?.courseName || 'N/A'}</p>
+                  <p><strong>Payment Status:</strong> {sub.payment_Status || 'N/A'}</p>
+                  <p><strong>Payment Date:</strong> {new Date(sub.created_at).toLocaleString()}</p>
+                  <p><strong>Subscription Active:</strong> {sub.is_subscription_active ? 'Yes' : 'No'}</p>
+                  {/* <p><strong>Payment ID:</strong> {sub.payment_id || 'N/A'}</p> */}
+                  {index < student.subscription.length - 1 && <hr style={{ margin: '15px 0' }} />}
+                </div>
+              ))
+            ) : (
+              <p>No payment records found</p>
+            )}
+          </PaymentModal>
+        </>
+      )}
+
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={cancelDelete}
         onDelete={handleDelete}
       />
+
+
 
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </FormContainer>

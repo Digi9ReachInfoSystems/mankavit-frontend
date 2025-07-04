@@ -49,7 +49,7 @@ const Stats = () => {
     { title: 'Total Students', value: stats.students ?? '-' },
     { title: 'Subjects', value: stats.subjects ?? '-' },
     { title: 'Notes', value: stats.notes ?? '-' },
-    { title: 'Mock Tests(is not integarted)', value: stats.notes ?? '-' },
+    // { title: 'Mock Tests(is not integarted)', value: stats.notes ?? '-' },
   ];
 
   return (

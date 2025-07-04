@@ -19,13 +19,13 @@ const Dashboard = () => {
         <Stats />
 
       </DashboardContent>
-      <Application> 
+      {/* <Application> 
         <ApplicationsGraph />
         <ApplicationByCourses />
       </Application>
       <Courses>
         <CourseList />
-      </Courses>
+      </Courses> */}
     </DashboardWrapper>
   );
 };

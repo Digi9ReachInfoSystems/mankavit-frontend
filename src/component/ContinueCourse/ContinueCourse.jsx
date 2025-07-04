@@ -37,6 +37,7 @@ import { FaArrowLeft, FaPlay, FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, F
 import { MdLiveTv } from "react-icons/md";
 import { getLiveMeetings } from "../../api/meetingApi";
 import { getUserByUserId } from "../../api/authApi";
+import { getAllUserAttemptByUserId } from "../../api/mocktestApi";
 
 const AccordionList = ({
     data,
@@ -48,13 +49,47 @@ const AccordionList = ({
     handleStartLecture,
     completedLectures = [],
     completedSubjects = [],
-    isMockTestTab = false
-}) => (
-    <VideoList>
-        {data && data.length === 0 && <p style={{ padding: 24 }}>No items found.</p>}
-        {data && data.map((item, idx) => {
-            console.log("item", item);
-            return (
+    isMockTestTab = false,
+    userId
+}) => {
+    const [attemptsData, setAttemptsData] = useState({});
+
+    useEffect(() => {
+        const fetchAttemptsData = async () => {
+            if (!isMockTestTab || !userId) return;
+            
+            const attempts = {};
+            for (const item of data) {
+                if (item.lectures) {
+                    for (const lecture of item.lectures) {
+                        try {
+                            const res = await getAllUserAttemptByUserId(userId, lecture._id);
+                            if (res.success) {
+                                attempts[lecture._id] = {
+                                    attempts: res.data || [],
+                                    remaining: lecture.maxAttempts - (res.data?.length || 0)
+                                };
+                            }
+                        } catch (error) {
+                            console.error("Error fetching attempts:", error);
+                            attempts[lecture._id] = {
+                                attempts: [],
+                                remaining: lecture.maxAttempts
+                            };
+                        }
+                    }
+                }
+            }
+            setAttemptsData(attempts);
+        };
+
+        fetchAttemptsData();
+    }, [data, isMockTestTab, userId]);
+
+    return (
+        <VideoList>
+            {data && data.length === 0 && <p style={{ padding: 24 }}>No items found.</p>}
+            {data && data.map((item, idx) => (
                 <div key={idx}>
                     <VideoItem
                         style={{
@@ -88,55 +123,123 @@ const AccordionList = ({
                         <div style={{ paddingLeft: 24, background: "#fff", borderRadius: 8, marginTop: 4 }}>
                             {item.lectures && item.lectures.length > 0 ? (
                                 item.lectures.map((lecture, i) => (
-                                    <VideoItem
-                                        key={i}
-                                        style={{
-                                            boxShadow: "none",
-                                            background: "none",
-                                            cursor: "pointer",
-                                            marginBottom: 4,
-                                            padding: "12px 0",
-                                            borderBottom: "1px solid #eee"
-                                        }}
-                                        onClick={async () => {
-                                            if (isMockTestTab) {
-                                                navigate(`/start-test/${lecture._id}/${item._id}`);
-                                            } else {
-                                                await handleStartLecture(item._id, lecture._id);
-                                                navigate(`/course/liveclass/${courseId}/${item._id}/${lecture._id}`);
-                                            }
-                                        }}
-                                    >
-                                        <div className="video-info" style={{ width: "100%" }}>
-                                            <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
-                                            <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
-                                                <p style={{ fontSize: 16, fontWeight: 500 }}>
-                                                    {lecture.lectureName}
-                                                    {lecture.completed && (
-                                                        <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
-                                                    )}
-                                                </p>
-                                                <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
-                                                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                                                    <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
-                                                    <div style={{ fontSize: 14, color: "#007bff", textDecoration: "none" }}>
-                                                        {isMockTestTab ? "Start Test" : "Join Class"}
+                                    <div key={i}>
+                                        {isMockTestTab ? (
+                                            <VideoItem
+                                                style={{
+                                                    boxShadow: "none",
+                                                    background: "none",
+                                                    cursor: "pointer",
+                                                    marginBottom: 4,
+                                                    padding: "12px 0",
+                                                    borderBottom: "1px solid #eee"
+                                                }}
+                                            >
+                                                <div className="video-info" style={{ width: "100%" }}>
+                                                    <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                                                    <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
+                                                        <p style={{ fontSize: 16, fontWeight: 500 }}>
+                                                            {lecture.lectureName}
+                                                        </p>
+                                                        <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>
+                                                            {lecture.description}
+                                                        </p>
+                                                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                            <div>
+                                                                <span style={{ fontSize: 14, color: "#888" }}>
+                                                                    {lecture.duration} | 
+                                                                    Max Attempts: {lecture.maxAttempts || "Unlimited"} | 
+                                                                    Remaining: {attemptsData[lecture._id]?.remaining ?? lecture.maxAttempts}
+                                                                </span>
+                                                            </div>
+                                                            <div style={{ display: "flex", gap: "8px" }}>
+                                                                {attemptsData[lecture._id]?.attempts?.length > 0 && (
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            navigate(`/test-results/${testId._id}/${subjectId._id}/${attemptId._id}`);
+                                                                        }}
+                                                                        style={{
+                                                                            background: "transparent",
+                                                                            border: "1px solid #4CAF50",
+                                                                            color: "#4CAF50",
+                                                                            padding: "4px 8px",
+                                                                            borderRadius: 4,
+                                                                            fontSize: 14
+                                                                        }}
+                                                                    >
+                                                                        View Results
+                                                                    </button>
+                                                                )}
+                                                                <div 
+                                                                    onClick={() => navigate(`/start-test/${lecture._id}/${item._id}`)}
+                                                                    style={{ 
+                                                                        fontSize: 14, 
+                                                                        color: "#007bff", 
+                                                                        textDecoration: "none",
+                                                                        cursor: "pointer",
+                                                                        padding: "4px 8px",
+                                                                        border: "1px solid #007bff",
+                                                                        borderRadius: 4
+                                                                    }}
+                                                                >
+                                                                    Start Test
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </VideoItem>
+                                            </VideoItem>
+                                        ) : (
+                                            <VideoItem
+                                                key={i}
+                                                style={{
+                                                    boxShadow: "none",
+                                                    background: "none",
+                                                    cursor: "pointer",
+                                                    marginBottom: 4,
+                                                    padding: "12px 0",
+                                                    borderBottom: "1px solid #eee"
+                                                }}
+                                                onClick={async () => {
+                                                    await handleStartLecture(item._id, lecture._id);
+                                                    navigate(`/course/liveclass/${courseId}/${item._id}/${lecture._id}`);
+                                                }}
+                                            >
+                                                <div className="video-info" style={{ width: "100%" }}>
+                                                    <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                                                    <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
+                                                        <p style={{ fontSize: 16, fontWeight: 500 }}>
+                                                            {lecture.lectureName}
+                                                            {lecture.completed && (
+                                                                <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
+                                                            )}
+                                                        </p>
+                                                        <p style={{ fontSize: 14, color: "#666", margin: "4px 0" }}>{lecture.description}</p>
+                                                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                            <span style={{ fontSize: 14, color: "#888" }}>{lecture.duration}</span>
+                                                            <div style={{ fontSize: 14, color: "#007bff", textDecoration: "none" }}>
+                                                                Join Class
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </VideoItem>
+                                        )}
+                                    </div>
                                 ))
                             ) : (
-                                <div style={{ padding: "16px 8px", color: "#888" }}>No {isMockTestTab ? "mock tests" : "lectures"} found.</div>
+                                <div style={{ padding: "16px 8px", color: "#888" }}>
+                                    No {isMockTestTab ? "mock tests" : "lectures"} found.
+                                </div>
                             )}
                         </div>
                     )}
                 </div>
-            )
-        })}
-    </VideoList>
-);
+            ))}
+        </VideoList>
+    );
+};
 
 const ContinueCourse = () => {
     const navigate = useNavigate();
@@ -152,35 +255,33 @@ const ContinueCourse = () => {
     const [progressData, setProgressData] = useState(null);
     const [mockTestsBySubject, setMockTestsBySubject] = useState({});
     const [liveClass, setLiveClass] = useState(false);
-    const [liveClassData,setLiveClassData] = useState(null);
+    const [liveClassData, setLiveClassData] = useState(null);
+
     useEffect(() => {
         const apiCaller = async () => {
             const cookies = await getCookiesData();
             const liveClass = await getLiveMeetings({ courseIds: [id], studentId: cookies.userId });
-            console.log("liveClass", liveClass);
             if (liveClass.data.length > 0) {
                 setLiveClass(true);
                 setLiveClassData(liveClass.data[0]);
             }
-        }
+        };
         apiCaller();
         const intervalId = setInterval(apiCaller, 30000);
         return () => clearInterval(intervalId);
-    }, [])
+    }, [id]);
 
     useEffect(() => {
         const init = async () => {
             const cookies = await getCookiesData();
             setUserId(cookies.userId);
 
-            // Fetch course with user progress
             try {
                 const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, id);
                 if (progressResponse?.success) {
                     setProgressData(progressResponse.data);
                     setCourse(progressResponse.data);
 
-                    // Extract completed lectures and subjects
                     const lectures = [];
                     const subjects = [];
 
@@ -200,8 +301,6 @@ const ContinueCourse = () => {
                 }
             } catch (error) {
                 console.error("Error fetching course with progress:", error);
-
-                // Fallback to regular course fetch if progress fails
                 const response = await getCourseById(id);
                 if (response?.success) {
                     setCourse(response.data);
@@ -214,14 +313,12 @@ const ContinueCourse = () => {
     const fetchMockTestsForSubject = async (subjectId) => {
         try {
             const response = await getMocktestBySubjectId(subjectId);
-            console.log("Mock tests for subject:wm djj", response.data);
             return response.data || [];
         } catch (error) {
             console.error("Error fetching mock tests:", error);
             return [];
         }
     };
-
 
     const handleStartCourse = async () => {
         if (!userId || !course?._id) return;
@@ -266,31 +363,26 @@ const ContinueCourse = () => {
     const getAccordionData = async () => {
         if (!course) return { Subjects: [], "Mock Test": [], "Recorded Class": [] };
 
-        const subjects = (course.subjects || []).map(subject => {
-            return ({
-                _id: subject._id,
-                name: subject.subjectName || "Subject",
-                completedPercentage
-                    : subject.completedPercentage || 0,
-                completed: subject.completed || false,
-                lectures: (subject.lectures || []).map(lec => ({
-                    _id: lec._id,
-                    lectureName: lec.lectureName || "Untitled Lecture",
-                    description: lec.description || "No description available",
-                    duration: lec.duration || "Duration not specified",
-                    videoUrl: lec.videoUrl || "#",
-                    completedPercentage: lec.completedPercentage || 0,
-                    completed: lec.completed || false
-                }))
-            })
-        });
+        const subjects = (course.subjects || []).map(subject => ({
+            _id: subject._id,
+            name: subject.subjectName || "Subject",
+            completedPercentage: subject.completedPercentage || 0,
+            completed: subject.completed || false,
+            lectures: (subject.lectures || []).map(lec => ({
+                _id: lec._id,
+                lectureName: lec.lectureName || "Untitled Lecture",
+                description: lec.description || "No description available",
+                duration: lec.duration || "Duration not specified",
+                videoUrl: lec.videoUrl || "#",
+                completedPercentage: lec.completedPercentage || 0,
+                completed: lec.completed || false
+            }))
+        }));
 
-        // For Mock Test tab, we'll show subjects with their mock tests
         let mockTestData = [];
         if (course.subjects && course.subjects.length > 0) {
             mockTestData = await Promise.all(course.subjects.map(async (subject) => {
                 const mockTests = await fetchMockTestsForSubject(subject._id);
-                console.log("Mock tests for subject:", subject._id, mockTests);
                 return {
                     _id: subject._id,
                     name: subject.subjectName || "Subject",
@@ -299,14 +391,14 @@ const ContinueCourse = () => {
                         lectureName: test.title || `Mock Test ${idx + 1}`,
                         description: test.description || "Mock test for practice",
                         duration: `${test.number_of_questions || "N/A"} Questions | ${test.duration || "N/A"} mins`,
-                         maxAttempts: `${test.maxAttempts || "N/A"} attempts`,
+                        maxAttempts: test.maxAttempts,
                         videoUrl: "#"
                     }))
                 };
             }));
         }
 
-        const recordedClasses = subjects; // same structure reused
+        const recordedClasses = subjects;
 
         return {
             Subjects: subjects,
@@ -354,17 +446,6 @@ const ContinueCourse = () => {
             ["Regular Mock Tests", "Personalized Guidance", "Daily Updates"]
         ];
 
-    const styles = {
-        blinkAnimation: {
-            animation: 'blink 1.5s infinite',
-            '@keyframes blink': {
-                '0%': { opacity: 1 },
-                '50%': { opacity: 0.3 },
-                '100%': { opacity: 1 }
-            }
-        }
-    };
-
     return (
         <PageWrapper>
             <Header>
@@ -401,67 +482,42 @@ const ContinueCourse = () => {
                         </div>
                         <button
                             style={{
-                                // backgroundColor: true ? '#ff4757' : '#1e90ff',
                                 border: 'none',
                                 background: 'transparent',
-
-                                // ... other styles
                             }}
-                            onClick={async() => {
-                                console.log("Clicked");
-                                const cookiesData =getCookiesData();
-                                const userData= await getUserByUserId(cookiesData.userId);
-                                console.log("userData", userData);
+                            onClick={async () => {
+                                const cookiesData = await getCookiesData();
+                                const userData = await getUserByUserId(cookiesData.userId);
                                 navigate(`/zoom-meeting`, {
                                     state: {
                                         meetingNumber: liveClassData?.zoom_meeting_id,
-                                        // meetingNumber:"85017587469",
                                         passWord: liveClassData?.zoom_passcode,
-                                        // passWord:"12356",
                                         meetingTitle: liveClassData?.meeting_title,
-                                        role:1,
-                                        userName: userData.user.displayName|| "React",
+                                        role: 1,
+                                        userName: userData.user.displayName || "React",
                                         userEmail: userData.user.email || "",
-                                        leaveUrl:`/continueCourse/${id}`,
+                                        leaveUrl: `/continueCourse/${id}`,
                                     }
                                 })
                             }}
                         >
-                            {liveClass ?
+                            {liveClass &&
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <p style={{ fontSize: '24px' }}>  {liveClass ? 'Join Live Class Now' : 'No Live Class'}</p>
+                                    <p style={{ fontSize: '24px' }}>Join Live Class Now</p>
                                     <MdLiveTv
-                                        color={liveClass ? '#ff4757' : '#1e90ff'}
+                                        color='#ff4757'
                                         size={28}
-                                        style={liveClass ? {
+                                        style={{
                                             animation: 'blink 1.5s infinite',
-                                            '@keyframes blink': {
-                                                '0%': { opacity: 1 },
-                                                '50%': {
-                                                    opacity: 0
-
-                                                },
-                                                '100%': {
-                                                    opacity: 1,
-                                                    fontSize: '24px'
-                                                }
-                                            }
-                                        } : {}}
+                                        }}
                                     />
                                 </div>
-                                :
-                                <div>
-                                </div>
                             }
-
-
-
-
                         </button>
                         <Statdesc>
                             📅 Duration: {course?.duration || "N/A"} |
                             🏆 Success Rate: {course?.successRate ? `${course.successRate}%` : "N/A"} |
-                            ✅ Progress: {course?.completedPercentage}%
+                            ✅ Progress: {calculateProgress()}%
                         </Statdesc>
                     </CourseDetails>
                 </HeaderSection>
@@ -503,6 +559,7 @@ const ContinueCourse = () => {
                         completedLectures={completedLectures}
                         completedSubjects={completedSubjects}
                         isMockTestTab={activeTab === 'Mock Test'}
+                        userId={userId}
                     />
                 </>
             )}
