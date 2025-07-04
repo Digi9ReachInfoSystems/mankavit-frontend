@@ -1,25 +1,3 @@
-i
-
-// const cardData = [
-//   {
-//     title: "Expert Faculty & Proven Success",
-//     description:
-//       "Learn from experienced mentors who have helped thousands of students achieve their goals.",
-//     image: Study1 , // Update path as per your assets folder
-//   },
-//   {
-//     title: "Comprehensive Study Resources",
-//     description:
-//       "Access up-to-date materials, mock tests, and previous year papers for effective preparation.",
-//     image: Study2 ,
-//   },
-//   {
-//     title: "Personalized Support",
-//     description:
-//       "Receive tailored study plans and one-on-one attention to maximize your potential.",
-//     image: Study3,
-//   },
-// ];import React, { useEffect, useState } from "react";
 import {
   Container,
   Title,
