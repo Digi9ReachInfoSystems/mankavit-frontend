@@ -18,6 +18,7 @@ import { getAllNotes } from "../../../../../api/notesApi";
 import { getAllMocktest } from "../../../../../api/mocktestApi";
 import toast from "react-hot-toast";
 import { getAllLectures } from "../../../../../api/lecturesApi";
+import { getAllCourses } from "../../../../../api/courseApi";
 
 export default function ViewSubject() {
   const { id } = useParams();
@@ -26,15 +27,18 @@ export default function ViewSubject() {
   const [loading, setLoading] = useState(true);
   const [lectures, setLectures] = useState([]);
   const [mockTestNames, setMockTestNames ] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subRes, notesRes, lecsRes, mockRes] = await Promise.all([
+        const [subRes, notesRes, lecsRes, mockRes, coursesRes,] = await Promise.all([
           getSubjectById(id),
           getAllNotes(),
           getAllLectures(),
           getAllMocktest(),
+          getAllCourses()
+
         ]);
 
         const subjectData = subRes.data;
@@ -59,6 +63,12 @@ export default function ViewSubject() {
         if (mockRes.success && Array.isArray(mockRes.data)) {
           mockRes.data.forEach(m => {
             mockMap[m._id] = m.title;
+          });
+        }
+        const courseMap = {};
+        if (coursesRes.success && Array.isArray(coursesRes.data)) {
+          coursesRes.data.forEach(c => {
+            courseMap[c._id] = c.courseName;
           });
         }
 
@@ -86,6 +96,12 @@ export default function ViewSubject() {
           (subjectData.mockTests || []).map(item => {
             const key = resolveId(item);
             return mockMap[key] || `Mock Test (${key})`;
+          })
+        );
+        setCourses(
+          (subjectData.courses || []).map(item => {
+            const key = resolveId(item);
+            return courseMap[key] || `Course (${key})`;
           })
         );
 
@@ -152,9 +168,9 @@ export default function ViewSubject() {
               </CheckboxList>
             </CheckboxSection>
           </Column>
-          {/* <Column>
+          <Column>
               <CheckboxSection>
-              <Label>Mock Tests</Label>
+              <Label>Mock Test</Label>
               <CheckboxList>
                 {mockTestNames.length > 0 ? (
                   mockTestNames.map((t, i) => <Field key={i}>{t}</Field>)
@@ -163,7 +179,7 @@ export default function ViewSubject() {
                 )}
               </CheckboxList>
             </CheckboxSection>
-          </Column> */}
+          </Column>
         </FormRow>
         
         {/* Row 3 - Lectures */}
@@ -175,6 +191,22 @@ export default function ViewSubject() {
                 {lectures.length > 0 ? (
                   lectures.map((lecture, index) => (
                     <Field key={index}>{lecture}</Field>
+                  ))
+                ) : (
+                  <Field>No lectures associated with this subject</Field>
+                )}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <Label>Associated Course</Label>
+              <CheckboxList>
+                {courses.length > 0 ? (
+                  courses.map((course, index) => (
+                    <Field key={index}>{course}</Field>
                   ))
                 ) : (
                   <Field>No lectures associated with this subject</Field>

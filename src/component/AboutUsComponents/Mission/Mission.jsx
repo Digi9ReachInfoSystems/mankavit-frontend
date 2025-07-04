@@ -44,7 +44,8 @@ const Mission = () => {
             <Card key={index}>
               <CardImage src={item.image} alt={item.title} />
               <CardTitle>{item.title}</CardTitle>
-              <CardDescription>{item.description}</CardDescription>
+              {/* <CardDescription>{item.description}</CardDescription> */}
+              <CardDescription dangerouslySetInnerHTML={{ __html: item.description }} />
             </Card>
           ))}
         </CardsContainer>

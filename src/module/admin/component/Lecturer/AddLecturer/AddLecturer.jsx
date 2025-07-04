@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect,useMemo } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -14,7 +14,12 @@ import {
   FileInput,
   UploadPlaceholder,
   SubmitButton,
-  VideoControl
+  VideoControl,
+  CheckboxSection,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxLabel,
+  CheckboxInput,
 } from "./AddLecturer.styles";
 import { useNavigate } from "react-router-dom";
 import { createLecture } from "../../../../../api/lecturesApi";
@@ -24,6 +29,7 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import JoditEditor from 'jodit-react';
 
 export default function AddLecturer() {
   const [lectureName, setLectureName] = useState("");
@@ -39,7 +45,9 @@ export default function AddLecturer() {
   const [isLoading, setIsLoading] = useState(false);
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const navigate = useNavigate();
+  const editor = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +59,14 @@ export default function AddLecturer() {
         ]);
         setSubjects(subjectsResponse.data || []);
         setCourses(coursesResponse.data || []);
+        const responseSubjects = await getSubjects();
+        const subjectsData = responseSubjects.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: false,
+        }));
+        setSubjectCheckboxes(subjectsData);
+
       } catch (error) {
         toast.error("Failed to fetch data");
         console.error("Error fetching data:", error);
@@ -75,6 +91,11 @@ export default function AddLecturer() {
       setThumbnailFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+  const handleCheckboxChange = (index, setFn) => {
+    setFn((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -110,8 +131,12 @@ export default function AddLecturer() {
         description,
         duration,
         videoUrl: videoResponse.blobUrl,
-        thumbnail: thumbnailUrl
+        thumbnail: thumbnailUrl,
+        subjectRef: subjectCheckboxes
+          .filter((item) => item.checked)
+          .map((item) => item.id),
       };
+      console.log("submissionData", submissionData);
 
       const response = await createLecture(submissionData);
 
@@ -128,6 +153,7 @@ export default function AddLecturer() {
       setVideoFile(null);
       setThumbnailFile(null);
       setPreviewUrl("");
+      setSubjectCheckboxes(subjectCheckboxes.map((item) => ({ ...item, checked: false })));
     } catch (error) {
       toast.error("Failed to create lecture");
       console.error("Error creating lecture:", error);
@@ -135,50 +161,103 @@ export default function AddLecturer() {
       setIsLoading(false);
     }
   };
-
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: description,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
   return (
     <Container>
-      <Title>Add Lecture</Title>
+      <Title>Add Video</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="lectureName">Lecture Name *</Label>
+              <Label htmlFor="lectureName">Video title *</Label>
               <Input id="lectureName" value={lectureName}
-               onChange={(e)=>{
-                const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                setLectureName(filteredData);
-               }}
-               placeholder="Enter Lecture Name" />
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setLectureName(e.target.value);
+                }}
+                placeholder="Enter Video Title" />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
               <Label htmlFor="duration">Duration *</Label>
-              <Input id="duration" value={duration} 
-              onChange={(e)=>{
-                const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
-                setDuration(filteredData);
-              }}
-              placeholder="e.g. 20 min" />
+              <Input id="duration" value={duration}
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
+                  setDuration(filteredData);
+                }}
+                placeholder="e.g. 20 min" />
             </FieldWrapper>
           </Column>
         </FormRow>
-
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="description">Description *</Label>
-              <TextArea id="description" rows="3" value={description} 
-           onChange={(e)=>{
-            const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-            setDescription(filteredData);
-           }}
-               placeholder="Enter description" />
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                config={config}
+                tabIndex={1}
+                onBlur={newContent => { console.log("new", newContent); }}
+                onChange={newContent => { setDescription(newContent); }}
+              />
             </FieldWrapper>
           </Column>
-        </FormRow>
 
+        </FormRow>
+        {/* <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description">Description *</Label>
+              <TextArea id="description" rows="3" value={description}
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  setDescription(filteredData);
+                }}
+                placeholder="Enter description" />
+            </FieldWrapper>
+          </Column>
+        </FormRow> */}
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+              <CheckboxList>
+                {subjectCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={item.id || index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column style={{ flex: 1 }}>
             <FieldWrapper>
@@ -186,10 +265,10 @@ export default function AddLecturer() {
               <UploadArea onClick={() => videoInputRef.current.click()}>
                 {videoFile ? (
                   <>
-                  <VideoControl controls>
-                    <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
-                  </VideoControl>
-                  <p>{videoFile.name}</p>
+                    <VideoControl controls>
+                      <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
+                    </VideoControl>
+                    <p>{videoFile.name}</p>
                   </>
                 ) : (
                   <>
@@ -228,19 +307,19 @@ export default function AddLecturer() {
           </SubmitButton>
         </FormRow>
       </FormWrapper>
-      
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 }

@@ -1,5 +1,5 @@
 // src/module/user/components/AddSubject/AddSubject.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import uploadIcon from "../../../../../assets/upload.png";
 import {
   Container,
@@ -29,7 +29,9 @@ import { getAllLectures } from "../../../../../api/lecturesApi";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
-
+import { getAllMocktest } from "../../../../../api/mocktestApi";
+import { getAllCourses } from "../../../../../api/courseApi";
+import JoditEditor from 'jodit-react';
 export default function AddSubject() {
   const [subjectTitle, setSubjectTitle] = useState("");
   const [vimeoId, setVimeoId] = useState("");
@@ -40,9 +42,12 @@ export default function AddSubject() {
 
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
+  const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
 
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const editor = useRef(null);
 
   // fetch notes
   useEffect(() => {
@@ -66,6 +71,34 @@ export default function AddSubject() {
         const lectResp = await getAllLectures();
         setLecturesCheckboxes(
           lectResp.data.map(l => ({ id: l._id, label: l.lectureName, checked: false }))
+        );
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load lectures");
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const lectResp = await getAllMocktest();
+
+        setMockTestCheckboxes(
+          lectResp.data.map(l => ({ id: l._id, label: l.title, checked: false }))
+        );
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load lectures");
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const lectResp = await getAllCourses();
+
+        setCoursesCheckboxes(
+          lectResp.data.map(l => ({ id: l._id, label: l.courseName, checked: false }))
         );
       } catch (err) {
         console.error(err);
@@ -125,7 +158,8 @@ export default function AddSubject() {
         notes,
         lectures,
         image: blobUrl,
-        courses: []
+        courses: coursesCheckboxes.filter(i => i.checked).map(i => i.id),
+        mockTests: mockTestCheckboxes.filter(i => i.checked).map(i => i.id)
       });
 
       toast.success("Data created successfully");
@@ -148,6 +182,27 @@ export default function AddSubject() {
 
     }
   };
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: shortDescription,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
 
   return (
     <Container>
@@ -174,7 +229,7 @@ export default function AddSubject() {
               <Label>Subject Title</Label>
               <Input
                 value={subjectTitle}
-                onChange={e => setSubjectTitle(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
+                onChange={e => setSubjectTitle(e.target.value)}
                 placeholder="Enter Subject Title"
               />
             </FieldWrapper>
@@ -182,7 +237,7 @@ export default function AddSubject() {
               <Label>Internal Title</Label>
               <Input
                 value={internalTitle}
-                onChange={e => setInternalTitle(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
+                onChange={e => setInternalTitle(e.target.value)}
                 placeholder="Enter Internal Title"
               />
             </FieldWrapper>
@@ -196,12 +251,27 @@ export default function AddSubject() {
                 placeholder="Enter Vimeo ID"
               />
             </FieldWrapper>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label>Short Description</Label>
               <Input
                 value={shortDescription}
                 onChange={e => setShortDescription(e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))}
                 placeholder="Enter Short Description"
+              />
+            </FieldWrapper> */}
+          </Column>
+        </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="shortDescription">Short Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={shortDescription}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setShortDescription(newContent); }}
               />
             </FieldWrapper>
           </Column>
@@ -238,6 +308,43 @@ export default function AddSubject() {
                       type="checkbox"
                       checked={l.checked}
                       onChange={() => handleCheckboxChange(i, setLecturesCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
+        {/* Mock Test */}
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>
+              <CheckboxList>
+                {mockTestCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setMockTestCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Courses</CheckboxSectionTitle>
+              <CheckboxList>
+                {coursesCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setCoursesCheckboxes)}
                     />
                     {l.label}
                   </CheckboxLabel>

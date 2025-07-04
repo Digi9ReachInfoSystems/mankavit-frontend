@@ -14,12 +14,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  ActionsContainer,
-  ButtonContainer,
-  CreateButton,
-  SearchWrapper,
-  SearchIcon,
-  SearchInput,
   StatusWrapper,
   KycDot,
   ModalOverlay,
@@ -27,396 +21,316 @@ import {
   CourseList,
   CourseItem,
   CloseButton,
-  CloseButtonContainer
+  CloseButtonContainer,
+  PaymentStatus,
+  PaymentDetailsList,
+  PaymentDetailItem,
+  ActivityDot,
+  ActivityWrapper,
+  ButtonContainer,
+  CreateButton,
+  SearchWrapper,
+  SearchIcon,
+  SearchInput
 } from "../StudentManagement/StudentManagement.style";
 
-import { FiEdit } from "react-icons/fi";
-import { IoEyeOutline } from "react-icons/io5";
 import { CiSearch } from "react-icons/ci";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
-import CustomModal from "../../component/CustomModal/CustomModal";
 import Pagination from "../../component/Pagination/Pagination";
-import { getAllStudents } from "../../../../api/userApi";
+import { getAllStudents, studentBulkDelete, deleteStudentById } from "../../../../api/userApi";
 import { getAllCourses } from "../../../../api/courseApi";
-
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Table } from "antd";
 
 const ITEMS_PER_PAGE = 8;
 
 export default function StudentManagement() {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [searchText, setSearchText] = useState("");
   const [data, setData] = useState([]);
   const [coursesMap, setCoursesMap] = useState({});
-  const [sortConfig, setSortConfig] = useState({
-    key: "createdAt", // default sort by creation time
-    direction: "descending", // newest first
-  });
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "descending" });
 
+  // Bulk selection state
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
 
-  const [modalCourses, setModalCourses] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
+  // Single delete state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+
+  // Modals
   const [coursesModalOpen, setCoursesModalOpen] = useState(false);
   const [coursesList, setCoursesList] = useState([]);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
+  // Timestamp helper
   const ts = (item) => {
     if (item.createdAt) return new Date(item.createdAt).getTime();
     if (item.updatedAt) return new Date(item.updatedAt).getTime();
-    if (item._id && item._id.length >= 8) {
-      return parseInt(item._id.substring(0, 8), 16) * 1000;
-    }
+    if (item._id && item._id.length >= 8) return parseInt(item._id.substring(0, 8), 16) * 1000;
     return 0;
   };
 
-  // 1) Fetch all students + courses on mount
-  useEffect(() => {
-    const fetchStudentsAndCourses = async () => {
-      try {
-        const [studentResponse, courseResponse] = await Promise.all([
-          getAllStudents(), // returns { data: { students: [...] } }
-
-          getAllCourses(),  // returns { data: [ { _id, course_name, … }, … ] }
-        ]);
-
-        console.log("studentResponse", studentResponse);
-        const students = studentResponse.data?.students || [];
-        setData(students.sort((a, b) => ts(b) - ts(a)));
-        const courseMap = {};
-        (courseResponse.data || []).forEach((course) => {
-          courseMap[course._id] = course.course_name;
-        });
-        setCoursesMap(courseMap);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setData([]);
-        toast.error("Failed to load data. Please try again.");
-      }
-    };
-    fetchStudentsAndCourses();
-  }, []);
-
-  // Sorting logic
-  const requestSort = (key) => {
-    let direction = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
+  // Fetch data
+  const fetchStudentsAndCourses = async () => {
+    setLoading(true);
+    try {
+      const [studentsRes, coursesRes] = await Promise.all([getAllStudents(), getAllCourses()]);
+      console.log("STudnet response", studentsRes);
+      const students = studentsRes.data?.students || [];
+      setData(students.sort((a, b) => ts(b) - ts(a)));
+      const map = {};
+      (coursesRes.data || []).forEach(c => { map[c._id] = c.courseName; });
+      setCoursesMap(map);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchStudentsAndCourses(); }, []);
+
+  // Sorting
+  const requestSort = (key) => {
+    let dir = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') dir = 'descending';
+    setSortConfig({ key, direction: dir });
+  };
   const sortedData = React.useMemo(() => {
-    let sortableItems = [...data];
-
-    if (sortConfig) {
-      sortableItems.sort((a, b) => {
-        // Handle time-based sort
-        if (sortConfig.key === "createdAt") {
-          const timeA = ts(a);
-          const timeB = ts(b);
-          return sortConfig.direction === "ascending"
-            ? timeA - timeB
-            : timeB - timeA;
+    const items = [...data];
+    if (sortConfig.key) {
+      items.sort((a, b) => {
+        if (sortConfig.key === 'createdAt' || sortConfig.key === 'signedUpAt') {
+          const ta = new Date(a[sortConfig.key] || 0).getTime();
+          const tb = new Date(b[sortConfig.key] || 0).getTime();
+          return sortConfig.direction === 'ascending' ? ta - tb : tb - ta;
         }
-
-        // Handle text-based sorting
-        const aValue = (a[sortConfig.key] || "").toString();
-        const bValue = (b[sortConfig.key] || "").toString();
-        return sortConfig.direction === "ascending"
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
+        const av = (a[sortConfig.key] || '').toString();
+        const bv = (b[sortConfig.key] || '').toString();
+        return sortConfig.direction === 'ascending' ? av.localeCompare(bv) : bv.localeCompare(av);
       });
     }
-
-    return sortableItems;
+    return items;
   }, [data, sortConfig]);
 
-
-  // Filtering by “displayName”
-  const filteredStudents = sortedData.filter((student) =>
-    (student.displayName || "")
-      .toLowerCase()
-      .includes(searchText.toLowerCase())
-  );
-
-  const TOTAL_ENTRIES = filteredStudents.length;
+  // Filter & paginate
+  const filtered = sortedData.filter(s => (s.displayName || '').toLowerCase().includes(searchText.toLowerCase()));
+  const TOTAL_ENTRIES = filtered.length;
   const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = filteredStudents.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+  const currentItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleViewCourses = (userId) => {
-    // 📝 Replace this with an API call if needed
-    const dummyCourses = [
-      "React Bootcamp",
-      "JavaScript Mastery",
-      "Node.js Basics",
-      "MongoDB Essentials"
-    ];
-
-    setCoursesList(dummyCourses);
-    setCoursesModalOpen(true);
+  // Bulk selection handlers
+  const handleCheckboxChange = (id) => setSelectedStudents(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const handleSelectAllChange = () => {
+    if (selectAll) setSelectedStudents([]);
+    else setSelectedStudents(currentItems.map(i => i._id));
+    setSelectAll(!selectAll);
   };
 
-  // “Delete student” stubs
-  const handleDeleteClick = (id) => {
-    setSelectedStudent(id);
-    setDeleteModalOpen(true);
-  };
-  const handleDeleteConfirm = () => {
-    try{
-      setData(data.filter((s) => s._id !== selectedStudent));
-      setDeleteModalOpen(false);
-      toast.success("Data deleted successfully.");
+  // Bulk delete
+  const handleBulkDeleteClick = () => setBulkDeleteModalOpen(true);
+  const handleBulkDelete = async () => {
+    setLoading(true);
+    try {
+      await studentBulkDelete(selectedStudents);
+      toast.success("Deleted selected students");
+      setSelectedStudents([]);
+      setSelectAll(false);
+      await fetchStudentsAndCourses();
     } catch (err) {
-      console.error("Failed to delete item:", err);
-      toast.error("Failed to delete data. Please try again.");
+      console.error(err);
+      toast.error("Bulk delete failed");
+    } finally {
+      setBulkDeleteModalOpen(false);
+      setLoading(false);
     }
   };
 
-  // “View student details” stub
-  const handleViewClick = (student) => {
-    navigate(`/admin/student-management/view/${student._id}`, {
-      state: { student },
-    });
+  // Single delete
+  const handleDeleteClick = (id) => { setStudentToDelete(id); setDeleteModalOpen(true); };
+  const handleConfirmDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteStudentById(studentToDelete);
+      toast.success("Deleted student");
+      await fetchStudentsAndCourses();
+    } catch (err) {
+      console.error(err);
+      toast.error("Delete failed");
+    } finally {
+      setDeleteModalOpen(false);
+      setStudentToDelete(null);
+      setLoading(false);
+    }
   };
+
+  // View modals
+  const handleViewCourses = (subs) => {
+    setCoursesList(subs.map(sub => ({
+      courseName: sub.course_enrolled?.courseName || coursesMap[sub.course_enrolled?._id] || 'Unknown',
+      enrolledDate: formatDate(sub.created_at)
+    })));
+    setCoursesModalOpen(true);
+  };
+  const handleViewPaymentDetails = (subs) => {
+    if (!subs?.length) return;
+    const p = subs[0];
+    setPaymentDetails({
+      status: p.payment_Status,
+      razorpay_payment_id: p.payment_id?.razorpay_payment_id || 'N/A',
+      razorpay_order_id: p.payment_id?.razorpay_order_id || 'N/A',
+      amountPaid: p.payment_id?.amountPaid || 'N/A',
+      paymentType: p.payment_id?.paymentType || 'N/A',
+      transactionId: p.payment_id?.transactionId || 'N/A',
+      paymentDate: formatDate(p.payment_id?.createdAt)
+    });
+    setPaymentModalOpen(true);
+  };
+
+  const renderActivityStatus = (isActive) => (
+    <ActivityWrapper color={isActive ? '#4CAF50' : '#F44336'}>
+      <ActivityDot color={isActive ? '#4CAF50' : '#F44336'} /> {isActive ? 'Active' : 'Inactive'}
+    </ActivityWrapper>
+  );
 
   return (
     <>
       <ButtonContainer>
-        <CreateButton
-          onClick={() => navigate("/admin/student-management/create")}
-        >
-          Add Student
-        </CreateButton>
+        <CreateButton onClick={() => navigate("/admin/student-management/create")}>Add Student</CreateButton>
+        {selectedStudents.length > 0 && (
+          <CreateButton onClick={handleBulkDeleteClick} style={{ marginLeft: 8, backgroundColor: 'red' }}>
+            Delete Selected ({selectedStudents.length})
+          </CreateButton>
+        )}
       </ButtonContainer>
 
       <Container>
         <HeaderRow>
-          <Title>
-            See All Students{" "}
-            <span
-              style={{
-                color: "#6d6e75",
-                fontSize: "12px",
-                fontWeight: "400",
-              }}
-            >
-              ({currentItems.length}/{TOTAL_ENTRIES})
-            </span>
-          </Title>
-
+          <Title>See all students <span>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value={sortConfig.key} onChange={(e) => requestSort(e.target.value)}>
-              <option value="createdAt">Latest</option>
+            <SortSelect value={sortConfig.key} onChange={e => requestSort(e.target.value)}>
+              <option value="signedUpAt">Latest</option>
               <option value="displayName">Name</option>
               <option value="kyc_status">KYC Status</option>
             </SortSelect>
-
           </SortByContainer>
         </HeaderRow>
 
         <SearchWrapper>
-          <SearchIcon>
-            <CiSearch size={18} />
-          </SearchIcon>
+          <SearchIcon><CiSearch size={18} /></SearchIcon>
           <SearchInput
             placeholder="Search"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={e => setSearchText(e.target.value)}
           />
         </SearchWrapper>
 
-        <TableWrapper>
-          <StyledTable>
-            <TableHead>
-              <TableRow>
-                <TableHeader>#</TableHeader>
-                <TableHeader
-                  onClick={() => requestSort("displayName")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Student Name{" "}
-                  {sortConfig.key === "displayName" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </TableHeader>
-                <TableHeader>Contact Details</TableHeader>
-                <TableHeader>Course Enrolled</TableHeader>
-                <TableHeader
-                  onClick={() => requestSort("kyc_status")}
-                  style={{ cursor: "pointer" }}
-                >
-                  KYC Status{" "}
-                  {sortConfig.key === "kyc_status" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </TableHeader>
-                <TableHeader>Actions</TableHeader>
-                <TableHeader>Update</TableHeader>
-                <TableHeader>All Courses</TableHeader>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {currentItems.map((item, idx) => (
-                <TableRow key={item._id}>
-                  <TableCell>{startIndex + idx + 1}</TableCell>
-                  <TableCell>{item.displayName || "N/A"}</TableCell>
-                  <TableCell>
-                    {item.phone}
-                    <br />
-                    {/* {item.email} */}
-                  {/* email character should be maximum of 30 characters then urts hgsould be ... */}
-                    {item.email.length > 23 ? item.email.substring(0, 20) + "..." : item.email}
-                  </TableCell>
-                  <TableCell>
-                    {(item.subscription?.length || 0)}{" "}
-                    <span
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setModalType("Enrolled Courses");
-                        setModalCourses(
-                          (item.subscription || []).map(
-                            (sub) =>
-                              coursesMap[sub.course_enrolled] ||
-                              sub.course_enrolled
-                          )
-                        );
-                        setModalOpen(true);
-                      }}
-                      style={{
-                        color: "#007bff",
-                        cursor: "pointer",
-                        marginLeft: "5px",
-                      }}
-                    >
-                      View
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <StatusWrapper>
-                      <KycDot status={item.kyc_status} />
-                      {item.kyc_status}
-                    </StatusWrapper>
-                  </TableCell>
-                  <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline
-                        title="View"
-                        color="#000000"
-                        size={20}
-                        onClick={() => handleViewClick(item)}
-                      />
-                      <RiDeleteBin6Line
-                        title="Delete"
-                        size={20}
-                        color="#FB4F4F"
-                        onClick={() => handleDeleteClick(item.id)}
-                      />
-                    </ActionsContainer>
-                  </TableCell>
-                  <TableCell>
-                    {/*
-                      Instead of fetching KYC here, we simply navigate
-                      to the UpdateKYC page with the user’s ID.
-                    */}
-                    <FiEdit
-                      title="Update KYC"
-                      color="#000000"
-                      size={20}
-                      style={{ cursor: "pointer" }}
-                      onClick={() =>
-                        navigate(
-                          `/admin/student-management/update-kyc/${item._id}`
-                        )
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {(item.subscripti?.length || 0)}{" "}
-
-                    <span
-                      onClick={() => handleViewCourses(item)}
-                      style={{ cursor: "pointer", color: "#007bff", marginLeft: 5 }}
-                    >
-                      View
-                    </span>
-                  </TableCell>
-
-                </TableRow>
-              ))}
-            </TableBody>
-          </StyledTable>
-        </TableWrapper>
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          totalItems={TOTAL_ENTRIES}
-          itemsPerPage={ITEMS_PER_PAGE}
-        />
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <>
+            <TableWrapper>
+              <StyledTable>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader><input type="checkbox" checked={selectAll} onChange={handleSelectAllChange} /></TableHeader>
+                    <TableHeader>Student name</TableHeader>
+                    <TableHeader>Contact details</TableHeader>
+                    <TableHeader>Course enrolled</TableHeader>
+                    <TableHeader>Payment status</TableHeader>
+                    <TableHeader>KYC status</TableHeader>
+                    <TableHeader>Signed up date</TableHeader>
+                    <TableHeader>Activity status</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {currentItems.map((item, idx) => (
+                    <TableRow key={item._id}>
+                      <TableCell><input type="checkbox" checked={selectedStudents.includes(item._id)} onChange={() => handleCheckboxChange(item._id)} /></TableCell>
+                      <TableCell style={{ cursor: 'pointer', color: '#007bff' }} onClick={() => navigate(`/admin/student-management/edit/${item._id}`)}>
+                        {item.displayName || 'N/A'}
+                      </TableCell>
+                      <TableCell>{item.phone}<br />{item.email.length > 23 ? item.email.slice(0,20)+'...' : item.email}</TableCell>
+                      <TableCell>
+                        {item.subscription?.length || 0}{' '}
+                        {item.subscription?.length > 0 && (<span style={{ cursor: 'pointer', color: '#007bff' }} onClick={() => handleViewCourses(item.subscription)}>View</span>)}
+                      </TableCell>
+                      <TableCell>
+                        {item.subscription?.length > 0 ? (
+                          <PaymentStatus status={item.subscription[0].payment_Status} onClick={() => handleViewPaymentDetails(item.subscription)}>
+                            {item.subscription[0].payment_Status}
+                          </PaymentStatus>
+                        ) : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <StatusWrapper onClick={() => navigate(`/admin/student-management/update-kyc/${item._id}`)}>
+                          <KycDot status={item.kyc_status} /> {item.kyc_status}
+                        </StatusWrapper>
+                      </TableCell>
+                      <TableCell>{formatDate(item.signedUpAt)}</TableCell>
+                      <TableCell>{renderActivityStatus(item.isActive)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </StyledTable>
+            </TableWrapper>
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={TOTAL_ENTRIES} itemsPerPage={ITEMS_PER_PAGE} />
+          </>
+        )}
       </Container>
 
-      {modalOpen && (
-        <CustomModal
-          title={
-            modalType === "Enrolled Courses" ? "Enrolled Courses" : "Modal"
-          }
-          type={modalType}
-          data={modalCourses}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
+      {/* Modals */}
+      <DeleteModal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onDelete={handleConfirmDelete} />
+      <DeleteModal isOpen={bulkDeleteModalOpen} onClose={() => setBulkDeleteModalOpen(false)} onDelete={handleBulkDelete} />
 
-      {deleteModalOpen && (
-        <DeleteModal
-          onClose={() => setDeleteModalOpen(false)}
-          onDelete={handleDeleteConfirm}
-        />
-      )}
-
-      {/* Toast Container for react-toastify */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-
+      {/* Courses Modal */}
       {coursesModalOpen && (
         <ModalOverlay>
           <ModalContent>
-            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>All Courses</h2>
-            {coursesList.length === 0 ? (
-              <p>No courses enrolled.</p>
-            ) : (
-              <CourseList>
-                {coursesList.map((course, index) => (
-                  <CourseItem key={index}>{course}</CourseItem>
-                ))}
-              </CourseList>
+            <h2 style={{textAlign:'center', fontSize:'1.5rem',marginTop:'1rem'}}>Enrolled Courses</h2>
+            {coursesList.length === 0 ? <p>No courses enrolled.</p> : (
+              <CourseList>{coursesList.map((c,i)=>(<CourseItem key={i}><strong>{c.courseName}</strong><div>Enrolled: {c.enrolledDate}</div></CourseItem>))}</CourseList>
             )}
-            <CloseButtonContainer>
-              <CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton>
-            </CloseButtonContainer>
+            <CloseButtonContainer><CloseButton onClick={()=>setCoursesModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
           </ModalContent>
         </ModalOverlay>
       )}
 
+      {/* Payment Modal */}
+      {paymentModalOpen && paymentDetails && (
+        <ModalOverlay>
+          <ModalContent>
+            <h2  style={{textAlign:'center', fontSize:'1.5rem',marginTop:'1rem'}}>Payment Details</h2>
+            <PaymentDetailsList>
+              <PaymentDetailItem><strong>Status:</strong> <PaymentStatus status={paymentDetails.status}>{paymentDetails.status}</PaymentStatus></PaymentDetailItem>
+              <PaymentDetailItem><strong>Payment ID:</strong> {paymentDetails.razorpay_payment_id}</PaymentDetailItem>
+              <PaymentDetailItem><strong>Order ID:</strong> {paymentDetails.razorpay_order_id}</PaymentDetailItem>
+              <PaymentDetailItem><strong>Amount:</strong> {paymentDetails.amountPaid}</PaymentDetailItem>
+              <PaymentDetailItem><strong>Type:</strong> {paymentDetails.paymentType}</PaymentDetailItem>
+              <PaymentDetailItem><strong>Txn ID:</strong> {paymentDetails.transactionId}</PaymentDetailItem>
+              <PaymentDetailItem><strong>Date:</strong> {paymentDetails.paymentDate}</PaymentDetailItem>
+            </PaymentDetailsList>
+            <CloseButtonContainer><CloseButton onClick={()=>setPaymentModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </>
   );
 }

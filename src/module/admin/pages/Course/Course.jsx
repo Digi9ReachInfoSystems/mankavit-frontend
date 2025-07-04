@@ -33,7 +33,8 @@ import { Select, Switch } from "antd";
 import {
   getAllCourses,
   deleteCourseById,
-  updateCourseById
+  updateCourseById,
+  bulkDeleteCourse
 } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -63,7 +64,9 @@ export default function CoursesTable() {
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState([]);
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
-
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -168,7 +171,7 @@ export default function CoursesTable() {
     setModalOpen(true);
   };
   const returnMockTestCount = (subjects) => {
-  
+
     let mockTestData = [];
     subjects.map((s) => {
       mockTestData = mockTestData.concat(s.mockTests);
@@ -187,6 +190,43 @@ export default function CoursesTable() {
       second: "2-digit",
       hour12: true,
     }).format(new Date(iso));
+    const handleBulkDeleteClick = () => {
+      setBulkDeleteModalOpen(true);
+    }
+
+  const handleCheckboxChange = (courseId) => {
+    setSelectedCourses((prev) =>
+      prev.includes(courseId)
+        ? prev.filter((id) => id !== courseId)
+        : [...prev, courseId]
+    );
+  };
+
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedCourses([]);
+    } else {
+      setSelectedCourses(currentItems.map((c) => c.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setLoading(true);
+      await bulkDeleteCourse(selectedCourses);
+      toast.success("Selected courses deleted successfully");
+      setSelectedCourses([]);
+      setSelectAll(false);
+      await fetchCourses();
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      setBulkDeleteModalOpen(false);
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -218,6 +258,16 @@ export default function CoursesTable() {
             />
           </SortByContainer>
         </HeaderRow>
+        <ButtonContainer>
+          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+            Add Course
+          </CreateButton> */}
+          {selectedCourses.length > 0 && (
+            <CreateButton onClick={handleBulkDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+              Delete Selected ({selectedCourses.length})
+            </CreateButton>
+          )}
+        </ButtonContainer>
 
         <SearchWrapper>
           <SearchIcon>
@@ -238,6 +288,13 @@ export default function CoursesTable() {
               <StyledTable>
                 <TableHead>
                   <TableRow>
+                    <TableHeader>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAllChange}
+                      />
+                    </TableHeader>
                     <TableHeader>Course Name</TableHeader>
                     <TableHeader>Internal Name</TableHeader>
                     <TableHeader>Subjects</TableHeader>
@@ -245,14 +302,46 @@ export default function CoursesTable() {
                     <TableHeader>Enrolled</TableHeader>
                     <TableHeader>Date & Time (IST)</TableHeader>
                     <TableHeader>Published</TableHeader>
-                    <TableHeader>Actions</TableHeader>
+                    {/* <TableHeader>Actions</TableHeader> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {currentItems.map((c) => (
                     <TableRow key={c.id}>
-                      <TableCell>{c.courseName}</TableCell>
-                      <TableCell>{c.internalName}</TableCell>
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedCourses.includes(c.id)}
+                          onChange={() => handleCheckboxChange(c.id)}
+                        />
+                      </TableCell>
+                      <TableCell
+
+                      >
+                        <a
+                          href="#"
+                          onClick={() =>
+                            navigate(
+                              `/admin/course-management/edit/${c.id}`
+                            )
+                          }
+                        >
+                          {c.courseName}
+                        </a>
+
+                      </TableCell>
+                      <TableCell>
+                        <a
+                          href="#"
+                          onClick={() =>
+                            navigate(
+                              `/admin/course-management/edit/${c.id}`
+                            )
+                          }
+                        >
+                          {c.internalName}
+                        </a>
+                      </TableCell>
                       <TableCell>
                         {c.subjects?.length}{" "}
                         <a
@@ -304,7 +393,7 @@ export default function CoursesTable() {
                           }
                         />
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <ActionsContainer>
                           <IoEyeOutline
                             size={20}
@@ -328,7 +417,7 @@ export default function CoursesTable() {
                             onClick={() => handleDeleteClick(c.id)}
                           />
                         </ActionsContainer>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -349,6 +438,11 @@ export default function CoursesTable() {
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleConfirmDelete}
+        />
+        <DeleteModal
+          isOpen={bulkDeleteModalOpen}
+          onClose={() => setBulkDeleteModalOpen(false)}
+          onDelete={handleBulkDelete}
         />
 
         {modalOpen && (

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -17,11 +17,18 @@ import {
   VideoContainer,
   VideoPlayer,
   ThumbnailPreview,
+  CheckboxSection,
+  CheckboxSectionTitle,
+  CheckboxList,
+  CheckboxLabel,
+  CheckboxInput,
 } from "./EditLecturer.styles";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getSubjects } from "../../../../../api/subjectApi";
+import JoditEditor from 'jodit-react';
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -31,6 +38,7 @@ export default function EditLecturer() {
     lectureName: "",
     duration: "",
     description: "",
+
   });
 
   const [thumbnailFile, setThumbnailFile] = useState(null);
@@ -39,9 +47,10 @@ export default function EditLecturer() {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [currentThumbnail, setCurrentThumbnail] = useState("");
   const [currentVideo, setCurrentVideo] = useState("");
-
+  const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const thumbnailInputRef = useRef(null);
   const videoInputRef = useRef(null);
+  const editor = useRef(null);
 
   useEffect(() => {
     const fetchLecture = async () => {
@@ -54,6 +63,13 @@ export default function EditLecturer() {
           duration: lecture.duration || "",
           description: lecture.description || "",
         });
+        const responseSubjects = await getSubjects();
+        const subjectsData = responseSubjects.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: lecture.subjectRef.includes(item._id),
+        }));
+        setSubjectCheckboxes(subjectsData);
 
         setCurrentThumbnail(lecture.thumbnail);
         setCurrentVideo(lecture.videoUrl);
@@ -78,7 +94,11 @@ export default function EditLecturer() {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-
+  const handleCheckboxChange = (index, setFn) => {
+    setFn((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
+    );
+  };
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -101,6 +121,7 @@ export default function EditLecturer() {
         lectureName,
         duration,
         description,
+        subjectRef: subjectCheckboxes.filter((item) => item.checked).map((item) => item.id),
         // Add upload logic for video and thumbnail here if needed
       };
 
@@ -116,15 +137,37 @@ export default function EditLecturer() {
       toast.error("Failed to update lecture");
     }
   };
+  const configDis = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.description,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
 
   return (
     <Container>
-      <Title>Edit Lecture</Title>
+      <Title>Edit Video</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="lectureName">Lecture Name*</Label>
+              <Label htmlFor="lectureName">Video Title*</Label>
               <Input
                 id="lectureName"
                 name="lectureName"
@@ -133,7 +176,7 @@ export default function EditLecturer() {
                   const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
                   setFormData({ ...formData, lectureName: filteredData });
                 }}
-                placeholder="Enter Lecture Name"
+                placeholder="Enter Video Name"
                 required
               />
             </FieldWrapper>
@@ -155,8 +198,23 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-
         <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={formData.description}
+                config={configDis}
+                tabIndex={1}
+                onBlur={newContent => { console.log("new", newContent); }}
+                onChange={newContent => { setFormData({ ...formData, description: newContent }) }}
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label htmlFor="description">Description*</Label>
@@ -174,8 +232,26 @@ export default function EditLecturer() {
               />
             </FieldWrapper>
           </Column>
+        </FormRow> */}
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+              <CheckboxList>
+                {subjectCheckboxes.map((item, index) => (
+                  <CheckboxLabel key={item.id || index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
         </FormRow>
-
         <FormRow>
           <Column>
             <FieldWrapper>

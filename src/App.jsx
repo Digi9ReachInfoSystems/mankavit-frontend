@@ -213,9 +213,10 @@ function App() {
 
             <Route path="student-management" element={<StudentManagement />} />
             <Route path="student-management/create" element={<AddStudent />} />
-            <Route path="student-management/edit/:id" element={<EditStudent />} />
+            <Route path="student-management/edit/:userId" element={<EditStudent />} />
             <Route path="student-management/view/:id" element={<ViewStudent />} />
             <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
+
             <Route path="mock-test" element={<Mocktest />} />
             <Route path="mock-test/create-mock-test" element={<CreateMockTest />} />
             <Route path="mock-test/questions-list/:mockTestId" element={<MockTestQuestionsList />} />
@@ -254,6 +255,11 @@ function App() {
             <Route path="lecturer-management/edit/:id" element={<EditLecturer />} />
             <Route path="lecturer-management/view/:id" element={<ViewLecturer />} />
 
+            <Route path="recorded-class" element={<RecordedClass />} />
+            <Route path="recorded-classes/create" element={<AddRecordedClass />} />
+            <Route path="recorded-classes/edit/:id" element={<EditRecordedClass />} />
+            <Route path="recorded-classes/view/:id" element={<ViewRecordedClass />} />
+
             <Route path="static-page" element={<Staticpage />} />
 
 
@@ -274,10 +280,10 @@ function App() {
             <Route path="web-management/live-classes/create" element={<AddLiveClass />} />
             <Route path="web-management/live-classes/edit/:id" element={<EditLiveclass />} />
 
-            <Route path="web-management/recorded-class" element={<RecordedClass />} />
+            {/* <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass />} />
             <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass />} />
-            <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass />} />
+            <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass />} /> */}
 
             <Route path="web-management/aboutus" element={<Aboutus />} />
             <Route path="web-management/why-mankavit" element={<WhyMankavit />} />

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Select } from "antd";
 import uplaod from "../../../../../assets/upload.png";
@@ -15,6 +15,7 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import JoditEditor from 'jodit-react';
 // import { getAllMocktest } from "../../../../../api/mocktestApi";
 
 export default function EditCourse() {
@@ -42,9 +43,10 @@ export default function EditCourse() {
     status: "active",
     subjectCheckboxes: [],
     // mockTestCheckboxes: [],
-    thumbnailFile: null
+    thumbnailFile: null,
+    ratting: 0
   });
-
+  const editor = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function EditCourse() {
         const response = await getCourseById(id);
         console.log("Course by id response", response);
         const data = response.data;
-        
+
         // Fetch subjects and categories in parallel
         const [subjectsResponse, categoriesResponse] = await Promise.all([
           getSubjects(),
@@ -68,11 +70,11 @@ export default function EditCourse() {
           : Array.isArray(subjectsResponse)
             ? subjectsResponse
             : [];
-            
+
         const subjectsData = subjectsArray.map((item) => ({
           label: item.subjectName,
           id: item._id,
-          checked: data.subjects?.some((s) => 
+          checked: data.subjects?.some((s) =>
             (typeof s === 'object' ? s._id : s) === item._id
           ) || false,
         }));
@@ -83,7 +85,7 @@ export default function EditCourse() {
         //   : Array.isArray(mockTestsResponse)
         //     ? mockTestsResponse
         //     : [];
-            
+
         // const mockTestsData = mockTestsArray.map((item) => ({
         //   label: item.title || `Mock Test ${item._id}`,
         //   id: item._id,
@@ -96,11 +98,15 @@ export default function EditCourse() {
           : Array.isArray(categoriesResponse)
             ? categoriesResponse
             : [];
-            
+
         const formattedCategories = categoryArray.map((item) => ({
           label: item.title,
           value: item._id,
+          checked: data.category?.some((s) =>
+            (typeof s === 'object' ? s._id : s) === item._id
+          ) || false,
         }));
+        console.log("formattedCategories", formattedCategories, data);
 
         // Set all form data at once
         setFormData({
@@ -124,7 +130,8 @@ export default function EditCourse() {
           subjectCheckboxes: subjectsData,
           // mockTestCheckboxes: mockTestsData,
           categories: formattedCategories,
-          thumbnailFile: null
+          thumbnailFile: null,
+          ratting: data.course_rating || 0
         });
 
       } catch (error) {
@@ -134,6 +141,49 @@ export default function EditCourse() {
     };
     fetchCourse();
   }, [id]);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.shortDescription ,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
+  const configDis = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.description ,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -163,80 +213,84 @@ export default function EditCourse() {
     }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // 1. Convert to Numbers ("" → 0)
-  const actual = Number(formData.actualPrice || 0);
-  const discount = Number(formData.discountedPrice || 0);
+    // 1. Convert to Numbers ("" → 0)
+    const actual = Number(formData.actualPrice || 0);
+    const discount = Number(formData.discountedPrice || 0);
 
-  // 2. Client‐side validation: 
-  //    If your server disallows discount > price (but allows equality):
-  if (discount > actual) {
-    toast.error("Discount price cannot exceed regular price");
-    return;
-  }
-
-  // 3. If you want to disallow discount === price as well, use:
-  //    if (discount >= actual) { … }
-
-  try {
-    let fileURL = formData.previewUrl;
-    if (formData.thumbnailFile) {
-      const fileData = await uploadFileToAzureStorage(
-        formData.thumbnailFile,
-        "course"
-      );
-      fileURL = fileData.blobUrl;
+    // 2. Client‐side validation: 
+    //    If your server disallows discount > price (but allows equality):
+    if (discount > actual) {
+      toast.error("Discount price cannot exceed regular price");
+      return;
     }
 
-    const subjects = formData.subjectCheckboxes
-      .filter(item => item.checked)
-      .map(item => item.id);
+    // 3. If you want to disallow discount === price as well, use:
+    //    if (discount >= actual) { … }
 
-    // const mockTests = formData.mockTestCheckboxes
-    //   .filter(item => item.checked)
-    //   .map(item => item.id);
+    try {
+      let fileURL = formData.previewUrl;
+      if (formData.thumbnailFile) {
+        const fileData = await uploadFileToAzureStorage(
+          formData.thumbnailFile,
+          "course"
+        );
+        fileURL = fileData.blobUrl;
+      }
 
-    const payload = {
-      courseName: formData.internalTitle,
-      courseDisplayName: formData.courseTitle,
-      shortDescription: formData.shortDescription,
-      description: formData.description,
-      category: formData.selectedCategory,
-      price: actual,               // already a Number
-      discountPrice: discount,     // already a Number
-      discountActive: formData.isKYCRequired,
-      duration: formData.duration,
-      no_of_videos: Number(formData.noOfVideos || 0),
-      successRate: Number(formData.successRate || 0),
-      course_includes: formData.courseIncludes
-        .split(",")
-        .map(i => i.trim())
-        .filter(i => i.length > 0),
-      live_class: formData.liveClass,
-      recorded_class: formData.recordedClass,
-      isPublished: formData.isPublished,
-      status: formData.status,
-      subjects,
-      // mockTests,
-      image: fileURL,
-    };
-    console.log("payload", payload);
+      const subjects = formData.subjectCheckboxes
+        .filter(item => item.checked)
+        .map(item => item.id);
 
-    await updateCourseById(id, payload);
-    console.log("Course updated successfully", payload);
-    toast.success("Course updated successfully");
-    setTimeout(() => navigate("/admin/course-management"), 1000);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update course. Please try again.");
-  }
-};
+      const categories = formData.categories
+        .filter(item => item.checked)
+        .map(item => item.value);
+      // const mockTests = formData.mockTestCheckboxes
+      //   .filter(item => item.checked)
+      //   .map(item => item.id);
 
-  
+      const payload = {
+        courseName: formData.internalTitle,
+        courseDisplayName: formData.courseTitle,
+        shortDescription: formData.shortDescription,
+        description: formData.description,
+        category: categories,
+        price: actual,               // already a Number
+        discountPrice: discount,     // already a Number
+        discountActive: formData.isKYCRequired,
+        duration: formData.duration,
+        no_of_videos: Number(formData.noOfVideos || 0),
+        successRate: Number(formData.successRate || 0),
+        course_includes: formData.courseIncludes
+          .split(",")
+          .map(i => i.trim())
+          .filter(i => i.length > 0),
+        live_class: formData.liveClass,
+        recorded_class: formData.recordedClass,
+        isPublished: formData.isPublished,
+        status: formData.status,
+        subjects,
+        course_rating: Number(formData.ratting) || 0,
+        // mockTests,
+        image: fileURL,
+      };
+      console.log("payload", payload);
+
+      await updateCourseById(id, payload);
+      console.log("Course updated successfully", payload);
+      toast.success("Course updated successfully");
+      setTimeout(() => navigate("/admin/course-management"), 1000);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update course. Please try again.");
+    }
+  };
+
+
   const handleUploadAreaClick = () => fileInputRef.current?.click();
-  
+
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -303,10 +357,26 @@ const handleSubmit = async (e) => {
             </FieldWrapper>
           </Column>
         </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="description"> Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={formData.description}
+                config={configDis}
+                tabIndex={1} 
+                onBlur={newContent => { console.log("new", newContent); }} 
+                onChange={newContent => { setFormData({ ...formData, description: newContent }) }} 
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
 
         {/* Row 2: Course Short Description */}
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="shortDescription">Course Short Description</Label>
               <TextArea
@@ -315,6 +385,19 @@ const handleSubmit = async (e) => {
                 value={formData.shortDescription}
                 onChange={(e) => handleInputChange('shortDescription', sanitizeInput(e.target.value))}
                 placeholder="Enter short description"
+              />
+            </FieldWrapper>
+          </Column> */}
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="shortDescription">Course Short Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={formData.shortDescription}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setFormData({ ...formData, shortDescription: newContent }) }}
               />
             </FieldWrapper>
           </Column>
@@ -350,7 +433,7 @@ const handleSubmit = async (e) => {
         </FormRow>
 
         {/* Category Selection */}
-        <FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label>Category</Label>
@@ -363,7 +446,7 @@ const handleSubmit = async (e) => {
               />
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
 
         {/* Row 4: Add Subject + Add Mock Test */}
         <FormRow>
@@ -386,13 +469,29 @@ const handleSubmit = async (e) => {
               </CheckboxList>
             </CheckboxSection>
           </Column>
-
           <Column>
             <CheckboxSection>
-              {/* <CheckboxSectionTitle>
+              <CheckboxSectionTitle>Add Category</CheckboxSectionTitle>
+              <CheckboxList>
+                {formData.categories.map((item, index) => (
+                  <CheckboxLabel key={item.id || index}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => handleCheckboxChange(index, 'categories')}
+                    />
+                    {item.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+
+          </Column>
+          <CheckboxSection>
+            {/* <CheckboxSectionTitle>
                 Add Mock Test (Click Checkbox to Select)
               </CheckboxSectionTitle> */}
-              {/* <CheckboxList>
+            {/* <CheckboxList>
                 {formData.mockTestCheckboxes.map((item, index) => (
                   <CheckboxLabel key={item.id}>
                     <CheckboxInput
@@ -404,8 +503,8 @@ const handleSubmit = async (e) => {
                   </CheckboxLabel>
                 ))}
               </CheckboxList> */}
-            </CheckboxSection>
-          </Column>
+          </CheckboxSection>
+
         </FormRow>
 
         {/* Row 5: Course Details */}
@@ -450,6 +549,32 @@ const handleSubmit = async (e) => {
           </Column>
           <Column>
             <FieldWrapper>
+              <Label htmlFor="ratting">Ratting</Label>
+              <Input
+                id="ratting"
+                type="number"
+                min={0}
+                max={5}
+                value={formData.ratting}
+                onChange={(e) => {
+                  if (e.target.value < 0 || e.target.value > 5) {
+                    toast.error("Rating must be between 0 and 5.");
+                    return;
+                  }
+                  setFormData(prev => ({
+                    ...prev,
+                    ratting: e.target.value
+                  }));
+                }}
+                placeholder="e.g. 4"
+              />
+            </FieldWrapper>
+          </Column>
+
+        </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
               <Label htmlFor="courseIncludes">Course Includes (comma separated)</Label>
               <Input
                 id="courseIncludes"
@@ -484,15 +609,15 @@ const handleSubmit = async (e) => {
             <UploadArea onClick={handleUploadAreaClick}>
               {formData.previewUrl ? (
                 <>
-                  <img 
-                    src={formData.previewUrl} 
-                    alt="Preview" 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
+                  <img
+                    src={formData.previewUrl}
+                    alt="Preview"
+                    style={{
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover',
                       borderRadius: '8px'
-                    }} 
+                    }}
                   />
                   {formData.thumbnailFile && <p>{formData.thumbnailFile.name}</p>}
                 </>
@@ -524,7 +649,7 @@ const handleSubmit = async (e) => {
               />
             </FieldWrapper>
 
-            <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
+            {/* <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
               <Label style={{ marginBottom: "0px" }}>Live Class Available?</Label>
               <ToggleSwitch
                 type="checkbox"
@@ -540,7 +665,7 @@ const handleSubmit = async (e) => {
                 checked={formData.recordedClass}
                 onChange={() => handleToggleChange('recordedClass')}
               />
-            </FieldWrapper>
+            </FieldWrapper> */}
 
             <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: "10px" }}>
               <Label style={{ marginBottom: "0px" }}>Publish Course?</Label>

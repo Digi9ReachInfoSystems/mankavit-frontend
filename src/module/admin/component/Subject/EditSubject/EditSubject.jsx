@@ -1,5 +1,5 @@
 // src/module/admin/components/EditSubject/EditSubject.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 // import toast, { Toaster } from "react-hot-toast";
 
@@ -31,6 +31,9 @@ import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageServi
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAllMocktest } from "../../../../../api/mocktestApi";
+import { getAllCourses } from "../../../../../api/courseApi";
+import JoditEditor from 'jodit-react';
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -38,27 +41,30 @@ export default function EditSubject() {
   const fileInputRef = useRef(null);
 
   // form fields
-  const [subjectTitle, setSubjectTitle]       = useState("");
-  const [internalTitle, setInternalTitle]     = useState("");
-  const [vimeoId, setVimeoId]                 = useState("");
+  const [subjectTitle, setSubjectTitle] = useState("");
+  const [internalTitle, setInternalTitle] = useState("");
+  const [vimeoId, setVimeoId] = useState("");
   const [shortDescription, setShortDescription] = useState("");
 
   // checkboxes
-  const [notesCheckboxes, setNotesCheckboxes]       = useState([]);
+  const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
-
+  const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
+  const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
   // image upload
   const [thumbnailFile, setThumbnailFile] = useState(null);
-  const [previewUrl, setPreviewUrl]       = useState(null);
-
+  const [previewUrl, setPreviewUrl] = useState(null);
+ const editor = useRef(null);
   // fetch existing subject, notes & lectures
   useEffect(() => {
     async function fetchData() {
       try {
-        const [subRes, notesRes, lecturesRes] = await Promise.all([
+        const [subRes, notesRes, lecturesRes, mockRes, courseRes] = await Promise.all([
           getSubjectById(id),
           getAllNotes(),
           getAllLectures(),
+          getAllMocktest(),
+          getAllCourses(),
         ]);
         const subject = subRes.data;
 
@@ -72,8 +78,26 @@ export default function EditSubject() {
         }
 
         // IDs already assigned
-        const noteIds    = subject.notes.map(n => n._id || n);
+        const noteIds = subject.notes.map(n => n._id || n);
         const lectureIds = subject.lectures.map(l => l._id || l);
+        const mockIds = subject.mockTests.map(m => m._id || m);
+        const courseIds = subject.courses.map(c => c._id || c);
+
+        // build mock tests checkboxes
+        setMockTestCheckboxes(
+          mockRes.data.map(m => ({
+            label: m.title || m.mockTestName,
+            id: m._id,
+            checked: mockIds.includes(m._id),
+          }))
+        );
+
+        // build course checkboxes
+        setCoursesCheckboxes(courseRes.data.map(c => ({
+          label: c.title || c.courseName,
+          id: c._id,
+          checked: courseIds.includes(c._id),
+        })))
 
         // build notes checkboxes
         setNotesCheckboxes(
@@ -128,9 +152,9 @@ export default function EditSubject() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!subjectTitle.trim())       return toast.error("Enter subject title.");
-    if (!internalTitle.trim())      return toast.error("Enter internal title.");
-    if (!vimeoId.trim())            return toast.error("Enter Vimeo ID.");
+    if (!subjectTitle.trim()) return toast.error("Enter subject title.");
+    if (!internalTitle.trim()) return toast.error("Enter internal title.");
+    if (!vimeoId.trim()) return toast.error("Enter Vimeo ID.");
 
     let imageUrl = previewUrl;
     if (thumbnailFile) {
@@ -143,18 +167,22 @@ export default function EditSubject() {
       }
     }
 
-    const selectedNotes    = notesCheckboxes.filter(n => n.checked).map(n => n.id);
+    const selectedNotes = notesCheckboxes.filter(n => n.checked).map(n => n.id);
     const selectedLectures = lecturesCheckboxes.filter(l => l.checked).map(l => l.id);
+    const selectedMockTests = mockTestCheckboxes.filter(m => m.checked).map(m => m.id);
+    const selectedCourses = coursesCheckboxes.filter(c => c.checked).map(c => c.id);
 
     try {
       await updateSubjectById(id, {
-        subjectName:        internalTitle,
+        subjectName: internalTitle,
         subjectDisplayName: subjectTitle,
-        vimeoShowcaseID:    vimeoId,
-        description:        shortDescription,
-        notes:              selectedNotes,
-        lectures:           selectedLectures,
-        image:              imageUrl,
+        vimeoShowcaseID: vimeoId,
+        description: shortDescription,
+        notes: selectedNotes,
+        lectures: selectedLectures,
+        image: imageUrl,
+        courses: selectedCourses,
+        mockTests: selectedMockTests,
       });
       toast.success("Data updated successfully");
       setTimeout(() => navigate("/admin/subject-management"), 1000);
@@ -165,22 +193,43 @@ export default function EditSubject() {
       toast.error(msg);
     }
   };
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: shortDescription,
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []);
 
   return (
     <Container>
-      
-       <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
       <Title>Edit Subject</Title>
       <FormWrapper onSubmit={handleSubmit}>
@@ -212,12 +261,27 @@ export default function EditSubject() {
                 placeholder="Enter Vimeo ID"
               />
             </FieldWrapper>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label>Short Description</Label>
               <Input
                 value={shortDescription}
                 onChange={e => setShortDescription(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
                 placeholder="Enter Short Description"
+              />
+            </FieldWrapper> */}
+          </Column>
+        </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="shortDescription">Course Short Description</Label>
+              <JoditEditor
+                ref={editor}
+                value={shortDescription}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+                onChange={newContent => { setShortDescription(newContent); }}
               />
             </FieldWrapper>
           </Column>
@@ -259,7 +323,42 @@ export default function EditSubject() {
             </CheckboxSection>
           </Column>
         </FormRow>
-
+        <FormRow>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Select MockTests</CheckboxSectionTitle>
+              <CheckboxList>
+                {mockTestCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setMockTestCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+          <Column>
+            <CheckboxSection>
+              <CheckboxSectionTitle>Select Courses</CheckboxSectionTitle>
+              <CheckboxList>
+                {coursesCheckboxes.map((l, i) => (
+                  <CheckboxLabel key={l.id}>
+                    <CheckboxInput
+                      type="checkbox"
+                      checked={l.checked}
+                      onChange={() => handleCheckboxChange(i, setCoursesCheckboxes)}
+                    />
+                    {l.label}
+                  </CheckboxLabel>
+                ))}
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column>
             <Label>Upload Thumbnail</Label>

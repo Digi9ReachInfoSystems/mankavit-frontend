@@ -132,8 +132,10 @@ const UserCourses = () => {
                                 <CourseContent>
                                     <CourseMain>
                                         <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
-                                        <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle>
-                                        <CourseDesc>{course.description || 'Course description not available'}</CourseDesc>
+                                        {/* <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle> */}
+                                        <CourseMinititle dangerouslySetInnerHTML={{ __html: course.shortDescription.slice(0, 30)+"..." || 'Course Description' }} />
+                                        {/* <CourseDesc>{course.description || 'Course description not available'}</CourseDesc> */}
+                                        <CourseDesc dangerouslySetInnerHTML={{ __html: course.description.slice(0, 60)+"..." || 'Course description not available' }} />
                                     </CourseMain>
 
                                     {course.course_status !== "completed" ? (

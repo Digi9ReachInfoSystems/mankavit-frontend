@@ -64,7 +64,8 @@ const StudyWithUs = () => {
           <Card key={index}>
             <CardImage src={card.image} alt={card.title} />
             <CardTitle>{card.title}</CardTitle>
-            <CardDescription>{card.description}</CardDescription>
+            {/* <CardDescription>{card.description}</CardDescription> */}
+            <CardDescription dangerouslySetInnerHTML={{ __html: card.description }} />
           </Card>
         ))}
       </CardsWrapper>

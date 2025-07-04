@@ -49,7 +49,8 @@ const AboutContainer = () => {
               <Component key={item._id}>
                 {/* if you have a title field and want to render it: */}
                 {item.title && <strong>{item.title}</strong>}
-                <p>{item.description}</p>
+                {/* <p>{item.description}</p> */}
+                <p dangerouslySetInnerHTML={{ __html: item.description }} />
               </Component>
             );
           })}

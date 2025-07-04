@@ -26,11 +26,12 @@ import { useNavigate } from "react-router-dom";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
-import { getAllNotes, deleteNotesById } from "../../../../api/notesApi";
+import { getAllNotes, deleteNotesById, bulkDeleteNotes } from "../../../../api/notesApi";
 import { Select } from "antd";
 import { IoEyeOutline } from "react-icons/io5";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { set } from "date-fns";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -47,7 +48,10 @@ export default function NotesManagement() {
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
+  const [loading, setLoading] = useState(true);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedNotes, setSelectedNotes] = useState([]);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   // Fetch all notes
   useEffect(() => {
     const fetchNotes = async () => {
@@ -150,7 +154,50 @@ export default function NotesManagement() {
       navigate(`/admin/notes-management/edit/${id}`, { state: { item } });
     }
   };
+  const handleDeleteClickModal = () => {
+    setBulkDeleteModalOpen(true);
+  }
 
+  const handleCheckboxChange = (noteId) => {
+    setSelectedNotes((prev) =>
+      prev.includes(noteId)
+        ? prev.filter((id) => id !== noteId)
+        : [...prev, noteId]
+    );
+  };
+
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedNotes([]);
+    } else {
+      setSelectedNotes(currentItems.map((c) => c.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setLoading(true);
+      await bulkDeleteNotes(selectedNotes);
+      toast.success("Selected Notes deleted successfully", {
+        autoClose: 3000, // Ensure this matches your toast duration
+        onClose: () => {
+
+          window.location.reload();
+        }
+      });
+      setSelectedNotes([]);
+      setSelectAll(false);
+      // await fetchCourses();
+      // window.location.reload(); // Reload the page to reflect changes
+      setBulkDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <ButtonContainer>
@@ -180,7 +227,16 @@ export default function NotesManagement() {
             />
           </SortByContainer>
         </HeaderRow>
-
+        <ButtonContainer>
+          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
+                    Add Course
+                  </CreateButton> */}
+          {selectedNotes.length > 0 && (
+            <CreateButton onClick={handleDeleteClickModal} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+              Delete Selected ({selectedNotes.length})
+            </CreateButton>
+          )}
+        </ButtonContainer>
         <SearchWrapper>
           <SearchIcon>
             <CiSearch size={18} />
@@ -196,19 +252,56 @@ export default function NotesManagement() {
           <StyledTable>
             <TableHead>
               <TableRow>
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </TableHeader>
                 <TableHeader>Note Title</TableHeader>
                 <TableHeader>Internal Name</TableHeader>
                 <TableHeader>No. of Subjects</TableHeader>
                 <TableHeader>View Pdf</TableHeader>
                 <TableHeader>Date Uploaded</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {currentItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.noteTitle}</TableCell>
-                  <TableCell>{item.noteDescription}</TableCell>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedNotes.includes(item.id)}
+                      onChange={() => handleCheckboxChange(item.id)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href="#"
+                      onClick={() => {
+                        navigate(`/admin/notes-management/edit/${item.id}`, { state: { item } });
+                      }
+
+                      }
+                    >
+                      {item.noteTitle}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                      <a
+                      href="#"
+                      onClick={() => {
+                        navigate(`/admin/notes-management/edit/${item.id}`, { state: { item } });
+                      }
+
+                      }
+                    >
+                     {item.noteDescription}
+                    </a>
+                     
+                    </TableCell>
                   <TableCell>
                     {item.subjects.length}{" "}
                     <a href="#view-subjects" onClick={() => handleOpenModal("subjects", item.subjects)}>
@@ -219,13 +312,13 @@ export default function NotesManagement() {
                     <a href={item.fileURL} target="_blank" rel="noreferrer">View</a>
                   </TableCell>
                   <TableCell>{formatToIST(item.lastActive)}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <ActionsContainer>
                       <IoEyeOutline title="View" size={20} onClick={() => handleViewClick(item)} />
                       <BiEditAlt title="Edit" size={20} onClick={() => handleEdit(item.id)} />
                       <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item.id)} />
                     </ActionsContainer>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -244,6 +337,11 @@ export default function NotesManagement() {
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onDelete={handleClickDelete}
+        />
+        <DeleteModal
+          isOpen={bulkDeleteModalOpen}
+          onClose={() => setBulkDeleteModalOpen(false)}
+          onDelete={handleBulkDelete}
         />
 
         {viewModalOpen && viewStudent?.type === "subjects" && (

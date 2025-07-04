@@ -107,7 +107,7 @@ export default function ViewCourse() {
           <Column>
             <FieldWrapper>
               <Label>Category</Label>
-              <p className="field">{courseData.category?.title || courseData.category || "Not specified"}</p>
+              <p className="field">{formatArrayData(courseData.subjects)}</p>
             </FieldWrapper>
           </Column>
           <Column>

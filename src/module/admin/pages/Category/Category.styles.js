@@ -181,19 +181,13 @@ export const PageButton = styled.button`
 export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  margin-bottom: ${(props) => props.theme.spacing(0)};
+  margin-bottom: ${(props) => props.theme.spacing(2)};
   margin-top: ${(props) => props.theme.spacing(2)};
 //  margin-right:10px;
-  //  width: 100%;
-
 
  @media (max-width: 768px) {
-margin: 10px 5px;
-  }
-
-  @media (max-width: 480px) {
-margin: 10px 5px;
+//  margin: 10px 5px;
+}
   `;
 
 export const CreateButton = styled.button`
