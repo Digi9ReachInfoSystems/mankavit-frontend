@@ -77,3 +77,13 @@ export const bulkDeleteNotes = async (notesIds) => {
         throw error;
     }
 }
+
+export const  getAllNotesBySubjectIds = async (data) => {
+    try {
+        const response = await api.post(`/notes/allNotes/bySubjectIds`,data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

@@ -547,7 +547,7 @@ const ContinueCourse = () => {
                         {course?.recorded_class && (
                             <button className={activeTab === 'Recorded Class' ? 'active' : ''} onClick={() => { setActiveTab('Recorded Class'); setActiveAccordion(null); }}>Recorded Class</button>
                         )}
-                    </TabSection>
+                    </TabSection> 
                     <AccordionList
                         data={accordionData[activeTab]}
                         activeIndex={activeAccordion}
