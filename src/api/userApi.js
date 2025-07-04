@@ -60,23 +60,26 @@ export const studentBulkDelete = (userIds) => {
    }
 }
 
-export const deleteStudentById = (id) => {
+
+
+export const forceUserLogout = async(data) => {
    try{
-    const response = api.delete(`/user/delete/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
-      }
-    });
+    const response = await api.post("/user/logout", data);
     return response.data;
    }catch(error){
     throw error;
    }
 }
 
-export const forceUserLogout = async(data) => {
+export const deleteStudentById = (userId) => {
    try{
-    const response = await api.post("/user/logout", data);
+    const response = api.delete(`/user/deleteStudent`, {
+      data: { userId },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+      }
+    });
     return response.data;
    }catch(error){
     throw error;

@@ -238,3 +238,12 @@ export const deleteUserAttempt = async (attemptId) => {
         throw error;
     }
 }
+
+export const getAllUserAttemptByUserId = async (userId) => {
+    try {
+        const response = await api.get(`/userAttempt/get/userAllAttempts/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

@@ -144,52 +144,55 @@ export const BrowseButton = styled.button`
   }
 `;
 
-export const SubmitButton = styled.button`
-  width: 20%;
-  background:linear-gradient(to right, #0dcaf0, #007bff);
-  color: ${(props) => props.theme.colors.secondary};
-  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
-  font-size: 16px;
-  font-weight: 400;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: ${(props) => props.theme.fonts.body};
-  transition: background-color 0.2s ease;
-  margin-top: ${(props) => props.theme.spacing(6)}; 
+// export const SubmitButton = styled.button`
+//   width: 20%;
+//   background:linear-gradient(to right, #0dcaf0, #007bff);
+//   color: ${(props) => props.theme.colors.secondary};
+//   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+//   font-size: 16px;
+//   font-weight: 400;
+//   border: none;
+//   border-radius: 4px;
+//   cursor: pointer;
+//   font-family: ${(props) => props.theme.fonts.body};
+//   transition: background-color 0.2s ease;
+//   margin-top: ${(props) => props.theme.spacing(6)}; 
 
   
-  @media (max-width: 1320px) {
-    width: 40%;
-  }
+//   @media (max-width: 1320px) {
+//     width: 40%;
+//   }
 
-  @media (max-width: 1024px) {
-    width: 35%;
-  }
+//   @media (max-width: 1024px) {
+//     width: 35%;
+//   }
 
-  @media (max-width: 990px) {
-    width: 40%;
-    margin: 20px auto;
-  }
+//   @media (max-width: 990px) {
+//     width: 40%;
+//     margin: 20px auto;
+//   }
 
-  @media (max-width: 768px) {
-  width: 85%;
-  margin: 15px auto;
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-  }
-`;
+//   @media (max-width: 768px) {
+//   width: 85%;
+//   margin: 15px auto;
+//   padding: 10px;
+//   display: flex;
+//   justify-content: center;
+//   }
+// `;
 
 export const FlexRow = styled.div`
   display: flex;
   gap: 20px;
-  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;          /* ⬅️  keep everything on one line */
 
-  @media (max-width: 768px) {
+  @media (max-width: 768px) {  /* mobile: stack vertically */
     flex-direction: column;
   }
 `;
+
 
 export const FlexUpload = styled.div`
   display: flex;
@@ -298,23 +301,154 @@ export const ReadOnlyField = styled.div`
   text-decoration: underline;
   font-size: 14px;
 `;
+/* SubmitButton – just remove the top-margin so it aligns vertically */
+export const SubmitButton = styled.button`
+  width: 20%;
+  background: linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(p) => p.theme.colors.secondary};
+  padding: ${(p) => p.theme.spacing(2)};
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 
+  @media (max-width: 1320px) { width: 40%; }
+  @media (max-width: 1024px) { width: 35%; }
+  @media (max-width: 990px)  { width: 40%; margin: 20px auto; }
+  @media (max-width: 768px)  { width: 85%; margin: 15px auto; }
+`;
+
+/* LogoutButton – same break-points, different colours */
 export const LogoutButton = styled.button`
-  width: 100%;
+  width: 20%;
   display: flex;
   align-items: center;
-  padding: ${(props) => props.theme.spacing(2)} 0;
-  background: ${(props) => props.theme.colors.lightwhite};
+  justify-content: center;
+  padding: ${(p) => p.theme.spacing(2)} 0;
+  background: ${(p) => p.theme.colors.lavendargray};
   border: none;
-  border-radius: ${(props) => props.theme.spacing(0.5)};
-  font-family: ${(props) => props.theme.fonts.body};
+  border-radius: ${(p) => p.theme.spacing(0.5)};
   font-size: 1rem;
-  color: ${(props) => props.theme.colors.logoutButtonColor};
+  color: ${(p) => p.theme.colors.logoutButtonColor};
   cursor: pointer;
   transition: background 0.2s;
+
+  &:hover { background: ${(p) => p.theme.colors.logoutButtonHover}; }
+
+  @media (max-width: 1320px) { width: 40%; }
+  @media (max-width: 1024px) { width: 35%; }
+  @media (max-width: 990px)  { width: 40%; margin: 20px auto; }
+  @media (max-width: 768px)  { width: 85%; margin: 15px auto; }
+`;
+
+/* DeleteButton (for the modal or inline use) */
+export const DeleteButton = styled.button`
+  width: 20%;
+  background: #d32f2f;
+  color: #fff;
+  padding: ${(p) => p.theme.spacing(2)} 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+
+  &:hover     { background: #b71c1c; }
+  &:disabled  { background: #cccccc; cursor: not-allowed; }
+
+  @media (max-width: 1320px) { width: 40%; }
+  @media (max-width: 1024px) { width: 35%; }
+  @media (max-width: 990px)  { width: 40%; margin: 20px auto; }
+  @media (max-width: 768px)  { width: 85%; margin: 15px auto; }
+`;
+
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
   justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+export const ModalWrapper = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+export const ModalHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+`;
+
+export const ModalContent = styled.div`
+  padding: 20px;
+`;
+
+export const ModalText = styled.p`
+  margin-bottom: 20px;
+  font-size: 16px;
+`;
+
+export const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
+export const CancelButton = styled.button`
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
+export const CloseIcon = styled.div`
+  cursor: pointer;
+`;
+
+export const AttemptsTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+`;
+
+export const TableHeader = styled.th`
+  padding: 12px;
+  text-align: left;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+`;
+
+export const TableRow = styled.tr`
+  &:nth-child(even) {
+    background-color: #f9f9f9;
+  }
 
   &:hover {
-    background: ${(props) => props.theme.colors.logoutButtonHover};
+    background-color: #f1f1f1;
   }
+`;
+
+export const TableHead  = styled.th`
+  text-align: left;
+  padding: 8px;
+  border-bottom: 2px solid #ccc;
+`;
+
+
+export const TableCell  = styled.td`
+  padding: 8px;
+  border-bottom: 1px solid #eee;
 `;

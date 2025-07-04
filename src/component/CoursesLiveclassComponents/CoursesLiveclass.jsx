@@ -45,7 +45,6 @@ const CoursesLiveclass = () => {
         const fetchData = async () => {
             const cookies = await getCookiesData();
             setUserId(cookies.userId);
-
             try {
                 const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
                 console.log("Progress Response:", progressResponse);
