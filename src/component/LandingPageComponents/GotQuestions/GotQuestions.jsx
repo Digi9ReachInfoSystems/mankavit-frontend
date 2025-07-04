@@ -73,7 +73,7 @@ const GotQuestion = () => {
           {!loading && !error && (
             <>
               {faqs.length > 0 ? (
-                faqs.map((faq, idx) => (
+                faqs?.map((faq, idx) => (
                   <QuestionItem key={faq._id || idx}>
                     <QuestionHeader onClick={() => toggleQuestion(idx)}>
                       <QuestionText>{faq.question}</QuestionText>
