@@ -64,7 +64,7 @@ export const Label = styled.label`
   font-weight: normal;
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
-  font-size: 0.9rem;
+  font-size: 1.3rem;
 `;
 
 // Input fields
@@ -142,10 +142,11 @@ export const CheckboxSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
+   width: 50%;
 `;
 
 export const CheckboxSectionTitle = styled.h3`
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: normal;
   color: ${(props) => props.theme.colors.test};
   margin-bottom: ${(props) => props.theme.spacing(1)};
@@ -161,6 +162,8 @@ export const CheckboxList = styled.div`
   gap: ${(props) => props.theme.spacing(1)};
   max-height: 280px;
   overflow-y: auto;
+  
+  
 `;
 
 // Each checkbox label
@@ -170,6 +173,20 @@ export const CheckboxLabel = styled.label`
   gap: ${(props) => props.theme.spacing(1)};
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.black};
+ 
+  padding: ${(props) => props.theme.spacing(1)};
+  /* Alternate row colors */
+  &:nth-child(odd) {
+    background-color: ${(props) => props.theme.colors.white};
+  }
+  &:nth-child(even) {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  /* Hover effect */
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryLight};
+  }
 `;
 
 // Checkbox input

@@ -144,43 +144,6 @@ export const BrowseButton = styled.button`
   }
 `;
 
-// export const SubmitButton = styled.button`
-//   width: 20%;
-//   background:linear-gradient(to right, #0dcaf0, #007bff);
-//   color: ${(props) => props.theme.colors.secondary};
-//   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
-//   font-size: 16px;
-//   font-weight: 400;
-//   border: none;
-//   border-radius: 4px;
-//   cursor: pointer;
-//   font-family: ${(props) => props.theme.fonts.body};
-//   transition: background-color 0.2s ease;
-//   margin-top: ${(props) => props.theme.spacing(6)}; 
-
-  
-//   @media (max-width: 1320px) {
-//     width: 40%;
-//   }
-
-//   @media (max-width: 1024px) {
-//     width: 35%;
-//   }
-
-//   @media (max-width: 990px) {
-//     width: 40%;
-//     margin: 20px auto;
-//   }
-
-//   @media (max-width: 768px) {
-//   width: 85%;
-//   margin: 15px auto;
-//   padding: 10px;
-//   display: flex;
-//   justify-content: center;
-//   }
-// `;
-
 export const FlexRow = styled.div`
   display: flex;
   gap: 20px;
@@ -451,4 +414,28 @@ export const TableHead  = styled.th`
 export const TableCell  = styled.td`
   padding: 8px;
   border-bottom: 1px solid #eee;
+`;
+
+export const PaymentModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 80%;
+  max-width: 500px;
+`;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 `;

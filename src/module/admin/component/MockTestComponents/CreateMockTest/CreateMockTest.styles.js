@@ -65,7 +65,7 @@ export const Label = styled.label`
   font-weight: normal;
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 
 `;
 
@@ -132,7 +132,7 @@ export const CheckboxSection = styled.div`
 
 export const CheckboxSectionTitle = styled.h4`
   font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: normal;
   margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
   color: ${(props) => props.theme.colors.test};
@@ -148,6 +148,24 @@ export const CheckboxList = styled.div`
   gap: ${(props) => props.theme.spacing(1)};
   overflow-y: auto;
   max-height: 280px;
+  
+  /* Custom scrollbar styling - Darker version */
+  &::-webkit-scrollbar {
+    width: 8px; /* Slightly wider scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: ${(props) => props.theme.colors.lightGrey}; /* Lighter track */
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => props.theme.colors.darkGrey}; /* Darker thumb */
+    border-radius: 4px;
+    border: 1px solid ${(props) => props.theme.colors.grey}; /* Optional border */
+  }
+
+  /* Firefox support (optional) */
+  scrollbar-width: thin;
+  scrollbar-color: ${(props) => props.theme.colors.darkGrey} ${(props) => props.theme.colors.lightGrey};
 `;
 
 export const CheckboxLabel = styled.label`
@@ -156,6 +174,19 @@ export const CheckboxLabel = styled.label`
   gap: ${(props) => props.theme.spacing(1)};
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.black};
+padding: ${(props) => props.theme.spacing(1)};
+    /* Alternate row colors */
+  &:nth-child(odd) {
+    background-color: ${(props) => props.theme.colors.white};
+  }
+  &:nth-child(even) {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  /* Hover effect */
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryLight};
+  }
 `;
 
 export const CheckboxInput = styled.input`
