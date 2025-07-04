@@ -224,8 +224,35 @@ const EditStudent = () => {
   return (
     <FormContainer>
       {/* ============== FORM ============== */}
-      <Title>Edit Student</Title>
 
+      <Title>Edit Student</Title>
+      <FlexRow style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        // alignItems: "center",
+        width: "100%"
+      }}>
+        <LogoutButton
+          type="button"
+          disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
+          onClick={handleForceLogout}
+          style={{ width: "10%" }}
+        >
+          {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
+        </LogoutButton>
+
+        <LogoutButton
+          type="button"
+          disabled={processing}
+          onClick={confirmDelete}
+          style={{ background: "#d32f2f", color: "white", width: "10%" }}
+        >
+          Delete student
+        </LogoutButton>
+
+      </FlexRow>
+
+      
       <InputGroup>
         <Label>Name*</Label>
         <InputField
@@ -236,6 +263,8 @@ const EditStudent = () => {
         />
         {formErrors.displayName && <ErrorMessage>{formErrors.displayName}</ErrorMessage>}
       </InputGroup>
+
+
 
       <FlexRow>
         <InputGroup>
@@ -319,15 +348,7 @@ const EditStudent = () => {
       </CourseSelection>
 
       <FlexRow style={{ marginTop: 24 }}>
-        <SubmitButton
-          type="button"
-          disabled={processing}
-          onClick={handleSave}
-        >
-          {processing ? "Saving…" : "Save changes"}
-        </SubmitButton>
-
-
+      
 
         <LogoutButton
           type="button"
@@ -342,27 +363,12 @@ const EditStudent = () => {
           type="button"
           disabled={processing || !student.subscription?.length}
           onClick={handleViewPayments}
-          style={{ background: "#2196F3", color: "white" }}
+          style={{ background: "#D4B200", color: "white" }}
         >
           View Payments
         </LogoutButton>
 
-        <LogoutButton
-          type="button"
-          disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
-          onClick={handleForceLogout}
-        >
-          {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
-        </LogoutButton>
 
-        <LogoutButton
-          type="button"
-          disabled={processing}
-          onClick={confirmDelete}
-          style={{ background: "#d32f2f", color: "white" }}
-        >
-          Delete student
-        </LogoutButton>
 
 
 
@@ -430,7 +436,14 @@ const EditStudent = () => {
           </PaymentModal>
         </>
       )}
-
+ <FlexRow style={{ marginTop: 24 }}>
+   <SubmitButton
+          type="button"
+          disabled={processing}
+          onClick={handleSave}
+        >
+          {processing ? "Saving…" : "Save changes"}
+        </SubmitButton>
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={cancelDelete}
@@ -438,7 +451,7 @@ const EditStudent = () => {
       />
 
 
-
+      </FlexRow>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </FormContainer>
   );

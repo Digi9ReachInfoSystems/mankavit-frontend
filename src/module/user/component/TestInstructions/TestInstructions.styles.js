@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { FaClock, FaListOl, FaQuestionCircle, FaExclamationTriangle, FaLightbulb } from "react-icons/fa";
 
 export const Container = styled.div`
   width: 80%;
@@ -9,7 +10,7 @@ export const Container = styled.div`
   color: #2d3748;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  // box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
   @media (max-width: 1360px) {
     width: 85%;
@@ -343,4 +344,98 @@ export const TipsSection = styled.div`
   background: #f0fff4;
   border-radius: 8px;
   border-left: 4px solid #48bb78;
+`;
+export const SubList = styled.ol`
+  margin-left: 1.5rem;
+  padding-left: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4a5568;
+`;
+
+export const IndicatorsSection = styled.div`
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #38bdf8;
+`;
+
+export const LegendContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const LegendRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+`;
+
+export const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+
+  &.answered { 
+    background: #7bd37b; 
+    clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); 
+  }
+  &.not-answered { 
+    background: #f44336; 
+    clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); 
+  }
+  &.marked { 
+    background: #a855f7; 
+    border-radius: 50%; 
+  }
+  &.unattempted { 
+    background: rgb(253, 253, 255); 
+    border-radius: 10px; 
+    border: 1px solid #ccc; 
+  }
+  &.answered-marked {
+    background: #c084fc;
+    border-radius: 50%;
+    position: relative;
+    
+    &::after {
+      content: "✓";
+      position: absolute;
+      color: green;
+      font-size: 16px;
+      font-weight: bold;
+      bottom: -5px;
+      right: -5px;
+    }
+  }
+  &.not-answered-marked { 
+    background: #c084fc; 
+    border-radius: 50%; 
+  }
+  
+  @media (max-width: 1360px) {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+`;
+
+export const LegendLabel = styled.span`
+  font-size: 1rem;
+  color: #4a5568;
 `;
