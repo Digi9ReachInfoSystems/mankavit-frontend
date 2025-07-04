@@ -70,6 +70,11 @@ export const CourseCard = styled.div`
     @media (max-width: 768px) {
     max-width: 230px;
     }
+  
+    @media (max-width: 480px) {
+    // margin-left: 10px;
+      max-width: 270px;
+    }
   }
 `;
 
@@ -200,7 +205,7 @@ export const CourseMinititle = styled.p`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-    height: 38px;
+    height: 45px;
 
   @media (max-width: 768px) {
     font-size: 14px;

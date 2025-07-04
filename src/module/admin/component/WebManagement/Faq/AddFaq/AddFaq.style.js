@@ -45,6 +45,10 @@ export const TextInput = styled.input`
   border-radius: ${theme.spacing(0.5)};
   background: ${theme.colors.secondary};
   font-family: ${theme.fonts.body};
+
+  @media (max-width: 540px) {
+    width: 100%;
+  }
 `;
 
 export const TextArea = styled.textarea`
@@ -55,6 +59,10 @@ export const TextArea = styled.textarea`
   background: ${theme.colors.secondary};
   font-family: ${theme.fonts.body};
   resize: vertical;
+
+  @media (max-width: 540px) {
+    width: 100%;
+  }
 `;
 
 export const FormRow = styled.div`

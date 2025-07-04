@@ -218,7 +218,7 @@ export const CourseTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   width: 100%;
   max-width: 100%;
@@ -240,7 +240,7 @@ justify-content: left;
   font-size: 16px;
   margin: 5px 0 0 0;
     word-warp: warp;
-  overflow: hidden;
+  // overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -263,7 +263,7 @@ export const CourseDesc = styled.p`
   font-size: 16px;
   font-wieght: 300;
   line-height: 1.5;
-  height: 50px;
+  // height: 50px;
     word-warp: warp;
   overflow: hidden;
   text-overflow: ellipsis;

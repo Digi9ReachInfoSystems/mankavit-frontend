@@ -45,21 +45,21 @@ export const TelegramBanner = styled.div`
   }
 
   img {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
 
     @media (max-width: 1360px) {
-      width: 100px;
-      height: 100px;
-    }
-      @media (max-width: 1024px) {
       width: 80px;
       height: 80px;
     }
-
-    @media (max-width: 480px) {
+      @media (max-width: 1024px) {
       width: 60px;
       height: 60px;
+    }
+
+    @media (max-width: 480px) {
+      width: 40px;
+      height: 40px;
     }
   }
 `;
@@ -74,15 +74,15 @@ export const TelegramButton = styled.button`
   border-radius: 8px;
 
   @media (max-width: 1360px) {
-    font-size: 30px;
+    font-size: 26px;
   }
 
   @media (max-width: 1024px) {
-    font-size: 25px;
+    font-size: 20px;
   }
 
   @media (max-width: 480px) {
-    font-size: 16px;
+    font-size: 14px;
     padding: 0.8rem 0.5rem;
   }
 `;

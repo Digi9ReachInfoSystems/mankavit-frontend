@@ -195,7 +195,7 @@ export const UploadArea = styled.div`
   }
 
   @media (max-width: 1024px) {
-    width: 70%;
+    // width: 100%;
     margin-left: 0;
   }
 
