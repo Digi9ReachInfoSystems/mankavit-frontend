@@ -60,7 +60,7 @@ const StudyWithUs = () => {
       </Title>
       <Divider />
       <CardsWrapper>
-        {whys.slice(0,3).map((card, index) => (
+        {whys.map((card, index) => (
           <Card key={index}>
             <CardImage src={card.image} alt={card.title} />
             <CardTitle>{card.title}</CardTitle>
