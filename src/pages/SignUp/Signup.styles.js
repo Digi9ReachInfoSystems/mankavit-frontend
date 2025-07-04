@@ -18,21 +18,25 @@ export const Container = styled.div`
   height: 100vh;
   background-color: #ffffff;
 
-  @media (max-width: 480px) {
+    @media (max-width: 480px) {
     background-color: #F1F5FF;
-  }
+    align-items: flex-start;
+    padding-top: 70px;
 
-  @media (min-width: 800px) and (max-width: 1000px) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  @media (min-width: 1000px) and (max-width: 1200px) and (min-height: 800px) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+}
+      @media (min-width: 770px) and (max-width: 1000px){
+       
+       display: flex;
+       flex-direction: row;
+     align-items: center;
+    
+    }
+       @media (min-width: 1000px)and (max-width: 1200px) {
+        
+         display: flex;
+       flex-direction: row;
+     align-items: center;
+    }
 `;
 
 export const Logo = styled.div`
@@ -47,13 +51,9 @@ export const Logo = styled.div`
     display: none;
   }
 
-  @media (min-width: 800px) and (max-width: 1000px) {
+  @media (min-width: 770px) and (max-width: 1000px) {
     margin-top: 40px;
     flex: 1;
-  }
-
-  @media (min-height: 1000px) and (max-width: 1200px) and (min-height: 800px) {
-    display: none !important;
   }
 `;
 
@@ -64,7 +64,12 @@ export const LogoImg = styled.img`
   margin-left: 50px;
   border-radius: 635px;
 
-  @media (min-width: 1000px) and (max-width: 1200px) and (max-height: 800px) {
+  @media (min-width: 768px) {
+    width: 335px;
+    height: 335px;
+  }
+
+  @media (min-width: 768px) and (max-width: 1200px) and (max-height: 800px) and (min-width: 770px) {
     width: 335px;
     height: 335px;
   }
@@ -109,42 +114,52 @@ export const Form = styled.form`
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 597px;
-  height: 80%;
+  // height: 80%;
   flex: 2;
   margin: 105px 105px 105px 0px !important;
 
-  @media (min-width: 760px) {
-    max-width: 500px;
-    margin: 105px 105px 105px 105px !important;
-  }
+   @media (min-width: 760px) {
+       max-width: 500px;
+       margin: 25px  !important;
+   }
 
-  @media (max-width: 480px) {
-    margin: 0px !important;
-    padding: 0px;
-    box-shadow: none;
-  }
+  //  @media (min-width: 481px) {
+  //  margin: 25px  !important;
+  //  height: 80% !important;
+  //  }
+    @media (max-width: 480px) {
+        margin:0px!important;
+        padding: 0px;
+        box-shadow: none;
+    }
 
-  @media (min-width: 800px) and (max-width: 1000px) {
-    margin: 100px 5px 60px 5px !important;
-    max-width: 550px;
-    height: 40% !important;
-    align-items: center;
-    flex: 2;
-  }
+     @media (min-width: 481px){
+  //  height: 90% !important;
+   margin: 25px !important;
+   }
 
-  @media (min-width: 1000px) and (max-width: 1200px) {
-    flex: 1;
-    margin: 60px 65px 60px 20px !important;
-  }
 
-  @media (min-width: 1000px) and (max-width: 1200px) and (min-height: 800px) {
-    height: 60% !important;
-    margin: 60px 65px 60px 60px !important;
-  }
+    @media (min-width: 800px) and (max-width: 1000px) {
+     margin:10px 25px 60px 5px !important;
+       max-width: 550px;
+      //  height: 50% !important; 
+       align-items: center;
+       flex:2;
+   
+    }
+    @media (min-width: 1000px)and (max-width: 1200px) {
+         flex:1;
+        //  height: 90% !important;
+         margin:60px 65px 60px 20px !important;
+    }
+    @media (min-width: 1000px)and (max-width: 1200px)and (min-height: 800px) {
+        
+         margin:60px 65px 60px 60px !important;
+    }
 
-  @media (min-width: 1200px) {
-    padding: 50px 30px 50px 30px;
-  }
+    @media (min-width: 1220px) {
+    // height: 80% !important;
+    }
 `;
 
 export const FormContent = styled.div`
@@ -154,28 +169,22 @@ export const FormContent = styled.div`
   margin: 80px 100px 80px 100px;
 
   @media (min-width: 1200px) {
-    margin: 0px 80px 60px 80px;
+     margin:30px 50px 30px 50px ; 
   }
+     @media (max-width: 480px) {
+        margin :60px 30px 60px 30px;
+    }
+    @media (min-width: 800px) and (max-width: 1000px) {
+       margin:60px 130px 60px 130px ;
+    }
+     @media (min-width: 1000px)and (max-width: 1200px) and (max-height: 800px) {
+        
+         margin:0px 25px 60px 25px !important;
+    }
 
-  @media (max-width: 400px) and (max-height: 700px) {
-    margin: 60px 20px 60px 20px !important;
-  }
-
-  @media (max-width: 480px) {
-    margin: 60px 30px 60px 30px;
-  }
-
-  @media (min-width: 800px) and (max-width: 1000px) {
-    margin: 100px 130px 60px 130px;
-  }
-
-  @media (min-width: 1000px) and (max-width: 1200px) and (max-height: 800px) {
-    margin: 0px 25px 60px 25px !important;
-  }
-
-  @media (min-width: 1000px) and (max-width: 1200px) and (min-height: 800px) {
-    margin: 200px 35px 60px 35px !important;
-  }
+    @media (max-width: 1024px) {
+        margin:0px 25px 0px 25px !important;
+    }
 `;
 
 
@@ -270,7 +279,7 @@ export const Button = styled.button`
   }
 
   @media (min-width: 1000px) and (max-width: 1200px) and (max-height: 800px) {
-    margin: 0px;
+    margin: 10px;
   }
 `;
 

@@ -14,7 +14,7 @@ const slideUp = keyframes`
 export const TabContentWrapper = styled.div`
   padding: 10px 0;
   animation: ${slideUp} 0.6s ease-out;
-  margin-left: 50px;
+  margin-left: 0px;
 `;
 
 export const Container = styled.div`

@@ -132,4 +132,16 @@ export const SubmitButton = styled.button`
   font-family: ${(props) => props.theme.fonts.body};
   transition: background-color 0.2s ease;
   margin-top: ${(props) => props.theme.spacing(2)};
+
+    @media (max-width: 1024px) {
+    width: 40%;
+  }
+
+  @media (max-width: 768px) {
+    width: 40%;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
   `;

@@ -143,6 +143,7 @@ export const PlayButton = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 24px;
+  cursor: pointer;
 
   @media (max-width: 1024px) {
     width: 60px;
@@ -178,6 +179,7 @@ export const CourseSubject = styled.h2`
   margin: 0;
   margin-bottom: 10px;
   margin-left:30px;
+  width: 100%;
 
   @media (max-width: 1024px) {
     font-size: 28px;

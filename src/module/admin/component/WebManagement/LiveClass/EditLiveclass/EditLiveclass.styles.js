@@ -74,7 +74,7 @@ export const TextArea = styled.textarea`
   background: ${theme.colors.secondary};
   resize: none;
   box-sizing: border-box;
-  color: black;
+  color: black;a
 `;
 
 export const UploadBox = styled.div`

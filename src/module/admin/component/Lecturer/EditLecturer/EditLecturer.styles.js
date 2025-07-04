@@ -319,7 +319,7 @@ export const ThumbnailImage = styled.img`
 
 export const ThumbnailPreview = styled.div`
   width: 100%;
-  height: 500px;
+  // height: 500px;
 //   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;

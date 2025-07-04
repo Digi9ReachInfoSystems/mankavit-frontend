@@ -225,8 +225,8 @@ export const ModalOverlay = styled.div`
 
 export const CloseIcon = styled.span`
  position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 30px;
+  right: 30px;
   background: #fff;
   border: none;
   font-size: 1.5rem;
@@ -236,20 +236,28 @@ export const CloseIcon = styled.span`
   height: 32px;
   line-height: 32px;
   text-align: center;
-
+  
   &:hover {
     color: #555;
   }
 `;
 
 export const ModalContent = styled.div`
-  position: relative;
+ position: relative;
+  padding: 20px;
+  border-radius: 8px;
   max-width: 90%;
   max-height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 export const ModalImage = styled.img`
-  width: 500px;
-  height: 400px;
+ width: 100%;            
+  height: auto;          
+  max-height: 100%;      
+  // object-fit: contain;   
   border-radius: 8px;
 `;

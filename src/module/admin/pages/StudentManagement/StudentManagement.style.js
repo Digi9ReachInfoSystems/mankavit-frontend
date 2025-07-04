@@ -415,6 +415,12 @@ export const SearchInput = styled.input`
 
   @media (max-width: 768px) {
     font-size: 14px;
+    width: 40%;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    width: 40%;
   }
 `;
 

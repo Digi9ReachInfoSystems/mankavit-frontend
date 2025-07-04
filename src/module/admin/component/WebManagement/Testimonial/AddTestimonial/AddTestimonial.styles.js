@@ -62,7 +62,11 @@ export const DropZone = styled.div`
     width: 30%;
 
     @media (max-width: 1024px) {
-      width: 40%;
+      width: 50%;
+    }
+
+    @media (max-width: 768px) {
+      width: 70%;
     }
 
     @media (max-width: 480px) {
@@ -136,7 +140,7 @@ export const FormRow = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spacing(3)};
   align-items: flex-start;
-  width: 50%;
+  width: 100%;
   margin-top: 1rem;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {

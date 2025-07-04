@@ -65,7 +65,7 @@ export const DashboardWrapper = styled.div`
   `;
 
   export const Courses = styled.div`
-display: flex;
+    display: flex;
     align-items: flex-start;
     justify-content: center;
     width: 100%;
@@ -73,11 +73,11 @@ display: flex;
     gap: 20px;
 
     @media (max-width: 768px) {
-      width: 90%;
+      width: 95%;
       margin: 0 auto;
     }
       @media (max-width: 480px) {
       gap: 0px;
-      width: 85%;
+      width: 89%;
     }
   `;

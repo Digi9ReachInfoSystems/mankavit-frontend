@@ -10,13 +10,13 @@ export const ContentWrapper = styled.main`
   flex: 1;
   padding: 10px 20px;
 
-  margin-left: 250px; /* This should match your sidebar width */
-  max-width: calc(100% - 250px); /* Adjust based on sidebar width */
+  margin-left: 200px; /* This should match your sidebar width */
+  max-width: calc(100% - 200px); /* Adjust based on sidebar width */
   background-color: ${theme.colors.backgrounGrey};
 
   @media (max-width: 990px) {
-  margin-left: 200px;
-  max-width: calc(100% - 240px); /* Adjust based on sidebar width */
+  margin-left: 160px;
+  max-width: calc(100% - 160px); /* Adjust based on sidebar width */
   }
 
   @media (max-width: 768px) {

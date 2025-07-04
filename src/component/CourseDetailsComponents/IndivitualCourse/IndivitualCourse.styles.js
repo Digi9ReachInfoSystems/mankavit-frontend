@@ -167,6 +167,11 @@ export const EnrollButton = styled.button`
     font-size: 20px; 
     padding: 25px 28px;
   }
+
+  @media (max-width: 768px) {
+    border-bottom-left-radius: 0px;
+    padding: 16px 24px;
+  }
 `;
 
 export const CourseButton = styled.div`
