@@ -1,26 +1,29 @@
-/* EditStudent.jsx — full component */
-import React, { useEffect, useState } from "react";
+/* EditStudent.jsx — complete component */
+import React, { useEffect, useState, useRef } from "react";
 import {
-  FormContainer, Title, InputGroup, Label, InputField, SubmitButton, FlexRow,
-  ReadOnlyField, CourseSelection, CourseCheckbox, CourseLabel,
-  CourseList, CourseItem, ErrorMessage, LoadingSpinner, LogoutButton
+  FormContainer, Title, InputGroup, Label, InputField, SubmitButton,
+  FlexRow, ErrorMessage, LoadingSpinner, LogoutButton,
+  CourseSelection, CourseCheckbox, CourseLabel,
+  CourseList, CourseItem, AttemptsTable, TableHead,
+  TableRow, TableCell
 } from "./EditStudent.style";
-
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import { getAllCourses } from "../../../../../api/courseApi";
 import {
   addCourseToStudent,
   removeCourseFromStudent,
-  forceUserLogout
+  forceUserLogout,
+  deleteStudentById
 } from "../../../../../api/userApi";
 import {
   getUserByUserId,
-  updateUserById,
+  updateUserById
 } from "../../../../../api/authApi";
+import { getAllUserAttemptByUserId } from "../../../../../api/mocktestApi";
 
+import DeleteModal from "../../DeleteModal/DeleteModal";
 const EMAIL_RGX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RGX = /^\+?\d{7,15}$/;
 
@@ -36,16 +39,17 @@ const EditStudent = () => {
   const [processing, setProcessing] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [hasBeenForcedLoggedOut, setHasBeenForcedLoggedOut] = useState(false);
-
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [attempts, setAttempts] = useState([]);
+  const [loadingAttempts, setLoadingAttempts] = useState(true);
   useEffect(() => {
     (async () => {
       try {
         setLoadingStudent(true);
         const res = await getUserByUserId(userId);
-        console.log("User data", res);
         if (!res.success || !res.user) throw new Error("Student not found");
-        const stu = res.user;
 
+        const stu = res.user;
         const currentIds =
           stu.courseIds?.length
             ? stu.courseIds
@@ -53,16 +57,15 @@ const EditStudent = () => {
 
         setStudent(stu);
         setSelected(currentIds);
-        setForm({ 
-          displayName: stu.displayName || "", 
-          email: stu.email || "", 
-          phone: stu.phone || "" 
+        setForm({
+          displayName: stu.displayName || "",
+          email: stu.email || "",
+          phone: stu.phone || ""
         });
         setHasBeenForcedLoggedOut(false);
       } catch (err) {
         console.error(err);
         toast.error(err.message || "Failed to load student");
-        // navigate("/admin/student-management");
         setTimeout(() => navigate("/admin/student-management"), 1000);
       } finally {
         setLoadingStudent(false);
@@ -86,6 +89,28 @@ const EditStudent = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        setLoadingAttempts(true);
+        const res = await getAllUserAttemptByUserId(userId);
+
+        console.log("User's mocktest attempts and results:", res);
+        if (res.success) {
+          setAttempts(res.data ?? []);
+        } else {
+          toast.error("Failed to load mock-test attempts");
+        }
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to load mock-test attempts");
+      } finally {
+        setLoadingAttempts(false);
+      }
+    })();
+  }, [userId]);
+
   const currentIds = student?.courseIds?.length
     ? student.courseIds
     : (student?.subscription || []).map(s => s.course_enrolled?._id || s.course_enrolled);
@@ -93,8 +118,10 @@ const EditStudent = () => {
   const available = courses.filter(c => !currentIds.includes(c._id));
   const enrolled = courses.filter(c => currentIds.includes(c._id));
 
+  /* ─────────────────────────── handlers ────────────────────────────────────── */
   const toggleCourse = (id) =>
-    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelected(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
   const onFormChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -105,7 +132,6 @@ const EditStudent = () => {
     if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
     if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
     if (selected.length === 0) errs.courseIds = "Select at least one course";
-
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -113,17 +139,17 @@ const EditStudent = () => {
   const handleSave = async () => {
     if (!student || !validate()) return;
     setProcessing(true);
-
     try {
+      /* 1️⃣ Update profile */
       await updateUserById(student._id, {
         displayName: form.displayName.trim(),
         email: form.email.trim(),
         phone: form.phone.trim()
       });
 
+      /* 2️⃣ Sync course enrolments */
       const toAdd = selected.filter(id => !currentIds.includes(id));
       const toRemove = currentIds.filter(id => !selected.includes(id));
-
       if (toAdd.length) await addCourseToStudent({ userId: student._id, courseIds: toAdd });
       if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
 
@@ -142,33 +168,43 @@ const EditStudent = () => {
       toast.error("No student email available");
       return;
     }
-
     try {
       setProcessing(true);
       const response = await forceUserLogout({ email: student.email });
-      console.log("Force logout response:", response);
-      
       if (response.success) {
         toast.success(response.message || "User has been forcibly logged out");
         setHasBeenForcedLoggedOut(true);
-        setTimeout(() => navigate("/admin/student-management"), 1000);
-        
-        // Refresh student data
-        const res = await getUserByUserId(userId);
-        if (res.success && res.user) {
-          setStudent(res.user);
-        }
       } else {
         toast.error(response.message || "Failed to force logout");
       }
     } catch (err) {
-      console.error("Force logout error:", err);
+      console.error(err);
       toast.error(err.response?.data?.message || "Failed to force logout");
     } finally {
       setProcessing(false);
     }
   };
 
+  /* ───────────── NEW: delete flow ───────────── */
+  const confirmDelete = () => setIsDeleteOpen(true);
+  const cancelDelete = () => setIsDeleteOpen(false);
+
+  const handleDelete = async () => {
+    try {
+      setProcessing(true);
+      await deleteStudentById(student._id);
+      toast.success("Student deleted");
+      navigate("/admin/student-management");
+    } catch (e) {
+      console.error(e);
+      toast.error(e.response?.data?.message || "Deletion failed");
+    } finally {
+      setProcessing(false);
+      setIsDeleteOpen(false);
+    }
+  };
+
+  /* ─────────────────────────── render ─────────────────────────────────────── */
   if (loadingStudent) {
     return (
       <FormContainer>
@@ -177,11 +213,11 @@ const EditStudent = () => {
       </FormContainer>
     );
   }
-
   if (!student) return null;
 
   return (
     <FormContainer>
+      {/* ============== FORM ============== */}
       <Title>Edit Student</Title>
 
       <InputGroup>
@@ -218,13 +254,9 @@ const EditStudent = () => {
         </InputGroup>
       </FlexRow>
 
+      {/* ============== COURSES ============== */}
       <CourseSelection>
-        <Label style={{
-          backgroundColor: "lightgrey",
-          padding: "5px",
-          borderRadius: "5px",
-          width: "50%",
-        }}>
+        <Label style={{ backgroundColor: "lightgrey", padding: 5, borderRadius: 5, width: "50%" }}>
           Enrolled Courses (uncheck to remove)
         </Label>
         {loadingCourses ? (
@@ -236,8 +268,7 @@ const EditStudent = () => {
             {enrolled.map(c => (
               <CourseItem key={c._id}>
                 <CourseCheckbox
-                  id={`en-${c._id}`}
-                  type="checkbox"
+                  id={`en-${c._id}`} type="checkbox"
                   checked={selected.includes(c._id)}
                   onChange={() => toggleCourse(c._id)}
                   disabled={processing}
@@ -252,12 +283,7 @@ const EditStudent = () => {
       </CourseSelection>
 
       <CourseSelection $hasError={!!formErrors.courseIds}>
-        <Label style={{
-          backgroundColor: "lightgrey",
-          padding: "5px",
-          borderRadius: "5px",
-          width: "50%",
-        }}>
+        <Label style={{ backgroundColor: "lightgrey", padding: 5, borderRadius: 5, width: "50%" }}>
           Available Courses (check to add)*
         </Label>
         {loadingCourses ? (
@@ -270,8 +296,7 @@ const EditStudent = () => {
               {available.map(c => (
                 <CourseItem key={c._id}>
                   <CourseCheckbox
-                    id={`av-${c._id}`}
-                    type="checkbox"
+                    id={`av-${c._id}`} type="checkbox"
                     checked={selected.includes(c._id)}
                     onChange={() => toggleCourse(c._id)}
                     disabled={processing}
@@ -287,35 +312,78 @@ const EditStudent = () => {
         )}
       </CourseSelection>
 
-      <FlexRow>
-        <SubmitButton 
-          type="button" 
-          disabled={processing} 
+      {/* ============== ACTION BUTTONS ============== */}
+      <FlexRow style={{ marginTop: 24 }}>
+        <SubmitButton
+          type="button"
+          disabled={processing}
           onClick={handleSave}
         >
           {processing ? "Saving…" : "Save Changes"}
         </SubmitButton>
-        <LogoutButton 
-          type="button" 
+
+        <LogoutButton
+          type="button"
           disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
           onClick={handleForceLogout}
         >
           {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
         </LogoutButton>
+
+        {/* NEW delete button shares the row */}
+        <LogoutButton     /* reuse style but customise color via props if you like */
+          type="button"
+          disabled={processing}
+          onClick={confirmDelete}
+          style={{ background: "#d32f2f", color: "white" }}
+        >
+          Delete
+        </LogoutButton>
       </FlexRow>
 
-      <ToastContainer 
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
+      {/* ============== MOCK-TEST ATTEMPTS TABLE ============== */}
+      <Title style={{ marginTop: 40 }}>Mock-test Attempts</Title>
+      {loadingAttempts ? (
+        <p>Loading attempts…</p>
+      ) : attempts.length === 0 ? (
+        <p>No attempts found</p>
+      ) : (
+        <AttemptsTable>
+          <thead>
+            <TableHead>Mock Test</TableHead>
+            <TableHead>Attempts</TableHead>
+            <TableHead>Total Marks</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Started At</TableHead>
+            <TableHead>Submitted At</TableHead>
+          </thead>
+          <tbody>
+            {attempts.map(at => (
+              <TableRow
+                key={at._id}
+                onClick={() => navigate(`/admin/results/user-attempts/attempt/${at._id}`)}
+                style={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+              >
+                <TableCell>{at.mockTestId?.title ?? "—"}</TableCell>
+                <TableCell>{at.attemptNumber}</TableCell>
+                <TableCell>{at.totalMarks}</TableCell>
+                <TableCell>{at.status}</TableCell>
+                <TableCell>{new Date(at.startedAt).toLocaleString()}</TableCell>
+                <TableCell>{at.submittedAt ? new Date(at.submittedAt).toLocaleString() : "—"}</TableCell>
+              </TableRow>
+            ))}
+          </tbody>
+        </AttemptsTable>
+      )}
+
+      {/* ============== MODAL + TOAST ============== */}
+      <DeleteModal
+        isOpen={isDeleteOpen}
+        onClose={cancelDelete}
+        onDelete={handleDelete}
       />
+
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </FormContainer>
   );
 };
