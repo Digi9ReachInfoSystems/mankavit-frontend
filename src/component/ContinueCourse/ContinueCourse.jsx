@@ -157,7 +157,7 @@ const AccordionList = ({
                                                                     <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
-                                                                            navigate(`/test-results/${testId._id}/${subjectId._id}/${attemptId._id}`);
+                                                                            navigate(`/test-results/${userId._id}/${item._id}`);
                                                                         }}
                                                                         style={{
                                                                             background: "transparent",
