@@ -168,3 +168,10 @@ export const ErrorMessage = styled.div`
   font-size: 1.2rem;
   color: #ff0000;
 `;
+
+export const NoFaqMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+`;
