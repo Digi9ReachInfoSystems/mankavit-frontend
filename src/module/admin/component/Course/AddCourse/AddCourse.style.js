@@ -71,6 +71,7 @@ export const Column = styled.div`
 export const FieldWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 
   @media (max-width: 990px) {
   .toggle-wrapper{
@@ -85,7 +86,7 @@ export const Label = styled.label`
   font-weight: normal;
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 
 `;
 
@@ -121,7 +122,7 @@ export const TextArea = styled.textarea`
 
 /** Price input with smaller max-width */
 export const PriceInput = styled(Input)`
-  max-width: 250px;
+  // max-width: 250px;
 
   @media(max-width: 990px){
     max-width: 100%;
@@ -165,6 +166,20 @@ export const CheckboxLabel = styled.label`
   gap: ${(props) => props.theme.spacing(1)};
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.black};
+
+  padding: ${(props) => props.theme.spacing(1)};
+  /* Alternate row colors */
+  &:nth-child(odd) {
+    background-color: ${(props) => props.theme.colors.white};
+  }
+  &:nth-child(even) {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  /* Hover effect */
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryLight};
+  }
 `;
 
 export const CheckboxInput = styled.input`
@@ -194,7 +209,7 @@ export const UploadArea = styled.div`
   }
 
   @media (max-width: 1024px) {
-    width: 70%;
+    width: 100%;
     margin-left: 0;
   }
 

@@ -185,6 +185,10 @@ export const CoursesContainer = styled.div`
   border-radius: ${theme.spacing(0.5)};
   padding: ${theme.spacing(2)};
   background: ${theme.colors.secondary};
+
+  @media (max-width: 768px) {
+padding: ${(props) => `${props.theme.spacing(2)} ${props.theme.spacing(0)}`};
+  }
 `;  
 
 export const CoursesHeader = styled.div`
@@ -205,6 +209,10 @@ export const FormColumn = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: ${theme.spacing(2)};
+
+  @media (max-width: 768px) {
+    margin-right: 0;
+  }
 `;
 
 export const FormRow = styled.div`

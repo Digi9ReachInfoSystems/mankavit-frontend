@@ -39,6 +39,11 @@ export const LeftImage = styled.img`
   @media (max-width: 1024px) {
     width: 350px;
   }
+
+  @media (max-width: 768px) {
+    margin: 0 auto;
+    display: block;
+  }
 `;
 
 export const RightSection = styled.div`

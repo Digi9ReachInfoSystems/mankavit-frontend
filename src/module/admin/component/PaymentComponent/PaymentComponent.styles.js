@@ -22,17 +22,18 @@ export const EnrollButton = styled.button`
   /* Media Queries */
 
   @media (max-width: 990px) {
-    width: 25%;
+    // width: 25%;
   }
 
   @media (max-width: 768px) {
-    width: 38%;
+    // width: 38%;
+    border-bottom-left-radius: 0px;
   }
 
   @media (max-width: 480px) {
     font-size: 0.6rem;
     padding: 5px 10px;
     font-weight: 600;
-    width: 35%;
+    // width: 35%;
   }
 `;

@@ -75,7 +75,7 @@ export const Label = styled.label`
   font-weight: normal;
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 `;
 
 /** Standard text input styling */
@@ -123,10 +123,10 @@ export const CheckboxSection = styled.div`
 /** Title for each checkbox section (e.g. "Add Notes ( Click Checkbox to Select )") */
 export const CheckboxSectionTitle = styled.h4`
   font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: normal;
   margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
-  color: ${(props) => props.theme.colors.test};
+  color: ${(props) => props.theme.colors.black};
   background-color: ${(props) => props.theme.colors.backgrounGrey};
   padding: ${(props) => props.theme.spacing(1)};
 `;
@@ -192,7 +192,7 @@ export const CheckboxInput = styled.input`
 `;
 
 export const UploadArea = styled.div`
-width: 20%;
+width: 45%;
   border: 2px dashed ${(props) => props.theme.colors.grey};
   border-radius: 8px;
   padding: ${(props) => props.theme.spacing(6)};
@@ -209,11 +209,11 @@ width: 20%;
   }
 
   @media (max-width: 1320px) {
-    width: 30%;
+    // width: 40%;
   }
 
   @media (max-width: 990px) {
-    width: 85%;
+    width: 100%;
   }
 
   @media (max-width: 480px) {

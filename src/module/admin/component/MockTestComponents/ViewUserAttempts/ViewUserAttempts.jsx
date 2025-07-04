@@ -1,4 +1,3 @@
-// ViewUser.jsx
 import React, { useState, useEffect } from "react";
 import {
     Container,
@@ -24,17 +23,25 @@ import Pagination from "../../../component/Pagination/Pagination";
 import { getAttemptedUserListByMocktestId, getMocktestAttempts, getUserAnswerByMocktestIdandSubjectId } from "../../../../../api/mocktestApi";
 import { getUserByUserId } from "../../../../../api/authApi";
 import { IoEyeOutline } from "react-icons/io5";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { deleteUserAttempt } from "../../../../../api/mocktestApi";
+import DeleteModal from "../../../component/DeleteModal/DeleteModal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function ViewUserAttempts() {
     const { mockTestId, userId } = useParams();
-    const[ userName, setUserName] = useState("");
+    const [userName, setUserName] = useState("");
     const [data, setData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchText, setSearchText] = useState("");
     const [sortBy, setSortBy] = useState("Name");
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedAttemptId, setSelectedAttemptId] = useState(null);
     const navigate = useNavigate();
+
     useEffect(() => {
         const fetchUserAnswers = async () => {
             try {
@@ -45,15 +52,9 @@ export default function ViewUserAttempts() {
                 const response = await getMocktestAttempts(
                     userId,
                     mockTestId,
-
                 );
                 const user = await getUserByUserId(userId);
-                console.log("user", user);
                 setUserName(user.user.displayName);
-                console.log("Fetching user answers for mockTestId:", response);
-                // console.log("subjectId", subjectId);
-                console.log("mockTestId", mockTestId);
-                console.log("View user answers response", response);
                 if (response.success) {
                     setData(response.data);
                 } else {
@@ -61,7 +62,7 @@ export default function ViewUserAttempts() {
                 }
             } catch (error) {
                 console.error("Error fetching mock tests:", error);
-                // You might want to set some error state here to show to the user
+                toast.error("Failed to fetch attempts. Please try again.");
             }
         };
 
@@ -81,37 +82,34 @@ export default function ViewUserAttempts() {
         setSortBy(e.target.value);
     };
 
-
     const handleView = (attempt) => {
-        console.log("attempt", attempt);
         navigate(`/admin/mock-test/user-result/view-result/${attempt}`);
-        // console.log("View attempt with ID:", attemptId);
+    };
+
+    const handleDeleteClick = (attemptId) => {
+        setSelectedAttemptId(attemptId);
+        setDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        try {
+            await deleteUserAttempt(selectedAttemptId);
+            setData(data.filter(attempt => attempt._id !== selectedAttemptId));
+            setDeleteModalOpen(false);
+            toast.success("Attempt deleted successfully");
+        } catch (error) {
+            console.error("Error deleting attempt:", error);
+            toast.error("Failed to delete attempt. Please try again.");
+        }
     };
 
     return (
         <Container>
             <HeaderRow>
                 <Title>
-                    List of Attempts of {userName||""} <small>({pageItems.length}/{totalEntries})</small>
+                    List of Attempts of {userName || ""} <small>({pageItems.length}/{totalEntries})</small>
                 </Title>
-                {/* <SortByContainer>
-                    <SortLabel>Sort by:</SortLabel>
-                    <SortSelect value={sortBy} onChange={handleSortChange}>
-                        <option value="Name">Name</option>
-                        <option value="LastActive">Last Active</option>
-                        <option value="Active">Active</option>
-                    </SortSelect>
-                </SortByContainer> */}
             </HeaderRow>
-
-            <SearchWrapper>
-                {/* <SearchIcon><CiSearch size={18} /></SearchIcon>
-                <SearchInput
-                    placeholder="Search"
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                /> */}
-            </SearchWrapper>
 
             <TableWrapper>
                 <StyledTable>
@@ -124,6 +122,7 @@ export default function ViewUserAttempts() {
                             <TableHeader>Status</TableHeader>
                             <TableHeader>View</TableHeader>
                             <TableHeader>Submitted At</TableHeader>
+                            <TableHeader>Action</TableHeader>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -135,13 +134,29 @@ export default function ViewUserAttempts() {
                                 <TableCell>{item.totalMarks || "0"}</TableCell>
                                 <TableCell>{item.status}</TableCell>
                                 <TableCell>
-                                    <button  style={{ border: "none", background: "none", cursor: "pointer" }} onClick={() => handleView(item._id)}> <IoEyeOutline
-                                                          title="View Details"
-                                                          size={20}
-                                                          // onClick={() => goToViewDetail(item.id)}
-                                                        /></button>
+                                    <button 
+                                        style={{ border: "none", background: "none", cursor: "pointer" }} 
+                                        onClick={() => handleView(item._id)}
+                                    > 
+                                        <IoEyeOutline
+                                            title="View Details"
+                                            size={20}
+                                        />
+                                    </button>
                                 </TableCell>
                                 <TableCell>{new Date(item.submittedAt).toLocaleString()}</TableCell>
+                                <TableCell>
+                                    <button 
+                                        style={{ border: "none", background: "none", cursor: "pointer" }} 
+                                        onClick={() => handleDeleteClick(item._id)}
+                                    >
+                                        <RiDeleteBin6Line 
+                                            title="Delete Attempt" 
+                                            size={20} 
+                                            color="#ff4444" 
+                                        />
+                                    </button>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -154,6 +169,24 @@ export default function ViewUserAttempts() {
                 onPageChange={setCurrentPage}
                 totalItems={totalEntries}
                 itemsPerPage={ITEMS_PER_PAGE}
+            />
+
+            <DeleteModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onDelete={handleDeleteConfirm}
+            />
+
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
             />
         </Container>
     );

@@ -210,6 +210,24 @@ export const CheckboxList = styled.div`
   gap: ${(props) => props.theme.spacing(1)};
   overflow-y: auto;
   max-height: 80px;
+  
+  /* Custom scrollbar styling - Darker version */
+  &::-webkit-scrollbar {
+    width: 8px; /* Slightly wider scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: ${(props) => props.theme.colors.lightGrey}; /* Lighter track */
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => props.theme.colors.darkGrey}; /* Darker thumb */
+    border-radius: 4px;
+    border: 1px solid ${(props) => props.theme.colors.grey}; /* Optional border */
+  }
+
+  /* Firefox support (optional) */
+  scrollbar-width: thin;
+  scrollbar-color: ${(props) => props.theme.colors.darkGrey} ${(props) => props.theme.colors.lightGrey};
 `;
 
 /** A single checkbox + label line */
@@ -219,6 +237,19 @@ export const CheckboxLabel = styled.label`
   gap: ${(props) => props.theme.spacing(1)};
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.black};
+  
+  /* Alternate row colors */
+  &:nth-child(odd) {
+    background-color: ${(props) => props.theme.colors.white};
+  }
+  &:nth-child(even) {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  /* Hover effect */
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryLight};
+  }
 `;
 
 export const CheckboxInput = styled.input`

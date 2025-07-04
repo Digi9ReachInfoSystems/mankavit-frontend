@@ -30,6 +30,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddTestimonial = () => {
   const [formData, setFormData] = useState({
     studentName: '',
+    rank: '',
     course: '', // This will store the selected course ID
     testimonialDetails: '',
     image: null
@@ -116,7 +117,7 @@ const AddTestimonial = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.studentName || !formData.course || !formData.testimonialDetails || !formData.image) {
+    if (!formData.studentName || !formData.rank || !formData.testimonialDetails || !formData.image) {
       setError('Please fill all fields and upload an image');
       toast.error('Please fill all fields and upload an image');
       return;
@@ -135,7 +136,7 @@ const AddTestimonial = () => {
   
       const payload = {
         name: formData.studentName,
-        rank: formData.course,
+        rank: formData.rank,
         description: formData.testimonialDetails,
         testimonial_image: uploadResult.blobUrl,
       };
@@ -187,21 +188,16 @@ const AddTestimonial = () => {
 
       <FormRow>
         <Column>
-          <CheckboxSectionTitle>
-            Add Course (Click checkbox to Select)
-          </CheckboxSectionTitle>
-          <CheckboxList>
-            {coursesCheckboxes.map((item, index) => (
-              <CheckboxLabel key={item.id}>
-                <CheckboxInput 
-                  type="checkbox"
-                  checked={item.checked}
-                  onChange={() => handleCheckboxChange(index)}
-                />
-                {item.label}
-              </CheckboxLabel>
-            ))}
-          </CheckboxList>      
+           <Label>Student rank</Label>
+      <Input
+        name="rank"
+        placeholder="Enter student name"
+        value={formData.rank}
+        onChange={(e) => {
+          const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+          setFormData((prev) => ({ ...prev, rank: filteredData }));
+        }}
+      />
         </Column>
       </FormRow>
 

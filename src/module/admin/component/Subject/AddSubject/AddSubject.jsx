@@ -300,7 +300,7 @@ export default function AddSubject() {
           {/* Lectures */}
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>
+              <CheckboxSectionTitle>Add Video</CheckboxSectionTitle>
               <CheckboxList>
                 {lecturesCheckboxes.map((l, i) => (
                   <CheckboxLabel key={l.id}>
@@ -320,7 +320,7 @@ export default function AddSubject() {
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Add Lectures</CheckboxSectionTitle>
+              <CheckboxSectionTitle>Add Mock Test</CheckboxSectionTitle>
               <CheckboxList>
                 {mockTestCheckboxes.map((l, i) => (
                   <CheckboxLabel key={l.id}>

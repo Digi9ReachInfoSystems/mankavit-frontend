@@ -223,3 +223,27 @@ export const rearrangeMocktestQuestions = async (mocktestId, data) => {
         throw error;
     }
 }
+
+export const deleteUserAttempt = async (attemptId) => {
+    try {
+        const response = await api.delete(`/userAttempt/delete/attempts`,{
+            data : {attemptId},
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getAllUserAttemptByUserId = async (userId) => {
+    try {
+        const response = await api.get(`/userAttempt/get/userAllAttempts/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

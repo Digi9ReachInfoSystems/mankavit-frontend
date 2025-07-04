@@ -28,7 +28,7 @@ export const ToggleButton = styled.button`
   }
 
   @media (max-width: 480px) {
-    top: 38px;
+    top: 45px;
   }
 `;
 

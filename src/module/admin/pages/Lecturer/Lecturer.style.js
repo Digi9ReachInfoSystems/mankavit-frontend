@@ -415,19 +415,29 @@ export const ImageModalOverlay = styled.div`
 
 export const ImageModalContent = styled.div`
   position: relative;
+  padding: 20px;
+  border-radius: 8px;
   max-width: 90%;
   max-height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 export const ModalImage = styled.img`
-  width: 500px;
-  height: 500px;
+  width: 100%;            
+  height: auto;          
+  max-height: 100%;      
+  object-fit: contain;   
   border-radius: 8px;
 `;
 
 export const ModalVideo = styled.video`
-  width: 800px;
-  // height: 500px;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
   border-radius: 8px;
 `;
 
@@ -435,8 +445,8 @@ export const ModalVideo = styled.video`
 
 export const CloseButton = styled.button`
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 25px;
+  right: 30px;
   background: #fff;
   border: none;
   font-size: 1.5rem;

@@ -112,13 +112,17 @@ export const UploadArea = styled.div`
   }
 
   @media (max-width: 1024px) {
-    width: 60%;
+    width: 100%;
     margin-left: 0;
   }
 
   @media (max-width: 768px) {
-    width: 100%;
+    width: 80%;
     box-sizing: border-box;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
   }
 `;
 
@@ -238,6 +242,7 @@ export const FieldWrapper = styled.div`
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
   width: 100%;
+  justify-content: space-between;
 `;
 
 export const Field = styled.p`
