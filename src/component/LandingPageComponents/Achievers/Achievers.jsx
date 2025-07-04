@@ -70,7 +70,7 @@ const Achievers = () => {
       </Description>
 
       <CardSlider ref={sliderRef} onScroll={handleScroll}>
-        {achievers.map((achiever, index) => (
+        {achievers?.map((achiever, index) => (
           <Card key={index}>
             <Avatar src={achiever.image || 'default-avatar.png'} alt={achiever.name} />
             <Name>{achiever.name}</Name>

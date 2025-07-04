@@ -48,7 +48,7 @@ const WantToLearn = () => {
       </Title>
 
       <CardsWrapper>
-        {courses.map((course, index) => (
+        {courses?.map((course, index) => (
           <CourseCard key={index}>
             {/* <CardHeader>
               <Image src={lawBanner} alt="Law Banner" />
