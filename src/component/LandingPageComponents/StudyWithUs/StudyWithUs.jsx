@@ -11,6 +11,7 @@ import {
   Content
 } from "./StudyWithUs.styles";
 import { getAllWhy } from "../../../api/whyApi";
+import { useState } from "react";
 
 const StudyWithUs = () => {
   const [whys, setWhys] = useState([]);
