@@ -1,20 +1,4 @@
-import React, { useEffect } from "react";
-import {
-  Container,
-  Title,
-  Highlight,
-  Divider,
-  CardsWrapper,
-  Card,
-  CardImage,
-  CardTitle,
-  CardDescription,
-  Content
-} from "./StudyWithUs.styles";
-import Study1 from "../../../assets/Study1.png";
-import Study2 from "../../../assets/Study2.png";
-import Study3 from "../../../assets/Study3.png";
-
+i
 
 // const cardData = [
 //   {
