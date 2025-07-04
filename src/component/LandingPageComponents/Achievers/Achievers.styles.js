@@ -118,3 +118,16 @@ export const ProgressBar = styled.div`
   transition: width 0.3s ease; /* smooth width change */
 `;
 
+export const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+`;
+
+export const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #ff0000;
+`;
