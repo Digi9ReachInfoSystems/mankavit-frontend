@@ -454,12 +454,15 @@ export default function TextScreen() {
             <QuestionTitle>Q {currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
           <Section>
-            <PassageBox><p>{currentQ.questionText}</p></PassageBox>
+            {/* <PassageBox><p>{currentQ.questionText}</p></PassageBox> */}
+            <PassageBox dangerouslySetInnerHTML={{ __html: currentQ.questionText }} />
             <HorizontalLine />
             <QuestionBox>
-              <QuestionText>
-                <strong>{currentQ.questionText}</strong>
-              </QuestionText>
+              {/* <QuestionText> */}
+                {/* <strong>{currentQ.questionText}</strong> */}
+                {/* <strong dangerouslySetInnerHTML={{ __html: currentQ.questionText }} /> */}
+              {/* </QuestionText> */}
+              {/* <QuestionText dangerouslySetInnerHTML={{ __html: currentQ.questionText }} /> */}
               {isMCQ ? (
                 <OptionsList>
                   {currentQ.options.map((opt, idx) => {

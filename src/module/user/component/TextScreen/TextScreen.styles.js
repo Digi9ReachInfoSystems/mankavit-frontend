@@ -504,9 +504,9 @@ export const GridButton = styled.button`
   cursor: pointer;
   font-weight: bold;
 
-  &.answered { background: #7bd37b; clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); }
-  &.not-answered { background: #f44336; clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); }
-  &.marked { background: #a855f7; border-radius: 50%; }
+  &.answered { background: #7bd37b; clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%);color: white; }
+  &.not-answered { background: #f44336; clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%);color: white; }
+  &.marked { background: #a855f7; border-radius: 50%;color: white; }
  
   &.unattempted  { 
   background:rgb(253, 253, 255); 
@@ -518,6 +518,7 @@ export const GridButton = styled.button`
   &.answered-marked {
     background: #c084fc;
     border-radius: 50%;
+    color: white;
     
     &::after {
       content: "✓";
@@ -526,9 +527,10 @@ export const GridButton = styled.button`
       color: green;
       font-size: 16px;
       font-weight: bold;
+      // color: white;
     }
   }
-  &.not-answered-marked { background: #c084fc; border-radius: 50%; }
+  &.not-answered-marked { background: #c084fc; border-radius: 50%;color: white; }
 `;
 
 export const FooterButtons = styled.div`

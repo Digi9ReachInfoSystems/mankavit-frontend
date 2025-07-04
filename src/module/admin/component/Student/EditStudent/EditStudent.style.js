@@ -31,14 +31,15 @@ export const Title = styled.h1`
     font-size: 24px;
   }
 `;
-
 export const InputGroup = styled.div`
   margin-bottom: 0px;
-  margin-top: 30px;
+  margin-top: 0px;
   flex: 1;
+  min-width: 200px;
 
   @media (max-width: 1024px) {
-    margin-top: 10px;
+    min-width: 100%;
+    margin-top: 16px;
   }
 `;
 
@@ -148,7 +149,7 @@ export const FlexRow = styled.div`
   display: flex;
   gap: 20px;
   flex-direction: row;
-  justify-content: space-between;
+  // justify-content: space-between;
   flex-wrap: nowrap;          /* ⬅️  keep everything on one line */
 
   @media (max-width: 768px) {  /* mobile: stack vertically */

@@ -31,13 +31,18 @@ import {
   DetailValue,
   CardHeader,
   CardBody,
-  GradientBar
+  GradientBar, 
+  IndicatorsSection,
+  LegendContainer,
+  LegendItem,
+  LegendLabel,
+  LegendRow
 } from "./TestInstructions.styles";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMocktestById, startMocktest } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { FaClock, FaListOl, FaQuestionCircle, FaExclamationTriangle, FaLightbulb } from "react-icons/fa";
-
+// import { FaClock as ClockIcon } from "react-icons/fa";
 export default function TestInstructions() {
   const { testId, subjectId } = useParams();
   const navigate = useNavigate();
@@ -184,6 +189,38 @@ export default function TestInstructions() {
               <TipItem>Review your answers if time permits.</TipItem>
             </List>
           </TipsSection>
+          <IndicatorsSection>
+        <SectionTitle>
+          <span>🔵</span> Question Indicators
+        </SectionTitle>
+        <TipItem>Indicators indicate the status of your answers:</TipItem>
+        <LegendContainer>
+          <LegendRow>
+            <LegendItem className="answered" />
+            <LegendLabel>Answered</LegendLabel>
+          </LegendRow>
+          <LegendRow>
+            <LegendItem className="not-answered" />
+            <LegendLabel>Not Answered</LegendLabel>
+          </LegendRow>
+          <LegendRow>
+            <LegendItem className="marked" />
+            <LegendLabel>Marked for Review</LegendLabel>
+          </LegendRow>
+          <LegendRow>
+            <LegendItem className="answered-marked" />
+            <LegendLabel>Answered & Marked</LegendLabel>
+          </LegendRow>
+          <LegendRow>
+            <LegendItem className="not-answered-marked" />
+            <LegendLabel>Not Answered & Marked</LegendLabel>
+          </LegendRow>
+          <LegendRow>
+            <LegendItem className="unattempted" />
+            <LegendLabel>Unattempted</LegendLabel>
+          </LegendRow>
+        </LegendContainer>
+      </IndicatorsSection>
         </Instructions>
       </InstructionsContainer>
 
