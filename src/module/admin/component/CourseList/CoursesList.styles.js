@@ -84,7 +84,7 @@ export const Tabs = styled.div`
   gap: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid #ddd;
-  width: 40%;
+  width: 100%;
 //   padding-right:20px
 
 @media (max-width: 480px) {
@@ -102,7 +102,7 @@ export const Tab = styled.button`
   font-family: Button Small - SemiBold 12px - Lato;
   background-color: ${({ active }) => (active ? '#007bff' : 'white')};
   color: ${({ active }) => (active ? '#fff' : '#6D6E75')};
-  height: 35px;
+  // height: 35px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   cursor: pointer;
@@ -114,7 +114,7 @@ export const Tab = styled.button`
 
   @media (max-width: 480px) {
     font-size: 10px;
-    height: 30px;
+    // height: 30px;
     padding: 4px 8px;
 
   }

@@ -4,7 +4,7 @@ export const HeaderContainer = styled.header`
   position: relative;
 //   top: 0;
   // left: 250px; 
-  width: calc(100% - 80px);
+  width: calc(100% - 40px);
   height: 50px; 
   display: flex;
   align-items: center;
@@ -28,6 +28,7 @@ export const Title = styled.h1`
   font-size: 20px;
   margin: 0;
   color: #333;
+  margin-top: 8px;
 
   @media (max-width: 768px) {
     margin-left: 40px;

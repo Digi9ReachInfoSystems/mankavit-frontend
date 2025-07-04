@@ -57,6 +57,10 @@ export const TextInput = styled.input`
     border-color: ${theme.colors.primary};
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
   }
+
+  @media (max-widtH: 540px) {
+    width: 100%;
+  }
 `;
 
 export const SubmitButton = styled.button`

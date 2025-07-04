@@ -7,7 +7,7 @@ export const BtnAchieve = styled.div`
   align-items: center;
   width: 100%;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin: 16px 0px;
 
 //   @media (max-width: 480px) {
 //     margin-top:0;
@@ -73,7 +73,7 @@ position: relative;
 display: flex;
 flex-direction: column;
 margin-left: 40px;
-margin-top: 20px;
+// margin-top: 20px;
 // justify-content: center;
 // align-items: center;
   // width: 95%;

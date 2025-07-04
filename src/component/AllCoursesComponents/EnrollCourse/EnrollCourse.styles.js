@@ -6,7 +6,7 @@ export const Container = styled.div`
 
 
   @media (max-width: 1320px) {
-    max-width: 90%;
+    // max-width: 90%;
   }
 `;
 
@@ -34,21 +34,68 @@ export const Features = styled.div`
   overflow-x: scroll;
   width: 100%;
 
-  @media (max-width: 576px) {
+   @media (max-width: 1360px) {
+    gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+    gap: 1rem;
+}
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+    flex-direction: row;
+}
+
+@media (max-width: 540px) {
+    gap: 0.5rem;
+    // flex-direction: column;
+}
+
+@media (max-width: 480px) {
+    gap: 0.5rem;
     flex-direction: column;
-  }
+}
+
+  // @media (max-width: 576px) {
+  //   flex-direction: column;
+  // }
 `;
 
 export const FeatureCard = styled.div`
-  min-width: 450px;
+  min-width: 300px;
   text-align: center;
 `;
 
 export const FeatureImage = styled.img`
   width: 100%;
   height: 300px;
-  object-fit: cover;
+  // object-fit: cover;
   border-radius: 8px;
+
+   @media (max-width: 1360px) {
+    height: 200px;
+    width: 300px;
+}
+
+@media (max-width: 1024px) {
+    height: 200px;
+    width: 250px;
+}
+  @media (max-width: 768px) {
+    height: 250px;
+    width: 300px;
+}
+
+@media (max-width: 540px) {
+    height: 250px;
+    width: 250px;
+}
+
+@media (max-width: 480px) {
+    height: 200px;
+    width: 300px;
+}
 `;
 
 export const FeatureTitle = styled.h3`

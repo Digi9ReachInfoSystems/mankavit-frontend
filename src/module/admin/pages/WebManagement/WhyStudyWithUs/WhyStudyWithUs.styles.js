@@ -7,7 +7,7 @@ export const BtnAchieve = styled.div`
   align-items: center;
   width: 100%;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin: 16px 0px;
 
 //   @media (max-width: 480px) {
 //     margin-top:0;
@@ -73,7 +73,7 @@ position: relative;
 display: flex;
 flex-direction: column;
 margin-left: 40px;
-margin-top: 20px;
+// margin-top: 20px;
 // justify-content: center;
 // align-items: center;
   // width: 95%;
@@ -304,21 +304,28 @@ export const ImageModalOverlay = styled.div`
 
 export const ImageModalContent = styled.div`
   position: relative;
+  padding: 20px;
+  border-radius: 8px;
   max-width: 90%;
   max-height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 export const ModalImage = styled.img`
+   width: 100%;            
+  height: auto;          
+  max-height: 100%;      
+  object-fit: contain;   
   border-radius: 8px;
-  text-decoration: none;
-  width:500px;
-  height:400px;
 `;
 
 export const CloseButton = styled.button`
-  position: absolute;
-  top: 5px;
-  right: 5px;
+     position: absolute;
+  top: 25px;
+  right: 30px;
   background: #fff;
   border: none;
   font-size: 1.5rem;
@@ -328,6 +335,7 @@ export const CloseButton = styled.button`
   height: 32px;
   line-height: 32px;
   text-align: center;
+  z-index: 9999;
 `;
 
 

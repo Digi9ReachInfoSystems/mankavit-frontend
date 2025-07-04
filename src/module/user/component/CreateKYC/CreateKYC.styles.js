@@ -19,13 +19,25 @@ export const Title = styled.h2`
   .tick-icon {
     font-size: 24px;
     margin-right: 20px;
+
+    @media (max-width: 480px) {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
   }
 `;
 
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  width: 60%;
+  // width: 60%;
   margin: 0 auto;
 `;
 

@@ -47,7 +47,7 @@ const ViewAchievement = () => {
           <img
             src={achievement.image}
             alt="Student"
-            style={{ width: '300px', height: 'auto', borderRadius: '8px' }}
+            style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px' }}
           />
         </ImageWrapper>
       ) : (

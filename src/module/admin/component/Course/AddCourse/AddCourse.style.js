@@ -71,6 +71,7 @@ export const Column = styled.div`
 export const FieldWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 
   @media (max-width: 990px) {
   .toggle-wrapper{
@@ -121,7 +122,7 @@ export const TextArea = styled.textarea`
 
 /** Price input with smaller max-width */
 export const PriceInput = styled(Input)`
-  max-width: 250px;
+  // max-width: 250px;
 
   @media(max-width: 990px){
     max-width: 100%;
@@ -194,7 +195,7 @@ export const UploadArea = styled.div`
   }
 
   @media (max-width: 1024px) {
-    width: 70%;
+    width: 100%;
     margin-left: 0;
   }
 

@@ -47,6 +47,15 @@ export const Logo = styled.div`
 export const LogoImg = styled.img`
   width: 232px !important;
   margin-bottom: 20px;
+
+    @media (min-width: 768px) {
+    width: 335px;
+    height: 335px;
+  }
+   @media (min-width: 1000px) and (max-width: 1200px) and (max-height: 800px) {
+    width: 335px;
+    height: 335px;
+  }
 `;
 
 export const Title = styled.h1`
@@ -54,6 +63,10 @@ export const Title = styled.h1`
   font-family: ${theme.fonts.body};
   font-size:35px;
   font-weight: 600;
+
+     @media (min-width: 1000px) and (max-width: 1200px) and (max-height: 800px) {
+    font-size: 25px;
+  }
 `;
 
 export const Form = styled.form`
@@ -63,13 +76,13 @@ export const Form = styled.form`
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 597px;
-  height: 80%;
+  // height: 80%;
   flex:2;
 margin: 105px 105px 105px 0px!important;
 
    @media (min-width: 760px) {
        max-width: 500px;
-       margin: 105px 105px 105px 105px !important;
+       margin: 25px !important;
    }
     @media (max-width: 480px) {
         margin:0px!important;
@@ -79,7 +92,7 @@ margin: 105px 105px 105px 0px!important;
     @media (min-width: 800px) and (max-width: 1000px) {
      margin:10px 5px 60px 5px !important;
        max-width: 550px;
-       height: 40%!important; 
+      //  height: 40%!important; 
        align-items: center;
        flex:2;
    
@@ -92,6 +105,10 @@ margin: 105px 105px 105px 0px!important;
         
          margin:60px 65px 60px 60px !important;
     }
+
+    @media (min-width: 481px){
+   margin: 25px !important;
+   }
 `;
 export const FormContent = styled.div`
   display: flex;
@@ -102,7 +119,7 @@ export const FormContent = styled.div`
      margin:130px 0px 60px 0px ; 
   }
      @media (max-width: 480px) {
-        margin :100px 30px 60px 30px!important;
+        margin :20px 30px 60px 30px!important;
     }
     @media (min-width: 800px) and (max-width: 1000px) {
         margin: 60px 30px 60px 30px !important;
@@ -117,7 +134,14 @@ export const LoginTitle = styled.h2`
     font-size: 1.5rem;
     margin-bottom: 10px;
     font-family: ${theme.fonts.body};
-  
+
+    @media (min-width: 1200px) {
+    margin-top: 10px !important;
+  }
+
+  @media (min-width: 100px) and (max-width: 1200px) and (max-height: 800px) {
+    font-size: 25px;
+  }
 `;
 export const LoginSubTitle = styled.p`
   color: #777;
@@ -150,7 +174,7 @@ export const Label = styled.label`
 
 export const Button = styled.button`
 color: #FFF;
-margin-top: 60px!important;
+// margin-top: 60px!important;
 // margin:0px!important;
 text-align: center;
 font-family: ${theme.fonts.body};
@@ -172,6 +196,10 @@ box-shadow: 0px 4px 8px 0px rgba(171, 190, 209, 0.40);
   }
      @media (min-width: 1000px)and (max-width: 1200px)and (max-height: 800px) {
         
+         margin:10px!important;
+    }
+
+    @media (max-width: 480px) {
          margin:10px!important;
     }
 `;
