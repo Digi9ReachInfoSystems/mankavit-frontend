@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+
 import { toast } from 'react-toastify';
 import {
   Container, Content, Header, LeftDiv, LeftIcon, HeaderLeft, Language,
@@ -9,7 +11,7 @@ import {
   LeftButton, ReviewButton, ClearButton, RightButton, NextButton,
   SidebarContainer, UserCard, UserImage, UserInfo, UserName, UserEmail,
   Divider, Legend, OptionLabelList, LegendText, LegendItem,
-  QuestionNav, Grid, GridButton, FooterButtons, SaveButton
+  QuestionNav, Grid, GridButton, FooterButtons, SaveButton,ModalOverlay,ModalContent,ModalTitle,ModalButtons,ModalButton,
 } from './TextScreen.styles';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6';
 import Profile from '../../../../assets/profile.png';
@@ -31,7 +33,21 @@ const STATUS = {
   NOT_ANSWERED_MARKED: 'not-answered-marked-for-review',
   ANSWERED_MARKED: 'answered-marked-for-review'
 };
+const ConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
 
+  return (
+    <ModalOverlay>
+      <ModalContent>
+        <ModalTitle>Do you want to submit the test?</ModalTitle>
+        <ModalButtons>
+          <ModalButton onClick={onClose}>No</ModalButton>
+          <ModalButton primary onClick={onConfirm}>Yes</ModalButton>
+        </ModalButtons>
+      </ModalContent>
+    </ModalOverlay>
+  );
+};
 export default function TextScreen() {
   const { testId, subjectId, attemptId: urlAttemptId } = useParams();
   const navigate = useNavigate();
@@ -46,6 +62,8 @@ export default function TextScreen() {
   const [loading, setLoading] = useState(true);
   const [initialTime, setInitialTime] = useState(0);
   const [testStartTime, setTestStartTime] = useState(null);
+   const [showConfirmation, setShowConfirmation] = useState(false);
+
 
   // unwrap { data } or { body: { data } }
   const unwrap = r => r?.data?.body?.data ?? r?.data;
@@ -367,7 +385,13 @@ export default function TextScreen() {
       toast.error('Failed to submit test');
     }
   };
+const handleSubmitClick = () => {
+    setShowConfirmation(true);
+  };
 
+  const handleCancelSubmit = () => {
+    setShowConfirmation(false);
+  };
 
   const getStatusCounts = () => {
     const counts = {
@@ -560,10 +584,18 @@ export default function TextScreen() {
           </Grid>
         </QuestionNav>
 
-        <FooterButtons>
-          <NextButton onClick={handleSubmit}>Submit Test</NextButton>
+               <FooterButtons>
+          <NextButton onClick={handleSubmitClick}>Submit Test</NextButton>
         </FooterButtons>
       </SidebarContainer>
+
+      {/* Add the ConfirmationModal at the end of your return */}
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        onClose={handleCancelSubmit}
+        onConfirm={handleSubmit}
+      />
+
     </Container>
   );
 }

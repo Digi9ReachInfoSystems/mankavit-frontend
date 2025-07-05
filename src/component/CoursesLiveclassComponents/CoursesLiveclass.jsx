@@ -299,29 +299,68 @@ const CoursesLiveclass = () => {
         }
     };
 
-    const renderTabContent = () => {
-        if (loading) return <ContentText>Loading...</ContentText>;
-        if (!course) return <ContentText>Course not found.</ContentText>;
+ const renderTabContent = () => {
+    if (loading) return <ContentText>Loading...</ContentText>;
+    if (!course) return <ContentText>Course not found.</ContentText>;
 
-        if (activeTab === 'Notes') {
-            const allNotes = (course.subjects || []).flatMap(subject => subject.notes || []);
-            if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
+    if (activeTab === 'Notes') {
+        // Flatten notes array and include subject name
+        const allNotes = [];
+        (course.subjects || []).forEach(subject => {
+            (subject.notes || []).forEach(note => {
+                allNotes.push({
+                    ...note,
+                    subjectName: subject.subjectName
+                });
+            });
+        });
 
-            return allNotes.map((note, i) => {
-                console.log("note", note, "allNotes", allNotes);
-                return (
-                    <ContentText key={i}>
-                        <div className="note-header">
-                            <span className="pdf-title">{note.noteName || `Note ${i + 1}`}</span>
-                            <a href={note.fileUrl} download target="_blank" rel="noopener noreferrer" className="download-link">
+        if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
+
+        return allNotes.map((note, i) => {
+            return (
+                <ContentText key={i}>
+                    <div className="note-header">
+                        <span className="pdf-title">
+                            {note.noteName || `Note ${i + 1}`}
+                            {note.subjectName && (
+                                <span style={{ 
+                                    fontSize: '0.8em',
+                                    color: '#666',
+                                    marginLeft: '8px'
+                                }}>
+                                    ({note.subjectName})
+                                </span>
+                            )}
+                        </span>
+                        {note.isDownload ? (
+                            <a 
+                                href={note.fileUrl} 
+                                download 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="download-link"
+                            >
                                 <FaDownload />
                             </a>
-                        </div>
-                        <p>{note.noteDisplayName || 'No description available'}</p>
-                    </ContentText>
-                )
-            });
-        }
+                        ) : (
+                            <span 
+                                style={{
+                                    color: '#999',
+                                    cursor: 'not-allowed',
+                                    marginLeft: '8px'
+                                }}
+                                title="Download not available for this note"
+                            >
+                                <FaDownload />
+                            </span>
+                        )}
+                    </div>
+                    <p>{note.noteDisplayName || 'No description available'}</p>
+                </ContentText>
+            );
+        });
+    }
 
         if (activeTab === 'Overview') {
             // const initialUpdate=async () => {
