@@ -10,13 +10,14 @@ export const CardContainer = styled.div`
 export const ResultsContainer = styled.div`
   background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+//   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   max-width: 100%;
 `;
 
 export const ContentWrapper = styled.div`
-  // display: flex;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   margin-top: 20px;
 `;
@@ -25,25 +26,44 @@ export const Header = styled.div`
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid #e0e0e0;
+  position: relative;
 `;
 
 export const Title = styled.h1`
   font-size: 24px;
   color: #333;
-  margin: 0;
+  margin: 0 0 10px 0;
+`;
+
+export const RankBadge = styled.span`
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #4caf50;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+`;
+
+export const AttemptInfo = styled.div`
+  font-size: 14px;
+  color: #666;
 `;
 
 export const SummaryContainer = styled.div`
-  // display: grid;
-  // grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 15px;
   padding: 15px;
-  background: #f8f9fa;
+  background:rgb(241, 244, 248);
   border-radius: 8px;
-  height: fit-content;
-  // position: sticky;
-  top: 20px;
-  align-self: flex-start;
+  width: 100%;  // Ensure it takes full width
+`;
+
+export const QuestionsContainer = styled.div`
+  width: 100%;  // Ensure it takes full width
+  margin-top: 0;
 `;
 
 export const SummaryItem = styled.div`
@@ -60,13 +80,12 @@ export const SummaryLabel = styled.span`
 export const SummaryValue = styled.span`
   font-weight: 600;
   color: #333;
-  width: 50%;
 `;
 
-export const QuestionsContainer = styled.div`
-  flex: 1;
-  margin-top: 0;
-`;
+// export const QuestionsContainer = styled.div`
+//   flex: 1;
+//   margin-top: 0;
+// `;
 
 export const QuestionItem = styled.div`
   margin-bottom: 30px;
@@ -78,7 +97,6 @@ export const QuestionText = styled.div`
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 15px;
-  margin-top: 50px;
   color: #333;
 `;
 
@@ -87,12 +105,13 @@ export const OptionsContainer = styled.div`
   flex-direction: column;
   gap: 8px;
 `;
+
 export const OptionItem = styled.div`
   display: flex;
   align-items: center;
   padding: 8px 12px;
   border-radius: 4px;
-  background-color: #f5f5f5; // Default background for all options
+  background-color: #f5f5f5;
 `;
 
 export const OptionBullet = styled.span`
@@ -100,10 +119,10 @@ export const OptionBullet = styled.span`
   font-weight: bold;
   color: ${({ status }) => {
     switch(status) {
-      case 'correct-attempted': return '#4caf50'; // Green for correct attempted
-      case 'incorrect-attempted': return '#f44336'; // Red for incorrect attempted
-      case 'correct-unattempted': return '#2196f3'; // Blue for correct unattempted
-      default: return '#9e9e9e'; // Grey for incorrect unattempted
+      case 'correct-attempted': return '#4caf50';
+      case 'incorrect-attempted': return '#f44336';
+      case 'correct-unattempted': return '#2196f3';
+      default: return '#9e9e9e';
     }
   }};
 `;
@@ -115,7 +134,7 @@ export const OptionText = styled.span`
       case 'correct-attempted': return '#4caf50';
       case 'incorrect-attempted': return '#f44336';
       case 'correct-unattempted': return '#2196f3';
-      default: return '#333'; // Default text color
+      default: return '#333';
     }
   }};
 `;
@@ -155,6 +174,7 @@ export const NavButton = styled.button`
     background: ${props => props.disabled ? '#f5f5f5' : '#0d8bf2'};
   }
 `;
+
 export const FooterButtons = styled.div`
   display: flex;
   justify-content: center;
@@ -165,7 +185,7 @@ export const FooterButtons = styled.div`
 export const RetakeButton = styled.button`
   padding: 8px 16px;
   min-width: 120px;
-  background:rgb(243, 145, 33);
+  background: #ff9800;
   color: white;
   border: none;
   border-radius: 4px;
@@ -178,14 +198,14 @@ export const RetakeButton = styled.button`
   gap: 8px;
 
   &:hover {
-    background:rgb(243, 182, 50);
+    background: #f57c00;
   }
 `;
 
 export const BackButton = styled.button`
   padding: 8px 16px;
   min-width: 120px;
-  background:rgb(231, 222, 166);
+  background: #f5f5f5;
   color: #333;
   border: none;
   border-radius: 4px;

@@ -247,3 +247,20 @@ export const getAllUserAttemptByUserId = async (userId) => {
         throw error;
     }
 }
+export const viewUserMocktestAttemptResult = async (userId, mockTestId) => {
+  try {
+    const response = await api.post(
+      '/userAttempt/get/userAttemptsByUser',
+      { user_id: userId, mockTestId },                             // ← body
+      {                                                   // ← config
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
