@@ -72,7 +72,7 @@ const Login = () => {
             const DeviceData = await getDeviceInfo();
             console.log("DeviceData", DeviceData);
             const userResponse = await loginUser({ email, password, device: DeviceData });
-            // console.log("userResponse", userResponse);
+            console.log("userResponse", userResponse);
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;

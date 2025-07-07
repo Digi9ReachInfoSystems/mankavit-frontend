@@ -85,3 +85,21 @@ export const deleteStudentById = (userId) => {
     throw error;
    }
 }
+
+export const blockAndUnblockUser = (data) => {
+   try{
+    const response = api.put("/user/blockAndUnblockUser", data);
+    return response;
+   }catch(error){
+    throw error;
+   }
+}
+
+export const enableDisableMasterOTP = (data) => {
+   try{
+    const response = api.put("/user/enableAndDisableMasterOtp", data);
+    return response;
+   }catch(error){
+    throw error;
+   }
+}
