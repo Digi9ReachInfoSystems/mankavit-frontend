@@ -148,7 +148,7 @@ export default function EditNotes() {
       };
       
       const updateResponse = await updatenotesById(id, updateData);
-      
+      console.log("Update Response:", updateResponse);
       if (updateResponse.success) {
         toast.success(`Note "${noteTitle}" updated successfully.`, {
           duration: 3000,

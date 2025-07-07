@@ -141,6 +141,7 @@ import ProtectedRoute from './pages/ProtectedAndPublicRoutes/ProtectedRoute'
 import PublicRoute from './pages/ProtectedAndPublicRoutes/PublicRoute'
 import UserRoute from './pages/ProtectedAndPublicRoutes/UserRoutes'
 import NotFound from './pages/NotFound/NotFound'
+import UserViewAttempResult from './module/user/component/UserViewAttempResult/UserViewAttempResult'
 function App() {
 
   return (
@@ -175,7 +176,7 @@ function App() {
           <Route path='/test-submitted' element={<UserRoute><TestsubmittedPage /></UserRoute>} />
           <Route path='/exam-summary' element={<UserRoute><ExamSummary /></UserRoute>} />
           <Route path='/test-results/:testId/:subjectId/:attemptId' element={<UserRoute><TestResults /></UserRoute>} />
-
+          <Route path='/user-view-results/:userId/:mockTestId' element={<UserRoute><UserViewAttempResult/></UserRoute>} />
 
           <Route path='/createkyc' element={<UserRoute><CreateKYC /></UserRoute>} />
 

@@ -158,6 +158,7 @@ export default function AddNote() {
           subjects: subjects
         }
       )
+      console.log("createNotesResponse", createNotesResponse);
       if (createNotesResponse.success == true) {
         toast.success('Notes created successfully.',
           {
