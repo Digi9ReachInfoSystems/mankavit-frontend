@@ -309,115 +309,102 @@ const CoursesLiveclass = () => {
 
 
 
-if (activeTab === 'Notes') {
+ if (activeTab === 'Notes') {
     const allNotes = [];
     (course.subjects || []).forEach(subject => {
-        (subject.notes || []).forEach(note => {
-            allNotes.push({
-                ...note,
-                subjectName: subject.subjectName
-            });
-        });
+      (subject.notes || []).forEach(note => {
+        allNotes.push({ ...note, subjectName: subject.subjectName });
+      });
     });
 
     if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
 
     return (
-        <>
-            {allNotes.map((note, i) => {
-                const noteUrl = note.fileUrl.startsWith('http') ? 
-                    note.fileUrl : 
-                    `${process.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
+      <>
+        {allNotes.map((note, i) => {
+          const noteUrl = note.fileUrl.startsWith('http')
+            ? note.fileUrl
+            : `${process.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
 
-                return (
-                    <ContentText key={i}>
-                        <div className="note-header">
-                            <span className="pdf-title">
-                                <FaFilePdf style={{ marginRight: '8px', color: '#e74c3c' }} />
-                                {note.noteName || `Note ${i + 1}`}
-                                {note.subjectName && (
-                                    <span style={{ 
-                                        fontSize: '0.8em',
-                                        color: '#666',
-                                        marginLeft: '8px'
-                                    }}>
-                                        ({note.subjectName})
-                                    </span>
-                                )}
-                            </span>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button 
-                                    onClick={() => {
-                                        setCurrentNote({
-                                            file: noteUrl,
-                                            name: note.noteName || `Note ${i + 1}`,
-                                            isDownloadable: note.isDownload
-                                        });
-                                        setShowPDFViewer(true);
-                                    }}
-                                    style={{
-                                        background: '#1d72e8',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '6px 12px',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    View
-                                </button>
-                                {note.isDownload ? (
-                                    <a 
-                                        href={noteUrl} 
-                                        download 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            background: '#4CAF50',
-                                            color: 'white',
-                                            border: 'none',
-                                            padding: '6px 12px',
-                                            borderRadius: '4px',
-                                            textDecoration: 'none',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        Download
-                                    </a>
-                                ) : (
-                                    <button
-                                        style={{
-                                            background: '#cccccc',
-                                            color: '#666666',
-                                            border: 'none',
-                                            padding: '6px 12px',
-                                            borderRadius: '4px',
-                                            cursor: 'not-allowed'
-                                        }}
-                                        disabled
-                                    >
-                                        Download Disabled
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                        <p>{note.noteDisplayName || 'No description available'}</p>
-                    </ContentText>
-                );
-            })}
-            {showPDFViewer && currentNote && (
-                <PDFViewer 
-                    file={{
-                        url: currentNote.file,
-                        withCredentials: true
+          return (
+            <ContentText key={i}>
+              <div className="note-header">
+                <span className="pdf-title">
+                  <FaFilePdf style={{ marginRight: '8px', color: '#e74c3c' }} />
+                  {note.noteName || `Note ${i + 1}`}
+                  {note.subjectName && (
+                    <span style={{ fontSize: '0.8em', color: '#666', marginLeft: '8px' }}>
+                      ({note.subjectName})
+                    </span>
+                  )}
+                </span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {/* Always show View button */}
+                  <button
+                    onClick={() => {
+                      setCurrentNote({ file: noteUrl });
+                      setShowPDFViewer(true);
                     }}
-                    isDownloadable={currentNote.isDownloadable}
-                    onClose={() => setShowPDFViewer(false)}
-                />
-            )}
-        </>
+                    style={{
+                      background: '#1d72e8',
+                      color: 'white',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    View
+                  </button>
+
+                  {/* Conditionally show download link if allowed */}
+                  {note.isDownload ? (
+                    <a
+                      href={noteUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        background: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        padding: '6px 12px',
+                        borderRadius: '4px',
+                        textDecoration: 'none',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Download
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+              <p>{note.noteDisplayName || 'No description available'}</p>
+            </ContentText>
+          );
+        })}
+
+        {/* Inline PDF viewer using iframe */}
+        {showPDFViewer && currentNote && (
+          <div className="pdf-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)' }}>
+            <div className="modal-content" style={{ position: 'relative', width: '80%', height: '80%', margin: '5% auto', background: '#fff', borderRadius: '8px', overflow: 'hidden' }}>
+              <button
+                onClick={() => setShowPDFViewer(false)}
+                style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}
+              >
+                Close
+              </button>
+              <iframe
+                src={currentNote.file}
+                style={{ width: '100%', height: '100%' }}
+                frameBorder="0"
+              />
+            </div>
+          </div>
+        )}
+      </>
     );
-}
+  }
 
         if (activeTab === 'Overview') {
             // const initialUpdate=async () => {
