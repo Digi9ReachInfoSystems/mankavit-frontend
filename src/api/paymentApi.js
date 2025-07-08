@@ -18,3 +18,12 @@ export const getAllPayments = async () => {
         throw error;
     }
 };
+
+export const getPaymentByCourseId = async (id) => {
+    try {
+        const response = await api.get(`/api/v1/payment/getPayamentsByCourseId/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

@@ -201,3 +201,43 @@ export const forceLogin = async (data) => {
         throw error;
     }
 }
+
+export const changePasswordOtpSend = async (data) => {
+    try {
+        const response = await api.post("/user/sendChangePasswordOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const resendChangePasswordOtp = async (data) => {
+    try {
+        const response = await api.post("/user/resendChangePasswordOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const verifyChangePasswordOtp = async (data) => {
+    try {
+        const response = await api.post("/user/verifyChangePasswordOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const collectQuestionPaperDetails = async (data) => {
+    try {
+        const response = await api.post("/user/collectQuestionPaperDetails", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

@@ -5,7 +5,8 @@ import {
   FlexRow, ErrorMessage, LoadingSpinner, LogoutButton,
   CourseSelection, CourseCheckbox, CourseLabel,
   CourseList, CourseItem, AttemptsTable, TableHead,
-  TableRow, TableCell, PaymentModal, ModalOverlay, CloseButton
+  TableRow, TableCell, PaymentModal, ModalOverlay, CloseButton,
+  ToggleSwitch, ToggleSlider, ToggleLabel
 } from "./EditStudent.style";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -15,7 +16,9 @@ import {
   addCourseToStudent,
   removeCourseFromStudent,
   forceUserLogout,
-  deleteStudentById
+  deleteStudentById,
+  blockAndUnblockUser,
+  enableDisableMasterOTP
 } from "../../../../../api/userApi";
 import {
   getUserByUserId,
@@ -24,6 +27,7 @@ import {
 import { getAllUserAttemptByUserId } from "../../../../../api/mocktestApi";
 
 import DeleteModal from "../../DeleteModal/DeleteModal";
+import api from "../../../../../config/axiosConfig";
 const EMAIL_RGX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RGX = /^\+?\d{7,15}$/;
 
@@ -43,6 +47,22 @@ const EditStudent = () => {
   const [attempts, setAttempts] = useState([]);
   const [loadingAttempts, setLoadingAttempts] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockedChange, setBlockedChange] = useState(false);
+  const [masterOtpEnabled, setMasterOtpEnabled] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const res = await getUserByUserId(userId);
+      console.log("Student data:", res);
+      if (!res.success || !res.user) throw new Error("Student not found");
+      const stu = res.user;
+      console.log("isBlocked", stu);
+      setIsBlocked(stu.isBlocked);
+      setMasterOtpEnabled(stu.isMasterOtpEnabled);
+
+    }
+    apiCaller();
+  }, [blockedChange]);
   useEffect(() => {
     (async () => {
       try {
@@ -62,7 +82,8 @@ const EditStudent = () => {
         setForm({
           displayName: stu.displayName || "",
           email: stu.email || "",
-          phone: stu.phone || ""
+          phone: stu.phone || "",
+          masterOtp: stu.masterOtp
         });
         setHasBeenForcedLoggedOut(false);
       } catch (err) {
@@ -126,14 +147,22 @@ const EditStudent = () => {
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
   const onFormChange = (e) =>
+
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const validate = () => {
+    console.log("form validation", form);
     const errs = {};
     if (!form.displayName.trim()) errs.displayName = "Name required";
     if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
     if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
     if (selected.length === 0) errs.courseIds = "Select at least one course";
+
+    if ((form.masterOtp.length !== 6) || (isNaN(form.masterOtp))) {
+
+      errs.masterOtp = "OTP must be 6 digits"
+    };
+
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -142,11 +171,13 @@ const EditStudent = () => {
     if (!student || !validate()) return;
     setProcessing(true);
     try {
+      console.log("form", form);
       /* 1️⃣ Update profile */
       await updateUserById(student._id, {
         displayName: form.displayName.trim(),
         email: form.email.trim(),
-        phone: form.phone.trim()
+        phone: form.phone.trim(),
+        masterOtp: form.masterOtp
       });
 
       /* 2️⃣ Sync course enrolments */
@@ -156,7 +187,7 @@ const EditStudent = () => {
       if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
 
       toast.success("Student updated successfully");
-      navigate("/admin/student-management");
+      // navigate("/admin/student-management");
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Update failed");
@@ -220,6 +251,43 @@ const EditStudent = () => {
     );
   }
   if (!student) return null;
+  const handleBlockAndUnblock = async (userId) => {
+    try {
+      setProcessing(true);
+      const response = await blockAndUnblockUser({ userId });
+      console.log("response", response.data);
+      if (response.data.success) {
+        toast.success(response.data.message || "User Block Status Updated");
+        setBlockedChange(!blockedChange);
+      } else {
+        toast.error(response.message || "Failed to Block or Unblock User");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to publish");
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  const handleMasterOtp = async (userId) => {
+    try {
+      setProcessing(true);
+      const response = await enableDisableMasterOTP({ userId });
+      console.log("response", response.data);
+      if (response.data.success) {
+        toast.success(response.data.message || "User Block Status Updated");
+        setBlockedChange(!blockedChange);
+      } else {
+        toast.error(response.message || "Failed to Enable or Disable Master OTP");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to Change Master OTP Status");
+    } finally {
+      setProcessing(false);
+    }
+  }
 
   return (
     <FormContainer>
@@ -252,7 +320,7 @@ const EditStudent = () => {
 
       </FlexRow>
 
-      
+
       <InputGroup>
         <Label>Name*</Label>
         <InputField
@@ -288,6 +356,53 @@ const EditStudent = () => {
           {formErrors.phone && <ErrorMessage>{formErrors.phone}</ErrorMessage>}
         </InputGroup>
       </FlexRow>
+      <FlexRow>
+        <InputGroup>
+          <Label>Master OTP*</Label>
+          <InputField
+            name="masterOtp"
+            value={form.masterOtp}
+            onChange={onFormChange}
+            disabled={processing}
+          />
+          {formErrors.masterOtp && <ErrorMessage>{formErrors.masterOtp}</ErrorMessage>}
+        </InputGroup>
+
+        <InputGroup>
+          <Label style={{ marginBottom: "7px" }}>Master OTP Status</Label>
+          <ToggleSwitch>
+            <input
+              type="checkbox"
+              checked={masterOtpEnabled}
+              style={{ display: "none" }}
+              onChange={() => handleMasterOtp(student._id)}
+            />
+            <ToggleSlider $isPublished={masterOtpEnabled} />
+            <ToggleLabel $isPublished={masterOtpEnabled}>
+              {isBlocked ? "Yes" : "No"}
+            </ToggleLabel>
+          </ToggleSwitch>
+
+        </InputGroup>
+      </FlexRow>
+      <FlexRow>
+        <InputGroup>
+          <Label style={{ marginBottom: "7px" }}>User Blocked</Label>
+          <ToggleSwitch>
+            <input
+              type="checkbox"
+              checked={isBlocked}
+              style={{ display: "none" }}
+              onChange={() => handleBlockAndUnblock(student._id)}
+            />
+            <ToggleSlider $isPublished={isBlocked} />
+            <ToggleLabel $isPublished={isBlocked}>
+              {isBlocked ? "Yes" : "No"}
+            </ToggleLabel>
+          </ToggleSwitch>
+        </InputGroup>
+      </FlexRow>
+
 
       {/* ============== COURSES ============== */}
       <CourseSelection>
@@ -348,7 +463,7 @@ const EditStudent = () => {
       </CourseSelection>
 
       <FlexRow style={{ marginTop: 24 }}>
-      
+
 
         <LogoutButton
           type="button"
@@ -436,19 +551,19 @@ const EditStudent = () => {
           </PaymentModal>
         </>
       )}
- <FlexRow style={{ marginTop: 24 }}>
-   <SubmitButton
+      <FlexRow style={{ marginTop: 24 }}>
+        <SubmitButton
           type="button"
           disabled={processing}
           onClick={handleSave}
         >
           {processing ? "Saving…" : "Save changes"}
         </SubmitButton>
-      <DeleteModal
-        isOpen={isDeleteOpen}
-        onClose={cancelDelete}
-        onDelete={handleDelete}
-      />
+        <DeleteModal
+          isOpen={isDeleteOpen}
+          onClose={cancelDelete}
+          onDelete={handleDelete}
+        />
 
 
       </FlexRow>

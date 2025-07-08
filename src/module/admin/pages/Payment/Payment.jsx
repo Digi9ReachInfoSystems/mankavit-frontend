@@ -18,11 +18,12 @@ import {
   SearchIcon,
   PaymentstatusDot
 } from "../Payment/Payment.style";
-import Pagination from "../../component/Pagination/Pagination"; 
-import { getAllPayments } from "../../../../api/paymentApi";
+import Pagination from "../../component/Pagination/Pagination";
+import { getAllPayments, getPaymentByCourseId } from "../../../../api/paymentApi";
 import styled from "styled-components";
 import { SearchWrapper } from "../StudentManagement/StudentManagement.style";
 import { CiSearch } from "react-icons/ci";
+import { getAllCourses } from "../../../../api/courseApi";
 const ITEMS_PER_PAGE = 10;
 
 // Status color mapping
@@ -50,13 +51,18 @@ export default function Payment() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("Time");
-
+  const [coursesMap, setCoursesMap] = useState({});
+  const [selectedCourseId, setSelectedCourseId] = useState("all");
   useEffect(() => {
     const fetchPayments = async () => {
       try {
         setLoading(true);
         const response = await getAllPayments();
-        console.log("API Response:", response);
+        // console.log("API Response:", response);
+        const coursesRes = await getAllCourses();
+        const map = {};
+        (coursesRes.data || []).forEach(c => { map[c._id] = c.courseName; });
+        setCoursesMap(map);
         if (response && response.success && response.payments) {
           setPayments(response.payments);
           setFilteredPayments(response.payments);
@@ -73,6 +79,23 @@ export default function Payment() {
 
     fetchPayments();
   }, []);
+
+  useEffect(() => {
+     const apiCaller = async () => {
+       if(selectedCourseId !== "all") {
+         const reponse= await getPaymentByCourseId(selectedCourseId);
+         setPayments(reponse.payments);
+         setFilteredPayments(reponse.payments);
+       }else{
+         const response = await getAllPayments();
+         console.log("API Response:", response);
+          setPayments(response.payments);
+          setFilteredPayments(response.payments);
+       }
+     }
+     apiCaller();
+   }, [selectedCourseId]);
+
 
   // Filter and sort data
   useEffect(() => {
@@ -140,7 +163,7 @@ export default function Payment() {
     <Container>
       {/* Header with Search and Sort */}
       <HeaderRow style={{ justifyContent: "space-between", alignItems: "center" }}>
-  
+
 
         <Title>
           All Payments{" "}
@@ -148,16 +171,27 @@ export default function Payment() {
             ({currentItems.length}/{TOTAL_ENTRIES})
           </span>
         </Title>
-
         <SortByContainer>
-          <SortLabel>Sort by:</SortLabel>
-          <SortSelect value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="Time">Time (Latest)</option>
-            <option value="Student">Student Name</option>
-            <option value="AmountLow">Amount (Low → High)</option>
-            <option value="AmountHigh">Amount (High → Low)</option>
-          </SortSelect>
+          <SortByContainer style={{ marginLeft: "1rem" }}>
+            <SortLabel>Filter by Course:</SortLabel>
+            <SortSelect value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)}>
+              <option value="all">All</option>
+              {Object.entries(coursesMap).map(([id, name]) => (
+                <option key={id} value={id}>{name}</option>
+              ))}
+            </SortSelect>
+          </SortByContainer>
+          <SortByContainer>
+            <SortLabel>Sort by:</SortLabel>
+            <SortSelect value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="Time">Time (Latest)</option>
+              <option value="Student">Student Name</option>
+              <option value="AmountLow">Amount (Low → High)</option>
+              <option value="AmountHigh">Amount (High → Low)</option>
+            </SortSelect>
+          </SortByContainer>
         </SortByContainer>
+
       </HeaderRow>
       <SearchWrapper>
         {/* <SearchIcon>
