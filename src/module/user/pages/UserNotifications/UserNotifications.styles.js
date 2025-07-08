@@ -55,14 +55,12 @@ export const NotificationContainer = styled.div`
 `;
 
 export const NotificationBox = styled.div`
-  background-color: #f1f5ff;
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin-bottom: 5px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
+  position: relative;
+  background: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin-bottom: 8px;
   @media (max-width: 480px) {
     padding: 10px;
   }
@@ -112,4 +110,27 @@ export const Time = styled.span`
   @media (max-width: 480px) {
     font-size: 10px;
   }
+`;
+
+// export const NotificationBox = styled.div`
+//   position: relative;
+//   background: #fff;
+//   padding: 12px;
+//   border-radius: 6px;
+//   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+//   margin-bottom: 8px;
+// `;
+// export const NotificationText = styled.div`…`;
+// export const Time = styled.div`…`;
+
+// New clear button
+export const ClearButton = styled.button`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
 `;

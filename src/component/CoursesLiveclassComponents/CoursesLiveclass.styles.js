@@ -122,11 +122,19 @@ export const ContentText = styled.div`
   border-radius: 8px;
   background: #fff;
 
-  .note-header {
+ .note-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
+    margin-bottom: 8px;
+    
+    .pdf-title {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+  }
+  
     h3 {
       margin: 0;
       font-size: 18px;
