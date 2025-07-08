@@ -25,8 +25,12 @@ import {
   TabSection,
   VideoList,
   VideoItem,
-  Playbutton
+  Playbutton,
+  NoteItem,
+  NotesSection
 } from "./ContinueCourse.styles";
+import { FaFilePdf, FaDownload } from "react-icons/fa"; // Add these imports at the top
+
 import courseImgFallback from "../../assets/courseDetails.png";
 import { getCourseById } from "../../api/courseApi";
 import { getMocktestBySubjectId } from "../../api/mocktestApi";
@@ -53,7 +57,6 @@ import { getUserByUserId } from "../../api/authApi";
 import { getAllUserAttemptByUserId } from "../../api/mocktestApi";
 import PDFViewer from "../../module/admin/component/PdfViewer/PdfViewer";
 
-/* ---------- helper: programmatic download --------- */
 const downloadFile = (url, fallbackName = "download.pdf") => {
   const link = document.createElement("a");
   link.href = url;
@@ -62,7 +65,6 @@ const downloadFile = (url, fallbackName = "download.pdf") => {
   link.click();
   document.body.removeChild(link);
 };
-/* -------------------------------------------------- */
 
 const AccordionList = ({
   data,
@@ -367,6 +369,7 @@ const ContinueCourse = () => {
   const [liveClassData, setLiveClassData] = useState(null);
   const [currentNote, setCurrentNote] = useState(null);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [notes, setNotes] = useState([]);
 
   useEffect(() => {
     const apiCaller = async () => {
@@ -465,20 +468,44 @@ const ContinueCourse = () => {
     }
   };
 
-  /* ---------- updated note-handler ---------- */
-  const handleOpenNote = (note) => {
-    if (!note?.fileUrl) return;
+  // const handleOpenNote = (note) => {
+  //   if (!note?.fileUrl) return;
 
-    if (note.isDownload) {
-      // direct download
-      downloadFile(note.fileUrl, note.originalName || `note-${note._id}.pdf`);
-    } else {
-      // view inside PDFViewer (read-only)
-      setCurrentNote({ file: note.fileUrl, isDownloadable: false });
-      setShowPDFViewer(true);
+  //   if (note.isDownload) {
+  //     // direct download
+  //     downloadFile(note.fileUrl, note.originalName || `note-${note._id}.pdf`);
+  //   } else {
+  //     // view inside PDFViewer (read-only)
+  //     setCurrentNote({ file: note.fileUrl, isDownloadable: false });
+  //     setShowPDFViewer(true);
+  //   }
+  // };
+const handleOpenNote = (note) => {
+  if (!note?.fileUrl) {
+    console.error('No file URL found for this note');
+    return;
+  }
+
+  if (note.isDownload) {
+    // Direct download for downloadable notes
+    downloadFile(note.fileUrl, note.originalName || `note-${note._id}.pdf`);
+  } else {
+    // Show in modal for non-downloadable notes
+    setCurrentNote({
+      file: note.fileUrl,
+      name: note.originalName || `note-${note._id}.pdf`,
+      isDownloadable: false
+    });
+    setShowPDFViewer(true);
+  }
+};
+
+
+ useEffect(() => {
+    if (course?.notes) {
+      setNotes(course.notes);
     }
-  };
-  /* ----------------------------------------- */
+  }, [course]);
 
   const renderStars = (rating) => {
     const stars = [];
@@ -686,13 +713,44 @@ const ContinueCourse = () => {
         </LiveClass>
       )}
 
-      {showPDFViewer && currentNote && (
-        <PDFViewer
-          file={currentNote.file}
-          isDownloadable={currentNote.isDownloadable}
-          onClose={() => setShowPDFViewer(false)}
-        />
-      )}
+    {/* {showPDFViewer && currentNote && (
+  <PDFViewer
+    file={currentNote.file}
+    isDownloadable={currentNote.isDownloadable}
+    onClose={() => setShowPDFViewer(false)}
+  />
+)} */}
+
+
+
+{notes.length > 0 && (
+  <NotesSection>
+    <h3>Course Notes</h3>
+    {notes.map((note) => (
+      <NoteItem 
+        key={note._id}
+        onClick={() => handleOpenNote(note)}
+        isDownloadable={note.isDownload}
+      >
+        <div className="note-icon">
+          <FaFilePdf />
+          {note.isDownload && <FaDownload className="download-icon" style={{ color: "green" }} />}
+        </div>
+        <div className="note-info">
+          <h4>{note.name || 'Untitled Note'}</h4>
+          <p>{note.isDownload ? 'Downloadable' : 'View Only'}</p>
+        </div>
+      </NoteItem>
+    ))}
+  </NotesSection>
+)}
+{showPDFViewer && currentNote && (
+  <PDFViewer
+    file={currentNote.file}
+    isDownloadable={currentNote.isDownloadable}
+    onClose={() => setShowPDFViewer(false)}
+  />
+)}
 
       {showContent && (
         <>

@@ -26,7 +26,8 @@ import { getCookiesData } from '../../utils/cookiesService';
 import FeedbackModal from '../FeedbackModal/FeedbackModal';
 import { getUserByUserId } from '../../api/authApi';
 import { set } from 'date-fns';
-
+import { FaFilePdf } from 'react-icons/fa'; // Add this import at the top
+import PDFViewer from '../../module/admin/component/PdfViewer/PdfViewer';
 
 const CoursesLiveclass = () => {
     const { courseId, subjectid, lectureId } = useParams();
@@ -49,7 +50,9 @@ const CoursesLiveclass = () => {
     const [overlayPosition, setOverlayPosition] = useState({ top: 50, left: 50 });
     const [userPhoneNumber, setUserPhoneNumber] = useState('');
     const videoContainerRef = useRef(null);
-
+    const [currentNote, setCurrentNote] = useState(null);
+    const [showPDFViewer, setShowPDFViewer] = useState(false);
+    const [notes, setNotes] = useState([]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -303,64 +306,118 @@ const CoursesLiveclass = () => {
     if (loading) return <ContentText>Loading...</ContentText>;
     if (!course) return <ContentText>Course not found.</ContentText>;
 
-    if (activeTab === 'Notes') {
-        // Flatten notes array and include subject name
-        const allNotes = [];
-        (course.subjects || []).forEach(subject => {
-            (subject.notes || []).forEach(note => {
-                allNotes.push({
-                    ...note,
-                    subjectName: subject.subjectName
-                });
+
+
+
+if (activeTab === 'Notes') {
+    const allNotes = [];
+    (course.subjects || []).forEach(subject => {
+        (subject.notes || []).forEach(note => {
+            allNotes.push({
+                ...note,
+                subjectName: subject.subjectName
             });
         });
+    });
 
-        if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
+    if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
 
-        return allNotes.map((note, i) => {
-            return (
-                <ContentText key={i}>
-                    <div className="note-header">
-                        <span className="pdf-title">
-                            {note.noteName || `Note ${i + 1}`}
-                            {note.subjectName && (
-                                <span style={{ 
-                                    fontSize: '0.8em',
-                                    color: '#666',
-                                    marginLeft: '8px'
-                                }}>
-                                    ({note.subjectName})
-                                </span>
-                            )}
-                        </span>
-                        {note.isDownload ? (
-                            <a 
-                                href={note.fileUrl} 
-                                download 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="download-link"
-                            >
-                                <FaDownload />
-                            </a>
-                        ) : (
-                            <span 
-                                style={{
-                                    color: '#999',
-                                    cursor: 'not-allowed',
-                                    marginLeft: '8px'
-                                }}
-                                title="Download not available for this note"
-                            >
-                                <FaDownload />
+    return (
+        <>
+            {allNotes.map((note, i) => {
+                const noteUrl = note.fileUrl.startsWith('http') ? 
+                    note.fileUrl : 
+                    `${process.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
+
+                return (
+                    <ContentText key={i}>
+                        <div className="note-header">
+                            <span className="pdf-title">
+                                <FaFilePdf style={{ marginRight: '8px', color: '#e74c3c' }} />
+                                {note.noteName || `Note ${i + 1}`}
+                                {note.subjectName && (
+                                    <span style={{ 
+                                        fontSize: '0.8em',
+                                        color: '#666',
+                                        marginLeft: '8px'
+                                    }}>
+                                        ({note.subjectName})
+                                    </span>
+                                )}
                             </span>
-                        )}
-                    </div>
-                    <p>{note.noteDisplayName || 'No description available'}</p>
-                </ContentText>
-            );
-        });
-    }
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                    onClick={() => {
+                                        setCurrentNote({
+                                            file: noteUrl,
+                                            name: note.noteName || `Note ${i + 1}`,
+                                            isDownloadable: note.isDownload
+                                        });
+                                        setShowPDFViewer(true);
+                                    }}
+                                    style={{
+                                        background: '#1d72e8',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    View
+                                </button>
+                                {note.isDownload ? (
+                                    <a 
+                                        href={noteUrl} 
+                                        download 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#4CAF50',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '6px 12px',
+                                            borderRadius: '4px',
+                                            textDecoration: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Download
+                                    </a>
+                                ) : (
+                                    <button
+                                        style={{
+                                            background: '#cccccc',
+                                            color: '#666666',
+                                            border: 'none',
+                                            padding: '6px 12px',
+                                            borderRadius: '4px',
+                                            cursor: 'not-allowed'
+                                        }}
+                                        disabled
+                                    >
+                                        Download Disabled
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <p>{note.noteDisplayName || 'No description available'}</p>
+                    </ContentText>
+                );
+            })}
+            {showPDFViewer && currentNote && (
+                <PDFViewer 
+                    file={{
+                        url: currentNote.file,
+                        withCredentials: true
+                    }}
+                    isDownloadable={currentNote.isDownloadable}
+                    onClose={() => setShowPDFViewer(false)}
+                />
+            )}
+        </>
+    );
+}
 
         if (activeTab === 'Overview') {
             // const initialUpdate=async () => {

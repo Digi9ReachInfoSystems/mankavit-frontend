@@ -450,3 +450,66 @@ export const CompletedTag = styled.div`
   font-size: 14px;
   color: white;
 `;
+/* In your ContinueCourse.styles.js */
+export const NotesSection = styled.div`
+  margin: 2rem 0;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  
+  h3 {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+`;
+
+export const NoteItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #f0f7ff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  .note-icon {
+    margin-right: 1rem;
+    font-size: 1.5rem;
+    color: #e74c3c;
+    position: relative;
+    
+    .download-icon {
+      position: absolute;
+      bottom: -5px;
+      right: -5px;
+      font-size: 0.8rem;
+      color: #3498db;
+      background: white;
+      border-radius: 50%;
+      padding: 2px;
+    }
+  }
+  
+  .note-info {
+    flex: 1;
+    
+    h4 {
+      margin: 0;
+      font-size: 1rem;
+      color: #333;
+    }
+    
+    p {
+      margin: 0.25rem 0 0;
+      font-size: 0.8rem;
+      color: #666;
+    }
+  }
+`;

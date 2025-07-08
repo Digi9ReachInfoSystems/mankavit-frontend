@@ -215,3 +215,8 @@ export const SearchIcon = styled.div`
   pointer-events: none;
 
 `;
+export const SearchWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+`;
