@@ -37,7 +37,7 @@ import {
 import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
-import { getAllStudents, studentBulkDelete, deleteStudentById } from "../../../../api/userApi";
+import { getAllStudents, studentBulkDelete, deleteStudentById, studentByCourse } from "../../../../api/userApi";
 import { getAllCourses } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -67,6 +67,8 @@ export default function StudentManagement() {
   const [coursesList, setCoursesList] = useState([]);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState(null);
+  const [selectedCourseId, setSelectedCourseId] = useState("all");
+
 
   // Timestamp helper
   const ts = (item) => {
@@ -83,13 +85,21 @@ export default function StudentManagement() {
   };
 
   // Fetch data
-  const fetchStudentsAndCourses = async () => {
+  const fetchStudentsAndCourses = async (courseId) => {
     setLoading(true);
     try {
-      const [studentsRes, coursesRes] = await Promise.all([getAllStudents(), getAllCourses()]);
-      console.log("STudnet response", studentsRes);
-      const students = studentsRes.data?.students || [];
-      setData(students.sort((a, b) => ts(b) - ts(a)));
+      const [coursesRes] = await Promise.all([getAllCourses()]);
+      if (courseId !== "all") {
+        const response = await studentByCourse(courseId);
+        const students = response.data?.students || [];
+        setData(students.sort((a, b) => ts(b) - ts(a)));
+      } else {
+        const studentsRes = await getAllStudents();
+        console.log("STudnet response", studentsRes);
+        const students = studentsRes.data?.students || [];
+        setData(students.sort((a, b) => ts(b) - ts(a)));
+      }
+
       const map = {};
       (coursesRes.data || []).forEach(c => { map[c._id] = c.courseName; });
       setCoursesMap(map);
@@ -102,6 +112,7 @@ export default function StudentManagement() {
   };
 
   useEffect(() => { fetchStudentsAndCourses(); }, []);
+  useEffect(() => { fetchStudentsAndCourses(selectedCourseId); }, [selectedCourseId]);
 
   // Sorting
   const requestSort = (key) => {
@@ -221,7 +232,18 @@ export default function StudentManagement() {
       <Container>
         <HeaderRow>
           <Title>See all students <span>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
-          <SortByContainer>
+
+          <SortByContainer >
+            <SortByContainer style={{ marginLeft: "1rem" }}>
+              <SortLabel>Filter by Course:</SortLabel>
+              <SortSelect value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)}>
+                <option value="all">All</option>
+                {Object.entries(coursesMap).map(([id, name]) => (
+                  <option key={id} value={id}>{name}</option>
+                ))}
+              </SortSelect>
+            </SortByContainer>
+
             <SortLabel>Sort by:</SortLabel>
             <SortSelect value={sortConfig.key} onChange={e => requestSort(e.target.value)}>
               <option value="signedUpAt">Latest</option>
@@ -229,7 +251,11 @@ export default function StudentManagement() {
               <option value="kyc_status">KYC Status</option>
             </SortSelect>
           </SortByContainer>
+
+
+
         </HeaderRow>
+
 
         <SearchWrapper>
           <SearchIcon><CiSearch size={18} /></SearchIcon>
@@ -265,7 +291,7 @@ export default function StudentManagement() {
                       <TableCell style={{ cursor: 'pointer', color: '#007bff' }} onClick={() => navigate(`/admin/student-management/edit/${item._id}`)}>
                         {item.displayName || 'N/A'}
                       </TableCell>
-                      <TableCell>{item.phone}<br />{item.email.length > 23 ? item.email.slice(0,20)+'...' : item.email}</TableCell>
+                      <TableCell>{item.phone}<br />{item.email.length > 23 ? item.email.slice(0, 20) + '...' : item.email}</TableCell>
                       <TableCell>
                         {item.subscription?.length || 0}{' '}
                         {item.subscription?.length > 0 && (<span style={{ cursor: 'pointer', color: '#007bff' }} onClick={() => handleViewCourses(item.subscription)}>View</span>)}
@@ -302,11 +328,11 @@ export default function StudentManagement() {
       {coursesModalOpen && (
         <ModalOverlay>
           <ModalContent>
-            <h2 style={{textAlign:'center', fontSize:'1.5rem',marginTop:'1rem'}}>Enrolled Courses</h2>
+            <h2 style={{ textAlign: 'center', fontSize: '1.5rem', marginTop: '1rem' }}>Enrolled Courses</h2>
             {coursesList.length === 0 ? <p>No courses enrolled.</p> : (
-              <CourseList>{coursesList.map((c,i)=>(<CourseItem key={i}><strong>{c.courseName}</strong><div>Enrolled: {c.enrolledDate}</div></CourseItem>))}</CourseList>
+              <CourseList>{coursesList.map((c, i) => (<CourseItem key={i}><strong>{c.courseName}</strong><div>Enrolled: {c.enrolledDate}</div></CourseItem>))}</CourseList>
             )}
-            <CloseButtonContainer><CloseButton onClick={()=>setCoursesModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
+            <CloseButtonContainer><CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
           </ModalContent>
         </ModalOverlay>
       )}
@@ -315,7 +341,7 @@ export default function StudentManagement() {
       {paymentModalOpen && paymentDetails && (
         <ModalOverlay>
           <ModalContent>
-            <h2  style={{textAlign:'center', fontSize:'1.5rem',marginTop:'1rem'}}>Payment Details</h2>
+            <h2 style={{ textAlign: 'center', fontSize: '1.5rem', marginTop: '1rem' }}>Payment Details</h2>
             <PaymentDetailsList>
               <PaymentDetailItem><strong>Status:</strong> <PaymentStatus status={paymentDetails.status}>{paymentDetails.status}</PaymentStatus></PaymentDetailItem>
               <PaymentDetailItem><strong>Payment ID:</strong> {paymentDetails.razorpay_payment_id}</PaymentDetailItem>
@@ -325,7 +351,7 @@ export default function StudentManagement() {
               <PaymentDetailItem><strong>Txn ID:</strong> {paymentDetails.transactionId}</PaymentDetailItem>
               <PaymentDetailItem><strong>Date:</strong> {paymentDetails.paymentDate}</PaymentDetailItem>
             </PaymentDetailsList>
-            <CloseButtonContainer><CloseButton onClick={()=>setPaymentModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
+            <CloseButtonContainer><CloseButton onClick={() => setPaymentModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
           </ModalContent>
         </ModalOverlay>
       )}
