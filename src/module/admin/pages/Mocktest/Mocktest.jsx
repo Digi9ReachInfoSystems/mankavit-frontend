@@ -1,4 +1,3 @@
-// MockTestsTable.jsx
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -15,13 +14,11 @@ import {
   TableRow,
   TableCell,
   ActionsContainer,
-  ButtonContainer,
   SearchWrapper,
   SearchIcon,
   SearchInput,
-  CreateButton,
   ToggleSwitch,
-  ToggleSlider,
+  ToggleSlider ,
   ToggleLabel
 } from "./Mocktest.styles";
 import { BiEditAlt } from "react-icons/bi";
@@ -40,163 +37,128 @@ import "react-toastify/dist/ReactToastify.css";
 
 const ITEMS_PER_PAGE = 10;
 
+// helper to sort by creation/update timestamp
+const ts = (item) =>
+  item.createdAt        ? new Date(item.createdAt).getTime()
+: item.updatedAt        ? new Date(item.updatedAt).getTime()
+: item.id?.length >= 8  ? parseInt(item.id.substring(0, 8), 16) * 1000
+: 0;
+
 export default function MockTestsTable() {
   const navigate = useNavigate();
 
-  // --- state
+  // state
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
 
+  // DeleteModal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedToDelete, setSelectedToDelete] = useState(null);
 
+  // View modal state
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
 
-  const ts = (item) =>
-  item.createdAt        ? new Date(item.createdAt).getTime()
-: item.updatedAt        ? new Date(item.updatedAt).getTime()
-: item.id?.length >= 8  ? parseInt(item.id.substring(0, 8), 16) * 1000 // fallback: ObjectId time
-: 0;
-
+  // fetch & sort
   useEffect(() => {
     fetchMockTests();
   }, []);
 
-
- const fetchMockTests = async () => {
-  try {
+  const fetchMockTests = async () => {
     setLoading(true);
     setError(null);
+    try {
+      const res = await getAllMocktest();
+      if (!res.success) throw new Error("Failed to load mock tests");
+      const rows = res.data
+        .map(test => ({
+          id            : test._id,
+          mockTitle     : test.title,
+          createdOn     : new Date(test.createdAt).toLocaleString(),
+          updatedOn     : new Date(test.updatedAt).toLocaleString(),
+          isPublished   : test.isPublished || false,
+          createdAtRaw  : test.createdAt,
+          subjectId     : test.subject?._id,
+          students      : test.students || [],
+          questionTypes : Array.isArray(test.questions)
+                            ? [...new Set(test.questions.map(q => q.type))].join(", ")
+                            : "—",
+          totalMarks    : test.totalMarks
+        }))
+        .sort((a, b) => ts(b) - ts(a));
+      setData(rows);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Unknown error");
+      toast.error(err.message || "Failed to load mock tests");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const res = await getAllMocktest();
-    if (!res.success) throw new Error("Failed to load mock tests");
-
-    /** build row objects, then sort newest-first */
-    const rows = res.data
-      .map((test) => ({
-        id          : test._id,
-        mockTitle   : test.title,
-        students    : test.students || [],
-        subjectName : test.subject?.subjectDisplayName ||
-                      test.subject?.subjectName ||
-                      "—",
-        subjectId   : test.subject?._id || null,
-        questionTypes: Array.isArray(test.questions)
-          ? [...new Set(test.questions.map((q) => q.type))].join(", ")
-          : "—",
-        totalMarks  : test.totalMarks,
-        createdOn   : new Date(test.createdAt).toLocaleString(),
-        lastModified: new Date(test.updatedAt).toLocaleString(),
-        isPublished : test.isPublished || false,
-        createdAt   : test.createdAt,          // keep raw date for sort
-      }))
-      .sort((a, b) => ts(b) - ts(a));           // ← NEWEST FIRST
-
-    setData(rows);
-  } catch (err) {
-    console.error(err);
-    setError(err.message || "Unknown error");
-    toast.error(err.message || "Failed to load mock tests");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // --- filters & pagination
-  const filtered = data.filter((item) =>
-    item.mockTitle.toLowerCase().includes(searchText.toLowerCase())
-  );
-  const totalEntries = filtered.length;
-  const totalPages = Math.ceil(totalEntries / ITEMS_PER_PAGE);
-  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pageItems = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
-
-  // --- handlers
+  // handle delete click -> open modal
   const handleDeleteClick = (id) => {
     setSelectedToDelete(id);
     setDeleteModalOpen(true);
   };
 
+  // confirm delete from DeleteModal
   const confirmDelete = async () => {
     try {
       await deleteMocktestById(selectedToDelete);
-      // setData((d) => d.filter((row) => row.id !== selectedToDelete));
-      // // adjust page if needed
-      // if ((filtered.length - 1) <= startIdx && currentPage > 1) {
-      //   setCurrentPage(currentPage - 1);
-      // }
-      await fetchMockTests();
       toast.success("Mock test deleted successfully");
-    } catch (error) {
-      console.error("Delete failed:", error);
-      setError("Failed to delete mock test");
+      await fetchMockTests();
+    } catch (err) {
+      console.error("Delete failed:", err);
       toast.error("Failed to delete mock test");
     } finally {
       setDeleteModalOpen(false);
       setSelectedToDelete(null);
     }
   };
-  const handleViewResults = (mockTestId, subjectId) => {
-    if (!subjectId) {
-      toast.error("Subject ID is missing");
-      return;
-    }
-    navigate(`/admin/mock-test/user-result/${mockTestId}/${subjectId}`);
-  };
 
-
+  // handle publish toggle unchanged...
   const handlePublishToggle = async (id, currentStatus) => {
     const newStatus = !currentStatus;
-
-    // Optimistic update
     setData(data.map(item =>
       item.id === id ? { ...item, isPublished: newStatus } : item
     ));
-
     try {
       const response = await publishMocktestById(id, newStatus);
-      console.log("Publish toggle response:", response);
-
-      if (!response.success) {
-        // Revert on failure
-        setData(data.map(item =>
-          item.id === id ? { ...item, isPublished: currentStatus } : item
-        ));
-        setError("Failed to update publish status");
-      }
+      if (!response.success) throw new Error("Publish update failed");
     } catch (error) {
-      // Revert on error
+      // revert
       setData(data.map(item =>
         item.id === id ? { ...item, isPublished: currentStatus } : item
       ));
       console.error("Publish toggle failed:", error);
-      setError("Failed to update publish status");
+      toast.error("Failed to update publish status");
     }
   };
 
+  // handle view enrolled
   const handleView = (students) => {
     setViewData(students);
     setViewModalOpen(true);
   };
 
-  // const goToCreate = () => navigate("/admin/mock-test/create-mock-test");
-  const goToViewDetail = (id) => navigate(`/admin/mock-test/view/${id}`);
+  // filters & pagination
+  const filtered = data.filter(item =>
+    item.mockTitle.toLowerCase().includes(searchText.toLowerCase())
+  );
+  const totalEntries = filtered.length;
+  const totalPages   = Math.ceil(totalEntries / ITEMS_PER_PAGE);
+  const startIdx     = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems    = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   if (loading) return <div>Loading mock tests…</div>;
-  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+  if (error)   return <div style={{ color: "red" }}>Error: {error}</div>;
 
   return (
     <>
-      {/* <ButtonContainer>
-        <CreateButton onClick={goToCreate}>Results</CreateButton>
-        <CreateButton onClick={goToCreate}>Create Mock Test</CreateButton>
-      </ButtonContainer> */}
-
       <Container>
         <HeaderRow>
           <Title>
@@ -204,7 +166,7 @@ export default function MockTestsTable() {
           </Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value="Name" onChange={() => { }}>
+            <SortSelect value="Name" onChange={() => {}}>
               <option value="Name">Name</option>
               <option value="LastActive">Last Active</option>
               <option value="Active">Active</option>
@@ -217,7 +179,7 @@ export default function MockTestsTable() {
           <SearchInput
             placeholder="Search"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={e => setSearchText(e.target.value)}
           />
         </SearchWrapper>
 
@@ -226,21 +188,19 @@ export default function MockTestsTable() {
             <TableHead>
               <TableRow>
                 <TableHeader>Mock Test Name</TableHeader>
-                {/* <TableHeader>Subject</TableHeader> */}
                 <TableHeader>Created on</TableHeader>
                 <TableHeader>Question type</TableHeader>
                 <TableHeader>Total marks</TableHeader>
                 <TableHeader>Published</TableHeader>
                 <TableHeader>Actions</TableHeader>
                 <TableHeader>View Submission</TableHeader>
-                {/* <TableHeader>View Ranking</TableHeader> */}
+                <TableHeader>View Ranking</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {pageItems.map((item) => (
+              {pageItems.map(item => (
                 <TableRow key={item.id}>
                   <TableCell>{item.mockTitle}</TableCell>
-                  {/* <TableCell>{item.subjectName}</TableCell> */}
                   <TableCell>{item.createdOn}</TableCell>
                   <TableCell>{item.questionTypes}</TableCell>
                   <TableCell>{item.totalMarks}</TableCell>
@@ -262,7 +222,7 @@ export default function MockTestsTable() {
                       <IoEyeOutline
                         title="View Details"
                         size={20}
-                        onClick={() => goToViewDetail(item.id)}
+                        onClick={() => navigate(`/admin/mock-test/view/${item.id}`)}
                       />
                       <BiEditAlt
                         title="Edit"
@@ -277,33 +237,24 @@ export default function MockTestsTable() {
                       />
                     </ActionsContainer>
                   </TableCell>
-                  <TableCell style={{textAlign:"center!important"}}>
+                  <TableCell style={{ textAlign: "center" }}>
                     <button
-                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" ,textAlign:"center", cursor:"pointer" }}
-                      onClick={() => handleViewResults(item.id, item.subjectId)}
+                      style={{ border: "none", background: "none", cursor: item.subjectId ? "pointer" : "not-allowed" }}
+                      onClick={() => item.subjectId && handleView(item.students)}
                       disabled={!item.subjectId}
                     >
-                      <IoEyeOutline
-                        title="View Details"
-                        size={20}
-                        onClick={() => goToViewDetail(item.id)}
-                      />
-
+                      <IoEyeOutline size={20} />
                     </button>
                   </TableCell>
-                  {/* <TableCell>
+                  <TableCell>
                     <button
-                      style={{ display: item.subjectId ? "block" : "none", border: "none", background: "none" }}
-                      onClick={() => { navigate(`/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`) }}
+                      style={{ border: "none", background: "none", cursor: item.subjectId ? "pointer" : "not-allowed" }}
+                      onClick={() => item.subjectId && navigate(`/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`)}
                       disabled={!item.subjectId}
                     >
-                      <IoEyeOutline
-                        title="View Details"
-                        size={20}
-                        onClick={() => goToViewDetail(item.id)}
-                      />
+                      <IoEyeOutline size={20} />
                     </button>
-                  </TableCell> */}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -318,22 +269,6 @@ export default function MockTestsTable() {
           itemsPerPage={ITEMS_PER_PAGE}
         />
 
-        <DeleteModal
-          isOpen={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          onDelete={confirmDelete}
-        />
-
-        {viewModalOpen && (
-          <CustomModal
-            title="Enrolled Students"
-            type="enrolled"
-            data={viewData}
-            onClose={() => setViewModalOpen(false)}
-          />
-        )}
-
-        {/* Toast Container for react-toastify */}
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -346,6 +281,23 @@ export default function MockTestsTable() {
           theme="colored"
         />
       </Container>
+
+      {/* DeleteModal for single deletion */}
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={confirmDelete}
+      />
+
+      {/* View enrolled students modal */}
+      {viewModalOpen && (
+        <CustomModal
+          title="Enrolled Students"
+          type="enrolled"
+          data={viewData}
+          onClose={() => setViewModalOpen(false)}
+        />
+      )}
     </>
   );
 }

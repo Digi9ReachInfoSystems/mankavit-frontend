@@ -1,4 +1,10 @@
+// src/components/Payment/Payment.jsx
 import React, { useEffect, useState } from "react";
+// instead of `import jsPDF from "jspdf";`
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+
 import {
   Container,
   HeaderRow,
@@ -15,15 +21,15 @@ import {
   TableCell,
   StatusCell,
   StatusWrapper,
-  SearchIcon,
-  PaymentstatusDot
+  PaymentstatusDot,
 } from "../Payment/Payment.style";
-import Pagination from "../../component/Pagination/Pagination";
+import Pagination from "../../component/Pagination/Pagination"; 
 import { getAllPayments, getPaymentByCourseId } from "../../../../api/paymentApi";
+import { getAllCourses } from "../../../../api/courseApi";
 import styled from "styled-components";
 import { SearchWrapper } from "../StudentManagement/StudentManagement.style";
 import { CiSearch } from "react-icons/ci";
-import { getAllCourses } from "../../../../api/courseApi";
+
 const ITEMS_PER_PAGE = 10;
 
 // Status color mapping
@@ -43,6 +49,18 @@ const SearchInput = styled.input`
   font-size: 14px;
 `;
 
+// Styled export button
+const ExportButton = styled.button`
+  padding: 6px 12px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 16px;
+  &:hover { background: #1976D2; }
+`;
+
 export default function Payment() {
   const [currentPage, setCurrentPage] = useState(1);
   const [payments, setPayments] = useState([]);
@@ -53,68 +71,83 @@ export default function Payment() {
   const [sortBy, setSortBy] = useState("Time");
   const [coursesMap, setCoursesMap] = useState({});
   const [selectedCourseId, setSelectedCourseId] = useState("all");
+
+  // Fetch payments + courses on mount
   useEffect(() => {
-    const fetchPayments = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getAllPayments();
-        // console.log("API Response:", response);
-        const coursesRes = await getAllCourses();
+        const [paymentsRes, coursesRes] = await Promise.all([
+          getAllPayments(),
+          getAllCourses(),
+        ]);
+        // build course map
         const map = {};
-        (coursesRes.data || []).forEach(c => { map[c._id] = c.courseName; });
+        (coursesRes.data || []).forEach(c => {
+          map[c._id] = c.courseName;
+        });
         setCoursesMap(map);
-        if (response && response.success && response.payments) {
-          setPayments(response.payments);
-          setFilteredPayments(response.payments);
+
+        if (paymentsRes?.success && paymentsRes.payments) {
+          setPayments(paymentsRes.payments);
+          setFilteredPayments(paymentsRes.payments);
         } else {
           setError("No payment data received from server");
         }
       } catch (err) {
-        console.error("Error fetching payments:", err);
-        setError(err.message || "Failed to fetch payments");
+        console.error("Error fetching payments or courses:", err);
+        setError(err.message || "Failed to fetch data");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchPayments();
+    fetchData();
   }, []);
 
+  // Refetch when course filter changes
   useEffect(() => {
-     const apiCaller = async () => {
-       if(selectedCourseId !== "all") {
-         const reponse= await getPaymentByCourseId(selectedCourseId);
-         setPayments(reponse.payments);
-         setFilteredPayments(reponse.payments);
-       }else{
-         const response = await getAllPayments();
-         console.log("API Response:", response);
-          setPayments(response.payments);
-          setFilteredPayments(response.payments);
-       }
-     }
-     apiCaller();
-   }, [selectedCourseId]);
+    const fetchByCourse = async () => {
+      setLoading(true);
+      try {
+        if (selectedCourseId !== "all") {
+          const res = await getPaymentByCourseId(selectedCourseId);
+          setPayments(res.payments);
+          setFilteredPayments(res.payments);
+        } else {
+          const res = await getAllPayments();
+          setPayments(res.payments);
+          setFilteredPayments(res.payments);
+        }
+      } catch (err) {
+        console.error("Error fetching by course:", err);
+        setError(err.message || "Failed to fetch by course");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchByCourse();
+  }, [selectedCourseId]);
 
-
-  // Filter and sort data
+  // Search + sort effect
   useEffect(() => {
     let data = [...payments];
 
-    // Search filter
     if (searchQuery) {
-      data = data.filter((item) => {
+      data = data.filter(item => {
         const student = getNestedValue(item, 'userRef.displayName').toLowerCase();
-        const course = getNestedValue(item, 'courseRef.courseName').toLowerCase();
-        return student.includes(searchQuery.toLowerCase()) || course.includes(searchQuery.toLowerCase());
+        const course  = getNestedValue(item, 'courseRef.courseName').toLowerCase();
+        return (
+          student.includes(searchQuery.toLowerCase()) ||
+          course.includes(searchQuery.toLowerCase())
+        );
       });
     }
 
-    // Sort
     switch (sortBy) {
       case "Student":
         data.sort((a, b) =>
-          getNestedValue(a, 'userRef.displayName').localeCompare(getNestedValue(b, 'userRef.displayName'))
+          getNestedValue(a, 'userRef.displayName')
+            .localeCompare(getNestedValue(b, 'userRef.displayName'))
         );
         break;
       case "AmountLow":
@@ -124,89 +157,124 @@ export default function Payment() {
         data.sort((a, b) => b.amountPaid - a.amountPaid);
         break;
       default:
-        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     setFilteredPayments(data);
-    setCurrentPage(1); // Reset to first page on filter/sort change
+    setCurrentPage(1);
   }, [searchQuery, sortBy, payments]);
 
-  const TOTAL_ENTRIES = filteredPayments.length;
-  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  const currentItems = filteredPayments.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-  const formatDate = (isoString) => {
-    if (!isoString) return "N/A";
-    const date = new Date(isoString);
-    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+  // Helpers
+  const formatDate = iso => {
+    const d = new Date(iso);
+    return isNaN(d) ? "Invalid Date" : d.toLocaleString("en-GB");
   };
+  const getNestedValue = (obj, path, def = "N/A") =>
+    path.split(".").reduce((o, k) => (o || {})[k], obj) ?? def;
+  const getStatusColor = status =>
+    STATUS_COLORS[status?.toLowerCase()] || STATUS_COLORS.default;
 
-  const getNestedValue = (obj, path, defaultValue = "N/A") => {
-    const keys = path.split(".");
-    let result = obj;
-    for (const key of keys) {
-      if (!result || typeof result !== "object") return defaultValue;
-      result = result[key];
-    }
-    return result ?? defaultValue;
-  };
+  // PDF export of ALL filteredPayments
+  const exportPDF = () => {
+  const doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.text("All Payments", 14, 22);
 
-  const getStatusColor = (status) => {
-    return STATUS_COLORS[status?.toLowerCase()] || STATUS_COLORS.default;
-  };
+  const columns = [
+    "Course",
+    "Student",
+    "Payment ID",
+    "Amount",
+    "Date",
+    "Mode",
+    "Status",
+  ];
+
+  const rows = filteredPayments.map(item => [
+    getNestedValue(item, 'courseRef.courseName'),
+    getNestedValue(item, 'userRef.displayName'),
+    item.transactionId || item.razorpay_payment_id || "N/A",
+    `₹${item.amountPaid ?? "N/A"}`,
+    formatDate(item.createdAt),
+    item.paymentType || "N/A",
+    item.status,
+  ]);
+
+  // <— note: calling the imported function directly
+  autoTable(doc, {
+    head: [columns],
+    body: rows,
+    startY: 30,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [33, 150, 243] },
+  });
+
+  doc.save("payments.pdf");
+};
+
 
   if (loading) return <Container>Loading payments...</Container>;
-  if (error) return <Container>Error: {error}</Container>;
-  if (payments.length === 0) return <Container>No payment data available</Container>;
+  if (error)   return <Container>Error: {error}</Container>;
+  if (!payments.length) return <Container>No payment data available</Container>;
+
+  const TOTAL_ENTRIES = filteredPayments.length;
+  const totalPages    = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+  const currentItems  = filteredPayments.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <Container>
-      {/* Header with Search and Sort */}
       <HeaderRow style={{ justifyContent: "space-between", alignItems: "center" }}>
-
-
         <Title>
           All Payments{" "}
-          <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+          <span style={{ color: "#6d6e75", fontSize: 12, fontWeight: 400 }}>
             ({currentItems.length}/{TOTAL_ENTRIES})
           </span>
         </Title>
-        <SortByContainer>
-          <SortByContainer style={{ marginLeft: "1rem" }}>
+
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <SortByContainer>
             <SortLabel>Filter by Course:</SortLabel>
-            <SortSelect value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)}>
+            <SortSelect
+              value={selectedCourseId}
+              onChange={e => setSelectedCourseId(e.target.value)}
+            >
               <option value="all">All</option>
               {Object.entries(coursesMap).map(([id, name]) => (
                 <option key={id} value={id}>{name}</option>
               ))}
             </SortSelect>
           </SortByContainer>
-          <SortByContainer>
+
+          <SortByContainer style={{ marginLeft: 16 }}>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <SortSelect value={sortBy} onChange={e => setSortBy(e.target.value)}>
               <option value="Time">Time (Latest)</option>
               <option value="Student">Student Name</option>
               <option value="AmountLow">Amount (Low → High)</option>
               <option value="AmountHigh">Amount (High → Low)</option>
             </SortSelect>
           </SortByContainer>
-        </SortByContainer>
 
+          <ExportButton onClick={exportPDF}>
+            Export PDF
+          </ExportButton>
+        </div>
       </HeaderRow>
+
       <SearchWrapper>
-        {/* <SearchIcon>
-                   <CiSearch size={18} />
-                 </SearchIcon> */}
+        <CiSearch size={18} style={{ marginRight: 8 }} />
         <SearchInput
           type="text"
-          placeholder="Search by student name or course name"
+          placeholder="Search by student or course"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           style={{ width: "20%" }}
         />
       </SearchWrapper>
 
-      {/* Table */}
       <TableWrapper>
         <StyledTable>
           <TableHead>
@@ -220,20 +288,21 @@ export default function Payment() {
               <TableHeader>Status</TableHeader>
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {currentItems.map((item) => {
-              const statusColor = getStatusColor(item.status);
+            {currentItems.map(item => {
+              const color = getStatusColor(item.status);
               return (
                 <TableRow key={item._id}>
-                  <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell>
-                  <TableCell>{getNestedValue(item, 'userRef.displayName')}</TableCell>
+                  <TableCell>{getNestedValue(item,'courseRef.courseName')}</TableCell>
+                  <TableCell>{getNestedValue(item,'userRef.displayName')}</TableCell>
                   <TableCell>{item.transactionId || item.razorpay_payment_id || "N/A"}</TableCell>
                   <TableCell>₹{item.amountPaid ?? "N/A"}</TableCell>
                   <TableCell>{formatDate(item.createdAt)}</TableCell>
                   <TableCell>{item.paymentType || "N/A"}</TableCell>
                   <StatusCell>
-                    <StatusWrapper style={{ color: statusColor }}>
-                      <PaymentstatusDot status={item.status} style={{ backgroundColor: statusColor }} />
+                    <StatusWrapper style={{ color }}>
+                      <PaymentstatusDot status={item.status} style={{ backgroundColor: color }} />
                       {item.status}
                     </StatusWrapper>
                   </StatusCell>
@@ -244,7 +313,6 @@ export default function Payment() {
         </StyledTable>
       </TableWrapper>
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
