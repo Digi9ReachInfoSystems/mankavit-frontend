@@ -142,14 +142,14 @@ import PublicRoute from './pages/ProtectedAndPublicRoutes/PublicRoute'
 import UserRoute from './pages/ProtectedAndPublicRoutes/UserRoutes'
 import NotFound from './pages/NotFound/NotFound'
 import UserViewAttempResult from './module/user/component/UserViewAttempResult/UserViewAttempResult'
-import ScreenShot from './component/ScreenShot/ScreenShot'
+// import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
-         <ScreenShot />
+         {/* <ScreenShot /> */}
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />

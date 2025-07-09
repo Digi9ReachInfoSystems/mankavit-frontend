@@ -201,3 +201,9 @@ export const CheckboxInput = styled.input`
   cursor: pointer;
   background-color: ${(props) => props.theme.colors.black};
 `;
+
+export const PreviewMedia = styled.img`
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 1rem;
+`;
