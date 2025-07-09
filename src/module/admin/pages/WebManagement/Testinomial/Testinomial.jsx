@@ -26,23 +26,25 @@ import { useNavigate } from "react-router-dom";
 import {
   getAlltestimonials,
   deleteTestimonalById,
-} from "../../../../../api/testimonialApi"; // Update path as needed
-import { format } from 'date-fns'; // Import date-fns for formatting
+} from "../../../../../api/testimonialApi";
+import { format } from 'date-fns';
 import { IoEyeOutline } from "react-icons/io5";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 const ITEMS_PER_PAGE = 10;
 
 const Testimonial = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
-  const [Modal, setModal] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+
+  // NEW: media modal state
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [mediaType, setMediaType] = useState(''); // 'image' or 'video'
 
   const navigate = useNavigate();
 
@@ -50,45 +52,35 @@ const Testimonial = () => {
     fetchTestimonials();
   }, []);
 
-const fetchTestimonials = async () => {
-  try {
-    const res = await getAlltestimonials();
-
-    // Sort by createdAt, updatedAt, or _id (as fallback)
-    const sorted = res.sort((a, b) =>
-      new Date(b.createdAt || b.updatedAt || b._id) -
-      new Date(a.createdAt || a.updatedAt || a._id)
-    );
-
-    setData(sorted);
-  } catch (err) {
-    console.error("Failed to fetch testimonials", err);
-    toast.error("Failed to fetch testimonials");
-  }
-};
-
+  const fetchTestimonials = async () => {
+    try {
+      const res = await getAlltestimonials();
+      const sorted = res.sort((a, b) =>
+        new Date(b.createdAt || b.updatedAt || b._id) -
+        new Date(a.createdAt || a.updatedAt || a._id)
+      );
+      setData(sorted);
+    } catch (err) {
+      console.error("Failed to fetch testimonials", err);
+      toast.error("Failed to fetch testimonials");
+    }
+  };
 
   const handleDelete = (id) => {
     setDeleteId(id);
-    setModal(true);
+    setDeleteModalOpen(true);
   };
 
-  const handleClickDelete = async () => {
+  const handleConfirmDelete = async () => {
     try {
       await deleteTestimonalById(deleteId);
-      const updatedData = data.filter((item) => item._id !== deleteId);
-      const newTotalPages = Math.ceil(updatedData.length / ITEMS_PER_PAGE);
-      const newCurrentPage =
-        currentPage > newTotalPages ? newTotalPages : currentPage;
-      setData(updatedData);
-      setCurrentPage(newCurrentPage);
+      setData(d => d.filter(item => item._id !== deleteId));
       toast.success("Testimonial deleted successfully");
-
     } catch (error) {
       console.error("Failed to delete testimonial", error);
       toast.error("Failed to delete testimonial");
     } finally {
-      setModal(false);
+      setDeleteModalOpen(false);
       setDeleteId(null);
     }
   };
@@ -112,48 +104,63 @@ const fetchTestimonials = async () => {
       <BtnTitle>
         <AddTestButton onClick={handleAddButton}>Add Testimonial</AddTestButton>
       </BtnTitle>
+
       <Container>
         <Title>Testimonial</Title>
-
         <TableWrapper>
           <Table>
             <TableHead>
               <tr>
-                {/* <TableHeader>Details</TableHeader> */}
-                  <TableHeader>Student</TableHeader>
+                <TableHeader>Student</TableHeader>
                 <TableHeader>Testimonial</TableHeader>
-              <TableHeader>Rank</TableHeader>
-                <TableHeader>View Image/Video</TableHeader>
+                <TableHeader>Rank</TableHeader>
+                <TableHeader>Media</TableHeader>
                 <TableHeader>Date Updated</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </tr>
             </TableHead>
             <tbody>
-              {currentItems.map((item, index) => (
-                <TableRow key={item._id || index}>
-                  {/* <TableCell>{item.rank}</TableCell> */}
-                       <TableCell>{item.name}</TableCell>
+              {currentItems.map((item) => (
+                <TableRow key={item._id}>
+                  <TableCell>{item.name}</TableCell>
                   <TableCelldiscription>{item.description}</TableCelldiscription>
-             <TableCell>{item.rank}</TableCell>
+                  <TableCell>{item.rank}</TableCell>
+
+                  {/* MEDIA CELL */}
                   <TableCell>
                     {item.testimonial_image ? (
                       <span
                         onClick={() => {
-                          setSelectedImage(item.testimonial_image);
-                          setImageModalOpen(true);
+                          setSelectedMedia(item.testimonial_image);
+                          setMediaType('image');
+                          setMediaModalOpen(true);
                         }}
                         style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
                       >
                         View Image
                       </span>
+                    ) : item.testimonial_video ? (
+                      <span
+                        onClick={() => {
+                          setSelectedMedia(item.testimonial_video);
+                          setMediaType('video');
+                          setMediaModalOpen(true);
+                        }}
+                        style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
+                      >
+                        View Video
+                      </span>
                     ) : (
-                      "No Image"
+                      "No Media"
                     )}
                   </TableCell>
-                  {/* Display the date if item.updatedAt exists */}
+
                   <TableCell>
-                    {item.updatedAt ? format(new Date(item.updatedAt), 'yyyy-MM-dd HH:mm:ss') : '—'}
+                    {item.updatedAt
+                      ? format(new Date(item.updatedAt), 'yyyy-MM-dd HH:mm:ss')
+                      : '—'}
                   </TableCell>
+
                   <TableCell>
                     <ActionsWrapper>
                       <IoEyeOutline
@@ -161,23 +168,20 @@ const fetchTestimonials = async () => {
                         color="#000"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleViewClick(item._id)}
-
                       />
                       <BiEditAlt
                         size={20}
                         color="#000"
                         style={{ cursor: "pointer" }}
                         onClick={() =>
-                          navigate(
-                            `/admin/web-management/testinomial/edit/${item._id}`
-                          )
+                          navigate(`/admin/web-management/testinomial/edit/${item._id}`)
                         }
                       />
                       <RiDeleteBin6Line
                         size={20}
                         color="#FB4F4F"
-                        onClick={() => handleDelete(item._id)}
                         style={{ cursor: "pointer" }}
+                        onClick={() => handleDelete(item._id)}
                       />
                     </ActionsWrapper>
                   </TableCell>
@@ -196,48 +200,57 @@ const fetchTestimonials = async () => {
         />
       </Container>
 
-      {Modal && (
+      {/* DELETE CONFIRMATION */}
+      {deleteModalOpen && (
         <DeleteModal
-          isOpen={Modal}
-          onClose={() => setModal(false)}
-          onDelete={handleClickDelete}
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onDelete={handleConfirmDelete}
         />
       )}
 
-      {imageModalOpen && selectedImage && (
+      {/* MEDIA MODAL */}
+      {mediaModalOpen && selectedMedia && (
         <ModalOverlay
           onClick={() => {
-            setImageModalOpen(false);
-            setSelectedImage(null);
+            setMediaModalOpen(false);
+            setSelectedMedia(null);
           }}
         >
-          <ModalContent onClick={(e) => e.stopPropagation()}>
+          <ModalContent onClick={e => e.stopPropagation()}>
             <CloseIcon
               onClick={() => {
-                setImageModalOpen(false);
-                setSelectedImage(null);
+                setMediaModalOpen(false);
+                setSelectedMedia(null);
               }}
             >
               &times;
             </CloseIcon>
-            <ModalImage src={selectedImage} alt="Achiever" />
+
+            {mediaType === 'image' ? (
+              <ModalImage src={selectedMedia} alt="Testimonial" />
+            ) : (
+              <video controls style={{ maxWidth: '100%', maxHeight: '80vh' }}>
+                <source src={selectedMedia} type="video/mp4" />
+                Your browser does not support HTML5 video.
+              </video>
+            )}
           </ModalContent>
         </ModalOverlay>
       )}
 
-      
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 };

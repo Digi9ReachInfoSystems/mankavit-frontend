@@ -204,3 +204,32 @@ export const CheckboxInput = styled.input`
   cursor: pointer;
   background-color: ${(props) => props.theme.colors.black};
 `;
+
+export const PreviewMedia = styled.img`
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 1rem;
+`;
+
+export const RadioGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(1)};
+  overflow-y: auto;
+  max-height: 120px;
+`;
+
+export const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing(1)};
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.black};
+`;
+
+export const RadioInput = styled.input`
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  background-color: ${(props) => props.theme.colors.black};
+`;
