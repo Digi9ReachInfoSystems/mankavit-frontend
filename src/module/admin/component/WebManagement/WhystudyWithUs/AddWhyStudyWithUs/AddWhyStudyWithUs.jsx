@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -21,6 +21,7 @@ import { createWhy } from '../../../../../../api/whyApi';
 
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from '../../../../../../utils/authService';
 
 const AddWhyStudyWithUs = () => {
   const navigate = useNavigate();
@@ -37,6 +38,34 @@ const AddWhyStudyWithUs = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+          if (response.Permissions["webManagement"].readOnly) {
+            toast.error('You do not have permission to add why study with us.', {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              onClose: () => {
+                navigate('/admin/');
+              }
+            });
+          }
+        }
+      }
+      apiCaller();
+    }, []);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];

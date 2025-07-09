@@ -28,6 +28,7 @@ import Pagination from "../../../component/Pagination/Pagination";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from "../../../../../utils/authService";
 
 
 const FAQ = () => {
@@ -45,6 +46,19 @@ const FAQ = () => {
   const totalPages = Math.ceil(faqs.length / faqsPerPage);
   const startIndex = (currentPage - 1) * faqsPerPage;
   const currentFaqs = faqs.slice(startIndex, startIndex + faqsPerPage);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
 
   useEffect(() => {
@@ -56,20 +70,20 @@ const FAQ = () => {
 
         // ✅ Use `data` directly instead of `data.body`
         if (Array.isArray(data)) {
-  const sortedFaqs = data.sort((a, b) => {
-    const dateA = new Date(a.createdAt || parseInt(a._id?.substring(0, 8), 16) * 1000);
-    const dateB = new Date(b.createdAt || parseInt(b._id?.substring(0, 8), 16) * 1000);
-    return dateB - dateA; // Descending order: latest first
-  });
-  setFaqs(sortedFaqs);
-} else {
-  console.error("Unexpected FAQ format:", data);
-  setFaqs([]);
-  setError("Unexpected response format");
-  toast.error("Unexpected response format from server");
-}
+          const sortedFaqs = data.sort((a, b) => {
+            const dateA = new Date(a.createdAt || parseInt(a._id?.substring(0, 8), 16) * 1000);
+            const dateB = new Date(b.createdAt || parseInt(b._id?.substring(0, 8), 16) * 1000);
+            return dateB - dateA; // Descending order: latest first
+          });
+          setFaqs(sortedFaqs);
+        } else {
+          console.error("Unexpected FAQ format:", data);
+          setFaqs([]);
+          setError("Unexpected response format");
+          toast.error("Unexpected response format from server");
+        }
       }
-       catch (err) {
+      catch (err) {
         console.error("Error fetching FAQs:", err);
         setError("Failed to load FAQs");
         toast.error("Failed to load FAQs");
@@ -109,9 +123,14 @@ const FAQ = () => {
   return (
     <FAQContainer>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/web-management/faq/create")}>
-         Add FAQ
-        </CreateButton>
+        {
+          !readOnlyPermissions && (
+            <CreateButton onClick={() => navigate("/admin/web-management/faq/create")}>
+              Add FAQ
+            </CreateButton>
+          )
+        }
+
       </ButtonContainer>
 
       <Header>
@@ -131,7 +150,11 @@ const FAQ = () => {
                   <TableHeader>Question</TableHeader>
                   <TableHeader>Answer</TableHeader>
                   <TableHeader>Uploaded Time</TableHeader>
-                  <TableHeader>Actions</TableHeader>
+                  {
+                    !readOnlyPermissions && (
+                      <TableHeader>Actions</TableHeader>
+                    )
+                  }
                 </tr>
               </TableHead>
               <TableBody>
@@ -147,11 +170,11 @@ const FAQ = () => {
                       {console.log("FAQ item:", faq)}
                       <TableCell>
                         {/* {faq.question || faq.questionText || "No Question"} */}
-{/* i want to limit the question character to 30 then i have to put ..  */}
-                    {faq.question.length > 30 ? faq.question.substring(0, 30) + "..." : faq.question}
+                        {/* i want to limit the question character to 30 then i have to put ..  */}
+                        {faq.question.length > 30 ? faq.question.substring(0, 30) + "..." : faq.question}
 
-                        </TableCell>
-                      <TableCell>{faq.answer.length > 30 ? faq.answer.substring(0, 30) + "..." : faq.answer  || faq.answerText || "No Answer"}</TableCell>
+                      </TableCell>
+                      <TableCell>{faq.answer.length > 30 ? faq.answer.substring(0, 30) + "..." : faq.answer || faq.answerText || "No Answer"}</TableCell>
                       <TableCell>
                         {(() => {
                           let dateObj;
@@ -179,22 +202,28 @@ const FAQ = () => {
                           );
                         })()}
                       </TableCell>
-                      <TableCell>
-                        <ActionsWrapper>
-                          <BiEditAlt
-                            size={20}
-                            color="#000"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleEdit(faq)}
-                          />
-                          <RiDeleteBin6Line
-                            size={20}
-                            color="#FB4F4F"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => confirmDelete(faq)}
-                          />
-                        </ActionsWrapper>
-                      </TableCell>
+                      {
+                        !readOnlyPermissions && (
+                          <TableCell>
+
+                            <ActionsWrapper>
+                              <BiEditAlt
+                                size={20}
+                                color="#000"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleEdit(faq)}
+                              />
+                              <RiDeleteBin6Line
+                                size={20}
+                                color="#FB4F4F"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => confirmDelete(faq)}
+                              />
+                            </ActionsWrapper>
+                          </TableCell>
+                        )
+                      }
+
                     </TableRow>
                   ))
                 )}
@@ -202,7 +231,7 @@ const FAQ = () => {
             </Table>
           )}
         </TableWrapper>
-       <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => setCurrentPage(page)}
@@ -220,7 +249,7 @@ const FAQ = () => {
         />
       )}
 
-            <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}

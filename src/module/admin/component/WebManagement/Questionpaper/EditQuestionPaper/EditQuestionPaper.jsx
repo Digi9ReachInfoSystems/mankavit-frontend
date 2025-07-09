@@ -25,6 +25,7 @@ import { message } from "antd";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from "../../../../../../utils/authService";
 
 const years = [2024, 2023, 2022, 2021];
 
@@ -43,6 +44,34 @@ const EditQuestionPaper = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+        if (response.Permissions["webManagement"].readOnly) {
+          toast.error('You do not have permission to edit question papers.', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            onClose: () => {
+              navigate('/admin/');
+            }
+          });
+        }
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchQuestionPaper = async () => {
@@ -77,17 +106,17 @@ const EditQuestionPaper = () => {
 
   const handleFile = (f) => {
     if (!f) return;
-  
+
     if (f.type !== "application/pdf") {
       setError("Please upload a valid PDF file");
       return;
     }
-  
+
     if (f.size > 10 * 1024 * 1024) {
       setError("File size must be less than 10MB");
       return;
     }
-  
+
     setFormData(prev => ({ ...prev, file: f }));
     setError(null);
   };
@@ -111,7 +140,7 @@ const EditQuestionPaper = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!formData.title || !formData.description) {
       setError("Please fill all fields");
       return;
@@ -122,11 +151,11 @@ const EditQuestionPaper = () => {
     try {
       let fileUrl = formData.existingFileUrl;
       let fileName = formData.existingFileUrl.split('/').pop();
-      
+
       if (formData.file) {
         message.loading({ content: 'Uploading new file...', key: 'upload', duration: 0 });
         const uploadResponse = await uploadFileToAzureStorage(formData.file, "questionpaper");
-        
+
         if (!uploadResponse?.blobUrl) {
           throw new Error(uploadResponse?.message || "File upload failed");
         }
@@ -141,18 +170,18 @@ const EditQuestionPaper = () => {
         question_url: fileUrl,
         fileName: fileName
       };
-      
+
       await updateQuestionPaperById(id, questionPaperData);
 
       toast.success("Data updated successfully!");
-setTimeout(() => {
-  navigate("/admin/web-management/question-paper");
-}, 1000);
+      setTimeout(() => {
+        navigate("/admin/web-management/question-paper");
+      }, 1000);
 
     } catch (error) {
       console.error("Update error:", error);
-     toast.error("Failed to update. Please try again.");
-setError(error.message || "Failed to update. Please try again.");
+      toast.error("Failed to update. Please try again.");
+      setError(error.message || "Failed to update. Please try again.");
 
     } finally {
       setIsSubmitting(false);
@@ -166,23 +195,23 @@ setError(error.message || "Failed to update. Please try again.");
   return (
     <Container>
 
-        <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
 
       <h2>Edit Question Paper</h2>
       <Form onSubmit={handleSubmit}>
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        
+
         <FormItem>
           <FormGroup>
             <Label htmlFor="title">Title</Label>
@@ -250,10 +279,10 @@ setError(error.message || "Failed to update. Please try again.");
                 <img src={upload} alt="upload" />
               </UploadIcon>
               <UploadText>
-                {formData.file 
-                  ? formData.file.name 
-                  : formData.existingFileUrl 
-                    ? formData.existingFileUrl.split('/').pop() 
+                {formData.file
+                  ? formData.file.name
+                  : formData.existingFileUrl
+                    ? formData.existingFileUrl.split('/').pop()
                     : "Drag and drop PDF here, or click add PDF"}
               </UploadText>
               {!formData.file && !formData.existingFileUrl && <UploadButton>Add Pdf</UploadButton>}

@@ -25,8 +25,9 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   getAllYoutube,
   deleteYoutube,
-updateSocialMediaLinks 
+  updateSocialMediaLinks
 } from "../../../../../api/youtuubeApi";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -34,66 +35,79 @@ const YouTube = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [data, setData]               = useState([]);
-  const [modal, setModal]             = useState(false);
-  const [selectedImage, setSelected]  = useState(null);
+  const [data, setData] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [selectedImage, setSelected] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [itemToDelete, setItemDel]    = useState(null);
-  const [loading, setLoading]         = useState(true);
+  const [itemToDelete, setItemDel] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const getTimestamp = (item) => {
-  // 1) use createdAt if present
-  if (item.createdAt) return new Date(item.createdAt).getTime();
+    // 1) use createdAt if present
+    if (item.createdAt) return new Date(item.createdAt).getTime();
 
-  // 2) use updatedAt if present
-  if (item.updatedAt) return new Date(item.updatedAt).getTime();
+    // 2) use updatedAt if present
+    if (item.updatedAt) return new Date(item.updatedAt).getTime();
 
-  // 3) extract from MongoDB ObjectId
-  if (item._id && typeof item._id === "string" && item._id.length >= 8) {
-    const seconds = parseInt(item._id.substring(0, 8), 16);
-    return seconds * 1000;             // convert to ms
-  }
-
-  return 0;                            // unknown date → oldest
-};
-
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await getAllYoutube();
-      console.log("res", res);
-      let fetched = res.data || [];
-
-      // merge new link (avoid duplicate)
-      if (location.state?.link) {
-        const exists = fetched.find((v) => v._id === location.state.link._id);
-        if (!exists) fetched.unshift(location.state.link);
-      }
-
-      // *** latest first ***
-      const getTimestamp = (it) => {
-        if (it.createdAt) return new Date(it.createdAt).getTime();
-        if (it.updatedAt) return new Date(it.updatedAt).getTime();
-        if (it._id && it._id.length >= 8) {
-          return parseInt(it._id.slice(0, 8), 16) * 1000;
-        }
-        return 0;
-      };
-      fetched.sort((a, b) => getTimestamp(b) - getTimestamp(a));
-
-      setData(fetched);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load YouTube links");
-    } finally {
-      setLoading(false);
+    // 3) extract from MongoDB ObjectId
+    if (item._id && typeof item._id === "string" && item._id.length >= 8) {
+      const seconds = parseInt(item._id.substring(0, 8), 16);
+      return seconds * 1000;             // convert to ms
     }
+
+    return 0;                            // unknown date → oldest
   };
 
-  fetchData();
-}, [location.state]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await getAllYoutube();
+        console.log("res", res);
+        let fetched = res.data || [];
+
+        // merge new link (avoid duplicate)
+        if (location.state?.link) {
+          const exists = fetched.find((v) => v._id === location.state.link._id);
+          if (!exists) fetched.unshift(location.state.link);
+        }
+
+        // *** latest first ***
+        const getTimestamp = (it) => {
+          if (it.createdAt) return new Date(it.createdAt).getTime();
+          if (it.updatedAt) return new Date(it.updatedAt).getTime();
+          if (it._id && it._id.length >= 8) {
+            return parseInt(it._id.slice(0, 8), 16) * 1000;
+          }
+          return 0;
+        };
+        fetched.sort((a, b) => getTimestamp(b) - getTimestamp(a));
+
+        setData(fetched);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load YouTube links");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [location.state]);
 
 
 
@@ -106,49 +120,53 @@ useEffect(() => {
   };
 
 
-const handleConfirmDelete = async () => {
-  if (!itemToDelete?._id) return;
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete?._id) return;
 
-  try {
-    await deleteYoutube(itemToDelete._id);
+    try {
+      await deleteYoutube(itemToDelete._id);
 
-    const updated = data.filter((d) => d._id !== itemToDelete._id);
-    setData(updated);
-    await updateSocialMediaLinks({ youtube_videoLink: updated });
+      const updated = data.filter((d) => d._id !== itemToDelete._id);
+      setData(updated);
+      await updateSocialMediaLinks({ youtube_videoLink: updated });
 
-    toast.success("YouTube link deleted");
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to delete");
-  } finally {
-    setDeleteModalOpen(false);
-    setItemDel(null);
-  }
-};
+      toast.success("YouTube link deleted");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete");
+    } finally {
+      setDeleteModalOpen(false);
+      setItemDel(null);
+    }
+  };
 
 
 
-/* ----- TOGGLE ----- */
-const handleToggleHome = async (id) => {
-  const clickedItem = data.find((d) => d._id === id);
-  const isTurningOn = !clickedItem.homepage;
+  /* ----- TOGGLE ----- */
+  const handleToggleHome = async (id) => {
+    if (readOnlyPermissions) {
+      toast.error("You don't have permission to change status");
+      return;
+    }
+    const clickedItem = data.find((d) => d._id === id);
+    const isTurningOn = !clickedItem.homepage;
 
-  // If turning ON, ensure all others are false
-  const updatedArray = data.map((d) => ({
-    ...d,
-    homepage: isTurningOn ? d._id === id : false,
-  }));
+    // If turning ON, ensure all others are false
+    const updatedArray = data.map((d) => ({
+      ...d,
+      homepage: isTurningOn ? d._id === id : false,
+    }));
 
-  setData(updatedArray); // Optimistic UI update
+    setData(updatedArray); // Optimistic UI update
 
-  try {
-    await updateSocialMediaLinks({ youtube_videoLink: updatedArray });
-    toast.success("Home page status updated");
-  } catch {
-    toast.error("Failed to update status");
-    setData(data); // revert
-  }
-};
+    try {
+      await updateSocialMediaLinks({ youtube_videoLink: updatedArray });
+      toast.success("Home page status updated");
+    } catch {
+      toast.error("Failed to update status");
+      setData(data); // revert
+    }
+  };
 
   const handleViewImage = (img) => {
     setSelected(img);
@@ -159,9 +177,9 @@ const handleToggleHome = async (id) => {
 
 
   /* ─ Pagination ─ */
-  const totalItems     = data.length;
-  const totalPages     = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const startIndex     = (currentPage - 1) * ITEMS_PER_PAGE;
+  const totalItems = data.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentPageData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   if (loading) return <div>Loading YouTube links...</div>;
@@ -169,10 +187,14 @@ const handleToggleHome = async (id) => {
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      {
+        !readOnlyPermissions && (
+          <BtnAchieve>
+            <AddButton onClick={handleAdd}>Add Link</AddButton>
+          </BtnAchieve>
+        )
+      }
 
-      <BtnAchieve>
-        <AddButton onClick={handleAdd}>Add Link</AddButton>
-      </BtnAchieve>
 
       <Container>
         <Title>YouTube Links</Title>
@@ -183,7 +205,11 @@ const handleToggleHome = async (id) => {
               <tr>
                 <Th>Thumbnail</Th>
                 <Th>Link</Th>
-                <Th>Actions</Th>
+                {
+                  !readOnlyPermissions && (
+                    <Th>Actions</Th>
+                  )
+                }
                 <Th>Home page</Th>
               </tr>
             </TableHead>
@@ -218,14 +244,19 @@ const handleToggleHome = async (id) => {
                         {item.video_link}
                       </a>
                     </Td>
-                    <Td>
-                      <RiDeleteBin6Line
-                        size={20}
-                        color="#FB4F4F"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDeleteClick(item._id)}
-                      />
-                    </Td>
+                    {
+                      !readOnlyPermissions && (
+                        <Td>
+                          <RiDeleteBin6Line
+                            size={20}
+                            color="#FB4F4F"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleDeleteClick(item._id)}
+                          />
+                        </Td>
+                      )
+                    }
+
                     <Td>
                       <ToggleSwitch
                         checked={!!item.homepage}

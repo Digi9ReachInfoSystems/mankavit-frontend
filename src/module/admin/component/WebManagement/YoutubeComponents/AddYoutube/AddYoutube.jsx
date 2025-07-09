@@ -1,5 +1,5 @@
 // src/components/Sidebar/.../AddYoutube.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Label,
@@ -17,6 +17,7 @@ import uploadIcon from "../../../../../../assets/upload.png";
 import { useNavigate } from "react-router-dom";
 import { createYoutube } from "../../../../../../api/youtuubeApi";
 import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
+import { getAuth } from "../../../../../../utils/authService";
 
 const AddYoutube = () => {
   const navigate = useNavigate();
@@ -27,6 +28,34 @@ const AddYoutube = () => {
   const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+          if (response.Permissions["webManagement"].readOnly) {
+            toast.error('You do not have permission to add youtube link.', {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              onClose: () => {
+                navigate('/admin/');
+              }
+            });
+          }
+        }
+      }
+      apiCaller();
+    }, []);
 
   const isValidYouTubeUrl = url =>
     /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);

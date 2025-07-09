@@ -28,6 +28,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "../../../Pagination/Pagination";
 import DeleteModal from "../../../DeleteModal/DeleteModal";
+import { getAuth } from "../../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -44,45 +45,58 @@ export default function AllmocktestResults() {
   const [sortOption, setSortOption] = useState("Select");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const ts = (item) =>
-  item.submittedAt
-    ? new Date(item.submittedAt).getTime()
-    : item.createdAt
-    ? new Date(item.createdAt).getTime()
-    : item._id?.length >= 8
-    ? parseInt(item._id.substring(0, 8), 16) * 1000
-    : 0;
+    item.submittedAt
+      ? new Date(item.submittedAt).getTime()
+      : item.createdAt
+        ? new Date(item.createdAt).getTime()
+        : item._id?.length >= 8
+          ? parseInt(item._id.substring(0, 8), 16) * 1000
+          : 0;
 
   // Fetch real data from API
   useEffect(() => {
     const fetchData = async () => {
-  try {
-    const response = await getAllUserAttempts();          // API call
-    const mapped = (response.data || []).map((item) => ({
-      _id:            item._id,
-      testName:       item.mockTestId?.title || "Untitled Test",
-      studentName:    item.userId?.displayName || "Anonymous",
-      email:          item.userId?.email || "-",
-      marks:          `${item.totalMarks || 0}`,
-      mcqScore:       item.mcqScore || 0,
-      subjectiveScore:item.subjectiveScore || 0,
-      timeToComplete: formatTime(item.submittedAt, item.startedAt),
-      submissionDate: formatDate(item.submittedAt),
-      status:         item.status,
-      userId:         item.userId?._id,
-      submittedAt:    item.submittedAt,        // keep raw date for sort
-    }));
+      try {
+        const response = await getAllUserAttempts();          // API call
+        const mapped = (response.data || []).map((item) => ({
+          _id: item._id,
+          testName: item.mockTestId?.title || "Untitled Test",
+          studentName: item.userId?.displayName || "Anonymous",
+          email: item.userId?.email || "-",
+          marks: `${item.totalMarks || 0}`,
+          mcqScore: item.mcqScore || 0,
+          subjectiveScore: item.subjectiveScore || 0,
+          timeToComplete: formatTime(item.submittedAt, item.startedAt),
+          submissionDate: formatDate(item.submittedAt),
+          status: item.status,
+          userId: item.userId?._id,
+          submittedAt: item.submittedAt,        // keep raw date for sort
+        }));
 
-    // newest-first
-    setData(mapped.sort((a, b) => ts(b) - ts(a)));
-    setLoading(false);
-  } catch (err) {
-    console.error("Error fetching user attempts", err);
-    setError("Failed to load mock test results");
-    setLoading(false);
-  }
-};
+        // newest-first
+        setData(mapped.sort((a, b) => ts(b) - ts(a)));
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user attempts", err);
+        setError("Failed to load mock test results");
+        setLoading(false);
+      }
+    };
 
     fetchData();
   }, []);
@@ -117,7 +131,7 @@ export default function AllmocktestResults() {
 
     // return `${minutes} minute(s) and ${seconds} second(s)`;
     // if it is mnore than one minutes then it should be minutes an dif it is more than one secvomnd then it should be seconds
-  return `${minutes} ${minutes > 1 ? "minutes" : "minute"} & ${seconds} ${seconds > 1 ? "seconds" : "second"}`;
+    return `${minutes} ${minutes > 1 ? "minutes" : "minute"} & ${seconds} ${seconds > 1 ? "seconds" : "second"}`;
   };
 
   // Sorting helpers
@@ -166,15 +180,15 @@ export default function AllmocktestResults() {
   };
 
   const handleConfirmDelete = () => {
-  setData((prev) =>
-    prev
-      .filter((d) => d._id !== itemToDelete._id)
-      .sort((a, b) => ts(b) - ts(a))   // ensure newest-first after delete
-  );
-  toast.success("Deleted successfully");
-  setDeleteModalOpen(false);
-  setItemToDelete(null);
-};
+    setData((prev) =>
+      prev
+        .filter((d) => d._id !== itemToDelete._id)
+        .sort((a, b) => ts(b) - ts(a))   // ensure newest-first after delete
+    );
+    toast.success("Deleted successfully");
+    setDeleteModalOpen(false);
+    setItemToDelete(null);
+  };
 
   if (loading) return <div>Loading mock tests…</div>;
   if (error)
@@ -234,7 +248,7 @@ export default function AllmocktestResults() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {pageSlice.map(item =>(
+              {pageSlice.map(item => (
                 <TableRow key={item._id}>
                   <TableCell>{item.testName}</TableCell>
                   <TableCell>{item.studentName}</TableCell>
@@ -249,21 +263,28 @@ export default function AllmocktestResults() {
                       <IoEyeOutline
                         size={20}
                         title="View"
-                        onClick={() => navigate(`/admin/results/studentName/${item.userId}`,  { state: { studentName: item.studentName } })}
-                      />
-                      <BiEditAlt
-                        size={20}
-                        title="Edit"
-                        onClick={() => navigate(`/admin/results/edit/${item._id}`, { state: data,
-                            currentResult: item
-                         })}
-                      />
-                      <RiDeleteBin6Line
-                        size={20}
-                        color="#FB4F4F"
-                        title="Delete"
-                        onClick={() => handleDeleteClick(item._id)}
-                      />
+                        onClick={() => navigate(`/admin/results/studentName/${item.userId}`, { state: { studentName: item.studentName } })}
+                      />{
+                        !readOnlyPermissions && (
+                          <>
+                            <BiEditAlt
+                              size={20}
+                              title="Edit"
+                              onClick={() => navigate(`/admin/results/edit/${item._id}`, {
+                                state: data,
+                                currentResult: item
+                              })}
+                            />
+                            <RiDeleteBin6Line
+                              size={20}
+                              color="#FB4F4F"
+                              title="Delete"
+                              onClick={() => handleDeleteClick(item._id)}
+                            />
+                          </>
+                        )
+                      }
+
                     </ActionsContainer>
                   </TableCell>
                 </TableRow>

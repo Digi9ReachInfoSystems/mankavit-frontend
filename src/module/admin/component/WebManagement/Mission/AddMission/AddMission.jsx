@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Title,
@@ -18,6 +18,7 @@ import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageSe
 import { createMission } from '../../../../../../api/missionApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from '../../../../../../utils/authService';
 
 const AddMission = () => {
   const navigate = useNavigate();
@@ -25,6 +26,34 @@ const AddMission = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+          if (response.Permissions["webManagement"].readOnly) {
+            toast.error('You do not have permission to Add mission.', {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              onClose: () => {
+                navigate('/admin/');
+              }
+            });
+          }
+        }
+      }
+      apiCaller();
+    }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

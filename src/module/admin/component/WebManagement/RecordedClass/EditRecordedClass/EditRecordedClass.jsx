@@ -33,6 +33,7 @@ import { updateRecordedClassById, getRecordedClassById } from "../../../../../..
 import { getAllCourses } from "../../../../../../api/courseApi";
 import { toast, ToastContainer } from 'react-toastify';
 import JoditEditor from 'jodit-react';
+import { getAuth } from "../../../../../../utils/authService";
 
 const EditRecordedClass = () => {
   const location = useLocation();
@@ -55,6 +56,19 @@ const EditRecordedClass = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState('');
   const editor = useRef(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   // Helper to normalize course IDs (handles both string and object IDs)
   const normalizeCourseId = (ref) => {
     if (!ref) return null;
@@ -290,17 +304,17 @@ const EditRecordedClass = () => {
           />
         </FormGroup>
         <FormGroup>
-         
-              <Label htmlFor="description"> Description</Label>
-              <JoditEditor
-                ref={editor}
-                value={description}
-                config={configDis}
-                tabIndex={1}
-                onBlur={newContent => { console.log("new", newContent); }}
-                onChange={newContent => {setDescription(newContent); }}
-              />
-           
+
+          <Label htmlFor="description"> Description</Label>
+          <JoditEditor
+            ref={editor}
+            value={description}
+            config={configDis}
+            tabIndex={1}
+            onBlur={newContent => { console.log("new", newContent); }}
+            onChange={newContent => { setDescription(newContent); }}
+          />
+
 
         </FormGroup>
 
@@ -415,10 +429,15 @@ const EditRecordedClass = () => {
             </CoursesContainer>
           </FormColumn>
         </FormRow>
+        {
+          !readOnlyPermissions && (
+            <SubmitButton type="submit" disabled={loading}>
+              {loading ? "Updating..." : "Update Recorded Class"}
+            </SubmitButton>
+          )
+        }
 
-        <SubmitButton type="submit" disabled={loading}>
-          {loading ? "Updating..." : "Update Recorded Class"}
-        </SubmitButton>
+
       </form>
       <ToastContainer
         position="top-right"

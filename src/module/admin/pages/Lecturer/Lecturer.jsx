@@ -19,6 +19,7 @@ import { Select } from 'antd';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { set } from 'date-fns';
+import { getAuth } from '../../../../utils/authService';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -39,6 +40,19 @@ export default function Lecturer() {
   // NEW: default sort = Latest ↓
   const [sortOption, setSortOption] = useState('Latest');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const fetchLectures = async () => {
     try {
@@ -255,15 +269,20 @@ export default function Lecturer() {
             <TableHead>
               <TableRow>
                 {/* <TableHeader>#</TableHeader> */}
-                <TableHeader>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAllChange}
-                  />
-                </TableHeader>
+                {
+                  !readOnlyPermissions && (
+                    <TableHeader>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAllChange}
+                      />
+                    </TableHeader>
+                  )
+                }
+
                 <TableHeader>Video Title</TableHeader>
-                <TableHeader>Description</TableHeader>
+                {/* <TableHeader>Description</TableHeader> */}
                 <TableHeader>Duration</TableHeader>
                 <TableHeader>Video</TableHeader>
                 <TableHeader>Image</TableHeader>
@@ -274,13 +293,18 @@ export default function Lecturer() {
               {currentItems.map((item, index) => (
                 <TableRow key={item._id}>
                   {/* <TableCell>{startIndex + index + 1}</TableCell> */}
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      checked={selectedLectures.includes(item._id)}
-                      onChange={() => handleCheckboxChange(item._id)}
-                    />
-                  </TableCell>
+                  {
+                    !readOnlyPermissions && (
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedLectures.includes(item._id)}
+                          onChange={() => handleCheckboxChange(item._id)}
+                        />
+                      </TableCell>
+                    )
+                  }
+
                   <TableCell>
                     <a
                       href="#"
@@ -293,7 +317,7 @@ export default function Lecturer() {
                       {item.lectureName}
                     </a>
                   </TableCell>
-                  <TableCell>{item.description || '-'}</TableCell>
+                  {/* <TableCell>{item.description || '-'}</TableCell> */}
                   <TableCell>{item.duration || '-'}</TableCell>
                   <TableCell>
                     {item.videoUrl ? (

@@ -25,6 +25,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import CustomModal from "../../../component/CustomModal/CustomModal";
 import { getAllRecordedClasses, deleteRecordedClassById, bulkDeleteRecordedClasses } from "../../../../../api/recordedAPi";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -41,6 +42,19 @@ export default function RecordedClass() {
   const [selectAll, setSelectAll] = useState(false);
   const [BulkDelete, setBulkDelete] = useState(false);
   const [selectedRecordedClasses, setSelectedRecordedClasses] = useState([]);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   useEffect(() => {
     const fetchRecordedClasses = async () => {
       setLoading(true);
@@ -208,13 +222,18 @@ export default function RecordedClass() {
           <StyledTable>
             <TableHead>
               <tr>
-                <TableHeader>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAllChange}
-                  />
-                </TableHeader>
+                {
+                  !readOnlyPermissions && (
+                    <TableHeader>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAllChange}
+                      />
+                    </TableHeader>
+                  )
+                }
+
                 <TableHeader>Title</TableHeader>
                 {/* <TableHeader>Description</TableHeader> */}
                 <TableHeader>Courses</TableHeader>
@@ -233,13 +252,18 @@ export default function RecordedClass() {
 
                 return (
                   <TableRow key={row._id}>
-                    <TableCell>
-                      <input
-                        type="checkbox"
-                        checked={selectedRecordedClasses.includes(row._id)}
-                        onChange={() => handleCheckboxChange(row._id)}
-                      />
-                    </TableCell>
+                    {
+                      !readOnlyPermissions && (
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedRecordedClasses.includes(row._id)}
+                            onChange={() => handleCheckboxChange(row._id)}
+                          />
+                        </TableCell>
+                      )
+                    }
+
                     <TableCell>
                       <a
                         href="#"

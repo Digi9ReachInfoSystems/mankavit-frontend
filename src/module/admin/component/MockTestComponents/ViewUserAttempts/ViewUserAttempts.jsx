@@ -28,6 +28,7 @@ import { deleteUserAttempt } from "../../../../../api/mocktestApi";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -41,6 +42,19 @@ export default function ViewUserAttempts() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedAttemptId, setSelectedAttemptId] = useState(null);
     const navigate = useNavigate();
+    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+        const apiCaller = async () => {
+            const response = await getAuth();
+            response.Permissions;
+            if (response.isSuperAdmin === true) {
+                setReadOnlyPermissions(false);
+            } else {
+                setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
+            }
+        }
+        apiCaller();
+    }, []);
 
     useEffect(() => {
         const fetchUserAnswers = async () => {
@@ -122,7 +136,12 @@ export default function ViewUserAttempts() {
                             <TableHeader>Status</TableHeader>
                             <TableHeader>View</TableHeader>
                             <TableHeader>Submitted At</TableHeader>
-                            <TableHeader>Action</TableHeader>
+                            {
+                                !readOnlyPermissions && (
+                                    <TableHeader>Action</TableHeader>
+                                )
+                            }
+
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -134,10 +153,10 @@ export default function ViewUserAttempts() {
                                 <TableCell>{item.totalMarks || "0"}</TableCell>
                                 <TableCell>{item.status}</TableCell>
                                 <TableCell>
-                                    <button 
-                                        style={{ border: "none", background: "none", cursor: "pointer" }} 
+                                    <button
+                                        style={{ border: "none", background: "none", cursor: "pointer" }}
                                         onClick={() => handleView(item._id)}
-                                    > 
+                                    >
                                         <IoEyeOutline
                                             title="View Details"
                                             size={20}
@@ -145,18 +164,23 @@ export default function ViewUserAttempts() {
                                     </button>
                                 </TableCell>
                                 <TableCell>{new Date(item.submittedAt).toLocaleString()}</TableCell>
-                                <TableCell>
-                                    <button 
-                                        style={{ border: "none", background: "none", cursor: "pointer" }} 
-                                        onClick={() => handleDeleteClick(item._id)}
-                                    >
-                                        <RiDeleteBin6Line 
-                                            title="Delete Attempt" 
-                                            size={20} 
-                                            color="#ff4444" 
-                                        />
-                                    </button>
-                                </TableCell>
+                                {
+                                    !readOnlyPermissions && (
+                                        <TableCell>
+                                            <button
+                                                style={{ border: "none", background: "none", cursor: "pointer" }}
+                                                onClick={() => handleDeleteClick(item._id)}
+                                            >
+                                                <RiDeleteBin6Line
+                                                    title="Delete Attempt"
+                                                    size={20}
+                                                    color="#ff4444"
+                                                />
+                                            </button>
+                                        </TableCell>
+                                    )
+                                }
+
                             </TableRow>
                         ))}
                     </TableBody>

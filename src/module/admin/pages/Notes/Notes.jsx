@@ -32,6 +32,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { set } from "date-fns";
+import { getAuth } from "../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -52,6 +53,19 @@ export default function NotesManagement() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedNotes, setSelectedNotes] = useState([]);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   // Fetch all notes
   useEffect(() => {
     const fetchNotes = async () => {
@@ -252,13 +266,16 @@ export default function NotesManagement() {
           <StyledTable>
             <TableHead>
               <TableRow>
-                <TableHeader>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAllChange}
-                  />
-                </TableHeader>
+                {!readOnlyPermissions && (
+                  <TableHeader>
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAllChange}
+                    />
+                  </TableHeader>
+                )}
+
                 <TableHeader>Note Title</TableHeader>
                 <TableHeader>Internal Name</TableHeader>
                 <TableHeader>No. of Subjects</TableHeader>
@@ -270,13 +287,18 @@ export default function NotesManagement() {
             <TableBody>
               {currentItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      checked={selectedNotes.includes(item.id)}
-                      onChange={() => handleCheckboxChange(item.id)}
-                    />
-                  </TableCell>
+                  {
+                    !readOnlyPermissions && (
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedNotes.includes(item.id)}
+                          onChange={() => handleCheckboxChange(item.id)}
+                        />
+                      </TableCell>
+                    )
+                  }
+
                   <TableCell>
                     <a
                       href="#"
@@ -290,7 +312,7 @@ export default function NotesManagement() {
                     </a>
                   </TableCell>
                   <TableCell>
-                      <a
+                    <a
                       href="#"
                       onClick={() => {
                         navigate(`/admin/notes-management/edit/${item.id}`, { state: { item } });
@@ -298,10 +320,10 @@ export default function NotesManagement() {
 
                       }
                     >
-                     {item.noteDescription}
+                      {item.noteDescription}
                     </a>
-                     
-                    </TableCell>
+
+                  </TableCell>
                   <TableCell>
                     {item.subjects.length}{" "}
                     <a href="#view-subjects" onClick={() => handleOpenModal("subjects", item.subjects)}>

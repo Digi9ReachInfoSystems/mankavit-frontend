@@ -34,6 +34,7 @@ import { toast } from "react-toastify";
 import { getAllMocktest } from "../../../../../api/mocktestApi";
 import { getAllCourses } from "../../../../../api/courseApi";
 import JoditEditor from 'jodit-react';
+import { getAuth } from "../../../../../utils/authService";
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -54,7 +55,20 @@ export default function EditSubject() {
   // image upload
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
- const editor = useRef(null);
+  const editor = useRef(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   // fetch existing subject, notes & lectures
   useEffect(() => {
     async function fetchData() {
@@ -386,10 +400,14 @@ export default function EditSubject() {
             </UploadArea>
           </Column>
         </FormRow>
+        {
+          !readOnlyPermissions && (
+            <FormRow>
+              <SubmitButton type="submit">Update Subject</SubmitButton>
+            </FormRow>
+          )
+        }
 
-        <FormRow>
-          <SubmitButton type="submit">Update Subject</SubmitButton>
-        </FormRow>
       </FormWrapper>
     </Container>
   );

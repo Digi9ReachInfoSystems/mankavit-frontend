@@ -29,6 +29,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getSubjects } from "../../../../../api/subjectApi";
 import JoditEditor from 'jodit-react';
+import { getAuth } from "../../../../../utils/authService";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -51,6 +52,19 @@ export default function EditLecturer() {
   const thumbnailInputRef = useRef(null);
   const videoInputRef = useRef(null);
   const editor = useRef(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchLecture = async () => {
@@ -308,12 +322,16 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
+        {
+          !readOnlyPermissions && (
+            <FormRow>
+              <Column>
+                <SubmitButton type="submit">Update Lecture</SubmitButton>
+              </Column>
+            </FormRow>
+          )
+        }
 
-        <FormRow>
-          <Column>
-            <SubmitButton type="submit">Update Lecture</SubmitButton>
-          </Column>
-        </FormRow>
       </FormWrapper>
 
       <ToastContainer

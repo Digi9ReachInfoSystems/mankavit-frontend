@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   Form,
@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from "../../../../../../utils/authService";
 
 const years = [2024, 2023, 2022, 2021];
 
@@ -38,6 +39,34 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
   const [error, setError] = useState(null);
   const fileInputRef = useRef();
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+          if(response.Permissions["webManagement"].readOnly) {
+            toast.error('You do not have permission to add question papers.', {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              onClose: () => {
+                navigate('/admin/');
+              }
+            });
+          }
+        }
+      }
+      apiCaller();
+    }, []);
 
   const handleFile = (f) => {
     if (!f) return;

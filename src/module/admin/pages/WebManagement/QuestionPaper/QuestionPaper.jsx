@@ -31,6 +31,7 @@ import { notification } from "antd";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -41,6 +42,19 @@ const QuestionPaper = () => {
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // helper ─ put this above the component or inside it
   const ts = (item) => {
@@ -124,13 +138,17 @@ const QuestionPaper = () => {
         pauseOnHover
         theme='colored'
       />
+      {
+        !readOnlyPermissions && (
+          <ButtonContainer>
+            <CreateButton onClick={() => navigate("/admin/web-management/question-paper/create")}>
+              Add Question Paper
+            </CreateButton>
+          </ButtonContainer>
+        )
+      }
 
 
-      <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/web-management/question-paper/create")}>
-          Add Question Paper
-        </CreateButton>
-      </ButtonContainer>
 
       <Container>
         <HeaderRow>
@@ -167,21 +185,27 @@ const QuestionPaper = () => {
                         color="#000"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleViewClick(row)}
-                      />
-                      <BiEditAlt
-                        title="Edit"
-                        size={20}
-                        color="#000"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => navigate(`/admin/web-management/question-paper/edit/${row._id}`)}
-                      />
-                      <RiDeleteBin6Line
-                        title="Delete"
-                        size={20}
-                        color="#FB4F4F"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDelete(row._id)}
-                      />
+                      />{
+                        !readOnlyPermissions && (
+                          <>
+                            <BiEditAlt
+                              title="Edit"
+                              size={20}
+                              color="#000"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => navigate(`/admin/web-management/question-paper/edit/${row._id}`)}
+                            />
+                            <RiDeleteBin6Line
+                              title="Delete"
+                              size={20}
+                              color="#FB4F4F"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleDelete(row._id)}
+                            />
+                          </>
+                        )
+                      }
+
                     </ActionsWrapper>
                   </TableCell>
                 </TableRow>
