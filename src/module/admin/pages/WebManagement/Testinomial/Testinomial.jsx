@@ -163,12 +163,12 @@ const Testimonial = () => {
 
                   <TableCell>
                     <ActionsWrapper>
-                      <IoEyeOutline
+                      {/* <IoEyeOutline
                         size={20}
                         color="#000"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleViewClick(item._id)}
-                      />
+                      /> */}
                       <BiEditAlt
                         size={20}
                         color="#000"

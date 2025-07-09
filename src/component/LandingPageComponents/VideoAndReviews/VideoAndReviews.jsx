@@ -11,6 +11,8 @@ import {
   Name,
   Role,
   CardWrapper,
+  Media,
+  MediaContainer
 } from "./VideoAndReviews.styles";
 import { getAlltestimonials } from "../../../api/testimonialApi";
 import { getAllYoutube } from "../../../api/youtuubeApi";
@@ -69,6 +71,7 @@ const VideoAndReviews = () => {
           role: t.rank,                // ← the API field is “rank”
           quote: t.description,        // ← the API field is “description”
           image: t.testimonial_image,
+             video: t.testimonial_video,
         }));
         setTestimonials(testimonialsData);
 
@@ -130,7 +133,6 @@ const VideoAndReviews = () => {
     );
   }
 
-  /* ───────────────── render cards ───────────────── */
   return (
     <Container>
       <VideoWrapper>
@@ -154,16 +156,27 @@ const VideoAndReviews = () => {
       </Title>
 
       <CardWrapper>
-        {testimonials.map((t) => (
-          <Card key={t.id}>
-            <Avatar src={t.image || placeholder} alt={t.name} />
-            {/* <Quote>&quot;{t.quote}&quot;</Quote> */}
-            <Quote dangerouslySetInnerHTML={{ __html: t.quote }} />
-            <Name>{t.name}</Name>
-            <Role>{t.role}</Role> 
-          </Card>
-        ))}
-      </CardWrapper>
+              {testimonials.map((t) => (
+                <Card key={t.id}>
+                  <MediaContainer>
+                    {t.image ? (
+                      <Avatar src={t.image} alt={t.name} />
+                    ) : t.video ? (
+                      <Media controls>
+                        <source src={t.video} type="video/mp4" />
+                        Your browser doesn't support embedded videos.
+                      </Media>
+                    ) : (
+                      <Avatar src={placeholder} alt="placeholder" />
+                    )}
+                  </MediaContainer>
+      
+                  <Quote>&quot;{t.quote}&quot;</Quote>
+                  <Name>{t.name}</Name>
+                  <Role>{t.role}</Role>
+                </Card>
+              ))}
+            </CardWrapper>
     </Container>
   );
 };

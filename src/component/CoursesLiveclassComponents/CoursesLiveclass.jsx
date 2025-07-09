@@ -27,10 +27,10 @@ import FeedbackModal from '../FeedbackModal/FeedbackModal';
 import { getUserByUserId } from '../../api/authApi';
 import { set } from 'date-fns';
 import { FaFilePdf } from 'react-icons/fa'; // Add this import at the top
-import PDFViewer from '../../module/admin/component/PdfViewer/PdfViewer';
-
-
+// PDF Modal component updated to hide default print/save toolbar
 const PdfModal = ({ file, name, onClose, isDownloadable }) => {
+  // Append PDF viewer params to hide toolbar, nav panes, and scrollbar
+  const pdfUrl = `${file}#toolbar=0&navpanes=0&scrollbar=0`;
   return (
     <div style={{
       position: 'fixed',
@@ -61,44 +61,27 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
           borderBottom: '1px solid #eee'
         }}>
           <h3 style={{ margin: 0 }}>{name}</h3>
-          <div>
-            {isDownloadable && (
-              <a
-                href={file}
-                download
-                style={{
-                  marginRight: '10px',
-                  padding: '5px 10px',
-                  background: '#4CAF50',
-                  color: 'white',
-                  borderRadius: '4px',
-                  textDecoration: 'none'
-                }}
-              >
-                Download
-              </a>
-            )}
-            <button
-              onClick={onClose}
-              style={{
-                padding: '5px 10px',
-                background: '#e74c3c',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Close
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '5px 10px',
+              background: '#e74c3c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Close
+          </button>
         </div>
         <div style={{ flex: 1, position: 'relative' }}>
           <iframe
-            src={file}
+            src={pdfUrl}
             style={{ width: '100%', height: '100%', border: 'none' }}
             title={name}
           />
+          {/* Overlay to block clicks if not downloadable */}
           {!isDownloadable && (
             <div style={{
               position: 'absolute',

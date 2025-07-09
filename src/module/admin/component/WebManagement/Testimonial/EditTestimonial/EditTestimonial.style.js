@@ -55,7 +55,7 @@ export const DropZone = styled.div`
   border-radius: 10px;
   text-align: center;
   margin-top: 0.5rem;
-    height: 230px;
+    height: 260px;
     display: flex;
     justify-content: center;
     align-items: center;
