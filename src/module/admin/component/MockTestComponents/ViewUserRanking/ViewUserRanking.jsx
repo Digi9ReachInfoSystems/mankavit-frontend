@@ -21,10 +21,24 @@ import {
 import { CiSearch } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import Pagination from "../../Pagination/Pagination";
-import { getAttemptedUserListByMocktestId, getMocktestAttempts, getRankingByMockTestSubject, getUserAnswerByMocktestIdandSubjectId } from "../../../../../api/mocktestApi";
+import { getAttemptedUserListByMocktestId, getMocktestAttempts, getMocktestById, getRankingByMockTestSubject, getUserAnswerByMocktestIdandSubjectId } from "../../../../../api/mocktestApi";
 import { getUserByUserId } from "../../../../../api/authApi";
+import styled from "styled-components";
+import { getAuth } from "../../../../../utils/authService";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const ITEMS_PER_PAGE = 10;
+const ExportButton = styled.button`
+  padding: 6px 12px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 16px;
+  &:hover { background: #1976D2; }
+`;
 
 export default function ViewUserRanking() {
     const { mockTestId, subjectId } = useParams();
@@ -34,6 +48,20 @@ export default function ViewUserRanking() {
     const [searchText, setSearchText] = useState("");
     const [sortBy, setSortBy] = useState("Rank");
     const navigate = useNavigate();
+    const [mockTestName, setMockTestName] = useState("");
+    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+        const apiCaller = async () => {
+            const response = await getAuth();
+            response.Permissions;
+            if (response.isSuperAdmin === true) {
+                setReadOnlyPermissions(false);
+            } else {
+                setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
+            }
+        }
+        apiCaller();
+    }, []);
     useEffect(() => {
         const fetchUserAnswers = async () => {
             try {
@@ -41,12 +69,17 @@ export default function ViewUserRanking() {
                     console.error("Missing mockTestId or subjectId");
                     return;
                 }
+                const mocktestResponse = await getMocktestById(mockTestId);
+                if (mocktestResponse.success) {
+                    setMockTestName(mocktestResponse.data.title);
+                }
                 const response = await getRankingByMockTestSubject(
                     mockTestId,
                     subjectId
 
                 );
-                console.log("Fetching user answers for mockTestId:", response);
+
+                console.log("Fetching user answers for mockTestId: dss ", response);
 
                 console.log("Fetching user answers for mockTestId:", response);
                 // console.log("subjectId", subjectId);
@@ -72,6 +105,7 @@ export default function ViewUserRanking() {
                     console.error("Missing mockTestId or subjectId");
                     return;
                 }
+
                 const response = await getRankingByMockTestSubject(
                     mockTestId,
                     subjectId
@@ -123,6 +157,41 @@ export default function ViewUserRanking() {
         navigate(`/admin/mock-test/user-result/view-result/${attempt}`);
         // console.log("View attempt with ID:", attemptId);
     };
+    const exportPDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(`Mock Test Ranking - ${mockTestName} `, 14, 22);
+
+        const columns = [
+            "Rank",
+            "Name",
+            "Email",
+            "Best Score",
+            "Total Attempts",
+            "Submitted At",
+
+        ];
+
+        const rows = filtered.map(item => [
+            item.rank,
+            item.userId.displayName || "N/A",
+            item.userEmail || "N/A",
+            item.bestScore || "N/A",
+            item.attemptsCount || "N/A",
+            new Date(item.submittedAt).toLocaleString() || "N/A",
+        ]);
+
+        // <— note: calling the imported function directly
+        autoTable(doc, {
+            head: [columns],
+            body: rows,
+            startY: 30,
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [33, 150, 243] },
+        });
+
+        doc.save(`MockTestRanking-${mockTestName}-${new Date().toLocaleString()}.pdf`);
+    };
 
     return (
         <Container>
@@ -130,15 +199,26 @@ export default function ViewUserRanking() {
                 <Title>
                     List of Students  <small>({pageItems.length}/{totalEntries})</small>
                 </Title>
-                <SortByContainer>
-                    <SortLabel>Sort by:</SortLabel>
-                    <SortSelect value={sortBy} onChange={handleSortChange}>
-                        <option value="Rank">Rank</option>
-                        <option value="Name">Name</option>
-                        <option value="SubmittedAt">Submited At</option>
-                        {/* <option value="Active">Active</option> */}
-                    </SortSelect>
-                </SortByContainer>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    <SortByContainer>
+
+                        <SortLabel>Sort by:</SortLabel>
+                        <SortSelect value={sortBy} onChange={handleSortChange}>
+                            <option value="Rank">Rank</option>
+                            <option value="Name">Name</option>
+                            <option value="SubmittedAt">Submited At</option>
+                            {/* <option value="Active">Active</option> */}
+                        </SortSelect>
+                    </SortByContainer>
+                    {
+                        !readOnlyPermissions && (
+                            <ExportButton onClick={exportPDF}>
+                                Export PDF
+                            </ExportButton>
+                        )
+                    }
+                </div>
+
             </HeaderRow>
 
             <SearchWrapper>
