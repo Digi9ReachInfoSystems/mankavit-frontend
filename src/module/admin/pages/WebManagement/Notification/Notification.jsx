@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+// src/components/Notification/Notification.jsx
+import React, { useState } from "react";
 import {
   Container,
   FormGroup,
@@ -6,61 +7,53 @@ import {
   ReadOnlyInput,
   TextInput,
   TextArea,
-  UploadBox,
-  UploadInput,
-  UploadContent,
-  UploadIcon,
-  UploadText,
-  UploadButton,
   SubmitButton,
-  FormItem
 } from "../Notification/Notification.style";
-import upload from "../../../../../assets/upload.png";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { createNotification } from "../../../../../api/notificationApi";
 
-
-const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
+const Notification = ({
+  scheduleTime: defaultSchedule = new Date().toISOString().slice(0,16),
+}) => {
+  // scheduleTime in "YYYY-MM-DDTHH:mm" format for datetime-local
+  const [scheduleTime, setScheduleTime] = useState(defaultSchedule);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [file, setFile] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-  const fileRef = useRef();
 
-  const handleFile = (f) => {
-    if (f && f.type.startsWith("image/")) {
-      setFile(f);
-    } else {
-      // alert("Please upload an image file");
-      toast.error("Please upload an image file.");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await createNotification({
+        title,
+        description,
+        time: new Date(scheduleTime).toISOString(),
+        notificationType: "In-App",
+      });
+      toast.success("Notification scheduled successfully.");
+      setTitle("");
+      setDescription("");
+      // reset schedule to now + 1 hour (optional)
+      setScheduleTime(new Date().toISOString().slice(0,16));
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to schedule notification. Please try again.");
     }
-  };
-
-  const onDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    handleFile(e.dataTransfer.files[0]);
-  };
-
-  const onFileChange = (e) => {
-    handleFile(e.target.files[0]);
-  };
-
-  const submit = (e) => {
-    e.preventDefault();
-    onSubmit({ title, description, file });
-    toast.success("Notification sent successfully.");
   };
 
   return (
     <Container>
-      <h2>Notification</h2>
-      <form onSubmit={submit}>
-        <FormItem>
+      <h2>Schedule Notification</h2>
+      <form onSubmit={handleSubmit}>
         <FormGroup>
-          <Label>Schedule Time</Label>
-          <ReadOnlyInput readOnly value={scheduleTime} />
+          <Label>Send At</Label>
+          <ReadOnlyInput
+            as="input"
+            type="datetime-local"
+            value={scheduleTime}
+            onChange={(e) => setScheduleTime(e.target.value)}
+            required
+          />
         </FormGroup>
 
         <FormGroup>
@@ -69,63 +62,36 @@ const Notification = ({ scheduleTime = "16:00 IST, 24/08/2025", onSubmit }) => {
             placeholder="Enter title here"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
         </FormGroup>
-        </FormItem>
 
         <FormGroup>
           <Label>Description</Label>
           <TextArea
-            rows={8}
+            rows={6}
             placeholder="Enter description here"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            required
           />
-        </FormGroup>
-
-        <FormGroup>
-          <Label>Upload Image</Label>
-          <UploadBox
-            dragOver={dragOver}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={onDrop}
-            onClick={() => fileRef.current.click()}
-          >
-            <UploadInput
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              onChange={onFileChange}
-            />
-            <UploadContent>
-              <UploadIcon>
-                <img src={upload} alt="upload" />
-              </UploadIcon>
-              <UploadText>
-                {file
-                  ? file.name
-                  : "Drag and drop image here, or click add image"}
-              </UploadText>
-              {!file && <UploadButton>Add Image</UploadButton>}
-            </UploadContent>
-          </UploadBox>
         </FormGroup>
 
         <SubmitButton type="submit">Send Notification</SubmitButton>
       </form>
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </Container>
   );
 };

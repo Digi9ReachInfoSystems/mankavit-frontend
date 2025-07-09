@@ -319,6 +319,7 @@ export const NavbarContent  = styled.div`
     font-size: 24px;
     color: #252525;
     cursor: pointer;
+    border: none;
 
     @media (max-width: 1636px) {
       font-size: 20px;

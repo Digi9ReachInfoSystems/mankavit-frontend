@@ -171,7 +171,9 @@ const Header = () => {
 
           <div className="menu-container" ref={menuRef}>
             <NavLinks className={mobileMenuOpen ? "open" : ""}>
-              {["Courses", "About", "Blog", "Results", "Prev. Year Ques.", <IoNotificationsOutline className="notification-icon" />].map((item) => (
+              {["Courses", "About", "Blog", "Results", "Prev. Year Ques.",
+              <Link to="/user/notification"> <IoNotificationsOutline className="notification-icon" /></Link>
+              ].map((item) => (
                 <NavLinkItem
                   key={item}
                   className={activeLink === item ? "active" : ""}

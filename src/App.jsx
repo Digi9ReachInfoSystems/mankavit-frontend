@@ -146,12 +146,14 @@ import AdminManagement from './module/admin/pages/AdminManagement/AdminManagemen
 import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
 import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
 
+import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
+         <ScreenShot />
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
