@@ -79,38 +79,28 @@ export const Card = styled.div`
 
 
 
-export const Avatar = styled.img`
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
+export const MediaContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
   margin-bottom: 1rem;
-
-  @media (max-width: 1360px) {
-      width: 100px;
-      height: 100px;
-  }
-
-  @media (max-width: 1024px) {
-      width: 80px;
-      height: 80px;
-  }
-
-  @media (max-width: 768px) {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 0.5rem;
-  }
-
-  @media (max-width: 540px) {
-      width: 100px;
-      height: 100px;
-  }
-
-  @media (max-width: 480px) {
-      width: 100px;
-      height: 100px;
-  }
 `;
+
+export const Avatar = styled.img`
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 0;
+`;
+
+export const Media = styled.video`
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  border-radius: 0;
+`;
+
 
 export const Quote = styled.p`
   font-size: 18x;

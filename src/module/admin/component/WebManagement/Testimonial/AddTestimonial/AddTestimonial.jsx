@@ -136,7 +136,7 @@ const AddTestimonial = () => {
 
       await createTestimonials(payload);
       toast.success('Testimonial added');
-      setTimeout(() => navigate('/admin/web-management/testimonial', { state: { success: true } }), 800);
+      setTimeout(() => navigate('/admin/web-management/testinomial', { state: { success: true } }), 1000);
     } catch (err) {
       console.error(err);
       toast.error(err.message || 'Error adding testimonial');
