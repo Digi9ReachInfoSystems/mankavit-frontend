@@ -241,3 +241,52 @@ export const collectQuestionPaperDetails = async (data) => {
         throw error;
     }
 }
+
+export const createSubAdmin = async (data) => {
+    try {
+        const response = await api.post("/user/create/sub/Admin", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const updateSubAdmin = async (id,data) => {
+    try {
+        const response = await api.put(`/user/update/sub/Admin/${id}` ,data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const resetAdminPassword = async (id,data) => {
+    try {
+        const response = await api.put(`/user/reset/adminPassword/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}   
+export const deleteSubAdmin = async (id) => {
+    try {
+        const response = await api.delete(`/user/delete/sub/Admin/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const getAllAdmins = async () => {
+    try {
+        const response = await api.get("/user/get/sub/Admins");
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
