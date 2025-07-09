@@ -14,19 +14,34 @@ import {
   getAllStatic
 } from '../../../../api/staticApi';
 import { message } from 'antd';
+import { getAuth } from '../../../../utils/authService';
 
 const Staticpage = () => {
   // form fields
+
   const [privacyPolicy, setPrivacyPolicy] = useState('');
-  const [terms, setTerms]             = useState('');
+  const [terms, setTerms] = useState('');
 
   // recordId tells us if we should create or update
   const [recordId, setRecordId] = useState(null);
 
   // UI state
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
-  const [success, setSuccess]   = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["staticPageManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // 1) on mount, fetch any existing record
   useEffect(() => {
@@ -81,7 +96,7 @@ const Staticpage = () => {
     <Container>
       <Title>Static Page</Title>
 
-      {error   && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
 
       <form onSubmit={handleSubmit}>
@@ -106,14 +121,17 @@ const Staticpage = () => {
             onChange={(e) => setTerms(e.target.value)}
           />
         </FormGroup>
+        {!readOnlyPermissions && (
+          <Button type="submit" disabled={loading}>
+            {loading
+              ? "Saving…"
+              : recordId
+                ? "Update changes"
+                : "Create Static Page"}
+          </Button>
+        )}
 
-        <Button type="submit" disabled={loading}>
-          {loading
-            ? "Saving…"
-            : recordId
-              ? "Update changes"
-              : "Create Static Page"}
-        </Button>
+
       </form>
     </Container>
   );

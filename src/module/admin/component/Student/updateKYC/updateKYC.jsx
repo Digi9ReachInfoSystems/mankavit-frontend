@@ -37,6 +37,7 @@ import {
   ModalCloseButton,
   ModalOverlay,
 } from "./updateKYC.style";
+import { getAuth } from "../../../../../utils/authService";
 
 export default function UpdateKYC() {
   const { userId } = useParams();
@@ -48,6 +49,19 @@ export default function UpdateKYC() {
   const [kycRecord, setKycRecord] = useState(null);
   const [modal, setModal] = useState(false);
   const [modalImage, setModalImage] = useState(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["studentManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -254,32 +268,36 @@ export default function UpdateKYC() {
               </Column>
             </FormRow>
           )}
+          {
+            !readOnlyPermissions && (
+              <FormRow>
+                <Column>
+                  <ButtonContainer>
+                    <SubmitButton
+                      onClick={() => handleStatusUpdate("approved")}
+                      disabled={
+                        isSubmitting || kycRecord.status === "approved"
+                      }
+                    >
+                      {isSubmitting ? "Processing..." : "Approve KYC"}
+                    </SubmitButton>
+                    <RejectButton
+                      onClick={() => handleStatusUpdate("rejected")}
+                      disabled={
+                        isSubmitting || kycRecord.status === "rejected"
+                      }
+                    >
+                      {isSubmitting ? "Processing..." : "Reject KYC"}
+                    </RejectButton>
+                    <BackButton onClick={() => navigate(-1)}>
+                      Back to Student List
+                    </BackButton>
+                  </ButtonContainer>
+                </Column>
+              </FormRow>
+            )
+          }
 
-          <FormRow>
-            <Column>
-              <ButtonContainer>
-                <SubmitButton
-                  onClick={() => handleStatusUpdate("approved")}
-                  disabled={
-                    isSubmitting || kycRecord.status === "approved"
-                  }
-                >
-                  {isSubmitting ? "Processing..." : "Approve KYC"}
-                </SubmitButton>
-                <RejectButton
-                  onClick={() => handleStatusUpdate("rejected")}
-                  disabled={
-                    isSubmitting || kycRecord.status === "rejected"
-                  }
-                >
-                  {isSubmitting ? "Processing..." : "Reject KYC"}
-                </RejectButton>
-                <BackButton onClick={() => navigate(-1)}>
-                  Back to Student List
-                </BackButton>
-              </ButtonContainer>
-            </Column>
-          </FormRow>
         </FormWrapper>
       ) : (
         // fallback: KYC status is something else but no record

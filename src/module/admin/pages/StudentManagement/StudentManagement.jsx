@@ -41,6 +41,8 @@ import { getAllStudents, studentBulkDelete, deleteStudentById, studentByCourse }
 import { getAllCourses } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "../../../../config/axiosConfig";
+import { getAuth } from "../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -68,6 +70,7 @@ export default function StudentManagement() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [selectedCourseId, setSelectedCourseId] = useState("all");
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
 
 
   // Timestamp helper
@@ -110,6 +113,18 @@ export default function StudentManagement() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["studentManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => { fetchStudentsAndCourses(); }, []);
   useEffect(() => { fetchStudentsAndCourses(selectedCourseId); }, [selectedCourseId]);
@@ -221,7 +236,10 @@ export default function StudentManagement() {
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/student-management/create")}>Add Student</CreateButton>
+        {
+          !readOnlyPermissions &&
+          <CreateButton onClick={() => navigate("/admin/student-management/create")}>Add Student</CreateButton>
+        }
         {selectedStudents.length > 0 && (
           <CreateButton onClick={handleBulkDeleteClick} style={{ marginLeft: 8, backgroundColor: 'red' }}>
             Delete Selected ({selectedStudents.length})
@@ -274,7 +292,12 @@ export default function StudentManagement() {
               <StyledTable>
                 <TableHead>
                   <TableRow>
-                    <TableHeader><input type="checkbox" checked={selectAll} onChange={handleSelectAllChange} /></TableHeader>
+                    {
+                      !readOnlyPermissions && (
+                        <TableHeader><input type="checkbox" checked={selectAll} onChange={handleSelectAllChange} /></TableHeader>
+                      )
+                    }
+
                     <TableHeader>Student name</TableHeader>
                     <TableHeader>Contact details</TableHeader>
                     <TableHeader>Course enrolled</TableHeader>
@@ -287,7 +310,10 @@ export default function StudentManagement() {
                 <TableBody>
                   {currentItems.map((item, idx) => (
                     <TableRow key={item._id}>
-                      <TableCell><input type="checkbox" checked={selectedStudents.includes(item._id)} onChange={() => handleCheckboxChange(item._id)} /></TableCell>
+                      {
+                        !readOnlyPermissions && (
+                          <TableCell><input type="checkbox" checked={selectedStudents.includes(item._id)} onChange={() => handleCheckboxChange(item._id)} /></TableCell>
+                        )}
                       <TableCell style={{ cursor: 'pointer', color: '#007bff' }} onClick={() => navigate(`/admin/student-management/edit/${item._id}`)}>
                         {item.displayName || 'N/A'}
                       </TableCell>

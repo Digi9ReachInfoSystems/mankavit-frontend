@@ -28,6 +28,7 @@ import {
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from "../../../../../utils/authService";
 
 const AboutUs = () => {
   // the list
@@ -48,30 +49,44 @@ const AboutUs = () => {
 
   // error
   const [error, setError] = useState("");
+  //webManagement
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // fetch (or re-fetch) the list
-// fetch (or re-fetch) the list
-const fetchItems = async () => {
-  setLoadingList(true);
-  setError("");
-  try {
-    const data = await getAllAboutUs();
+  // fetch (or re-fetch) the list
+  const fetchItems = async () => {
+    setLoadingList(true);
+    setError("");
+    try {
+      const data = await getAllAboutUs();
 
-    // 🔥 Sort newest first by createdAt or updatedAt
-    const sorted = (Array.isArray(data) ? data : []).sort(
-      (a, b) =>
-        new Date(b.createdAt || b.updatedAt) -
-        new Date(a.createdAt || a.updatedAt)
-    );
+      // 🔥 Sort newest first by createdAt or updatedAt
+      const sorted = (Array.isArray(data) ? data : []).sort(
+        (a, b) =>
+          new Date(b.createdAt || b.updatedAt) -
+          new Date(a.createdAt || a.updatedAt)
+      );
 
-    setItems(sorted);
-  } catch (err) {
-    console.error(err);
-    setError("Failed to load entries.");
-  } finally {
-    setLoadingList(false);
-  }
-};
+      setItems(sorted);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load entries.");
+    } finally {
+      setLoadingList(false);
+    }
+  };
 
   useEffect(() => {
     fetchItems();
@@ -84,45 +99,49 @@ const fetchItems = async () => {
   };
 
   // create or update
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!formData.title.trim() || !formData.description.trim()) {
-    toast.error("Please fill in all fields.");
-    return;
-  }
-     
-
-  setSaving(true);
-  setError("");
-
-  try {
-    if (formData.id) {
-      await updateAboutUsById(formData.id, {
-        title: formData.title,
-        description: formData.description,
-      });
-      toast.success("Data updated successfully!");
-    } else {
-      const newItem = await createAboutUs({
-  title: formData.title,
-  description: formData.description,
-});
-toast.success("Data added successfully!");
-
-// Insert the new item at the top
-setItems((prev) => [newItem, ...prev]);
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if(readOnlyPermissions) {
+      toast.error("You don't have permission to create or update data.");
+      return
     }
-    setFormData({ id: "", title: "", description: "" });
-    await fetchItems();
-  } catch (err) {
-    console.error(err);
-    const action = formData.id ? "update" : "create";
-    toast.error(`Failed to ${action}. Please try again.`);
-  } finally {
-    setSaving(false);
-  }
-};
+    if (!formData.title.trim() || !formData.description.trim()) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+
+    setSaving(true);
+    setError("");
+
+    try {
+      if (formData.id) {
+        await updateAboutUsById(formData.id, {
+          title: formData.title,
+          description: formData.description,
+        });
+        toast.success("Data updated successfully!");
+      } else {
+        const newItem = await createAboutUs({
+          title: formData.title,
+          description: formData.description,
+        });
+        toast.success("Data added successfully!");
+
+        // Insert the new item at the top
+        setItems((prev) => [newItem, ...prev]);
+
+      }
+      setFormData({ id: "", title: "", description: "" });
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+      const action = formData.id ? "update" : "create";
+      toast.error(`Failed to ${action}. Please try again.`);
+    } finally {
+      setSaving(false);
+    }
+  };
 
 
   // populate form for editing
@@ -145,15 +164,15 @@ setItems((prev) => [newItem, ...prev]);
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
     setError("");
-   try {
-  await deleteAboutUsById(deleteId);
-  toast.success("Data deleted successfully!");
-  await fetchItems();
-} catch (err) {
-  console.error(err);
-  setError("Delete failed. Please try again.");
-  toast.error("Failed to delete. Please try again.");
-} finally {
+    try {
+      await deleteAboutUsById(deleteId);
+      toast.success("Data deleted successfully!");
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+      setError("Delete failed. Please try again.");
+      toast.error("Failed to delete. Please try again.");
+    } finally {
       setIsDeleteOpen(false);
       setDeleteId(null);
     }
@@ -162,7 +181,7 @@ setItems((prev) => [newItem, ...prev]);
   return (
     <Container>
 
-         <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
@@ -189,7 +208,7 @@ setItems((prev) => [newItem, ...prev]);
             placeholder="Write title here"
             value={formData.title}
             // onChange={handleChange}
-            onChange={(e)=>{
+            onChange={(e) => {
               const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
               setFormData({ ...formData, title: filteredData });
 
@@ -213,8 +232,8 @@ setItems((prev) => [newItem, ...prev]);
           {saving
             ? "Saving..."
             : formData.id
-            ? "Update changes"
-            : "Add About Us"}
+              ? "Update changes"
+              : "Add About Us"}
         </Button>
       </form>
 
@@ -227,7 +246,12 @@ setItems((prev) => [newItem, ...prev]);
               <TableRow>
                 <TableHeader>Title</TableHeader>
                 <TableHeader>Description</TableHeader>
-                <TableHeader>Action</TableHeader>
+                {
+                  !readOnlyPermissions && (
+                    <TableHeader>Action</TableHeader>
+
+                  )
+                }
               </TableRow>
             </TableHead>
             <tbody>
@@ -236,19 +260,27 @@ setItems((prev) => [newItem, ...prev]);
                   <TableCell>{item.title}</TableCell>
                   <TableCell>{item.description}</TableCell>
                   <TableCell>
-                    <ActionsWrapper>
-                      <BiEditAlt
-                        size={20}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleEdit(item)}
-                      />
-                      <RiDeleteBin6Line
-                        size={20}
-                        color="#FB4F4F"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDeleteClick(item._id)}
-                      />
-                    </ActionsWrapper>
+                    {
+                      !readOnlyPermissions && (
+                        <>
+                          <ActionsWrapper>
+                            <BiEditAlt
+                              size={20}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleEdit(item)}
+                            />
+                            <RiDeleteBin6Line
+                              size={20}
+                              color="#FB4F4F"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleDeleteClick(item._id)}
+                            />
+                          </ActionsWrapper>
+                        </>
+
+                      )
+                    }
+
                   </TableCell>
                 </TableRow>
               ))}

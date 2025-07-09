@@ -23,6 +23,7 @@ import Pagination from "../../../component/Pagination/Pagination";
 import { getAllBlogs, deleteBlogById } from "../../../../../api/blogApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -36,43 +37,56 @@ const Blog = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
-   const fetchData = async () => {
-  try {
-    setLoading(true);
-    const response = await getAllBlogs();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllBlogs();
 
-    if (response && response.success && Array.isArray(response.blogs)) {
-      // 🔥 newest first
-      const sortedBlogs = response.blogs.sort((a, b) => {
-        // prefer createdAt / updatedAt; fall back to ObjectId timestamp
-        const tsA = new Date(
-          a.createdAt ||
-          a.updatedAt ||
-          parseInt(a._id.substring(0, 8), 16) * 1000
-        );
-        const tsB = new Date(
-          b.createdAt ||
-          b.updatedAt ||
-          parseInt(b._id.substring(0, 8), 16) * 1000
-        );
-        return tsB - tsA;  
-      });
+        if (response && response.success && Array.isArray(response.blogs)) {
+          // 🔥 newest first
+          const sortedBlogs = response.blogs.sort((a, b) => {
+            // prefer createdAt / updatedAt; fall back to ObjectId timestamp
+            const tsA = new Date(
+              a.createdAt ||
+              a.updatedAt ||
+              parseInt(a._id.substring(0, 8), 16) * 1000
+            );
+            const tsB = new Date(
+              b.createdAt ||
+              b.updatedAt ||
+              parseInt(b._id.substring(0, 8), 16) * 1000
+            );
+            return tsB - tsA;
+          });
 
-      setBlog(sortedBlogs);
-    } else {
-      setBlog([]);
-      toast.warning("No blogs found");
-    }
-  } catch (err) {
-    setError("Failed to load blogs. Please try again later.");
-    console.error("Error loading blogs:", err);
-    toast.error("Failed to load blogs");
-  } finally {
-    setLoading(false);
-  }
-};
+          setBlog(sortedBlogs);
+        } else {
+          setBlog([]);
+          toast.warning("No blogs found");
+        }
+      } catch (err) {
+        setError("Failed to load blogs. Please try again later.");
+        console.error("Error loading blogs:", err);
+        toast.error("Failed to load blogs");
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchData();
   }, []);
@@ -128,9 +142,14 @@ const Blog = () => {
   return (
     <>
       <BtnAchieve>
-        <AddButton onClick={() => navigate("/admin/web-management/blog/create")}>
-          Add Blog
-        </AddButton>
+        {
+          !readOnlyPermissions && (
+            <AddButton onClick={() => navigate("/admin/web-management/blog/create")}>
+              Add Blog
+            </AddButton>
+          )
+        }
+
       </BtnAchieve>
 
       <Container>
@@ -181,22 +200,28 @@ const Blog = () => {
                             state: item,
                           })
                         }
-                      />
-                      <BiEditAlt
-                        size={20}
-                        style={{ cursor: "pointer", marginRight: 10 }}
-                        onClick={() =>
-                          navigate(`/admin/web-management/blog/edit/${item._id}`, {
-                            state: item,
-                          })
-                        }
-                      />
-                      <RiDeleteBin6Line
-                        size={20}
-                        color="#FB4F4F"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDeleteClick(item._id)}
-                      />
+                      />{
+                        !readOnlyPermissions && (
+                          <>
+                            <BiEditAlt
+                              size={20}
+                              style={{ cursor: "pointer", marginRight: 10 }}
+                              onClick={() =>
+                                navigate(`/admin/web-management/blog/edit/${item._id}`, {
+                                  state: item,
+                                })
+                              }
+                            />
+                            <RiDeleteBin6Line
+                              size={20}
+                              color="#FB4F4F"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleDeleteClick(item._id)}
+                            />
+                          </>
+                        )
+                      }
+
                     </Td>
                   </tr>
                 ))
@@ -235,17 +260,17 @@ const Blog = () => {
         </ImageModalOverlay>
       )}
 
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 };

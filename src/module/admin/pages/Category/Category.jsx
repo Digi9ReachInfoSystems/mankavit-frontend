@@ -18,6 +18,7 @@ import { bulkDeleteCategory, deleteCategory, getCategories } from '../../../../a
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { set } from 'date-fns';
+import { getAuth } from '../../../../utils/authService';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,6 +34,19 @@ const Category = () => {
   const [BulkDelete, setBulkDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -173,13 +187,18 @@ const Category = () => {
           <StyledTable>
             <TableHead>
               <TableRow>
-                <TableHeader>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAllChange}
-                  />
-                </TableHeader>
+                {
+                  !readOnlyPermissions && (
+                    <TableHeader>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAllChange}
+                      />
+                    </TableHeader>
+                  )
+                }
+
                 <TableHeader>Category Name</TableHeader>
                 {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
@@ -187,13 +206,18 @@ const Category = () => {
             <TableBody>
               {currentItems.map((item) => (
                 <TableRow key={item._id}>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(item._id)}
-                      onChange={() => handleCheckboxChange(item._id)}
-                    />
-                  </TableCell>
+                  {
+                    !readOnlyPermissions && (
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(item._id)}
+                          onChange={() => handleCheckboxChange(item._id)}
+                        />
+                      </TableCell>
+                    )
+                  }
+
                   <TableCell>
                     <a
                       href="#"

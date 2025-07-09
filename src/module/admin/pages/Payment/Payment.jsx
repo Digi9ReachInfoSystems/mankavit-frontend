@@ -23,12 +23,13 @@ import {
   StatusWrapper,
   PaymentstatusDot,
 } from "../Payment/Payment.style";
-import Pagination from "../../component/Pagination/Pagination"; 
+import Pagination from "../../component/Pagination/Pagination";
 import { getAllPayments, getPaymentByCourseId } from "../../../../api/paymentApi";
 import { getAllCourses } from "../../../../api/courseApi";
 import styled from "styled-components";
 import { SearchWrapper } from "../StudentManagement/StudentManagement.style";
 import { CiSearch } from "react-icons/ci";
+import { getAuth } from "../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -71,6 +72,19 @@ export default function Payment() {
   const [sortBy, setSortBy] = useState("Time");
   const [coursesMap, setCoursesMap] = useState({});
   const [selectedCourseId, setSelectedCourseId] = useState("all");
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["paymentManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // Fetch payments + courses on mount
   useEffect(() => {
@@ -135,7 +149,7 @@ export default function Payment() {
     if (searchQuery) {
       data = data.filter(item => {
         const student = getNestedValue(item, 'userRef.displayName').toLowerCase();
-        const course  = getNestedValue(item, 'courseRef.courseName').toLowerCase();
+        const course = getNestedValue(item, 'courseRef.courseName').toLowerCase();
         return (
           student.includes(searchQuery.toLowerCase()) ||
           course.includes(searchQuery.toLowerCase())
@@ -176,50 +190,50 @@ export default function Payment() {
 
   // PDF export of ALL filteredPayments
   const exportPDF = () => {
-  const doc = new jsPDF();
-  doc.setFontSize(18);
-  doc.text("All Payments", 14, 22);
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("All Payments", 14, 22);
 
-  const columns = [
-    "Course",
-    "Student",
-    "Payment ID",
-    "Amount",
-    "Date",
-    "Mode",
-    "Status",
-  ];
+    const columns = [
+      "Course",
+      "Student",
+      "Payment ID",
+      "Amount",
+      "Date",
+      "Mode",
+      "Status",
+    ];
 
-  const rows = filteredPayments.map(item => [
-    getNestedValue(item, 'courseRef.courseName'),
-    getNestedValue(item, 'userRef.displayName'),
-    item.transactionId || item.razorpay_payment_id || "N/A",
-    `₹${item.amountPaid ?? "N/A"}`,
-    formatDate(item.createdAt),
-    item.paymentType || "N/A",
-    item.status,
-  ]);
+    const rows = filteredPayments.map(item => [
+      getNestedValue(item, 'courseRef.courseName'),
+      getNestedValue(item, 'userRef.displayName'),
+      item.transactionId || item.razorpay_payment_id || "N/A",
+      `₹${item.amountPaid ?? "N/A"}`,
+      formatDate(item.createdAt),
+      item.paymentType || "N/A",
+      item.status,
+    ]);
 
-  // <— note: calling the imported function directly
-  autoTable(doc, {
-    head: [columns],
-    body: rows,
-    startY: 30,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [33, 150, 243] },
-  });
+    // <— note: calling the imported function directly
+    autoTable(doc, {
+      head: [columns],
+      body: rows,
+      startY: 30,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [33, 150, 243] },
+    });
 
-  doc.save("payments.pdf");
-};
+    doc.save("payments.pdf");
+  };
 
 
   if (loading) return <Container>Loading payments...</Container>;
-  if (error)   return <Container>Error: {error}</Container>;
+  if (error) return <Container>Error: {error}</Container>;
   if (!payments.length) return <Container>No payment data available</Container>;
 
   const TOTAL_ENTRIES = filteredPayments.length;
-  const totalPages    = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
-  const currentItems  = filteredPayments.slice(
+  const totalPages = Math.ceil(TOTAL_ENTRIES / ITEMS_PER_PAGE);
+  const currentItems = filteredPayments.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -257,10 +271,14 @@ export default function Payment() {
               <option value="AmountHigh">Amount (High → Low)</option>
             </SortSelect>
           </SortByContainer>
+          {
+            !readOnlyPermissions && (
+              <ExportButton onClick={exportPDF}>
+                Export PDF
+              </ExportButton>
+            )
+          }
 
-          <ExportButton onClick={exportPDF}>
-            Export PDF
-          </ExportButton>
         </div>
       </HeaderRow>
 
@@ -294,8 +312,8 @@ export default function Payment() {
               const color = getStatusColor(item.status);
               return (
                 <TableRow key={item._id}>
-                  <TableCell>{getNestedValue(item,'courseRef.courseName')}</TableCell>
-                  <TableCell>{getNestedValue(item,'userRef.displayName')}</TableCell>
+                  <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell>
+                  <TableCell>{getNestedValue(item, 'userRef.displayName')}</TableCell>
                   <TableCell>{item.transactionId || item.razorpay_payment_id || "N/A"}</TableCell>
                   <TableCell>₹{item.amountPaid ?? "N/A"}</TableCell>
                   <TableCell>{formatDate(item.createdAt)}</TableCell>

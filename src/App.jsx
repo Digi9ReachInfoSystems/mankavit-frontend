@@ -147,6 +147,9 @@ import AdminManagement from './module/admin/pages/AdminManagement/AdminManagemen
 import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
 import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
 
+import ScreenShot from './component/ScreenShot/ScreenShot'
+import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/superAdminRoute'
+import AdminRoute from './pages/ProtectedAndPublicRoutes/adminRoute'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
@@ -154,6 +157,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
+        {/* <ScreenShot /> */}
          {/* <ScreenShot /> */}
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
@@ -211,132 +215,132 @@ function App() {
 
           <Route path="/admin" element={<ProtectedRoute roles={['admin']}><BaseLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
-            <Route path="course-management" element={<Course />} />
-            <Route path="course-management/create" element={<AddCourse />} />
-            <Route path="course-management/edit/:id" element={<EditCourse />} />
-            <Route path="course-management/view/:id" element={<ViewCourse />} />
+            <Route path="course-management" element={<AdminRoute Access={"courseManagement"} ><Course /></AdminRoute>} />
+            <Route path="course-management/create" element={<AdminRoute Access={"courseManagement"} ><AddCourse /></AdminRoute>} />
+            <Route path="course-management/edit/:id" element={<AdminRoute Access={"courseManagement"} ><EditCourse /></AdminRoute>} />
+            <Route path="course-management/view/:id" element={<AdminRoute Access={"courseManagement"} ><ViewCourse /></AdminRoute>} />
 
             <Route path="meeting-management" element={<Meeting />} />
             <Route path="meeting-management/create" element={<AddMeeting />} />
 
-            <Route path="student-management" element={<StudentManagement />} />
-            <Route path="student-management/create" element={<AddStudent />} />
-            <Route path="student-management/edit/:userId" element={<EditStudent />} />
-            <Route path="student-management/view/:id" element={<ViewStudent />} />
-            <Route path='student-management/update-kyc/:userId' element={<UpdateKYC />} />
+            <Route path="student-management" element={<AdminRoute Access={"studentManagement"} ><StudentManagement /></AdminRoute>} />
+            <Route path="student-management/create" element={<AdminRoute Access={"studentManagement"}><AddStudent /></AdminRoute>} />
+            <Route path="student-management/edit/:userId" element={<AdminRoute Access={"studentManagement"}><EditStudent /></AdminRoute>} />
+            <Route path="student-management/view/:id" element={<AdminRoute Access={"studentManagement"}><ViewStudent /></AdminRoute>} />
+            <Route path='student-management/update-kyc/:userId' element={<AdminRoute Access={"studentManagement"}><UpdateKYC /></AdminRoute>} />
 
-            <Route path="mock-test" element={<Mocktest />} />
-            <Route path="mock-test/create-mock-test" element={<CreateMockTest />} />
-            <Route path="mock-test/questions-list/:mockTestId" element={<MockTestQuestionsList />} />
-            <Route path="mock-test/create" element={<AddMockTest />} />
-            <Route path="mock-test/view/:id" element={<ViewMockTest />} />
-            <Route path='mock-test/edit/:mockTestId' element={<EditMockTest />} />
-            <Route path='mock-test/user-result/:mockTestId/:subjectId' element={<ViewUser />} />
-            <Route path='mock-test/user-ranking/:mockTestId/:subjectId' element={<ViewUserRanking />} />
-            <Route path='mock-test/user-attempts/:mockTestId/:userId' element={<ViewUserAttempts />} />
-            <Route path='mock-test/user-result/view-result/:attemptId' element={<ViewUserResults />} />
+            <Route path="mock-test" element={<AdminRoute Access={"mockTestManagement"}><Mocktest /></AdminRoute>} />
+            <Route path="mock-test/create-mock-test" element={<AdminRoute Access={"mockTestManagement"}><CreateMockTest /></AdminRoute>} />
+            <Route path="mock-test/questions-list/:mockTestId" element={<AdminRoute Access={"mockTestManagement"}><MockTestQuestionsList /></AdminRoute>} />
+            <Route path="mock-test/create" element={<AdminRoute Access={"mockTestManagement"}><AddMockTest /></AdminRoute>} />
+            <Route path="mock-test/view/:id" element={<AdminRoute Access={"mockTestManagement"}><ViewMockTest /></AdminRoute>} />
+            <Route path='mock-test/edit/:mockTestId' element={<AdminRoute Access={"mockTestManagement"}><EditMockTest /></AdminRoute>} />
+            <Route path='mock-test/user-result/:mockTestId/:subjectId' element={<AdminRoute Access={"mockTestManagement"}><ViewUser /></AdminRoute>} />
+            <Route path='mock-test/user-ranking/:mockTestId/:subjectId' element={<AdminRoute Access={"mockTestManagement"}><ViewUserRanking /></AdminRoute>} />
+            <Route path='mock-test/user-attempts/:mockTestId/:userId' element={<AdminRoute Access={"mockTestManagement"}><ViewUserAttempts /></AdminRoute>} />
+            <Route path='mock-test/user-result/view-result/:attemptId' element={<AdminRoute Access={"mockTestManagement"}><ViewUserResults /></AdminRoute>} />
 
-            <Route path='results' element={<AllmocktestResults />} />
-            <Route path='results/view/:id' element={<ViewMockTestResult />} />
-            <Route path="results/edit/:id" element={<EditMockTestResult />} />
-            <Route path='results/studentName/:userId' element={<StudentResults />} />
-            <Route path='results/user-attempts/attempt/:attemptId' element={<MocktestStudentResult />} />
+            <Route path='results' element={<AdminRoute Access={"mockTestManagement"}><AllmocktestResults /></AdminRoute>} />
+            <Route path='results/view/:id' element={<AdminRoute Access={"mockTestManagement"}><ViewMockTestResult /></AdminRoute>} />
+            <Route path="results/edit/:id" element={<AdminRoute Access={"mockTestManagement"}><EditMockTestResult /></AdminRoute>} />
+            <Route path='results/studentName/:userId' element={<AdminRoute Access={"mockTestManagement"}><StudentResults /></AdminRoute>} />
+            <Route path='results/user-attempts/attempt/:attemptId' element={<AdminRoute Access={"mockTestManagement"}><MocktestStudentResult /></AdminRoute>} />
 
-            <Route path="payment-management" element={<Payment />} />
+            <Route path="payment-management" element={<AdminRoute Access={"paymentManagement"} ><Payment /></AdminRoute>} />
 
-            <Route path="subject-management" element={<Subjects />} />
-            <Route path="subject-management/create" element={<AddSubject />} />
-            <Route path="subject-management/edit/:id" element={<EditSubject />} />
-            <Route path="subject-management/view/:id" element={<ViewSubject />} />
+            <Route path="subject-management" element={<AdminRoute Access={"courseManagement"} ><Subjects /></AdminRoute>} />
+            <Route path="subject-management/create" element={<AdminRoute Access={"courseManagement"} ><AddSubject /></AdminRoute>} />
+            <Route path="subject-management/edit/:id" element={<AdminRoute Access={"courseManagement"} ><EditSubject /></AdminRoute>} />
+            <Route path="subject-management/view/:id" element={<AdminRoute Access={"courseManagement"} ><ViewSubject /></AdminRoute>} />
 
-            <Route path="notes-management" element={<NotesManagement />} />
-            <Route path="notes-management/create" element={<AddNote />} />
-            <Route path="notes-management/edit/:id" element={<EditNotes />} />
-            <Route path="notes-management/view/:id" element={<ViewNotes />} />
+            <Route path="notes-management" element={<AdminRoute Access={"courseManagement"} ><NotesManagement /></AdminRoute>} />
+            <Route path="notes-management/create" element={<AdminRoute Access={"courseManagement"} ><AddNote /></AdminRoute>} />
+            <Route path="notes-management/edit/:id" element={<AdminRoute Access={"courseManagement"} ><EditNotes /></AdminRoute>} />
+            <Route path="notes-management/view/:id" element={<AdminRoute Access={"courseManagement"} ><ViewNotes /></AdminRoute>} />
 
-            <Route path="category-management" element={<Category />} />
-            <Route path="category-management/create" element={<Addcategory />} />
-            <Route path="category-management/edit/:id" element={<EditCategory />} />
+            <Route path="category-management" element={<AdminRoute Access={"courseManagement"} ><Category /></AdminRoute>} />
+            <Route path="category-management/create" element={<AdminRoute Access={"courseManagement"} ><Addcategory /></AdminRoute>} />
+            <Route path="category-management/edit/:id" element={<AdminRoute Access={"courseManagement"} ><EditCategory /></AdminRoute>} />
 
-            <Route path="lecturer-management" element={<Lecturer />} />
-            <Route path="lecturer-management/create" element={<AddLecturer />} />
-            <Route path="lecturer-management/edit/:id" element={<EditLecturer />} />
-            <Route path="lecturer-management/view/:id" element={<ViewLecturer />} />
+            <Route path="lecturer-management" element={<AdminRoute Access={"courseManagement"} ><Lecturer /></AdminRoute>} />
+            <Route path="lecturer-management/create" element={<AdminRoute Access={"courseManagement"} ><AddLecturer /></AdminRoute>} />
+            <Route path="lecturer-management/edit/:id" element={<AdminRoute Access={"courseManagement"} ><EditLecturer /></AdminRoute>} />
+            <Route path="lecturer-management/view/:id" element={<AdminRoute Access={"courseManagement"} ><ViewLecturer /></AdminRoute>} />
 
-            <Route path="recorded-class" element={<RecordedClass />} />
-            <Route path="recorded-classes/create" element={<AddRecordedClass />} />
-            <Route path="recorded-classes/edit/:id" element={<EditRecordedClass />} />
-            <Route path="recorded-classes/view/:id" element={<ViewRecordedClass />} />
+            <Route path="recorded-class" element={<AdminRoute Access={"courseManagement"} ><RecordedClass /></AdminRoute>} />
+            <Route path="recorded-classes/create" element={<AdminRoute Access={"courseManagement"} ><AddRecordedClass /></AdminRoute>} />
+            <Route path="recorded-classes/edit/:id" element={<AdminRoute Access={"courseManagement"} ><EditRecordedClass /></AdminRoute>} />
+            <Route path="recorded-classes/view/:id" element={<AdminRoute Access={"courseManagement"} ><ViewRecordedClass /></AdminRoute>} />
 
-            <Route path="static-page" element={<Staticpage />} />
+            <Route path="static-page" element={<AdminRoute Access={"staticPageManagement"} ><Staticpage /></AdminRoute>} />
 
 
             {/* <Route path="static-pages" element={<StaticPage />} /> */}
 
-            <Route path="web-management/home" element={<Homepage />} />
+            <Route path="web-management/home" element={<AdminRoute Access={"webManagement"} ><Homepage /></AdminRoute>} />
 
-            <Route path="web-management/faq" element={<FAQ />} />
-            <Route path="web-management/faq/create" element={<AddFaq />} />
-            <Route path="web-management/faq/edit/:id" element={<EditFaq />} />
+            <Route path="web-management/faq" element={<AdminRoute Access={"webManagement"} ><FAQ /></AdminRoute>} />
+            <Route path="web-management/faq/create" element={<AdminRoute Access={"webManagement"} ><AddFaq /></AdminRoute>} />
+            <Route path="web-management/faq/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditFaq /></AdminRoute>} />
 
-            <Route path="web-management/question-paper" element={< Questionpaper />} />
-            <Route path="web-management/question-paper/create" element={<AddQuestionpaper />} />
-            <Route path="web-management/question-paper/edit/:id" element={<EditQuestionPaper />} />
-            <Route path="web-management/question-paper/view/:id" element={<ViewQuestionPaper />} />
+            <Route path="web-management/question-paper" element={<AdminRoute Access={"webManagement"} ><Questionpaper /></AdminRoute>} />
+            <Route path="web-management/question-paper/create" element={<AdminRoute Access={"webManagement"} > <AddQuestionpaper /> </AdminRoute>} />
+            <Route path="web-management/question-paper/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditQuestionPaper /></AdminRoute>} />
+            <Route path="web-management/question-paper/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewQuestionPaper /></AdminRoute>} />
 
-            <Route path="web-management/live-classes" element={<LiveClass />} />
-            <Route path="web-management/live-classes/create" element={<AddLiveClass />} />
-            <Route path="web-management/live-classes/edit/:id" element={<EditLiveclass />} />
+            <Route path="web-management/live-classes" element={<AdminRoute Access={"webManagement"} ><LiveClass /></AdminRoute>} />
+            <Route path="web-management/live-classes/create" element={<AdminRoute Access={"webManagement"} ><AddLiveClass /></AdminRoute>} />
+            <Route path="web-management/live-classes/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditLiveclass /></AdminRoute>} />
 
             {/* <Route path="web-management/recorded-class" element={<RecordedClass />} />
             <Route path="web-management/recorded-classes/create" element={<AddRecordedClass />} />
             <Route path="web-management/recorded-classes/edit/:id" element={<EditRecordedClass />} />
             <Route path="web-management/recorded-classes/view/:id" element={<ViewRecordedClass />} /> */}
 
-            <Route path="web-management/aboutus" element={<Aboutus />} />
-            <Route path="web-management/why-mankavit" element={<WhyMankavit />} />
+            <Route path="web-management/aboutus" element={<AdminRoute Access={"webManagement"} ><Aboutus /></AdminRoute>} />
+            <Route path="web-management/why-mankavit" element={<AdminRoute Access={"webManagement"} ><WhyMankavit /></AdminRoute>} />
 
             <Route path="web-management/testinomial" element={<Testimonial />} />
             <Route path="web-management/testinomial/create" element={<AddTestimonial />} />
             <Route path="web-management/testinomial/edit/:id" element={<EditTestimonial />} />
             <Route path="web-management/testinomial/view/:id" element={<ViewTestimonial />} />
 
-            <Route path="web-management/achievement" element={<Achievements />} />
-            <Route path="web-management/achievement/create" element={<AddAchievements />} />
-            <Route path='web-management/achievement/edit/:id' element={<EditAchievement />} />
-            <Route path="web-management/achievement/view/:id" element={<ViewAchievement />} />
+            <Route path="web-management/achievement" element={<AdminRoute Access={"webManagement"} ><Achievements /></AdminRoute>} />
+            <Route path="web-management/achievement/create" element={<AdminRoute Access={"webManagement"} ><AddAchievements /></AdminRoute>} />
+            <Route path='web-management/achievement/edit/:id' element={<AdminRoute Access={"webManagement"} ><EditAchievement /></AdminRoute>} />
+            <Route path="web-management/achievement/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewAchievement /></AdminRoute>} />
 
-            <Route path="web-management/social-media" element={<SocialMedia />} />
+            <Route path="web-management/social-media" element={<AdminRoute Access={"webManagement"} ><SocialMedia /></AdminRoute>} />
 
-            <Route path="web-management/notification" element={<Notification />} />
-            <Route path="web-management/mission" element={<AdminMission />} />
-            <Route path="web-management/mission/create" element={<AddMission />} />
-            <Route path="web-management/mission/edit/:id" element={<EditMission />} />
-            <Route path="web-management/mission/view/:id" element={<ViewMission />} />
+            <Route path="web-management/notification" element={<AdminRoute Access={"webManagement"} ><Notification /></AdminRoute>} />
+            <Route path="web-management/mission" element={<AdminRoute Access={"webManagement"} ><AdminMission /></AdminRoute>} />
+            <Route path="web-management/mission/create" element={<AdminRoute Access={"webManagement"} ><AddMission /></AdminRoute>} />
+            <Route path="web-management/mission/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditMission /></AdminRoute>} />
+            <Route path="web-management/mission/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewMission /></AdminRoute>} />
 
-            <Route path="web-management/why-study-with-us" element={<WhyStudyWithUs />} />
-            <Route path="web-management/why-study-with-us/create" element={<AddWhyStudyWithUs />} />
-            <Route path="web-management/why-study-with-us/edit/:id" element={<EditWhyStudyWithUs />} />
-            <Route path="web-management/why-study-with-us/view/:id" element={<ViewWhyStudyWithUs />} />
+            <Route path="web-management/why-study-with-us" element={<AdminRoute Access={"webManagement"} ><WhyStudyWithUs /></AdminRoute>} />
+            <Route path="web-management/why-study-with-us/create" element={<AdminRoute Access={"webManagement"} ><AddWhyStudyWithUs /></AdminRoute>} />
+            <Route path="web-management/why-study-with-us/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditWhyStudyWithUs /></AdminRoute>} />
+            <Route path="web-management/why-study-with-us/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewWhyStudyWithUs /></AdminRoute>} />
 
-            <Route path="web-management/blog" element={<Blog />} />
-            <Route path="web-management/blog/create" element={<AddBlog />} />
-            <Route path="web-management/blog/edit/:id" element={<EditBlog />} />
-            <Route path="web-management/blog/view/:id" element={<ViewBlog />} />
+            <Route path="web-management/blog" element={<AdminRoute Access={"webManagement"} ><Blog /></AdminRoute>} />
+            <Route path="web-management/blog/create" element={<AdminRoute Access={"webManagement"} ><AddBlog /></AdminRoute>} />
+            <Route path="web-management/blog/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditBlog /></AdminRoute>} />
+            <Route path="web-management/blog/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewBlog /></AdminRoute>} />
 
-            <Route path="web-management/contact-support" element={<ContactSupportView />} />
+            <Route path="web-management/contact-support" element={<AdminRoute Access={"webManagement"} ><ContactSupportView /></AdminRoute>} />
 
-            <Route path="web-management/user-feedback" element={<UserFeedback />} />
+            <Route path="web-management/user-feedback" element={<AdminRoute Access={"webManagement"} ><UserFeedback /></AdminRoute>} />
             <Route path="web-management/user-feedback/view/:id" element={<ViewStudentFeedback />} />
 
-            <Route path='web-management/youtubelinks' element={<YouTube />} />
-            <Route path='web-management/youtubelinks/create' element={<AddYoutube />} />
-            <Route path='web-management/youtubelinks/edit/:id' element={<EditYoutube />} />
-            <Route path="web-management/youtubelinks/view/:id" element={<ViewYoutube />} />
+            <Route path='web-management/youtubelinks' element={<AdminRoute Access={"webManagement"} ><YouTube /></AdminRoute>} />
+            <Route path='web-management/youtubelinks/create' element={<AdminRoute Access={"webManagement"} ><AddYoutube /></AdminRoute>} />
+            <Route path='web-management/youtubelinks/edit/:id' element={<AdminRoute Access={"webManagement"} ><EditYoutube /></AdminRoute>} />
+            <Route path="web-management/youtubelinks/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewYoutube /></AdminRoute>} />
 
-            <Route path='subadmins-management' element={<AdminManagement/>} />
-            <Route path='subadmins-management/create' element={<CreateAdmin />} />
-            <Route path='subadmins-management/edit/:id' element={<EditAdmin/>} />
+            <Route path='subadmins-management' element={<SuperAdminRoute><AdminManagement /></SuperAdminRoute>} />
+            <Route path='subadmins-management/create' element={<SuperAdminRoute><CreateAdmin /></SuperAdminRoute>} />
+            <Route path='subadmins-management/edit/:id' element={<SuperAdminRoute><EditAdmin /> </SuperAdminRoute>} />
             {/* <Route path="subadmins-management/view/:id" element={<ViewSubAdmin />} /> */}
 
           </Route>

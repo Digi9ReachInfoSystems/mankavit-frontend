@@ -1,5 +1,5 @@
 // src/modules/admin/components/AddFaq/AddFaq.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   FormGroup,
@@ -13,7 +13,8 @@ import { createFaq } from '../../../../../../api/faqApi';
 import { useNavigate } from 'react-router-dom';
 
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from '../../../../../../utils/authService';
 
 const AddFaq = ({ onAdd }) => {
   const [question, setQuestion] = useState('');
@@ -21,11 +22,39 @@ const AddFaq = ({ onAdd }) => {
   const [errors, setErrors] = useState({ question: '', answer: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+        if (response.Permissions["webManagement"].readOnly) {
+          toast.error('You do not have permission to add FAQs.', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            onClose: () => {
+              navigate('/admin/');
+            }
+          });
+        }
+      }
+    }
+    apiCaller();
+  }, []);
 
   const validate = () => {
     const errs = { question: '', answer: '' };
     if (!question.trim()) errs.question = 'Question is required';
-    if (!answer.trim())   errs.answer   = 'Answer is required';
+    if (!answer.trim()) errs.answer = 'Answer is required';
     setErrors(errs);
     return !errs.question && !errs.answer;
   };
@@ -90,10 +119,14 @@ const AddFaq = ({ onAdd }) => {
           />
           {errors.answer && <ErrorText>{errors.answer}</ErrorText>}
         </FormGroup>
+        {
+          !readOnlyPermissions &&
+          <SubmitButton type="submit" disabled={loading}>
+            {loading ? 'Adding…' : 'Add New FAQ'}
+          </SubmitButton>
+        }
 
-        <SubmitButton type="submit" disabled={loading}>
-          {loading ? 'Adding…' : 'Add New FAQ'}
-        </SubmitButton>
+
       </form>
 
       <ToastContainer

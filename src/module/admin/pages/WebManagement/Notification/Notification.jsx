@@ -1,5 +1,5 @@
 // src/components/Notification/Notification.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   FormGroup,
@@ -12,6 +12,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { createNotification } from "../../../../../api/notificationApi";
+import { getAuth } from "../../../../../utils/authService";
 
 const Notification = ({
   scheduleTime: defaultSchedule = new Date().toISOString().slice(0,16),
@@ -20,9 +21,26 @@ const Notification = ({
   const [scheduleTime, setScheduleTime] = useState(defaultSchedule);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+        }
+      }
+      apiCaller();
+    }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (readOnlyPermissions) {
+      toast.error("You don't have permission to schedule notifications.");
+      return;
+    }
     try {
       await createNotification({
         title,

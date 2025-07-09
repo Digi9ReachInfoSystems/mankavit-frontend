@@ -28,6 +28,7 @@ import { getAllUserAttemptByUserId } from "../../../../../api/mocktestApi";
 
 import DeleteModal from "../../DeleteModal/DeleteModal";
 import api from "../../../../../config/axiosConfig";
+import { getAuth } from "../../../../../utils/authService";
 const EMAIL_RGX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RGX = /^\+?\d{7,15}$/;
 
@@ -50,6 +51,19 @@ const EditStudent = () => {
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockedChange, setBlockedChange] = useState(false);
   const [masterOtpEnabled, setMasterOtpEnabled] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["studentManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   useEffect(() => {
     const apiCaller = async () => {
       const res = await getUserByUserId(userId);
@@ -253,6 +267,10 @@ const EditStudent = () => {
   if (!student) return null;
   const handleBlockAndUnblock = async (userId) => {
     try {
+      if (readOnlyPermissions) {
+        toast.error("You don't have permission to change Block status");
+        return;
+      }
       setProcessing(true);
       const response = await blockAndUnblockUser({ userId });
       console.log("response", response.data);
@@ -272,6 +290,11 @@ const EditStudent = () => {
 
   const handleMasterOtp = async (userId) => {
     try {
+      console.log("userId", userId, "readOnlyPermissions", readOnlyPermissions);
+      if (readOnlyPermissions) {
+        toast.error("You don't have permission to change master otp");
+        return;
+      }
       setProcessing(true);
       const response = await enableDisableMasterOTP({ userId });
       console.log("response", response.data);
@@ -294,31 +317,36 @@ const EditStudent = () => {
       {/* ============== FORM ============== */}
 
       <Title>Edit Student</Title>
-      <FlexRow style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        // alignItems: "center",
-        width: "100%"
-      }}>
-        <LogoutButton
-          type="button"
-          disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
-          onClick={handleForceLogout}
-          style={{ width: "10%" }}
-        >
-          {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
-        </LogoutButton>
+      {
+        !readOnlyPermissions && (
+          <FlexRow style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            // alignItems: "center",
+            width: "100%"
+          }}>
+            <LogoutButton
+              type="button"
+              disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
+              onClick={handleForceLogout}
+              style={{ width: "10%" }}
+            >
+              {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
+            </LogoutButton>
 
-        <LogoutButton
-          type="button"
-          disabled={processing}
-          onClick={confirmDelete}
-          style={{ background: "#d32f2f", color: "white", width: "10%" }}
-        >
-          Delete student
-        </LogoutButton>
+            <LogoutButton
+              type="button"
+              disabled={processing}
+              onClick={confirmDelete}
+              style={{ background: "#d32f2f", color: "white", width: "10%" }}
+            >
+              Delete student
+            </LogoutButton>
 
-      </FlexRow>
+          </FlexRow>
+        )
+      }
+
 
 
       <InputGroup>
@@ -369,6 +397,7 @@ const EditStudent = () => {
         </InputGroup>
 
         <InputGroup>
+
           <Label style={{ marginBottom: "7px" }}>Master OTP Status</Label>
           <ToggleSwitch>
             <input
@@ -552,13 +581,17 @@ const EditStudent = () => {
         </>
       )}
       <FlexRow style={{ marginTop: 24 }}>
-        <SubmitButton
-          type="button"
-          disabled={processing}
-          onClick={handleSave}
-        >
-          {processing ? "Saving…" : "Save changes"}
-        </SubmitButton>
+        {
+          !readOnlyPermissions &&
+          <SubmitButton
+            type="button"
+            disabled={processing}
+            onClick={handleSave}
+          >
+            {processing ? "Saving…" : "Save changes"}
+          </SubmitButton>
+        }
+
         <DeleteModal
           isOpen={isDeleteOpen}
           onClose={cancelDelete}

@@ -38,6 +38,7 @@ import {
 } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -66,6 +67,19 @@ export default function CoursesTable() {
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   useEffect(() => {
     fetchCourses();
@@ -144,6 +158,10 @@ export default function CoursesTable() {
   };
 
   const handlePublishToggle = async (id, checked) => {
+    if (readOnlyPermissions) {
+      toast.error("You don't have permission to change publish status");
+      return;
+    }
     setData((d) =>
       d.map((c) => (c.id === id ? { ...c, isPublished: checked } : c))
     );
@@ -190,9 +208,9 @@ export default function CoursesTable() {
       second: "2-digit",
       hour12: true,
     }).format(new Date(iso));
-    const handleBulkDeleteClick = () => {
-      setBulkDeleteModalOpen(true);
-    }
+  const handleBulkDeleteClick = () => {
+    setBulkDeleteModalOpen(true);
+  }
 
   const handleCheckboxChange = (courseId) => {
     setSelectedCourses((prev) =>
@@ -288,13 +306,15 @@ export default function CoursesTable() {
               <StyledTable>
                 <TableHead>
                   <TableRow>
-                    <TableHeader>
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAllChange}
-                      />
-                    </TableHeader>
+                    {!readOnlyPermissions && (
+                      <TableHeader>
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAllChange}
+                        />
+                      </TableHeader>
+                    )}
                     <TableHeader>Course Name</TableHeader>
                     <TableHeader>Internal Name</TableHeader>
                     <TableHeader>Subjects</TableHeader>
@@ -308,13 +328,16 @@ export default function CoursesTable() {
                 <TableBody>
                   {currentItems.map((c) => (
                     <TableRow key={c.id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedCourses.includes(c.id)}
-                          onChange={() => handleCheckboxChange(c.id)}
-                        />
-                      </TableCell>
+                      {!readOnlyPermissions && (
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedCourses.includes(c.id)}
+                            onChange={() => handleCheckboxChange(c.id)}
+                          />
+                        </TableCell>
+                      )}
+
                       <TableCell
 
                       >

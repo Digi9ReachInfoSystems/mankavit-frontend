@@ -26,6 +26,7 @@ import { getNotesById, updatenotesById } from "../../../../../api/notesApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../../utils/authService";
 
 export default function EditNotes() {
   const { id } = useParams();
@@ -37,6 +38,19 @@ export default function EditNotes() {
   const [existingFileUrl, setExistingFileUrl] = useState("");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+        }
+      }
+      apiCaller();
+    }, []);
 
  useEffect(() => {
   const fetchData = async () => {
@@ -271,9 +285,13 @@ export default function EditNotes() {
         </FormRow>
 
         {/* Submit button */}
-        <FormRow>
-          <SubmitButton type="submit">Update Note</SubmitButton>
-        </FormRow>
+        {
+          !readOnlyPermissions&&(
+            <FormRow>
+              <SubmitButton type="submit">Update Note</SubmitButton>
+            </FormRow>
+          )
+        }
       </FormWrapper>
       
       <ToastContainer

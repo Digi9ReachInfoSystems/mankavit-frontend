@@ -31,6 +31,7 @@ import { getAllWhy, deleteWhyById } from "../../../../../api/whyApi";
 // Import react-toastify
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -44,29 +45,42 @@ const WhyStudyWithUs = () => {
   const [selectedId, setSelectedId] = useState(null);
 
   const getTimestamp = (item) => {
-  if (item.createdAt) return new Date(item.createdAt).getTime();
-  if (item.updatedAt) return new Date(item.updatedAt).getTime();
-  if (item._id && item._id.length >= 8) {
-    return parseInt(item._id.substring(0, 8), 16) * 1000; // fallback: from MongoDB ObjectId
-  }
-  return 0;
-};
-
- useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await getAllWhy();
-      const sorted = (response.data ?? response).sort(
-        (a, b) => getTimestamp(b) - getTimestamp(a)
-      );
-      setWhyStudy(sorted);
-    } catch (err) {
-      console.error("Error loading data:", err);
-      toast.error("Failed to load data.");
+    if (item.createdAt) return new Date(item.createdAt).getTime();
+    if (item.updatedAt) return new Date(item.updatedAt).getTime();
+    if (item._id && item._id.length >= 8) {
+      return parseInt(item._id.substring(0, 8), 16) * 1000; // fallback: from MongoDB ObjectId
     }
+    return 0;
   };
-  fetchData();
-}, []);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllWhy();
+        const sorted = (response.data ?? response).sort(
+          (a, b) => getTimestamp(b) - getTimestamp(a)
+        );
+        setWhyStudy(sorted);
+      } catch (err) {
+        console.error("Error loading data:", err);
+        toast.error("Failed to load data.");
+      }
+    };
+    fetchData();
+  }, []);
 
 
   const totalItems = whyStudy.length;
@@ -100,9 +114,14 @@ const WhyStudyWithUs = () => {
   return (
     <>
       <BtnAchieve>
-        <AddButton onClick={() => navigate("/admin/web-management/why-study-with-us/create")}>
-          Add
-        </AddButton>
+        {
+          !readOnlyPermissions && (
+            <AddButton onClick={() => navigate("/admin/web-management/why-study-with-us/create")}>
+              Add
+            </AddButton>
+          )
+        }
+
       </BtnAchieve>
 
       <Container>
@@ -144,19 +163,26 @@ const WhyStudyWithUs = () => {
                         navigate(`/admin/web-management/why-study-with-us/view/${item._id}`)
                       }
                     />
-                    <BiEditAlt
-                      size={20}
-                      style={{ cursor: "pointer", marginRight: 10 }}
-                      onClick={() =>
-                        navigate(`/admin/web-management/why-study-with-us/edit/${item._id}`)
-                      }
-                    />
-                    <RiDeleteBin6Line
-                      size={20}
-                      color="#FB4F4F"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleDeleteClick(item._id)}
-                    />
+                    {
+                      !readOnlyPermissions && (
+                        <>
+                          <BiEditAlt
+                            size={20}
+                            style={{ cursor: "pointer", marginRight: 10 }}
+                            onClick={() =>
+                              navigate(`/admin/web-management/why-study-with-us/edit/${item._id}`)
+                            }
+                          />
+                          <RiDeleteBin6Line
+                            size={20}
+                            color="#FB4F4F"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleDeleteClick(item._id)}
+                          />
+                        </>
+                      )
+                    }
+
                   </Td>
                 </tr>
               ))}

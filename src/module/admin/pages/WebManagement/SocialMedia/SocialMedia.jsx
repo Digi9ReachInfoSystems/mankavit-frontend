@@ -12,6 +12,7 @@ import {
 import { updateSocialMediaLinks, getSocialMediaLinks } from '../../../../../api/youtuubeApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from '../../../../../utils/authService';
 
 const SocialMedia = () => {
   const [links, setLinks] = useState({
@@ -25,6 +26,19 @@ const SocialMedia = () => {
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchLinks = async () => {
@@ -165,10 +179,15 @@ const SocialMedia = () => {
             onChange={handleChange}
           />
         </FormGroup>
+        {!readOnlyPermissions&&(
+          <SubmitButton type="submit" disabled={submitting}>
+            {submitting ? 'Updating...' : 'Update Social Media Links'}
+          </SubmitButton>
+        )}
 
-        <SubmitButton type="submit" disabled={submitting}>
+        {/* <SubmitButton type="submit" disabled={submitting}>
           {submitting ? 'Updating...' : 'Update Social Media Links'}
-        </SubmitButton>
+        </SubmitButton> */}
       </form>
     </Container>
   );
