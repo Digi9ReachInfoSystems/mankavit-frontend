@@ -71,12 +71,17 @@ const Sidebar = () => {
   const meetingsItems = [
     { path: "/admin/meeting-management", label: "Meeting" },
   ];
+  const adminItems = [
+    { path: "/admin/subadmins-management", label: "Admin Management" },
+   
+  ];
  
   const sections = {
     "Mock Test": mockTestItems,
     "Course Management": courseManagementItems,
     "Web Management": webManagementItems,
-    "Meeting": meetingsItems
+    "Meeting": meetingsItems,
+    "Admin Management": adminItems
   };
 
  

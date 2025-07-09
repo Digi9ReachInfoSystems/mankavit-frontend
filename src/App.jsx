@@ -142,6 +142,10 @@ import PublicRoute from './pages/ProtectedAndPublicRoutes/PublicRoute'
 import UserRoute from './pages/ProtectedAndPublicRoutes/UserRoutes'
 import NotFound from './pages/NotFound/NotFound'
 import UserViewAttempResult from './module/user/component/UserViewAttempResult/UserViewAttempResult'
+import AdminManagement from './module/admin/pages/AdminManagement/AdminManagement'
+import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
+import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
+
 function App() {
 
   return (
@@ -326,6 +330,12 @@ function App() {
             <Route path='web-management/youtubelinks/create' element={<AddYoutube />} />
             <Route path='web-management/youtubelinks/edit/:id' element={<EditYoutube />} />
             <Route path="web-management/youtubelinks/view/:id" element={<ViewYoutube />} />
+
+            <Route path='subadmins-management' element={<AdminManagement/>} />
+            <Route path='subadmins-management/create' element={<CreateAdmin />} />
+            <Route path='subadmins-management/edit/:id' element={<EditAdmin/>} />
+            {/* <Route path="subadmins-management/view/:id" element={<ViewSubAdmin />} /> */}
+
           </Route>
 
 
