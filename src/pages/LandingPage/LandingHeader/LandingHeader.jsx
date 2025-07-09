@@ -21,6 +21,7 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { BsChevronCompactDown } from "react-icons/bs";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { getAllTickers } from "../../../api/tickerApi";
 
 // SVG Icons
 import Youtube from "../../../assets/youtube.svg";
@@ -51,11 +52,27 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [socialLinks, setSocialLinks] = useState([]);
+  const [tickers, setTickers] = useState([]);
 
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchTickers = async () => {
+      try {
+        // getAllTickers() returns an array, not { data: [...] }
+        const list = await getAllTickers();
+        console.log("Get all ticker response", list);
+        setTickers(Array.isArray(list) ? list : []);
+      } catch (error) {
+        console.error("Error fetching tickers:", error);
+      }
+    };
+    fetchTickers();
+  }, []); // ← only once on mount
+
 
   useEffect(() => {
     /** Fetch user details if cookies exist */
@@ -94,8 +111,13 @@ const Header = () => {
     fetchSocialLinks();
   }, []);
 
- 
+
   const handleNavClick = (link) => {
+    if (link === "Blog") {
+      // open external blog in a new tab
+      window.open("https://blog.mankavit.com/", "_blank", "noopener,noreferrer");
+      return;
+    }
     const routeMap = {
       Courses: "/ourcoursedetails",
       Blog: "/userblog",
@@ -134,15 +156,21 @@ const Header = () => {
     setActiveLink(map[location.pathname.split("/")[1]] || null);
   }, [location]);
 
-  // ────────────────────────────────────────────────────────────
-  // Render
-  // ────────────────────────────────────────────────────────────
+
   return (
     <Container>
       <TopBar>
         <ToolbarContainer>
-          <Headline>
-            Headline Of Our Courses/<span>Live Classes</span>
+          <Headline 
+          style={{ fontSize: "20px",
+            marginLeft: "10px",
+           }}
+          >
+            <div className="marquee">
+              {tickers.map((t) => (
+                <span key={t._id}>{t.title}</span>
+              ))}
+            </div>
           </Headline>
 
           <SocialIcons>
@@ -172,7 +200,7 @@ const Header = () => {
           <div className="menu-container" ref={menuRef}>
             <NavLinks className={mobileMenuOpen ? "open" : ""}>
               {["Courses", "About", "Blog", "Results", "Prev. Year Ques.",
-              <Link to="/user/notification"> <IoNotificationsOutline className="notification-icon" /></Link>
+                <Link to="/user/notification"> <IoNotificationsOutline className="notification-icon" /></Link>
               ].map((item) => (
                 <NavLinkItem
                   key={item}

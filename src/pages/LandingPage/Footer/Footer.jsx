@@ -28,20 +28,28 @@ export default function Footer() {
       <FooterSection>
         <SectionTitle>Contact Us</SectionTitle>
         <ContactInfo>
-          hello@mankavit.com <br />
-          Address: [Insert Academy Address Here]
+          mankavit.clatcoaching11@gmail.com <br />
+          {/* Address: [Insert Academy Address Here] */}
         </ContactInfo>
-        <Phone><a href="tel:+02 5421234560"><MdPhone className="phoneicon"/> +02 5421234560</a></Phone>
-        <Phone><a href="tel:+02 5421234560"><MdPhone className="phoneicon"/> +02 5421234560</a></Phone>
+        <Phone><a href="tel:+91-7979700796"><MdPhone className="phoneicon"/> +91-7979700796</a></Phone>
+        {/* <Phone><a href="tel:+02 5421234560"><MdPhone className="phoneicon"/> +02 5421234560</a></Phone> */}
       </FooterSection>
 
       <FooterSection>
         <SectionTitle>Quick Link</SectionTitle>
         <LinkList>
           <li><Link to="/login"> Student Portal </Link></li>
-          <li><Link to="/ourcourses"> Courses </Link></li>
+          <li><Link to="/ourcoursedetails"> Courses </Link></li>
            <li><Link to="/aboutus"> About </Link></li>
-          <li><Link to="/userblog"> Blog </Link></li>
+        <li>
+        <a
+          href="https://blog.mankavit.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Blog
+        </a>
+      </li>
         </LinkList>
       </FooterSection>
       </LeftContainer>
@@ -50,8 +58,8 @@ export default function Footer() {
       <FooterSection>
         <SectionTitle>Studying with Us</SectionTitle>
         <LinkList>
-          <li>All Courses</li>
-          <li>FAQ</li>
+        <li><Link to="/ourcoursedetails"> All Courses </Link></li>
+          <li><Link to="/"> FAQ </Link></li>
         </LinkList>
       </FooterSection>
 

@@ -146,6 +146,7 @@ import UserViewAttempResult from './module/user/component/UserViewAttempResult/U
 import AdminManagement from './module/admin/pages/AdminManagement/AdminManagement'
 import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
 import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
+import Ticker from './module/admin/pages/Ticker/Ticker'
 
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
@@ -333,6 +334,8 @@ function App() {
             <Route path='web-management/youtubelinks/create' element={<AddYoutube />} />
             <Route path='web-management/youtubelinks/edit/:id' element={<EditYoutube />} />
             <Route path="web-management/youtubelinks/view/:id" element={<ViewYoutube />} />
+
+             <Route path="web-management/ticker" element={<Ticker />} />
 
             <Route path='subadmins-management' element={<AdminManagement/>} />
             <Route path='subadmins-management/create' element={<CreateAdmin />} />

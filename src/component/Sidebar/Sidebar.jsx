@@ -67,6 +67,7 @@ const Sidebar = () => {
     { path: "/admin/web-management/contact-support", label: "Contact Support" },
     { path: "/admin/web-management/user-feedback", label: "User Feedback" },
     { path: "/admin/web-management/youtubelinks", label: "YouTube Links" },
+    { path: "/admin/web-management/ticker", label: "Ticker" },
   ];
   const meetingsItems = [
     { path: "/admin/meeting-management", label: "Meeting" },

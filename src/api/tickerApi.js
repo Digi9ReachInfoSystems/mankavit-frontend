@@ -1,6 +1,6 @@
 import api from "../config/axiosConfig";
 
-export const cerateTicker = async (data) => {
+export const createTicker = async (data) => {
     try {
         const response = await api.post('/ticker/create', data);
         return response.data;

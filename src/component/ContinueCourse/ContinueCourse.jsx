@@ -220,25 +220,25 @@ const AccordionList = ({
                                 <div style={{ display: "flex", gap: "8px" }}>
                                   {attemptsData[lecture._id]?.attempts?.length >
                                     0 && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate(
-                                          `/user-view-results/${userId}/${lecture._id}`
-                                        );
-                                      }}
-                                      style={{
-                                        background: "transparent",
-                                        border: "1px solid #4CAF50",
-                                        color: "#4CAF50",
-                                        padding: "4px 8px",
-                                        borderRadius: 4,
-                                        fontSize: 14
-                                      }}
-                                    >
-                                      View Results
-                                    </button>
-                                  )}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(
+                                            `/user-view-results/${userId}/${lecture._id}`
+                                          );
+                                        }}
+                                        style={{
+                                          background: "transparent",
+                                          border: "1px solid #4CAF50",
+                                          color: "#4CAF50",
+                                          padding: "4px 8px",
+                                          borderRadius: 4,
+                                          fontSize: 14
+                                        }}
+                                      >
+                                        View Results
+                                      </button>
+                                    )}
                                   <div
                                     onClick={() =>
                                       navigate(
@@ -440,15 +440,15 @@ const ContinueCourse = () => {
     }
   };
 
-  const handleStartCourse = async () => {
-    if (!userId || !course?._id) return;
-    try {
-      await startCourse(userId, course._id);
-      setShowContent(true);
-    } catch (err) {
-      console.error("Failed to start course:", err);
-    }
-  };
+  // const handleStartCourse = async () => {
+  //   if (!userId || !course?._id) return;
+  //   try {
+  //     await startCourse(userId, course._id);
+  //     setShowContent(true);
+  //   } catch (err) {
+  //     console.error("Failed to start course:", err);
+  //   }
+  // };
 
   const handleStartSubject = async (subjectId) => {
     if (!userId || !course?._id || !subjectId) return;
@@ -480,28 +480,28 @@ const ContinueCourse = () => {
   //     setShowPDFViewer(true);
   //   }
   // };
-const handleOpenNote = (note) => {
-  if (!note?.fileUrl) {
-    console.error('No file URL found for this note');
-    return;
-  }
+  const handleOpenNote = (note) => {
+    if (!note?.fileUrl) {
+      console.error('No file URL found for this note');
+      return;
+    }
 
-  if (note.isDownload) {
-    // Direct download for downloadable notes
-    downloadFile(note.fileUrl, note.originalName || `note-${note._id}.pdf`);
-  } else {
-    // Show in modal for non-downloadable notes
-    setCurrentNote({
-      file: note.fileUrl,
-      name: note.originalName || `note-${note._id}.pdf`,
-      isDownloadable: false
-    });
-    setShowPDFViewer(true);
-  }
-};
+    if (note.isDownload) {
+      // Direct download for downloadable notes
+      downloadFile(note.fileUrl, note.originalName || `note-${note._id}.pdf`);
+    } else {
+      // Show in modal for non-downloadable notes
+      setCurrentNote({
+        file: note.fileUrl,
+        name: note.originalName || `note-${note._id}.pdf`,
+        isDownloadable: false
+      });
+      setShowPDFViewer(true);
+    }
+  };
 
 
- useEffect(() => {
+  useEffect(() => {
     if (course?.notes) {
       setNotes(course.notes);
     }
@@ -552,9 +552,8 @@ const handleOpenNote = (note) => {
               _id: test._id,
               lectureName: test.title || `Mock Test ${idx + 1}`,
               description: test.description || "Mock test for practice",
-              duration: `${
-                test.number_of_questions || "N/A"
-              } Questions | ${test.duration || "N/A"} mins`,
+              duration: `${test.number_of_questions || "N/A"
+                } Questions | ${test.duration || "N/A"} mins`,
               maxAttempts: test.maxAttempts,
               videoUrl: "#"
             }))
@@ -609,9 +608,9 @@ const handleOpenNote = (note) => {
   const featuresArray = course?.course_includes?.length
     ? [course.course_includes]
     : [
-        ["Comprehensive Curriculum", "Expert Faculty", "Live & Recorded Session"],
-        ["Regular Mock Tests", "Personalized Guidance", "Daily Updates"]
-      ];
+      ["Comprehensive Curriculum", "Expert Faculty", "Live & Recorded Session"],
+      ["Regular Mock Tests", "Personalized Guidance", "Daily Updates"]
+    ];
 
   return (
     <PageWrapper>
@@ -637,13 +636,13 @@ const handleOpenNote = (note) => {
           </Rating>
           <CourseDetails>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <PlayButton onClick={handleStartCourse}>
+              <PlayButton >
                 <span>
                   <FaPlay />
                 </span>
               </PlayButton>
               <div>
-                <CourseSubject>
+                <CourseSubject style={{ cursor: "pointer" }}>
                   {course?.courseDisplayName || "Course Title"}
                 </CourseSubject>
                 <CourseStats>
@@ -690,18 +689,26 @@ const handleOpenNote = (note) => {
               {course?.successRate ? `${course.successRate}%` : "N/A"} | ✅
               Progress: {calculateProgress()}%
             </Statdesc>
+            {/* <Statdesc>
+              📝 Description: {course?.description || "N/A"
+              }{" "}
+            </Statdesc> */}
+            <FeaturesContainer>
+              {featuresArray.map((column, colIndex) => (
+                <FeatureColumn key={colIndex}>
+                  {column.map((feature, i) => (
+                    <FeatureItem key={i}>{feature}</FeatureItem>
+                  ))}
+                </FeatureColumn>
+              ))}
+            </FeaturesContainer>
+            <Statdesc
+              style={{ color: "#000", fontWeight: "400", fontSize: "20px" }}
+              dangerouslySetInnerHTML={{ __html: course?.description || "N/A" }} />
           </CourseDetails>
         </HeaderSection>
 
-        <FeaturesContainer>
-          {featuresArray.map((column, colIndex) => (
-            <FeatureColumn key={colIndex}>
-              {column.map((feature, i) => (
-                <FeatureItem key={i}>{feature}</FeatureItem>
-              ))}
-            </FeatureColumn>
-          ))}
-        </FeaturesContainer>
+
       </CourseInfo>
 
       {course?.live_class && (
@@ -713,7 +720,7 @@ const handleOpenNote = (note) => {
         </LiveClass>
       )}
 
-    {/* {showPDFViewer && currentNote && (
+      {/* {showPDFViewer && currentNote && (
   <PDFViewer
     file={currentNote.file}
     isDownloadable={currentNote.isDownloadable}
@@ -723,83 +730,87 @@ const handleOpenNote = (note) => {
 
 
 
-{notes.length > 0 && (
-  <NotesSection>
-    <h3>Course Notes</h3>
-    {notes.map((note) => (
-      <NoteItem 
-        key={note._id}
-        onClick={() => handleOpenNote(note)}
-        isDownloadable={note.isDownload}
-      >
-        <div className="note-icon">
-          <FaFilePdf />
-          {note.isDownload && <FaDownload className="download-icon" style={{ color: "green" }} />}
-        </div>
-        <div className="note-info">
-          <h4>{note.name || 'Untitled Note'}</h4>
-          <p>{note.isDownload ? 'Downloadable' : 'View Only'}</p>
-        </div>
-      </NoteItem>
-    ))}
-  </NotesSection>
-)}
-{showPDFViewer && currentNote && (
-  <PDFViewer
-    file={currentNote.file}
-    isDownloadable={currentNote.isDownloadable}
-    onClose={() => setShowPDFViewer(false)}
-  />
-)}
-
-      {showContent && (
-        <>
-          <TabSection>
-            <button
-              className={activeTab === "Subjects" ? "active" : ""}
-              onClick={() => {
-                setActiveTab("Subjects");
-                setActiveAccordion(null);
-              }}
+      {notes.length > 0 && (
+        <NotesSection>
+          <h3>Course Notes</h3>
+          {notes.map((note) => (
+            <NoteItem
+              key={note._id}
+              onClick={() => handleOpenNote(note)}
+              isDownloadable={note.isDownload}
             >
-              Subjects
-            </button>
-            <button
-              className={activeTab === "Mock Test" ? "active" : ""}
-              onClick={() => {
-                setActiveTab("Mock Test");
-                setActiveAccordion(null);
-              }}
-            >
-              Mock Test
-            </button>
-            {course?.recorded_class && (
-              <button
-                className={activeTab === "Recorded Class" ? "active" : ""}
-                onClick={() => {
-                  setActiveTab("Recorded Class");
-                  setActiveAccordion(null);
-                }}
-              >
-                Recorded Class
-              </button>
-            )}
-          </TabSection>
-          <AccordionList
-            data={accordionData[activeTab]}
-            activeIndex={activeAccordion}
-            onClick={setActiveAccordion}
-            navigate={navigate}
-            courseId={course?._id}
-            handleStartSubject={handleStartSubject}
-            handleStartLecture={handleStartLecture}
-            completedLectures={completedLectures}
-            completedSubjects={completedSubjects}
-            isMockTestTab={activeTab === "Mock Test"}
-            userId={userId}
-          />
-        </>
+              <div className="note-icon">
+                <FaFilePdf />
+                {note.isDownload && <FaDownload className="download-icon" style={{ color: "green" }} />}
+              </div>
+              <div className="note-info">
+                <h4>{note.name || 'Untitled Note'}</h4>
+                <p>{note.isDownload ? 'Downloadable' : 'View Only'}</p>
+              </div>
+            </NoteItem>
+          ))}
+        </NotesSection>
       )}
+      {showPDFViewer && currentNote && (
+        <PDFViewer
+          file={currentNote.file}
+          isDownloadable={currentNote.isDownloadable}
+          onClose={() => setShowPDFViewer(false)}
+        />
+      )}
+
+        <TabSection>
+        <button
+          className={activeTab === "Subjects" ? "active" : ""}
+          onClick={() => {
+            setActiveTab("Subjects");
+            setActiveAccordion(null);
+          }}
+        >
+          Subjects
+        </button>
+        <button
+          className={activeTab === "Mock Test" ? "active" : ""}
+          onClick={() => {
+            setActiveTab("Mock Test");
+            setActiveAccordion(null);
+          }}
+        >
+          Mock Test
+        </button>
+        {course?.recorded_class && (
+          <button
+            className={activeTab === "Recorded Class" ? "active" : ""}
+            onClick={() => {
+              setActiveTab("Recorded Class");
+              setActiveAccordion(null);
+            }}
+          >
+            Recorded Class
+          </button>
+        )}
+      </TabSection>
+      <AccordionList
+        data={accordionData[activeTab]}
+        activeIndex={activeAccordion}
+        onClick={async (newIndex) => {
+          setActiveAccordion(newIndex);
+          if (newIndex !== null && activeTab === "Subjects") {
+            // start this subject when expanded:
+            const subject = accordionData.Subjects[newIndex];
+            await handleStartSubject(subject._id);
+          }
+        }}
+        navigate={navigate}
+        courseId={course?._id}
+        handleStartSubject={handleStartSubject}
+        handleStartLecture={handleStartLecture}
+        completedLectures={completedLectures}
+        completedSubjects={completedSubjects}
+        isMockTestTab={activeTab === "Mock Test"}
+        userId={userId}
+      />
+ 
     </PageWrapper>
   );
 };

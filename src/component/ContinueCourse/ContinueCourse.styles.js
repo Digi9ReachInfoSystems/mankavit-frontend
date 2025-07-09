@@ -70,7 +70,7 @@ export const MainTitle = styled.h2`
 
 export const CourseImage = styled.img`
   width: 100%;
-  height: 350px;
+  height: 600px;
   border-radius: 10px;
   margin-bottom: 10px;
 
@@ -280,7 +280,7 @@ export const FeaturesContainer = styled.div`
   justify-content: space-between;
   width: 100%;
   margin: auto;
-  padding: 0 1rem;
+  // padding: 0 1rem;
   font-family: Arial, sans-serif;
 
   @media (max-width: 1024px) {
@@ -299,7 +299,7 @@ export const FeatureColumn = styled.ul`
 `;
 
 export const FeatureItem = styled.li`
-  margin-bottom: 1rem;
+  // margin-bottom: 1rem;
   font-size: 1rem;
   color: #333;
 
@@ -513,3 +513,14 @@ export const NoteItem = styled.div`
     }
   }
 `;
+
+
+
+// handleStartCourse
+
+// <PlayButton onClick={handleStartCourse}>
+//                 <span>
+//                   {/* <FaPlay /> */}
+                  
+//                 </span>
+//               </PlayButton>
