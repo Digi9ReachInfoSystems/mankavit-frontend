@@ -149,7 +149,7 @@ import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
 
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 import AdminRoute from './pages/ProtectedAndPublicRoutes/AdminRoute'
-import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/superAdminRoute'
+import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/SuperAdminRoute'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
