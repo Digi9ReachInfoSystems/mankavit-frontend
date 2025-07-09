@@ -10,6 +10,8 @@ import {
   Name,
   Role,
   CardWrapper,
+  Media,
+  MediaContainer
 } from "./Aspirants.styles";
 import { getAlltestimonials } from "../../../api/testimonialApi";
 import placeholder from "../../../assets/aspi1.png";   // fallback avatar
@@ -21,13 +23,14 @@ const Aspirants = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const raw = await getAlltestimonials();   
+        const raw = await getAlltestimonials();
         const data = (Array.isArray(raw) ? raw : []).map((t) => ({
-          id: t._id?.$oid || t._id || t.id,
+          id: t._id || t.id,
           name: t.name,
-          role: t.rank,                // ← the API field is “rank”
-          quote: t.description,        // ← the API field is “description”
+          role: t.rank,
+          quote: t.description,
           image: t.testimonial_image,
+          video: t.testimonial_video,
         }));
         setTestimonials(data);
       } catch (err) {
@@ -39,6 +42,7 @@ const Aspirants = () => {
 
     fetchTestimonials();
   }, []);
+
   if (loading) {
     return (
       <Container>
@@ -46,7 +50,6 @@ const Aspirants = () => {
       </Container>
     );
   }
-
 
   if (testimonials.length === 0) {
     return (
@@ -59,7 +62,6 @@ const Aspirants = () => {
     );
   }
 
-  /* ───────────────── render cards ───────────────── */
   return (
     <Container>
       <Title>
@@ -69,10 +71,22 @@ const Aspirants = () => {
       <CardWrapper>
         {testimonials.map((t) => (
           <Card key={t.id}>
-            <Avatar src={t.image || placeholder} alt={t.name} />
+            <MediaContainer>
+              {t.image ? (
+                <Avatar src={t.image} alt={t.name} />
+              ) : t.video ? (
+                <Media controls>
+                  <source src={t.video} type="video/mp4" />
+                  Your browser doesn't support embedded videos.
+                </Media>
+              ) : (
+                <Avatar src={placeholder} alt="placeholder" />
+              )}
+            </MediaContainer>
+
             <Quote>&quot;{t.quote}&quot;</Quote>
             <Name>{t.name}</Name>
-            <Role>{t.quote}</Role>
+            <Role>{t.role}</Role>
           </Card>
         ))}
       </CardWrapper>
@@ -81,4 +95,3 @@ const Aspirants = () => {
 };
 
 export default Aspirants;
-// VideoAndReviews

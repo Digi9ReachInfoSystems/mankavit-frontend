@@ -10,16 +10,19 @@ import {
   ImageIcon,
   AddImageText,
   UploadButton,
-  PreviewImage,
+  PreviewMedia,
   ErrorMessage,
   FormRow,
   Column,
+  RadioGroup,
+  RadioLabel,
+  RadioInput,
   CheckboxSectionTitle,
   CheckboxList,
   CheckboxInput,
   CheckboxLabel
 } from './AddTestimonial.styles';
-import uploadIcon from "../../../../../../assets/upload.png";
+import uploadIcon from '../../../../../../assets/upload.png';
 import { createTestimonials } from '../../../../../../api/testimonialApi';
 import { getAllCourses } from '../../../../../../api/courseApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
@@ -31,130 +34,112 @@ const AddTestimonial = () => {
   const [formData, setFormData] = useState({
     studentName: '',
     rank: '',
-    course: '', // This will store the selected course ID
+    course: '',
     testimonialDetails: '',
-    image: null
   });
+  const [mediaType, setMediaType] = useState('image');       // 'image' or 'video'
+  const [mediaFile, setMediaFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
-
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
+  // fetch courses as before...
   useEffect(() => {
-    const apiCaller = async () => {
+    (async () => {
       try {
-        const response = await getAllCourses();
-        console.log("response", response);
-        const checkboxes = response.data.map((item) => ({
-          label: item?.courseName,
-          id: item?._id,
-          checked: false,
-        }));
-
-        console.log("checkboxes", checkboxes);
-        setCoursesCheckboxes(checkboxes);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-        toast.error("Failed to fetch courses");
+        const res = await getAllCourses();
+        setCoursesCheckboxes(
+          res.data.map(item => ({
+            label: item.courseName,
+            id: item._id,
+            checked: false
+          }))
+        );
+      } catch (err) {
+        toast.error('Failed to fetch courses');
       }
-    };
-    apiCaller();
+    })();
   }, []);
 
-  // Handle checkbox selection
-  const handleCheckboxChange = (index) => {
-    const updatedCheckboxes = coursesCheckboxes.map((item, i) => ({
-      ...item,
-      checked: i === index ? !item.checked : false // Only allow one selection
-    }));
-
-    setCoursesCheckboxes(updatedCheckboxes);
-    
-    // Update the formData with the selected course ID
-    const selectedCourse = updatedCheckboxes.find(item => item.checked);
-    setFormData(prev => ({
-      ...prev,
-      course: selectedCourse ? selectedCourse.id : ''
-    }));
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setFormData(f => ({ ...f, [name]: value }));
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate image
-      if (!file.type.match('image.*')) {
-        setError('Please upload an image file');
-        toast.error('Please upload an image file');
-        return;
-      }
-      
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError('Image size should be less than 5MB');
-        toast.warn('Image size should be less than 5MB');
-        return;
-      }
+  const handleCheckboxChange = idx => {
+    const updated = coursesCheckboxes.map((c, i) => ({
+      ...c,
+      checked: i === idx ? !c.checked : false
+    }));
+    setCoursesCheckboxes(updated);
+    const sel = updated.find(c => c.checked);
+    setFormData(f => ({ ...f, course: sel ? sel.id : '' }));
+  };
 
-      setError('');
-      setFormData(prev => ({ ...prev, image: file }));
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+  // Pick up either image/video file
+  const handleMediaChange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    // Validate type & size
+    if (mediaType === 'image' && !file.type.match('image.*')) {
+      return setError('Please upload an image file');
     }
+    if (mediaType === 'video' && !file.type.match('video.*')) {
+      return setError('Please upload a video file');
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      // allow bigger size for video if you need
+      return setError(`${mediaType} size too large`);
+    }
+    setError('');
+    setMediaFile(file);
+    // preview
+    const reader = new FileReader();
+    reader.onloadend = () => setPreviewUrl(reader.result);
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async () => {
-    if (!formData.studentName || !formData.rank || !formData.testimonialDetails || !formData.image) {
-      setError('Please fill all fields and upload an image');
-      toast.error('Please fill all fields and upload an image');
-      return;
+    // Basic form checks
+    if (
+      !formData.studentName ||
+      !formData.rank ||
+      !formData.testimonialDetails ||
+      // !formData.course ||
+      !mediaFile
+    ) {
+      setError('Fill all fields and select/media file');
+      return toast.error('Please complete all fields');
     }
-  
+
     try {
       setIsUploading(true);
-      setError('');
-  
-      const uploadResult = await uploadFileToAzureStorage(formData.image, "upload");
-      console.log("uploadResult", uploadResult);
-  
-      if (!uploadResult || !uploadResult.blobUrl) {
-        throw new Error(uploadResult?.message || 'Image upload failed');
-      }
-  
+      // upload to Azure
+      const { blobUrl, message } = await uploadFileToAzureStorage(
+        mediaFile,
+        mediaType === 'image' ? 'upload' : 'upload'
+      );
+      if (!blobUrl) throw new Error(message || 'Upload failed');
+
+      // build payload
       const payload = {
         name: formData.studentName,
         rank: formData.rank,
         description: formData.testimonialDetails,
-        testimonial_image: uploadResult.blobUrl,
+        // course: formData.course,
+        ...(mediaType === 'image'
+          ? { testimonial_image: blobUrl }
+          : { testimonial_video: blobUrl })
       };
-      console.log("payload", payload);
-  
-      const testimonialResponse = await createTestimonials(payload);
-      console.log("Testimonial created:", testimonialResponse);
-      toast.success('Data added successfully');
-      setTimeout(() => {
-        navigate("/admin/web-management/testinomial", {
-          state: { success: true }
-        });
-      }, 1000);
-  
-    } catch (error) {
-      console.error("Error uploading testimonial:", error);
-      setError(error.message || 'Something went wrong. Please try again.');
-      toast.error(error.message || 'Failed to add data. Please try again.');
+
+      await createTestimonials(payload);
+      toast.success('Testimonial added');
+      setTimeout(() => navigate('/admin/web-management/testinomial', { state: { success: true } }), 1000);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Error adding testimonial');
     } finally {
       setIsUploading(false);
     }
@@ -163,88 +148,120 @@ const AddTestimonial = () => {
   return (
     <Container>
       <Title>Add Testimonial</Title>
-
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       <Label>Student Name *</Label>
       <Input
         name="studentName"
-        placeholder="Enter student name"
         value={formData.studentName}
-        onChange={(e) => {
-          const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-          setFormData((prev) => ({ ...prev, studentName: filteredData }));
-        }}
+        onChange={handleInputChange}
+        placeholder="Enter name"
       />
 
-      <Label htmlFor='testimonialDetails'>Testimonial description *</Label>
+      <Label>Description *</Label>
       <TextArea
         name="testimonialDetails"
-        placeholder="Enter testimonial description"
         value={formData.testimonialDetails}
         onChange={handleInputChange}
-        rows={5}
+        rows={4}
       />
 
       <FormRow>
         <Column>
-           <Label>Student rank</Label>
-      <Input
-        name="rank"
-        placeholder="Enter student name"
-        value={formData.rank}
-        onChange={(e) => {
-          const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-          setFormData((prev) => ({ ...prev, rank: filteredData }));
-        }}
-      />
+          <Label>Rank *</Label>
+          <Input
+            name="rank"
+            value={formData.rank}
+            onChange={handleInputChange}
+            placeholder="Enter rank"
+          />
         </Column>
       </FormRow>
 
-      <Label>Upload Student Image *</Label>
+      {/* <Label>Select Course *</Label>
+      <CheckboxSectionTitle>Choose one:</CheckboxSectionTitle>
+      <CheckboxList>
+        {coursesCheckboxes.map((c, i) => (
+          <label key={c.id}>
+            <CheckboxInput
+              type="checkbox"
+              checked={c.checked}
+              onChange={() => handleCheckboxChange(i)}
+            />
+            <CheckboxLabel>{c.label}</CheckboxLabel>
+          </label>
+        ))}
+      </CheckboxList> */}
+
+      <Label>Media Type *</Label>
+      <RadioGroup>
+        <RadioLabel>
+          <RadioInput
+            type="radio"
+            name="mediaType"
+            value="image"
+            checked={mediaType === 'image'}
+            onChange={() => {
+              setMediaType('image');
+              setMediaFile(null);
+              setPreviewUrl('');
+            }}
+          />
+          Image
+        </RadioLabel>
+        <RadioLabel>
+          <RadioInput
+            type="radio"
+            name="mediaType"
+            value="video"
+            checked={mediaType === 'video'}
+            onChange={() => {
+              setMediaType('video');
+              setMediaFile(null);
+              setPreviewUrl('');
+            }}
+          />
+          Video
+        </RadioLabel>
+      </RadioGroup>
+
+      <Label>Upload {mediaType === 'image' ? 'Image' : 'Video'} *</Label>
       <DropZone hasImage={!!previewUrl}>
         <input
           type="file"
-          accept="image/*"
-          id="upload-image"
+          accept={mediaType + '/*'}
           style={{ display: 'none' }}
-          onChange={handleImageUpload}
+          id="file-input"
+          onChange={handleMediaChange}
         />
-        <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
+        <label htmlFor="file-input" style={{ cursor: 'pointer' }}>
           {previewUrl ? (
-            <PreviewImage src={previewUrl} alt="Preview" />
+            mediaType === 'image' ? (
+              <PreviewMedia as="img" src={previewUrl} alt="Preview" />
+            ) : (
+              <PreviewMedia as="video" src={previewUrl} controls />
+            )
           ) : (
             <>
               <ImageIcon>
-                <img src={uploadIcon} alt="upload" width="50" height="50" />
+                <img src={uploadIcon} alt="upload" width={50} height={50} />
               </ImageIcon>
-              <DropZoneText>Drag and drop image here, or click add image</DropZoneText>
+              <DropZoneText>
+                Drag & drop {mediaType}, or click to select
+              </DropZoneText>
             </>
           )}
           <AddImageText>
-            {formData.image ? formData.image.name : "Add Image"}
+            {mediaFile ? mediaFile.name : `Add ${mediaType}`}
           </AddImageText>
         </label>
       </DropZone>
 
-      <UploadButton 
-        onClick={handleSubmit} 
-        disabled={isUploading}
-      >
-        {isUploading ? "Uploading..." : "Upload Testimonial"}
+      <UploadButton onClick={handleSubmit} disabled={isUploading}>
+        {isUploading ? 'Uploading...' : 'Upload Testimonial'}
       </UploadButton>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </Container>
   );
 };

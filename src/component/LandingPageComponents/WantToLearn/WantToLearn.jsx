@@ -18,7 +18,7 @@ import {
   Buttons,
   Image
 } from './WantToLearn.styles';
-
+import { useNavigate } from 'react-router-dom';
 import lawBanner from '../../../assets/Study1.png'; // your header banner image
 
 
@@ -27,7 +27,7 @@ import { Link } from 'react-router-dom';
 
 const WantToLearn = () => {
   const [courses, setCourses] = React.useState([]);
-
+const navigate = useNavigate();
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -62,7 +62,8 @@ const WantToLearn = () => {
               <CourseTitle>
                 {course.title} <span style={{ fontSize: '14px' }}>Preparation</span>
               </CourseTitle>
-              <Description>{course.description}</Description>
+              {/* <Description >{course.description}</Description> */}
+              <Description dangerouslySetInnerHTML={{ __html: course.description }} />
               <InfoList>
                 <InfoItem>📆 Duration: {course.duration}</InfoItem>
                 <InfoItem>✅ Success Rate: {course.successRate}</InfoItem>
@@ -71,14 +72,22 @@ const WantToLearn = () => {
 
             <Buttons>
               <PriceButton>₹{course.price}</PriceButton>
-              <ViewButton>View Courses</ViewButton>
+         
+              <ViewButton 
+              onClick={() => navigate(`/coursedetails/${course._id}`)}
+              >View Course</ViewButton>
+ 
             </Buttons>
           </CourseCard>
         ))}
       </CardsWrapper>
 
       <ViewMoreWrapper>
- <ViewMoreButton>View More</ViewMoreButton>
+         {/* <Link to={`/ourcoursedetails`}> */}
+ <ViewMoreButton 
+ onClick={() => navigate('/ourcoursedetails')}
+ >View More</ViewMoreButton>     
+     {/* </Link> */}
       </ViewMoreWrapper>
     </Section>
   );

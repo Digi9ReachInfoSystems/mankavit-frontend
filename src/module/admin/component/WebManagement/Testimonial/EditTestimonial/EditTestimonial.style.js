@@ -55,7 +55,7 @@ export const DropZone = styled.div`
   border-radius: 10px;
   text-align: center;
   margin-top: 0.5rem;
-    height: 230px;
+    height: 260px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -200,4 +200,10 @@ export const CheckboxInput = styled.input`
   height: 16px;
   cursor: pointer;
   background-color: ${(props) => props.theme.colors.black};
+`;
+
+export const PreviewMedia = styled.img`
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 1rem;
 `;
