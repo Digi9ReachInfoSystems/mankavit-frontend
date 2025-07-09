@@ -148,7 +148,7 @@ import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
 import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
 
 // import ScreenShot from './component/ScreenShot/ScreenShot'
-import AdminRoute from './pages/ProtectedAndPublicRoutes/adminRoute'
+import AdminRoute from './pages/ProtectedAndPublicRoutes/AdminRoute'
 import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/superAdminRoute'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
