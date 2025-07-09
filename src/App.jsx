@@ -146,6 +146,7 @@ import UserViewAttempResult from './module/user/component/UserViewAttempResult/U
 import AdminManagement from './module/admin/pages/AdminManagement/AdminManagement'
 import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
 import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
+import Ticker from './module/admin/pages/Ticker/Ticker'
 
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 import AdminRoute from './pages/ProtectedAndPublicRoutes/AdminRoute'
@@ -338,6 +339,11 @@ function App() {
             <Route path='web-management/youtubelinks/edit/:id' element={<AdminRoute Access={"webManagement"} ><EditYoutube /></AdminRoute>} />
             <Route path="web-management/youtubelinks/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewYoutube /></AdminRoute>} />
 
+             <Route path="web-management/ticker" element={<Ticker />} />
+
+            <Route path='subadmins-management' element={<AdminManagement/>} />
+            <Route path='subadmins-management/create' element={<CreateAdmin />} />
+            <Route path='subadmins-management/edit/:id' element={<EditAdmin/>} />
             <Route path='subadmins-management' element={<SuperAdminRoute><AdminManagement /></SuperAdminRoute>} />
             <Route path='subadmins-management/create' element={<SuperAdminRoute><CreateAdmin /></SuperAdminRoute>} />
             <Route path='subadmins-management/edit/:id' element={<SuperAdminRoute><EditAdmin /> </SuperAdminRoute>} />

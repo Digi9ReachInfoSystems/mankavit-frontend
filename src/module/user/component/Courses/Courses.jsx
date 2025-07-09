@@ -21,6 +21,7 @@ import {
     DetailItemok,
     PriceActions,
     ViewButton,
+    NoCourseFoundButton
 } from './Courses.styles';
 import lawimg from "../../../../assets/lawentrance.png";
 import { FcCalendar } from "react-icons/fc";
@@ -30,7 +31,7 @@ import {
     getAllEnrolledCourses,
 } from '../../../../api/userDashboardAPI';
 import { getCookiesData } from '../../../../utils/cookiesService';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
@@ -138,9 +139,9 @@ const Courses = () => {
                                     <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
                                     {/* <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle> */}
                                     {/* </CourseHead> */}
-                                    <CourseMinititle dangerouslySetInnerHTML={{ __html: course.shortDescription.slice(0, 30)+"..." || 'Course Description' }} />
+                                    <CourseMinititle dangerouslySetInnerHTML={{ __html: course.shortDescription.slice(0, 60) + "..." || 'Course Description' }} />
                                     {/* <CourseDesc>{course.description || 'Course description not available'}</CourseDesc> */}
-                                    <CourseDesc dangerouslySetInnerHTML={{ __html: course.description.slice(0, 60)+"..." || 'Course description not available' }} />
+                                    {/* <CourseDesc dangerouslySetInnerHTML={{ __html: course.description.slice(0, 60) + "..." || 'Course description not available' }} /> */}
                                 </CourseMain>
 
                                 {course.course_status !== "completed" ? (
@@ -185,13 +186,22 @@ const Courses = () => {
                     ))
                 ) : (
                     <div style={{
-                        gridColumn: '1 / -1',
+                        // gridColumn: '1 / -1',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
                         textAlign: 'center',
                         padding: '2rem',
                         fontSize: '1.2rem',
                         color: '#666'
+
                     }}>
-                        No courses found. Enroll in a course to get started.
+                        <div>
+                            No courses found.
+                          <Link to={"/ourcoursedetails"}>  <NoCourseFoundButton >
+                                Explore our courses
+                            </NoCourseFoundButton></Link>
+                        </div>
                     </div>
                 )}
             </CardGrid>

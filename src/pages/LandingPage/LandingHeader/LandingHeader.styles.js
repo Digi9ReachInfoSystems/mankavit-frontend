@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled,{keyframes } from 'styled-components';
 
 export const Container = styled.div`
   font-family: 'Poppins', sans-serif;
@@ -40,27 +40,61 @@ export const ToolbarContainer = styled.div`
   }
 `;
 
-export const Headline = styled.div`
-  font-size: 24px;
+// export const Headline = styled.div`
+//   font-size: 24px;
 
-  span {
-    color: red;
-    margin-left: 5px;
-  }
+//   span {
+//     color: red;
+//     margin-left: 5px;
+//   }
 
-  @media (max-width: 1636px) {
-    font-size: 16px;
-  }
+//   @media (max-width: 1636px) {
+//     font-size: 16px;
+//   }
 
-  @media (max-width: 1320px) {
-    font-size: 12px;
-  }
+//   @media (max-width: 1320px) {
+//     font-size: 12px;
+//   }
 
-  @media (max-width: 576px) {
-    font-size: 9px;
-  }
+//   @media (max-width: 576px) {
+//     font-size: 9px;
+//   }
+// `;
+const marquee = keyframes`
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+  
 `;
 
+export const Headline = styled.div`
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  color: rgb(22, 78, 233);
+  height: 2.5em;
+
+  /* Ticker-style font: monospace, uppercase, bold, tighter letter spacing */
+  // font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1.2em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+
+  .marquee {
+    display: inline-block;
+    animation: ${marquee} 20s linear infinite;
+    animation-play-state: running;
+  }
+
+  .marquee:hover {
+    animation-play-state: paused;
+  }
+
+  span {
+    display: inline-block;
+    padding: 0 2rem;
+  }
+`;
 export const SocialIcons = styled.div`
   display: flex;
   gap: 30px;

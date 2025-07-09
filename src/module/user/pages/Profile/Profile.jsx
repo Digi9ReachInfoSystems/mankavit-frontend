@@ -441,7 +441,8 @@ const Profile = () => {
               <InputField
                 name="name"
                 value={profileData.name}
-                onChange={handleInputChange}
+                // onChange={handleInputChange}
+                disabled
               />
             </InputGroup>
 
@@ -452,7 +453,8 @@ const Profile = () => {
                   type="email"
                   name="email"
                   value={profileData.email}
-                  onChange={handleInputChange}
+                  // onChange={handleInputChange}
+                  disabled
                 />
               </InputGroup>
 
@@ -463,7 +465,8 @@ const Profile = () => {
                   <MobileNumberInput
                     name="mobile"
                     value={profileData.mobile}
-                    onChange={handleInputChange}
+                    // onChange={handleInputChange}
+                    disabled
                   />
                 </MobileInputContainer>
               </InputGroup>

@@ -62,7 +62,7 @@ export const CourseCard = styled.div`
   max-width: 300px; 
   margin-bottom: 1rem;
   position: relative;
-  height: 550px;
+  height: 500px;
 
   @media (max-width: 1024px) {
     max-width: 280px;
@@ -216,7 +216,7 @@ export const CourseDesc = styled.p`
   margin: 0.5rem 0;
   color: ${({ theme }) => theme.colors.test};
   font-size: 16px;
-  font-wieght: 300;
+  font-wieght: 600;
   line-height: 1.5;
     word-break: break-word;
   overflow: hidden;
@@ -291,4 +291,17 @@ export const ViewButton = styled.button`
 `;
 
 
-
+export const NoCourseFoundButton = styled.button`
+  background-color: #007bff;
+  color: #fff;
+  padding: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius:10px;
+  margin-left: 10px;
+  // width: 100%;
+  // border-bottom-left-radius: 14px;
+  // border-bottom-right-radius: 14px;
+`;

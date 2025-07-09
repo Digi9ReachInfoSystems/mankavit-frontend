@@ -118,18 +118,22 @@ const UserSidebar = () => {
                 <FaBell className='sidebar-icon' /> Notification
               </MenuLink>
             </MenuItem>
+
             <MenuItem>
               <MenuLink to="/user/contactsupport" onClick={handleMenuClick}>
                 <FaHeadset className='sidebar-icon' /> Contact Support
               </MenuLink>
             </MenuItem>
-          </MenuList>
 
-          <LogoutContainer>
             <LogoutButton onClick={handleLogoutClick}>
               <FaPowerOff size={28} /> Log out
             </LogoutButton>
-          </LogoutContainer>
+
+          </MenuList>
+
+          {/* <LogoutContainer>
+         
+          </LogoutContainer> */}
         </SidebarContainer>
       </SidebarWrapper>
       {showLogoutModal && (

@@ -170,7 +170,7 @@ const EditStudent = () => {
     if (!form.displayName.trim()) errs.displayName = "Name required";
     if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
     if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
-    if (selected.length === 0) errs.courseIds = "Select at least one course";
+    // if (selected.length === 0) errs.courseIds = "Select at least one course";
 
     if ((form.masterOtp.length !== 6) || (isNaN(form.masterOtp))) {
 
