@@ -158,7 +158,7 @@ function App() {
       <Router>
         <GlobalStyle />
         {/* <ScreenShot /> */}
-         {/* <ScreenShot /> */}
+        {/* <ScreenShot /> */}
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes >
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -300,10 +300,10 @@ function App() {
             <Route path="web-management/aboutus" element={<AdminRoute Access={"webManagement"} ><Aboutus /></AdminRoute>} />
             <Route path="web-management/why-mankavit" element={<AdminRoute Access={"webManagement"} ><WhyMankavit /></AdminRoute>} />
 
-            <Route path="web-management/testinomial" element={<Testimonial />} />
-            <Route path="web-management/testinomial/create" element={<AddTestimonial />} />
-            <Route path="web-management/testinomial/edit/:id" element={<EditTestimonial />} />
-            <Route path="web-management/testinomial/view/:id" element={<ViewTestimonial />} />
+            <Route path="web-management/testinomial" element={<AdminRoute Access={"webManagement"} ><Testimonial /></AdminRoute>} />
+            <Route path="web-management/testinomial/create" element={<AdminRoute Access={"webManagement"} ><AddTestimonial /> </AdminRoute>} />
+            <Route path="web-management/testinomial/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditTestimonial /></AdminRoute>} />
+            <Route path="web-management/testinomial/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewTestimonial /></AdminRoute>} />
 
             <Route path="web-management/achievement" element={<AdminRoute Access={"webManagement"} ><Achievements /></AdminRoute>} />
             <Route path="web-management/achievement/create" element={<AdminRoute Access={"webManagement"} ><AddAchievements /></AdminRoute>} />

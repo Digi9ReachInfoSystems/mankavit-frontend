@@ -32,6 +32,7 @@ import { IoEyeOutline } from "react-icons/io5";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -50,6 +51,19 @@ const Testimonial = () => {
 
   useEffect(() => {
     fetchTestimonials();
+  }, []);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -100,10 +114,15 @@ const Testimonial = () => {
   );
 
   return (
-    <>
-      <BtnTitle>
-        <AddTestButton onClick={handleAddButton}>Add Testimonial</AddTestButton>
-      </BtnTitle>
+    <>{
+      !readOnlyPermissions &&
+      (
+        <BtnTitle>
+          <AddTestButton onClick={handleAddButton}>Add Testimonial</AddTestButton>
+        </BtnTitle>
+      )
+    }
+
 
       <Container>
         <Title>Testimonial</Title>
@@ -116,7 +135,13 @@ const Testimonial = () => {
                 <TableHeader>Rank</TableHeader>
                 <TableHeader>Media</TableHeader>
                 <TableHeader>Date Updated</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {
+                  !readOnlyPermissions &&
+                  (
+                    <TableHeader>Actions</TableHeader>
+                  )
+                }
+
               </tr>
             </TableHead>
             <tbody>
@@ -160,31 +185,36 @@ const Testimonial = () => {
                       ? format(new Date(item.updatedAt), 'yyyy-MM-dd HH:mm:ss')
                       : '—'}
                   </TableCell>
-
-                  <TableCell>
-                    <ActionsWrapper>
-                      {/* <IoEyeOutline
+                  {
+                    !readOnlyPermissions &&
+                    (
+                      <TableCell>
+                        <ActionsWrapper>
+                          {/* <IoEyeOutline
                         size={20}
                         color="#000"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleViewClick(item._id)}
                       /> */}
-                      <BiEditAlt
-                        size={20}
-                        color="#000"
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          navigate(`/admin/web-management/testinomial/edit/${item._id}`)
-                        }
-                      />
-                      <RiDeleteBin6Line
-                        size={20}
-                        color="#FB4F4F"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDelete(item._id)}
-                      />
-                    </ActionsWrapper>
-                  </TableCell>
+                          <BiEditAlt
+                            size={20}
+                            color="#000"
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              navigate(`/admin/web-management/testinomial/edit/${item._id}`)
+                            }
+                          />
+                          <RiDeleteBin6Line
+                            size={20}
+                            color="#FB4F4F"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleDelete(item._id)}
+                          />
+                        </ActionsWrapper>
+                      </TableCell>
+                    )
+                  }
+
                 </TableRow>
               ))}
             </tbody>
