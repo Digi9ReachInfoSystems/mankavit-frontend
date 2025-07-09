@@ -24,6 +24,7 @@ import { IoEyeOutline } from "react-icons/io5";
 
 import { toast, ToastContainer } from "react-toastify";  // <-- import toastify
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -35,37 +36,50 @@ const AdminMission = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [error, setError] = useState(null);
   const [modal, setModal] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); 
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const navigate = useNavigate();
-// inside fetchMissions
-const fetchMissions = async () => {
-  setLoading(true);
-  try {
-    const data = await getMissions();          // API returns an array
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
+  // inside fetchMissions
+  const fetchMissions = async () => {
+    setLoading(true);
+    try {
+      const data = await getMissions();          // API returns an array
 
-    // helper: convert MongoDB ObjectId → Date
-    const idToDate = (id) =>
-      new Date(parseInt(id.substring(0, 8), 16) * 1000);
+      // helper: convert MongoDB ObjectId → Date
+      const idToDate = (id) =>
+        new Date(parseInt(id.substring(0, 8), 16) * 1000);
 
-    // 🔥 sort by createdAt (or updatedAt, or _id timestamp) – latest first
-    const sorted = (Array.isArray(data) ? data : []).sort((a, b) => {
-      const dateA = new Date(a.createdAt || a.updatedAt) || idToDate(a._id);
-      const dateB = new Date(b.createdAt || b.updatedAt) || idToDate(b._id);
-      return dateB - dateA;                    // descending order
-    });
+      // 🔥 sort by createdAt (or updatedAt, or _id timestamp) – latest first
+      const sorted = (Array.isArray(data) ? data : []).sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.updatedAt) || idToDate(a._id);
+        const dateB = new Date(b.createdAt || b.updatedAt) || idToDate(b._id);
+        return dateB - dateA;                    // descending order
+      });
 
-    setMissions(sorted);
-    setError(null);
-  } catch (err) {
-    console.error("Error fetching missions:", err);
-    const errMsg = "Failed to load missions. Please try again.";
-    setError(errMsg);
-    toast.error(errMsg);
-  } finally {
-    setLoading(false);
-  }
-};
+      setMissions(sorted);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching missions:", err);
+      const errMsg = "Failed to load missions. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchMissions();
@@ -126,7 +140,7 @@ const fetchMissions = async () => {
 
   return (
     <>
-            <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -196,18 +210,25 @@ const fetchMissions = async () => {
                           style={{ cursor: "pointer", marginRight: "10px" }}
                           onClick={() => handleViewClick(item)}
                         />
-                        <BiEditAlt
-                          size={20}
-                          color="#000"
-                          style={{ cursor: "pointer", marginRight: "10px" }}
-                          onClick={() => handleEdit(item._id)}
-                        />
-                        <RiDeleteBin6Line
-                          size={20}
-                          color="#FB4F4F"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleDeleteClick(item._id)}
-                        />
+                        {
+                          !readOnlyPermissions && (
+                            <>
+                              <BiEditAlt
+                                size={20}
+                                color="#000"
+                                style={{ cursor: "pointer", marginRight: "10px" }}
+                                onClick={() => handleEdit(item._id)}
+                              />
+                              <RiDeleteBin6Line
+                                size={20}
+                                color="#FB4F4F"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleDeleteClick(item._id)}
+                              />
+                            </>
+                          )
+                        }
+
                       </Td>
                     </tr>
                   ))

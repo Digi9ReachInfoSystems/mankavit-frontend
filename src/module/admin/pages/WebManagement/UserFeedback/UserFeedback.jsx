@@ -16,7 +16,7 @@ import {
   ApproveButton,
   CloseButton,
   StatusBadge,
-    HeaderRow,
+  HeaderRow,
   SortByContainer,
   SortLabel,
 } from "./UserFeedback.styles";
@@ -26,10 +26,11 @@ import { useNavigate } from "react-router-dom";
 import { getUserFeedback, approveFeedback } from "../../../../../api/feedbackApi";
 import { getCookiesData } from "../../../../../utils/cookiesService";
 import { getAllCourses } from "../../../../../api/courseApi";
-import {Select} from 'antd';
+import { Select } from 'antd';
 
-import {toast, ToastContainer} from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -42,7 +43,20 @@ const UserFeedback = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
-const [sortOption, setSortOption] = useState(null);
+  const [sortOption, setSortOption] = useState(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
 
   useEffect(() => {
@@ -66,20 +80,20 @@ const [sortOption, setSortOption] = useState(null);
     fetchUserFeedback();
   }, []);
 
-useEffect(() => {
-const fetchCourses = async () => {
-  try {
-    const response = await getAllCourses();
-    setCourses(response.data); // ⬅️ Correctly set the array of courses 
-  } catch (err) {
-    console.error("Error fetching courses:", err);
-    toast.error("Failed to load courses. Please try again.");
-  }
-};
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await getAllCourses();
+        setCourses(response.data); // ⬅️ Correctly set the array of courses 
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        toast.error("Failed to load courses. Please try again.");
+      }
+    };
 
 
-  fetchCourses();
-}, []);
+    fetchCourses();
+  }, []);
 
 
   const handleViewFeedback = (feedback) => {
@@ -89,13 +103,17 @@ const fetchCourses = async () => {
 
   const handleApprove = async () => {
     try {
+      if(readOnlyPermissions){
+        toast.error("You don't have permission to approve feedback.");
+        return;
+      }
       const response = await approveFeedback(selectedFeedback._id);
-      
+
       // Update the feedback list
-      const updatedFeedback = feedback.map(item => 
+      const updatedFeedback = feedback.map(item =>
         item._id === selectedFeedback._id ? { ...item, isappproved: true } : item
       );
-      
+
       setFeedback(updatedFeedback);
       setIsModalOpen(false);
       toast.success("Feedback approved successfully!");
@@ -103,12 +121,12 @@ const fetchCourses = async () => {
     } catch (error) {
       console.error('Error approving feedback:', error);
       let errorMessage = error.message;
-      
+
       // If it's a 404 error, provide more specific message
       if (error.response && error.response.status === 404) {
         errorMessage = "Approval endpoint not found. Please check backend configuration.";
       }
-      
+
       setError(errorMessage);
       toast.error("Failed to approve feedback. Please try again.");
     }
@@ -118,46 +136,46 @@ const fetchCourses = async () => {
   if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
 
   const filteredFeedback = sortOption
-  ? feedback.filter(item => item.courseRef?._id === sortOption)
-  : feedback;
+    ? feedback.filter(item => item.courseRef?._id === sortOption)
+    : feedback;
 
-const totalItems = filteredFeedback.length;
-const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-const currentPageData = filteredFeedback.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const totalItems = filteredFeedback.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentPageData = filteredFeedback.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <Container>
-        <HeaderRow>
-          <Title>
-            My Feedback{" "}
-            <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
-              ({currentPageData.length}/{totalItems})
-            </span>
-          </Title>
-          <SortByContainer>
-            <SortLabel>Sort by:</SortLabel>
-<Select
-  allowClear
-  value={sortOption}
-  style={{ width: 200 }}
-  onChange={(value) => {
-    setSortOption(value);
-    setCurrentPage(1); // reset to first page on change
-  }}
-  placeholder="Select course"
-  options={[
-    { label: "All Courses", value: null }, // ⬅️ Default option
-    ...courses.map(course => ({
-      label: course.courseName,
-      value: course._id
-    }))
-  ]}
-/>
+      <HeaderRow>
+        <Title>
+          My Feedback{" "}
+          <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+            ({currentPageData.length}/{totalItems})
+          </span>
+        </Title>
+        <SortByContainer>
+          <SortLabel>Sort by:</SortLabel>
+          <Select
+            allowClear
+            value={sortOption}
+            style={{ width: 200 }}
+            onChange={(value) => {
+              setSortOption(value);
+              setCurrentPage(1); // reset to first page on change
+            }}
+            placeholder="Select course"
+            options={[
+              { label: "All Courses", value: null }, // ⬅️ Default option
+              ...courses.map(course => ({
+                label: course.courseName,
+                value: course._id
+              }))
+            ]}
+          />
 
 
-          </SortByContainer>
-        </HeaderRow>
+        </SortByContainer>
+      </HeaderRow>
 
       <TableWrapper>
         <Table>
@@ -244,18 +262,18 @@ const currentPageData = filteredFeedback.slice(startIndex, startIndex + ITEMS_PE
           </ModalContent>
         </ModalOverlay>
       )}
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme='colored'
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
     </Container>
   );
 };

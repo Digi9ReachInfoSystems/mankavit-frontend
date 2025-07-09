@@ -19,6 +19,7 @@ import { getMissionById, updateMissionById } from '../../../../../../api/mission
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from '../../../../../../utils/authService';
 
 
 const EditMission = () => {
@@ -30,6 +31,34 @@ const EditMission = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+          if (response.Permissions["webManagement"].readOnly) {
+            toast.error('You do not have permission to edit missions.', {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              onClose: () => {
+                navigate('/admin/');
+              }
+            });
+          }
+        }
+      }
+      apiCaller();
+    }, []);
 
   useEffect(() => {
     const fetchMission = async () => {

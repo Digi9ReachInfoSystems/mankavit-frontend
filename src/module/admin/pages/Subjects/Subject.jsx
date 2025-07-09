@@ -34,6 +34,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from "../../../../utils/authService";
 
 
 
@@ -58,12 +59,25 @@ export default function Subjects() {
   const [selectAll, setSelectAll] = useState(false);
   const [BulkDelete, setBulkDelete] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const appiCaller = async () => {
       try {
         const subjectResponse = await getSubjects();
-        console.log("Jayanth respone", subjectResponse);
+        // console.log("Jayanth respone", subjectResponse);
         const subjectsData = subjectResponse.data.map((item) => ({
           id: item._id,
           subjectName: item.subjectDisplayName,
@@ -73,7 +87,7 @@ export default function Subjects() {
           dateandtime: item.updatedAt,
         }))
         console.log(subjectsData);
-        console.log("subjectsData", subjectsData);
+        // console.log("subjectsData", subjectsData);
         setData(subjectsData);
         const filteredValue = subjectsData.filter((item) =>
           item.subjectName.toLowerCase().includes(searchText.toLowerCase())
@@ -107,7 +121,7 @@ export default function Subjects() {
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
         }));
-        console.log("roshni", subjectsData);
+        // console.log("roshni", subjectsData);
         setData(subjectsData);
       } catch (error) {
         console.log("error", error);
@@ -290,9 +304,13 @@ export default function Subjects() {
       />
 
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/subject-management/create")}>
-          Add Subject
-        </CreateButton>
+        {!readOnlyPermissions
+          && (
+            <CreateButton onClick={() => navigate("/admin/subject-management/create")}>
+              Add Subject
+            </CreateButton>
+          )}
+
       </ButtonContainer>
 
       <Container>
@@ -352,13 +370,17 @@ export default function Subjects() {
           <StyledTable>
             <TableHead>
               <TableRow>
-                <TableHeader>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAllChange}
-                  />
-                </TableHeader>
+                {!readOnlyPermissions &&
+                  (
+                    <TableHeader>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAllChange}
+                      />
+                    </TableHeader>
+                  )}
+
                 <TableHeader>Subject Name</TableHeader>
                 <TableHeader>Internal Name</TableHeader>
                 <TableHeader>No. of Mock Test</TableHeader>
@@ -370,13 +392,17 @@ export default function Subjects() {
             <TableBody>
               {currentItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      checked={selectedSubject.includes(item.id)}
-                      onChange={() => handleCheckboxChange(item.id)}
-                    />
-                  </TableCell>
+                  {!readOnlyPermissions &&
+                    (
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedSubject.includes(item.id)}
+                          onChange={() => handleCheckboxChange(item.id)}
+                        />
+                      </TableCell>
+                    )}
+
                   <TableCell>
                     <a
                       href="#"

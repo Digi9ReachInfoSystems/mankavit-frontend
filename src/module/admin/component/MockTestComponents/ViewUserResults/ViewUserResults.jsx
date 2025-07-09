@@ -18,6 +18,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getAttemptById, evaluateMocktest, evaluateSingleSubjectiveQuestion } from "../../../../../api/mocktestApi";
+import { getAuth } from "../../../../../utils/authService";
 // MocktestStudentResult
 const ViewUserResults = () => {
   const { attemptId } = useParams();
@@ -28,6 +29,19 @@ const ViewUserResults = () => {
   const [loading, setLoading] = useState(true);
   const [evaluationStatus, setEvaluationStatus] = useState(null);
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,6 +89,12 @@ const ViewUserResults = () => {
 
   const handleSaveSingleQuestion = async (questionId) => {
     try {
+
+      if (readOnlyPermissions) {
+        toast.error("You don't have permission to save this evaluation");
+        return;
+      }
+
       const evaluation = evaluations.find(e => e.questionId === questionId);
       if (!evaluation) return;
 
@@ -167,25 +187,25 @@ const ViewUserResults = () => {
         const evalItem = evaluations.find(e => e.questionId === a.questionId);
         const maxMarks = question.marks;
         const currentMarks = evalItem?.marks || 0;
-        
+
         return (
           <QuestionCard key={`subj-${index}`}>
             <QuestionText>{question.questionText}</QuestionText>
             <AnswerText><strong>Your Answer:</strong> {a.answer}</AnswerText>
             <Label>Evaluate to:</Label>
-            <input 
-              type="radio" 
-              name={`subj-${index}`} 
-              value="correct" 
-              checked={currentMarks === maxMarks} 
+            <input
+              type="radio"
+              name={`subj-${index}`}
+              value="correct"
+              checked={currentMarks === maxMarks}
               onChange={() => handleMarkChange(a.questionId, true, maxMarks)}
               disabled={evaluationStatus !== "submitted"}
             /> Correct
-            <input 
-              type="radio" 
-              name={`subj-${index}`} 
-              value="Incorrect" 
-              checked={currentMarks !== maxMarks} 
+            <input
+              type="radio"
+              name={`subj-${index}`}
+              value="Incorrect"
+              checked={currentMarks !== maxMarks}
               onChange={() => handleMarkChange(a.questionId, false, 0)}
               disabled={evaluationStatus !== "submitted"}
             /> Incorrect
@@ -215,8 +235,14 @@ const ViewUserResults = () => {
           </QuestionCard>
         );
       })}
-      {evaluationStatus === "submitted" && (
-        <SubmitButton onClick={handleSubmit}>Submit Final Evaluation</SubmitButton>
+      {evaluationStatus === "submitted" && (<>
+        {
+          !readOnlyPermissions && (
+            <SubmitButton onClick={handleSubmit}>Submit Final Evaluation</SubmitButton>
+          )
+        }
+      </>
+
       )}
       <ToastContainer />
     </Container>

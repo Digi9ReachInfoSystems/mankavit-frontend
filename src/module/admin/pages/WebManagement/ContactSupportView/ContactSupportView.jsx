@@ -27,6 +27,7 @@ import {
   Heading,
   StatusBadge,
 } from "./ContactSupportView.styles";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -40,6 +41,19 @@ const ContactSupportView = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchSupports = async () => {
@@ -113,6 +127,10 @@ const ContactSupportView = () => {
   }
 
   const handleUpdateStatus = async (newStatus) => {
+    if(readOnlyPermissions) {
+      toast.error("You don't have permission to change status");
+      return;
+    }
     if (!selectedSupport) return;
 
     if (selectedSupport.status?.toLowerCase() === newStatus.toLowerCase()) {
@@ -176,11 +194,16 @@ const ContactSupportView = () => {
                           style={{ cursor: "pointer", marginRight: 10 }}
                           onClick={() => handleView(item)}
                         />
-                        <IoTrashOutline
-                          size={20}
-                          style={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleDeleteClick(item._id)}
-                        />
+                        {
+                          !readOnlyPermissions && (
+                            <IoTrashOutline
+                              size={20}
+                              style={{ cursor: "pointer", color: "red" }}
+                              onClick={() => handleDeleteClick(item._id)}
+                            />
+                          )
+                        }
+
                       </Td>
                     </tr>
                   ))}
@@ -266,7 +289,7 @@ const ContactSupportView = () => {
       />
 
       {/* Toast Container must be added once in your app */}
-            <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}

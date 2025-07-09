@@ -28,6 +28,7 @@ import { toast } from "react-toastify";
 
 // API functions
 import { getAllAchievers, deleteAchieverById } from "../../../../../api/achieverApi";
+import { getAuth } from "../../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -38,40 +39,53 @@ const Achievements = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-const [imageModalOpen, setImageModalOpen] = useState(false);
-const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
 
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // Fetch all achievers
-useEffect(() => {
-  const fetchAchievers = async () => {
-    try {
-      const res = await getAllAchievers();        
+  useEffect(() => {
+    const fetchAchievers = async () => {
+      try {
+        const res = await getAllAchievers();
 
-      // convert a MongoDB ObjectId into a Date (fallback)
-      const idToDate = (id) =>
-        new Date(parseInt(id.substring(0, 8), 16) * 1000);
+        // convert a MongoDB ObjectId into a Date (fallback)
+        const idToDate = (id) =>
+          new Date(parseInt(id.substring(0, 8), 16) * 1000);
 
-      // 🔥 sort: newest first
-      const sorted = (Array.isArray(res) ? res : []).sort((a, b) => {
-        const dateA = new Date(a.createdAt || a.updatedAt) || idToDate(a._id);
-        const dateB = new Date(b.createdAt || b.updatedAt) || idToDate(b._id);
-        return dateB - dateA;                       // descending
-      });
+        // 🔥 sort: newest first
+        const sorted = (Array.isArray(res) ? res : []).sort((a, b) => {
+          const dateA = new Date(a.createdAt || a.updatedAt) || idToDate(a._id);
+          const dateB = new Date(b.createdAt || b.updatedAt) || idToDate(b._id);
+          return dateB - dateA;                       // descending
+        });
 
-      setAchievers(sorted);
-    } catch (err) {
-      console.error("Error fetching achievers:", err);
-      setError("Failed to load achievers");
-    } finally {
-      setLoading(false);
-    }
-  };
+        setAchievers(sorted);
+      } catch (err) {
+        console.error("Error fetching achievers:", err);
+        setError("Failed to load achievers");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchAchievers();
-}, []);
+    fetchAchievers();
+  }, []);
 
   const getCreatedAtFromId = (id) => {
     if (!id || id.length < 8) return "Invalid Date";
@@ -123,24 +137,28 @@ useEffect(() => {
   return (
     <>
 
-       <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme='colored'
-          />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='colored'
+      />
+      {
+        !readOnlyPermissions && (
+          <BtnAchieve>
+            <AddButton onClick={handleAdd}>
+              Add Achievement
+            </AddButton>
+          </BtnAchieve>
+        )
+      }
 
-      <BtnAchieve>
-        <AddButton onClick={handleAdd}>
-          Add Achievement
-        </AddButton>
-      </BtnAchieve>
 
       <Container>
         <Title>Achievements</Title>
@@ -176,20 +194,20 @@ useEffect(() => {
                       <Td>{item.exam_name || "N/A"}</Td>
                       <Td>{item.name}</Td>
                       <Td>
-  {item.image ? (
-    <span
-      onClick={() => {
-        setSelectedImage(item.image);
-        setImageModalOpen(true);
-      }}
-      style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
-    >
-      View Image
-    </span>
-  ) : (
-    "No Image"
-  )}
-</Td>
+                        {item.image ? (
+                          <span
+                            onClick={() => {
+                              setSelectedImage(item.image);
+                              setImageModalOpen(true);
+                            }}
+                            style={{ color: "#007bff", cursor: "pointer", textDecoration: "none" }}
+                          >
+                            View Image
+                          </span>
+                        ) : (
+                          "No Image"
+                        )}
+                      </Td>
 
 
                       <Td>
@@ -203,21 +221,28 @@ useEffect(() => {
                         <IoEyeOutline
                           size={20}
                           color="#000000"
-                          style={{ cursor: "pointer", marginRight: "10px"}}
+                          style={{ cursor: "pointer", marginRight: "10px" }}
                           onClick={() => handleViewClick(item._id)}
                         />
-                        <BiEditAlt
-                          size={20}
-                          color="#000000"
-                          style={{ cursor: "pointer", marginRight: "10px" }}
-                          onClick={() => handleEdit(item._id)}
-                        />
-                        <RiDeleteBin6Line
-                          size={20}
-                          color="#FB4F4F"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => handleDeleteClick(item._id)}
-                        />
+                        {
+                          !readOnlyPermissions && (
+                            <>
+                              <BiEditAlt
+                                size={20}
+                                color="#000000"
+                                style={{ cursor: "pointer", marginRight: "10px" }}
+                                onClick={() => handleEdit(item._id)}
+                              />
+                              <RiDeleteBin6Line
+                                size={20}
+                                color="#FB4F4F"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => handleDeleteClick(item._id)}
+                              />
+                            </>
+                          )
+                        }
+
                       </Td>
                     </tr>
                   ))
@@ -227,13 +252,13 @@ useEffect(() => {
           )}
         </TableWrapper>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={achievers.length}
-            itemsPerPage={ITEMS_PER_PAGE}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={achievers.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+        />
       </Container>
 
       {/* Delete Confirmation Modal */}
@@ -243,26 +268,26 @@ useEffect(() => {
         onDelete={handleConfirmDelete}
       />
 
-{imageModalOpen && selectedImage && (
-  <ModalOverlay
-    onClick={() => {
-      setImageModalOpen(false);
-      setSelectedImage(null);
-    }}
-  >
-    <ModalContent onClick={(e) => e.stopPropagation()}>
-      <CloseIcon
-        onClick={() => {
-          setImageModalOpen(false);
-          setSelectedImage(null);
-        }}
-      >
-        &times;
-      </CloseIcon>
-      <ModalImage src={selectedImage} alt="Achiever" />
-    </ModalContent>
-  </ModalOverlay>
-)}
+      {imageModalOpen && selectedImage && (
+        <ModalOverlay
+          onClick={() => {
+            setImageModalOpen(false);
+            setSelectedImage(null);
+          }}
+        >
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <CloseIcon
+              onClick={() => {
+                setImageModalOpen(false);
+                setSelectedImage(null);
+              }}
+            >
+              &times;
+            </CloseIcon>
+            <ModalImage src={selectedImage} alt="Achiever" />
+          </ModalContent>
+        </ModalOverlay>
+      )}
 
 
     </>

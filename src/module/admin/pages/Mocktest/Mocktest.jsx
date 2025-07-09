@@ -18,7 +18,7 @@ import {
   SearchIcon,
   SearchInput,
   ToggleSwitch,
-  ToggleSlider ,
+  ToggleSlider,
   ToggleLabel
 } from "./Mocktest.styles";
 import { BiEditAlt } from "react-icons/bi";
@@ -34,15 +34,16 @@ import { getAllMocktest, deleteMocktestById, publishMocktestById } from "../../.
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getAuth } from "../../../../utils/authService";
 
 const ITEMS_PER_PAGE = 10;
 
 // helper to sort by creation/update timestamp
 const ts = (item) =>
-  item.createdAt        ? new Date(item.createdAt).getTime()
-: item.updatedAt        ? new Date(item.updatedAt).getTime()
-: item.id?.length >= 8  ? parseInt(item.id.substring(0, 8), 16) * 1000
-: 0;
+  item.createdAt ? new Date(item.createdAt).getTime()
+    : item.updatedAt ? new Date(item.updatedAt).getTime()
+      : item.id?.length >= 8 ? parseInt(item.id.substring(0, 8), 16) * 1000
+        : 0;
 
 export default function MockTestsTable() {
   const navigate = useNavigate();
@@ -61,6 +62,19 @@ export default function MockTestsTable() {
   // View modal state
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // fetch & sort
   useEffect(() => {
@@ -75,18 +89,18 @@ export default function MockTestsTable() {
       if (!res.success) throw new Error("Failed to load mock tests");
       const rows = res.data
         .map(test => ({
-          id            : test._id,
-          mockTitle     : test.title,
-          createdOn     : new Date(test.createdAt).toLocaleString(),
-          updatedOn     : new Date(test.updatedAt).toLocaleString(),
-          isPublished   : test.isPublished || false,
-          createdAtRaw  : test.createdAt,
-          subjectId     : test.subject?._id,
-          students      : test.students || [],
-          questionTypes : Array.isArray(test.questions)
-                            ? [...new Set(test.questions.map(q => q.type))].join(", ")
-                            : "—",
-          totalMarks    : test.totalMarks
+          id: test._id,
+          mockTitle: test.title,
+          createdOn: new Date(test.createdAt).toLocaleString(),
+          updatedOn: new Date(test.updatedAt).toLocaleString(),
+          isPublished: test.isPublished || false,
+          createdAtRaw: test.createdAt,
+          subjectId: test.subject?._id,
+          students: test.students || [],
+          questionTypes: Array.isArray(test.questions)
+            ? [...new Set(test.questions.map(q => q.type))].join(", ")
+            : "—",
+          totalMarks: test.totalMarks
         }))
         .sort((a, b) => ts(b) - ts(a));
       setData(rows);
@@ -122,6 +136,10 @@ export default function MockTestsTable() {
 
   // handle publish toggle unchanged...
   const handlePublishToggle = async (id, currentStatus) => {
+    if(readOnlyPermissions) {
+      toast.error("You don't have permission to change publish status");
+      return;
+    }
     const newStatus = !currentStatus;
     setData(data.map(item =>
       item.id === id ? { ...item, isPublished: newStatus } : item
@@ -150,12 +168,12 @@ export default function MockTestsTable() {
     item.mockTitle.toLowerCase().includes(searchText.toLowerCase())
   );
   const totalEntries = filtered.length;
-  const totalPages   = Math.ceil(totalEntries / ITEMS_PER_PAGE);
-  const startIdx     = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pageItems    = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalEntries / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   if (loading) return <div>Loading mock tests…</div>;
-  if (error)   return <div style={{ color: "red" }}>Error: {error}</div>;
+  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
 
   return (
     <>
@@ -166,7 +184,7 @@ export default function MockTestsTable() {
           </Title>
           <SortByContainer>
             <SortLabel>Sort by:</SortLabel>
-            <SortSelect value="Name" onChange={() => {}}>
+            <SortSelect value="Name" onChange={() => { }}>
               <option value="Name">Name</option>
               <option value="LastActive">Last Active</option>
               <option value="Active">Active</option>
@@ -209,6 +227,7 @@ export default function MockTestsTable() {
                       <input
                         type="checkbox"
                         checked={item.isPublished}
+                        style={{ display: "none" }}
                         onChange={() => handlePublishToggle(item.id, item.isPublished)}
                       />
                       <ToggleSlider $isPublished={item.isPublished} />
@@ -223,30 +242,36 @@ export default function MockTestsTable() {
                         title="View Details"
                         size={20}
                         onClick={() => navigate(`/admin/mock-test/view/${item.id}`)}
-                      />
-                      <BiEditAlt
-                        title="Edit"
-                        size={20}
-                        onClick={() => navigate(`/admin/mock-test/edit/${item.id}`)}
-                      />
-                      <RiDeleteBin6Line
-                        title="Delete"
-                        size={20}
-                        color="#FB4F4F"
-                        onClick={() => handleDeleteClick(item.id)}
-                      />
+                      />{
+                        !readOnlyPermissions && (
+                          <>
+                            <BiEditAlt
+                              title="Edit"
+                              size={20}
+                              onClick={() => navigate(`/admin/mock-test/edit/${item.id}`)}
+                            />
+                            <RiDeleteBin6Line
+                              title="Delete"
+                              size={20}
+                              color="#FB4F4F"
+                              onClick={() => handleDeleteClick(item.id)}
+                            />
+                          </>
+                        )
+                      }
+
                     </ActionsContainer>
                   </TableCell>
                   <TableCell style={{ textAlign: "center" }}>
                     <button
                       style={{ border: "none", background: "none", cursor: item.subjectId ? "pointer" : "not-allowed" }}
-                      onClick={() => item.subjectId && handleView(item.students)}
+                      onClick={() => item.subjectId && navigate(`/admin/mock-test/user-result/${item.id}/${item.subjectId}`)}
                       disabled={!item.subjectId}
                     >
                       <IoEyeOutline size={20} />
                     </button>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ textAlign: "center" }}>
                     <button
                       style={{ border: "none", background: "none", cursor: item.subjectId ? "pointer" : "not-allowed" }}
                       onClick={() => item.subjectId && navigate(`/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`)}

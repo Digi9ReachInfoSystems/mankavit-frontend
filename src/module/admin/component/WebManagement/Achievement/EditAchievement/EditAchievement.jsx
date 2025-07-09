@@ -19,6 +19,7 @@ import { notification } from 'antd';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from '../../../../../../utils/authService';
 
 const EditAchievement = () => {
   const { id } = useParams();
@@ -32,6 +33,35 @@ const EditAchievement = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [existingImageUrl, setExistingImageUrl] = useState('');
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  
+    useEffect(() => {
+      const apiCaller = async () => {
+        const response = await getAuth();
+        response.Permissions;
+        if (response.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+          if (response.Permissions["webManagement"].readOnly) {
+            toast.error('You do not have permission to edit Achievements.', {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              onClose: () => {
+                navigate('/admin/');
+              }
+            });
+          }
+        }
+      }
+      apiCaller();
+    }, []);
 
   useEffect(() => {
     const fetchAchiever = async () => {

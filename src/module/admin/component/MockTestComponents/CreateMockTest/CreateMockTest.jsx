@@ -20,6 +20,8 @@ import {
 import { createMocktest } from '../../../../../api/mocktestApi';
 import { useNavigate } from 'react-router-dom';
 import { getSubjects } from '../../../../../api/subjectApi';
+import { getAuth } from '../../../../../utils/authService';
+import { toast } from 'react-toastify';
 
 const CreateMockTest = () => {
   // errors keyed by field name
@@ -39,6 +41,35 @@ const CreateMockTest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(true);
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
+        if (response.Permissions["mockTestManagement"].readOnly) {
+          toast.error('You do not have permission to create mock tests.', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            onClose: () => {
+              navigate('/admin/');
+            }
+          });
+
+        }
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -234,10 +265,14 @@ const CreateMockTest = () => {
             {errors.endDate && <ErrorText>{errors.endDate}</ErrorText>}
           </FormGroup>
         </FormRow>
+        {
+          !readOnlyPermissions && (
+            <Button type="submit" disabled={isSubmitting || isLoadingSubjects}>
+              {isSubmitting ? 'Creating...' : 'Create Mock Test'}
+            </Button>
+          )
+        }
 
-        <Button type="submit" disabled={isSubmitting || isLoadingSubjects}>
-          {isSubmitting ? 'Creating...' : 'Create Mock Test'}
-        </Button>
       </FormWrapper>
     </Container>
   );

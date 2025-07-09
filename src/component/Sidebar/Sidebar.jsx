@@ -22,27 +22,30 @@ import {
 } from "./Sidebar.style";
 import { getUserByUserId, logoutUser } from "../../api/authApi";
 import { getCookiesData } from "../../utils/cookiesService";
- 
+import { getAuth } from "../../utils/authService";
+
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [sections, setSections] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
- 
-  const menuItems = [
-    { path: "/admin", label: "Dashboard" },
-    { path: "/admin/student-management", label: "Student Management" },
-    { path: "/admin/payment-management", label: "Payment" },
-    { path: "/admin/static-page", label: "Static Page" },
-  ];
- 
+  const [menuItems, setMenuItems] = useState([]);
+
+  // const menuItems = [
+  //   { path: "/admin", label: "Dashboard" },
+  //   { path: "/admin/student-management", label: "Student Management" },
+  //   { path: "/admin/payment-management", label: "Payment" },
+  //   { path: "/admin/static-page", label: "Static Page" },
+  // ];
+
   const mockTestItems = [
     { path: "/admin/mock-test", label: "View Mock Test" },
     { path: "/admin/mock-test/create-mock-test", label: "Create Mock Test" },
     { path: "/admin/results", label: "Results" },
   ];
- 
+
   const courseManagementItems = [
     { path: "/admin/course-management", label: "Courses" },
     { path: "/admin/subject-management", label: "Subjects" },
@@ -51,7 +54,7 @@ const Sidebar = () => {
     { path: "/admin/lecturer-management", label: "Videos" },
     { path: "/admin/recorded-class", label: "Recorded Class" },
   ];
- 
+
   const webManagementItems = [
     { path: "/admin/web-management/aboutus", label: "About us" },
     { path: "/admin/web-management/question-paper", label: "Question Paper" },
@@ -73,18 +76,75 @@ const Sidebar = () => {
   ];
   const adminItems = [
     { path: "/admin/subadmins-management", label: "Admin Management" },
-   
-  ];
- 
-  const sections = {
-    "Mock Test": mockTestItems,
-    "Course Management": courseManagementItems,
-    "Web Management": webManagementItems,
-    "Meeting": meetingsItems,
-    "Admin Management": adminItems
-  };
 
- 
+  ];
+
+  // const sections = {
+  //   "Mock Test": mockTestItems,
+  //   "Course Management": courseManagementItems,
+  //   "Web Management": webManagementItems,
+  //   "Meeting": meetingsItems,
+  //   "Admin Management": adminItems
+  // };
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      console.log("skndnjsjd", response);
+      if (response.isSuperAdmin === true) {
+        setSections({
+          "Mock Test": mockTestItems,
+          "Course Management": courseManagementItems,
+          "Web Management": webManagementItems,
+          // "Meeting": meetingsItems,
+          "Admin Management": adminItems
+        })
+        setMenuItems(
+          [
+            { path: "/admin", label: "Dashboard" },
+            { path: "/admin/student-management", label: "Student Management" },
+            { path: "/admin/payment-management", label: "Payment" },
+            { path: "/admin/static-page", label: "Static Page" },
+          ]
+        );
+        // setReadOnlyPermissions(false);
+      } else {
+        // setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+        let sectionData = {
+
+        };
+        let menuItemsData = [];
+        menuItemsData.push({ path: "/admin", label: "Dashboard" },);
+        if (response.Permissions.studentManagement.access) {
+          menuItemsData.push({ path: "/admin/student-management", label: "Student Management" },);
+        }
+        if (response.Permissions.mockTestManagement.access) {
+          menuItemsData.push({ path: "/admin/mock-test", label: "Mock Test" },);
+        }
+        if (response.Permissions.staticPageManagement.access) {
+          menuItemsData.push({ path: "/admin/static-page", label: "Static Page" },);
+        }
+        if (response.Permissions.mockTestManagement.access) {
+          sectionData["Mock Test"] = mockTestItems;
+
+        }
+        if (response.Permissions.courseManagement.access) {
+          sectionData["Course Management"] = courseManagementItems;
+
+        }
+        if (response.Permissions.webManagement.access) {
+          sectionData["Web Management"] = webManagementItems;
+        }
+
+
+        setMenuItems(menuItemsData);
+        setSections(sectionData);
+      }
+    }
+    apiCaller();
+  }, []);
+
   useEffect(() => {
     // Auto‐expand the current section
     const newState = {};
@@ -95,11 +155,11 @@ const Sidebar = () => {
     });
     setOpenSections(newState);
   }, [location.pathname]);
- 
+
   const toggleSidebar = () => setIsOpen(open => !open);
   const toggleSection = sec =>
     setOpenSections(prev => ({ ...prev, [sec]: !prev[sec] }));
- 
+
   const handleLogoutClick = () => setShowLogoutModal(true);
   const handleCancelLogout = () => setShowLogoutModal(false);
   const handleConfirmLogout = async () => {
@@ -112,7 +172,7 @@ const Sidebar = () => {
       console.error(err);
     }
   };
- 
+
   // 💡 Always pass `end` so NavLink is exact-match only
   const renderLink = ({ path, label }, key, indented = false) => (
     <StyledNavLink
@@ -126,7 +186,7 @@ const Sidebar = () => {
       {label}
     </StyledNavLink>
   );
- 
+
   return (
     <>
       <HamburgerIcon onClick={toggleSidebar}>
@@ -166,7 +226,7 @@ const Sidebar = () => {
           </LogoutButton>
         </LogoutContainer>
       </SidebarContainer>
- 
+
       {showLogoutModal && (
         <ModalOverlay>
           <ModalContainer>
@@ -185,5 +245,5 @@ const Sidebar = () => {
     </>
   );
 };
- 
+
 export default Sidebar;

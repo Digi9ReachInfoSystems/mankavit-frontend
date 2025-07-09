@@ -16,11 +16,25 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 import JoditEditor from 'jodit-react';
+import { getAuth } from "../../../../../utils/authService";
 // import { getAllMocktest } from "../../../../../api/mocktestApi";
 
 export default function EditCourse() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const [formData, setFormData] = useState({
     courseTitle: "",
@@ -143,7 +157,7 @@ export default function EditCourse() {
   }, [id]);
   const config = useMemo(() => ({
     readonly: false, // all options from https://xdsoft.net/jodit/docs/,
-    placeholder: formData.shortDescription ,
+    placeholder: formData.shortDescription,
     //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
     //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
     //   'align', 'outdent', 'indent', '|', 'link', 'image'],
@@ -164,7 +178,7 @@ export default function EditCourse() {
     []);
   const configDis = useMemo(() => ({
     readonly: false, // all options from https://xdsoft.net/jodit/docs/,
-    placeholder: formData.description ,
+    placeholder: formData.description,
     //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
     //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
     //   'align', 'outdent', 'indent', '|', 'link', 'image'],
@@ -365,9 +379,9 @@ export default function EditCourse() {
                 ref={editor}
                 value={formData.description}
                 config={configDis}
-                tabIndex={1} 
-                onBlur={newContent => { console.log("new", newContent); }} 
-                onChange={newContent => { setFormData({ ...formData, description: newContent }) }} 
+                tabIndex={1}
+                onBlur={newContent => { console.log("new", newContent); }}
+                onChange={newContent => { setFormData({ ...formData, description: newContent }) }}
               />
             </FieldWrapper>
           </Column>
@@ -680,7 +694,11 @@ export default function EditCourse() {
 
         {/* Row 8: Submit button */}
         <FormRow>
-          <SubmitButton type="submit">Update Course</SubmitButton>
+          {
+            !readOnlyPermissions && (
+              <SubmitButton type="submit">Update Course</SubmitButton>
+            )
+          }
         </FormRow>
       </FormWrapper>
     </Container>
