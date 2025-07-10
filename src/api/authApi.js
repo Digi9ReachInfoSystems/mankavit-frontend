@@ -290,3 +290,43 @@ export const getAllAdmins = async () => {
         throw error;
     }
 }
+
+export const sendForgotPasswordOtp = async (data) => {
+    try {
+        const response = await api.post("/user/send/forgotPasswordOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const resendForgotPasswordOtp = async (data) => {
+    try {
+        const response = await api.post("/user/resend/forgotPasswordOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const verifyForgotPasswordOtp = async (data) => {
+    try {
+        const response = await api.post("/user/verify/forgotPasswordOtp", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const resetPassword = async (data) => {
+    try {
+        const response = await api.put("/user/reset/password", data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
