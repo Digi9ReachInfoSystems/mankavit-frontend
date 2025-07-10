@@ -27,7 +27,8 @@ import {
   VideoItem,
   Playbutton,
   NoteItem,
-  NotesSection
+  NotesSection,
+  Bullet
 } from "./ContinueCourse.styles";
 import { FaFilePdf, FaDownload } from "react-icons/fa"; // Add these imports at the top
 
@@ -693,11 +694,15 @@ const ContinueCourse = () => {
               📝 Description: {course?.description || "N/A"
               }{" "}
             </Statdesc> */}
+
             <FeaturesContainer>
               {featuresArray.map((column, colIndex) => (
                 <FeatureColumn key={colIndex}>
                   {column.map((feature, i) => (
-                    <FeatureItem key={i}>{feature}</FeatureItem>
+                    <FeatureItem key={i}>
+                      <Bullet>•</Bullet>
+                      <span>{feature}</span>
+                    </FeatureItem>
                   ))}
                 </FeatureColumn>
               ))}

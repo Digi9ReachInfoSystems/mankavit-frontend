@@ -431,6 +431,10 @@ export const FeaturesContainer = styled.div`
 `;
 
 export const FeatureColumn = styled.ul`
+  flex: 1;
+  margin: 0 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   list-style-type: disc;
   padding-left: 1.5rem;
 
@@ -452,5 +456,9 @@ export const FeatureItem = styled.div`
     gap: 5px;
   }
 `;
-
+export const Bullet = styled.span`
+  color: #313131;
+  font-size: 24px;
+  padding-right: 10px;
+`;
 export const IconText = styled.span``;
