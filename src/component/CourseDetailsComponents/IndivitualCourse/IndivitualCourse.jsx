@@ -10,14 +10,6 @@ import {
   EnrollButton,
   FeaturesRow,
   FeatureItem,
-  IconText,
-  Highlight,
-  BulletList,
-  BackIcon,
-  MainTitle,
-  Header,
-  ListBull,
-  CourseIncludes,
   CourseButton,
   Feature,
   Statdesc,
@@ -160,6 +152,9 @@ const IndividualCourses = () => {
               📝 Description: {course?.description || "N/A"
               }{" "}
             </Statdesc> */}
+          
+          
+          
             <FeaturesContainer>
               {featuresArray.map((column, colIndex) => (
                 <FeatureColumn key={colIndex}>

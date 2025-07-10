@@ -290,6 +290,10 @@ export const FeaturesContainer = styled.div`
 `;
 
 export const FeatureColumn = styled.ul`
+  flex: 1;
+  margin: 0 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   list-style-type: disc;
   padding-left: 1.5rem;
 
@@ -298,15 +302,23 @@ export const FeatureColumn = styled.ul`
   }
 `;
 
-export const FeatureItem = styled.li`
-  // margin-bottom: 1rem;
-  font-size: 1rem;
-  color: #333;
-
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+export const FeatureItem = styled.div`
+ margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 400;
+  color: #313131;
+  .link {
+    text-decoration: none;
+    color: #007bff;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
+`;
+export const Bullet = styled.span`
+  color: #313131;
+  font-size: 24px;
+  padding-right: 10px;
 `;
 
 
