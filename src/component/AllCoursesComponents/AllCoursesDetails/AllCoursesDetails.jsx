@@ -22,7 +22,10 @@ import {
   PriceActions,
   Price,
   ViewButton,
-  RatingWrapper
+  RatingWrapper,
+  EnrolledTag,
+  Ribbon,
+  VerticalTag
 } from './AllCoursesDetails.styles';
 
 import { CiSearch } from 'react-icons/ci';
@@ -75,19 +78,20 @@ const AllCoursesDetails = () => {
         if (cookiesData && cookiesData.userId) {
           if (activeTab === 'All') {
             const resp = await getAllUserCourses(cookiesData.userId);
+            // console.log("resp", resp);
             data = resp.data;
           } else {
-          const resp = await getAllUserCourseByCategory(cookiesData.userId, activeTab);
-          console.log("resp", resp);
-          data = resp.data;
+            const resp = await getAllUserCourseByCategory(cookiesData.userId, activeTab);
+            console.log("resp", resp);
+            data = resp.data;
           }
         } else {
           if (activeTab === 'All') {
             const resp = await getAllCourses();
             data = resp.data;
           } else {
-          const resp = await getCourseByCategory(activeTab);
-          data = resp.data;
+            const resp = await getCourseByCategory(activeTab);
+            data = resp.data;
           }
         }
         console.log("data", data);
@@ -99,11 +103,12 @@ const AllCoursesDetails = () => {
           desc: course.description || 'No description available',
           duration: course.duration || 'Not specified',
           success: course.successRate || 'N/A',
-          price: course.price ? `₹${course.price}/-` : 'Price not available',
+          price: course.price >= 0 ? `₹${course.price}/-` : 'Price not available',
           rating: course.rating || 0,
           category: course.category || 'All',
           image: course.image || lawimg,
-          isEnrolled: course.isEnrolled || false
+          isEnrolled: course.isEnrolled || false,
+          actualPrice: course.price >= 0 ? course.price : 0
         }));
         console.log("transformed", transformed);
         setCourses(transformed);
@@ -140,12 +145,12 @@ const AllCoursesDetails = () => {
 
       <FilterBar>
         <FilterButton
-            key={"All"}
-            active={activeTab === 'All'}
-            onClick={() => setActiveTab("All")}
-          >
-            All
-          </FilterButton>
+          key={"All"}
+          active={activeTab === 'All'}
+          onClick={() => setActiveTab("All")}
+        >
+          All
+        </FilterButton>
         {categories.map(cat => (
           <FilterButton
             key={cat}
@@ -168,8 +173,13 @@ const AllCoursesDetails = () => {
       </SearchWrapper>
 
       <CardGrid>
-        {filteredCourses.map(course => (
+        {filteredCourses.map(course =>{
+          console.log("course skjdb", course);
+         return(
           <CourseCard key={course.id}>
+            {course.isEnrolled && <EnrolledTag>Enrolled</EnrolledTag>}
+            {/* {course.isEnrolled &&   <Ribbon className="enrolled">✓ Enrolled</Ribbon>} */}
+            {/* {course.isEnrolled && <VerticalTag>✓ Enrolled</VerticalTag>} */}
             <ImageWrapper>
               <img src={course.image} alt={course.title} />
             </ImageWrapper>
@@ -182,22 +192,46 @@ const AllCoursesDetails = () => {
                   <CourseTitle>{course.title}</CourseTitle>
                   <CourseMinititle>{course.minititle}</CourseMinititle>
                 </CourseHead>
-              <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc }} /> 
+                <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc }} />
               </CourseMain>
               <Details>
                 <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
                 <DetailItem>🏆 Success Rate: {course.success}</DetailItem>
               </Details>
             </CourseContent>
+            {
+              course.isEnrolled ? (
+                <PriceActions>
+                  <Price style={{ width: "100%", }}
+                    onClick={() => { navigate("/user") }}
+                  >Continue Learning</Price>
+                  {/* <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
+                    View details
+                  </ViewButton> */}
+                </PriceActions>
+              ) : (
+                course.actualPrice >0 ? (
+                <PriceActions>
+                  <Price>{course.price}</Price>
+                  <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
+                    View details
+                  </ViewButton>
+                </PriceActions>) : (
+                  <PriceActions>
+                    <Price>Free</Price>
+                    <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
+                      View details
+                    </ViewButton>
+                  </PriceActions>
+                )
 
-            <PriceActions>
-              <Price>{course.price}</Price>
-              <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
-                View details
-              </ViewButton>
-            </PriceActions>
+              )
+            }
+
+
           </CourseCard>
-        ))}
+        )
+        })}
       </CardGrid>
     </Container>
   );
