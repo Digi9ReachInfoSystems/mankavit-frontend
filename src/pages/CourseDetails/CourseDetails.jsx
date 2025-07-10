@@ -10,7 +10,7 @@ const CourseDetails = () => {
     <div>
       <Header/>
       <IndividualCourses />
-      <CourseFeatures />
+      {/* <CourseFeatures /> */}
       <VideoAndReviews /> 
       <Footer />
     </div>

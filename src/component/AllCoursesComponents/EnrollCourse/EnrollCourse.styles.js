@@ -1,8 +1,15 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  padding: 40px 20px;
-  text-align: center;
+  // padding: 40px 20px;
+  // text-align: center;
+   padding: 2rem;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+//   align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 
 
   @media (max-width: 1320px) {
@@ -132,6 +139,7 @@ export const EnrollButton = styled.button`
   border: none;
   cursor: pointer;
   transition: background 0.3s;
+  width: 20%;
 
   &:hover {
     background-color: #005dc4;
