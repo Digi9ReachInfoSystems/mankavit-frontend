@@ -80,7 +80,7 @@ export const CourseIncludes = styled.h3`
 
 export const CourseImage = styled.img`
   width: 100%;
-  height: 350px;
+  height: 600px;
   border-radius: 10px;
   margin-bottom: 10px;
 `;
@@ -122,6 +122,7 @@ export const Rating = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
+  padding: 20px;
   font-weight: 600;
   margin-right: 10px;
 
@@ -151,13 +152,15 @@ export const EnrollButton = styled.button`
   background: linear-gradient(to right, #0dcaf0, #007bff);
   color: white;
   font-size: 24px;
-  padding: 30px 32px;
+  // padding: 30px 22px;
+  padding:15px 30px;
   border: none;
   border-bottom-left-radius: 12px;
   cursor: pointer;
   font-weight: 600;
   transition: background 0.3s ease;
   width: 100%;
+  margin: 0 auto;
 
   &:hover {
     background-color: #0056b3;
@@ -176,7 +179,7 @@ export const EnrollButton = styled.button`
 
 export const CourseButton = styled.div`
   display: flex;
-  width: 100%;
+  width: 30%;
   justify-content: center;
   align-items: center;
   margin-top:20px; 
@@ -218,20 +221,7 @@ export const FeaturesRow = styled.div`
   }
 `;
 
-export const FeatureItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
 
-  .link {
-    text-decoration: none;
-    color: #007bff;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-`;
 
 export const Feature = styled.div`
 width: 50px;
@@ -256,6 +246,210 @@ border-radius: 50px;
   @media (max-width: 1024px) {
     width: 40px;
     height: 40px;
+  }
+`;
+export const Statdesc = styled.span`
+font-size: 20px;
+font-weight: 400;
+color: #313131;
+  margin-left: 0px;
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
+`;
+ 
+
+export const CourseStats = styled.div`
+  font-size: 18px;
+  color: #1a73e8;
+  margin-top: 4px;
+  margin-left:30px;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+    margin-left: 20px;
+  }
+
+  @media (max-width: 768px) {
+    margin-left: 10px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
+`;
+ 
+export const StatLink = styled.span`
+  cursor: pointer;
+  text-decoration: none;
+  margin-right: 10px;
+  margin-left: 10px;
+ 
+  &:nth-child(1) {
+    margin-left: 0;
+  }
+
+  @media (max-width: 480px) {
+    margin-right: 2px;
+    margin-left: 2px;
+  }
+`;
+export const StarContainer = styled.span`
+  margin-left: 8px;
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: middle;
+`;
+
+
+ 
+export const PlayButton = styled.div`
+      background: linear-gradient(to right, #0DCAF0, #007BFF);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+
+  @media (max-width: 1024px) {
+    width: 60px;
+    height: 60px;
+    font-size: 20px;
+  }
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+ 
+  span {
+    margin-left: 5px;
+
+    @media (max-width: 480px) {
+      margin-left: 0;
+    }
+  }
+`;
+
+
+
+export const CourseInfo = styled.div`
+//   h2 {
+//     font-size: 1.8rem;
+//     margin-bottom: 10px;
+//   }
+
+//   p {
+//     font-size: 0.95rem;
+//     margin-bottom: 15px;
+//   }
+`;
+
+export const HeaderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: #fff;
+`;
+
+export const CourseDetails = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-direction: column;
+
+  @media (max-width: 480px) {
+    gap: 10px;
+  }
+`;
+
+export const CourseSubject = styled.h2`
+  font-size: 35px;
+  color: #313131;
+  width: 100px;
+  margin: 0;
+  margin-bottom: 10px;
+  margin-left:30px;
+  width: 100%;
+
+  @media (max-width: 1024px) {
+    font-size: 28px;
+    margin-left: 20px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-left: 10px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
+`;
+
+export const liveClass = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  color: #000;
+  font-weight: 500;
+  margin-bottom: 20px;
+  margin-left: 20px;
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+    margin-bottom: 0px;
+    margin-top: 10px;
+  }
+`;
+
+export const FeaturesContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: auto;
+  // padding: 0 1rem;
+  font-family: Arial, sans-serif;
+
+  @media (max-width: 1024px) {
+    width: 95%;
+    margin: 10px 0;
+  }
+`;
+
+export const FeatureColumn = styled.ul`
+  list-style-type: disc;
+  padding-left: 1.5rem;
+
+  @media (max-width: 480px) {
+  margin: 0;
+  }
+`;
+
+export const FeatureItem = styled.div`
+ margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 400;
+  color: #313131;
+  .link {
+    text-decoration: none;
+    color: #007bff;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 `;
 

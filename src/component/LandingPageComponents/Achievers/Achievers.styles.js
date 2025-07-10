@@ -1,8 +1,15 @@
 import styled from 'styled-components';
 
 export const AchieversSection = styled.section`
-  padding: 60px 20px;
-  text-align: center;
+  // padding: 60px 20px;
+  // text-align: center;
+     padding: 2rem;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+//   align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 `;
 
 export const Title = styled.h2`

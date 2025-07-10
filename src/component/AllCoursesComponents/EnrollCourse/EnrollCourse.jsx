@@ -16,23 +16,7 @@ import image1 from "../../../assets/Study1.png";
 import image2 from "../../../assets/Study2.png";
 import image3 from "../../../assets/Study3.png";
 
-// const features = [
-//   {
-//     image: image1, // Replace with your actual image path
-//     title: "Expert Faculty & Proven Success",
-//     text: "Learn from experienced mentors who have helped thousands of students achieve their goals.",
-//   },
-//   {
-//     image: image2,
-//     title: "Comprehensive Study Resources",
-//     text: "Access up-to-date materials, mock tests, and previous year papers for effective preparation.",
-//   },
-//   {
-//     image: image3,
-//     title: "Personalized Support",
-//     text: "Receive tailored study plans and one-on-one attention to maximize your potential.",
-//   },
-// ];
+
 import { getAllWhy } from "../../../api/whyApi";
 import { getCookiesData } from "../../../utils/cookiesService";
 import { useNavigate } from "react-router-dom";
