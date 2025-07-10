@@ -10,11 +10,22 @@ const slideUp = keyframes`
     transform: translateY(60px);
   }
 `;
- 
+ export const MainContainer = styled.div`
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  gap: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #fff;
+`;
+
 export const TabContentWrapper = styled.div`
-  padding: 10px 0;
-  animation: ${slideUp} 0.6s ease-out;
-  margin-left: 0px;
+  flex: 1;
+  min-width: 50%;
+  max-height: calc(100vh - 40px); // Adjust based on your padding
+  overflow-y: auto;
+  padding-right: 10px; // For scrollbar space
 `;
 
 export const Container = styled.div`
