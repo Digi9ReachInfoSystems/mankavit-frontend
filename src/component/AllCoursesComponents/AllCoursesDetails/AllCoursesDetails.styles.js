@@ -347,3 +347,48 @@ export const ContinueButton = styled.button`
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
 `;
+export const EnrolledTag = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #28a745;
+  color: white;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  z-index: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+`;
+
+export const Ribbon = styled.div`
+  width: 120px;
+  background: ${({ className }) =>
+    className === "enrolled" ? "#28a745" : "#dc3545"};
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  position: absolute;
+  top: 29px;
+  left: -15px;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  padding: 4px 0;
+`;
+
+export const VerticalTag = styled.div`
+  position: absolute;
+  top: 30px;
+  left: 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background-color: #28a745;
+  color: white;
+  font-size: 12px;
+  padding: 6px 8px;
+  font-weight: 600;
+  border-radius: 0 4px 4px 0;
+  z-index: 1;
+`;
