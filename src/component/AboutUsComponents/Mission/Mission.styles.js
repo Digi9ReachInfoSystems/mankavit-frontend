@@ -2,9 +2,13 @@
 import styled from "styled-components";
 
 export const MissionSection = styled.section`
-  text-align: center;
-  padding: 4rem 2rem;
-  background-color: #fff;
+ padding: 2rem;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+//   align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 
   @media (max-width: 1360px) {          
       padding: 0 1rem;
@@ -254,6 +258,8 @@ export const CTAButton = styled.button`
   font-family: ${({ theme }) => theme.fonts.accent};
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 20%;
+  margin:auto;
 
   &:hover {
   background: linear-gradient(to right, #0DCAF09d, #007BFF9d);

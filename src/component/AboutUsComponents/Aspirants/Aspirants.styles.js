@@ -2,9 +2,14 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 60px;
+   padding: 2rem;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+//   align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+ 
 `;
 
 export const Title = styled.h2`

@@ -622,7 +622,7 @@ const ContinueCourse = () => {
         </BackLink>
         <MainTitle>
           {course?.courseDisplayName || "Course Name"}
-          <span> {course?.courseName || ""}</span>
+          {/* <span> {course?.courseName || ""}</span> */}
         </MainTitle>
       </Header>
 
