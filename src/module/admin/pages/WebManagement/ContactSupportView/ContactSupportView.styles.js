@@ -173,7 +173,7 @@ export const Td = styled.td`
   white-space: nowrap;
   border-bottom: 1px solid ${(props) => props.theme.colors.grey};
 
-     &:nth-child(2) {
+     &:nth-child(3) {
     width: 70%;
     white-space: normal; /* allow text to wrap inside description */
     word-break: break-word;
@@ -385,5 +385,6 @@ export const StatusBadge = styled.span`
   font-size: 12px;
   font-weight: 500;
   color: white;
+  width: fit-content;
   background-color: ${props => props.color || '#9e9e9e'};
 `;
