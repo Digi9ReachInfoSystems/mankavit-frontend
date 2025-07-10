@@ -16,7 +16,8 @@ import {
     ContentText,
     MovingOverlay,
     VideoPlayerContainer,
-    FullscreenButton
+    FullscreenButton,
+    MainContainer
 } from './CoursesLiveclass.styles';
 import { FaUser, FaDownload, FaPlay, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
 import { getCourseById } from '../../api/courseApi';
@@ -400,7 +401,7 @@ if (activeTab === 'Notes') {
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button
                       onClick={() => setCurrentNote({ file: noteUrl, name: note.noteName, isDownloadable: note.isDownload })}
-                      style={{ background: '#1d72e8', color: 'white', padding: '6px 12px', borderRadius: 4 }}
+                      style={{ background: '#0494fa', color: 'white', padding: '6px 12px', borderRadius: 4 }}
                     >
                       View
                     </button>
@@ -408,7 +409,7 @@ if (activeTab === 'Notes') {
                       <a
                         href={noteUrl}
                         download
-                        style={{ background: '#4CAF50', color: 'white', padding: '6px 12px', borderRadius: 4, textDecoration: 'none' }}
+                        style={{ background: '#d4b200', color: 'white', padding: '6px 12px', borderRadius: 4, textDecoration: 'none' }}
                       >
                         Download
                       </a>
@@ -546,7 +547,8 @@ if (activeTab === 'Notes') {
     };
 
     return (
-        <Container>
+        <MainContainer>
+        {/* <Container> */}
             <VideoContainer>
 
 
@@ -560,7 +562,7 @@ if (activeTab === 'Notes') {
                                     ref={videoRef}
                                     onError={handleVideoError}
                                     onEnded={handleVideoEnd}
-                                    poster={course?.image || ""}
+                                    // poster={course?.image || ""}
                                     controls
                                     controlsList="nodownload nofullscreen noremoteplayback"
                                     disablePictureInPicture
@@ -635,7 +637,8 @@ if (activeTab === 'Notes') {
                 {renderTabContent()}
             </TabContentWrapper>
 
-        </Container>
+        {/* </Container> */}
+        </MainContainer>
 
     );
 };
