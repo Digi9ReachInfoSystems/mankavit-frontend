@@ -61,14 +61,14 @@ export default function Footer() {
             </LinkList>
           </FooterSection>
 
-          <FooterSection>
+          {/* <FooterSection>
             <SectionTitle>Newsletter</SectionTitle>
             <Maildescription>Subscribe our newsletter to get updated the latest news</Maildescription>
             <NewsletterInput type="email" placeholder="Enter Mail" /> <br />
             <SubscribeButton>
               SUBSCRIBE <FaArrowRightLong className="rightarrow" />
             </SubscribeButton>
-          </FooterSection>
+          </FooterSection> */}
         </RightContainer>
       </div>
 

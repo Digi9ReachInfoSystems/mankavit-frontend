@@ -38,6 +38,7 @@ const createEmptyQuestion = () => ({
   text: '',
   options: [],
   marks: 0,
+  expectedAnswer: '',
 });
 
 // New helper: Group questions into pages (e.g., 5 per page)
@@ -102,6 +103,7 @@ const MockTestQuestionsList = () => {
           type: q.type,
           options: q.options || [],
           marks: q.marks || 0,
+          expectedAnswer: q.expectedAnswer || '',
           _id: q._id,
         }));
 
@@ -311,6 +313,8 @@ const MockTestQuestionsList = () => {
 
     payload.type = question.type;
     payload.questionText = question.text;
+    payload.expectedAnswer = question.expectedAnswer || '';
+
 
     if (isSubjective) {
       payload.expectedAnswer = '';
@@ -574,7 +578,9 @@ const MockTestQuestionsList = () => {
                                 >
                                   <FaTrash size={14} />
                                 </IconButton>
+
                               </div>
+
                             ))}
                             <CreateButton onClick={() => addOption(pi, qi)}>
                               <FaPlus /> Add New Option
@@ -618,6 +624,32 @@ const MockTestQuestionsList = () => {
 
                           </div>
                         )}
+                        <div style={{ marginTop: '1.5rem' }}>
+                          <label>Answer and Explaination</label>
+                           <JoditEditor
+                            ref={editor}
+                            value={q.expectedAnswer}
+                            config={config}
+                            tabIndex={1}
+                            onBlur={newContent => { console.log("new", newContent); }}
+                            onChange={(newContent) => updateQuestionField(pi, qi, 'expectedAnswer', newContent)}
+                          />
+                          {/* <textarea
+                            placeholder="Expected answer (used for evaluation reference)"
+                            value={q.expectedAnswer}
+                            rows={3}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem',
+                              fontSize: '16px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              resize: 'vertical',
+                              marginTop: '0.5rem'
+                            }}
+                            onChange={(e) => updateQuestionField(pi, qi, 'expectedAnswer', e.target.value)}
+                          /> */}
+                        </div>
                         <div
                           style={{ marginTop: '1.5rem', textAlign: 'right' }}
                         >

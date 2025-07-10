@@ -275,3 +275,83 @@ export const CTAButton = styled.button`
     padding: 15px 25px;
   }
 `;
+
+
+
+// Modal styles
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+export const ModalContent = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+`;
+
+export const Input = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+`;
+
+export const TextArea = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: none;
+`;
+
+export const ButtonRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
+export const SubmitButton = styled.button`
+  padding: 10px 20px;
+  background: linear-gradient(to right, #0DCAF0, #007BFF);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: linear-gradient(to right, #0DCAF09d, #007BFF9d);
+  }
+`;
+
+export const CancelButton = styled.button`
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #5a6268;
+  }
+`;
+
+export const ErrorText = styled.div`
+  color: red;
+  font-size: 0.8rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+`;
