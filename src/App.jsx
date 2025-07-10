@@ -154,8 +154,16 @@ import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/SuperAdminRoute'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
 import ForgotOtpPage from './pages/ForgotOtpPage/ForgotOtpPage'
 import ResetPassword from './pages/ResetPassword/ResetPassword'
+import { useEffect } from 'react'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
+
+ useEffect(() => {
+  const disableRightClick = e => e.preventDefault()
+    document.addEventListener('contextmenu', disableRightClick)
+    return () => document.removeEventListener('contextmenu', disableRightClick)
+  }, [])
+
 
   return (
     <ThemeProvider theme={theme}>
