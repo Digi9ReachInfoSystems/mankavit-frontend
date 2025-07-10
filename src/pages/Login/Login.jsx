@@ -22,7 +22,8 @@ import {
     Text,
     InfoList,
     Actions,
-    ButtonModel
+    ButtonModel,
+    ForgotPassword
 } from './Login.styles';
 import { forceLogin, loginUser, loginWithOtp, logoutUser } from '../../api/authApi';
 import { clearCookies } from '../../utils/cookiesService';
@@ -168,7 +169,7 @@ const Login = () => {
                 } if (userResponse.user.role === 'admin') {
                     navigate('/admin');
                 }
-            }else{
+            } else {
 
             }
         } catch (error) {
@@ -231,6 +232,9 @@ const Login = () => {
                     }
 
                     <Button type="submit">{loging ? "Login..." : "Login"}</Button>
+
+                        <ForgotPassword onClick={() =>{navigate('/forgot-password')} }>Forgot Password?</ForgotPassword>
+
                     {/* <OTPButton type="button" onClick={handleLoginOtpClick}>{loginPhone ? "Login with Password" : "Login with OTP"}</OTPButton> */}
 
                     <SignUpLink>

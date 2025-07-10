@@ -151,6 +151,9 @@ import Ticker from './module/admin/pages/Ticker/Ticker'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 import AdminRoute from './pages/ProtectedAndPublicRoutes/AdminRoute'
 import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/SuperAdminRoute'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
+import ForgotOtpPage from './pages/ForgotOtpPage/ForgotOtpPage'
+import ResetPassword from './pages/ResetPassword/ResetPassword'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
@@ -191,7 +194,9 @@ function App() {
           <Route path='/user-view-results/:userId/:mockTestId' element={<UserRoute><UserViewAttempResult /></UserRoute>} />
 
           <Route path='/createkyc' element={<UserRoute><CreateKYC /></UserRoute>} />
-
+          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route path='/forgot-password-otp' element={<ForgotOtpPage />} />
+          <Route path='/reset-password' element={<ResetPassword />} />
 
           <Route path='/test-question/:testId/:subjectId/:attemptId' element={<UserRoute><TextQuestionPage /></UserRoute>} />
           <Route path='/courseComplte/:courseId' element={<UserRoute><CourseCompletionPage /></UserRoute>} />
@@ -339,11 +344,11 @@ function App() {
             <Route path='web-management/youtubelinks/edit/:id' element={<AdminRoute Access={"webManagement"} ><EditYoutube /></AdminRoute>} />
             <Route path="web-management/youtubelinks/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewYoutube /></AdminRoute>} />
 
-             <Route path="web-management/ticker" element={<Ticker />} />
+            <Route path="web-management/ticker" element={<Ticker />} />
 
-            <Route path='subadmins-management' element={<AdminManagement/>} />
+            <Route path='subadmins-management' element={<AdminManagement />} />
             <Route path='subadmins-management/create' element={<CreateAdmin />} />
-            <Route path='subadmins-management/edit/:id' element={<EditAdmin/>} />
+            <Route path='subadmins-management/edit/:id' element={<EditAdmin />} />
             <Route path='subadmins-management' element={<SuperAdminRoute><AdminManagement /></SuperAdminRoute>} />
             <Route path='subadmins-management/create' element={<SuperAdminRoute><CreateAdmin /></SuperAdminRoute>} />
             <Route path='subadmins-management/edit/:id' element={<SuperAdminRoute><EditAdmin /> </SuperAdminRoute>} />
