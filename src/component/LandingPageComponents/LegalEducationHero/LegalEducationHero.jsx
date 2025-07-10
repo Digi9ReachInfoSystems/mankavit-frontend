@@ -31,7 +31,7 @@ const LegalEducationHero = () => {
         <Link to="/login">
           <StartButton>Start Now</StartButton>
         </Link>
-          <Link to="/ourcourses">
+          <Link to="/ourcoursedetails">
             <ExploreButton>Explore Courses</ExploreButton>
           </Link>
           </ButtonsGroup>

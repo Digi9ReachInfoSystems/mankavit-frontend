@@ -611,10 +611,10 @@ if (activeTab === 'Notes') {
                             <h4>{lecture?.lectureName || 'Lecture'}</h4>
                             <Tag>📊 Topic</Tag>
                         </OverlayText>
-                        <PhoneNumber>
+                        {/* <PhoneNumber>
                             <FaUser style={{ marginRight: '8px' }} />
                             {course?.student_enrolled?.length || 0} students enrolled
-                        </PhoneNumber>
+                        </PhoneNumber> */}
                     </TopBar>
                     <BottomTitle>
                         Course: {course?.courseDisplayName || 'Course'} |

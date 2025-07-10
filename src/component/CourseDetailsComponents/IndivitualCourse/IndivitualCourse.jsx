@@ -126,10 +126,8 @@ const IndividualCourses = () => {
           </Rating>
           <CourseDetails>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <PlayButton >
-                <span>
-                  <RiLock2Fill />
-                </span>
+              <PlayButton>
+                {isEnrolled ? <FaPlay /> : <RiLock2Fill />}
               </PlayButton>
               <div>
                 <CourseSubject style={{ cursor: "pointer" }}>
@@ -152,9 +150,9 @@ const IndividualCourses = () => {
               📝 Description: {course?.description || "N/A"
               }{" "}
             </Statdesc> */}
-          
-          
-          
+
+
+
             <FeaturesContainer>
               {featuresArray.map((column, colIndex) => (
                 <FeatureColumn key={colIndex}>
@@ -184,7 +182,7 @@ const IndividualCourses = () => {
             {
               isEnrolled ?
                 (<EnrollButton
-                  onClick={() => { navigate(`/user`) }}>
+                  onClick={() => { navigate(`/continueCourse/${course._id}`) }}>
                   Continue Learning
                   {/* ₹{course.discountActive ? course.discountPrice : course.price}/- */}
                   {/* {course.discountActive && (
