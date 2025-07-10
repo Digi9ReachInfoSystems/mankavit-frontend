@@ -335,3 +335,17 @@ export const ForgotPassword = styled.a`
     text-decoration: underline;
   }
 `;  
+export const Link = styled.a`
+  text-align: center;
+  margin-top: 20px;
+  color: #007BFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
