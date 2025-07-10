@@ -127,7 +127,7 @@ const ContactSupportView = () => {
   }
 
   const handleUpdateStatus = async (newStatus) => {
-    if(readOnlyPermissions) {
+    if (readOnlyPermissions) {
       toast.error("You don't have permission to change status");
       return;
     }
@@ -172,8 +172,9 @@ const ContactSupportView = () => {
               <Table>
                 <TableHead>
                   <tr>
+                    <Th>Name</Th>
                     <Th>Email</Th>
-                    <Th>Description</Th>
+                    <Th>Message</Th>
                     <Th>Status</Th>
                     <Th>Actions</Th>
                   </tr>
@@ -181,10 +182,12 @@ const ContactSupportView = () => {
                 <tbody>
                   {currentPageData.map((item) => (
                     <tr key={item._id}>
-                      <Td>{item.userRef?.email || "N/A"}</Td>
+                      <Td>{item.name || "N/A"}</Td>
+                      <Td>{item.email || "N/A"}</Td>
+
                       <Td>{item.description?.slice(0, 50)}...</Td>
                       <Td>
-                        <StatusBadge color={getStatusBadgeColor(item.status)}>
+                        <StatusBadge color={getStatusBadgeColor(item.status) }>
                           {item.status || "N/A"}
                         </StatusBadge>
                       </Td>
@@ -236,9 +239,13 @@ const ContactSupportView = () => {
             <CloseButton onClick={() => setModalOpen(false)}> &times;</CloseButton>
             <ViewContainer>
               <Heading>View Contact Support Details</Heading>
+               <ViewTitle>
+                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Name: </strong>
+                {selectedSupport.name || "N/A"}
+              </ViewTitle>
               <ViewTitle>
                 <strong style={{ marginRight: "10px", fontWeight: "600" }}>Email: </strong>
-                {selectedSupport.userRef?.email || "N/A"}
+                {selectedSupport?.email || "N/A"}
               </ViewTitle>
               <ViewTitle>
                 <strong style={{ marginRight: "10px", fontWeight: "600" }}>Status: </strong>
@@ -247,7 +254,7 @@ const ContactSupportView = () => {
                 </StatusBadge>
               </ViewTitle>
               <ViewDescription>
-                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Description: </strong>
+                <strong style={{ marginRight: "10px", fontWeight: "600" }}>Message: </strong>
                 {selectedSupport.description || "N/A"}
               </ViewDescription>
               <ViewTitle>

@@ -70,7 +70,7 @@ export default function StudentResults() {
 
                 // 1️⃣ Get student info
                 const userResponse = await getUserByUserId(userId);
-                const user = userResponse.data;
+                const user = userResponse.user;
 
                 setStudentInfo({
                     displayName: user?.displayName || "Anonymous",
