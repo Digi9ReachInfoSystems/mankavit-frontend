@@ -155,6 +155,9 @@ import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
 import ForgotOtpPage from './pages/ForgotOtpPage/ForgotOtpPage'
 import ResetPassword from './pages/ResetPassword/ResetPassword'
 import { useEffect } from 'react'
+import CouponManagement from './module/admin/pages/WebManagement/CouponManagement/CouponManagement'
+import AddCoupon from './module/admin/component/AddCoupon/AddCoupon'
+import EditCoupon from './module/admin/component/EditCoupon/EditCoupon'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
@@ -351,6 +354,11 @@ function App() {
             <Route path='web-management/youtubelinks/create' element={<AdminRoute Access={"webManagement"} ><AddYoutube /></AdminRoute>} />
             <Route path='web-management/youtubelinks/edit/:id' element={<AdminRoute Access={"webManagement"} ><EditYoutube /></AdminRoute>} />
             <Route path="web-management/youtubelinks/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewYoutube /></AdminRoute>} />
+
+            <Route path="web-management/coupon" element={<AdminRoute Access={"webManagement"} ><CouponManagement /></AdminRoute>} />
+            <Route path="web-management/coupon/create" element={<AdminRoute Access={"webManagement"} ><AddCoupon /></AdminRoute>} />
+            <Route path="web-management/coupon/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditCoupon/></AdminRoute>} />
+            {/* <Route path="web-management/faq/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewFaq /></AdminRoute>} /> */}
 
             <Route path="web-management/ticker" element={<Ticker />} />
 

@@ -212,13 +212,13 @@ const AllCoursesDetails = () => {
               ) : (
                 course.actualPrice >0 ? (
                 <PriceActions>
-                  <Price>{course.price}</Price>
+                  <Price onClick={() => handleViewDetails(course.id, course.isEnrolled)}>{course.price}</Price>
                   <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
                     View details
                   </ViewButton>
                 </PriceActions>) : (
                   <PriceActions>
-                    <Price>Free</Price>
+                    <Price onClick={() => handleViewDetails(course.id, course.isEnrolled)}>Free</Price>
                     <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
                       View details
                     </ViewButton>
