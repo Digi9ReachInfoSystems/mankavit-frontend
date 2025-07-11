@@ -68,17 +68,18 @@ export default function CouponManagement() {
     const [modalData, setModalData] = useState([]);
     const [selectedCoupons, setSelectedCoupons] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
     const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
     const [loadData, setLoadData] = useState(false);
 
+    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
     useEffect(() => {
         const apiCaller = async () => {
             const response = await getAuth();
+            response.Permissions;
             if (response.isSuperAdmin === true) {
                 setReadOnlyPermissions(false);
             } else {
-                setReadOnlyPermissions(response.Permissions["couponManagement"]?.readOnly);
+                setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
             }
         }
         apiCaller();

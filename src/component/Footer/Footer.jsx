@@ -41,11 +41,11 @@ const Footer = () => {
             <FooterContainer>
                 <FooterList>
                     
-                    <FooterListItem> <a style={{ textDecoration: "none" }} href={socialLinks.facebook}> <abbr title="Facebook" ><CiFacebook /></abbr></a></FooterListItem>
-                    <FooterListItem> <a style={{ textDecoration: "none" }} href={socialLinks.twitter}> <abbr title="Twitter"><FaXTwitter /></abbr></a></FooterListItem>
-                    <FooterListItem><a style={{ textDecoration: "none" }} href={socialLinks.instagram}><abbr title="Instagram"><FaInstagram /></abbr></a></FooterListItem>
-                    <FooterListItem> <a style={{ textDecoration: "none" }} href={socialLinks.youtubeChannel}><abbr title="Youtube"><PiYoutubeLogo /></abbr></a></FooterListItem>
-                    <FooterListItem><a style={{ textDecoration: "none" }} href={socialLinks.linkedin}> <abbr title="Linkedin"><PiLinkedinLogo /></abbr></a></FooterListItem>
+                    <FooterListItem> <a style={{ textDecoration: "none" }} href={socialLinks?.facebook||'#'}> <abbr title="Facebook" ><CiFacebook /></abbr></a></FooterListItem>
+                    <FooterListItem> <a style={{ textDecoration: "none" }} href={socialLinks?.twitter||'#'}> <abbr title="Twitter"><FaXTwitter /></abbr></a></FooterListItem>
+                    <FooterListItem><a style={{ textDecoration: "none" }} href={socialLinks?.instagram||'#'}><abbr title="Instagram"><FaInstagram /></abbr></a></FooterListItem>
+                    <FooterListItem> <a style={{ textDecoration: "none" }} href={socialLinks?.youtubeChannel||'#'}><abbr title="Youtube"><PiYoutubeLogo /></abbr></a></FooterListItem>
+                    <FooterListItem><a style={{ textDecoration: "none" }} href={socialLinks?.linkedin||'#'}> <abbr title="Linkedin"><PiLinkedinLogo /></abbr></a></FooterListItem>
                 </FooterList>
             </FooterContainer>
         </FooterWrapper>

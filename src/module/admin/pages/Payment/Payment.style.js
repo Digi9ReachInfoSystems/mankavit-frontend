@@ -220,3 +220,41 @@ export const SearchWrapper = styled.div`
   width: 100%;
   margin-bottom: 16px;
 `;
+
+export const Backdrop = styled.div`
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+export const Modal = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+`;
+
+// export const Title = styled.h3`
+//   margin-bottom: 20px;
+// `;
+
+export const Detail = styled.p`
+  margin: 10px 0;
+  font-size: 16px;
+`;
+
+export const CloseBtn = styled.button`
+  position: absolute;
+  right: 15px; top: 15px;
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+`;
