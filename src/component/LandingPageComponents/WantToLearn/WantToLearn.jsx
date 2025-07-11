@@ -41,6 +41,7 @@ const navigate = useNavigate();
     fetchCourses(); 
     }
   , []);
+  
   return (
     <Section>
       <Title>
@@ -63,7 +64,11 @@ const navigate = useNavigate();
                 {course.title} <span style={{ fontSize: '14px' }}>Preparation</span>
               </CourseTitle>
               {/* <Description >{course.description}</Description> */}
-              <Description dangerouslySetInnerHTML={{ __html: course.description }} />
+              {/* <Description dangerouslySetInnerHTML={{ __html: course.description }} /> */}
+
+              {/* i wnat to limit for 40 characters  */}
+              {/* <Description>{course.description.substring(0, 40)}...</Description> */}
+              <Description dangerouslySetInnerHTML={{ __html: course.description.substring(0, 40) + '...' }} />
               <InfoList>
                 <InfoItem>📆 Duration: {course.duration}</InfoItem>
                 <InfoItem>✅ Success Rate: {course.successRate}</InfoItem>
