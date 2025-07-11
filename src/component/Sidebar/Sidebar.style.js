@@ -4,7 +4,7 @@ import theme from "../../theme/Theme";
 
 export const SidebarContainer = styled.div`
   width: 250px;
-  height: 95vh;
+  height: 100vh;
   background-color: #f9fafc;
   display: flex;
   flex-direction: column;
