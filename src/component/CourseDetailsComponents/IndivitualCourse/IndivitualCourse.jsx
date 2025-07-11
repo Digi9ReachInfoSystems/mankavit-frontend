@@ -32,11 +32,14 @@ import { RiLock2Fill } from "react-icons/ri";
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getCourseById } from '../../../api/courseApi';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast, ToastContainer } from 'react-toastify';
 import PaymentComponent from '../../../module/admin/component/PaymentComponent/PaymentComponent';
 import { getCookiesData } from '../../../utils/cookiesService';
 import { getUserByUserId } from '../../../api/authApi';
 import { FaRegStar, FaPlay } from 'react-icons/fa';
+import { addCourseToStudent } from '../../../api/userApi';
+import PurchaseModal from '../../PurchaseModal/PurchaseModal';
+
 const IndividualCourses = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,6 +50,7 @@ const IndividualCourses = () => {
   const [userData, setUserData] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const location = useLocation();
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     const apiCaller = async () => {
       const cookieData = getCookiesData();
@@ -112,6 +116,23 @@ const IndividualCourses = () => {
   if (!course) {
     return <Container>Course not found</Container>;
   }
+  const handleEnrollFreeCourse = async (courseId) => {
+    try {
+      const cookieData = getCookiesData();
+      const response = await addCourseToStudent({ userId: cookieData.userId, courseIds: [courseId] });
+      if (response) {
+        setIsEnrolled(true);
+        toast.success("Successfully enrolled course", {
+          onClose: () => {
+            navigate("/user")
+          }
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to enroll course");
+    }
+  };
 
   return (
     <Container>
@@ -182,7 +203,10 @@ const IndividualCourses = () => {
             {
               isEnrolled ?
                 (<EnrollButton
-                  onClick={() => { navigate(`/continueCourse/${course._id}`) }}>
+                  onClick={() => {
+                    //  navigate(`/continueCourse/${course._id}`)
+                    navigate("/user")
+                  }}>
                   Continue Learning
                   {/* ₹{course.discountActive ? course.discountPrice : course.price}/- */}
                   {/* {course.discountActive && (
@@ -191,7 +215,19 @@ const IndividualCourses = () => {
                     </span>
                   )} */}
                 </EnrollButton>) :
-                (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />)
+
+                (course.price > 0) ? (
+                  // (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />)
+                  <EnrollButton onClick={() => setShowModal(true)}>
+                    Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-
+                  </EnrollButton>
+                ) : (
+                  (<EnrollButton
+                    onClick={() => { handleEnrollFreeCourse(course._id) }}>
+                    Enroll Now
+                  </EnrollButton>)
+                )
+
             }
           </>
           :
@@ -205,8 +241,22 @@ const IndividualCourses = () => {
             )}
           </EnrollButton>)
         }
-
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
       </CourseButton>
+      {showModal && (
+
+        <PurchaseModal course={course} onClose={() => setShowModal(false)} />
+      )}
     </Container>
   );
 };

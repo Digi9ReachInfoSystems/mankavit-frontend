@@ -71,6 +71,8 @@ const Sidebar = () => {
     { path: "/admin/web-management/user-feedback", label: "User Feedback" },
     { path: "/admin/web-management/youtubelinks", label: "YouTube Links" },
     { path: "/admin/web-management/ticker", label: "Ticker" },
+    { path: "/admin/web-management/coupon", label: "Coupons" },
+   
   ];
   const meetingsItems = [
     { path: "/admin/meeting-management", label: "Meeting" },
