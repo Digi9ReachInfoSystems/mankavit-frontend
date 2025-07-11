@@ -31,13 +31,43 @@ export const getMocktestById = async (id) => {
 
 export const deleteMocktestById = async (id) => {
     try {
-        const response = await api.delete(`/mockTest/delete/${id}`);
+        const response = await api.delete(`/mockTest/delete/mocktestById/${id}`);
+        
+        console.log('Delete API Response:', {
+            status: response.status,
+            data: response.data
+        });
+
+        if (!response.data) {
+            throw new Error('Empty response from server');
+        }
+
         return response.data;
     } catch (error) {
-        throw error;
+        const errorDetails = {
+            request: {
+                method: error.config?.method,
+                url: error.config?.url,
+                headers: error.config?.headers
+            },
+            response: {
+                status: error.response?.status,
+                data: error.response?.data,
+                headers: error.response?.headers
+            },
+            message: error.message
+        };
+
+        console.error('Delete API Error:', errorDetails);
+        
+        // Format a consistent error response
+        throw {
+            success: false,
+            message: error.response?.data?.message || 'Failed to delete mock test',
+            details: errorDetails
+        };
     }
 }
-
 export const getMocktestBySubjectId = async (id) => {
     try {
         const response = await api.get(`/mockTest/get/subjects/${id}`);

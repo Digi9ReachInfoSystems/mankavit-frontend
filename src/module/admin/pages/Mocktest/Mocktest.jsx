@@ -120,21 +120,41 @@ export default function MockTestsTable() {
   };
 
   // confirm delete from DeleteModal
-  const confirmDelete = async () => {
-    try {
-      
-     const response = await deleteMocktestById(selectedToDelete);
-     console.log("Mocktst delete resonse",response);
-      toast.success("Mock test deleted successfully");
-      await fetchMockTests();
-    } catch (err) {
-      console.error("Delete failed:", err);
-      toast.error("Failed to delete mock test");
-    } finally {
-      setDeleteModalOpen(false);
-      setSelectedToDelete(null);
+const confirmDelete = async () => {
+  const toastId = toast.loading("Deleting mock test...");
+  
+  try {
+    console.log('Starting deletion for ID:', selectedToDelete);
+    
+    const res = await deleteMocktestById(selectedToDelete);
+    
+    if (!res.success) {
+      throw new Error(res.message || "Deletion failed on server");
     }
-  };
+    
+    toast.success(res.message || "Mock test deleted successfully", { id: toastId });
+    await fetchMockTests();
+  } catch (err) {
+    console.error('Deletion Error:', {
+      errorObject: err,
+      timestamp: new Date().toISOString(),
+      mockTestId: selectedToDelete
+    });
+
+    const userMessage = err.details?.response?.data?.error?.details 
+                      || err.message 
+                      || "Could not delete mock test. Please try again later.";
+    
+    toast.error(userMessage, { id: toastId });
+    
+    // Optional: Send error to error tracking service
+    // logErrorToService(err);
+  } finally {
+    setDeleteModalOpen(false);
+    setSelectedToDelete(null);
+  }
+}
+
 
   // handle publish toggle unchanged...
   const handlePublishToggle = async (id, currentStatus) => {
