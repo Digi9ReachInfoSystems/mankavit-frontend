@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { TermsContainer, TermsHeading, Termspara, List } from './TermsAndCondition.styles';
-import { getAllStatic } from '../../../../api/staticApi';
 
-const TermsAndCondition = () => {
+import React, { useState, useEffect } from 'react';
+import { PrivacyContainer,PrivacyHeading, PrivacyPara } from './PrivacyPolicy.style';
+import { getAllStatic } from '../../../api/staticApi';
+import Header from '../../../pages/LandingPage/LandingHeader/LandingHeader';
+import Footer from '../../../pages/LandingPage/Footer/Footer';
+
+const PrivacyPolicy = () => {
   const [termsContent, setTermsContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +16,7 @@ const TermsAndCondition = () => {
         const response = await getAllStatic();
         // Access the first item in the array and get its terms property
         if (Array.isArray(response) && response.length > 0) {
-          setTermsContent(response[0].terms);
+          setTermsContent(response[0].privacy);
         } else {
           setError("No terms content found");
         }
@@ -29,23 +32,27 @@ const TermsAndCondition = () => {
   }, []);
 
   if (loading) {
-    return <TermsContainer>Loading terms and conditions...</TermsContainer>;
+    return <PrivacyContainer>Loading terms and conditions...</PrivacyContainer>;
   }
 
   if (error) {
-    return <TermsContainer>{error}</TermsContainer>;
+    return <PrivacyContainer>{error}</PrivacyContainer>;
   }
 
   return (
-    <TermsContainer>
-      {/* <TermsHeading>Terms And Conditions</TermsHeading>
-      <Termspara>
+    <>
+    <Header/>
+    <PrivacyContainer>
+      <PrivacyHeading>Privacy Policy</PrivacyHeading>
+      {/* <Termspara>
         By accessing and using the services provided by Mankavit Law Academy, you agree to the following Terms and Conditions:
       </Termspara> */}
-      {/* <Termspara>{termsContent}</Termspara> */}
-      <Termspara dangerouslySetInnerHTML={{ __html: termsContent }} />
-    </TermsContainer>
+      {/* <PrivacyPara>{termsContent}</PrivacyPara> */}
+      <PrivacyPara dangerouslySetInnerHTML={{ __html: termsContent }} />
+    </PrivacyContainer>
+    <Footer/>
+    </>
   );
 };
 
-export default TermsAndCondition;
+export default PrivacyPolicy;

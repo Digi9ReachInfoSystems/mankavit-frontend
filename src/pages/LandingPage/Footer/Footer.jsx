@@ -77,9 +77,9 @@ export default function Footer() {
           Copyright © 2024 Mankavit, All rights reserved.
         </Copyright>
         <BottomLinks>
-          <span>Terms of service</span>
-          <span>Privacy policy</span>
-          <span>cookies</span>
+<Link to="/termsandcondition" style={{ textDecoration: "none" }} > Terms and Conditions </Link>
+<Link to="/privacypolicy" style={{ textDecoration: "none" }} > Privacy policy </Link>
+          {/* <span>cookies</span> */}
         </BottomLinks>
       </BottomBar>
     </FooterContainer>
