@@ -122,7 +122,9 @@ export default function MockTestsTable() {
   // confirm delete from DeleteModal
   const confirmDelete = async () => {
     try {
-      await deleteMocktestById(selectedToDelete);
+      
+     const response = await deleteMocktestById(selectedToDelete);
+     console.log("Mocktst delete resonse",response);
       toast.success("Mock test deleted successfully");
       await fetchMockTests();
     } catch (err) {
@@ -238,11 +240,12 @@ export default function MockTestsTable() {
                   </TableCell>
                   <TableCell>
                     <ActionsContainer>
-                      <IoEyeOutline
+                      {/* <IoEyeOutline
                         title="View Details"
                         size={20}
                         onClick={() => navigate(`/admin/mock-test/view/${item.id}`)}
-                      />{
+                      /> */}
+                      {
                         !readOnlyPermissions && (
                           <>
                             <BiEditAlt

@@ -158,6 +158,8 @@ import { useEffect } from 'react'
 import CouponManagement from './module/admin/pages/WebManagement/CouponManagement/CouponManagement'
 import AddCoupon from './module/admin/component/AddCoupon/AddCoupon'
 import EditCoupon from './module/admin/component/EditCoupon/EditCoupon'
+import TermsAndConditions from './component/StaticPages/TermsandCondition/TermsandCondition'
+import PrivacyPolicy from './component/StaticPages/PrivacyPolicy/PrivacyPolicy'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
@@ -182,6 +184,10 @@ function App() {
           <Route path="/signupOtp" element={<OtpSignup />} />
           <Route path="/" element={<UserRoute><LandingPage /></UserRoute>} />
           <Route path="/aboutus" element={<UserRoute><AboutUs /></UserRoute>} />
+
+          <Route path="/termsandcondition" element={<UserRoute><TermsAndConditions /></UserRoute>} />
+          <Route path="/privacypolicy" element={<UserRoute><PrivacyPolicy /></UserRoute>} />
+
           <Route path="/ourcourses" element={<UserRoute><OurCourses /></UserRoute>} />
           <Route path="/coursedetails/:id" element={<UserRoute><CourseDetails /></UserRoute>} />
           <Route path="/why-entrance-courses" element={<UserRoute><WhyEntranceCourses /></UserRoute>} />

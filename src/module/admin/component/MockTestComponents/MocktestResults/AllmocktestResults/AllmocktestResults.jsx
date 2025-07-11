@@ -264,17 +264,18 @@ export default function AllmocktestResults() {
                         size={20}
                         title="View"
                         onClick={() => navigate(`/admin/results/studentName/${item.userId}`, { state: { studentName: item.studentName } })}
-                      />{
+                      />
+                      {
                         !readOnlyPermissions && (
                           <>
-                            <BiEditAlt
+                            {/* <BiEditAlt
                               size={20}
                               title="Edit"
                               onClick={() => navigate(`/admin/results/edit/${item._id}`, {
                                 state: data,
                                 currentResult: item
                               })}
-                            />
+                            /> */}
                             <RiDeleteBin6Line
                               size={20}
                               color="#FB4F4F"

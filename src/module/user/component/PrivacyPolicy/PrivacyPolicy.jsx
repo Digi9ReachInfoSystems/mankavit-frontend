@@ -56,11 +56,12 @@ const PrivacyPolicy = () => {
 
   return (
     <PrivacyContainer>
-      <PrivacyHeading>Privacy Policy</PrivacyHeading>
+      {/* <PrivacyHeading>Privacy Policy</PrivacyHeading>
       {/* <Termspara>
         By accessing and using the services provided by Mankavit Law Academy, you agree to the following Terms and Conditions:
       </Termspara> */}
-      <PrivacyPara>{termsContent}</PrivacyPara>
+      {/* <PrivacyPara>{termsContent}</PrivacyPara>  */}
+      <PrivacyPara dangerouslySetInnerHTML={{ __html: termsContent }} />
     </PrivacyContainer>
   );
 };

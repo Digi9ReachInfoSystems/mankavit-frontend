@@ -140,7 +140,7 @@ export const CourseCard = styled.div`
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
   position: relative;
-  height: 500px;
+  // height: 500px;
   min-width: 230px;
   margin-bottom: 20px;
  

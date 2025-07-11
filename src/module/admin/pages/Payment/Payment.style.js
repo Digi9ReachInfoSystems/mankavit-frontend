@@ -178,6 +178,7 @@ export const PageInfo = styled.div`
 
 // Pagination container
 export const Pagination = styled.div`
+
   display: flex;
   gap: 4px;
 `;
