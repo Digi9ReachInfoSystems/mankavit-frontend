@@ -251,11 +251,20 @@ export default function CoursesTable() {
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
       <ButtonContainer>
-        <CreateButton
+        {
+          !readOnlyPermissions && (
+            <CreateButton
+              onClick={() => navigate("/admin/course-management/create")}
+            >
+              Add Course
+            </CreateButton>
+          )
+        }
+        {/* <CreateButton
           onClick={() => navigate("/admin/course-management/create")}
         >
           Add Course
-        </CreateButton>
+        </CreateButton> */}
       </ButtonContainer>
 
       <Container>
