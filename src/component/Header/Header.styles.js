@@ -5,7 +5,7 @@ export const HeaderContainer = styled.header`
 //   top: 0;
   // left: 250px; 
   width: calc(100% - 40px);
-  height: 50px; 
+  height: 90px; 
   display: flex;
   align-items: center;
   justify-content: space-between;

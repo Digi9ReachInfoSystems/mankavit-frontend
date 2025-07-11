@@ -1,5 +1,5 @@
 // src/modules/admin/components/Staticpage/Staticpage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Container,
   Title,
@@ -15,6 +15,7 @@ import {
 } from '../../../../api/staticApi';
 import { message } from 'antd';
 import { getAuth } from '../../../../utils/authService';
+import JoditEditor from 'jodit-react';
 
 const Staticpage = () => {
   // form fields
@@ -30,6 +31,51 @@ const Staticpage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const editor = useRef(null);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: '',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
+  const configds = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: '',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -102,24 +148,40 @@ const Staticpage = () => {
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <Label htmlFor="privacy">Privacy Policy</Label>
-          <Textarea
+          <JoditEditor
+            ref={editor}
+            value={privacyPolicy}
+            config={config}
+            tabIndex={1} // tabIndex of textarea
+            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onChange={newContent => { setPrivacyPolicy(newContent) }}
+          />
+          {/* <Textarea
             id="privacy"
             rows={8}
             placeholder="Write privacy policy here"
             value={privacyPolicy}
             onChange={(e) => setPrivacyPolicy(e.target.value)}
-          />
+          /> */}
         </FormGroup>
 
         <FormGroup>
           <Label htmlFor="terms">Terms &amp; Conditions</Label>
-          <Textarea
+           <JoditEditor
+            ref={editor}
+            value={terms}
+            config={configds}
+            tabIndex={1} // tabIndex of textarea
+            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onChange={newContent => { setTerms(newContent) }}
+          />
+          {/* <Textarea
             id="terms"
             rows={8}
             placeholder="Write Terms and Conditions here"
             value={terms}
             onChange={(e) => setTerms(e.target.value)}
-          />
+          /> */}
         </FormGroup>
         {!readOnlyPermissions && (
           <Button type="submit" disabled={loading}>

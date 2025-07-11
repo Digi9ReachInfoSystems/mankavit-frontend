@@ -1,5 +1,5 @@
 // Aspirants.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Container,
   VideoWrapper,
@@ -22,6 +22,8 @@ const VideoAndReviews = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [homepageVideo, setHomepageVideo] = useState(null);
+  const videoRefs = useRef({});
+
 
   // Utility to convert YouTube watch link to embed format
   const convertToEmbedURL = (url) => {
@@ -71,7 +73,7 @@ const VideoAndReviews = () => {
           role: t.rank,                // ← the API field is “rank”
           quote: t.description,        // ← the API field is “description”
           image: t.testimonial_image,
-             video: t.testimonial_video,
+          video: t.testimonial_video,
         }));
         setTestimonials(testimonialsData);
 
@@ -156,27 +158,39 @@ const VideoAndReviews = () => {
       </Title>
 
       <CardWrapper>
-              {testimonials.map((t) => (
-                <Card key={t.id}>
-                  <MediaContainer>
-                    {t.image ? (
-                      <Avatar src={t.image} alt={t.name} />
-                    ) : t.video ? (
-                      <Media controls>
-                        <source src={t.video} type="video/mp4" />
-                        Your browser doesn't support embedded videos.
-                      </Media>
-                    ) : (
-                      <Avatar src={placeholder} alt="placeholder" />
-                    )}
-                  </MediaContainer>
-      
-                  <Quote>&quot;{t.quote}&quot;</Quote>
-                  <Name>{t.name}</Name>
-                  <Role>{t.role}</Role>
-                </Card>
-              ))}
-            </CardWrapper>
+        {testimonials.map((t) => (
+          <Card key={t.id}>
+            <MediaContainer>
+              {t.image ? (
+                <Avatar src={t.image} alt={t.name} />
+              ) : t.video ? (
+                <Media
+                  ref={(el) => (videoRefs.current[t.id] = el)}
+                  onMouseEnter={() => videoRefs.current[t.id]?.play()}
+                  onMouseLeave={() => {
+                    const vid = videoRefs.current[t.id];
+                    if (vid) {
+                      vid.pause();
+                      vid.currentTime = 0;
+                    }
+                  }}
+                  muted
+                >
+                  <source src={t.video} type="video/mp4" />
+                  Your browser doesn't support embedded videos.
+                </Media>
+              ) : (
+                <Avatar src={placeholder} alt="placeholder" />
+              )}
+            </MediaContainer>
+
+
+            <Quote>&quot;{t.quote}&quot;</Quote>
+            <Name>{t.name}</Name>
+            <Role>{t.role}</Role>
+          </Card>
+        ))}
+      </CardWrapper>
     </Container>
   );
 };
