@@ -7,13 +7,13 @@ export const AchieversSection = styled.section`
   width: 80%;
   display: flex;
   flex-direction: column;
-//   align-items: center;
-  justify-content: center;
+  // align-items: center;
+  justify-content: flex-start;
   margin: 0 auto;
 `;
 
 export const Title = styled.h2`
-  font-size: 32px;
+  font-size: 55px;
   font-weight: 600;
   margin-bottom: 10px;
 `;
@@ -23,9 +23,9 @@ export const Highlight = styled.span`
 `;
 
 export const Description = styled.p`
-  max-width: 800px;
-  margin: 0 auto 40px;
-  font-size: 18px;
+  // max-width: 800px;
+  // margin: 0 auto 40px;
+  font-size: 20px;
   color: #555;
 `;
 
