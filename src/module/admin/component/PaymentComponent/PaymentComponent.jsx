@@ -10,7 +10,7 @@ import CryptoJS from 'crypto-js';
 import { getUserByUserId } from '../../../../api/authApi';
 import { getCookiesData } from '../../../../utils/cookiesService';
 
-const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPrice, discountPrice }) => {
+const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPrice, discountPrice, couponApplied, couponCode, couonDiscount }) => {
   console.log("userId", userId, "amount", amount, "courseRef", courseRef);
   const navigate = useNavigate();
   const [isPaying, setIsPaying] = React.useState(false);
@@ -23,7 +23,10 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
         courseRef: courseRef,
         amountPaid: amount,
         paymentType: 'WEB',
-        callback_url: '' // Optional
+        callback_url: '',// Optional
+        couponApplied: couponApplied,
+        couponRef: couponCode,
+        couponDiscount: couonDiscount
       });
       const userData = await getUserByUserId(userId);
       console.log("userData", userData);
@@ -133,7 +136,8 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
 
   return (
     <EnrollButton onClick={handlePayment}>
-      {isPaying ? 'Processing Payment...' : `Enroll Now ₹${discountActive ? discountPrice : actualPrice}/-`}
+      {/* {isPaying ? 'Processing Payment...' : `Enroll Now ₹${discountActive ? discountPrice : actualPrice}/-`} */}
+      {isPaying ? 'Processing Payment...' : `Enroll Now ₹${amount}/-`}
     </EnrollButton>
 
   )
