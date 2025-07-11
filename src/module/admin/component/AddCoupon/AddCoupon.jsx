@@ -34,6 +34,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { uploadFileToAzureStorage } from '../../../../utils/azureStorageService';
 import { getAllStudents } from '../../../../api/userApi';
 import { createCoupon } from '../../../../api/couponApi';
+import { getAuth } from '../../../../utils/authService';
 
 const AddCoupon = () => {
     const navigate = useNavigate();
@@ -43,6 +44,35 @@ const AddCoupon = () => {
     const [formErrors, setFormErrors] = useState({});
     const [users, setUsers] = useState([]);
     const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    useEffect(() => {
+        const apiCaller = async () => {
+            const response = await getAuth();
+            response.Permissions;
+            if (response.isSuperAdmin === true) {
+                setReadOnlyPermissions(false);
+            } else {
+                setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+                if (response.Permissions["webManagement"].readOnly === true) {
+                    toast.error('You do not have permission to add Coupons.', {
+                        position: "top-right",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                        onClose: () => {
+                            navigate('/admin/');
+                        }
+                    })
+                    // navigate('/admin');
+                }
+            }
+        }
+        apiCaller();
+    }, []);
 
     const [couponData, setCouponData] = useState({
         coupon_name: '',
@@ -216,7 +246,7 @@ const AddCoupon = () => {
             };
 
             await createCoupon(payload);
-            toast.success('Coupon created successfully!',{
+            toast.success('Coupon created successfully!', {
                 onClose: () => {
                     navigate('/admin/web-management/coupon');
                     isLoading(false);
@@ -361,7 +391,7 @@ const AddCoupon = () => {
                                             checked={couponData.user_list.includes(item._id)}
                                             onChange={() => handleUserSelection(item._id)}
                                         />
-                                         {item.displayName} ({item.email})
+                                        {item.displayName} ({item.email})
                                     </CheckboxLabel>
                                 ))}
                             </CheckboxList>

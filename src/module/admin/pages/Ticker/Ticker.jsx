@@ -15,10 +15,24 @@ import {
 } from "../../../../api/tickerApi";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from "../../../../utils/authService";
 
 export default function Ticker() {
   const [formData, setFormData] = useState({ id: "", title: "" });
   const [saving, setSaving] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   // Load existing ticker (if any)
   useEffect(() => {
@@ -89,13 +103,17 @@ export default function Ticker() {
             required
           />
         </FormGroup>
-        <Button type="submit" disabled={saving}>
-          {saving
-            ? "Processing..."
-            : formData.id
-            ? "Update Ticker"
-            : "Create Ticker"}
-        </Button>
+        {
+          !readOnlyPermissions &&
+          <Button type="submit" disabled={saving}>
+            {saving
+              ? "Processing..."
+              : formData.id
+                ? "Update Ticker"
+                : "Create Ticker"}
+          </Button>
+        }
+
       </form>
     </Container>
   );

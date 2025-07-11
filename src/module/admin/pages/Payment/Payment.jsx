@@ -22,6 +22,10 @@ import {
   StatusCell,
   StatusWrapper,
   PaymentstatusDot,
+  Backdrop,
+  Modal,
+  Detail,
+  CloseBtn
 } from "../Payment/Payment.style";
 import Pagination from "../../component/Pagination/Pagination";
 import { getAllPayments, getPaymentByCourseId } from "../../../../api/paymentApi";
@@ -85,6 +89,8 @@ export default function Payment() {
     }
     apiCaller();
   }, []);
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [couponDataToShow, setCouponDataToShow] = useState(null);
 
   // Fetch payments + courses on mount
   useEffect(() => {
@@ -238,6 +244,18 @@ export default function Payment() {
     currentPage * ITEMS_PER_PAGE
   );
 
+  const handleCouponDetailsClick = (item) => {
+    console.log(item);
+    setCouponDataToShow({
+      couponName: item?.couponRef?.coupon_name,
+      discountAmount: item?.couponDiscount,
+      actualPrice: item?.amountPaid,
+      coursePrice:item.courseRef.discountActive? item.courseRef.price:item.courseRef.discountPrice
+
+    });
+    setShowCouponModal(true);
+  };
+
   return (
     <Container>
       <HeaderRow style={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -304,12 +322,14 @@ export default function Payment() {
               <TableHeader>Date</TableHeader>
               <TableHeader>Mode</TableHeader>
               <TableHeader>Status</TableHeader>
+              <TableHeader>Coupon Details</TableHeader>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {currentItems.map(item => {
               const color = getStatusColor(item.status);
+              // console.log("item", item);
               return (
                 <TableRow key={item._id}>
                   <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell>
@@ -324,6 +344,9 @@ export default function Payment() {
                       {item.status}
                     </StatusWrapper>
                   </StatusCell>
+                  <TableCell>{item.couponApplied ? (<button 
+                  style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}
+                  onClick={() => handleCouponDetailsClick(item)}>View</button>) : "Not Applied"}</TableCell>
                 </TableRow>
               );
             })}
@@ -338,6 +361,25 @@ export default function Payment() {
         totalItems={TOTAL_ENTRIES}
         itemsPerPage={ITEMS_PER_PAGE}
       />
+      {
+        showCouponModal && (
+          // <CouponDetailsModal
+          //   couponData={couponDataToShow}
+          //   onClose={() => setShowCouponModal(false)}
+          // />
+          <Backdrop onClick={() => setShowCouponModal(false)}>
+            <Modal onClick={(e) => e.stopPropagation()}>
+              <CloseBtn onClick={() => setShowCouponModal(false)}>×</CloseBtn>
+              <Title>Coupon Details</Title>
+              <Detail><strong>Name:</strong> {couponDataToShow?.couponName || "N/A"}</Detail>
+                <Detail><strong>Course Amount:</strong> ₹{couponDataToShow?.coursePrice || 0}</Detail>
+              <Detail><strong>Discount Amount:</strong> ₹{couponDataToShow?.discountAmount || 0}</Detail>
+              <Detail><strong>Amount Paid:</strong> ₹{couponDataToShow?.actualPrice || "N/A"}</Detail>
+            </Modal>
+          </Backdrop>
+        )
+      }
     </Container>
+
   );
 }

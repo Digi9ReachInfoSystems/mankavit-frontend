@@ -360,11 +360,9 @@ function App() {
             <Route path="web-management/coupon/edit/:id" element={<AdminRoute Access={"webManagement"} ><EditCoupon/></AdminRoute>} />
             {/* <Route path="web-management/faq/view/:id" element={<AdminRoute Access={"webManagement"} ><ViewFaq /></AdminRoute>} /> */}
 
-            <Route path="web-management/ticker" element={<Ticker />} />
+            <Route path="web-management/ticker" element={<AdminRoute Access={"webManagement"} ><Ticker /></AdminRoute>} />
 
-            <Route path='subadmins-management' element={<AdminManagement />} />
-            <Route path='subadmins-management/create' element={<CreateAdmin />} />
-            <Route path='subadmins-management/edit/:id' element={<EditAdmin />} />
+           
             <Route path='subadmins-management' element={<SuperAdminRoute><AdminManagement /></SuperAdminRoute>} />
             <Route path='subadmins-management/create' element={<SuperAdminRoute><CreateAdmin /></SuperAdminRoute>} />
             <Route path='subadmins-management/edit/:id' element={<SuperAdminRoute><EditAdmin /> </SuperAdminRoute>} />
