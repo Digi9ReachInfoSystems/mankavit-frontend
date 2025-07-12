@@ -42,16 +42,16 @@ const TermsAndConditions = () => {
     <Header />
     <TermsContainer>
        
-      <Header1>
+      {/* <Header1>
         <Title>Terms and Conditions</Title>
      
-      </Header1>
+      </Header1> */}
       
       <ContentContainer>
         <Section>
-          <SectionTitle>            By accessing and using our services, you accept and agree to be bound by these Terms and Conditions. 
+          {/* <SectionTitle>            By accessing and using our services, you accept and agree to be bound by these Terms and Conditions. 
             If you do not agree with any part of these terms, you must not use our services.
-         </SectionTitle>
+         </SectionTitle> */}
       <SectionContent dangerouslySetInnerHTML={{ __html: termsContent }} />
         </Section>
 
