@@ -358,7 +358,7 @@ export default function CouponManagement() {
 
                                             <TableCell>{c.couponCode}</TableCell>
 
-                                            <TableCell>{c.discount}%</TableCell>
+                                            <TableCell>₹{c.discount}</TableCell>
 
                                             <TableCell>{c.couponType}</TableCell>
 

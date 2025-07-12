@@ -1,5 +1,5 @@
 // src/modules/admin/components/AboutUs/AboutUs.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Container,
   Title,
@@ -16,6 +16,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuth } from "../../../../utils/authService";
+import JoditEditor from 'jodit-react';
 
 export default function Ticker() {
   const [formData, setFormData] = useState({ id: "", title: "" });
@@ -33,6 +34,29 @@ export default function Ticker() {
     }
     apiCaller();
   }, []);
+  const editor = useRef(null);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: formData.title || 'Start typings...',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
 
   // Load existing ticker (if any)
   useEffect(() => {
@@ -54,7 +78,8 @@ export default function Ticker() {
 
   const handleChange = (e) => {
     // only letters and spaces allowed
-    const title = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+    // const title = e.replace(/[^a-zA-Z\s]/g, "");
+    const title = e;
     setFormData({ ...formData, title });
   };
 
@@ -94,14 +119,22 @@ export default function Ticker() {
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <Label htmlFor="title">Title *</Label>
-          <Input
+          <JoditEditor
+            ref={editor}
+            value={formData.title}
+            config={config}
+            tabIndex={1} // tabIndex of textarea
+            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onChange={newContent => { handleChange(newContent) }}
+          />
+          {/* <Input
             id="title"
             name="title"
             placeholder="Enter ticker title"
             value={formData.title}
             onChange={handleChange}
             required
-          />
+          /> */}
         </FormGroup>
         {
           !readOnlyPermissions &&

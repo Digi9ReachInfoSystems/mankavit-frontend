@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Container,
   Title,
@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSubjects } from '../../../../../api/subjectApi';
 import { getAuth } from '../../../../../utils/authService';
 import { toast } from 'react-toastify';
+import JoditEditor from 'jodit-react';
 
 const CreateMockTest = () => {
   // errors keyed by field name
@@ -42,6 +43,29 @@ const CreateMockTest = () => {
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(true);
   const navigate = useNavigate();
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const editor = useRef(null);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: testDetails.description || 'Start typings...',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    []
+  );
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -164,13 +188,21 @@ const CreateMockTest = () => {
         <FormRow>
           <FormGroup>
             <Label htmlFor="description">Description</Label>
-            <TextInput
+            <JoditEditor
+              ref={editor}
+              value={testDetails.description}
+              config={config}
+              tabIndex={1} // tabIndex of textarea
+              onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+              onChange={newContent => { handleTestDetailChange('description',newContent) }}
+            />
+            {/* <TextInput
               as="textarea"
               id="description"
               value={testDetails.description}
               onChange={e => handleTestDetailChange('description', e.target.value)}
               placeholder="Enter test description"
-            />
+            /> */}
             {errors.description && <ErrorText>{errors.description}</ErrorText>}
           </FormGroup>
         </FormRow>

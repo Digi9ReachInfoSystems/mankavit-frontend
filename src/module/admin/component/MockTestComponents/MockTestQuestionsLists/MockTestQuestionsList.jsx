@@ -39,6 +39,8 @@ const createEmptyQuestion = () => ({
   options: [],
   marks: 0,
   expectedAnswer: '',
+  isPassage: false,
+  passageText: '',
 });
 
 // New helper: Group questions into pages (e.g., 5 per page)
@@ -105,6 +107,8 @@ const MockTestQuestionsList = () => {
           marks: q.marks || 0,
           expectedAnswer: q.expectedAnswer || '',
           _id: q._id,
+          isPassage: q.isPassage || false,
+          passageText: q.passageText || '',
         }));
 
         const initialPages = groupIntoPages(transformedQuestions);
@@ -218,6 +222,8 @@ const MockTestQuestionsList = () => {
           })) : [],
           correctAnswer: isMcq ? q.options.findIndex(o => o.isCorrect) : null,
           marks: q.marks,
+          isPassage: q.isPassage || false,
+          passageText: q.passageText || '',
           _id: q._id
         };
       });
@@ -314,7 +320,8 @@ const MockTestQuestionsList = () => {
     payload.type = question.type;
     payload.questionText = question.text;
     payload.expectedAnswer = question.expectedAnswer || '';
-
+    payload.isPassage = question.isPassage || false;
+    payload.passageText = question.passageText || '';
 
     if (isSubjective) {
       payload.expectedAnswer = '';
@@ -442,6 +449,15 @@ const MockTestQuestionsList = () => {
                           background: '#fafafa',
                         }}
                       >
+                        <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600 }}>
+                          <input
+                            type="checkbox"
+                            checked={q.isPassage}
+                            onChange={(e) => updateQuestionField(pi, qi, 'isPassage', e.target.checked)}
+                            style={{ marginRight: '0.5rem' }}
+                          />
+                          This is a passage-based question
+                        </label>
                         <label style={{ fontWeight: 600 }}>
                           Question Type:&nbsp;
                           <select
@@ -454,7 +470,21 @@ const MockTestQuestionsList = () => {
                             <option value="subjective">Subjective</option>
                           </select>
                         </label>
+                        {q.isPassage && (
+                          <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Passage Text:</label>
+                            <JoditEditor
+                              ref={editor}
+                              value={q.passageText}
+                              config={config}
+                              tabIndex={1}
+                              onBlur={(newContent) => updateQuestionField(pi, qi, 'passageText', newContent)}
+                              onChange={(newContent) => updateQuestionField(pi, qi, 'passageText', newContent)}
+                            />
+                          </div>
+                        )}
                         <div style={{ marginTop: '1rem' }}>
+                           <label style={{ fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Question Text:</label>
                           <JoditEditor
                             ref={editor}
                             value={q.text}
@@ -626,7 +656,7 @@ const MockTestQuestionsList = () => {
                         )}
                         <div style={{ marginTop: '1.5rem' }}>
                           <label>Answer and Explaination</label>
-                           <JoditEditor
+                          <JoditEditor
                             ref={editor}
                             value={q.expectedAnswer}
                             config={config}

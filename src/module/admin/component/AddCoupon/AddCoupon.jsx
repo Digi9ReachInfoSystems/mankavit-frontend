@@ -25,7 +25,8 @@ import {
     CheckboxSectionTitle,
     CheckboxList,
     CheckboxLabel,
-    CheckboxInput
+    CheckboxInput,
+    SearchInput
 } from './AddCoupon.styles';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineFileUpload } from 'react-icons/md';
@@ -44,7 +45,9 @@ const AddCoupon = () => {
     const [formErrors, setFormErrors] = useState({});
     const [users, setUsers] = useState([]);
     const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
     const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
     useEffect(() => {
         const apiCaller = async () => {
             const response = await getAuth();
@@ -249,7 +252,8 @@ const AddCoupon = () => {
             toast.success('Coupon created successfully!', {
                 onClose: () => {
                     navigate('/admin/web-management/coupon');
-                    isLoading(false);
+                    // isLoading(false);
+                    setIsLoading(false);
                 }
             });
             // setTimeout(() => navigate('/admin/coupon-management'), 1000);
@@ -259,10 +263,11 @@ const AddCoupon = () => {
                 response: err.response,
                 stack: err.stack
             });
-            isLoading(false);
+            // isLoading(false);
             toast.error(err.response?.data?.message || 'Failed to create coupon');
         } finally {
             // setIsLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -344,7 +349,7 @@ const AddCoupon = () => {
                     onChange={handleChange}
                     placeholder="Enter Discount Amount"
                     min="1"
-                    max="100"
+                    // max="100"
                     disabled={isLoading}
                 />
                 {formErrors.discount_amount && <ErrorMessage>{formErrors.discount_amount}</ErrorMessage>}
@@ -382,24 +387,40 @@ const AddCoupon = () => {
                 couponData.coupon_type === 'Selected users' && (
                     <FlexRow>
                         <CheckboxSection>
-                            <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
+                            <CheckboxSectionTitle>Add Students</CheckboxSectionTitle>
+
+                            {/* Add this search input */}
+                            <SearchInput
+                                type="text"
+                                placeholder="Search students..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                             <CheckboxList>
-                                {users.map((item, index) => (
-                                    <CheckboxLabel key={item._id || index}>
-                                        <CheckboxInput
-                                            type="checkbox"
-                                            checked={couponData.user_list.includes(item._id)}
-                                            onChange={() => handleUserSelection(item._id)}
-                                        />
-                                        {item.displayName} ({item.email})
-                                    </CheckboxLabel>
-                                ))}
+                                {users
+                                    .filter(user => {
+                                        const searchLower = searchTerm.toLowerCase();
+                                        return (
+                                            user.displayName?.toLowerCase().includes(searchLower) ||
+                                            user.email?.toLowerCase().includes(searchLower)
+                                        );
+                                    })
+                                    .map((item, index) => (
+                                        <CheckboxLabel key={item._id || index}>
+                                            <CheckboxInput
+                                                type="checkbox"
+                                                checked={couponData.user_list.includes(item._id)}
+                                                onChange={() => handleUserSelection(item._id)}
+                                            />
+                                            {item.displayName} ({item.email})
+                                        </CheckboxLabel>
+                                    ))
+                                }
                             </CheckboxList>
                         </CheckboxSection>
                     </FlexRow>
                 )
             }
-
 
             <UploadSection $hasError={!!formErrors.coupon_image}>
                 <Label>Coupon Image*</Label>

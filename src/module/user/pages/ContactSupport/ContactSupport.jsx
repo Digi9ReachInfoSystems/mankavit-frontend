@@ -10,6 +10,8 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import { createSupport } from '../../../../api/supportApi';
 import { message } from 'antd';
+import { getCookiesData } from '../../../../utils/cookiesService';
+import { getUserByUserId } from '../../../../api/authApi';
 
 const ContactSupport = () => {
   const [description, setDescription] = useState('');
@@ -27,7 +29,9 @@ const ContactSupport = () => {
     
     try {
       setLoading(true);
-      const response = await createSupport({ description }); // Pass the message as an object
+      const cookiesData= await getCookiesData();
+      const userData= await getUserByUserId(cookiesData.userId);
+      const response = await createSupport({name: userData.user.displayName, email: userData.user.email, description }); // Pass the message as an object
       console.log(response);
   toast.success('Message sent successfully');
       setDescription(''); // Clear the message after successful submission
