@@ -1,5 +1,5 @@
 // src/components/.../EditMockTest.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Container,
   Title,
@@ -24,6 +24,7 @@ import {
   getMocktestById,
 } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
+import JoditEditor from 'jodit-react';
 
 const EditMockTest = () => {
   const { mockTestId } = useParams();
@@ -44,7 +45,7 @@ const EditMockTest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [subjects, setSubjects] = useState([]);
-
+  const editor = useRef(null);
   // fetch subjects
   useEffect(() => {
     (async () => {
@@ -78,8 +79,8 @@ const EditMockTest = () => {
           selectedSubjects: Array.isArray(data.subject)
             ? data.subject.map(s => (typeof s === 'object' ? s._id : s))
             : typeof data.subject === 'object' && data.subject !== null
-            ? [data.subject._id]
-            : [data.subject],
+              ? [data.subject._id]
+              : [data.subject],
         });
       } catch (e) {
         console.error(e);
@@ -89,6 +90,28 @@ const EditMockTest = () => {
       }
     })();
   }, [mockTestId]);
+  const config = useMemo(() => ({
+    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    placeholder: testDetails.description || 'Start typings...',
+    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
+    // toolbarAdaptive: false,
+    // showCharsCounter: false,
+    // showWordsCounter: false,
+    // showXPathInStatusbar: false,
+    // askBeforePasteHTML: true,
+    // askBeforePasteFromWord: true,
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
+  }),
+    [testDetails]
+  );
 
   const handleTestDetailChange = (field, value) => {
     setTestDetails(prev => ({ ...prev, [field]: value }));
@@ -148,7 +171,7 @@ const EditMockTest = () => {
     if (!s) return '';
     const d = new Date(s);
     const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   if (isLoading) return <Container>Loading...</Container>;
@@ -175,12 +198,13 @@ const EditMockTest = () => {
         <FormRow>
           <FormGroup>
             <Label htmlFor="description">Description:</Label>
-            <TextInput
-              as="textarea"
-              id="description"
+            <JoditEditor
+              ref={editor}
               value={testDetails.description}
-              onChange={e => handleTestDetailChange('description', e.target.value)}
-              placeholder="Enter test description"
+              config={config}
+              tabIndex={1} // tabIndex of textarea
+              onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+              onChange={newContent => { handleTestDetailChange('description', newContent) }}
             />
             {errors.description && <ErrorText>{errors.description}</ErrorText>}
           </FormGroup>

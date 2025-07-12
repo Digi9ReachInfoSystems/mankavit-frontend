@@ -18,6 +18,7 @@ import {
     CourseInfo,
     CourseTitle,
     CoursePrice,
+    InputField
 } from "./PurchaseModal.styles";
 
 import { getCookiesData } from "../../utils/cookiesService";
@@ -57,20 +58,35 @@ export default function PurchaseModal({ onClose, course }) {
     }, []);
 
     const handleApplyCoupon = async () => {
-        const selected = coupons.find((c) => c.code === selectedCoupon);
-        if (!selected) return toast.error("Please select a coupon");
 
-        const response = await validateCoupon({ userId, couponCode: selectedCoupon });
-        if (response.success) {
-            const finalPrice = basePrice - response.discount;
-            if(finalPrice < 0) {
-                toast.error("Discount amount is greater than course price , please select another coupon");
-                return;
+        // const selected = coupons.find((c) => c.code === selectedCoupon);
+        if (!selectedCoupon) return toast.error("Please Enter Coupon Code");
+
+        try {
+            const response = await validateCoupon({ userId, couponCode: selectedCoupon });
+            if (response.success) {
+                const finalPrice = basePrice - response.discount;
+                if (finalPrice < 0) {
+                    toast.error("Discount amount is greater than course price , please select another coupon");
+                    return;
+                }
+                setDiscount(response.discount);
+                setSelectedCouponCodeId(response.couponId);
+                toast.success("Coupon applied successfully!");
             }
-            setDiscount(response.discount);
-            setSelectedCouponCodeId(response.couponId);
-            toast.success("Coupon applied successfully!");
+        } catch (error) {
+            console.log(error);
+            if (error.response.status === 400) {
+                toast.error("Coupon code is not valid");
+            } else if (error.response.status === 404) {
+                toast.error("Coupon code is not valid");
+            } else {
+                toast.error("Coupon code is not valid");
+
+            }
         }
+
+
     };
 
     return (
@@ -97,7 +113,7 @@ export default function PurchaseModal({ onClose, course }) {
                     </CourseInfo>
                 </CourseCard>
 
-                <Label>Available Coupons:</Label>
+                {/* <Label>Available Coupons:</Label>
                 <CouponGrid>
                     {coupons.map((coupon) => (
                         <CouponCard
@@ -117,24 +133,31 @@ export default function PurchaseModal({ onClose, course }) {
                             </p>
                         </CouponCard>
                     ))}
-                </CouponGrid>
+                </CouponGrid> */}
 
-                <Label>Select Coupon:</Label>
-                <Select style={{ width: "100%" }} value={selectedCoupon} onChange={(e) => setSelectedCoupon(e)}>
+                <Label>Unlock your discount! Enter coupon code ✨</Label>
+                <InputField
+                    type="text"
+                    value={selectedCoupon}
+                    onChange={(e) => setSelectedCoupon(e.target.value.toUpperCase())}
+                    placeholder="Enter coupon code"
+                    style={{ width: "100%", padding: "10px" }}
+                />
+                {/* <Select style={{ width: "100%" }} value={selectedCoupon} onChange={(e) => setSelectedCoupon(e)}>
                     <option value="">-- Select a coupon --</option>
                     {coupons.map((coupon, index) => (
                         <option key={index} value={coupon.code}>
                             {coupon.label} ({coupon.code})
                         </option>
                     ))}
-                </Select>
+                </Select> */}
                 <div
-                style={{
-                    width: "100%",
-                    height: "1px",
-                    backgroundColor: "transparent",
-                    margin: "16px 0",
-                }}
+                    style={{
+                        width: "100%",
+                        height: "1px",
+                        backgroundColor: "transparent",
+                        margin: "16px 0",
+                    }}
                 ></div>
 
                 <ApplyBtn onClick={handleApplyCoupon}>Apply Coupon</ApplyBtn>

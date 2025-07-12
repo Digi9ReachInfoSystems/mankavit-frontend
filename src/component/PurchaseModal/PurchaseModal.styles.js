@@ -43,6 +43,7 @@ export const ApplyBtn = styled.button`
   background: #007bff;
   color: white;
   border: none;
+  width: 100%;
   border-radius: 6px;
   margin-bottom: 20px;
   cursor: pointer;
@@ -127,4 +128,24 @@ export const CoursePrice = styled.span`
   font-size: 16px;
   color: #007bff;
   margin-top: 6px;
+`;
+
+export const InputField = styled.input`
+  padding: 10px;
+  width: 100%;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+
+  &::placeholder {
+    color: #999;
+  }
 `;

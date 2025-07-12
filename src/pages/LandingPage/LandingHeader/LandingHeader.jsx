@@ -168,7 +168,7 @@ const Header = () => {
           >
             <div className="marquee">
               {tickers.map((t) => (
-                <span key={t._id}>{t.title}</span>
+               <span key={t._id} dangerouslySetInnerHTML={{ __html: t.title }} />
               ))}
             </div>
           </Headline>

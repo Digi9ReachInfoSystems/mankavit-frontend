@@ -368,3 +368,10 @@ export const ToggleWrapper = styled.div`
   align-items: center;
   gap: 10px;
 `;
+export const SearchInput = styled(InputField)`
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+`;

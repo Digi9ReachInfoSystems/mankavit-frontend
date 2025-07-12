@@ -28,7 +28,8 @@ import {
     CheckboxLabel,
     CheckboxInput,
     ToggleContainer,
-    ToggleLabel
+    ToggleLabel,
+    SearchInput
 } from './EditCoupon.styles';
 import { activateOrDeactivateCoupon, getCouponById, updateCoupon } from '../../../../api/couponApi';
 import { getAllStudents } from '../../../../api/userApi';
@@ -53,6 +54,7 @@ const EditCoupon = () => {
     const [isLoadingUsers, setIsLoadingUsers] = useState(true);
     const [loadData, setLoadData] = useState(false);
     const [activeStatus, setActiveStatus] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
     useEffect(() => {
         const apiCaller = async () => {
@@ -439,35 +441,44 @@ const EditCoupon = () => {
                 </FlexRow>
             </TypeSelection>
 
-            {couponData.coupon_type === 'Selected users' && (
-                <FlexRow>
-                    <CheckboxSection>
-                        <CheckboxSectionTitle>Select Users</CheckboxSectionTitle>
-                        {isLoadingUsers ? (
-                            <p>Loading users...</p>
-                        ) : users.length === 0 ? (
-                            <p>No users available</p>
-                        ) : (
-                            <>
-                                <CheckboxList>
-                                    {users.map(user => (
-                                        <CheckboxLabel key={user._id}>
+            {
+                couponData.coupon_type === 'Selected users' && (
+                    <FlexRow>
+                        <CheckboxSection>
+                            <CheckboxSectionTitle>Add Students</CheckboxSectionTitle>
+
+                            {/* Add this search input */}
+                            <SearchInput
+                                type="text"
+                                placeholder="Search students..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <CheckboxList>
+                                {users
+                                    .filter(user => {
+                                        const searchLower = searchTerm.toLowerCase();
+                                        return (
+                                            user.displayName?.toLowerCase().includes(searchLower) ||
+                                            user.email?.toLowerCase().includes(searchLower)
+                                        );
+                                    })
+                                    .map((item, index) => (
+                                        <CheckboxLabel key={item._id || index}>
                                             <CheckboxInput
                                                 type="checkbox"
-                                                checked={couponData.user_list.includes(user._id)}
-                                                onChange={() => handleUserSelection(user._id)}
-                                                disabled={isLoading}
+                                                checked={couponData.user_list.includes(item._id)}
+                                                onChange={() => handleUserSelection(item._id)}
                                             />
-                                            {user.displayName} ({user.email})
+                                            {item.displayName} ({item.email})
                                         </CheckboxLabel>
-                                    ))}
-                                </CheckboxList>
-                                {formErrors.user_list && <ErrorMessage>{formErrors.user_list}</ErrorMessage>}
-                            </>
-                        )}
-                    </CheckboxSection>
-                </FlexRow>
-            )}
+                                    ))
+                                }
+                            </CheckboxList>
+                        </CheckboxSection>
+                    </FlexRow>
+                )
+            }
 
             <ToggleContainer>
                 <Label>Status</Label>

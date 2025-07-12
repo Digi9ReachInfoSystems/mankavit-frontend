@@ -352,3 +352,10 @@ export const CheckboxInput = styled.input`
   cursor: pointer;
   background-color: ${(props) => props.theme.colors.black};
 `;
+export const SearchInput = styled(InputField)`
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+`;
