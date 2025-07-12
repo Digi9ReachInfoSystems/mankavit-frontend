@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 export const CardContainer = styled.div`
-  max-width: 500px;
+  // min-width: 500px;
+  width: 80%;
   margin: 60px auto;
   text-align: center;
   font-family: 'Segoe UI', sans-serif;
@@ -50,7 +51,7 @@ export const Card = styled.div`
 
 export const ExamImage = styled.img`
   width: 100%;
-  height: 200px;
+  height: 400px;
   object-fit: cover;
   margin-bottom: 15px;
   border: none;
@@ -104,7 +105,7 @@ export const StartButton = styled.button`
   font-size: 20px;
   font-weight: 600;
   transition: 0.3s ease;
-  width: 100%;
+  width: 20%;
   margin: 20px 0;
   color: #FFFFFF;
 

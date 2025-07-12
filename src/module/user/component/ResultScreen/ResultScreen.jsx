@@ -1,36 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6';
+import { toast } from 'react-toastify';
 import {
-  ResultsContainer,
-  CardContainer,
-  Header,
-  Title,
-  SummaryContainer,
-  SummaryItem,
-  SummaryLabel,
-  SummaryValue,
-  QuestionsContainer,
-  QuestionItem,
-  QuestionText,
-  OptionsContainer,
-  OptionItem,
-  OptionBullet,
-  OptionText,
-  AnswerStatus,
-  FooterButtons,
-  RetakeButton,
-  BackButton,
-  QuestionNavButtons,
-  NavButton,
-  ContentWrapper
+  Container, Content, Header, LeftDiv, LeftIcon, HeaderLeft, Language,
+  RightIcon, QuestionType, Timer, Text, TimeSlot,
+  Complier, QuestionNumber, QuestionTitle, Section, PassageBox, HorizontalLine,
+  QuestionBox, QuestionText, OptionsList, OptionLabel, ButtonGroup,
+  LeftButton, ReviewButton, ClearButton, RightButton, NextButton,
+  SidebarContainer, UserCard, UserImage, UserInfo, UserName, UserEmail,
+  Divider, Legend, OptionLabelList, LegendText, LegendItem,
+  QuestionNav, Grid, GridButton, FooterButtons, SaveButton,
+  SummaryContainer, SummaryItem, SummaryLabel, SummaryValue
 } from './ResultScreen.styles';
 import {
   getMocktestById,
-  getMocktestAttempts,
-  submitMocktest
+  getMocktestAttempts
 } from '../../../../api/mocktestApi';
 import { getCookiesData } from '../../../../utils/cookiesService';
-import { toast } from 'react-toastify';
 
 export default function ResultScreen() {
   const { testId, subjectId, attemptId } = useParams();
@@ -40,9 +27,9 @@ export default function ResultScreen() {
   const [test, setTest] = useState(null);
   const [attempt, setAttempt] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [summaryData, setSummaryData] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [summaryData, setSummaryData] = useState([]);
 
   const unwrap = r => r?.data?.body?.data ?? r?.data;
 
@@ -51,35 +38,13 @@ export default function ResultScreen() {
       try {
         // Load test data
         const resTest = await getMocktestById(testId);
-        console.log('resTest', resTest);
         const testData = unwrap(resTest);
         setTest(testData);
 
         // Load attempt data
         const resAtts = await getMocktestAttempts(userId, testId);
-        console.log('resAtts', resAtts);
         const latestAttempt = resAtts.data[resAtts.data.length - 1];
-
-        // Set summary data
-        setSummaryData([
-          // { label: 'Total Marks', value: testData.totalMarks || 0 },
-          { label: 'Total Questions', value: testData.questions.length || 0 },
-          {
-            label: 'Attempted MCQ Questions',
-            value: latestAttempt.answers.filter(a =>
-              a.questionDetails?.type === 'mcq' && a.answerIndex !== null
-            ).length || 0
-          },
-          {
-            label: 'Correct Answers',
-            value: latestAttempt.answers.filter(a =>
-              a.questionDetails?.type === 'mcq' && a.isCorrect
-            ).length || 0
-          },
-          { label: 'MCQ Marks Obtained', value: latestAttempt.mcqScore || 0 },
-          { label: 'Subjective Marks Obtained', value: latestAttempt.subjectiveScore || 0 },
-          { label: 'Total Marks Obtained', value: latestAttempt.totalMarks || 0 }
-        ]);
+        setAttempt(latestAttempt);
 
         // Process questions for detailed view
         const processedQuestions = latestAttempt.answers.map(answer => ({
@@ -91,11 +56,28 @@ export default function ResultScreen() {
           isCorrect: answer.isCorrect,
           marks: answer.marksAwarded || 0,
           explanation: answer.questionDetails?.expectedAnswer || '',
-          type: answer.questionDetails?.type || 'mcq'
+          type: answer.questionDetails?.type || 'mcq',
+          status: answer.status || 'unattempted'
         }));
+        
         setQuestions(processedQuestions);
 
-        setAttempt(latestAttempt);
+        // Set summary data
+        setSummaryData([
+          { label: 'Total Questions', value: testData.questions.length || 0 },
+          {
+            label: 'Attempted Questions',
+            value: latestAttempt.answers.filter(a => a.answerIndex !== null).length || 0
+          },
+          {
+            label: 'Correct Answers',
+            value: latestAttempt.answers.filter(a => a.isCorrect).length || 0
+          },
+          { label: 'MCQ Marks Obtained', value: latestAttempt.mcqScore || 0 },
+          { label: 'Subjective Marks Obtained', value: latestAttempt.subjectiveScore || 0 },
+          { label: 'Total Marks Obtained', value: latestAttempt.totalMarks || 0 }
+        ]);
+
       } catch (err) {
         console.error('Failed to load results:', err);
         toast.error(err.message || 'Could not load results');
@@ -106,55 +88,110 @@ export default function ResultScreen() {
     })();
   }, [testId, attemptId, userId, navigate]);
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
   if (loading) return <div>Loading results…</div>;
   if (!attempt) return <div>Unable to load your attempt.</div>;
 
+  const currentQuestion = questions[currentIndex];
+  const isMCQ = currentQuestion?.type === 'mcq';
   const canRetake = test.maxAttempts > attempt.attemptNumber;
-  const currentQuestion = questions[currentQuestionIndex];
+
+  const getStatusCounts = () => {
+    const counts = {
+      unattempted: 0,
+      answered: 0,
+      answeredMarked: 0,
+      notAnsweredMarked: 0,
+      notAnswered: 0
+    };
+
+    questions.forEach(question => {
+      switch (question.status) {
+        case 'unattempted':
+          counts.unattempted++;
+          break;
+        case 'answered':
+          counts.answered++;
+          break;
+        case 'answered-marked':
+          counts.answeredMarked++;
+          break;
+        case 'not-answered-marked':
+          counts.notAnsweredMarked++;
+          break;
+        case 'not-answered':
+          counts.notAnswered++;
+          break;
+        default:
+          counts.unattempted++;
+      }
+    });
+
+    return counts;
+  };
+
+  const getStatus = n => {
+    const question = questions[n - 1];
+    if (!question) return 'unattempted';
+
+    if ((n - 1) === currentIndex &&
+      question.status !== 'answered' &&
+      question.status !== 'answered-marked') {
+      return 'not-answered';
+    }
+
+    switch (question.status) {
+      case 'answered':
+        return 'answered';
+      case 'answered-marked':
+        return 'answered-marked';
+      case 'not-answered-marked':
+        return 'not-answered-marked';
+      case 'not-answered':
+        return 'not-answered';
+      default:
+        return 'unattempted';
+    }
+  };
 
   return (
-    <CardContainer>
-      <ResultsContainer>
+    <Container>
+      <Content>
         <Header>
-          <Title>Mock Test Result Analysis</Title>
+          <LeftDiv>
+            <LeftIcon onClick={() => navigate(-1)}><FaAngleLeft /></LeftIcon>
+            <HeaderLeft><Language>ENG</Language></HeaderLeft>
+          </LeftDiv>
+          <RightIcon><FaAngleRight /></RightIcon>
         </Header>
 
-        <ContentWrapper>
-          <SummaryContainer>
-            {summaryData.map((item, index) => (
-              <SummaryItem key={index}>
-                <SummaryLabel>{item.label} </SummaryLabel>
-                <SummaryValue>{item.value}</SummaryValue>
-              </SummaryItem>
-            ))}
-          </SummaryContainer>
+        <QuestionType>{isMCQ ? 'MCQ' : 'Subjective'}</QuestionType>
+        <Timer>
+          <Text>Result Analysis</Text>
+        </Timer>
 
-          <QuestionsContainer>
-            {currentQuestion && (
-              <QuestionItem>
-                <QuestionText>
-                  {/* {currentQuestionIndex + 1}. {currentQuestion.text} */}
-                  {/* i want to put dangerously html tagh */}
-                  <div dangerouslySetInnerHTML={{ __html: currentQuestion.text }} />
+        {/* Summary Section */}
+        <SummaryContainer>
+          {summaryData.map((item, index) => (
+            <SummaryItem key={index}>
+              <SummaryLabel>{item.label}</SummaryLabel>
+              <SummaryValue>{item.value}</SummaryValue>
+            </SummaryItem>
+          ))}
+        </SummaryContainer>
 
-                </QuestionText>
-
-                <OptionsContainer>
-                  {currentQuestion.options.map((option, optIndex) => {
-                    const isSelected = currentQuestion.selectedOption === optIndex;
-                    const isCorrect = currentQuestion.correctAnswer === optIndex;
+        <Complier>
+          <QuestionNumber>
+            <QuestionTitle>Q {currentIndex + 1}</QuestionTitle>
+          </QuestionNumber>
+          <Section>
+            <PassageBox dangerouslySetInnerHTML={{ __html: currentQuestion.text }} />
+            <HorizontalLine />
+            <QuestionBox>
+              {isMCQ ? (
+                <OptionsList>
+                  {currentQuestion.options.map((option, idx) => {
+                    const isSelected = currentQuestion.selectedOption === idx;
+                    const isCorrect = currentQuestion.correctAnswer === idx;
                     let status = 'unattempted';
 
                     if (isSelected && isCorrect) status = 'correct-attempted';
@@ -163,62 +200,114 @@ export default function ResultScreen() {
                     else if (!isSelected && !isCorrect) status = 'incorrect-unattempted';
 
                     return (
-                      <OptionItem key={optIndex} status={status}>
-                        <OptionBullet status={status}>
-                          {isSelected ? '●' : '○'}
-                        </OptionBullet>
-                        <OptionText status={status}>{option.text}</OptionText>
-                        {isCorrect && <AnswerStatus>Correct Answer</AnswerStatus>}
-                      </OptionItem>
+                      <OptionLabel key={idx} status={status}>
+                        <input
+                          type="radio"
+                          checked={isSelected}
+                          readOnly
+                        />
+                        {option.text}
+                        {isCorrect && <span style={{color: 'green', marginLeft: '10px'}}>(Correct Answer)</span>}
+                      </OptionLabel>
                     );
                   })}
-                </OptionsContainer>
-
-                <div style={{ marginTop: '10px' }}>
-                  <strong>Marks: </strong>{currentQuestion.marks}
+                </OptionsList>
+              ) : (
+                <div>
+                  <p><strong>Your Answer:</strong></p>
+                  <p>{currentQuestion.selectedOption || 'No answer provided'}</p>
                 </div>
-
+              )}
+              
+              <div style={{ marginTop: '20px' }}>
+                <p><strong>Marks Obtained:</strong> {currentQuestion.marks}</p>
                 {currentQuestion.explanation && (
-                  <div style={{
-                    marginTop: '10px',
-                    padding: '10px',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '4px'
-                  }}>
-                    <strong>Explanation: </strong>{currentQuestion.explanation}
+                  <div style={{ marginTop: '10px' }}>
+                    <p><strong>Explanation:</strong></p>
+                    <p>{currentQuestion.explanation}</p>
                   </div>
                 )}
+              </div>
+            </QuestionBox>
+          </Section>
+        </Complier>
 
-                <QuestionNavButtons>
-                  <NavButton
-                    onClick={handlePrevQuestion}
-                    disabled={currentQuestionIndex === 0}
-                  >
-                    <span>‹‹</span> Previous
-                  </NavButton>
-                  <NavButton
-                    onClick={handleNextQuestion}
-                    disabled={currentQuestionIndex === questions.length - 1}
-                  >
-                    Next <span>››</span>
-                  </NavButton>
-                </QuestionNavButtons>
-              </QuestionItem>
-            )}
-          </QuestionsContainer>
-        </ContentWrapper>
+        <ButtonGroup>
+          <LeftButton>
+            <ClearButton onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}>
+              Previous
+            </ClearButton>
+          </LeftButton>
+          <RightButton>
+            <NextButton onClick={() => currentIndex < questions.length - 1 && setCurrentIndex(currentIndex + 1)}>
+              Next
+            </NextButton>
+          </RightButton>
+        </ButtonGroup>
+      </Content>
+
+      <SidebarContainer>
+        <Divider />
+
+        <Legend>
+          <OptionLabelList>
+            <LegendItem className="unattempted">
+              {getStatusCounts().unattempted}
+            </LegendItem>
+            <LegendText>Unattempted</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="answered">
+              {getStatusCounts().answered}
+            </LegendItem>
+            <LegendText>Answered</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="answered-marked">
+              {getStatusCounts().answeredMarked}
+            </LegendItem>
+            <LegendText>Answered & Marked</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="not-answered-marked">
+              {getStatusCounts().notAnsweredMarked}
+            </LegendItem>
+            <LegendText>Not Answered & Marked</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="not-answered">
+              {getStatusCounts().notAnswered}
+            </LegendItem>
+            <LegendText>Not Answered</LegendText>
+          </OptionLabelList>
+        </Legend>
+
+        <QuestionNav>
+          <Grid>
+            {questions.map((_, i) => (
+              <GridButton
+                key={i}
+                className={getStatus(i + 1)}
+                onClick={() => setCurrentIndex(i)}
+                active={currentIndex === i}
+              >
+                {i + 1}
+              </GridButton>
+            ))}
+          </Grid>
+        </QuestionNav>
 
         <FooterButtons>
-          {canRetake && (
-            <RetakeButton onClick={() => navigate(`/test-instructions/${testId}/${subjectId}`)}>
+          {/* {canRetake && (
+            <NextButton onClick={() => navigate(`/test-instructions/${testId}/${subjectId}`)}>
               Retake Test
-            </RetakeButton>
-          )}
-          <BackButton onClick={() => navigate('/user')}>
+            </NextButton>
+          )} */}
+          <NextButton onClick={() => navigate('/user')}>
             Back to Dashboard
-          </BackButton>
+          </NextButton>
         </FooterButtons>
-      </ResultsContainer>
-    </CardContainer>
+      </SidebarContainer>
+    </Container>
   );
 }
