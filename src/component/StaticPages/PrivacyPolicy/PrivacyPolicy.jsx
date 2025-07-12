@@ -43,7 +43,7 @@ const PrivacyPolicy = () => {
     <>
     <Header/>
     <PrivacyContainer>
-      <PrivacyHeading>Privacy Policy</PrivacyHeading>
+      {/* <PrivacyHeading>Privacy Policy</PrivacyHeading> */}
       {/* <Termspara>
         By accessing and using the services provided by Mankavit Law Academy, you agree to the following Terms and Conditions:
       </Termspara> */}
