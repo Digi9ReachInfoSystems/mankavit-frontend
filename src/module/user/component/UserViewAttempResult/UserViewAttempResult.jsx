@@ -1,34 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6';
+import { toast } from 'react-toastify';
 import {
-  ResultsContainer,
-  CardContainer,
-  Header,
-  Title,
-  SummaryContainer,
-  SummaryItem,
-  SummaryLabel,
-  SummaryValue,
-  QuestionsContainer,
-  QuestionItem,
-  QuestionText,
-  OptionsContainer,
-  OptionItem,
-  OptionBullet,
-  OptionText,
-  AnswerStatus,
-  FooterButtons,
-  RetakeButton,
-  BackButton,
-  QuestionNavButtons,
-  NavButton,
-  ContentWrapper,
-  RankBadge,
-  AttemptInfo
+  Container, Content, Header, LeftDiv, LeftIcon, HeaderLeft, Language,
+   QuestionType, Timer, Text, 
+  Complier, QuestionNumber, QuestionTitle, Section, PassageBox, HorizontalLine,
+  QuestionBox,  OptionsList, OptionLabel, ButtonGroup,
+  LeftButton, ClearButton, RightButton, NextButton,
+  SidebarContainer,     
+  Divider, Legend, OptionLabelList, LegendText, LegendItem,
+  QuestionNav, Grid, GridButton, FooterButtons, 
+  SummaryContainer, SummaryItem, SummaryLabel, SummaryValue,
+  RankBadge, AttemptInfo
 } from '../UserViewAttempResult/UserViewAttempResult.style';
 import { getMocktestById } from '../../../../api/mocktestApi';
 import { getCookiesData } from '../../../../utils/cookiesService';
-import { toast } from 'react-toastify';
 import { viewUserMocktestAttemptResult } from '../../../../api/mocktestApi';
 
 export default function UserViewAttempResult() {
@@ -41,7 +28,8 @@ export default function UserViewAttempResult() {
   const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [remainingAttempts, setRemainingAttempts] = useState(0);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -58,15 +46,14 @@ export default function UserViewAttempResult() {
 
         console.log('API Response:', resAttempts);
 
-if (!resAttempts?.success) {
-   throw new Error(resAttempts?.message || 'Invalid response from server');
- }
+        if (!resAttempts?.success) {
+          throw new Error(resAttempts?.message || 'Invalid response from server');
+        }
 
- const { result, ranking, remainigAttempts } = resAttempts;
-
-        // const { result, ranking } = resAttempts.body;
+        const { result, ranking, remainigAttempts } = resAttempts;
         setAttempt(result);
         setRanking(ranking);
+        setRemainingAttempts(remainigAttempts);
         
         // Fetch test details with error handling
         const resTest = await getMocktestById(mockTestId)
@@ -80,15 +67,14 @@ if (!resAttempts?.success) {
         
         // Set summary data
         setSummaryData([
-        //   { label: 'Total Marks', value: result.mockTestId?.totalMarks || 0 },
           { label: 'Total Questions', value: result.mockTestId?.questions?.length || 0 },
           { label: 'MCQ Marks Obtained', value: result.mcqScore || 0 },
           { label: 'Subjective Marks Obtained', value: result.subjectiveScore || 0 },
           { label: 'Total Marks Obtained', value: result.totalMarks || 0 },
           { label: 'Rank', value: ranking?.rank ? `#${ranking.rank}` : 'N/A' },
           { label: 'Attempt Number', value: result.attemptNumber || 1 },
-         { label: 'Remaining Attempts', value: remainigAttempts || 0 }
-           ]);
+          { label: 'Remaining Attempts', value: remainigAttempts || 0 }
+        ]);
 
         // Process questions for detailed view with null checks
         const processedQuestions = result.answers?.map(answer => ({
@@ -103,7 +89,8 @@ if (!resAttempts?.success) {
           marks: answer.marksAwarded || 0,
           maxMarks: answer.questionDetails?.marks || 0,
           explanation: answer.questionDetails?.explanation || '',
-          type: answer.questionDetails?.type || 'mcq'
+          type: answer.questionDetails?.type || 'mcq',
+          status: answer.status || 'unattempted'
         })) || [];
 
         setQuestions(processedQuestions);
@@ -124,144 +111,241 @@ if (!resAttempts?.success) {
     fetchResults();
   }, [userId, mockTestId, navigate]);
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
   if (loading) return <div className="loading-spinner">Loading results...</div>;
   if (!attempt) return <div className="error-message">Unable to load your attempt. Please try again later.</div>;
 
-  const canRetake = test?.maxAttempts > attempt.attemptNumber;
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions[currentIndex];
+  const isMCQ = currentQuestion?.type === 'mcq';
+  const canRetake = remainingAttempts > 0;
+
+  const getStatusCounts = () => {
+    const counts = {
+      unattempted: 0,
+      answered: 0,
+      answeredMarked: 0,
+      notAnsweredMarked: 0,
+      notAnswered: 0
+    };
+
+    questions.forEach(question => {
+      switch (question.status) {
+        case 'unattempted':
+          counts.unattempted++;
+          break;
+        case 'answered':
+          counts.answered++;
+          break;
+        case 'answered-marked':
+          counts.answeredMarked++;
+          break;
+        case 'not-answered-marked':
+          counts.notAnsweredMarked++;
+          break;
+        case 'not-answered':
+          counts.notAnswered++;
+          break;
+        default:
+          counts.unattempted++;
+      }
+    });
+
+    return counts;
+  };
+
+  const getStatus = n => {
+    const question = questions[n - 1];
+    if (!question) return 'unattempted';
+
+    if ((n - 1) === currentIndex &&
+      question.status !== 'answered' &&
+      question.status !== 'answered-marked') {
+      return 'not-answered';
+    }
+
+    switch (question.status) {
+      case 'answered':
+        return 'answered';
+      case 'answered-marked':
+        return 'answered-marked';
+      case 'not-answered-marked':
+        return 'not-answered-marked';
+      case 'not-answered':
+        return 'not-answered';
+      default:
+        return 'unattempted';
+    }
+  };
 
   return (
-    <CardContainer>
-      <ResultsContainer>
+    <Container>
+      <Content>
         <Header>
-          <Title>Mock Test Result Analysis</Title>
+          <LeftDiv>
+            <LeftIcon onClick={() => navigate(-1)}><FaAngleLeft /></LeftIcon>
+            <HeaderLeft>
+              <Language>ENG</Language>
+              <AttemptInfo>
+                Attempt: {attempt.attemptNumber} | Submitted: {new Date(attempt.submittedAt).toLocaleString()}
+              </AttemptInfo>
+            </HeaderLeft>
+          </LeftDiv>
           {ranking?.rank && (
             <RankBadge>
               Rank: #{ranking.rank}
             </RankBadge>
           )}
-          <AttemptInfo>
-            Attempt: {attempt.attemptNumber} | Submitted: {new Date(attempt.submittedAt).toLocaleString()}
-          </AttemptInfo>
         </Header>
 
-        <ContentWrapper>
-          <SummaryContainer>
-            {summaryData.map((item, index) => (
-              <SummaryItem key={index}>
-                <SummaryLabel>{item.label}</SummaryLabel>
-                <SummaryValue>{item.value}</SummaryValue>
-              </SummaryItem>
-            ))}
-          </SummaryContainer>
+        <QuestionType>Result Analysis</QuestionType>
+        <Timer>
+          <Text>Performance Summary</Text>
+        </Timer>
 
-          <QuestionsContainer>
-            {currentQuestion && (
-              <QuestionItem>
-                <QuestionText>
-                  <div dangerouslySetInnerHTML={{ __html: currentQuestion.text }} />
-                </QuestionText>
+        {/* Summary Section */}
+        <SummaryContainer>
+          {summaryData.map((item, index) => (
+            <SummaryItem key={index}>
+              <SummaryLabel>{item.label}</SummaryLabel>
+              <SummaryValue>{item.value}</SummaryValue>
+            </SummaryItem>
+          ))}
+        </SummaryContainer>
 
-                {currentQuestion.type === 'mcq' ? (
-                  <OptionsContainer>
-                    {currentQuestion.options.map((option, optIndex) => {
-                      const isSelected = currentQuestion.selectedOption === optIndex;
-                      const isCorrect = currentQuestion.correctAnswer === optIndex;
-                      let status = 'unattempted';
+        <Complier>
+          <QuestionNumber>
+            <QuestionTitle>Q {currentIndex + 1}</QuestionTitle>
+          </QuestionNumber>
+          <Section>
+            <PassageBox dangerouslySetInnerHTML={{ __html: currentQuestion.text }} />
+            <HorizontalLine />
+            <QuestionBox>
+              {isMCQ ? (
+                <OptionsList>
+                  {currentQuestion.options.map((option, idx) => {
+                    const isSelected = currentQuestion.selectedOption === idx;
+                    const isCorrect = currentQuestion.correctAnswer === idx;
+                    let status = 'unattempted';
 
-                      if (isSelected && isCorrect) status = 'correct-attempted';
-                      else if (isSelected && !isCorrect) status = 'incorrect-attempted';
-                      else if (!isSelected && isCorrect) status = 'correct-unattempted';
-                      else if (!isSelected && !isCorrect) status = 'incorrect-unattempted';
+                    if (isSelected && isCorrect) status = 'correct-attempted';
+                    else if (isSelected && !isCorrect) status = 'incorrect-attempted';
+                    else if (!isSelected && isCorrect) status = 'correct-unattempted';
+                    else if (!isSelected && !isCorrect) status = 'incorrect-unattempted';
 
-                      return (
-                        <OptionItem key={optIndex} status={status}>
-                          <OptionBullet status={status}>
-                            {isSelected ? '●' : '○'}
-                          </OptionBullet>
-                          <OptionText status={status}>{option.text}</OptionText>
-                          {isCorrect && <AnswerStatus>Correct Answer</AnswerStatus>}
-                        </OptionItem>
-                      );
-                    })}
-                  </OptionsContainer>
-                ) : (
-                  <div>
-                    <div style={{ margin: '10px 0' }}>
-                      <strong>Your Answer: </strong>
-                      <div style={{ marginTop: 5 }}>{currentQuestion.selectedAnswer || 'No answer provided'}</div>
+                    return (
+                      <OptionLabel key={idx} status={status}>
+                        <input
+                          type="radio"
+                          checked={isSelected}
+                          readOnly
+                        />
+                        {option.text}
+                        {isCorrect && <span style={{color: 'green', marginLeft: '10px'}}>(Correct Answer)</span>}
+                      </OptionLabel>
+                    );
+                  })}
+                </OptionsList>
+              ) : (
+                <div>
+                  <p><strong>Your Answer:</strong></p>
+                  <p>{currentQuestion.selectedAnswer || 'No answer provided'}</p>
+                  {currentQuestion.expectedAnswer && (
+                    <div style={{ marginTop: '10px' }}>
+                      <p><strong>Expected Answer:</strong></p>
+                      <p>{currentQuestion.expectedAnswer}</p>
                     </div>
-                    {currentQuestion.expectedAnswer && (
-                      <div style={{ 
-                        margin: '10px 0',
-                        padding: '10px',
-                        backgroundColor: '#f5f5f5',
-                        borderRadius: '4px'
-                      }}>
-                        <strong>Expected Answer: </strong>
-                        <div style={{ marginTop: 5 }}>{currentQuestion.expectedAnswer}</div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div style={{ marginTop: '10px' }}>
-                  <strong>Marks: </strong>{currentQuestion.marks} / {currentQuestion.maxMarks}
+                  )}
                 </div>
-
+              )}
+              
+              <div style={{ marginTop: '20px' }}>
+                <p><strong>Marks Obtained:</strong> {currentQuestion.marks} / {currentQuestion.maxMarks}</p>
                 {currentQuestion.explanation && (
-                  <div style={{
-                    marginTop: '10px',
-                    padding: '10px',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '4px'
-                  }}>
-                    <strong>Explanation: </strong>{currentQuestion.explanation}
+                  <div style={{ marginTop: '10px' }}>
+                    <p><strong>Explanation:</strong></p>
+                    <p>{currentQuestion.explanation}</p>
                   </div>
                 )}
+              </div>
+            </QuestionBox>
+          </Section>
+        </Complier>
 
-                <QuestionNavButtons>
-                  <NavButton
-                    onClick={handlePrevQuestion}
-                    disabled={currentQuestionIndex === 0}
-                  >
-                    <span>‹‹</span> Previous
-                  </NavButton>
-                  <NavButton
-                    onClick={handleNextQuestion}
-                    disabled={currentQuestionIndex === questions.length - 1}
-                  >
-                    Next <span>››</span>
-                  </NavButton>
-                </QuestionNavButtons>
-              </QuestionItem>
-            )}
-          </QuestionsContainer>
-        </ContentWrapper>
+        <ButtonGroup>
+          <LeftButton>
+            <ClearButton onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}>
+              Previous
+            </ClearButton>
+          </LeftButton>
+          <RightButton>
+            <NextButton onClick={() => currentIndex < questions.length - 1 && setCurrentIndex(currentIndex + 1)}>
+              Next
+            </NextButton>
+          </RightButton>
+        </ButtonGroup>
+      </Content>
+
+      <SidebarContainer>
+        <Divider />
+
+        <Legend>
+          <OptionLabelList>
+            <LegendItem className="unattempted">
+              {getStatusCounts().unattempted}
+            </LegendItem>
+            <LegendText>Unattempted</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="answered">
+              {getStatusCounts().answered}
+            </LegendItem>
+            <LegendText>Answered</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="answered-marked">
+              {getStatusCounts().answeredMarked}
+            </LegendItem>
+            <LegendText>Answered & Marked</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="not-answered-marked">
+              {getStatusCounts().notAnsweredMarked}
+            </LegendItem>
+            <LegendText>Not Answered & Marked</LegendText>
+          </OptionLabelList>
+          <OptionLabelList>
+            <LegendItem className="not-answered">
+              {getStatusCounts().notAnswered}
+            </LegendItem>
+            <LegendText>Not Answered</LegendText>
+          </OptionLabelList>
+        </Legend>
+
+        <QuestionNav>
+          <Grid>
+            {questions.map((_, i) => (
+              <GridButton
+                key={i}
+                className={getStatus(i + 1)}
+                onClick={() => setCurrentIndex(i)}
+                active={currentIndex === i}
+              >
+                {i + 1}
+              </GridButton>
+            ))}
+          </Grid>
+        </QuestionNav>
 
         <FooterButtons>
           {/* {canRetake && (
-            // <RetakeButton onClick={() => navigate(`/start-test/${mockTestId}/${test.subject}`)}>
-            //   Retake Test
-            // </RetakeButton>
+            <NextButton onClick={() => navigate(`/test-instructions/${mockTestId}/${test.subject}`)}>
+              Retake Test
+            </NextButton>
           )} */}
-          <BackButton onClick={() => navigate('/user')}>
+          <NextButton onClick={() => navigate('/user')}>
             Back to Dashboard
-          </BackButton>
+          </NextButton>
         </FooterButtons>
-      </ResultsContainer>
-    </CardContainer>
+      </SidebarContainer>
+    </Container>
   );
 }
