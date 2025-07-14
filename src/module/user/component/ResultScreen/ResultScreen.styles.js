@@ -602,3 +602,27 @@ export const SummaryValue = styled.span`
   font-weight: 600;
   color: #333;
 `;
+
+
+export const PassageContainer = styled.div`
+  display: flex;
+  gap: 20px;
+  width: 100%;
+`;
+
+export const PassageContent = styled.div`
+  flex: 1;
+  padding: 15px;
+  border-right: ${props => props.hasPassage ? '1px solid #ddd' : 'none'};
+`;
+
+export const QuestionContent = styled.div`
+  flex: 1;
+  padding: 15px;
+`;
+
+export const QuestionContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;

@@ -154,19 +154,19 @@ const IndividualCourses = () => {
                 <CourseSubject style={{ cursor: "pointer" }}>
                   {course?.courseDisplayName || "Course Title"}
                 </CourseSubject>
-                <CourseStats>
+                {/* <CourseStats>
                   <StatLink>{course?.no_of_videos || 0} Videos</StatLink> |
                   <StatLink>{course?.no_of_subjects || 0} Subjects</StatLink> |
                   <StatLink>{course?.no_of_notes || 0} Notes</StatLink>
-                </CourseStats>
+                </CourseStats> */}
               </div>
             </div>
 
-            <Statdesc>
+            {/* <Statdesc>
               📅 Duration: {course?.duration || "N/A"} | 🏆 Success Rate:{" "}
               {course?.successRate ? `${course.successRate}%` : "N/A"}
 
-            </Statdesc>
+            </Statdesc> */}
             {/* <Statdesc>
               📝 Description: {course?.description || "N/A"
               }{" "}
@@ -174,7 +174,7 @@ const IndividualCourses = () => {
 
 
 
-            <FeaturesContainer>
+            {/* <FeaturesContainer>
               {featuresArray.map((column, colIndex) => (
                 <FeatureColumn key={colIndex}>
                   {column.map((feature, i) => (
@@ -185,10 +185,10 @@ const IndividualCourses = () => {
                   ))}
                 </FeatureColumn>
               ))}
-            </FeaturesContainer>
+            </FeaturesContainer> */}
 
             <Statdesc
-              style={{ color: "#000", fontWeight: "400", fontSize: "20px" }}
+             
               dangerouslySetInnerHTML={{ __html: course?.description || "N/A" }} />
           </CourseDetails>
         </HeaderSection>

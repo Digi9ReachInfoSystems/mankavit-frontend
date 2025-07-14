@@ -233,7 +233,7 @@ export const StatLink = styled.span`
 `;
 
 export const Statdesc = styled.span`
-font-size: 16px;
+font-size: 20px;
 font-weight: 400;
 color: #313131;
   margin-left: 0px;

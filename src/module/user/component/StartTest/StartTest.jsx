@@ -48,7 +48,13 @@ const StartTest = () => {
         <DetailsList>
           <DetailItem>Duration: {test.duration} minutes</DetailItem>
           <DetailItem>Total Questions: {test.number_of_questions}</DetailItem>
-          {test.description && <DetailItem>Description: {test.description}</DetailItem>}
+          {/* {test.description && <DetailItem>Description: {test.description}</DetailItem>} */}
+        <DetailItem 
+       
+        >
+  <strong>Description:</strong> 
+  <span dangerouslySetInnerHTML={{ __html: test.description }} />
+</DetailItem>
         </DetailsList>
       </Card>
       <StartButton
