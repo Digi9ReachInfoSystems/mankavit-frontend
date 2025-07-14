@@ -34,7 +34,8 @@ import {
   getAllCourses,
   deleteCourseById,
   updateCourseById,
-  bulkDeleteCourse
+  bulkDeleteCourse,
+  getAllCourseAdmin
 } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -88,7 +89,8 @@ export default function CoursesTable() {
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const payload = await getAllCourses();
+      // const payload = await getAllCourses();
+      const payload = await getAllCourseAdmin();
       console.log("payload", payload);
       const coursesArray = payload.data || [];
       const courseData = coursesArray.map((item) => ({

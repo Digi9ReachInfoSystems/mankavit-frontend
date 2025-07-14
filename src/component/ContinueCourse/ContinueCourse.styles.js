@@ -1,4 +1,16 @@
 import styled from "styled-components";
+import { keyframes } from 'styled-components';
+
+export const blink = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+`;
+export const BlinkingIcon = styled.span`
+  animation: ${blink} 1.5s infinite;
+  display: inline-flex;
+  align-items: center;
+`;
 
 export const PageWrapper = styled.div`
   padding: 20px;

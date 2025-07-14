@@ -63,7 +63,7 @@ export default function AddCourse() {
   const [status, setStatus] = useState("active");
   const [ratting, setRatting] = useState(0);
   const editor = useRef(null);
-
+  const [courseExpiry, setCourseExpiry] = useState("");
 
   const navigate = useNavigate();
 
@@ -248,6 +248,7 @@ export default function AddCourse() {
         mockTests: mockTestCheckboxes.filter((i) => i.checked).map((i) => i.id),
         image: fileURL,
         course_rating: Number(rating) || 0,
+        courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
       };
       console.log("payload", payload);
 
@@ -279,6 +280,7 @@ export default function AddCourse() {
         setMockTestCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
         setThumbnailFile(null);
         setPreviewUrl(null);
+        setCourseExpiry(null);
         setCategoryCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
         setTimeout(() => navigate("/admin/course-management"), 1000);
       }
@@ -432,6 +434,17 @@ export default function AddCourse() {
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 placeholder="e.g. 6 Months"
+              />
+            </FieldWrapper>
+          </Column>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="courseExpiry">Course Expiry Date</Label>
+              <Input
+                id="courseExpiry"
+                type="date"
+                value={courseExpiry}
+                onChange={(e) => setCourseExpiry(e.target.value)}
               />
             </FieldWrapper>
           </Column>

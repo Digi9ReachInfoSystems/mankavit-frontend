@@ -101,7 +101,8 @@ const Sidebar = () => {
           "Course Management": courseManagementItems,
           "Web Management": webManagementItems,
           // "Meeting": meetingsItems,
-          "Admin Management": adminItems
+          "Admin Management": adminItems,
+          "Meeting": meetingsItems
         })
         setMenuItems(
           [
