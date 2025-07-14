@@ -28,7 +28,8 @@ import {
   Playbutton,
   NoteItem,
   NotesSection,
-  Bullet
+  Bullet,
+  BlinkingIcon
 } from "./ContinueCourse.styles";
 import { FaFilePdf, FaDownload } from "react-icons/fa"; // Add these imports at the top
 
@@ -665,7 +666,18 @@ const ContinueCourse = () => {
               onClick={async () => {
                 const cookiesData = await getCookiesData();
                 const userData = await getUserByUserId(cookiesData.userId);
-                navigate(`/zoom-meeting`, {
+                // navigate(`/zoom-meeting`, {
+                //   state: {
+                //     meetingNumber: liveClassData?.zoom_meeting_id,
+                //     passWord: liveClassData?.zoom_passcode,
+                //     meetingTitle: liveClassData?.meeting_title,
+                //     role: 1,
+                //     userName: userData.user.displayName || "React",
+                //     userEmail: userData.user.email || "",
+                //     leaveUrl: `/continueCourse/${id}`
+                //   }
+                // });
+                navigate(`/user/meeting-join`, {
                   state: {
                     meetingNumber: liveClassData?.zoom_meeting_id,
                     passWord: liveClassData?.zoom_passcode,
@@ -679,13 +691,11 @@ const ContinueCourse = () => {
               }}
             >
               {liveClass && (
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <p style={{ fontSize: "24px" }}>Join Live Class Now</p>
-                  <MdLiveTv
-                    color="#ff4757"
-                    size={28}
-                    style={{ animation: "blink 1.5s infinite" }}
-                  />
+                <div style={{ display: "flex", alignItems: "center", gap: "12px",  justifyContent: "center"}}>
+                  <p style={{ fontSize: "24px" ,marginTop: "14px"}}>Join Live Class Now</p>
+                  <BlinkingIcon>
+                    <MdLiveTv color="#ff4757" size={28}  />
+                  </BlinkingIcon>
                 </div>
               )}
             </button>
@@ -769,7 +779,7 @@ const ContinueCourse = () => {
         />
       )}
 
-        <TabSection>
+      <TabSection>
         <button
           className={activeTab === "Subjects" ? "active" : ""}
           onClick={() => {
@@ -820,7 +830,7 @@ const ContinueCourse = () => {
         isMockTestTab={activeTab === "Mock Test"}
         userId={userId}
       />
- 
+
     </PageWrapper>
   );
 };

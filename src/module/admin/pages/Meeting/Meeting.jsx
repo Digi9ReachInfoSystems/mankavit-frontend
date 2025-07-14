@@ -412,19 +412,24 @@ export default function Meeting() {
                                                             const cookiesData = getCookiesData();
                                                             const userData = await getUserByUserId(cookiesData.userId);
                                                             console.log("userData", userData);
-                                                            navigate(`/zoom-meeting`, {
+                                                            // navigate(`/zoom-meeting`, {
+                                                            //     state: {
+                                                            //         // meetingNumber: item?.meetingNumber,
+                                                            //         // passWord: item?.passWord,
+                                                            //         meetingNumber: item?.meetingNumber,
+                                                            //         passWord: item?.passWord,
+                                                            //         meetingTitle: item?.meetingTitle,
+                                                            //         role: 0 ,
+                                                            //         userName: userData.user.displayName || "React",
+                                                            //         userEmail: userData.user.email || "",
+                                                            //         leaveUrl: `/admin/meeting-management`,
+                                                            //     }
+                                                            // })
+                                                            navigate(`/admin/meeting-hosting`,{
                                                                 state: {
-                                                                    // meetingNumber: item?.meetingNumber,
-                                                                    // passWord: item?.passWord,
-                                                                    meetingNumber: item?.meetingNumber,
-                                                                    passWord: item?.passWord,
-                                                                    meetingTitle: item?.meetingTitle,
-                                                                    role: 0 ,
-                                                                    userName: userData.user.displayName || "React",
-                                                                    userEmail: userData.user.email || "",
-                                                                    leaveUrl: `/admin/meeting-management`,
-                                                                }
-                                                            })
+                                                                 meetingNumber: item?.meetingNumber,
+                                                                  passWord: item?.passWord,
+                                                            }})
                                                         }}
                                                     >
                                                         Host Meeting

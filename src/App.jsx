@@ -160,6 +160,8 @@ import AddCoupon from './module/admin/component/AddCoupon/AddCoupon'
 import EditCoupon from './module/admin/component/EditCoupon/EditCoupon'
 import TermsAndConditions from './component/StaticPages/TermsandCondition/TermsandCondition'
 import PrivacyPolicy from './component/StaticPages/PrivacyPolicy/PrivacyPolicy'
+import ZoomIframeMeeting from './module/admin/pages/ZoomIframeMeeting/ZoomIframeMeeting'
+import ZoomIframeMeetingUser from './pages/ZoomIframeMeetingUser/ZoomIframeMeetingUser'
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
 
@@ -228,6 +230,7 @@ function App() {
             <Route path="notification" element={<UserNotifications />} />
 
             <Route path="completed-courses" element={<CompletedCoursesPage />} />
+            <Route path='meeting-join' element={<ZoomIframeMeetingUser />} />
 
             {/* </Route> */}
 
@@ -245,6 +248,7 @@ function App() {
 
             <Route path="meeting-management" element={<Meeting />} />
             <Route path="meeting-management/create" element={<AddMeeting />} />
+            <Route path='meeting-hosting' element={<ZoomIframeMeeting/>} />
 
             <Route path="student-management" element={<AdminRoute Access={"studentManagement"} ><StudentManagement /></AdminRoute>} />
             <Route path="student-management/create" element={<AdminRoute Access={"studentManagement"}><AddStudent /></AdminRoute>} />

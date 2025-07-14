@@ -112,3 +112,13 @@ export const bulkDeleteCourse = async (courseIds) => {
         throw error;
     }
 }
+export const getAllCourseAdmin = async () => {
+    try {
+        const response = await api.get("/api/v1/course/get/allCourses/admin");
+        console.log("response", response);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

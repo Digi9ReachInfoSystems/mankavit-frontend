@@ -58,6 +58,7 @@ export default function EditCourse() {
     subjectCheckboxes: [],
     // mockTestCheckboxes: [],
     thumbnailFile: null,
+    courseExpiry: "",
     ratting: 0
   });
   const editor = useRef(null);
@@ -145,7 +146,8 @@ export default function EditCourse() {
           // mockTestCheckboxes: mockTestsData,
           categories: formattedCategories,
           thumbnailFile: null,
-          ratting: data.course_rating || 0
+          ratting: data.course_rating || 0,
+          courseExpiry: new Date(data.courseExpiry).toISOString().split('T')[0] || null
         });
 
       } catch (error) {
@@ -289,6 +291,7 @@ export default function EditCourse() {
         course_rating: Number(formData.ratting) || 0,
         // mockTests,
         image: fileURL,
+        courseExpiry: new Date(formData.courseExpiry)
       };
       console.log("payload", payload);
 
@@ -534,6 +537,17 @@ export default function EditCourse() {
               />
             </FieldWrapper>
           </Column>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="courseExpiry">Course Expiry Date</Label>
+              <Input
+                id="courseExpiry"
+                type="date"
+                value={formData.courseExpiry}
+                onChange={(e) => handleInputChange('courseExpiry', e.target.value)}
+              />
+            </FieldWrapper>
+          </Column>
           {/* <Column>
             <FieldWrapper>
               <Label htmlFor="noOfVideos">Number of Videos</Label>
@@ -601,7 +615,7 @@ export default function EditCourse() {
         </FormRow>
 
         {/* Row 6: Description */}
-        <FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label htmlFor="description">Description</Label>
@@ -614,7 +628,7 @@ export default function EditCourse() {
               />
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
 
         {/* Row 7: Upload Thumbnail and Toggles */}
         <FormRow>
