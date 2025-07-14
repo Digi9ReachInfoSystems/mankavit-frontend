@@ -33,6 +33,24 @@ const STATUS = {
   NOT_ANSWERED_MARKED: 'not-answered-marked-for-review',
   ANSWERED_MARKED: 'answered-marked-for-review'
 };
+
+const PassageContainer = styled.div`
+  display: flex;
+  gap: 20px;
+  width: 100%;
+`;
+
+const PassageContent = styled.div`
+  flex: 1;
+  padding: 15px;
+  border-right: ${props => props.hasPassage ? '1px solid #ddd' : 'none'};
+`;
+
+const QuestionContent = styled.div`
+  flex: 1;
+  padding: 15px;
+`;
+
 const ConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
 
@@ -48,6 +66,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
     </ModalOverlay>
   );
 };
+
 export default function TextScreen() {
   const { testId, subjectId, attemptId: urlAttemptId } = useParams();
   const navigate = useNavigate();
@@ -62,8 +81,7 @@ export default function TextScreen() {
   const [loading, setLoading] = useState(true);
   const [initialTime, setInitialTime] = useState(0);
   const [testStartTime, setTestStartTime] = useState(null);
-   const [showConfirmation, setShowConfirmation] = useState(false);
-
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // unwrap { data } or { body: { data } }
   const unwrap = r => r?.data?.body?.data ?? r?.data;
@@ -208,6 +226,7 @@ export default function TextScreen() {
   const currentQ = questions[currentIndex];
   const currAns = answers[currentIndex] || {};
   const isMCQ = currentQ.type === 'mcq';
+  const hasPassage = currentQ.isPassage;
 
   function updateAnswer(upd) {
     setAnswers(a => {
@@ -375,7 +394,6 @@ export default function TextScreen() {
 
       const data = unwrap(res);
       if (data) {
-        // localStorage.removeItem(`testTime_${testId}_${urlAttemptId}`);
         localStorage.removeItem(timeKey);
         toast.success('Test submitted successfully');
         navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
@@ -385,7 +403,8 @@ export default function TextScreen() {
       toast.error('Failed to submit test');
     }
   };
-const handleSubmitClick = () => {
+
+  const handleSubmitClick = () => {
     setShowConfirmation(true);
   };
 
@@ -427,7 +446,6 @@ const handleSubmitClick = () => {
     return counts;
   };
 
-  // Keep the original getStatus function for question buttons
   const getStatus = n => {
     const answer = answers[n - 1];
     if (!answer) return 'unattempted';
@@ -478,40 +496,73 @@ const handleSubmitClick = () => {
             <QuestionTitle>Q {currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
           <Section>
-            {/* <PassageBox><p>{currentQ.questionText}</p></PassageBox> */}
-            <PassageBox dangerouslySetInnerHTML={{ __html: currentQ.questionText }} />
-            <HorizontalLine />
-            <QuestionBox>
-              {/* <QuestionText> */}
-                {/* <strong>{currentQ.questionText}</strong> */}
-                {/* <strong dangerouslySetInnerHTML={{ __html: currentQ.questionText }} /> */}
-              {/* </QuestionText> */}
-              {/* <QuestionText dangerouslySetInnerHTML={{ __html: currentQ.questionText }} /> */}
-              {isMCQ ? (
-                <OptionsList>
-                  {currentQ.options.map((opt, idx) => {
-                    const label = typeof opt === 'object' ? opt.text : opt;
-                    return (
-                      <OptionLabel key={idx}>
-                        <input
-                          type="radio"
-                          checked={currAns.answerIndex === idx}
-                          onChange={() => handleOptionSelect(idx)}
-                        />
-                        {label}
-                      </OptionLabel>
-                    );
-                  })}
-                </OptionsList>
-              ) : (
-                <textarea
-                  className="textarea"
-                  value={currAns.answer}
-                  onChange={handleTextChange}
-                  placeholder="Type your answer…"
-                />
-              )}
-            </QuestionBox>
+            {hasPassage ? (
+              <PassageContainer>
+                <PassageContent hasPassage={hasPassage}>
+                  <PassageBox dangerouslySetInnerHTML={{ __html: currentQ.passageText }} />
+                </PassageContent>
+                <QuestionContent>
+                  <QuestionBox>
+                    <QuestionText dangerouslySetInnerHTML={{ __html: currentQ.questionText }} />
+                    {isMCQ ? (
+                      <OptionsList>
+                        {currentQ.options.map((opt, idx) => {
+                          const label = typeof opt === 'object' ? opt.text : opt;
+                          return (
+                            <OptionLabel key={idx}>
+                              <input
+                                type="radio"
+                                checked={currAns.answerIndex === idx}
+                                onChange={() => handleOptionSelect(idx)}
+                              />
+                              {label}
+                            </OptionLabel>
+                          );
+                        })}
+                      </OptionsList>
+                    ) : (
+                      <textarea
+                        className="textarea"
+                        value={currAns.answer}
+                        onChange={handleTextChange}
+                        placeholder="Type your answer…"
+                      />
+                    )}
+                  </QuestionBox>
+                </QuestionContent>
+              </PassageContainer>
+            ) : (
+              <>
+                <PassageBox dangerouslySetInnerHTML={{ __html: currentQ.questionText }} />
+                <HorizontalLine />
+                <QuestionBox>
+                  {isMCQ ? (
+                    <OptionsList>
+                      {currentQ.options.map((opt, idx) => {
+                        const label = typeof opt === 'object' ? opt.text : opt;
+                        return (
+                          <OptionLabel key={idx}>
+                            <input
+                              type="radio"
+                              checked={currAns.answerIndex === idx}
+                              onChange={() => handleOptionSelect(idx)}
+                            />
+                            {label}
+                          </OptionLabel>
+                        );
+                      })}
+                    </OptionsList>
+                  ) : (
+                    <textarea
+                      className="textarea"
+                      value={currAns.answer}
+                      onChange={handleTextChange}
+                      placeholder="Type your answer…"
+                    />
+                  )}
+                </QuestionBox>
+              </>
+            )}
           </Section>
         </Complier>
 
@@ -527,13 +578,6 @@ const handleSubmitClick = () => {
       </Content>
 
       <SidebarContainer>
-        {/* <UserCard>
-          <UserImage src={Profile} alt="user" />
-          <UserInfo>
-            <UserName>You</UserName>
-            <UserEmail>{userId}</UserEmail>
-          </UserInfo>
-        </UserCard> */}
         <Divider />
 
         <Legend>
@@ -584,18 +628,16 @@ const handleSubmitClick = () => {
           </Grid>
         </QuestionNav>
 
-               <FooterButtons>
+        <FooterButtons>
           <NextButton onClick={handleSubmitClick}>Submit Test</NextButton>
         </FooterButtons>
       </SidebarContainer>
 
-      {/* Add the ConfirmationModal at the end of your return */}
       <ConfirmationModal
         isOpen={showConfirmation}
         onClose={handleCancelSubmit}
         onConfirm={handleSubmit}
       />
-
     </Container>
   );
 }

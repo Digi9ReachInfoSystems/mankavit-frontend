@@ -261,7 +261,7 @@ color: #313131;
  
 
 export const CourseStats = styled.div`
-  font-size: 18px;
+  font-size: 20px;
   color: #1a73e8;
   margin-top: 4px;
   margin-left:30px;
