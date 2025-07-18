@@ -83,3 +83,13 @@ export const bulkDeleteSubjects = async (subjectIds) => {
         throw error;
     }
 }
+
+export const getSubjectsByCourseId = async (courseId) => {
+    try {
+        const response = await api.get(`/api/v1/subject/getCourseBySubject/${courseId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching subject by course ID:', error);
+        throw error;
+    }
+};

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Container,
   Title,
   Label,
   Input,
-  TextArea,
   DropZone,
   DropZoneText,
   ImageIcon,
@@ -17,10 +16,7 @@ import {
   RadioGroup,
   RadioLabel,
   RadioInput,
-  CheckboxSectionTitle,
-  CheckboxList,
-  CheckboxInput,
-  CheckboxLabel
+  EditorWrapper
 } from './AddTestimonial.styles';
 import uploadIcon from '../../../../../../assets/upload.png';
 import { createTestimonials } from '../../../../../../api/testimonialApi';
@@ -29,6 +25,7 @@ import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageSe
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import JoditEditor from 'jodit-react';
 
 const AddTestimonial = () => {
   const [formData, setFormData] = useState({
@@ -37,15 +34,15 @@ const AddTestimonial = () => {
     course: '',
     testimonialDetails: '',
   });
-  const [mediaType, setMediaType] = useState('image');       // 'image' or 'video'
+  const [mediaType, setMediaType] = useState('image');
   const [mediaFile, setMediaFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
   const navigate = useNavigate();
+  const editor = useRef(null);
 
-  // fetch courses as before...
   useEffect(() => {
     (async () => {
       try {
@@ -63,9 +60,30 @@ const AddTestimonial = () => {
     })();
   }, []);
 
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter testimonial details here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
+  }), []);
+
   const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(f => ({ ...f, [name]: value }));
+  };
+
+  const handleEditorChange = (newContent) => {
+    setFormData(f => ({ ...f, testimonialDetails: newContent }));
   };
 
   const handleCheckboxChange = idx => {
@@ -78,11 +96,10 @@ const AddTestimonial = () => {
     setFormData(f => ({ ...f, course: sel ? sel.id : '' }));
   };
 
-  // Pick up either image/video file
   const handleMediaChange = e => {
     const file = e.target.files[0];
     if (!file) return;
-    // Validate type & size
+    
     if (mediaType === 'image' && !file.type.match('image.*')) {
       return setError('Please upload an image file');
     }
@@ -90,24 +107,21 @@ const AddTestimonial = () => {
       return setError('Please upload a video file');
     }
     if (file.size > 50 * 1024 * 1024) {
-      // allow bigger size for video if you need
       return setError(`${mediaType} size too large`);
     }
+    
     setError('');
     setMediaFile(file);
-    // preview
     const reader = new FileReader();
     reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
 
   const handleSubmit = async () => {
-    // Basic form checks
     if (
       !formData.studentName ||
       !formData.rank ||
       !formData.testimonialDetails ||
-      // !formData.course ||
       !mediaFile
     ) {
       setError('Fill all fields and select/media file');
@@ -116,19 +130,16 @@ const AddTestimonial = () => {
 
     try {
       setIsUploading(true);
-      // upload to Azure
       const { blobUrl, message } = await uploadFileToAzureStorage(
         mediaFile,
         mediaType === 'image' ? 'upload' : 'upload'
       );
       if (!blobUrl) throw new Error(message || 'Upload failed');
 
-      // build payload
       const payload = {
         name: formData.studentName,
         rank: formData.rank,
         description: formData.testimonialDetails,
-        // course: formData.course,
         ...(mediaType === 'image'
           ? { testimonial_image: blobUrl }
           : { testimonial_video: blobUrl })
@@ -159,12 +170,15 @@ const AddTestimonial = () => {
       />
 
       <Label>Description *</Label>
-      <TextArea
-        name="testimonialDetails"
-        value={formData.testimonialDetails}
-        onChange={handleInputChange}
-        rows={4}
-      />
+      <EditorWrapper>
+        <JoditEditor
+          ref={editor}
+          value={formData.testimonialDetails}
+          config={config}
+          onBlur={handleEditorChange}
+          onChange={handleEditorChange}
+        />
+      </EditorWrapper>
 
       <FormRow>
         <Column>
@@ -177,21 +191,6 @@ const AddTestimonial = () => {
           />
         </Column>
       </FormRow>
-
-      {/* <Label>Select Course *</Label>
-      <CheckboxSectionTitle>Choose one:</CheckboxSectionTitle>
-      <CheckboxList>
-        {coursesCheckboxes.map((c, i) => (
-          <label key={c.id}>
-            <CheckboxInput
-              type="checkbox"
-              checked={c.checked}
-              onChange={() => handleCheckboxChange(i)}
-            />
-            <CheckboxLabel>{c.label}</CheckboxLabel>
-          </label>
-        ))}
-      </CheckboxList> */}
 
       <Label>Media Type *</Label>
       <RadioGroup>

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+// src/module/admin/components/AddMission/AddMission.jsx
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   Container,
   Title,
   Label,
   Input,
-  TextArea,
   DropZone,
   DropZoneText,
   ImageIcon,
@@ -19,51 +19,39 @@ import { createMission } from '../../../../../../api/missionApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuth } from '../../../../../../utils/authService';
+import JoditEditor from 'jodit-react';
 
-const AddMission = () => {
+export default function AddMission() {
   const navigate = useNavigate();
+  const editor = useRef(null);
   const [formData, setFormData] = useState({ title: '', description: '', image: null });
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    useEffect(() => {
-      const apiCaller = async () => {
-        const response = await getAuth();
-        response.Permissions;
-        if (response.isSuperAdmin === true) {
-          setReadOnlyPermissions(false);
-        } else {
-          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
-          if (response.Permissions["webManagement"].readOnly) {
-            toast.error('You do not have permission to Add mission.', {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              onClose: () => {
-                navigate('/admin/');
-              }
-            });
-          }
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const response = await getAuth();
+      if (!response.isSuperAdmin) {
+        setReadOnlyPermissions(response.Permissions.webManagement.readOnly);
+        if (response.Permissions.webManagement.readOnly) {
+          toast.error('You do not have permission to add mission.', {
+            onClose: () => navigate('/admin/')
+          });
         }
       }
-      apiCaller();
-    }, []);
+    })();
+  }, [navigate]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = e => {
     const file = e.target.files[0];
     if (!file) return;
-
     if (!file.type.match('image.*')) {
       toast.error('Please upload a valid image file.');
       return;
@@ -72,18 +60,20 @@ const AddMission = () => {
       toast.warning('Image size should be less than 5MB.');
       return;
     }
-
     setError('');
-    setFormData((prev) => ({ ...prev, image: file }));
-
+    setFormData(prev => ({ ...prev, image: file }));
     const reader = new FileReader();
     reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const editorConfig = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter mission description...'
+  }), []);
 
+  const handleSubmit = async e => {
+    e.preventDefault();
     if (!formData.title.trim() || !formData.description.trim()) {
       toast.error('Title and Description are required.');
       return;
@@ -92,27 +82,17 @@ const AddMission = () => {
       toast.error('Please select an image.');
       return;
     }
-
     setError('');
     setLoading(true);
-
     try {
-      const uploadResponse = await uploadFileToAzureStorage(formData.image, 'mission');
-      const imageUrl = uploadResponse.blobUrl || uploadResponse.url || uploadResponse.fileUrl;
-
-      const missionPayload = {
-        title: formData.title,
-        description: formData.description,
-        image: imageUrl,
-      };
-
-      await createMission(missionPayload);
-      toast.success('Data created successfully!');
+      const uploadResp = await uploadFileToAzureStorage(formData.image, 'mission');
+      const imageUrl = uploadResp.blobUrl || uploadResp.url || uploadResp.fileUrl;
+      await createMission({ ...formData, image: imageUrl });
+      toast.success('Mission created successfully!');
       setTimeout(() => navigate('/admin/web-management/mission'), 1000);
     } catch (err) {
-      console.error('Error creating mission:', err.response || err);
-      const serverMsg = err.response?.data?.message || err.message;
-      toast.error(serverMsg || 'Failed to create data. Please try again.');
+      console.error('Error creating mission:', err);
+      toast.error(err.response?.data?.message || 'Failed to create mission.');
     } finally {
       setLoading(false);
     }
@@ -120,18 +100,7 @@ const AddMission = () => {
 
   return (
     <Container>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-
+      <ToastContainer position="top-right" autoClose={3000} />
       <Title>Add Mission</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -139,23 +108,18 @@ const AddMission = () => {
       <Input
         name="title"
         value={formData.title}
-        onChange={(e) => {
-          const filteredData = e.target.value.replace(/[^a-zA-Z ]/g, '');
-          setFormData((prev) => ({ ...prev, title: filteredData }));
-        }}
+        onChange={handleInputChange}
         placeholder="Enter title"
       />
 
       <Label>Mission Description *</Label>
-      <TextArea
-        name="description"
+      <JoditEditor
+        ref={editor}
         value={formData.description}
-        onChange={(e) => {
-          const filteredData = e.target.value.replace(/[^a-zA-Z0-9 ]/g, '');
-          setFormData((prev) => ({ ...prev, description: filteredData }));
-        }}
-        rows={5}
-        placeholder="Enter description"
+        config={editorConfig}
+        tabIndex={1}
+        onBlur={newContent => setFormData(prev => ({ ...prev, description: newContent }))}
+        onChange={() => { /* no-op: we update on blur */ }}
       />
 
       <Label>Upload Mission Image *</Label>
@@ -172,20 +136,16 @@ const AddMission = () => {
             <PreviewImage src={previewUrl} alt="Preview" />
           ) : (
             <>
-              <ImageIcon>
-                <img src={uploadIcon} alt="Upload" width="50" />
-              </ImageIcon>
+              <ImageIcon><img src={uploadIcon} alt="Upload" width={50} /></ImageIcon>
               <DropZoneText>Drag & drop image here, or click to select</DropZoneText>
             </>
           )}
         </label>
       </DropZone>
 
-      <UploadButton onClick={handleSubmit} disabled={loading}>
+      <UploadButton onClick={handleSubmit} disabled={loading || readOnlyPermissions}>
         {loading ? 'Creating...' : 'Create Mission'}
       </UploadButton>
     </Container>
   );
-};
-
-export default AddMission;
+}

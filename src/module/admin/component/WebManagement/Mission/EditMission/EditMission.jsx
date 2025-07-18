@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+// src/module/admin/components/EditMission/EditMission.jsx
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Title,
   Label,
   Input,
-  TextArea,
   DropZone,
   DropZoneText,
   ImageIcon,
@@ -16,52 +16,41 @@ import {
 import uploadIcon from '../../../../../../assets/upload.png';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { getMissionById, updateMissionById } from '../../../../../../api/missionApi';
-
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuth } from '../../../../../../utils/authService';
-
+import JoditEditor from 'jodit-react';
 
 const EditMission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const editor = useRef(null);
+
   const [formData, setFormData] = useState({ title: '', description: '' });
   const [previewUrl, setPreviewUrl] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    useEffect(() => {
-      const apiCaller = async () => {
-        const response = await getAuth();
-        response.Permissions;
-        if (response.isSuperAdmin === true) {
-          setReadOnlyPermissions(false);
-        } else {
-          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
-          if (response.Permissions["webManagement"].readOnly) {
-            toast.error('You do not have permission to edit missions.', {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              onClose: () => {
-                navigate('/admin/');
-              }
-            });
-          }
-        }
-      }
-      apiCaller();
-    }, []);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
 
   useEffect(() => {
-    const fetchMission = async () => {
+    (async () => {
+      const response = await getAuth();
+      if (!response.isSuperAdmin) {
+        const readOnly = response.Permissions.webManagement.readOnly;
+        setReadOnlyPermissions(readOnly);
+        if (readOnly) {
+          toast.error('You do not have permission to edit missions.', {
+            onClose: () => navigate('/admin/')
+          });
+        }
+      }
+    })();
+  }, [navigate]);
+
+  useEffect(() => {
+    (async () => {
       setLoading(true);
       try {
         const data = await getMissionById(id);
@@ -69,33 +58,29 @@ const EditMission = () => {
         setPreviewUrl(data.image);
       } catch (err) {
         console.error('Error fetching mission:', err);
-        setError('Failed to load mission. Please try again.');
-          toast.error('Failed to load data. Please try again.');
+        toast.error('Failed to load mission. Please try again.');
       } finally {
         setLoading(false);
       }
-    };
-    fetchMission();
+    })();
   }, [id]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = e => {
     const file = e.target.files[0];
     if (!file) return;
-
     if (!file.type.match('image.*')) {
-      setError('Please upload a valid image file.');
+      toast.error('Please upload a valid image file.');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB.');
+      toast.warning('Image size should be less than 5MB.');
       return;
     }
-
     setError('');
     setImageFile(file);
     const reader = new FileReader();
@@ -103,53 +88,42 @@ const EditMission = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async (e) => {
+  const editorConfig = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter mission description...'
+  }), []);
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    // Validate
     if (!formData.title.trim() || !formData.description.trim()) {
-      setError('Title and Description are required.');
+      toast.error('Title and Description are required.');
       return;
     }
-
     setError('');
     setSubmitting(true);
-
     try {
       let imageUrl = previewUrl;
       if (imageFile) {
-        const uploadResponse = await uploadFileToAzureStorage(imageFile, 'mission');
-        imageUrl = uploadResponse.blobUrl || uploadResponse.url || uploadResponse.fileUrl;
+        const uploadResp = await uploadFileToAzureStorage(imageFile, 'mission');
+        imageUrl = uploadResp.blobUrl || uploadResp.url || uploadResp.fileUrl;
       }
 
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        image: imageUrl,
-      };
-      await updateMissionById(id, payload);
+      await updateMissionById(id, { ...formData, image: imageUrl });
       toast.success('Data updated successfully!');
       setTimeout(() => navigate('/admin/web-management/mission'), 1000);
-
     } catch (err) {
-      console.error('Error updating mission:', err.response || err);
-      const serverMsg = err.response?.data?.message || err.message;
-      setError(serverMsg || 'Failed to update mission. Please try again.');
-      toast.error('Failed to update data. Please try again.');
+      console.error('Error updating mission:', err);
+      toast.error(err.response?.data?.message || 'Failed to update mission.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) {
-    return (
-      <Container>
-        <p>Loading mission...</p>
-      </Container>
-    );
-  }
+  if (loading) return <Container>Loading mission...</Container>;
 
   return (
     <Container>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Title>Edit Mission</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -157,23 +131,18 @@ const EditMission = () => {
       <Input
         name="title"
         value={formData.title}
-       onChange={(e)=>{
-        const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-        setFormData(prev => ({ ...prev, title: filteredData }));
-       }}
-        placeholder="Enter  title"
+        onChange={handleInputChange}
+        placeholder="Enter title"
       />
 
       <Label>Mission Description *</Label>
-      <TextArea
-        name="description"
+      <JoditEditor
+        ref={editor}
         value={formData.description}
-        onChange={(e)=>{
-          const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-          setFormData(prev => ({ ...prev, description: filteredData }));
-        }}
-        rows={5}
-        placeholder="Enter mission description"
+        config={editorConfig}
+        tabIndex={1}
+        onBlur={newContent => setFormData(prev => ({ ...prev, description: newContent }))}
+        onChange={() => { /* no-op: update on blur */ }}
       />
 
       <Label>Mission Image</Label>
@@ -190,31 +159,16 @@ const EditMission = () => {
             <PreviewImage src={previewUrl} alt="Preview" />
           ) : (
             <>
-              <ImageIcon>
-                <img src={uploadIcon} alt="Upload" width="50" />
-              </ImageIcon>
+              <ImageIcon><img src={uploadIcon} alt="Upload" width={50} /></ImageIcon>
               <DropZoneText>Drag & drop image here, or click to select</DropZoneText>
             </>
           )}
         </label>
       </DropZone>
 
-      <UploadButton onClick={handleSubmit} disabled={submitting}>
+      <UploadButton onClick={handleSubmit} disabled={submitting || readOnlyPermissions}>
         {submitting ? 'Updating...' : 'Update Mission'}
       </UploadButton>
-
-      <ToastContainer 
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='colored'
-      />
     </Container>
   );
 };

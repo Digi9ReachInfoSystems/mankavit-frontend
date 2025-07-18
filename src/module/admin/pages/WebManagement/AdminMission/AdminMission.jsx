@@ -185,7 +185,8 @@ const AdminMission = () => {
                   currentPageData.map((item) => (
                     <tr key={item._id}>
                       <Td>{item.title}</Td>
-                      <Td>{item.description}</Td>
+                      {/* <Td>{item.description}</Td> */}
+                      <Td dangerouslySetInnerHTML={{ __html: item.description }} />
                       <Td>
                         {item.image ? (
                           <a

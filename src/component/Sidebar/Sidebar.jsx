@@ -58,7 +58,7 @@ const Sidebar = () => {
   const webManagementItems = [
     { path: "/admin/web-management/aboutus", label: "About us" },
     { path: "/admin/web-management/question-paper", label: "Question Paper" },
-    { path: "/admin/web-management/live-classes", label: "Live Classes" },
+    // { path: "/admin/web-management/live-classes", label: "Live Classes" },
     { path: "/admin/web-management/testinomial", label: "Testimonial" },
     { path: "/admin/web-management/achievement", label: "Achievement" },
     { path: "/admin/web-management/notification", label: "Notification" },
@@ -66,7 +66,7 @@ const Sidebar = () => {
     { path: "/admin/web-management/social-media", label: "Social Media" },
     { path: "/admin/web-management/mission", label: "Mission" },
     { path: "/admin/web-management/why-study-with-us", label: "Why Study With Us" },
-    { path: "/admin/web-management/blog", label: "Blog" },
+    // { path: "/admin/web-management/blog", label: "Blog" },
     { path: "/admin/web-management/contact-support", label: "Contact Support" },
     { path: "/admin/web-management/user-feedback", label: "User Feedback" },
     { path: "/admin/web-management/youtubelinks", label: "YouTube Links" },

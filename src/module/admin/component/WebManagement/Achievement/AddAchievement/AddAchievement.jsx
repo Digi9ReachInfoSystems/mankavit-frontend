@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   Container,
   Title,
@@ -12,13 +12,14 @@ import {
   SubmitButton
 } from './AddAchievement.styles';
 import upload from '../../../../../../assets/upload.png';
-import { createAchiever, updateAchieverById } from '../../../../../../api/achieverApi';
+import { createAchiever } from '../../../../../../api/achieverApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { notification } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
+import { getAuth } from '../../../../../../utils/authService';
 
 const AddAchievements = () => {
   const [formData, setFormData] = useState({

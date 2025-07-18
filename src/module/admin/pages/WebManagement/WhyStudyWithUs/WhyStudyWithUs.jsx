@@ -141,7 +141,8 @@ const WhyStudyWithUs = () => {
               {currentPageData.map((item) => (
                 <tr key={item._id}>
                   <Td>{item.title}</Td>
-                  <Td>{item.description}</Td>
+                  {/* <Td>{item.description}</Td> */}
+                  <Td dangerouslySetInnerHTML={{ __html: item.description }}></Td>
                   <Td>
                     <a
                       href="#"

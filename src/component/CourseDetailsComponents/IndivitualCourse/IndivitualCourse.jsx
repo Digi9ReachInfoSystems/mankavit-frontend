@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Container,
   BackLink,
@@ -24,21 +24,27 @@ import {
   liveClass,
   FeaturesContainer,
   FeatureColumn,
-  Bullet
-} from './IndivitualCourse.styles';
-import courseImage from '../../../assets/courseDetails.png';
-import { FaStar, FaVideo, FaBook, FaFileAlt, FaArrowLeft } from 'react-icons/fa';
+  Bullet,
+} from "./IndivitualCourse.styles";
+import courseImage from "../../../assets/courseDetails.png";
+import {
+  FaStar,
+  FaVideo,
+  FaBook,
+  FaFileAlt,
+  FaArrowLeft,
+} from "react-icons/fa";
 import { RiLock2Fill } from "react-icons/ri";
-import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getCourseById } from '../../../api/courseApi';
-import { useEffect, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import PaymentComponent from '../../../module/admin/component/PaymentComponent/PaymentComponent';
-import { getCookiesData } from '../../../utils/cookiesService';
-import { getUserByUserId } from '../../../api/authApi';
-import { FaRegStar, FaPlay } from 'react-icons/fa';
-import { addCourseToStudent } from '../../../api/userApi';
-import PurchaseModal from '../../PurchaseModal/PurchaseModal';
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { getCourseById } from "../../../api/courseApi";
+import { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import PaymentComponent from "../../../module/admin/component/PaymentComponent/PaymentComponent";
+import { getCookiesData } from "../../../utils/cookiesService";
+import { getUserByUserId } from "../../../api/authApi";
+import { FaRegStar, FaPlay } from "react-icons/fa";
+import { addCourseToStudent } from "../../../api/userApi";
+import PurchaseModal from "../../PurchaseModal/PurchaseModal";
 
 const IndividualCourses = () => {
   const { id } = useParams();
@@ -61,7 +67,6 @@ const IndividualCourses = () => {
           setUserData(user.user);
           setUserLoggedIn(true);
           setIsEnrolled(location.state.isEnrolled);
-
         }
       }
     };
@@ -70,9 +75,13 @@ const IndividualCourses = () => {
   const featuresArray = course?.course_includes?.length
     ? [course.course_includes]
     : [
-      ["Comprehensive Curriculum", "Expert Faculty", "Live & Recorded Session"],
-      ["Regular Mock Tests", "Personalized Guidance", "Daily Updates"]
-    ];
+        [
+          "Comprehensive Curriculum",
+          "Expert Faculty",
+          "Live & Recorded Session",
+        ],
+        ["Regular Mock Tests", "Personalized Guidance", "Daily Updates"],
+      ];
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -91,10 +100,11 @@ const IndividualCourses = () => {
       try {
         setLoading(true);
         const response = await getCourseById(id);
+        console.log("Course details", response);
         setCourse(response.data);
       } catch (error) {
         setError(error.message);
-        toast.error('Failed to fetch course details');
+        toast.error("Failed to fetch course details");
       } finally {
         setLoading(false);
       }
@@ -119,13 +129,16 @@ const IndividualCourses = () => {
   const handleEnrollFreeCourse = async (courseId) => {
     try {
       const cookieData = getCookiesData();
-      const response = await addCourseToStudent({ userId: cookieData.userId, courseIds: [courseId] });
+      const response = await addCourseToStudent({
+        userId: cookieData.userId,
+        courseIds: [courseId],
+      });
       if (response) {
         setIsEnrolled(true);
         toast.success("Successfully enrolled course", {
           onClose: () => {
-            navigate("/user")
-          }
+            navigate("/user");
+          },
         });
       }
     } catch (err) {
@@ -136,14 +149,15 @@ const IndividualCourses = () => {
 
   return (
     <Container>
-
-      <CourseImage src={course?.image || courseImgFallback} alt="Course" />
+      <CourseImage src={course?.image} alt="Course" />
 
       <CourseInfo>
         <HeaderSection>
           <Rating>
             {course?.course_rating || 0}
-            <StarContainer>{renderStars(course?.course_rating || 0)}</StarContainer>
+            <StarContainer>
+              {renderStars(course?.course_rating || 0)}
+            </StarContainer>
           </Rating>
           <CourseDetails>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -172,8 +186,6 @@ const IndividualCourses = () => {
               }{" "}
             </Statdesc> */}
 
-
-
             {/* <FeaturesContainer>
               {featuresArray.map((column, colIndex) => (
                 <FeatureColumn key={colIndex}>
@@ -188,59 +200,85 @@ const IndividualCourses = () => {
             </FeaturesContainer> */}
 
             <Statdesc
-             
-              dangerouslySetInnerHTML={{ __html: course?.description || "N/A" }} />
+              dangerouslySetInnerHTML={{ __html: course?.description || "N/A" }}
+            />
+            <FeaturesContainer>
+              <FeatureColumn>
+                <p style={{ fontWeight: "bold", fontSize: "24px" }}>Subjects included:</p>
+                {course.subjects.map((subj, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      // alignItems: "center",
+                      // margin: "4px 0",
+                    }}
+                  >
+                    <Bullet>•</Bullet>
+                    <Feature>{subj.subjectName}</Feature>
+                  </div>
+                ))}
+              </FeatureColumn>
+            </FeaturesContainer>
           </CourseDetails>
         </HeaderSection>
-
-
       </CourseInfo>
 
-
       <CourseButton>
-        {userLoggedIn ?
+        {userLoggedIn ? (
           <>
-            {
-              isEnrolled ?
-                (<EnrollButton
-                  onClick={() => {
-                    //  navigate(`/continueCourse/${course._id}`)
-                    navigate("/user")
-                  }}>
-                  Continue Learning
-                  {/* ₹{course.discountActive ? course.discountPrice : course.price}/- */}
-                  {/* {course.discountActive && (
+            {isEnrolled ? (
+              <EnrollButton
+                onClick={() => {
+                  //  navigate(`/continueCourse/${course._id}`)
+                  navigate("/user");
+                }}
+              >
+                Continue Learning
+                {/* ₹{course.discountActive ? course.discountPrice : course.price}/- */}
+                {/* {course.discountActive && (
                     <span style={{ textDecoration: 'line-through', marginLeft: '8px', color: '#999' }}>
                       ₹{course.price}
                     </span>
                   )} */}
-                </EnrollButton>) :
-
-                (course.price > 0) ? (
-                  // (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />)
-                  <EnrollButton onClick={() => setShowModal(true)}>
-                    Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-
-                  </EnrollButton>
-                ) : (
-                  (<EnrollButton
-                    onClick={() => { handleEnrollFreeCourse(course._id) }}>
-                    Enroll Now
-                  </EnrollButton>)
-                )
-
-            }
+              </EnrollButton>
+            ) : course.price > 0 ? (
+              // (<PaymentComponent userId={userData?._id} amount={course.discountActive ? course.discountPrice : course.price} discountActive={course.discountActive} actualPrice={course.price} discountPrice={course.discountPrice} courseRef={course?._id} />)
+              <EnrollButton onClick={() => setShowModal(true)}>
+                Enroll Now ₹
+                {course.discountActive ? course.discountPrice : course.price}/-
+              </EnrollButton>
+            ) : (
+              <EnrollButton
+                onClick={() => {
+                  handleEnrollFreeCourse(course._id);
+                }}
+              >
+                Enroll Now
+              </EnrollButton>
+            )}
           </>
-          :
-          (<EnrollButton
-            onClick={() => { navigate(`/login`) }}>
-            Enroll Now ₹{course.discountActive ? course.discountPrice : course.price}/-
+        ) : (
+          <EnrollButton
+            onClick={() => {
+              navigate(`/login`);
+            }}
+          >
+            Enroll Now ₹
+            {course.discountActive ? course.discountPrice : course.price}/-
             {course.discountActive && (
-              <span style={{ textDecoration: 'line-through', marginLeft: '8px', color: '#999' }}>
+              <span
+                style={{
+                  textDecoration: "line-through",
+                  marginLeft: "8px",
+                  color: "#999",
+                }}
+              >
                 ₹{course.price}
               </span>
             )}
-          </EnrollButton>)
-        }
+          </EnrollButton>
+        )}
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -254,7 +292,6 @@ const IndividualCourses = () => {
         />
       </CourseButton>
       {showModal && (
-
         <PurchaseModal course={course} onClose={() => setShowModal(false)} />
       )}
     </Container>

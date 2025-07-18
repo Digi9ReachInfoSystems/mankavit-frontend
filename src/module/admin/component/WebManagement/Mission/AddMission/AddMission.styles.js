@@ -200,3 +200,24 @@ export const CheckboxInput = styled.input`
   cursor: pointer;
   background-color: ${(props) => props.theme.colors.black};
 `;
+
+
+export const EditorWrapper = styled.div`
+  .jodit-container {
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    
+    &:focus-within {
+      border-color: #2684ff;
+      box-shadow: 0 0 0 1px #2684ff;
+    }
+  }
+  
+  .jodit-toolbar__box {
+    border-radius: 4px 4px 0 0;
+  }
+  
+  .jodit-workplace {
+    min-height: 200px;
+  }
+`;

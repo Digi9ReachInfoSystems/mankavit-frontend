@@ -1,30 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import JoditEditor from 'jodit-react';
 import {
   Container,
   Title,
   Label,
   Input,
-  TextArea,
   DropZone,
   DropZoneText,
   ImageIcon,
   PreviewImage,
   UploadButton,
-  ErrorMessage
+  ErrorMessage,
+  EditorWrapper
 } from './AddWhyStudyWithUs.styles';
-
 import uploadIcon from '../../../../../../assets/upload.png';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
 import { createWhy } from '../../../../../../api/whyApi';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuth } from '../../../../../../utils/authService';
 
 const AddWhyStudyWithUs = () => {
   const navigate = useNavigate();
+  const editor = useRef(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -33,39 +32,60 @@ const AddWhyStudyWithUs = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter description here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
+  }), []);
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"]?.readOnly || false);
+        if (response.Permissions["webManagement"]?.readOnly) {
+          toast.error('You do not have permission to add why study with us.', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            onClose: () => {
+              navigate('/admin/');
+            }
+          });
+        }
+      }
+    };
+    apiCaller();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    useEffect(() => {
-      const apiCaller = async () => {
-        const response = await getAuth();
-        response.Permissions;
-        if (response.isSuperAdmin === true) {
-          setReadOnlyPermissions(false);
-        } else {
-          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
-          if (response.Permissions["webManagement"].readOnly) {
-            toast.error('You do not have permission to add why study with us.', {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              onClose: () => {
-                navigate('/admin/');
-              }
-            });
-          }
-        }
-      }
-      apiCaller();
-    }, []);
+
+  const handleEditorChange = (newContent) => {
+    setFormData((prev) => ({ ...prev, description: newContent }));
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -110,15 +130,11 @@ const AddWhyStudyWithUs = () => {
     setLoading(true);
 
     try {
-      // 1) Upload to Azure
       const uploadResult = await uploadFileToAzureStorage(
         formData.image,
         'why'
       );
 
-      console.log('Azure upload result:', uploadResult);
-
-      // 2) Pick out the URL from whatever shape the backend returned
       const imageUrl =
         uploadResult?.url ??
         uploadResult?.fileUrl ??
@@ -134,7 +150,6 @@ const AddWhyStudyWithUs = () => {
         );
       }
 
-      // 3) Create the "Why" record
       await createWhy({
         title: formData.title,
         description: formData.description,
@@ -142,7 +157,6 @@ const AddWhyStudyWithUs = () => {
       });
 
       toast.success('Data created successfully!');
-      // 4) Navigate back on success after a short delay for toast visibility
       setTimeout(() => {
         navigate('/admin/web-management/why-study-with-us');
       }, 1500);
@@ -173,19 +187,19 @@ const AddWhyStudyWithUs = () => {
           setFormData((prev) => ({ ...prev, title: filteredData }));
         }}
         placeholder="Enter title"
+        disabled={readOnlyPermissions}
       />
 
       <Label>Why Study With Us Description *</Label>
-      <TextArea
-        name="description"
-        value={formData.description}
-        onChange={(e) => {
-          const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-          setFormData((prev) => ({ ...prev, description: filteredData }));
-        }}
-        rows={5}
-        placeholder="Enter description"
-      />
+      <EditorWrapper>
+        <JoditEditor
+          ref={editor}
+          value={formData.description}
+          config={config}
+          onBlur={handleEditorChange}
+          onChange={handleEditorChange}
+        />
+      </EditorWrapper>
 
       <Label>Upload Image *</Label>
       <DropZone hasImage={!!previewUrl}>
@@ -195,8 +209,9 @@ const AddWhyStudyWithUs = () => {
           id="upload-image"
           style={{ display: 'none' }}
           onChange={handleImageUpload}
+          disabled={readOnlyPermissions}
         />
-        <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
+        <label htmlFor="upload-image" style={{ cursor: readOnlyPermissions ? 'not-allowed' : 'pointer' }}>
           {previewUrl ? (
             <PreviewImage src={previewUrl} alt="Preview" />
           ) : (
@@ -212,9 +227,11 @@ const AddWhyStudyWithUs = () => {
         </label>
       </DropZone>
 
-      <UploadButton onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Creating…' : 'Create'}
-      </UploadButton>
+      {!readOnlyPermissions && (
+        <UploadButton onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Creating…' : 'Create'}
+        </UploadButton>
+      )}
 
       <ToastContainer
         position="top-right"

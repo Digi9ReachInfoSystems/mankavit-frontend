@@ -11,7 +11,7 @@ const CourseDetails = () => {
       <Header/>
       <IndividualCourses />
       {/* <CourseFeatures /> */}
-      <VideoAndReviews /> 
+      {/* <VideoAndReviews />  */}
       <Footer />
     </div>
   )

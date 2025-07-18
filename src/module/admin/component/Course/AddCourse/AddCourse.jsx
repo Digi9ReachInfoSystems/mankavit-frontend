@@ -466,7 +466,7 @@ export default function AddCourse() {
         </FormRow>
 
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="successRate">Success Rate (%)</Label>
               <Input
@@ -477,11 +477,11 @@ export default function AddCourse() {
                 placeholder="e.g. 95"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
 
-          <Column>
+          {/* <Column>
             <FieldWrapper>
-              <Label htmlFor="ratting">Ratting</Label>
+              <Label htmlFor="ratting">Rating</Label>
               <Input
                 id="ratting"
                 type="number"
@@ -498,7 +498,7 @@ export default function AddCourse() {
                 placeholder="e.g. 4"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
 
         {/* Category Select */}
@@ -560,7 +560,7 @@ export default function AddCourse() {
 
         {/* NEW Row: Course Includes */}
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="courseIncludes">Course Includes (comma‑separated)</Label>
               <TextArea
@@ -571,7 +571,7 @@ export default function AddCourse() {
                 placeholder="e.g. Notes, Live Doubt Sessions, Practice Tests"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
 
         {/* Row: Upload Thumbnail & Discount toggle */}

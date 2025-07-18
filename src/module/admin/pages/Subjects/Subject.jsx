@@ -1,4 +1,3 @@
-// SubjectsTable.jsx
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -6,7 +5,6 @@ import {
   Title,
   SortByContainer,
   SortLabel,
-  SortSelect,
   TableWrapper,
   StyledTable,
   TableHead,
@@ -15,11 +13,13 @@ import {
   TableRow,
   TableCell,
   ActionsContainer,
-  SearchWrapper,
-  SearchInput,
-  SearchIcon,
-  CreateButton,
   ButtonContainer,
+  CreateButton,
+  SearchWrapper,
+  SearchIcon,
+  SearchInput,
+  CloseButtonContainer,
+  FilterContainer // Add this to your Subject.style.js
 } from "../Subjects/Subject.style";
 import Pagination from "../../component/Pagination/Pagination";
 import { CiSearch } from "react-icons/ci";
@@ -29,17 +29,22 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { Select, Space } from "antd";
-import { getSubjects, deleteSubjectByid, bulkDeleteSubjects } from "../../../../api/subjectApi";
+import {
+  getSubjects,
+  deleteSubjectByid,
+  bulkDeleteSubjects,
+  getSubjectsByCourseId,
+   // You'll need to add this to your subjectApi.js
+} from "../../../../api/subjectApi";
+import { getAllCourses } from "../../../../api/courseApi";
 import { IoEyeOutline } from "react-icons/io5";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { getAuth } from "../../../../utils/authService";
 
-
-
-
 const ITEMS_PER_PAGE = 10;
+
 export default function Subjects() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +55,7 @@ export default function Subjects() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState([]);
-  const [sortOption, setSortOption] = useState('Latest');
+  const [sortOption, setSortOption] = useState("Latest");
   const [filteredData, setFilteredData] = useState([]);
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
@@ -60,6 +65,38 @@ export default function Subjects() {
   const [BulkDelete, setBulkDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState("all");
+  const [courses, setCourses] = useState([]); // State for course options
+
+
+    useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await getAllCourses();
+        const courseOptions = response.data.map(course => ({
+          value: course._id,
+          label: course.courseDisplayName || course.courseName
+        }));
+        setCourses([{ value: "all", label: "All Courses" }, ...courseOptions]);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    };
+    apiCaller();
+  }, []);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -67,9 +104,11 @@ export default function Subjects() {
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
-        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+        setReadOnlyPermissions(
+          response.Permissions["courseManagement"].readOnly
+        );
       }
-    }
+    };
     apiCaller();
   }, []);
 
@@ -85,17 +124,19 @@ export default function Subjects() {
           mockTest: item.mockTests.map((mockTest) => mockTest.title),
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
-        }))
+        }));
         console.log(subjectsData);
         // console.log("subjectsData", subjectsData);
         setData(subjectsData);
         const filteredValue = subjectsData.filter((item) =>
           item.subjectName.toLowerCase().includes(searchText.toLowerCase())
-        )
+        );
         setFilteredData(filteredValue);
         const TOTAL_ENTRIESValues = filteredValue.length;
         setTotalEntries(TOTAL_ENTRIESValues);
-        const totalPagesValues = Math.ceil(TOTAL_ENTRIESValues / ITEMS_PER_PAGE);
+        const totalPagesValues = Math.ceil(
+          TOTAL_ENTRIESValues / ITEMS_PER_PAGE
+        );
         setTotalPages(totalPagesValues);
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -104,35 +145,45 @@ export default function Subjects() {
       } catch (error) {
         console.log("error", error);
       }
-
-    }
+    };
     appiCaller();
   }, [setBulkDelete]);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchSubjects = async () => {
+      setLoading(true);
       try {
-        const subjectResponse = await getSubjects();
+        let subjectResponse;
+        
+        if (selectedCourseId === "all") {
+          subjectResponse = await getSubjects();
+        } else {
+          subjectResponse = await getSubjectsByCourseId(selectedCourseId);
+        }
+
         const subjectsData = subjectResponse.data.map((item) => ({
           id: item._id,
           subjectName: item.subjectDisplayName,
           internalName: item.subjectName,
-          mockTest: item.mockTests.map((mockTest) => mockTest.title),
-          activeCourses: item.courses.map((course) => course.courseName),
+          mockTest: item.mockTests?.map((mockTest) => mockTest.title) || [],
+          activeCourses: item.courses?.map((course) => course.courseName) || [],
           dateandtime: item.updatedAt,
         }));
-        // console.log("roshni", subjectsData);
+
         setData(subjectsData);
       } catch (error) {
-        console.log("error", error);
+        console.error("Error fetching subjects:", error);
+        toast.error("Failed to fetch subjects");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchSubjects();
-  }, [setBulkDelete]);
 
+    fetchSubjects();
+  }, [selectedCourseId, setBulkDelete]);
 
   // ✅ Second useEffect for filtering, sorting and pagination (runs when data, search, sort, or page change)
-  useEffect(() => {
+   useEffect(() => {
     let processedData = [...data];
 
     // Filter by search
@@ -142,53 +193,51 @@ export default function Subjects() {
       );
     }
 
+    // Sort
     if (sortOption === "Latest") {
-      processedData.sort((a, b) => new Date(b.dateandtime) - new Date(a.dateandtime)); // latest first
-    } else if (sortOption === "Name") {
+      processedData.sort(
+        (a, b) => new Date(b.dateandtime) - new Date(a.dateandtime)
+      );
+    } else {
       processedData.sort((a, b) => a.subjectName.localeCompare(b.subjectName));
     }
 
-    // Update filteredData state
+    // Update states
     setFilteredData(processedData);
-
-    // Update pagination
-    const TOTAL_ENTRIES_VALUES = processedData.length;
-    setTotalEntries(TOTAL_ENTRIES_VALUES);
-    const TOTAL_PAGES_VALUES = Math.ceil(TOTAL_ENTRIES_VALUES / ITEMS_PER_PAGE);
-    setTotalPages(TOTAL_PAGES_VALUES);
-
-    // Reset to page 1 if currentPage exceeds total pages
-    const safePage = currentPage > TOTAL_PAGES_VALUES ? 1 : currentPage;
-    setCurrentPage(safePage);
+    const totalEntries = processedData.length;
+    setTotalEntries(totalEntries);
+    
+    const totalPages = Math.ceil(totalEntries / ITEMS_PER_PAGE);
+    setTotalPages(totalPages);
+    
+    const safePage = currentPage > totalPages ? 1 : currentPage;
+    if (safePage !== currentPage) setCurrentPage(safePage);
 
     const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentValue = processedData.slice(startIndex, endIndex);
-    setCurrentItems(currentValue);
-  }, [data, searchText, sortOption, currentPage, setBulkDelete]);
-
-
+    const currentItems = processedData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    setCurrentItems(currentItems);
+  }, [data, searchText, sortOption, currentPage]);
 
   const formatToIST = (isoString, options = {}) => {
     try {
       const date = new Date(isoString);
 
       const defaultOptions = {
-        timeZone: 'Asia/Kolkata',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
         hour12: true,
-        ...options
+        ...options,
       };
 
-      return new Intl.DateTimeFormat('en-IN', defaultOptions).format(date);
+      return new Intl.DateTimeFormat("en-IN", defaultOptions).format(date);
     } catch (error) {
-      console.error('Invalid date format:', isoString);
-      return 'Invalid date';
+      console.error("Invalid date format:", isoString);
+      return "Invalid date";
     }
   };
 
@@ -205,8 +254,8 @@ export default function Subjects() {
   const handleClickDelete = async () => {
     try {
       await deleteSubjectByid(deleteId);
-      setData(prevData => {
-        const newData = prevData.filter(item => item.id !== deleteId);
+      setData((prevData) => {
+        const newData = prevData.filter((item) => item.id !== deleteId);
         return newData;
       });
       toast.success("Data deleted successfully");
@@ -221,7 +270,7 @@ export default function Subjects() {
 
   const handleViewClick = (subject) => {
     navigate(`/admin/subject-management/view/${subject.id}`, {
-      state: { subject }
+      state: { subject },
     });
     console.log("View subject with ID:", subject.id);
     console.log("Subject data:", subject);
@@ -241,10 +290,10 @@ export default function Subjects() {
 
     console.log("Edit subject with ID:", id);
     console.log("Subject data:", subject);
-  }
+  };
   const handleDeleteClick = () => {
     setBulkDelete(true);
-  }
+  };
 
   const handleCheckboxChange = (subId) => {
     setSelectedSubject((prev) =>
@@ -270,9 +319,8 @@ export default function Subjects() {
       toast.success("Selected Subject deleted successfully", {
         autoClose: 3000, // Ensure this matches your toast duration
         onClose: () => {
-
           window.location.reload();
-        }
+        },
       });
       setSelectedSubject([]);
       setSelectAll(false);
@@ -289,7 +337,6 @@ export default function Subjects() {
 
   return (
     <>
-
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -300,46 +347,55 @@ export default function Subjects() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme='colored'
+        theme="colored"
       />
 
       <ButtonContainer>
-        {!readOnlyPermissions
-          && (
-            <CreateButton onClick={() => navigate("/admin/subject-management/create")}>
-              Add Subject
-            </CreateButton>
-          )}
-
+        {!readOnlyPermissions && (
+          <CreateButton
+            onClick={() => navigate("/admin/subject-management/create")}
+          >
+            Add Subject
+          </CreateButton>
+        )}
       </ButtonContainer>
 
       <Container>
         {/* Header */}
-        <HeaderRow>
+         <HeaderRow>
           <Title>
-            See All Subjects{" "}
-            <span
-              style={{
-                color: "#6d6e75",
-                fontSize: "12px",
-                fontWeight: "400",
-              }}
-            >
-              ({currentItems.length}/{TOTAL_ENTRIES})
-            </span>
+            See All Subjects <span>({currentItems.length}/{TOTAL_ENTRIES})</span>
           </Title>
           <SortByContainer>
-            <SortLabel>Sort by:</SortLabel>
-            <Select
-              value={sortOption}
-              onChange={(value) => setSortOption(value)}
-              style={{ width: 120 }}
-              options={[
-                { value: 'Latest', label: 'Latest' },
-                { value: 'Name', label: 'Name' },
-              ]}
-            />
-
+            <FilterContainer>
+              <SortLabel>Filter by:</SortLabel>
+              <Select
+                value={selectedCourseId}
+                onChange={(value) => {
+                  setSelectedCourseId(value);
+                  setCurrentPage(1);
+                }}
+                options={courses}
+                style={{ width: 200, marginRight: 10 }}
+                placeholder="Select Course"
+              />
+            </FilterContainer>
+            
+            <FilterContainer>
+              <SortLabel>Sort by:</SortLabel>
+              <Select
+                value={sortOption}
+                onChange={(value) => {
+                  setSortOption(value);
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: "Latest", label: "Latest" },
+                  { value: "Name", label: "Name" },
+                ]}
+                style={{ width: 120 }}
+              />
+            </FilterContainer>
           </SortByContainer>
         </HeaderRow>
         <ButtonContainer>
@@ -347,7 +403,10 @@ export default function Subjects() {
                     Add Course
                   </CreateButton> */}
           {selectedSubject.length > 0 && (
-            <CreateButton onClick={handleDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+            <CreateButton
+              onClick={handleDeleteClick}
+              style={{ backgroundColor: "red", marginLeft: "10px" }}
+            >
               Delete Selected ({selectedSubject.length})
             </CreateButton>
           )}
@@ -370,16 +429,15 @@ export default function Subjects() {
           <StyledTable>
             <TableHead>
               <TableRow>
-                {!readOnlyPermissions &&
-                  (
-                    <TableHeader>
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAllChange}
-                      />
-                    </TableHeader>
-                  )}
+                {!readOnlyPermissions && (
+                  <TableHeader>
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAllChange}
+                    />
+                  </TableHeader>
+                )}
 
                 <TableHeader>Subject Name</TableHeader>
                 <TableHeader>Internal Name</TableHeader>
@@ -392,25 +450,24 @@ export default function Subjects() {
             <TableBody>
               {currentItems.map((item) => (
                 <TableRow key={item.id}>
-                  {!readOnlyPermissions &&
-                    (
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedSubject.includes(item.id)}
-                          onChange={() => handleCheckboxChange(item.id)}
-                        />
-                      </TableCell>
-                    )}
+                  {!readOnlyPermissions && (
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedSubject.includes(item.id)}
+                        onChange={() => handleCheckboxChange(item.id)}
+                      />
+                    </TableCell>
+                  )}
 
                   <TableCell>
                     <a
                       href="#"
                       onClick={() => {
-                        navigate(`/admin/subject-management/edit/${item.id}`, { state: { item } });
-                      }
-
-                      }
+                        navigate(`/admin/subject-management/edit/${item.id}`, {
+                          state: { item },
+                        });
+                      }}
                     >
                       {item.subjectName}
                     </a>
@@ -419,10 +476,10 @@ export default function Subjects() {
                     <a
                       href="#"
                       onClick={() => {
-                        navigate(`/admin/subject-management/edit/${item.id}`, { state: { item } });
-                      }
-
-                      }
+                        navigate(`/admin/subject-management/edit/${item.id}`, {
+                          state: { item },
+                        });
+                      }}
                     >
                       {item.internalName}
                     </a>
@@ -430,18 +487,30 @@ export default function Subjects() {
 
                   <TableCell>
                     {item.mockTest?.length || 0}{" "}
-                    <a href="#view" onClick={() => {
-
-                      const mockTest = item.mockTest.map((mockTest) => { return ({ title: mockTest }) });
-                      console.log("mockTestwew", mockTest);
-                      handleOpenModal("mockTests", mockTest)
-                    }}>View</a>
-
+                    <a
+                      href="#view"
+                      onClick={() => {
+                        const mockTest = item.mockTest.map((mockTest) => {
+                          return { title: mockTest };
+                        });
+                        console.log("mockTestwew", mockTest);
+                        handleOpenModal("mockTests", mockTest);
+                      }}
+                    >
+                      View
+                    </a>
                   </TableCell>
 
                   <TableCell>
                     {item.activeCourses?.length || 0}{" "}
-                    <a href="#view" onClick={() => handleOpenModal("activeCourses", item.activeCourses)}>View</a>
+                    <a
+                      href="#view"
+                      onClick={() =>
+                        handleOpenModal("activeCourses", item.activeCourses)
+                      }
+                    >
+                      View
+                    </a>
                   </TableCell>
 
                   <TableCell>{formatToIST(item.dateandtime)}</TableCell>
@@ -495,7 +564,9 @@ export default function Subjects() {
 
       {modalOpen && (
         <CustomModal
-          title={modalType === "mockTests" ? "Mock Test Details" : "Active Courses"}
+          title={
+            modalType === "mockTests" ? "Mock Test Details" : "Active Courses"
+          }
           type={modalType}
           data={modalData}
           onClose={() => setModalOpen(false)}

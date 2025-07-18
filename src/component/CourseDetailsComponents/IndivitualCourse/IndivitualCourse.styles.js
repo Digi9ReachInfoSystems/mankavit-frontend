@@ -224,10 +224,10 @@ export const FeaturesRow = styled.div`
 
 
 export const Feature = styled.div`
-width: 50px;
-height: 50px;
+// width: 50px;
+// height: 50px;
 position: relative;
-background: linear-gradient(to right, #0dcaf0, #007bff);
+// background: linear-gradient(to right, #0dcaf0, #007bff);
 border-radius: 50px;
 
 .lock-icon{
@@ -418,11 +418,12 @@ export const liveClass = styled.div`
 
 export const FeaturesContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   width: 100%;
   margin: auto;
   // padding: 0 1rem;
   font-family: Arial, sans-serif;
+  width: 100%;
 
   @media (max-width: 1024px) {
     width: 95%;
@@ -433,8 +434,8 @@ export const FeaturesContainer = styled.div`
 export const FeatureColumn = styled.ul`
   flex: 1;
   margin: 0 1rem;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  // display: grid;
+  // grid-template-columns: repeat(2, 1fr);
   list-style-type: disc;
   padding-left: 1.5rem;
 
@@ -448,6 +449,7 @@ export const FeatureItem = styled.div`
   font-size: 20px;
   font-weight: 400;
   color: #313131;
+  width: 100%;
   .link {
     text-decoration: none;
     color: #007bff;
@@ -462,3 +464,15 @@ export const Bullet = styled.span`
   padding-right: 10px;
 `;
 export const IconText = styled.span``;
+
+export const SubjectList = styled.ul`
+  list-style-type: disc;
+  padding-left: 20px;
+`;
+
+export const SubjectListItem = styled.li`
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 400;
+  color: #313131;
+`;

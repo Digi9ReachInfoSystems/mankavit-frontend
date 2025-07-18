@@ -495,7 +495,7 @@ if (activeTab === 'Notes') {
                                             </p>
                                             {/* <p style={{ margin: '4px 0', color: '#666' }}>{lec.description}</p> */}
                                             <p dangerouslySetInnerHTML={{ __html: lec.description }}  style={{ margin: '4px 0', color: '#666' }} />
-                                            <p style={{ fontSize: 12, color: '#888' }}><strong>Duration:</strong> {lec.duration}</p>
+                                            {/* <p style={{ fontSize: 12, color: '#888' }}><strong>Duration:</strong> {lec.duration}</p> */}
                                         </div>
                                     </div>
                                 );
