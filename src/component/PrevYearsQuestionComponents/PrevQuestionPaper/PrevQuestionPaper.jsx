@@ -46,10 +46,10 @@ const PrevQuestionPaper = () => {
     <Container>
       <h2>Previous Question Paper</h2>
 
-      <TelegramBanner>
+      {/* <TelegramBanner>
         <img src={Telegram} alt="Telegram" />
         <TelegramButton>Join Our Telegram Channel</TelegramButton>
-      </TelegramBanner>
+      </TelegramBanner> */}
 
       <PaperSection>
         {Object.entries(grouped).map(([title, entries]) => (

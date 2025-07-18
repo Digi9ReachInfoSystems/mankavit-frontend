@@ -122,3 +122,14 @@ export const getAllCourseAdmin = async () => {
         throw error;
     }
 };
+
+export const getAllCourseByCategoryName = async (categoryName) => {
+    try {
+        const response = await api.get(`/api/v1/course/category/${categoryName}`);
+        console.log("response", response);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

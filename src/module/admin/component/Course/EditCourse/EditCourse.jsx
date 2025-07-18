@@ -563,7 +563,7 @@ export default function EditCourse() {
         </FormRow>
 
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="successRate">Success Rate (%)</Label>
               <Input
@@ -574,8 +574,8 @@ export default function EditCourse() {
                 placeholder="e.g. 95"
               />
             </FieldWrapper>
-          </Column>
-          <Column>
+          </Column> */}
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="ratting">Ratting</Label>
               <Input
@@ -597,11 +597,11 @@ export default function EditCourse() {
                 placeholder="e.g. 4"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
 
         </FormRow>
         <FormRow>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="courseIncludes">Course Includes (comma separated)</Label>
               <Input
@@ -611,7 +611,7 @@ export default function EditCourse() {
                 placeholder="e.g. Video lectures, PDF notes, Mock tests"
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
 
         {/* Row 6: Description */}

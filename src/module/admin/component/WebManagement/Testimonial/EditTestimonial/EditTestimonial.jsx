@@ -1,24 +1,17 @@
-// FormRow,
-//     Column,
-//     CheckboxSectionTitle,
-//     CheckboxList,
-//     CheckboxInput,
-//     CheckboxLabel
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Container,
   Title,
   Label,
   Input,
-  TextArea,
   DropZone,
   DropZoneText,
   ImageIcon,
   AddImageText,
   UploadButton,
   PreviewMedia,
-  ErrorMessage
+  ErrorMessage,
+  EditorWrapper
 } from './EditTestimonial.style';
 import uploadIcon from "../../../../../../assets/upload.png";
 import { getTestimonialById, updateTestimonialById } from '../../../../../../api/testimonialApi';
@@ -26,6 +19,7 @@ import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageSe
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import JoditEditor from 'jodit-react';
 
 const EditTestimonial = () => {
   const { id } = useParams();
@@ -35,14 +29,31 @@ const EditTestimonial = () => {
     testimonialDetails: '',
     imageFile: null,
     existingMediaUrl: '',
-    mediaType: 'image'  // or 'video' if you expand to video
+    mediaType: 'image'
   });
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
   const navigate = useNavigate();
+  const editor = useRef(null);
+
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter testimonial details here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
+  }), []);
 
   useEffect(() => {
     const fetchTestimonial = async () => {
@@ -72,6 +83,10 @@ const EditTestimonial = () => {
     setFormData(fd => ({ ...fd, [name]: value }));
   };
 
+  const handleEditorChange = (newContent) => {
+    setFormData(fd => ({ ...fd, testimonialDetails: newContent }));
+  };
+
   const handleMediaChange = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -96,7 +111,6 @@ const EditTestimonial = () => {
   };
 
   const handleSubmit = async () => {
-    // Basic validation
     if (
       !formData.studentName.trim() ||
       !formData.rank.trim() ||
@@ -109,7 +123,6 @@ const EditTestimonial = () => {
       setIsUploading(true);
 
       let mediaUrl = formData.existingMediaUrl;
-      // upload only if a new file was chosen
       if (formData.imageFile) {
         const { blobUrl, message } = await uploadFileToAzureStorage(
           formData.imageFile,
@@ -119,7 +132,6 @@ const EditTestimonial = () => {
         mediaUrl = blobUrl;
       }
 
-      // Build payload with exactly one of image/video
       const payload = {
         name: formData.studentName,
         rank: formData.rank,
@@ -166,13 +178,15 @@ const EditTestimonial = () => {
       />
 
       <Label>Description *</Label>
-      <TextArea
-        name="testimonialDetails"
-        value={formData.testimonialDetails}
-        onChange={handleInputChange}
-        rows={5}
-        placeholder="Enter testimonial text"
-      />
+      <EditorWrapper>
+        <JoditEditor
+          ref={editor}
+          value={formData.testimonialDetails}
+          config={config}
+          onBlur={handleEditorChange}
+          onChange={handleEditorChange}
+        />
+      </EditorWrapper>
 
       <Label>Media Type *</Label>
       <div style={{ marginBottom: '0.5rem' }}>
@@ -212,7 +226,7 @@ const EditTestimonial = () => {
 
       <Label>
         {formData.mediaType === 'image' ? 'Student Image' : 'Testimonial Video'}{' '}
-        {formData.existingMediaUrl && '(keep existing if you don’t choose new)'}
+        {formData.existingMediaUrl && '(keep existing if you dont choose new)'}
       </Label>
       <DropZone hasImage={!!previewUrl}>
         <input

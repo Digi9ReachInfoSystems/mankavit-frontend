@@ -45,7 +45,7 @@ export default function NotesManagement() {
   const [searchText, setSearchText] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewStudent, setViewStudent] = useState(null);
-  const [sortOption, setSortOption] = useState("Name");
+  const [sortOption, setSortOption] = useState("Date");
   const [currentItems, setCurrentItems] = useState([]);
   const [TOTAL_ENTRIES, setTotalEntries] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -54,6 +54,7 @@ export default function NotesManagement() {
   const [selectedNotes, setSelectedNotes] = useState([]);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -66,6 +67,7 @@ export default function NotesManagement() {
     }
     apiCaller();
   }, []);
+
   // Fetch all notes
   useEffect(() => {
     const fetchNotes = async () => {
@@ -77,6 +79,7 @@ export default function NotesManagement() {
           noteDescription: item.noteName,
           subjects: item.subjects.map((subj) => subj.subjectName),
           lastActive: item.updatedAt,
+          createdAt: item.createdAt, // Add createdAt field
           fileURL: item.fileUrl,
         }));
         setData(dataPrepared);
@@ -102,7 +105,8 @@ export default function NotesManagement() {
     if (sortOption === "Name") {
       processedData.sort((a, b) => a.noteTitle.localeCompare(b.noteTitle));
     } else if (sortOption === "Date") {
-      processedData.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
+      // Sort by creation date in ascending order (oldest first)
+      processedData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     const total = processedData.length;
@@ -196,14 +200,11 @@ export default function NotesManagement() {
       toast.success("Selected Notes deleted successfully", {
         autoClose: 3000, // Ensure this matches your toast duration
         onClose: () => {
-
           window.location.reload();
         }
       });
       setSelectedNotes([]);
       setSelectAll(false);
-      // await fetchCourses();
-      // window.location.reload(); // Reload the page to reflect changes
       setBulkDeleteModalOpen(false);
     } catch (error) {
       console.error("Bulk delete failed:", error);
@@ -212,6 +213,7 @@ export default function NotesManagement() {
       setLoading(false);
     }
   };
+  
   return (
     <>
       <ButtonContainer>
@@ -242,9 +244,6 @@ export default function NotesManagement() {
           </SortByContainer>
         </HeaderRow>
         <ButtonContainer>
-          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
-                    Add Course
-                  </CreateButton> */}
           {selectedNotes.length > 0 && (
             <CreateButton onClick={handleDeleteClickModal} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
               Delete Selected ({selectedNotes.length})
@@ -281,7 +280,6 @@ export default function NotesManagement() {
                 <TableHeader>No. of Subjects</TableHeader>
                 <TableHeader>View Pdf</TableHeader>
                 <TableHeader>Date Uploaded</TableHeader>
-                {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -305,7 +303,6 @@ export default function NotesManagement() {
                       onClick={() => {
                         navigate(`/admin/notes-management/edit/${item.id}`, { state: { item } });
                       }
-
                       }
                     >
                       {item.noteTitle}
@@ -317,12 +314,10 @@ export default function NotesManagement() {
                       onClick={() => {
                         navigate(`/admin/notes-management/edit/${item.id}`, { state: { item } });
                       }
-
                       }
                     >
                       {item.noteDescription}
                     </a>
-
                   </TableCell>
                   <TableCell>
                     {item.subjects.length}{" "}
@@ -334,13 +329,6 @@ export default function NotesManagement() {
                     <a href={item.fileURL} target="_blank" rel="noreferrer">View</a>
                   </TableCell>
                   <TableCell>{formatToIST(item.lastActive)}</TableCell>
-                  {/* <TableCell>
-                    <ActionsContainer>
-                      <IoEyeOutline title="View" size={20} onClick={() => handleViewClick(item)} />
-                      <BiEditAlt title="Edit" size={20} onClick={() => handleEdit(item.id)} />
-                      <RiDeleteBin6Line title="Delete" size={20} color="#FB4F4F" onClick={() => handleDeleteClick(item.id)} />
-                    </ActionsContainer>
-                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

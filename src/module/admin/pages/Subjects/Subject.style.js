@@ -299,3 +299,15 @@ export const SearchInput = styled.input`
     font-size: 14px;
   }
 `;
+
+export const FilterContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+`;
+
+export const CloseButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+`;

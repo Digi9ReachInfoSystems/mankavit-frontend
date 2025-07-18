@@ -1,5 +1,4 @@
-// src/modules/admin/components/AboutUs/AboutUs.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Container,
   Title,
@@ -15,6 +14,7 @@ import {
   TableHeader,
   TableCell,
   ActionsWrapper,
+  EditorWrapper
 } from "./AboutUs.styles";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -29,56 +29,45 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 import { getAuth } from "../../../../../utils/authService";
+import JoditEditor from "jodit-react";
 
 const AboutUs = () => {
-  // the list
   const [items, setItems] = useState([]);
   const [loadingList, setLoadingList] = useState(false);
-
-  // form (id === '' means “new”)
   const [formData, setFormData] = useState({
     id: "",
     title: "",
     description: "",
   });
   const [saving, setSaving] = useState(false);
-
-  // delete modal
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-
-  // error
+  const editor = useRef(null);
   const [error, setError] = useState("");
-  //webManagement
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
-      response.Permissions;
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
-        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
+        setReadOnlyPermissions(response.Permissions["webManagement"]?.readOnly || false);
       }
     }
     apiCaller();
   }, []);
 
-  // fetch (or re-fetch) the list
-  // fetch (or re-fetch) the list
   const fetchItems = async () => {
     setLoadingList(true);
     setError("");
     try {
       const data = await getAllAboutUs();
-
-      // 🔥 Sort newest first by createdAt or updatedAt
       const sorted = (Array.isArray(data) ? data : []).sort(
         (a, b) =>
           new Date(b.createdAt || b.updatedAt) -
           new Date(a.createdAt || a.updatedAt)
       );
-
       setItems(sorted);
     } catch (err) {
       console.error(err);
@@ -92,24 +81,42 @@ const AboutUs = () => {
     fetchItems();
   }, []);
 
-  // handle form field changes
+  const config = useMemo(() => ({
+    readonly: readOnlyPermissions,
+    placeholder: 'Enter description here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
+  }), [readOnlyPermissions]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((f) => ({ ...f, [name]: value }));
   };
 
-  // create or update
+  const handleEditorChange = (newContent) => {
+    setFormData((prev) => ({ ...prev, description: newContent }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if(readOnlyPermissions) {
       toast.error("You don't have permission to create or update data.");
-      return
+      return;
     }
     if (!formData.title.trim() || !formData.description.trim()) {
       toast.error("Please fill in all fields.");
       return;
     }
-
 
     setSaving(true);
     setError("");
@@ -127,10 +134,7 @@ const AboutUs = () => {
           description: formData.description,
         });
         toast.success("Data added successfully!");
-
-        // Insert the new item at the top
         setItems((prev) => [newItem, ...prev]);
-
       }
       setFormData({ id: "", title: "", description: "" });
       await fetchItems();
@@ -143,8 +147,6 @@ const AboutUs = () => {
     }
   };
 
-
-  // populate form for editing
   const handleEdit = (item) => {
     setFormData({
       id: item._id,
@@ -154,13 +156,11 @@ const AboutUs = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // open delete dialog
   const handleDeleteClick = (id) => {
     setDeleteId(id);
     setIsDeleteOpen(true);
   };
 
-  // confirm deletion
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
     setError("");
@@ -180,7 +180,6 @@ const AboutUs = () => {
 
   return (
     <Container>
-
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -198,7 +197,6 @@ const AboutUs = () => {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* NEW: wrap in <form> */}
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <Label htmlFor="title">Title</Label>
@@ -207,34 +205,36 @@ const AboutUs = () => {
             name="title"
             placeholder="Write title here"
             value={formData.title}
-            // onChange={handleChange}
             onChange={(e) => {
               const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
               setFormData({ ...formData, title: filteredData });
-
             }}
+            disabled={readOnlyPermissions}
           />
         </FormGroup>
 
         <FormGroup>
           <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            name="description"
-            placeholder="Write description here"
-            rows={8}
-            value={formData.description}
-            onChange={handleChange}
-          />
+          <EditorWrapper>
+            <JoditEditor
+              ref={editor}
+              value={formData.description}
+              config={config}
+              onBlur={handleEditorChange}
+              onChange={handleEditorChange}
+            />
+          </EditorWrapper>
         </FormGroup>
 
-        <Button type="submit" disabled={saving}>
-          {saving
-            ? "Saving..."
-            : formData.id
-              ? "Update changes"
-              : "Add About Us"}
-        </Button>
+        {!readOnlyPermissions && (
+          <Button type="submit" disabled={saving}>
+            {saving
+              ? "Saving..."
+              : formData.id
+                ? "Update changes"
+                : "Add About Us"}
+          </Button>
+        )}
       </form>
 
       <TableWrapper>
@@ -246,42 +246,31 @@ const AboutUs = () => {
               <TableRow>
                 <TableHeader>Title</TableHeader>
                 <TableHeader>Description</TableHeader>
-                {
-                  !readOnlyPermissions && (
-                    <TableHeader>Action</TableHeader>
-
-                  )
-                }
+                {!readOnlyPermissions && <TableHeader>Action</TableHeader>}
               </TableRow>
             </TableHead>
             <tbody>
               {items.map((item) => (
                 <TableRow key={item._id}>
                   <TableCell>{item.title}</TableCell>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell>
-                    {
-                      !readOnlyPermissions && (
-                        <>
-                          <ActionsWrapper>
-                            <BiEditAlt
-                              size={20}
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleEdit(item)}
-                            />
-                            <RiDeleteBin6Line
-                              size={20}
-                              color="#FB4F4F"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleDeleteClick(item._id)}
-                            />
-                          </ActionsWrapper>
-                        </>
-
-                      )
-                    }
-
-                  </TableCell>
+                  <TableCell dangerouslySetInnerHTML={{ __html: item.description }} />
+                  {!readOnlyPermissions && (
+                    <TableCell>
+                      <ActionsWrapper>
+                        <BiEditAlt
+                          size={20}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleEdit(item)}
+                        />
+                        <RiDeleteBin6Line
+                          size={20}
+                          color="#FB4F4F"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleDeleteClick(item._id)}
+                        />
+                      </ActionsWrapper>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </tbody>

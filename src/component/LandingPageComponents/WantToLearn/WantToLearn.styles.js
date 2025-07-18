@@ -91,15 +91,15 @@ export const CardHeader = styled.div``;
 
 export const Image = styled.img`
   width: 100%;
-  height: 100px;
+  height: 150px;
   object-fit: cover;
   border-radius: 0px;
 `;
 
 export const CardBody = styled.div`
-  padding: 15px;
+  padding: 25px;
   text-align: left;
-  width: 70%;
+  // width: 70%;
   margin: 0 auto;
 
   span {

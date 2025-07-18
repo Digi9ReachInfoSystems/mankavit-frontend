@@ -194,10 +194,10 @@ const AllCoursesDetails = () => {
                 </CourseHead>
                 <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc }} />
               </CourseMain>
-              <Details>
+              {/* <Details>
                 <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
                 <DetailItem>🏆 Success Rate: {course.success}</DetailItem>
-              </Details>
+              </Details> */}
             </CourseContent>
             {
               course.isEnrolled ? (

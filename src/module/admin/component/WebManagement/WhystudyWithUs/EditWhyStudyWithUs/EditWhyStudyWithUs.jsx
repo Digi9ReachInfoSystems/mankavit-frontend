@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
+import JoditEditor from 'jodit-react';
 import {
   Container,
   Title,
   Label,
   Input,
-  TextArea,
   DropZone,
   DropZoneText,
   ImageIcon,
   PreviewImage,
   UploadButton,
-  ErrorMessage
+  ErrorMessage,
+  EditorWrapper
 } from './EditWhyStudyWithUs.styles';
-
 import uploadIcon from '../../../../../../assets/upload.png';
 import { getWhyById, updateWhyById } from '../../../../../../api/whyApi';
 import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
-
-import { toast, ToastContainer } from 'react-toastify';  // <-- import toast & ToastContainer
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getAuth } from '../../../../../../utils/authService';
 
 const EditWhyStudyWithUs = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const editor = useRef(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -34,6 +33,36 @@ const EditWhyStudyWithUs = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter description here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
+  }), []);
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"]?.readOnly || false);
+      }
+    };
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -57,6 +86,15 @@ const EditWhyStudyWithUs = () => {
 
     fetchWhy();
   }, [id]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditorChange = (newContent) => {
+    setFormData(prev => ({ ...prev, description: newContent }));
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -143,7 +181,7 @@ const EditWhyStudyWithUs = () => {
 
   return (
     <Container>
-           <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -167,19 +205,19 @@ const EditWhyStudyWithUs = () => {
           setFormData((prev) => ({ ...prev, title: filteredData }));
         }}
         placeholder="Enter title"
+        disabled={readOnlyPermissions}
       />
 
       <Label>Description *</Label>
-      <TextArea
-        name="description"
-        value={formData.description}
-        onChange={(e) => {
-          const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
-          setFormData((prev) => ({ ...prev, description: filteredData }));
-        }}
-        rows={5}
-        placeholder="Enter description"
-      />
+      <EditorWrapper>
+        <JoditEditor
+          ref={editor}
+          value={formData.description}
+          config={config}
+          onBlur={handleEditorChange}
+          onChange={handleEditorChange}
+        />
+      </EditorWrapper>
 
       <Label>Image *</Label>
       <DropZone hasImage={!!previewUrl}>
@@ -189,8 +227,9 @@ const EditWhyStudyWithUs = () => {
           id="upload-image"
           style={{ display: 'none' }}
           onChange={handleImageUpload}
+          disabled={readOnlyPermissions}
         />
-        <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
+        <label htmlFor="upload-image" style={{ cursor: readOnlyPermissions ? 'not-allowed' : 'pointer' }}>
           {previewUrl ? (
             <PreviewImage src={previewUrl} alt="Preview" />
           ) : (
@@ -206,9 +245,11 @@ const EditWhyStudyWithUs = () => {
         </label>
       </DropZone>
 
-      <UploadButton onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Updating…' : 'Update'}
-      </UploadButton>
+      {!readOnlyPermissions && (
+        <UploadButton onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Updating…' : 'Update'}
+        </UploadButton>
+      )}
     </Container>
   );
 };

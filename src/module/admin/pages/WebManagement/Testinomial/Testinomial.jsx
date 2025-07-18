@@ -148,7 +148,8 @@ const Testimonial = () => {
               {currentItems.map((item) => (
                 <TableRow key={item._id}>
                   <TableCell>{item.name}</TableCell>
-                  <TableCelldiscription>{item.description}</TableCelldiscription>
+                  {/* <TableCelldiscription>{item.description}</TableCelldiscription> */}
+                  <TableCelldiscription dangerouslySetInnerHTML={{ __html: item.description }}></TableCelldiscription>
                   <TableCell>{item.rank}</TableCell>
 
                   {/* MEDIA CELL */}

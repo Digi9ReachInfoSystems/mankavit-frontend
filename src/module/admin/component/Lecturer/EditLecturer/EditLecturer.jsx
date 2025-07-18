@@ -16,7 +16,6 @@ import {
   SubmitButton,
   VideoContainer,
   VideoPlayer,
-  ThumbnailPreview,
   CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
@@ -39,20 +38,16 @@ export default function EditLecturer() {
     lectureName: "",
     duration: "",
     description: "",
-
   });
 
-  const [thumbnailFile, setThumbnailFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
-  const [currentThumbnail, setCurrentThumbnail] = useState("");
   const [currentVideo, setCurrentVideo] = useState("");
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
-  const thumbnailInputRef = useRef(null);
   const videoInputRef = useRef(null);
   const editor = useRef(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -85,9 +80,7 @@ export default function EditLecturer() {
         }));
         setSubjectCheckboxes(subjectsData);
 
-        setCurrentThumbnail(lecture.thumbnail);
         setCurrentVideo(lecture.videoUrl);
-        setPreviewUrl(lecture.thumbnail);
         setVideoPreviewUrl(lecture.videoUrl);
       } catch (error) {
         console.error("Failed to fetch lecture:", error);
@@ -98,21 +91,14 @@ export default function EditLecturer() {
     if (id) fetchLecture();
   }, [id]);
 
-  const handleThumbnailUploadClick = () => thumbnailInputRef.current.click();
   const handleVideoUploadClick = () => videoInputRef.current.click();
 
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setThumbnailFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
   const handleCheckboxChange = (index, setFn) => {
     setFn((prev) =>
       prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
     );
   };
+
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -136,7 +122,6 @@ export default function EditLecturer() {
         duration,
         description,
         subjectRef: subjectCheckboxes.filter((item) => item.checked).map((item) => item.id),
-        // Add upload logic for video and thumbnail here if needed
       };
 
       const response = await updateLectureById(id, payload);
@@ -151,28 +136,11 @@ export default function EditLecturer() {
       toast.error("Failed to update lecture");
     }
   };
+
   const configDis = useMemo(() => ({
-    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    readonly: false,
     placeholder: formData.description,
-    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
-    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
-    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
-    // toolbarAdaptive: false,
-    // showCharsCounter: false,
-    // showWordsCounter: false,
-    // showXPathInStatusbar: false,
-    // askBeforePasteHTML: true,
-    // askBeforePasteFromWord: true,
-    // uploader: {
-    //   insertImageAsBase64URI: true
-    // },
-    // style: {
-    //   background: '#f5f5f5',
-    //   color: '#333'
-    // }
-  }),
-    []
-  );
+  }), [formData.description]);
 
   return (
     <Container>
@@ -195,7 +163,7 @@ export default function EditLecturer() {
               />
             </FieldWrapper>
           </Column>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="duration">Duration (min)*</Label>
               <Input
@@ -210,7 +178,7 @@ export default function EditLecturer() {
                 required
               />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
         <FormRow>
           <Column>
@@ -226,27 +194,7 @@ export default function EditLecturer() {
               />
             </FieldWrapper>
           </Column>
-
         </FormRow>
-        {/* <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label htmlFor="description">Description*</Label>
-              <TextArea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-                  setFormData({ ...formData, description: filteredData });
-                }}
-                rows="4"
-                placeholder="Enter detailed description"
-                required
-              />
-            </FieldWrapper>
-          </Column>
-        </FormRow> */}
         <FormRow>
           <Column>
             <CheckboxSection>
@@ -294,33 +242,6 @@ export default function EditLecturer() {
               </UploadArea>
             </FieldWrapper>
           </Column>
-
-          <Column>
-            <FieldWrapper>
-              <Label>Update Thumbnail</Label>
-              <UploadArea onClick={handleThumbnailUploadClick}>
-                {previewUrl && previewUrl !== currentThumbnail ? (
-                  <img src={previewUrl} alt="New Thumbnail" className="preview" />
-                ) : currentThumbnail ? (
-                  <ThumbnailPreview>
-                    <img src={currentThumbnail} alt="Current Thumbnail" />
-                  </ThumbnailPreview>
-                ) : (
-                  <UploadPlaceholder>
-                    <img src={upload} alt="Upload" />
-                    <p>No thumbnail available</p>
-                    <p><strong>Click to upload</strong></p>
-                  </UploadPlaceholder>
-                )}
-                <FileInput
-                  ref={thumbnailInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleThumbnailChange}
-                />
-              </UploadArea>
-            </FieldWrapper>
-          </Column>
         </FormRow>
         {
           !readOnlyPermissions && (
@@ -331,7 +252,6 @@ export default function EditLecturer() {
             </FormRow>
           )
         }
-
       </FormWrapper>
 
       <ToastContainer

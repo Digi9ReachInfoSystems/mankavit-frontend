@@ -1,4 +1,3 @@
-// src/components/CoursesTable/CoursesTable.jsx
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -21,21 +20,18 @@ import {
   SearchInput,
   CloseButtonContainer
 } from "./Course.style";
-import { BiEditAlt } from "react-icons/bi";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
-import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
 import { useNavigate } from "react-router-dom";
 import { Select, Switch } from "antd";
 import {
-  getAllCourses,
   deleteCourseById,
   updateCourseById,
   bulkDeleteCourse,
-  getAllCourseAdmin
+  getAllCourseAdmin,
+  getAllCourseByCategoryName
 } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -50,6 +46,8 @@ export default function CoursesTable() {
   const [searchText, setSearchText] = useState("");
   const [sortOption, setSortOption] = useState("Latest");
   const [currentPage, setCurrentPage] = useState(1);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   // derived state
   const [filteredData, setFilteredData] = useState([]);
@@ -69,29 +67,51 @@ export default function CoursesTable() {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  // fetch user permissions
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
-      response.Permissions;
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
         setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
       }
-    }
+    };
     apiCaller();
   }, []);
+
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+
+  // fetch courses on mount and when category changes
   useEffect(() => {
     fetchCourses();
-  }, []);
+  }, [selectedCategory]);
 
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      // const payload = await getAllCourses();
-      const payload = await getAllCourseAdmin();
-      console.log("payload", payload);
+      let payload;
+      
+      if (selectedCategory === "all") {
+        payload = await getAllCourseAdmin();
+      } else {
+        payload = await getAllCourseByCategoryName(selectedCategory);
+      }
+
+      // Extract categories from the first API call if needed
+      if (selectedCategory === "all" && payload.data && payload.data.length > 0) {
+        const allCategories = new Set();
+        payload.data.forEach(course => {
+          if (course.category && Array.isArray(course.category)) {
+            course.category.forEach(cat => {
+              if (cat.title) allCategories.add(cat.title);
+            });
+          }
+        });
+        setCategories(Array.from(allCategories));
+      }
+
       const coursesArray = payload.data || [];
       const courseData = coursesArray.map((item) => ({
         id: item._id,
@@ -102,10 +122,9 @@ export default function CoursesTable() {
         students: Array.isArray(item.student_enrolled)
           ? item.student_enrolled
           : [],
-        dateAndTime: item.updatedAt || new Date().toISOString(),
+        dateAndTime: item.createdAt || new Date().toISOString(),
         isPublished: !!item.isPublished,
       }));
-      console.log("courseData", courseData);
       setData(courseData);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -118,6 +137,8 @@ export default function CoursesTable() {
   // sort / search / paginate
   useEffect(() => {
     let processed = [...data];
+    
+    // Apply sorting
     if (sortOption === "Latest") {
       processed.sort(
         (a, b) => new Date(b.dateAndTime) - new Date(a.dateAndTime)
@@ -125,11 +146,14 @@ export default function CoursesTable() {
     } else {
       processed.sort((a, b) => a.courseName.localeCompare(b.courseName));
     }
+    
+    // Apply search filter
     if (searchText) {
       processed = processed.filter((c) =>
         c.courseName.toLowerCase().includes(searchText.toLowerCase())
       );
     }
+
     const total = processed.length;
     const pages = Math.ceil(total / ITEMS_PER_PAGE);
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -139,12 +163,13 @@ export default function CoursesTable() {
     setTOTAL_ENTRIES(total);
     setTotalPages(pages);
     setCurrentItems(items);
-  }, [data, sortOption, searchText, currentPage]);
+  }, [data, sortOption, searchText, currentPage, selectedCategory]);
 
   const handleDeleteClick = (id) => {
     setSelectedCourse(id);
     setDeleteModalOpen(true);
   };
+
   const handleConfirmDelete = async () => {
     try {
       await deleteCourseById(selectedCourse);
@@ -186,18 +211,17 @@ export default function CoursesTable() {
 
   const openModal = (type, data) => {
     setModalType(type);
-    console.log(data);
     setModalData(Array.isArray(data) ? data : []);
     setModalOpen(true);
   };
-  const returnMockTestCount = (subjects) => {
 
+  const returnMockTestCount = (subjects) => {
     let mockTestData = [];
-    subjects.map((s) => {
+    subjects.forEach((s) => {
       mockTestData = mockTestData.concat(s.mockTests);
     });
-    return mockTestData.length
-  }
+    return mockTestData.length;
+  };
 
   const formatToIST = (iso) =>
     new Intl.DateTimeFormat("en-IN", {
@@ -210,9 +234,10 @@ export default function CoursesTable() {
       second: "2-digit",
       hour12: true,
     }).format(new Date(iso));
+
   const handleBulkDeleteClick = () => {
     setBulkDeleteModalOpen(true);
-  }
+  };
 
   const handleCheckboxChange = (courseId) => {
     setSelectedCourses((prev) =>
@@ -231,7 +256,7 @@ export default function CoursesTable() {
     setSelectAll(!selectAll);
   };
 
-  const handleBulkDelete = async () => {
+ const handleBulkDelete = async () => {
     try {
       setLoading(true);
       await bulkDeleteCourse(selectedCourses);
@@ -246,27 +271,20 @@ export default function CoursesTable() {
       setBulkDeleteModalOpen(false);
       setLoading(false);
     }
-  };
+  }; 
 
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
       <ButtonContainer>
-        {
-          !readOnlyPermissions && (
-            <CreateButton
-              onClick={() => navigate("/admin/course-management/create")}
-            >
-              Add Course
-            </CreateButton>
-          )
-        }
-        {/* <CreateButton
-          onClick={() => navigate("/admin/course-management/create")}
-        >
-          Add Course
-        </CreateButton> */}
+        {!readOnlyPermissions && (
+          <CreateButton
+            onClick={() => navigate("/admin/course-management/create")}
+          >
+            Add Course
+          </CreateButton>
+        )}
       </ButtonContainer>
 
       <Container>
@@ -275,6 +293,22 @@ export default function CoursesTable() {
             See All Courses <span>({currentItems.length}/{TOTAL_ENTRIES})</span>
           </Title>
           <SortByContainer>
+            <SortLabel>Filter by:</SortLabel>
+            <Select
+              value={selectedCategory}
+              onChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}
+              options={[
+                { value: "all", label: "All Categories" },
+                ...categories.map(cat => ({
+                  value: cat,
+                  label: cat
+                }))
+              ]}
+              style={{ width: 180, marginRight: '10px' }}
+            />
             <SortLabel>Sort by:</SortLabel>
             <Select
               value={sortOption}
@@ -287,10 +321,8 @@ export default function CoursesTable() {
             />
           </SortByContainer>
         </HeaderRow>
+
         <ButtonContainer>
-          {/* <CreateButton onClick={() => navigate("/admin/course-management/create")}>
-            Add Course
-          </CreateButton> */}
           {selectedCourses.length > 0 && (
             <CreateButton onClick={handleBulkDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
               Delete Selected ({selectedCourses.length})
@@ -333,7 +365,6 @@ export default function CoursesTable() {
                     <TableHeader>Enrolled</TableHeader>
                     <TableHeader>Date & Time (IST)</TableHeader>
                     <TableHeader>Published</TableHeader>
-                    {/* <TableHeader>Actions</TableHeader> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -349,9 +380,7 @@ export default function CoursesTable() {
                         </TableCell>
                       )}
 
-                      <TableCell
-
-                      >
+                      <TableCell>
                         <a
                           href="#"
                           onClick={() =>
@@ -362,7 +391,6 @@ export default function CoursesTable() {
                         >
                           {c.courseName}
                         </a>
-
                       </TableCell>
                       <TableCell>
                         <a
@@ -382,7 +410,6 @@ export default function CoursesTable() {
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            console.log("c.subjects", c.subjects);
                             openModal("subjects", c.subjects);
                           }}
                         >
@@ -395,7 +422,6 @@ export default function CoursesTable() {
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            console.log("c.mockTests", c.subjects);
                             let mockTestData = [];
                             c.subjects.map((s) => {
                               mockTestData = mockTestData.concat(s.mockTests);
@@ -427,31 +453,6 @@ export default function CoursesTable() {
                           }
                         />
                       </TableCell>
-                      {/* <TableCell>
-                        <ActionsContainer>
-                          <IoEyeOutline
-                            size={20}
-                            onClick={() =>
-                              navigate(
-                                `/admin/course-management/view/${c.id}`
-                              )
-                            }
-                          />
-                          <BiEditAlt
-                            size={20}
-                            onClick={() =>
-                              navigate(
-                                `/admin/course-management/edit/${c.id}`
-                              )
-                            }
-                          />
-                          <RiDeleteBin6Line
-                            size={20}
-                            color="#fb4f4f"
-                            onClick={() => handleDeleteClick(c.id)}
-                          />
-                        </ActionsContainer>
-                      </TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -488,25 +489,6 @@ export default function CoursesTable() {
           />
         )}
       </Container>
-      {subjectsModalOpen && (
-        <ModalOverlay>
-          <ModalContent>
-            <h2 style={{ margin: "0rem", backgroundColor: "#f1f1f1", padding: "1rem" }}>All Courses</h2>
-            {coursesList.length === 0 ? (
-              <p>No courses enrolled.</p>
-            ) : (
-              <CourseList>
-                {coursesList.map((course, index) => (
-                  <CourseItem key={index}>{course}</CourseItem>
-                ))}
-              </CourseList>
-            )}
-            <CloseButtonContainer>
-              <CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton>
-            </CloseButtonContainer>
-          </ModalContent>
-        </ModalOverlay>
-      )}
     </>
   );
 }

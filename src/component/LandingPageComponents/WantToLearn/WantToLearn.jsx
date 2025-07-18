@@ -68,11 +68,11 @@ const navigate = useNavigate();
 
               {/* i wnat to limit for 40 characters  */}
               {/* <Description>{course.description.substring(0, 40)}...</Description> */}
-              <Description dangerouslySetInnerHTML={{ __html: course.description.substring(0, 40) + '...' }} />
-              <InfoList>
+              <Description dangerouslySetInnerHTML={{ __html: course.description.substring(0, 80) + '...' }} />
+              {/* <InfoList>
                 <InfoItem>📆 Duration: {course.duration}</InfoItem>
                 <InfoItem>✅ Success Rate: {course.successRate}</InfoItem>
-              </InfoList>
+              </InfoList> */}
             </CardBody>
 
             <Buttons>

@@ -16,7 +16,7 @@ border-radius: 12px;
   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(4)} 0 ${(props) => props.theme.spacing(4)};
   font-family: ${(props) => props.theme.fonts.body};
   background-color: ${(props) => props.theme.colors.secondary};
-  min-height: 720px;
+  // min-height: 720px;
 
 
 //     @media (max-width: 990px) {

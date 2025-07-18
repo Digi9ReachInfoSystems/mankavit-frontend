@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect,useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import upload from "../../../../../assets/upload.png";
 import {
   Container,
@@ -40,11 +40,8 @@ export default function AddLecturer() {
   const [courses, setCourses] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [thumbnailFile, setThumbnailFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const videoInputRef = useRef(null);
-  const thumbnailInputRef = useRef(null);
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const navigate = useNavigate();
   const editor = useRef(null);
@@ -85,13 +82,6 @@ export default function AddLecturer() {
     }
   };
 
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setThumbnailFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
   const handleCheckboxChange = (index, setFn) => {
     setFn((prev) =>
       prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
@@ -100,11 +90,10 @@ export default function AddLecturer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!lectureName || !duration || !description || !videoFile) {
-    //   toast.error("Please fill all required fields!");
-
-    //   return;
-    // }
+    if (!lectureName || !duration || !description || !videoFile) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -115,23 +104,12 @@ export default function AddLecturer() {
         throw new Error("Video upload failed");
       }
 
-      // Upload thumbnail if available
-      let thumbnailUrl = "";
-      if (thumbnailFile) {
-        const thumbResponse = await uploadFileToAzureStorage(thumbnailFile, "lectures");
-        if (!thumbResponse?.blobUrl) {
-          throw new Error("Thumbnail upload failed");
-        }
-        thumbnailUrl = thumbResponse.blobUrl;
-      }
-
       // Build request payload
       const submissionData = {
         lectureName,
         description,
         duration,
         videoUrl: videoResponse.blobUrl,
-        thumbnail: thumbnailUrl,
         subjectRef: subjectCheckboxes
           .filter((item) => item.checked)
           .map((item) => item.id),
@@ -151,8 +129,6 @@ export default function AddLecturer() {
       setSelectedSubject(null);
       setSelectedCourse(null);
       setVideoFile(null);
-      setThumbnailFile(null);
-      setPreviewUrl("");
       setSubjectCheckboxes(subjectCheckboxes.map((item) => ({ ...item, checked: false })));
     } catch (error) {
       toast.error("Failed to create lecture");
@@ -161,27 +137,12 @@ export default function AddLecturer() {
       setIsLoading(false);
     }
   };
+
   const config = useMemo(() => ({
-    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
+    readonly: false,
     placeholder: description,
-    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
-    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
-    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
-    // toolbarAdaptive: false,
-    // showCharsCounter: false,
-    // showWordsCounter: false,
-    // showXPathInStatusbar: false,
-    // askBeforePasteHTML: true,
-    // askBeforePasteFromWord: true,
-    // uploader: {
-    //   insertImageAsBase64URI: true
-    // },
-    // style: {
-    //   background: '#f5f5f5',
-    //   color: '#333'
-    // }
-  }),
-    []);
+  }), [description]);
+
   return (
     <Container>
       <Title>Add Video</Title>
@@ -190,25 +151,31 @@ export default function AddLecturer() {
           <Column>
             <FieldWrapper>
               <Label htmlFor="lectureName">Video title *</Label>
-              <Input id="lectureName" value={lectureName}
+              <Input 
+                id="lectureName" 
+                value={lectureName}
                 onChange={(e) => {
                   const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                   setLectureName(e.target.value);
                 }}
-                placeholder="Enter Video Title" />
+                placeholder="Enter Video Title" 
+              />
             </FieldWrapper>
           </Column>
-          <Column>
+          {/* <Column>
             <FieldWrapper>
               <Label htmlFor="duration">Duration *</Label>
-              <Input id="duration" value={duration}
+              <Input 
+                id="duration" 
+                value={duration}
                 onChange={(e) => {
                   const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
                   setDuration(filteredData);
                 }}
-                placeholder="e.g. 20 min" />
+                placeholder="e.g. 20 min" 
+              />
             </FieldWrapper>
-          </Column>
+          </Column> */}
         </FormRow>
         <FormRow>
           <Column>
@@ -224,21 +191,7 @@ export default function AddLecturer() {
               />
             </FieldWrapper>
           </Column>
-
         </FormRow>
-        {/* <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label htmlFor="description">Description *</Label>
-              <TextArea id="description" rows="3" value={description}
-                onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                  setDescription(filteredData);
-                }}
-                placeholder="Enter description" />
-            </FieldWrapper>
-          </Column>
-        </FormRow> */}
         <FormRow>
           <Column>
             <CheckboxSection>
@@ -277,27 +230,14 @@ export default function AddLecturer() {
                     <p>or <strong>Upload Video</strong></p>
                   </>
                 )}
-                <FileInput ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoFileChange} />
+                <FileInput 
+                  ref={videoInputRef} 
+                  type="file" 
+                  accept="video/*" 
+                  onChange={handleVideoFileChange} 
+                />
               </UploadArea>
             </FieldWrapper>
-          </Column>
-          <Column style={{ flex: 1 }}>
-            <Label>Upload Thumbnail</Label>
-            <UploadArea onClick={() => thumbnailInputRef.current.click()}>
-              {thumbnailFile && previewUrl ? (
-                <>
-                  <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "500px", objectFit: "contain" }} />
-                  <p>{thumbnailFile.name}</p>
-                </>
-              ) : (
-                <>
-                  <UploadPlaceholder><img src={upload} alt="Upload" /></UploadPlaceholder>
-                  <p>Drag and drop image here</p>
-                  <p>or <strong>Add Image</strong></p>
-                </>
-              )}
-              <FileInput ref={thumbnailInputRef} type="file" accept="image/*" onChange={handleThumbnailChange} />
-            </UploadArea>
           </Column>
         </FormRow>
 

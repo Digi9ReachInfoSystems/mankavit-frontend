@@ -304,7 +304,7 @@ const AccordionList = ({
                                   />
                                 )}
                               </p>
-                              <p
+                              {/* <p
                                 style={{
                                   fontSize: 14,
                                   color: "#666",
@@ -312,7 +312,10 @@ const AccordionList = ({
                                 }}
                               >
                                 {lecture.description}
-                              </p>
+                              </p> */}
+                              <p style={{ fontSize: 14,
+                                  color: "#666",
+                                  margin: "4px 0" }} dangerouslySetInnerHTML={{ __html: lecture.description }} />
                               <div
                                 style={{
                                   display: "flex",
@@ -323,7 +326,7 @@ const AccordionList = ({
                                 <span
                                   style={{ fontSize: 14, color: "#888" }}
                                 >
-                                  {lecture.duration}
+                             {/* ghjhjh     {lecture.duration} */}
                                 </span>
                                 <div
                                   style={{
