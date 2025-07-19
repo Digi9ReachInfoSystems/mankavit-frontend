@@ -20,7 +20,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { clearCookies } from '../../utils/cookiesService';
 import { getDeviceInfo } from '../../utils/deviceInfo';
 
-const ONE_MINUTE = 60;
+const ONE_MINUTE = 120;
 
 const OtpLogin = () => {
     const [otpDigits, setOtpDigits] = useState(Array(6).fill(''));
