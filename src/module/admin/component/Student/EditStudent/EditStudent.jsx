@@ -384,7 +384,7 @@ const EditStudent = () => {
           {formErrors.phone && <ErrorMessage>{formErrors.phone}</ErrorMessage>}
         </InputGroup>
       </FlexRow>
-      <FlexRow>
+      {/* <FlexRow>
         <InputGroup>
           <Label>Master OTP*</Label>
           <InputField
@@ -413,7 +413,7 @@ const EditStudent = () => {
           </ToggleSwitch>
 
         </InputGroup>
-      </FlexRow>
+      </FlexRow> */}
       <FlexRow>
         <InputGroup>
           <Label style={{ marginBottom: "7px" }}>User Blocked</Label>
