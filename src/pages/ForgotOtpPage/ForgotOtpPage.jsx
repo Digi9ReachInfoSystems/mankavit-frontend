@@ -16,7 +16,7 @@ import {
 import { resendForgotPasswordOtp, verifyForgotPasswordOtp } from '../../api/authApi';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const ONE_MINUTE = 60;
+const ONE_MINUTE = 120;
 
 const ForgotOtpPage = () => {
     const [otpDigits, setOtpDigits] = useState(Array(6).fill(''));
@@ -96,7 +96,7 @@ const ForgotOtpPage = () => {
 
             setResendingOtp(true);
             setOtpDigits(Array(6).fill(''));
-            setResendTimer(60); // 60 seconds timer
+            setResendTimer(120); // 60 seconds timer
             const now = Date.now();
             const expiry = now + ONE_MINUTE * 1000;
             localStorage.setItem('resendOtpExpiry', expiry.toString());
