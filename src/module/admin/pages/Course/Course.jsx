@@ -18,7 +18,7 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
-  CloseButtonContainer
+  CloseButtonContainer,
 } from "./Course.style";
 import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
@@ -31,7 +31,7 @@ import {
   updateCourseById,
   bulkDeleteCourse,
   getAllCourseAdmin,
-  getAllCourseByCategoryName
+  getAllCourseByCategoryName,
 } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -75,7 +75,9 @@ export default function CoursesTable() {
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
-        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+        setReadOnlyPermissions(
+          response.Permissions["courseManagement"].readOnly
+        );
       }
     };
     apiCaller();
@@ -92,7 +94,7 @@ export default function CoursesTable() {
     setLoading(true);
     try {
       let payload;
-      
+
       if (selectedCategory === "all") {
         payload = await getAllCourseAdmin();
       } else {
@@ -100,11 +102,15 @@ export default function CoursesTable() {
       }
 
       // Extract categories from the first API call if needed
-      if (selectedCategory === "all" && payload.data && payload.data.length > 0) {
+      if (
+        selectedCategory === "all" &&
+        payload.data &&
+        payload.data.length > 0
+      ) {
         const allCategories = new Set();
-        payload.data.forEach(course => {
+        payload.data.forEach((course) => {
           if (course.category && Array.isArray(course.category)) {
-            course.category.forEach(cat => {
+            course.category.forEach((cat) => {
               if (cat.title) allCategories.add(cat.title);
             });
           }
@@ -137,7 +143,7 @@ export default function CoursesTable() {
   // sort / search / paginate
   useEffect(() => {
     let processed = [...data];
-    
+
     // Apply sorting
     if (sortOption === "Latest") {
       processed.sort(
@@ -146,7 +152,7 @@ export default function CoursesTable() {
     } else {
       processed.sort((a, b) => a.courseName.localeCompare(b.courseName));
     }
-    
+
     // Apply search filter
     if (searchText) {
       processed = processed.filter((c) =>
@@ -202,9 +208,7 @@ export default function CoursesTable() {
       toast.error("Failed to update publication status");
       // rollback
       setData((d) =>
-        d.map((c) =>
-          c.id === id ? { ...c, isPublished: !checked } : c
-        )
+        d.map((c) => (c.id === id ? { ...c, isPublished: !checked } : c))
       );
     }
   };
@@ -220,6 +224,11 @@ export default function CoursesTable() {
     subjects.forEach((s) => {
       mockTestData = mockTestData.concat(s.mockTests);
     });
+    mockTestData = mockTestData.filter(
+      (obj, index, self) =>
+        index ===
+        self.findIndex((o) => o._id === obj._id && o.title === obj.title)
+    );
     return mockTestData.length;
   };
 
@@ -256,7 +265,7 @@ export default function CoursesTable() {
     setSelectAll(!selectAll);
   };
 
- const handleBulkDelete = async () => {
+  const handleBulkDelete = async () => {
     try {
       setLoading(true);
       await bulkDeleteCourse(selectedCourses);
@@ -271,7 +280,7 @@ export default function CoursesTable() {
       setBulkDeleteModalOpen(false);
       setLoading(false);
     }
-  }; 
+  };
 
   return (
     <>
@@ -290,7 +299,10 @@ export default function CoursesTable() {
       <Container>
         <HeaderRow>
           <Title>
-            See All Courses <span>({currentItems.length}/{TOTAL_ENTRIES})</span>
+            See All Courses{" "}
+            <span>
+              ({currentItems.length}/{TOTAL_ENTRIES})
+            </span>
           </Title>
           <SortByContainer>
             <SortLabel>Filter by:</SortLabel>
@@ -302,17 +314,20 @@ export default function CoursesTable() {
               }}
               options={[
                 { value: "all", label: "All Categories" },
-                ...categories.map(cat => ({
+                ...categories.map((cat) => ({
                   value: cat,
-                  label: cat
-                }))
+                  label: cat,
+                })),
               ]}
-              style={{ width: 180, marginRight: '10px' }}
+              style={{ width: 180, marginRight: "10px" }}
             />
             <SortLabel>Sort by:</SortLabel>
             <Select
               value={sortOption}
-              onChange={(v) => { setSortOption(v); setCurrentPage(1); }}
+              onChange={(v) => {
+                setSortOption(v);
+                setCurrentPage(1);
+              }}
               options={[
                 { value: "Latest", label: "Latest" },
                 { value: "Name", label: "Name" },
@@ -324,7 +339,10 @@ export default function CoursesTable() {
 
         <ButtonContainer>
           {selectedCourses.length > 0 && (
-            <CreateButton onClick={handleBulkDeleteClick} style={{ backgroundColor: 'red', marginLeft: '10px' }}>
+            <CreateButton
+              onClick={handleBulkDeleteClick}
+              style={{ backgroundColor: "red", marginLeft: "10px" }}
+            >
               Delete Selected ({selectedCourses.length})
             </CreateButton>
           )}
@@ -384,9 +402,7 @@ export default function CoursesTable() {
                         <a
                           href="#"
                           onClick={() =>
-                            navigate(
-                              `/admin/course-management/edit/${c.id}`
-                            )
+                            navigate(`/admin/course-management/edit/${c.id}`)
                           }
                         >
                           {c.courseName}
@@ -396,9 +412,7 @@ export default function CoursesTable() {
                         <a
                           href="#"
                           onClick={() =>
-                            navigate(
-                              `/admin/course-management/edit/${c.id}`
-                            )
+                            navigate(`/admin/course-management/edit/${c.id}`)
                           }
                         >
                           {c.internalName}
@@ -426,6 +440,14 @@ export default function CoursesTable() {
                             c.subjects.map((s) => {
                               mockTestData = mockTestData.concat(s.mockTests);
                             });
+                            mockTestData = mockTestData.filter(
+                              (obj, index, self) =>
+                                index ===
+                                self.findIndex(
+                                  (o) =>
+                                    o._id === obj._id && o.title === obj.title
+                                )
+                            );
                             openModal("mockTests", mockTestData);
                           }}
                         >
@@ -448,9 +470,7 @@ export default function CoursesTable() {
                       <TableCell>
                         <Switch
                           checked={c.isPublished}
-                          onChange={(ch) =>
-                            handlePublishToggle(c.id, ch)
-                          }
+                          onChange={(ch) => handlePublishToggle(c.id, ch)}
                         />
                       </TableCell>
                     </TableRow>
