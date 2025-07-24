@@ -80,7 +80,8 @@ export default function ResultScreen() {
             type: details.type || 'mcq',
             status,
             isPassage: details.isPassage,
-            passageText: details.passageText || ''
+            passageText: details.passageText || '',
+            answer : ans.answer
           };
         });
         setQuestions(processed);
@@ -194,7 +195,7 @@ const isPassage = current.isPassage;
                     ) : (
                       <div>
                         <p><strong>Your Answer:</strong></p>
-                        <p>{current.selectedOption ?? 'No answer provided'}</p>
+                        <p>{current.selectedOption || current.answer}</p>
                       </div>
                     )}
                   </QuestionBox>
@@ -228,7 +229,7 @@ const isPassage = current.isPassage;
                   ) : (
                     <div>
                       <p><strong>Your Answer:</strong></p>
-                      <p>{current.selectedOption ?? 'No answer provided'}</p>
+                      <p>{current.selectedOption || current.answer}</p>
                     </div>
                   )}
                 </QuestionBox>
