@@ -32,6 +32,7 @@ import {
   bulkDeleteCourse,
   getAllCourseAdmin,
   getAllCourseByCategoryName,
+  publishCourse,
 } from "../../../../api/courseApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -190,28 +191,34 @@ export default function CoursesTable() {
     }
   };
 
-  const handlePublishToggle = async (id, checked) => {
-    if (readOnlyPermissions) {
-      toast.error("You don't have permission to change publish status");
-      return;
-    }
-    setData((d) =>
-      d.map((c) => (c.id === id ? { ...c, isPublished: checked } : c))
+const handlePublishToggle = async (id, checked) => {
+  if (readOnlyPermissions) {
+    toast.error("You don't have permission to change publish status");
+    return;
+  }
+
+  // Optimistic UI update
+  setData((d) =>
+    d.map((c) => (c.id === id ? { ...c, isPublished: checked } : c))
+  );
+
+  try {
+    // Call the publish/unpublish API
+    await publishCourse(id);
+    console.log(`Course ${checked ? "published" : "unpublished"} successfully`, id);
+    toast.success(
+      `Course ${checked ? "published" : "unpublished"} successfully`
     );
-    try {
-      await updateCourseById(id, { isPublished: checked });
-      toast.success(
-        `Course ${checked ? "published" : "unpublished"} successfully`
-      );
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update publication status");
-      // rollback
-      setData((d) =>
-        d.map((c) => (c.id === id ? { ...c, isPublished: !checked } : c))
-      );
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update publication status");
+    
+    // Rollback on error
+    setData((d) =>
+      d.map((c) => (c.id === id ? { ...c, isPublished: !checked } : c))
+    );
+  }
+};
 
   const openModal = (type, data) => {
     setModalType(type);
