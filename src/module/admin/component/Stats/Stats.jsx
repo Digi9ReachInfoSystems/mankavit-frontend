@@ -58,7 +58,7 @@ const Stats = () => {
         <StatCard key={index}>
           <div className='stat-header'>
             <StatTitle>{stat.title}</StatTitle>
-            <MenuIcon>...</MenuIcon>
+            {/* <MenuIcon>...</MenuIcon> */}
           </div>
           <StatValue>
             {loading ? <span style={{ fontSize: '12px' }}>Loading...</span> : stat.value}

@@ -302,6 +302,7 @@ export default function CouponManagement() {
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
                         placeholder="Search by name or code"
+                        style={{color: "black"}}
                     />
                 </SearchWrapper>
 

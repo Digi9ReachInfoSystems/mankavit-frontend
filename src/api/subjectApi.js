@@ -93,3 +93,23 @@ export const getSubjectsByCourseId = async (courseId) => {
         throw error;
     }
 };
+
+
+export const rearrangeSubjects = async (subjectIds) => {
+  try {
+    console.log('Sending subjectIds:', subjectIds); // Debug log
+    const response = await api.put('/api/v1/subject/subjects/rearrangeSubjects', 
+      { subjectIds },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    console.log('API Response:', response.data); // Debug log
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error.response?.data || error.message);
+    throw error;
+  }
+};

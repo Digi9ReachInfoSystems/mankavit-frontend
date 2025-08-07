@@ -20,16 +20,21 @@ import {
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
+  SelectedSubjectsContainer,
+  SelectedSubjectItem,
+  SubjectName,
+  MoveButton,
+  SubjectsContainer,
 } from "./AddLecturer.styles";
 import { useNavigate } from "react-router-dom";
 import { createLecture } from "../../../../../api/lecturesApi";
 import { getAllCourses } from "../../../../../api/courseApi";
-import { getSubjects } from "../../../../../api/subjectApi";
+import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
-
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import JoditEditor from 'jodit-react';
+import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
 export default function AddLecturer() {
   const [lectureName, setLectureName] = useState("");
@@ -38,11 +43,10 @@ export default function AddLecturer() {
   const [videoFile, setVideoFile] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const videoInputRef = useRef(null);
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   const navigate = useNavigate();
   const editor = useRef(null);
 
@@ -67,7 +71,6 @@ export default function AddLecturer() {
       } catch (error) {
         toast.error("Failed to fetch data");
         console.error("Error fetching data:", error);
-
       } finally {
         setIsLoading(false);
       }
@@ -82,15 +85,41 @@ export default function AddLecturer() {
     }
   };
 
-  const handleCheckboxChange = (index, setFn) => {
-    setFn((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
+  const handleCheckboxChange = (index) => {
+    const updatedCheckboxes = [...subjectCheckboxes];
+    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    setSubjectCheckboxes(updatedCheckboxes);
+
+    // Update selected subjects
+    const selected = updatedCheckboxes.filter(item => item.checked);
+    setSelectedSubjects(selected);
+  };
+
+  const moveSubjectUp = (index) => {
+    if (index <= 0) return;
+    
+    const newSelectedSubjects = [...selectedSubjects];
+    // Swap positions
+    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = 
+      [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
+    
+    setSelectedSubjects(newSelectedSubjects);
+  };
+
+  const moveSubjectDown = (index) => {
+    if (index >= selectedSubjects.length - 1) return;
+    
+    const newSelectedSubjects = [...selectedSubjects];
+    // Swap positions
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = 
+      [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
+    
+    setSelectedSubjects(newSelectedSubjects);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!lectureName || !duration || !description || !videoFile) {
+    if (!lectureName  || !description || !videoFile) {
       toast.error("Please fill all required fields!");
       return;
     }
@@ -104,32 +133,34 @@ export default function AddLecturer() {
         throw new Error("Video upload failed");
       }
 
+      // Rearrange subjects before submission
+      const subjectIds = selectedSubjects.map(subject => subject.id);
+      await rearrangeSubjects(subjectIds);
+
       // Build request payload
       const submissionData = {
         lectureName,
         description,
-        duration,
+        // duration,
         videoUrl: videoResponse.blobUrl,
-        subjectRef: subjectCheckboxes
-          .filter((item) => item.checked)
-          .map((item) => item.id),
+        subjectRef: subjectIds,
       };
-      console.log("submissionData", submissionData);
 
       const response = await createLecture(submissionData);
+      console.log("API Response:", response.data);
 
       toast.success("Lecture created successfully");
       setTimeout(() => {
         navigate("/admin/lecturer-management");
       }, 1000);
 
+      // Reset form
       setLectureName("");
       setDuration("");
       setDescription("");
-      setSelectedSubject(null);
-      setSelectedCourse(null);
       setVideoFile(null);
       setSubjectCheckboxes(subjectCheckboxes.map((item) => ({ ...item, checked: false })));
+      setSelectedSubjects([]);
     } catch (error) {
       toast.error("Failed to create lecture");
       console.error("Error creating lecture:", error);
@@ -141,7 +172,7 @@ export default function AddLecturer() {
   const config = useMemo(() => ({
     readonly: false,
     placeholder: description,
-  }), [description]);
+  }), []);
 
   return (
     <Container>
@@ -162,20 +193,6 @@ export default function AddLecturer() {
               />
             </FieldWrapper>
           </Column>
-          {/* <Column>
-            <FieldWrapper>
-              <Label htmlFor="duration">Duration *</Label>
-              <Input 
-                id="duration" 
-                value={duration}
-                onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^0-9\s]/g, '');
-                  setDuration(filteredData);
-                }}
-                placeholder="e.g. 20 min" 
-              />
-            </FieldWrapper>
-          </Column> */}
         </FormRow>
         <FormRow>
           <Column>
@@ -192,25 +209,63 @@ export default function AddLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
+        
         <FormRow>
           <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
-              <CheckboxList>
-                {subjectCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id || index}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>Available Subjects</CheckboxSectionTitle>
+                <CheckboxList>
+                  {subjectCheckboxes.map((item, index) => (
+                    <CheckboxLabel key={item.id || index}>
+                      <CheckboxInput
+                        type="checkbox"
+                        checked={item.checked}
+                        onChange={() => handleCheckboxChange(index)}
+                      />
+                      {item.label}
+                    </CheckboxLabel>
+                  ))}
+                </CheckboxList>
+              </CheckboxSection>
+              
+              <SelectedSubjectsContainer>
+                <CheckboxSectionTitle>Selected Subjects </CheckboxSectionTitle>
+                {selectedSubjects.length > 0 ? (
+                  selectedSubjects.map((subject, index) => (
+                    <SelectedSubjectItem key={subject.id}>
+                      <SubjectName>{subject.label}</SubjectName>
+                      <div>
+                        <MoveButton 
+                        style={
+                          {backgroundColor:"green"}
+                        }
+                          type="button" 
+                          onClick={() => moveSubjectUp(index)}
+                          disabled={index === 0}
+                        >
+                          <FaArrowUp />
+                        </MoveButton>
+                        <MoveButton 
+                        style={
+                          {backgroundColor:"red"}}
+                          type="button" 
+                          onClick={() => moveSubjectDown(index)}
+                          disabled={index === selectedSubjects.length - 1}
+                        >
+                          <FaArrowDown />
+                        </MoveButton>
+                      </div>
+                    </SelectedSubjectItem>
+                  ))
+                ) : (
+                  <p>No subjects selected</p>
+                )}
+              </SelectedSubjectsContainer>
+            </SubjectsContainer>
           </Column>
         </FormRow>
+        
         <FormRow>
           <Column style={{ flex: 1 }}>
             <FieldWrapper>

@@ -127,7 +127,7 @@ const MocktestStudentResult = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div style={{marginLeft:"60px"}}>Loading...</div>;
   if (!attemptData) return <div>Attempt not found</div>;
 
   const mcqAnswers = attemptData.answers.filter(a => {

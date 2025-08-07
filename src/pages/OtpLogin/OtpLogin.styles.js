@@ -194,6 +194,11 @@ box-shadow: 0px 4px 8px 0px rgba(171, 190, 209, 0.40);
   &:hover {
     background-color: #154f6d;
   }
+     &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
      @media (min-width: 1000px)and (max-width: 1200px)and (max-height: 800px) {
          margin:10px!important;
     }

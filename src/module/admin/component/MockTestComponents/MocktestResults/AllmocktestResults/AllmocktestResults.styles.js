@@ -211,3 +211,90 @@ export const SearchInput = styled.input`
     font-size: 14px;
   }
 `;
+
+
+export const FilterByContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+`;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: ${(props) => props.theme.spacing(0)};
+  margin-top: ${(props) => props.theme.spacing(2)};
+  gap: 10px;
+
+ @media (max-width: 768px) {
+    margin: 10px 5px;
+  }
+
+  @media (max-width: 480px) {
+    margin: 10px 5px;
+  }
+  `;
+
+
+  
+export const CreateButton = styled.button`
+  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+
+    background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.secondary};
+  border: none;
+  border-radius: 4px;
+  font-family: ${(props) => props.theme.fonts.body};
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  display: flex;
+  width: 15%;
+  justify-content: center;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    // padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    font-size: 0.9rem;
+    width: 40%;
+    margin-right: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
+    font-size: 0.8rem;
+    width: 50%;
+  }
+`;
+
+export const DownloadButton = styled.button`
+  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+
+    background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.secondary};
+  border: none;
+  border-radius: 4px;
+  font-family: ${(props) => props.theme.fonts.body};
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  display: flex;
+  width: 15%;
+  justify-content: center;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    // padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
+    font-size: 0.9rem;
+    width: 40%;
+    margin-right: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
+    font-size: 0.8rem;
+    width: 50%;
+  }
+    `;

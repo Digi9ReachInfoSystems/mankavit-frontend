@@ -421,6 +421,7 @@ export default function Subjects() {
             placeholder="Search"
             value={searchText}
             onChange={handleSearch}
+              style={{color: "black"}}
           />
         </SearchWrapper>
 
@@ -473,16 +474,16 @@ export default function Subjects() {
                     </a>
                   </TableCell>
                   <TableCell>
-                    <a
+                    {/* <a
                       href="#"
                       onClick={() => {
                         navigate(`/admin/subject-management/edit/${item.id}`, {
                           state: { item },
                         });
                       }}
-                    >
+                    > */}
                       {item.internalName}
-                    </a>
+                    {/* </a> */}
                   </TableCell>
 
                   <TableCell>

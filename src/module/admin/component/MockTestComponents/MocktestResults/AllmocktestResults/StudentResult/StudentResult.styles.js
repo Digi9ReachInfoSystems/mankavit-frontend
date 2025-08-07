@@ -261,3 +261,10 @@ export const SearchInput = styled.input`
     font-size: 14px;
   }
 `;
+
+export const FilterByContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+`;

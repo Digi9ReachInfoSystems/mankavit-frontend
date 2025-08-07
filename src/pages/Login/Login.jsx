@@ -55,6 +55,11 @@ const Login = () => {
         getDeviceId();
     }, []);
 
+    const isLoginDisabled = loginPhone
+    ? !email || !/\S+@\S+\.\S+/.test(email)
+    : !email || !password || !/\S+@\S+\.\S+/.test(email);
+
+
     const handleLogin = async (e) => {
         try {
             clearCookies();
@@ -195,11 +200,11 @@ const Login = () => {
                     <Label htmlFor='email' style={loginPhone ? { marginTop: "80px" } : {}}>Email</Label>
                     <Input
                         type="email"
-                        placeholder="Email"
+                        placeholder="Enter you email"
                         value={email}
                         id='email'
                         style={loginPhone ? { marginTop: "40px", marginBottom: "50px" } : {}}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     />
                     {
                         loginPhone ? <></> :
@@ -208,7 +213,7 @@ const Login = () => {
                                 <div style={{ position: 'relative' }}>
                                     <Input
                                         type={showPassword ? 'text' : 'password'}
-                                        placeholder="Password"
+                                        placeholder="Enter your password"
                                         id='Password'
                                         value={password}
                                         required
@@ -231,7 +236,10 @@ const Login = () => {
                             </>
                     }
 
-                    <Button type="submit">{loging ? "Login..." : "Login"}</Button>
+                  <Button type="submit" disabled={isLoginDisabled}>
+    {loging ? "Login..." : "Login"}
+</Button>
+
 
                         <ForgotPassword onClick={() =>{navigate('/forgot-password')} }>Forgot Password?</ForgotPassword>
 

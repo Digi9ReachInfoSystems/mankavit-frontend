@@ -36,7 +36,7 @@ const EditMockTest = () => {
     title: '',
     description: '',
     duration: '',
-    passingMarks: '',
+    // passingMarks: '',
     startDate: '',
     endDate: '',
     maxAttempts: 1,
@@ -72,7 +72,7 @@ const EditMockTest = () => {
           title: data.title || '',
           description: data.description || '',
           duration: data.duration || '',
-          passingMarks: data.passingMarks || '',
+          // passingMarks: data.passingMarks || '',
           startDate: formatDateTimeLocal(data.startDate),
           endDate: formatDateTimeLocal(data.endDate),
           maxAttempts: data.maxAttempts || 1,
@@ -134,7 +134,7 @@ const EditMockTest = () => {
     if (!testDetails.title) newErr.title = 'Test title is required';
     if (!testDetails.description) newErr.description = 'Description is required';
     if (!testDetails.duration) newErr.duration = 'Duration is required';
-    if (!testDetails.passingMarks) newErr.passingMarks = 'Passing marks are required';
+    // if (!testDetails.passingMarks) newErr.passingMarks = 'Passing marks are required';
     if (!testDetails.maxAttempts) newErr.maxAttempts = 'Max attempts is required';
     if (!testDetails.startDate) newErr.startDate = 'Start date is required';
     if (!testDetails.endDate) newErr.endDate = 'End date is required';
@@ -152,13 +152,13 @@ const EditMockTest = () => {
         title: testDetails.title,
         description: testDetails.description,
         duration: testDetails.duration,
-        passingMarks: testDetails.passingMarks,
+        // passingMarks: testDetails.passingMarks,
         maxAttempts: testDetails.maxAttempts,
         startDate: testDetails.startDate,
         endDate: testDetails.endDate,
         subject: testDetails.selectedSubjects,
       });
-      navigate(`/admin/mock-test/questions-list/${mockTestId}`);
+ navigate(`/admin/mock-test`);
     } catch (e) {
       console.error(e);
       setErrors({ form: e.response?.data?.message || 'Failed to update mock test' });
@@ -180,6 +180,14 @@ const EditMockTest = () => {
     <Container>
       <Title>Edit Mock Test</Title>
       {errors.form && <ErrorText>{errors.form}</ErrorText>}
+<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+  <Button
+    type="button"
+    onClick={() => navigate(`/admin/mock-test/questions-list/${mockTestId}`)}
+  >
+    Edit Questions
+  </Button>
+</div>
 
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
@@ -244,7 +252,7 @@ const EditMockTest = () => {
             />
             {errors.duration && <ErrorText>{errors.duration}</ErrorText>}
           </FormGroup>
-          <FormGroup>
+          {/* <FormGroup>
             <Label htmlFor="passingMarks">Passing Marks (%):</Label>
             <Input
               id="passingMarks"
@@ -255,7 +263,7 @@ const EditMockTest = () => {
               placeholder="Enter passing percentage"
             />
             {errors.passingMarks && <ErrorText>{errors.passingMarks}</ErrorText>}
-          </FormGroup>
+          </FormGroup> */}
         </FormRow>
 
         <FormRow>

@@ -30,21 +30,32 @@ import { set } from 'date-fns';
 import { FaFilePdf } from 'react-icons/fa'; // Add this import at the top
 // PDF Modal component updated to hide default print/save toolbar
 const PdfModal = ({ file, name, onClose, isDownloadable }) => {
-  // Append PDF viewer params to hide toolbar, nav panes, and scrollbar
   const pdfUrl = `${file}#toolbar=0&navpanes=0&scrollbar=0`;
+  
+  // Simple right-click prevention handler
+  const preventRightClick = (e) => {
+    if (e.button === 2) { // Check if right mouse button
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
+    <div
+      onContextMenu={(e) => e.preventDefault()} // Prevent context menu
+      onMouseDown={preventRightClick} // Prevent right-click
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000
+      }}
+    >
       <div style={{
         backgroundColor: 'white',
         borderRadius: '8px',
@@ -81,24 +92,15 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
             src={pdfUrl}
             style={{ width: '100%', height: '100%', border: 'none' }}
             title={name}
+            onContextMenu={(e) => e.preventDefault()}
+            onMouseDown={preventRightClick}
           />
-          {/* Overlay to block clicks if not downloadable */}
-          {!isDownloadable && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-              backgroundColor: 'rgba(0,0,0,0.02)'
-            }} />
-          )}
         </div>
       </div>
     </div>
   );
 };
+
 
 const CoursesLiveclass = () => {
     const { courseId, subjectid, lectureId } = useParams();
@@ -611,7 +613,7 @@ if (activeTab === 'Notes') {
                     <TopBar>
                         <OverlayText>
                             <h4>{lecture?.lectureName || 'Lecture'}</h4>
-                            <Tag>📊 Topic</Tag>
+                            {/* <Tag>📊 Topic</Tag> */}
                         </OverlayText>
                         {/* <PhoneNumber>
                             <FaUser style={{ marginRight: '8px' }} />

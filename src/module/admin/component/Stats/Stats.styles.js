@@ -25,14 +25,14 @@ export const StatCard = styled.div`
   transition: all 0.3s ease;
   cursor: pointer;
 
-  &:hover {
-    background: linear-gradient(135deg, #0DCAF0 0%, #007BFF 100%);
-    color: #fff;
+  // &:hover {
+  //   background: linear-gradient(135deg, #0DCAF0 0%, #007BFF 100%);
+  //   color: #fff;
 
-    ${'' /* ensure internal texts also turn white on hover */}
-    div {
-      color: #fff;
-    }
+  //   ${'' /* ensure internal texts also turn white on hover */}
+  //   div {
+  //     color: #fff;
+  //   }
   }
 
   @media (max-width: 768px) {
@@ -48,6 +48,7 @@ export const StatCard = styled.div`
 export const StatTitle = styled.div`
   font-size: 0.85rem;
   font-weight: 500;
+  padding: 10px;
 `;
 
 export const StatValue = styled.h2`
@@ -56,6 +57,7 @@ export const StatValue = styled.h2`
   font-weight: bold;
   margin-bottom: 0;
   text-align: left;
+  padding: 10px;
 `;
 
 export const MenuIcon = styled.div`

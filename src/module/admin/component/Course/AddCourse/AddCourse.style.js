@@ -134,7 +134,8 @@ export const CheckboxSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
-
+  flex: 1;
+  width: 50%;
 `;
 
 /** Title for each checkbox section (e.g. "Add Notes" and "Add Mock Test") */
@@ -143,10 +144,11 @@ export const CheckboxSectionTitle = styled.h4`
   font-size: 1rem;
   font-weight: normal;
   margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
-  color: ${(props) => props.theme.colors.test};
+ 
   padding: ${(props) => props.theme.spacing(1)};
   //done
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
+   color: ${(props) => props.theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.dimGray};
   border-radius: 6px;
 `;
 
@@ -157,6 +159,7 @@ export const CheckboxList = styled.div`
   gap: ${(props) => props.theme.spacing(1)};
   overflow-y: auto;
   max-height: 280px;
+
 `;
 
 /** A single checkbox + label line */
@@ -290,4 +293,86 @@ export const ToggleSwitch = styled.input`
   //   background-color: ${props => (props.checked ? "#ccc" : "#ddd")};
   // }
 
+`;
+
+
+export const SubjectsContainer = styled.div`
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  max-height: 280px;
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    flex-direction: column;
+  }
+`;
+
+
+export const SelectedSubjectsContainer = styled.div`
+  flex: 1;
+  // border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: #f9f9f9;
+  min-height: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+`;
+
+export const SelectedSubjectItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+`;
+
+export const SubjectName = styled.span`
+  font-size: 0.9rem;
+`;
+
+export const MoveButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 0.3rem;
+  margin-left: 0.5rem;
+   border-radius: 4px;
+ 
+   &:hover:not(:disabled) {
+    background-color: ${(props) => props.theme.colors.primaryDark};
+  }
+
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.lightwhite};
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+
+
+export const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-bottom: 15px;
+`;
+
+export const SearchIcon = styled.span`
+  margin-right: 8px;
+  color: #666;
+`;
+
+export const SearchInput = styled.input`
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background: transparent;
 `;

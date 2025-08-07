@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaBars, FaChevronDown, FaChevronUp, FaPowerOff } from "react-icons/fa";
 import theme from "../../theme/Theme";
 import {
@@ -52,7 +52,7 @@ const Sidebar = () => {
     { path: "/admin/notes-management", label: "Notes" },
     { path: "/admin/category-management", label: "Category" },
     { path: "/admin/lecturer-management", label: "Videos" },
-    { path: "/admin/recorded-class", label: "Recorded Class" },
+    // { path: "/admin/recorded-class", label: "Recorded Class" },
   ];
 
   const webManagementItems = [
@@ -198,7 +198,10 @@ const Sidebar = () => {
       </HamburgerIcon>
       <Backdrop isOpen={isOpen} onClick={() => setIsOpen(false)} />
       <SidebarContainer isOpen={isOpen}>
-        <SidebarTitle>Mankavit</SidebarTitle>
+    <Link to="/admin" style={{ textDecoration: 'none' }}>
+  <SidebarTitle>Mankavit</SidebarTitle>
+</Link>
+
         <MenuList>
           {menuItems.map((item, i) => renderLink(item, i))}
           {Object.entries(sections).map(([title, items]) => (

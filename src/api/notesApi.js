@@ -87,3 +87,13 @@ export const  getAllNotesBySubjectIds = async (data) => {
         throw error;
     }
 }
+
+export const rearrangeNotes = async (data) => {
+    try {
+        const response = await api.put('/notes/rearrangeNotes', data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

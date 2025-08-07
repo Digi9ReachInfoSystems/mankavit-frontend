@@ -20,6 +20,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { set } from 'date-fns';
 import { getAuth } from '../../../../utils/authService';
+import { getSubjects } from '../../../../api/subjectApi';
+import CustomModal from '../../component/CustomModal/CustomModal';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -40,7 +42,10 @@ export default function Lecturer() {
   // NEW: default sort = Latest ↓
   const [sortOption, setSortOption] = useState('Latest');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [subjectsMap, setSubjectsMap] = useState({});
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
+const [currentSubjects, setCurrentSubjects] = useState([]);
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -54,9 +59,32 @@ export default function Lecturer() {
     apiCaller();
   }, []);
 
+  const handleViewSubjects = (subjects) => {
+  setCurrentSubjects(subjects);
+  setSubjectsModalOpen(true);
+};
+
+  useEffect(() => {
+  const fetchSubjects = async () => {
+    try {
+      const res = await getSubjects(); // should return list with { _id, subjectName }
+      const map = {};
+      res.data.forEach(subject => {
+        map[subject._id] = subject.subjectName;
+      });
+      setSubjectsMap(map);
+    } catch (error) {
+      console.error('Failed to fetch subjects:', error);
+    }
+  };
+
+  fetchSubjects();
+}, []);
+
   const fetchLectures = async () => {
     try {
       const response = await getAllLectures();
+      console.log('Lectures API response:', response);
       setData(response.data || []);
     } catch (error) {
       console.error('Error fetching lectures:', error);
@@ -68,9 +96,6 @@ export default function Lecturer() {
     fetchLectures();
   }, []);
 
-  /** ----------------------------------------------------------------
-   *  Sorting
-   * ----------------------------------------------------------------*/
   const sortedLectures = useMemo(() => {
     const items = [...data];
     if (sortOption === 'Name') {
@@ -98,9 +123,6 @@ export default function Lecturer() {
     return items;
   }, [data, sortOption, sortDirection]);
 
-  /** ----------------------------------------------------------------
-   *  Filtering + Pagination
-   * ----------------------------------------------------------------*/
   const filteredLectures = sortedLectures.filter(l =>
     l?.lectureName?.toLowerCase().includes(searchText.toLowerCase())
   );
@@ -113,9 +135,6 @@ export default function Lecturer() {
     startIndex + ITEMS_PER_PAGE
   );
 
-  /** ----------------------------------------------------------------
-   *  Handlers
-   * ----------------------------------------------------------------*/
   const handleSortChange = value => {
     if (value === sortOption) {
       setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
@@ -209,9 +228,29 @@ export default function Lecturer() {
     }
   };
 
-  /** ----------------------------------------------------------------
-   *  Render
-   * ----------------------------------------------------------------*/
+  const handleSubjectClick = (subjectId) => {
+  navigate(`/admin/subject-management/view/${subjectId}`);
+};
+  
+    const formatToIST = (isoString, options = {}) => {
+    try {
+      const date = new Date(isoString);
+      return new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+        ...options,
+      }).format(date);
+    } catch {
+      return "Invalid date";
+    }
+  };
+  
   return (
     <>
       <ButtonContainer>
@@ -261,6 +300,7 @@ export default function Lecturer() {
             placeholder="Search"
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
+            style={{color: "black"}}
           />
         </SearchWrapper>
 
@@ -283,9 +323,11 @@ export default function Lecturer() {
 
                 <TableHeader>Video Title</TableHeader>
                 {/* <TableHeader>Description</TableHeader> */}
-                <TableHeader>Duration</TableHeader>
-                <TableHeader>Video</TableHeader>
-                <TableHeader>Image</TableHeader>
+                {/* <TableHeader>Duration</TableHeader> */}
+                {/* <TableHeader>Video</TableHeader> */}
+                {/* <TableHeader>Image</TableHeader> */}
+                <TableHeader>Created at</TableHeader>
+                <TableHeader>Subjects</TableHeader>
                 {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
@@ -318,8 +360,8 @@ export default function Lecturer() {
                     </a>
                   </TableCell>
                   {/* <TableCell>{item.description || '-'}</TableCell> */}
-                  <TableCell>{item.duration || '-'}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>{item.duration || '-'}</TableCell> */}
+                  {/* <TableCell>
                     {item.videoUrl ? (
                       <a
                         href="#"
@@ -333,8 +375,8 @@ export default function Lecturer() {
                     ) : (
                       'No video'
                     )}
-                  </TableCell>
-                  <TableCell>
+                  </TableCell> */}
+                  {/* <TableCell>
                     {item.thumbnail ? (
                       <a
                         href="#"
@@ -348,7 +390,8 @@ export default function Lecturer() {
                     ) : (
                       'No image'
                     )}
-                  </TableCell>
+                  </TableCell> */}
+                  <TableCell>{formatToIST(item.createdAt)}</TableCell>
                   {/* <TableCell>
                     <ActionsContainer>
                       <IoEyeOutline
@@ -369,6 +412,36 @@ export default function Lecturer() {
                       />
                     </ActionsContainer>
                   </TableCell> */}
+      <TableCell>
+  {(item.subjectRef || []).length > 0 ? (
+    <>
+      {(item.subjectRef || []).length} {/* Show count of subjects */}
+      <button
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#1890ff',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          marginLeft: '5px',
+        }}
+        onClick={() => {
+          // Map subjectRef IDs to subject objects with names
+          const subjects = (item.subjectRef || []).map(id => ({
+            _id: id,
+            subjectName: subjectsMap[id] || 'Unknown'
+          }));
+          handleViewSubjects(subjects);
+        }}
+      >
+        View
+      </button>
+    </>
+  ) : (
+    'No subjects'
+  )}
+</TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
@@ -383,6 +456,14 @@ export default function Lecturer() {
           itemsPerPage={ITEMS_PER_PAGE}
         />
       </Container >
+      {subjectsModalOpen && (
+  <CustomModal
+    title="Subjects"
+    type="subjects"
+    data={currentSubjects}
+    onClose={() => setSubjectsModalOpen(false)}
+  />
+)}
 
       {deleteModalOpen && (
         <DeleteModal
