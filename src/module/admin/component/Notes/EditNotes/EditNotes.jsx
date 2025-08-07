@@ -19,14 +19,23 @@ import {
   SubmitButton,
   CheckboxSectionTitle,
   ToggleSwitch,
+  SelectedSubjectsList,
+  SelectedSubjectItem,
+  SubjectName,
+  ArrowButton,
+  SelectedSubjectsTitle, 
+  SearchWrapper, 
+  SearchIcon, 
+  SearchInput
 } from "../AddNotes/AddNotes.style";
-import { getSubjects } from "../../../../../api/subjectApi";
+import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
 import { getNotesById, updatenotesById } from "../../../../../api/notesApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getAuth } from "../../../../../utils/authService";
+import { CiSearch } from "react-icons/ci";
 
 export default function EditNotes() {
   const { id } = useParams();
@@ -34,71 +43,133 @@ export default function EditNotes() {
   const [internalTitle, setInternalTitle] = useState("");
   const [isDownloadable, setIsDownloadable] = useState(false);
   const [subjectsCheckboxes, setSubjectsCheckboxes] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
   const [existingFileUrl, setExistingFileUrl] = useState("");
+  const [searchSubject, setSearchSubject] = useState("");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    useEffect(() => {
-      const apiCaller = async () => {
-        const response = await getAuth();
-        response.Permissions;
-        if (response.isSuperAdmin === true) {
-          setReadOnlyPermissions(false);
-        } else {
-          setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
-        }
+
+const filteredSubjects = subjectsCheckboxes.filter(subject =>
+  subject.label.toLowerCase().includes(searchSubject.toLowerCase())
+);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
       }
-      apiCaller();
-    }, []);
+    };
+    apiCaller();
+  }, []);
 
- useEffect(() => {
-  const fetchData = async () => {
-    try {
-      // Fetch subjects and note data in parallel
-      const [subjectsResponse, noteResponse] = await Promise.all([
-        getSubjects(),
-        getNotesById(id)
-      ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [subjectsResponse, noteResponse] = await Promise.all([
+          getSubjects(),
+          getNotesById(id)
+        ]);
 
-      const noteData = noteResponse.data;
-      
-      // Set form fields with existing data
-      setNoteTitle(noteData.noteDisplayName);
-      setInternalTitle(noteData.noteName);
-      setIsDownloadable(noteData.isDownload);
-      setExistingFileUrl(noteData.fileUrl);
-      
-      // Prepare subjects data with checked status
-      const subjectsData = subjectsResponse.data.map((subject) => ({
-        label: subject.subjectName,
-        id: subject._id,
-        // Check if this subject is in the note's subjects array
-        checked: noteData.subjects.some(noteSubjectId => 
-          noteSubjectId === subject._id || 
-          noteSubjectId._id === subject._id // Handle both string and object IDs
-        )
-      }));
-      
-      setSubjectsCheckboxes(subjectsData);
-      
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error('Failed to load note data', {
-        duration: 3000,
-      });
-      navigate("/admin/notes-management");
-    }
-  };
-  
-  fetchData();
-}, [id, navigate]);
+        const noteData = noteResponse.data;
+        
+        setNoteTitle(noteData.noteDisplayName);
+        setInternalTitle(noteData.noteName);
+        setIsDownloadable(noteData.isDownload);
+        setExistingFileUrl(noteData.fileUrl);
+        
+        // Prepare subjects data with checked status
+        const subjectsData = subjectsResponse.data.map((subject) => ({
+          label: subject.subjectName,
+          id: subject._id,
+          checked: noteData.subjects.some(noteSubjectId => 
+            noteSubjectId === subject._id || 
+            noteSubjectId._id === subject._id
+          )
+        }));
+        
+        setSubjectsCheckboxes(subjectsData);
+        
+        // Initialize selected subjects with the note's current subjects
+        const initialSelected = subjectsData.filter(subject => subject.checked);
+        setSelectedSubjects(initialSelected);
+        
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error('Failed to load note data', {
+          duration: 3000,
+        });
+        navigate("/admin/notes-management");
+      }
+    };
+    
+    fetchData();
+  }, [id, navigate]);
 
   const handleCheckboxChange = (index) => {
     const updatedCheckboxes = subjectsCheckboxes.map((item, i) =>
       i === index ? { ...item, checked: !item.checked } : item
     );
     setSubjectsCheckboxes(updatedCheckboxes);
+    
+    // Update selected subjects list
+    const subject = updatedCheckboxes[index];
+    if (subject.checked) {
+      setSelectedSubjects([...selectedSubjects, subject]);
+    } else {
+      setSelectedSubjects(selectedSubjects.filter(item => item.id !== subject.id));
+    }
+  };
+
+  const moveSubjectUp = async (index) => {
+    if (index === 0) return;
+    
+    const newSelectedSubjects = [...selectedSubjects];
+    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = 
+      [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
+    
+    try {
+      // Optimistically update UI
+      setSelectedSubjects(newSelectedSubjects);
+      
+      // Update backend
+      const subjectIds = newSelectedSubjects.map(subject => subject.id);
+      await rearrangeSubjects(subjectIds);
+      
+      toast.success("Subjects rearranged successfully");
+    } catch (error) {
+      // Revert on error
+      setSelectedSubjects(selectedSubjects);
+      toast.error(error.response?.data?.message || "Failed to rearrange subjects");
+      console.error("Rearrangement error:", error);
+    }
+  };
+
+  const moveSubjectDown = async (index) => {
+    if (index === selectedSubjects.length - 1) return;
+    
+    const newSelectedSubjects = [...selectedSubjects];
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = 
+      [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
+    
+    try {
+      // Optimistically update UI
+      setSelectedSubjects(newSelectedSubjects);
+      
+      // Update backend
+      const subjectIds = newSelectedSubjects.map(subject => subject.id);
+      await rearrangeSubjects(subjectIds);
+      
+      toast.success("Subjects rearranged successfully");
+    } catch (error) {
+      // Revert on error
+      setSelectedSubjects(selectedSubjects);
+      toast.error(error.response?.data?.message || "Failed to rearrange subjects");
+      console.error("Rearrangement error:", error);
+    }
   };
 
   const handleUploadAreaClick = () => {
@@ -116,7 +187,6 @@ export default function EditNotes() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Validation
       if (!noteTitle.trim()) {
         toast.error('Please enter note title', {
           duration: 3000,
@@ -135,7 +205,6 @@ export default function EditNotes() {
       
       let fileURL = existingFileUrl;
       
-      // Only upload new file if one was selected
       if (pdfFile) {
         if (pdfFile.type !== "application/pdf") {
           toast.error('Please select pdf file.', {
@@ -149,9 +218,7 @@ export default function EditNotes() {
         fileURL = fileData.blobUrl;
       }
       
-      const subjects = subjectsCheckboxes
-        .filter((item) => item.checked)
-        .map((item) => item.id);
+      const subjects = selectedSubjects.map(item => item.id);
       
       const updateData = {
         noteName: internalTitle,
@@ -162,7 +229,7 @@ export default function EditNotes() {
       };
       
       const updateResponse = await updatenotesById(id, updateData);
-      console.log("Update Response:", updateResponse);
+      
       if (updateResponse.success) {
         toast.success(`Note "${noteTitle}" updated successfully.`, {
           duration: 3000,
@@ -198,8 +265,8 @@ export default function EditNotes() {
               <Input
                 id="noteTitle"
                 value={noteTitle}
-             onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
                   setNoteTitle(filteredData);
                 }}
                 placeholder="Enter Note Title"
@@ -213,8 +280,8 @@ export default function EditNotes() {
               <Input
                 id="internalTitle"
                 value={internalTitle}
-               onChange={(e)=>{
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                onChange={(e) => {
+                  const filteredData = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
                   setInternalTitle(filteredData);
                 }}
                 placeholder="Enter Internal Title"
@@ -227,20 +294,73 @@ export default function EditNotes() {
         <FormRow>
           <Column>
             <CheckboxSection>
-              <CheckboxSectionTitle>Add Subjects (Click Checkbox to Select)</CheckboxSectionTitle>
-              <CheckboxList>
-                {subjectsCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={index}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
+              <CheckboxSectionTitle>Add Subjects ({subjectsCheckboxes.length})</CheckboxSectionTitle>
+      
+           <SearchWrapper style={{ marginBottom: '15px' }}>
+        <SearchIcon>
+          <CiSearch size={18} />
+        </SearchIcon>
+        <SearchInput
+          placeholder="Search subjects..."
+          value={searchSubject}
+          onChange={(e) => setSearchSubject(e.target.value)}
+        />
+      </SearchWrapper>
+      
+                <CheckboxList>
+        {filteredSubjects.length > 0 ? (
+          filteredSubjects.map((item, index) => (
+            <CheckboxLabel key={index}>
+              <CheckboxInput
+                type="checkbox"
+                checked={item.checked}
+                onChange={() => handleCheckboxChange(
+                  subjectsCheckboxes.findIndex(subj => subj.id === item.id)
+                )}
+                disabled={readOnlyPermissions}
+              />
+              {item.label}
+            </CheckboxLabel>
+          ))
+        ) : (
+          <p style={{ padding: '10px', color: '#666' }}>No subjects found matching your search</p>
+        )}
+      </CheckboxList>
+    </CheckboxSection>
+  </Column>
+  
+  {/* Selected Subjects List with Arrows remains the same */}
+  <Column>
+    {selectedSubjects.length > 0 && (
+      <>
+        <SelectedSubjectsTitle>Selected Subjects ({selectedSubjects.length})</SelectedSubjectsTitle>
+        <SelectedSubjectsList>
+          {selectedSubjects.map((subject, index) => (
+            <SelectedSubjectItem key={subject.id}>
+              <SubjectName>{subject.label}</SubjectName>
+              <div>
+                <ArrowButton 
+                  style={{backgroundColor: "green"}}
+                  type="button" 
+                  onClick={() => moveSubjectUp(index)}
+                  disabled={index === 0 || readOnlyPermissions}
+                >
+                  ↑
+                </ArrowButton>
+                <ArrowButton 
+                  style={{backgroundColor: "red"}}
+                  type="button" 
+                  onClick={() => moveSubjectDown(index)}
+                  disabled={index === selectedSubjects.length - 1 || readOnlyPermissions}
+                >
+                  ↓
+                </ArrowButton>
+              </div>
+            </SelectedSubjectItem>
+          ))}
+        </SelectedSubjectsList>
+      </>
+    )}
           </Column>
         </FormRow>
 
@@ -267,6 +387,7 @@ export default function EditNotes() {
                 type="file"
                 accept="application/pdf"
                 onChange={handleFileChange}
+                disabled={readOnlyPermissions}
               />
             </UploadArea>
           </Column>
@@ -279,19 +400,18 @@ export default function EditNotes() {
                 type="checkbox"
                 checked={isDownloadable}
                 onChange={() => setIsDownloadable(!isDownloadable)}
+                disabled={readOnlyPermissions}
               />
             </FieldWrapper>
           </Column>
         </FormRow>
 
         {/* Submit button */}
-        {
-          !readOnlyPermissions&&(
-            <FormRow>
-              <SubmitButton type="submit">Update Note</SubmitButton>
-            </FormRow>
-          )
-        }
+        {!readOnlyPermissions && (
+          <FormRow>
+            <SubmitButton type="submit">Update Note</SubmitButton>
+          </FormRow>
+        )}
       </FormWrapper>
       
       <ToastContainer

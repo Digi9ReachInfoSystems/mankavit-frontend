@@ -1,4 +1,3 @@
-// src/module/admin/components/EditSubject/EditSubject.jsx
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import uploadIcon from "../../../../../assets/upload.png";
@@ -20,18 +19,24 @@ import {
   FileInput,
   UploadPlaceholder,
   SubmitButton,
+  SubjectsContainer,
+  SelectedSubjectsContainer,
+  SelectedSubjectItem,
+  SubjectName,
+  MoveButton,
 } from "../AddSubject/AddSubject.style";
-import { getAllNotes } from "../../../../../api/notesApi";
-import { getAllLectures } from "../../../../../api/lecturesApi";
+import { getAllNotes, rearrangeNotes } from "../../../../../api/notesApi";
+import { getAllLectures, rearrangeLectures } from "../../../../../api/lecturesApi";
 import { getSubjectById, updateSubjectById } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
-import { getAllMocktest } from "../../../../../api/mocktestApi";
+import { getAllMocktest, rearrangeMocktest } from "../../../../../api/mocktestApi";
 import { getAllCourses } from "../../../../../api/courseApi";
 import JoditEditor from 'jodit-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import { getAuth } from "../../../../../utils/authService";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
 export default function EditSubject() {
   const { id } = useParams();
@@ -44,14 +49,22 @@ export default function EditSubject() {
   const [internalTitle, setInternalTitle] = useState("");
   const [vimeoId, setVimeoId] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   // checkbox items
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
   const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
   const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
-const [thumbnailFile, setThumbnailFile] = useState(null);
-  // per-section search state
+
+  // selected items
+  const [selectedNotes, setSelectedNotes] = useState([]);
+  const [selectedLectures, setSelectedLectures] = useState([]);
+  const [selectedMockTests, setSelectedMockTests] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
+
+  // search states
   const [notesSearch, setNotesSearch] = useState("");
   const [lecturesSearch, setLecturesSearch] = useState("");
   const [mockSearch, setMockSearch] = useState("");
@@ -88,38 +101,53 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
         setSubjectTitle(subject.subjectDisplayName || "");
         setInternalTitle(subject.subjectName || "");
         setVimeoId(subject.vimeoShowcaseID || "");
-        setShortDescription(subject.description || "");
+        setShortDescription(subject.description || ""); // This sets the short description
         if (subject.image) setPreviewUrl(subject.image);
-
-        // existing IDs
-        const noteIds = subject.notes.map(n => n._id || n);
-        const lectureIds = subject.lectures.map(l => l._id || l);
-        const mockIds = subject.mockTests.map(m => m._id || m);
-        const courseIds = subject.courses.map(c => c._id || c);
 
         // sort & build notes
         const sortedNotes = notesRes.data
           .sort((a, b) => (a.noteDisplayName || a.title).localeCompare(b.noteDisplayName || b.title))
-          .map(n => ({ id: n._id, label: n.noteDisplayName || n.title, checked: noteIds.includes(n._id) }));
+          .map(n => ({ id: n._id, label: n.noteDisplayName || n.title }));
         setNotesCheckboxes(sortedNotes);
 
         // sort & build lectures
         const sortedLectures = lectRes.data
           .sort((a, b) => (a.lectureName || a.title).localeCompare(b.lectureName || b.title))
-          .map(l => ({ id: l._id, label: l.lectureName || l.title, checked: lectureIds.includes(l._id) }));
+          .map(l => ({ id: l._id, label: l.lectureName || l.title }));
         setLecturesCheckboxes(sortedLectures);
 
         // sort & build mock tests
         const sortedMocks = mockRes.data
           .sort((a, b) => (a.title || a.mockTestName).localeCompare(b.title || b.mockTestName))
-          .map(m => ({ id: m._id, label: m.title || m.mockTestName, checked: mockIds.includes(m._id) }));
+          .map(m => ({ id: m._id, label: m.title || m.mockTestName }));
         setMockTestCheckboxes(sortedMocks);
 
         // sort & build courses
         const sortedCourses = courseRes.data
           .sort((a, b) => (a.courseName || a.title).localeCompare(b.courseName || b.title))
-          .map(c => ({ id: c._id, label: c.courseName || c.title, checked: courseIds.includes(c._id) }));
+          .map(c => ({ id: c._id, label: c.courseName || c.title }));
         setCoursesCheckboxes(sortedCourses);
+
+        // Set selected items
+        setSelectedNotes(subject.notes.map(n => ({
+          id: n._id || n,
+          label: n.noteDisplayName || n.title || notesRes.data.find(note => note._id === (n._id || n))?.noteDisplayName || ''
+        })));
+        
+        setSelectedLectures(subject.lectures.map(l => ({
+          id: l._id || l,
+          label: l.lectureName || l.title || lectRes.data.find(lec => lec._id === (l._id || l))?.lectureName || ''
+        })));
+        
+        setSelectedMockTests(subject.mockTests.map(m => ({
+          id: m._id || m,
+          label: m.title || m.mockTestName || mockRes.data.find(mock => mock._id === (m._id || m))?.title || ''
+        })));
+        
+        setSelectedCourses(subject.courses.map(c => ({
+          id: c._id || c,
+          label: c.courseName || c.title || courseRes.data.find(course => course._id === (c._id || c))?.courseName || ''
+        })));
 
       } catch (err) {
         console.error(err);
@@ -131,16 +159,79 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
   }, [id, navigate]);
 
   // cleanup preview URL
-  const [previewUrl, setPreviewUrl] = useState(null);
   useEffect(() => () => previewUrl && URL.revokeObjectURL(previewUrl), [previewUrl]);
 
-  const handleCheckboxChange = (idx, setter) =>
-    setter(list => list.map((it, i) => i === idx ? { ...it, checked: !it.checked } : it));
+  // Handle checkbox changes
+  const handleCheckboxChange = (type, id) => {
+    if (readOnlyPermissions) return;
+    
+    const setters = {
+      notes: [setSelectedNotes, selectedNotes],
+      lectures: [setSelectedLectures, selectedLectures],
+      mockTests: [setSelectedMockTests, selectedMockTests],
+      courses: [setSelectedCourses, selectedCourses]
+    };
 
-  const handleUploadAreaClick = () => fileInputRef.current?.click();
+    const [setSelected, selectedItems] = setters[type];
+    const allItems = {
+      notes: notesCheckboxes,
+      lectures: lecturesCheckboxes,
+      mockTests: mockTestCheckboxes,
+      courses: coursesCheckboxes
+    }[type];
+    
+    // Check if item is already selected
+    const isSelected = selectedItems.some(item => item.id === id);
+    
+    if (isSelected) {
+      // Remove from selected
+      setSelected(prev => prev.filter(item => item.id !== id));
+    } else {
+      // Add to selected
+      const itemToAdd = allItems.find(item => item.id === id);
+      if (itemToAdd) {
+        setSelected(prev => [...prev, itemToAdd]);
+      }
+    }
+  };
+
+  // Move items up/down (only for notes, lectures, and mock tests)
+  const moveItem = (type, index, direction) => {
+    if (readOnlyPermissions) return;
+    
+    const setters = {
+      notes: setSelectedNotes,
+      lectures: setSelectedLectures,
+      mockTests: setSelectedMockTests
+    };
+    const setSelected = setters[type];
+
+    setSelected(prev => {
+      const newItems = [...prev];
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      if (newIndex >= 0 && newIndex < newItems.length) {
+        [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+      }
+      return newItems;
+    });
+  };
+
+  const handleUploadAreaClick = () => {
+    if (!readOnlyPermissions) {
+      fileInputRef.current?.click();
+    }
+  };
+
   const handleFileChange = e => {
+    if (readOnlyPermissions) return;
+    
     const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) return toast.error("Please select an image file.");
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
     setThumbnailFile(file);
     previewUrl && URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
@@ -148,7 +239,9 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!subjectTitle.trim() || !internalTitle.trim() || !vimeoId.trim()) {
+    if (readOnlyPermissions) return;
+    
+    if (!subjectTitle.trim() || !internalTitle.trim()) {
       return toast.error("Please fill in all required fields.");
     }
     let imageUrl = previewUrl;
@@ -160,21 +253,24 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
         return toast.error("Failed to upload image");
       }
     }
-    const notes     = notesCheckboxes.filter(n => n.checked).map(n => n.id);
-    const lectures  = lecturesCheckboxes.filter(l => l.checked).map(l => l.id);
-    const mocks     = mockTestCheckboxes.filter(m => m.checked).map(m => m.id);
-    const courses   = coursesCheckboxes.filter(c => c.checked).map(c => c.id);
 
     try {
+      // Rearrange items in the correct order (except courses)
+      await Promise.all([
+        rearrangeNotes({ noteIds: selectedNotes.map(n => n.id) }),
+        rearrangeLectures({ lectureIds: selectedLectures.map(l => l.id) }),
+        rearrangeMocktest({ mocktestIds: selectedMockTests.map(m => m.id) })
+      ]);
+
       await updateSubjectById(id, {
         subjectName: internalTitle,
         subjectDisplayName: subjectTitle,
         vimeoShowcaseID: vimeoId,
         description: shortDescription,
-        notes,
-        lectures,
-        mockTests: mocks,
-        courses,
+        notes: selectedNotes.map(n => n.id),
+        lectures: selectedLectures.map(l => l.id),
+        mockTests: selectedMockTests.map(m => m.id),
+        courses: selectedCourses.map(c => c.id),
         image: imageUrl,
       });
       toast.success("Subject updated successfully");
@@ -185,13 +281,79 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
     }
   };
 
-  const editorConfig = useMemo(() => ({ readonly: false, placeholder: shortDescription }), [shortDescription]);
+  const editorConfig = useMemo(() => ({
+    readonly: readOnlyPermissions,
+    // placeholder: "Enter description here...",
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|',
+      'font', 'fontsize', 'brush', '|',
+      'align', 'undo', 'redo'
+    ],
+    height: 300
+  }), [readOnlyPermissions]);
 
-  // filtered lists
-  const filteredNotes    = notesCheckboxes.filter(n => n.label.toLowerCase().includes(notesSearch.toLowerCase()));
-  const filteredLectures = lecturesCheckboxes.filter(l => l.label.toLowerCase().includes(lecturesSearch.toLowerCase()));
-  const filteredMocks    = mockTestCheckboxes.filter(m => m.label.toLowerCase().includes(mockSearch.toLowerCase()));
-  const filteredCourses  = coursesCheckboxes.filter(c => c.label.toLowerCase().includes(coursesSearch.toLowerCase()));
+  // Filter items based on search
+  const filteredNotes = notesCheckboxes.filter(n => 
+    n.label.toLowerCase().includes(notesSearch.toLowerCase())
+  );
+  const filteredLectures = lecturesCheckboxes.filter(l => 
+    l.label.toLowerCase().includes(lecturesSearch.toLowerCase())
+  );
+  const filteredMocks = mockTestCheckboxes.filter(m => 
+    m.label.toLowerCase().includes(mockSearch.toLowerCase())
+  );
+  const filteredCourses = coursesCheckboxes.filter(c => 
+    c.label.toLowerCase().includes(coursesSearch.toLowerCase())
+  );
+
+  // Check if an item is selected
+  const isSelected = (type, id) => {
+    const selectedItems = {
+      notes: selectedNotes,
+      lectures: selectedLectures,
+      mockTests: selectedMockTests,
+      courses: selectedCourses
+    }[type];
+    
+    return selectedItems.some(item => item.id === id);
+  };
+
+  // Render selected items with move buttons (except for courses)
+  const renderSelectedItems = (items, type) => (
+    <SelectedSubjectsContainer>
+      <CheckboxSectionTitle>Selected {type} ({items.length})</CheckboxSectionTitle>
+      {items.length > 0 ? (
+        items.map((item, index) => (
+          <SelectedSubjectItem key={item.id}>
+            <SubjectName>{item.label}</SubjectName>
+            {type !== 'courses' && !readOnlyPermissions && (
+              <div>
+                <MoveButton
+                  style={{backgroundColor: 'green'}}
+                  type="button"
+                  onClick={() => moveItem(type, index, 'up')}
+                  disabled={index === 0}
+                >
+                  <FaArrowUp />
+                </MoveButton>
+                <MoveButton
+                  style={{backgroundColor: 'red'}}
+                  type="button"
+                  onClick={() => moveItem(type, index, 'down')}
+                  disabled={index === items.length - 1}
+                >
+                  <FaArrowDown />
+                </MoveButton>
+              </div>
+            )}
+          </SelectedSubjectItem>
+        ))
+      ) : (
+        <p>No {type} selected</p>
+      )}
+    </SelectedSubjectsContainer>
+  );
 
   return (
     <Container>
@@ -202,17 +364,23 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
           <Column>
             <FieldWrapper>
               <Label>Subject Title</Label>
-              <Input value={subjectTitle} onChange={e => setSubjectTitle(e.target.value)} placeholder="Enter Subject Title" />
-            </FieldWrapper>
-            <FieldWrapper>
-              <Label>Internal Title</Label>
-              <Input value={internalTitle} onChange={e => setInternalTitle(e.target.value)} placeholder="Enter Internal Title" />
+              <Input 
+                value={subjectTitle} 
+                onChange={e => setSubjectTitle(e.target.value)} 
+                placeholder="Enter Subject Title" 
+                readOnly={readOnlyPermissions}
+              />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label>Vimeo Showcase ID</Label>
-              <Input value={vimeoId} onChange={e => setVimeoId(e.target.value)} placeholder="Enter Vimeo ID" />
+              <Label>Internal Title</Label>
+              <Input 
+                value={internalTitle} 
+                onChange={e => setInternalTitle(e.target.value)} 
+                placeholder="Enter Internal Title" 
+                readOnly={readOnlyPermissions}
+              />
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -221,85 +389,169 @@ const [thumbnailFile, setThumbnailFile] = useState(null);
           <Column>
             <FieldWrapper>
               <Label>Short Description</Label>
-              <JoditEditor ref={editor} value={shortDescription} config={editorConfig} tabIndex={1} onBlur={() => {}} onChange={setShortDescription} />
+              <JoditEditor 
+                ref={editor} 
+                value={shortDescription} 
+                config={editorConfig} 
+                onBlur={newContent => setShortDescription(newContent)}
+                onChange={newContent => {}} // We use onBlur instead of onChange for performance
+              />
             </FieldWrapper>
           </Column>
         </FormRow>
 
+        {/* Notes Section */}
         <FormRow>
           <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Select Notes</CheckboxSectionTitle>
-              <Input placeholder="Search notes..." value={notesSearch} onChange={e => setNotesSearch(e.target.value)} style={{ margin: '8px 0' }} />
-              <CheckboxList>
-                {filteredNotes.map((n, i) => (
-                  <CheckboxLabel key={n.id}>
-                    <CheckboxInput type="checkbox" checked={n.checked} onChange={() => handleCheckboxChange(i, setNotesCheckboxes)} />
-                    {n.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Select Lectures</CheckboxSectionTitle>
-              <Input placeholder="Search lectures..." value={lecturesSearch} onChange={e => setLecturesSearch(e.target.value)} style={{ margin: '8px 0' }} />
-              <CheckboxList>
-                {filteredLectures.map((l, i) => (
-                  <CheckboxLabel key={l.id}>
-                    <CheckboxInput type="checkbox" checked={l.checked} onChange={() => handleCheckboxChange(i, setLecturesCheckboxes)} />
-                    {l.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>Available Notes ({filteredNotes.length}) </CheckboxSectionTitle>
+                <Input 
+                  placeholder="Search notes..." 
+                  value={notesSearch} 
+                  onChange={e => setNotesSearch(e.target.value)} 
+                  style={{ margin: '8px 0' }} 
+                  readOnly={readOnlyPermissions}
+                />
+                <CheckboxList>
+                  {filteredNotes.map((note) => (
+                    <CheckboxLabel key={note.id}>
+                      <CheckboxInput 
+                        type="checkbox" 
+                        checked={isSelected('notes', note.id)} 
+                        onChange={() => handleCheckboxChange('notes', note.id)} 
+                        disabled={readOnlyPermissions}
+                      />
+                      {note.label}
+                    </CheckboxLabel>
+                  ))}
+                </CheckboxList>
+              </CheckboxSection>
+              {renderSelectedItems(selectedNotes, 'notes')}
+            </SubjectsContainer>
           </Column>
         </FormRow>
 
+        {/* Lectures Section */}
         <FormRow>
           <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Select MockTests</CheckboxSectionTitle>
-              <Input placeholder="Search mock tests..." value={mockSearch} onChange={e => setMockSearch(e.target.value)} style={{ margin: '8px 0' }} />
-              <CheckboxList>
-                {filteredMocks.map((m, i) => (
-                  <CheckboxLabel key={m.id}>
-                    <CheckboxInput type="checkbox" checked={m.checked} onChange={() => handleCheckboxChange(i, setMockTestCheckboxes)} />
-                    {m.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
-          </Column>
-
-          <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Select Courses</CheckboxSectionTitle>
-              <Input placeholder="Search courses..." value={coursesSearch} onChange={e => setCoursesSearch(e.target.value)} style={{ margin: '8px 0' }} />
-              <CheckboxList>
-                {filteredCourses.map((c, i) => (
-                  <CheckboxLabel key={c.id}>
-                    <CheckboxInput type="checkbox" checked={c.checked} onChange={() => handleCheckboxChange(i, setCoursesCheckboxes)} />
-                    {c.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>Available Lectures ({filteredLectures.length})</CheckboxSectionTitle>
+                <Input 
+                  placeholder="Search lectures..." 
+                  value={lecturesSearch} 
+                  onChange={e => setLecturesSearch(e.target.value)} 
+                  style={{ margin: '8px 0' }} 
+                  readOnly={readOnlyPermissions}
+                />
+                <CheckboxList>
+                  {filteredLectures.map((lecture) => (
+                    <CheckboxLabel key={lecture.id}>
+                      <CheckboxInput 
+                        type="checkbox" 
+                        checked={isSelected('lectures', lecture.id)} 
+                        onChange={() => handleCheckboxChange('lectures', lecture.id)} 
+                        disabled={readOnlyPermissions}
+                      />
+                      {lecture.label}
+                    </CheckboxLabel>
+                  ))}
+                </CheckboxList>
+              </CheckboxSection>
+              {renderSelectedItems(selectedLectures, 'lectures')}
+            </SubjectsContainer>
           </Column>
         </FormRow>
 
+        {/* Mock Tests Section */}
+        <FormRow>
+          <Column>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>Available Mock Tests ({filteredMocks.length})</CheckboxSectionTitle>
+                <Input 
+                  placeholder="Search mock tests..." 
+                  value={mockSearch} 
+                  onChange={e => setMockSearch(e.target.value)} 
+                  style={{ margin: '8px 0' }} 
+                  readOnly={readOnlyPermissions}
+                />
+                <CheckboxList>
+                  {filteredMocks.map((mock) => (
+                    <CheckboxLabel key={mock.id}>
+                      <CheckboxInput 
+                        type="checkbox" 
+                        checked={isSelected('mockTests', mock.id)} 
+                        onChange={() => handleCheckboxChange('mockTests', mock.id)} 
+                        disabled={readOnlyPermissions}
+                      />
+                      {mock.label}
+                    </CheckboxLabel>
+                  ))}
+                </CheckboxList>
+              </CheckboxSection>
+              {renderSelectedItems(selectedMockTests, 'mockTests')}
+            </SubjectsContainer>
+          </Column>
+        </FormRow>
+
+        {/* Courses Section */}
+        <FormRow>
+          <Column>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>Available Courses ({filteredCourses.length})</CheckboxSectionTitle>
+                <Input 
+                  placeholder="Search courses..." 
+                  value={coursesSearch} 
+                  onChange={e => setCoursesSearch(e.target.value)} 
+                  style={{ margin: '8px 0' }} 
+                  readOnly={readOnlyPermissions}
+                />
+                <CheckboxList>
+                  {filteredCourses.map((course) => (
+                    <CheckboxLabel key={course.id}>
+                      <CheckboxInput 
+                        type="checkbox" 
+                        checked={isSelected('courses', course.id)} 
+                        onChange={() => handleCheckboxChange('courses', course.id)} 
+                        disabled={readOnlyPermissions}
+                      />
+                      {course.label}
+                    </CheckboxLabel>
+                  ))}
+                </CheckboxList>
+              </CheckboxSection>
+              {renderSelectedItems(selectedCourses, 'courses')}
+            </SubjectsContainer>
+          </Column>
+        </FormRow>
+
+        {/* Thumbnail Upload */}
         <FormRow>
           <Column>
             <Label>Upload Thumbnail</Label>
             <UploadArea onClick={handleUploadAreaClick}>
               {previewUrl ? (
-                <> <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%' }} /> {thumbnailFile && <p>{thumbnailFile.name}</p>} </>
+                <> 
+                  <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%' }} /> 
+                  {thumbnailFile && <p>{thumbnailFile.name}</p>} 
+                </>
               ) : (
-                <> <UploadPlaceholder><img src={uploadIcon} alt="Upload" /></UploadPlaceholder><p>Drag & drop image here</p><p>or <strong>Add Image</strong></p> </>
+                <> 
+                  <UploadPlaceholder><img src={uploadIcon} alt="Upload" /></UploadPlaceholder>
+                  <p>Drag & drop image here</p>
+                  <p>or <strong>Add Image</strong></p> 
+                </>
               )}
-              <FileInput ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} />
+              <FileInput 
+                ref={fileInputRef} 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileChange} 
+                disabled={readOnlyPermissions}
+              />
             </UploadArea>
           </Column>
         </FormRow>

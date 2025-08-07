@@ -21,14 +21,20 @@ import {
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
+  SubjectsContainer,
+  SelectedSubjectsContainer,
+  SelectedSubjectItem,
+  SubjectName,
+  MoveButton,
 } from "./EditLecturer.styles";
 import { useNavigate, useParams } from "react-router-dom";
 import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getSubjects } from "../../../../../api/subjectApi";
+import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
 import JoditEditor from 'jodit-react';
 import { getAuth } from "../../../../../utils/authService";
+import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -44,6 +50,7 @@ export default function EditLecturer() {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [currentVideo, setCurrentVideo] = useState("");
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   const videoInputRef = useRef(null);
   const editor = useRef(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
@@ -72,13 +79,23 @@ export default function EditLecturer() {
           duration: lecture.duration || "",
           description: lecture.description || "",
         });
+
         const responseSubjects = await getSubjects();
         const subjectsData = responseSubjects.data.map((item) => ({
           label: item.subjectName,
           id: item._id,
           checked: lecture.subjectRef.includes(item._id),
         }));
+        
         setSubjectCheckboxes(subjectsData);
+        
+        // Set selected subjects in the correct order
+        const orderedSelectedSubjects = lecture.subjectRef.map(subjectId => {
+          const subject = subjectsData.find(s => s.id === subjectId);
+          return subject ? { ...subject } : null;
+        }).filter(Boolean);
+        
+        setSelectedSubjects(orderedSelectedSubjects);
 
         setCurrentVideo(lecture.videoUrl);
         setVideoPreviewUrl(lecture.videoUrl);
@@ -93,10 +110,54 @@ export default function EditLecturer() {
 
   const handleVideoUploadClick = () => videoInputRef.current.click();
 
-  const handleCheckboxChange = (index, setFn) => {
-    setFn((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
+  const handleCheckboxChange = (index) => {
+    const updatedCheckboxes = [...subjectCheckboxes];
+    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    setSubjectCheckboxes(updatedCheckboxes);
+
+    // Update selected subjects
+    const selected = updatedCheckboxes.filter(item => item.checked);
+    
+    // Maintain the order of already selected subjects
+    const newSelectedSubjects = [...selectedSubjects];
+    const subjectToUpdate = updatedCheckboxes[index];
+    
+    if (subjectToUpdate.checked) {
+      // Add to selected if not already there
+      if (!newSelectedSubjects.some(s => s.id === subjectToUpdate.id)) {
+        newSelectedSubjects.push(subjectToUpdate);
+      }
+    } else {
+      // Remove from selected
+      const removeIndex = newSelectedSubjects.findIndex(s => s.id === subjectToUpdate.id);
+      if (removeIndex !== -1) {
+        newSelectedSubjects.splice(removeIndex, 1);
+      }
+    }
+    
+    setSelectedSubjects(newSelectedSubjects);
+  };
+
+  const moveSubjectUp = (index) => {
+    if (index <= 0) return;
+    
+    const newSelectedSubjects = [...selectedSubjects];
+    // Swap positions
+    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = 
+      [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
+    
+    setSelectedSubjects(newSelectedSubjects);
+  };
+
+  const moveSubjectDown = (index) => {
+    if (index >= selectedSubjects.length - 1) return;
+    
+    const newSelectedSubjects = [...selectedSubjects];
+    // Swap positions
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = 
+      [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
+    
+    setSelectedSubjects(newSelectedSubjects);
   };
 
   const handleVideoChange = (e) => {
@@ -109,19 +170,23 @@ export default function EditLecturer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { lectureName, duration, description } = formData;
+    const { lectureName, description } = formData;
 
-    if (!lectureName || !duration || !description) {
+    if (!lectureName || !description) {
       toast.error("Please fill all required fields!");
       return;
     }
 
     try {
+      // Rearrange subjects before submission
+      const subjectIds = selectedSubjects.map(subject => subject.id);
+      await rearrangeSubjects(subjectIds);
+
       const payload = {
         lectureName,
-        duration,
+        // duration,
         description,
-        subjectRef: subjectCheckboxes.filter((item) => item.checked).map((item) => item.id),
+        subjectRef: subjectIds,
       };
 
       const response = await updateLectureById(id, payload);
@@ -140,7 +205,7 @@ export default function EditLecturer() {
   const configDis = useMemo(() => ({
     readonly: false,
     placeholder: formData.description,
-  }), [formData.description]);
+  }), []);
 
   return (
     <Container>
@@ -163,22 +228,6 @@ export default function EditLecturer() {
               />
             </FieldWrapper>
           </Column>
-          {/* <Column>
-            <FieldWrapper>
-              <Label htmlFor="duration">Duration (min)*</Label>
-              <Input
-                id="duration"
-                name="duration"
-                value={formData.duration}
-                onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^0-9]/g, "");
-                  setFormData({ ...formData, duration: filteredData });
-                }}
-                placeholder="e.g. 20"
-                required
-              />
-            </FieldWrapper>
-          </Column> */}
         </FormRow>
         <FormRow>
           <Column>
@@ -195,25 +244,64 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
+        
         <FormRow>
           <Column>
-            <CheckboxSection>
-              <CheckboxSectionTitle>Add Subject</CheckboxSectionTitle>
-              <CheckboxList>
-                {subjectCheckboxes.map((item, index) => (
-                  <CheckboxLabel key={item.id || index}>
-                    <CheckboxInput
-                      type="checkbox"
-                      checked={item.checked}
-                      onChange={() => handleCheckboxChange(index, setSubjectCheckboxes)}
-                    />
-                    {item.label}
-                  </CheckboxLabel>
-                ))}
-              </CheckboxList>
-            </CheckboxSection>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>Available Subjects</CheckboxSectionTitle>
+                <CheckboxList>
+                  {subjectCheckboxes.map((item, index) => (
+                    <CheckboxLabel key={item.id || index}>
+                      <CheckboxInput
+                        type="checkbox"
+                        checked={item.checked}
+                        onChange={() => handleCheckboxChange(index)}
+                      />
+                      {item.label}
+                    </CheckboxLabel>
+                  ))}
+                </CheckboxList>
+              </CheckboxSection>
+              
+              <SelectedSubjectsContainer>
+                <CheckboxSectionTitle>Selected Subjects (Drag to reorder)</CheckboxSectionTitle>
+                {selectedSubjects.length > 0 ? (
+                  selectedSubjects.map((subject, index) => (
+                    <SelectedSubjectItem key={subject.id}>
+                      <SubjectName>{subject.label}</SubjectName>
+                      <div>
+                        <MoveButton 
+                        style={{
+                          backgroundColor:"green"
+                        }}
+                          type="button" 
+                          onClick={() => moveSubjectUp(index)}
+                          disabled={index === 0}
+                        >
+                          <FaArrowUp />
+                        </MoveButton>
+                        <MoveButton 
+                        style={{
+                          backgroundColor:"red"
+                        }}
+                          type="button" 
+                          onClick={() => moveSubjectDown(index)}
+                          disabled={index === selectedSubjects.length - 1}
+                        >
+                          <FaArrowDown />
+                        </MoveButton>
+                      </div>
+                    </SelectedSubjectItem>
+                  ))
+                ) : (
+                  <p>No subjects selected</p>
+                )}
+              </SelectedSubjectsContainer>
+            </SubjectsContainer>
           </Column>
         </FormRow>
+        
         <FormRow>
           <Column>
             <FieldWrapper>

@@ -134,6 +134,8 @@ export const CheckboxSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
+  width: 50%;
+  max-height:280px;
 `;
 
 /** Title for each checkbox section (e.g. "Add Notes" and "Add Mock Test") */
@@ -142,10 +144,11 @@ export const CheckboxSectionTitle = styled.h4`
   font-size: 1rem;
   font-weight: normal;
   margin: 0 0 ${(props) => props.theme.spacing(1)} 0;
-  color: ${(props) => props.theme.colors.test};
+     color: ${(props) => props.theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.dimGray};
+
   padding: ${(props) => props.theme.spacing(1)};
-  //done
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
+ 
   border-radius: 6px;
 `;
 
@@ -155,7 +158,7 @@ export const CheckboxList = styled.div`
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
   overflow-y: auto;
-  max-height: 80px;
+  // max-height: 80px;
 `;
 
 /** A single checkbox + label line */
@@ -335,4 +338,55 @@ export const ThumbnailPreview = styled.div`
 export const VideoControl = styled.video`
   width: 100%;
   height: 500px;
+`;
+
+
+
+export const SubjectsContainer = styled.div`
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+`;
+
+export const SelectedSubjectsContainer = styled.div`
+  flex: 1;
+  // border: 1px solid #ddd;
+  // border-radius: 8px;
+  padding: 0.5rem;
+  background: #f9f9f9;
+`;
+
+export const SelectedSubjectItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+`;
+
+export const SubjectName = styled.span`
+  font-size: 0.9rem;
+`;
+
+export const MoveButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 0.3rem;
+  margin-left: 0.5rem;
+   border-radius: 4px;
+ 
+   &:hover:not(:disabled) {
+    background-color: ${(props) => props.theme.colors.primaryDark};
+  }
+
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.lightwhite};
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;

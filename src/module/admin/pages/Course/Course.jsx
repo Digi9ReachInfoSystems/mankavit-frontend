@@ -356,6 +356,7 @@ export default function CoursesTable() {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search"
+            style={{color: "black"}}
           />
         </SearchWrapper>
 

@@ -258,6 +258,7 @@ export default function NotesManagement() {
             placeholder="Search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
+             style={{color: "black"}}
           />
         </SearchWrapper>
 

@@ -405,3 +405,11 @@ export const LoadingContainer = styled.div`
   align-items: center;
   height: 100vh;
 `;
+
+export const TextAreaField = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+`;

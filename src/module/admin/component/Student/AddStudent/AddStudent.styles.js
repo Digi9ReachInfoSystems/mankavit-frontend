@@ -283,3 +283,11 @@ export const ErrorMessage = styled.p`
   margin-top: 0.25rem;
   margin-bottom: 0;
 `;
+
+export const TextAreaField = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+`;

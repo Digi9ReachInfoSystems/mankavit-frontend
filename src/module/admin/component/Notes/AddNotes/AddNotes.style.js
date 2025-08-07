@@ -142,16 +142,16 @@ export const CheckboxSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
-   width: 50%;
+  //  width: 50%;
 `;
 
 export const CheckboxSectionTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: normal;
-  color: ${(props) => props.theme.colors.test};
   margin-bottom: ${(props) => props.theme.spacing(1)};
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
-  padding: ${(props) => props.theme.spacing(2)};
+     color: ${(props) => props.theme.colors.backgrounGrey};
+  background-color: ${(props) => props.theme.colors.dimGray};
+  padding: ${(props) => props.theme.spacing(1)};
   border-radius: 4px;
 `;
 
@@ -261,4 +261,96 @@ export const FieldWrapper = styled.div`
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
   width: 100%;
+`;
+
+
+// Add the following styles to your existing AddNotes.style.js
+
+export const SelectedSubjectsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing(1)};
+  margin-top: ${(props) => props.theme.spacing(2)};
+  max-height: 280px;
+  overflow-y: auto;
+  width: 100%;
+`;
+
+export const SelectedSubjectItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${(props) => props.theme.spacing(1.5)} ${(props) => props.theme.spacing(2)};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryLight};
+  }
+`;
+
+export const SubjectName = styled.span`
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.black};
+`;
+
+export const ArrowButton = styled.button`
+  // background-color: ${(props) => props.theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  margin-left: ${(props) => props.theme.spacing(1)};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: ${(props) => props.theme.colors.primaryDark};
+  }
+
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.lightwhite};
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+export const SelectedSubjectsTitle = styled.h3`
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: ${(props) => props.theme.colors.backgrounGrey};
+  margin-top: ${(props) => props.theme.spacing(1)};
+  background-color: ${(props) => props.theme.colors.dimGray};
+  padding: ${(props) => props.theme.spacing(1.5)};
+  border-radius: 4px;
+`;
+
+
+
+
+export const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-bottom: 15px;
+`;
+
+export const SearchIcon = styled.span`
+  margin-right: 8px;
+  color: #666;
+`;
+
+export const SearchInput = styled.input`
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background: transparent;
 `;

@@ -42,6 +42,10 @@ const OtpLogin = () => {
         getDeviceId();
     }, []);
 
+   
+     
+    
+
     const focusInput = (index) => {
         const input = document.getElementById(`otp-${index}`);
         if (input) {
@@ -82,6 +86,8 @@ const OtpLogin = () => {
             }
         }
     };
+    const isOtpComplete = otpDigits.every(digit => digit.length === 1);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -228,7 +234,13 @@ const OtpLogin = () => {
                         ))}
                     </div>
 
-                    <Button type="submit" onClick={handleSubmit} >{resendingOtp ? 'Resending OTP...' : verifying ? 'Verifying...' : "Verify & Login"} </Button>
+                   <Button
+    type="submit"
+    onClick={handleSubmit}
+    disabled={!isOtpComplete || verifying || resendingOtp}
+>
+    {resendingOtp ? 'Resending OTP...' : verifying ? 'Verifying...' : "Verify & Login"}
+</Button>
 
                     {/* Resend OTP Section */}
                     <div style={{ marginTop: '30px', textAlign: 'center' }}>

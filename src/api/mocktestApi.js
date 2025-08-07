@@ -294,3 +294,53 @@ export const viewUserMocktestAttemptResult = async (userId, mockTestId) => {
     throw error;
   }
 };
+
+
+export const getMocktestBySubjectname = async (subjectName) => {
+    try {
+        const response = await api.get(`/mockTest/get/getMocktestBySubjectname/${subjectName}`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const bulkdeleteMocktest = async (mockTestIds ) => {
+    try {
+        const response = await api.delete('/mockTest/bulkmocktestdelete/delete', {
+            data: { mockTestIds  },
+            // headers: {
+            //     'Content-Type': 'application/json',
+            //     'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            // }
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const rearrangeMocktest = async (data) => {
+    try {
+        const response = await api.put(`/mockTest/mocktests/rearrangeMocktests`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export const bulkdeleteUserAttempts = async (attemptIds) => {
+    try {
+        const response = await api.delete('/userAttempt/deleteAttempts/attempts/bulkdelete', {
+            data: { 
+                attemptIds: attemptIds // Ensure this matches the backend expectation
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Bulk delete error:", error);
+        throw error;
+    }
+}

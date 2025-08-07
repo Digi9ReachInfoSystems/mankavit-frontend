@@ -132,9 +132,10 @@ export const LoginSubTitle = styled.p`
 export const Label = styled.label`
   display: block;
   font-size: 0.875rem;
+  font-weight: 500;
   margin-top: 30px;
   font-family: ${theme.fonts.body};
-  color:#8A8A8A;
+  color:#0C0D19;
 `;
 
 export const Input = styled.input`
@@ -174,10 +175,15 @@ box-shadow: 0px 4px 8px 0px rgba(171, 190, 209, 0.40);
   &:hover {
     background-color: #154f6d;
   }
+      &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
      @media (min-width: 1000px)and (max-width: 1200px)and (max-height: 800px) {
         
          margin:10px;
     }
+        
 `;
 
 export const OTPButton = styled.button`

@@ -75,3 +75,14 @@ export const bulkDeleteLectures = async (lectureIds) => {
         throw error;
     }
 }
+
+
+export const rearrangeLectures = async (data) => {
+    try {
+        const response = await api.put('/lecture/lectures/rearrangeLectures', data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

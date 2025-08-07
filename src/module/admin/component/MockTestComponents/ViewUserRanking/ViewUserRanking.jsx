@@ -62,42 +62,44 @@ export default function ViewUserRanking() {
         }
         apiCaller();
     }, []);
-    useEffect(() => {
-        const fetchUserAnswers = async () => {
-            try {
-                if (!mockTestId || !subjectId) {
-                    console.error("Missing mockTestId or subjectId");
-                    return;
-                }
-                const mocktestResponse = await getMocktestById(mockTestId);
-                if (mocktestResponse.success) {
-                    setMockTestName(mocktestResponse.data.title);
-                }
-                const response = await getRankingByMockTestSubject(
-                    mockTestId,
-                    subjectId
+   useEffect(() => {
+  const fetchUserAnswers = async () => {
+    try {
+      if (!mockTestId || !subjectId) {
+        console.error("Missing mockTestId or subjectId");
+        return;
+      }
 
-                );
+      if (!/^[a-f\d]{24}$/i.test(mockTestId) || !/^[a-f\d]{24}$/i.test(subjectId)) {
+        console.error("Invalid ID format");
+        return;
+      }
 
-                console.log("Fetching user answers for mockTestId: dss ", response);
+      const mocktestResponse = await getMocktestById(mockTestId);
+      if (mocktestResponse.success) {
+        setMockTestName(mocktestResponse.data.title);
+      }
+     console.log("Fetching user answers for mockTestId:zcadsfds", mockTestId, subjectId);
+      const response = await getRankingByMockTestSubject(mockTestId, subjectId);
+      if (response.success) {
+        let sorted = response.data;
+        if (sortBy === "Name") {
+          sorted = [...sorted].sort((a, b) => a.userId.displayName.localeCompare(b.userId.displayName));
+        } else if (sortBy === "SubmittedAt") {
+          sorted = [...sorted].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
+        }
+        setData(sorted);
+      } else {
+        throw new Error(response.message || "Failed to fetch user answers");
+      }
+    } catch (error) {
+      console.error("Error fetching mock tests:", error);
+    }
+  };
 
-                console.log("Fetching user answers for mockTestId:", response);
-                // console.log("subjectId", subjectId);
-                console.log("mockTestId", mockTestId);
-                console.log("View user answers response", response);
-                if (response.success) {
-                    setData(response.data);
-                } else {
-                    throw new Error(response.message || "Failed to fetch user answers");
-                }
-            } catch (error) {
-                console.error("Error fetching mock tests:", error);
-                // You might want to set some error state here to show to the user
-            }
-        };
+  fetchUserAnswers();
+}, [mockTestId, subjectId, sortBy]);
 
-        fetchUserAnswers();
-    }, [mockTestId, subjectId]);
     useEffect(() => {
         const apiCaller = async () => {
             try {

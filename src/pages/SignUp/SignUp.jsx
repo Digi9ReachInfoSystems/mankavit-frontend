@@ -56,7 +56,7 @@ const SignUp = () => {
       return false;
     }
     if (password.length < 8) {
-      setErrorMessage("Password must be at least 6 characters long.");
+      setErrorMessage("Password must be at least 8 characters long, include a number, an uppercase letter, and a special character.");
       return false;
     }
 
@@ -66,6 +66,12 @@ const SignUp = () => {
     }
     return true;
   };
+  const handleKeyDown = (e) => {
+  if (e.key === 'Enter') {
+    handleSignup(e);
+  }
+};
+
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -115,7 +121,8 @@ const SignUp = () => {
       </Logo>
 
       {/* Signup Form */}
-      <Form onSubmit={handleSignup}>
+    <Form onSubmit={handleSignup} onKeyDown={handleKeyDown}>
+
         <FormContent>
           <LoginTitle>Create Account</LoginTitle>
 

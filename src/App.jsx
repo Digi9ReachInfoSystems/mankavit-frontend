@@ -147,7 +147,6 @@ import AdminManagement from './module/admin/pages/AdminManagement/AdminManagemen
 import CreateAdmin from './module/admin/pages/CreateAdmin/CreateAdmin'
 import EditAdmin from './module/admin/pages/EditAdmin/EditAdmin'
 import Ticker from './module/admin/pages/Ticker/Ticker'
-
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 import AdminRoute from './pages/ProtectedAndPublicRoutes/AdminRoute'
 import SuperAdminRoute from './pages/ProtectedAndPublicRoutes/SuperAdminRoute'

@@ -1,12 +1,31 @@
 /* EditStudent.jsx — complete component */
 import React, { useEffect, useState, useRef } from "react";
 import {
-  FormContainer, Title, InputGroup, Label, InputField, SubmitButton,
-  FlexRow, ErrorMessage, LoadingSpinner, LogoutButton,
-  CourseSelection, CourseCheckbox, CourseLabel,
-  CourseList, CourseItem, AttemptsTable, TableHead,
-  TableRow, TableCell, PaymentModal, ModalOverlay, CloseButton,
-  ToggleSwitch, ToggleSlider, ToggleLabel
+  FormContainer,
+  Title,
+  InputGroup,
+  Label,
+  InputField,
+  SubmitButton,
+  FlexRow,
+  ErrorMessage,
+  LoadingSpinner,
+  LogoutButton,
+  CourseSelection,
+  CourseCheckbox,
+  CourseLabel,
+  CourseList,
+  CourseItem,
+  AttemptsTable,
+  TableHead,
+  TableRow,
+  TableCell,
+  PaymentModal,
+  ModalOverlay,
+  CloseButton,
+  ToggleSwitch,
+  ToggleSlider,
+  ToggleLabel,
 } from "./EditStudent.style";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -18,16 +37,13 @@ import {
   forceUserLogout,
   deleteStudentById,
   blockAndUnblockUser,
-  enableDisableMasterOTP
+  enableDisableMasterOTP,
 } from "../../../../../api/userApi";
-import {
-  getUserByUserId,
-  updateUserById
-} from "../../../../../api/authApi";
+import { getUserByUserId, updateUserById } from "../../../../../api/authApi";
 import { getAllUserAttemptByUserId } from "../../../../../api/mocktestApi";
 
 import DeleteModal from "../../DeleteModal/DeleteModal";
-import api from "../../../../../config/axiosConfig";
+// import api from "../../../../../config/axiosConfig";
 import { getAuth } from "../../../../../utils/authService";
 const EMAIL_RGX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RGX = /^\+?\d{7,15}$/;
@@ -39,7 +55,18 @@ const EditStudent = () => {
   const [loadingStudent, setLoadingStudent] = useState(true);
   const [courses, setCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
-  const [form, setForm] = useState({ displayName: "", email: "", phone: "" });
+  const [form, setForm] = useState({ 
+    displayName: "", 
+    email: "", 
+    phone: "",
+    fathers_name: "",
+    fathers_occupation: "",
+    current_occupation: "",
+    present_address: "",
+    passing_year: "",
+    college_name: "",
+    date_of_birth: ""
+  });
   const [selected, setSelected] = useState([]);
   const [processing, setProcessing] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -52,6 +79,7 @@ const EditStudent = () => {
   const [blockedChange, setBlockedChange] = useState(false);
   const [masterOtpEnabled, setMasterOtpEnabled] = useState(false);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -59,11 +87,14 @@ const EditStudent = () => {
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
-        setReadOnlyPermissions(response.Permissions["studentManagement"].readOnly);
+        setReadOnlyPermissions(
+          response.Permissions["studentManagement"].readOnly
+        );
       }
-    }
+    };
     apiCaller();
   }, []);
+
   useEffect(() => {
     const apiCaller = async () => {
       const res = await getUserByUserId(userId);
@@ -73,42 +104,56 @@ const EditStudent = () => {
       console.log("isBlocked", stu);
       setIsBlocked(stu.isBlocked);
       setMasterOtpEnabled(stu.isMasterOtpEnabled);
-
-    }
+    };
     apiCaller();
   }, [blockedChange]);
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoadingStudent(true);
-        const res = await getUserByUserId(userId);
-        console.log("Student data:", res);
-        if (!res.success || !res.user) throw new Error("Student not found");
 
-        const stu = res.user;
-        const currentIds =
-          stu.courseIds?.length
-            ? stu.courseIds
-            : (stu.subscription || []).map(s => s.course_enrolled?._id || s.course_enrolled);
+ useEffect(() => {
+  (async () => {
+    try {
+      setLoadingStudent(true);
+      const res = await getUserByUserId(userId);
+      console.log("Student data:", res);
+      if (!res.success || !res.user) throw new Error("Student not found");
 
-        setStudent(stu);
-        setSelected(currentIds);
-        setForm({
-          displayName: stu.displayName || "",
-          email: stu.email || "",
-          phone: stu.phone || "",
-          masterOtp: stu.masterOtp
-        });
-        setHasBeenForcedLoggedOut(false);
-      } catch (err) {
-        console.error(err);
-        toast.error(err.message || "Failed to load student");
-        setTimeout(() => navigate("/admin/student-management"), 1000);
-      } finally {
-        setLoadingStudent(false);
-      }
-    })();
-  }, [userId, navigate]);
+      const stu = res.user;
+      const currentIds = stu.courseIds?.length
+        ? stu.courseIds
+        : (stu.subscription || []).map(
+            (s) => s.course_enrolled?._id || s.course_enrolled
+          );
+
+      setStudent(stu);
+      setSelected(currentIds);
+      
+      // Format date_of_birth for the input field
+      const formattedDate = stu.date_of_birth 
+        ? new Date(stu.date_of_birth).toISOString().split('T')[0]
+        : '';
+
+      setForm({
+        displayName: stu.displayName || "",
+        email: stu.email || "",
+        phone: stu.phone || "",
+        masterOtp: stu.masterOtp,
+        fathers_name: stu.fathers_name || "",
+        fathers_occupation: stu.fathers_occupation || "",
+        current_occupation: stu.current_occupation || "",
+        present_address: stu.present_address || "",
+        passing_year: stu.passing_year || "",
+        college_name: stu.college_name || "",
+        date_of_birth: formattedDate
+      });
+      setHasBeenForcedLoggedOut(false);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Failed to load student");
+      setTimeout(() => navigate("/admin/student-management"), 1000);
+    } finally {
+      setLoadingStudent(false);
+    }
+  })();
+}, [userId, navigate]);
 
   useEffect(() => {
     (async () => {
@@ -150,19 +195,21 @@ const EditStudent = () => {
 
   const currentIds = student?.courseIds?.length
     ? student.courseIds
-    : (student?.subscription || []).map(s => s.course_enrolled?._id || s.course_enrolled);
+    : (student?.subscription || []).map(
+        (s) => s.course_enrolled?._id || s.course_enrolled
+      );
 
-  const available = courses.filter(c => !currentIds.includes(c._id));
-  const enrolled = courses.filter(c => currentIds.includes(c._id));
+  const available = courses.filter((c) => !currentIds.includes(c._id));
+  const enrolled = courses.filter((c) => currentIds.includes(c._id));
 
   /* ─────────────────────────── handlers ────────────────────────────────────── */
   const toggleCourse = (id) =>
-    setSelected(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
 
   const onFormChange = (e) =>
-
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const validate = () => {
     console.log("form validation", form);
@@ -172,35 +219,46 @@ const EditStudent = () => {
     if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
     // if (selected.length === 0) errs.courseIds = "Select at least one course";
 
-    if ((form.masterOtp.length !== 6) || (isNaN(form.masterOtp))) {
-
-      errs.masterOtp = "OTP must be 6 digits"
-    };
+    if (form.masterOtp && (form.masterOtp.length !== 6 || isNaN(form.masterOtp))) {
+      errs.masterOtp = "OTP must be 6 digits";
+    }
 
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleSave = async () => {
-    if (!student || !validate()) return;
-    setProcessing(true);
-    try {
-      console.log("form", form);
-      /* 1️⃣ Update profile */
-      await updateUserById(student._id, {
-        displayName: form.displayName.trim(),
-        email: form.email.trim(),
-        phone: form.phone.trim(),
-        masterOtp: form.masterOtp
-      });
+const handleSave = async () => {
+  if (!student || !validate()) return;
+  setProcessing(true);
+  try {
+    /* 1️⃣ Update profile */
+    await updateUserById(student._id, {
+      displayName: form.displayName.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      masterOtp: form.masterOtp,
+      fathers_name: form.fathers_name.trim(),
+      fathers_occupation: form.fathers_occupation.trim(),
+      current_occupation: form.current_occupation.trim(),
+      present_address: form.present_address.trim(),
+      passing_year: form.passing_year.trim(),
+      college_name: form.college_name.trim(),
+      date_of_birth: form.date_of_birth ? new Date(form.date_of_birth) : null
+    });
 
       /* 2️⃣ Sync course enrolments */
-      const toAdd = selected.filter(id => !currentIds.includes(id));
-      const toRemove = currentIds.filter(id => !selected.includes(id));
-      if (toAdd.length) await addCourseToStudent({ userId: student._id, courseIds: toAdd });
-      if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
+      const toAdd = selected.filter((id) => !currentIds.includes(id));
+      const toRemove = currentIds.filter((id) => !selected.includes(id));
+      if (toAdd.length)
+        await addCourseToStudent({ userId: student._id, courseIds: toAdd });
+      if (toRemove.length)
+        await removeCourseFromStudent({
+          userId: student._id,
+          courseIds: toRemove,
+        });
 
       toast.success("Student updated successfully");
+      setTimeout(() => navigate("/admin/student-management"), 1000);
       // navigate("/admin/student-management");
     } catch (err) {
       console.error(err);
@@ -277,6 +335,7 @@ const EditStudent = () => {
       if (response.data.success) {
         toast.success(response.data.message || "User Block Status Updated");
         setBlockedChange(!blockedChange);
+        setTimeout(1000);
       } else {
         toast.error(response.message || "Failed to Block or Unblock User");
       }
@@ -286,7 +345,7 @@ const EditStudent = () => {
     } finally {
       setProcessing(false);
     }
-  }
+  };
 
   const handleMasterOtp = async (userId) => {
     try {
@@ -302,52 +361,71 @@ const EditStudent = () => {
         toast.success(response.data.message || "User Block Status Updated");
         setBlockedChange(!blockedChange);
       } else {
-        toast.error(response.message || "Failed to Enable or Disable Master OTP");
+        toast.error(
+          response.message || "Failed to Enable or Disable Master OTP"
+        );
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to Change Master OTP Status");
+      toast.error(
+        err.response?.data?.message || "Failed to Change Master OTP Status"
+      );
     } finally {
       setProcessing(false);
     }
-  }
+  };
 
   return (
     <FormContainer>
       {/* ============== FORM ============== */}
 
       <Title>Edit Student</Title>
-      {
-        !readOnlyPermissions && (
-          <FlexRow style={{
+
+      {!readOnlyPermissions && (
+        <FlexRow
+          style={{
             display: "flex",
             justifyContent: "flex-end",
-            // alignItems: "center",
-            width: "100%"
-          }}>
-            <LogoutButton
-              type="button"
-              disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
-              onClick={handleForceLogout}
-              style={{ width: "10%" }}
-            >
-              {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
-            </LogoutButton>
-
-            <LogoutButton
-              type="button"
-              disabled={processing}
-              onClick={confirmDelete}
-              style={{ background: "#d32f2f", color: "white", width: "10%" }}
-            >
-              Delete student
-            </LogoutButton>
-
+            width: "100%",
+          }}
+        >
+          <FlexRow>
+            <InputGroup>
+              <Label style={{ marginBottom: "7px" }}>User blocked?</Label>
+              <ToggleSwitch>
+                <input
+                  type="checkbox"
+                  checked={isBlocked}
+                  style={{ display: "none" }}
+                  onChange={() => handleBlockAndUnblock(student._id)}
+                />
+                <ToggleSlider $isPublished={isBlocked} />
+                <ToggleLabel $isPublished={isBlocked}>
+                  {isBlocked ? "Yes" : "No"}
+                </ToggleLabel>
+              </ToggleSwitch>
+            </InputGroup>
           </FlexRow>
-        )
-      }
 
+          <LogoutButton
+            type="button"
+            disabled={processing || hasBeenForcedLoggedOut || !student.isActive}
+            onClick={handleForceLogout}
+            style={{ width: "10%" }}
+          >
+            {hasBeenForcedLoggedOut ? "Logged Out" : "Force logout"}
+          </LogoutButton>
 
+          <LogoutButton
+            type="button"
+            disabled={processing}
+            onClick={confirmDelete}
+            style={{ background: "#d32f2f", color: "white", width: "10%" }}
+          >
+            Delete student
+          </LogoutButton>
+        </FlexRow>
+      )}
 
       <InputGroup>
         <Label>Name*</Label>
@@ -357,10 +435,10 @@ const EditStudent = () => {
           onChange={onFormChange}
           disabled={processing}
         />
-        {formErrors.displayName && <ErrorMessage>{formErrors.displayName}</ErrorMessage>}
+        {formErrors.displayName && (
+          <ErrorMessage>{formErrors.displayName}</ErrorMessage>
+        )}
       </InputGroup>
-
-
 
       <FlexRow>
         <InputGroup>
@@ -384,58 +462,94 @@ const EditStudent = () => {
           {formErrors.phone && <ErrorMessage>{formErrors.phone}</ErrorMessage>}
         </InputGroup>
       </FlexRow>
-      {/* <FlexRow>
+
+      {/* Added new fields */}
+      <FlexRow>
         <InputGroup>
-          <Label>Master OTP*</Label>
+          <Label>Father's Name</Label>
           <InputField
-            name="masterOtp"
-            value={form.masterOtp}
+            name="fathers_name"
+            value={form.fathers_name}
             onChange={onFormChange}
             disabled={processing}
           />
-          {formErrors.masterOtp && <ErrorMessage>{formErrors.masterOtp}</ErrorMessage>}
         </InputGroup>
-
         <InputGroup>
-
-          <Label style={{ marginBottom: "7px" }}>Master OTP Status</Label>
-          <ToggleSwitch>
-            <input
-              type="checkbox"
-              checked={masterOtpEnabled}
-              style={{ display: "none" }}
-              onChange={() => handleMasterOtp(student._id)}
-            />
-            <ToggleSlider $isPublished={masterOtpEnabled} />
-            <ToggleLabel $isPublished={masterOtpEnabled}>
-              {isBlocked ? "Yes" : "No"}
-            </ToggleLabel>
-          </ToggleSwitch>
-
-        </InputGroup>
-      </FlexRow> */}
-      <FlexRow>
-        <InputGroup>
-          <Label style={{ marginBottom: "7px" }}>User Blocked</Label>
-          <ToggleSwitch>
-            <input
-              type="checkbox"
-              checked={isBlocked}
-              style={{ display: "none" }}
-              onChange={() => handleBlockAndUnblock(student._id)}
-            />
-            <ToggleSlider $isPublished={isBlocked} />
-            <ToggleLabel $isPublished={isBlocked}>
-              {isBlocked ? "Yes" : "No"}
-            </ToggleLabel>
-          </ToggleSwitch>
+          <Label>Father's Occupation</Label>
+          <InputField
+            name="fathers_occupation"
+            value={form.fathers_occupation}
+            onChange={onFormChange}
+            disabled={processing}
+          />
         </InputGroup>
       </FlexRow>
 
+      <FlexRow>
+        <InputGroup>
+          <Label>Current Occupation</Label>
+          <InputField
+            name="current_occupation"
+            value={form.current_occupation}
+            onChange={onFormChange}
+            disabled={processing}
+          />
+        </InputGroup>
+        <InputGroup>
+          <Label>Date of Birth</Label>
+          <InputField
+            type="date"
+            name="date_of_birth"
+            value={form.date_of_birth}
+            onChange={onFormChange}
+            disabled={processing}
+          />
+        </InputGroup>
+      </FlexRow>
+
+      <InputGroup>
+        <Label>Present Address</Label>
+        <InputField
+          as="textarea"
+          rows={3}
+          name="present_address"
+          value={form.present_address}
+          onChange={onFormChange}
+          disabled={processing}
+        />
+      </InputGroup>
+
+      <FlexRow>
+        <InputGroup>
+          <Label>Passing Year</Label>
+          <InputField
+            name="passing_year"
+            value={form.passing_year}
+            onChange={onFormChange}
+            disabled={processing}
+          />
+        </InputGroup>
+        <InputGroup>
+          <Label>College Name</Label>
+          <InputField
+            name="college_name"
+            value={form.college_name}
+            onChange={onFormChange}
+            disabled={processing}
+          />
+        </InputGroup>
+      </FlexRow>
 
       {/* ============== COURSES ============== */}
       <CourseSelection>
-        <Label style={{ backgroundColor: "lightgrey", padding: 5, borderRadius: 5, width: "50%" }}>
+        <Label
+          style={{
+            backgroundColor: "lightgrey",
+            padding: 5,
+            borderRadius: 5,
+            width: "50%",
+          }}
+        >
           Enrolled Courses (uncheck to remove)
         </Label>
         {loadingCourses ? (
@@ -444,10 +558,11 @@ const EditStudent = () => {
           <p>No courses enrolled</p>
         ) : (
           <CourseList>
-            {enrolled.map(c => (
+            {enrolled.map((c) => (
               <CourseItem key={c._id}>
                 <CourseCheckbox
-                  id={`en-${c._id}`} type="checkbox"
+                  id={`en-${c._id}`}
+                  type="checkbox"
                   checked={selected.includes(c._id)}
                   onChange={() => toggleCourse(c._id)}
                   disabled={processing}
@@ -462,7 +577,14 @@ const EditStudent = () => {
       </CourseSelection>
 
       <CourseSelection $hasError={!!formErrors.courseIds}>
-        <Label style={{ backgroundColor: "lightgrey", padding: 5, borderRadius: 5, width: "50%" }}>
+        <Label
+          style={{
+            backgroundColor: "lightgrey",
+            padding: 5,
+            borderRadius: 5,
+            width: "50%",
+          }}
+        >
           Available Courses (check to add)*
         </Label>
         {loadingCourses ? (
@@ -472,10 +594,11 @@ const EditStudent = () => {
         ) : (
           <>
             <CourseList>
-              {available.map(c => (
+              {available.map((c) => (
                 <CourseItem key={c._id}>
                   <CourseCheckbox
-                    id={`av-${c._id}`} type="checkbox"
+                    id={`av-${c._id}`}
+                    type="checkbox"
                     checked={selected.includes(c._id)}
                     onChange={() => toggleCourse(c._id)}
                     disabled={processing}
@@ -486,18 +609,20 @@ const EditStudent = () => {
                 </CourseItem>
               ))}
             </CourseList>
-            {formErrors.courseIds && <ErrorMessage>{formErrors.courseIds}</ErrorMessage>}
+            {formErrors.courseIds && (
+              <ErrorMessage>{formErrors.courseIds}</ErrorMessage>
+            )}
           </>
         )}
       </CourseSelection>
 
       <FlexRow style={{ marginTop: 24 }}>
-
-
         <LogoutButton
           type="button"
           disabled={processing}
-          onClick={() => navigate(`/admin/student-management/update-kyc/${student._id}`)}
+          onClick={() =>
+            navigate(`/admin/student-management/update-kyc/${student._id}`)
+          }
           style={{ background: "#4CAF50", color: "white" }}
         >
           View KYC
@@ -511,13 +636,6 @@ const EditStudent = () => {
         >
           View Payments
         </LogoutButton>
-
-
-
-
-
-
-
       </FlexRow>
 
       <Title style={{ marginTop: 40 }}>Mock-test attempts</Title>
@@ -527,7 +645,7 @@ const EditStudent = () => {
         <p>No attempts found</p>
       ) : (
         <AttemptsTable>
-          <thead style={{ backgroundColor: 'black', color: 'white' }}>
+          <thead style={{ backgroundColor: "black", color: "white" }}>
             <TableHead>Mock Test</TableHead>
             <TableHead>Attempts</TableHead>
             <TableHead>Total Marks</TableHead>
@@ -536,24 +654,32 @@ const EditStudent = () => {
             <TableHead>Submitted At</TableHead>
           </thead>
           <tbody>
-            {attempts.map(at => (
+            {attempts.map((at) => (
               <TableRow
                 key={at._id}
-                onClick={() => navigate(`/admin/results/user-attempts/attempt/${at._id}`)}
-                style={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+                onClick={() =>
+                  navigate(`/admin/results/user-attempts/attempt/${at._id}`)
+                }
+                style={{
+                  cursor: "pointer",
+                  "&:hover": { backgroundColor: "#f5f5f5" },
+                }}
               >
                 <TableCell>{at.mockTestId?.title ?? "—"}</TableCell>
                 <TableCell>{at.attemptNumber}</TableCell>
                 <TableCell>{at.totalMarks}</TableCell>
                 <TableCell>{at.status}</TableCell>
                 <TableCell>{new Date(at.startedAt).toLocaleString()}</TableCell>
-                <TableCell>{at.submittedAt ? new Date(at.submittedAt).toLocaleString() : "—"}</TableCell>
+                <TableCell>
+                  {at.submittedAt
+                    ? new Date(at.submittedAt).toLocaleString()
+                    : "—"}
+                </TableCell>
               </TableRow>
             ))}
           </tbody>
         </AttemptsTable>
       )}
-
 
       {isPaymentModalOpen && (
         <>
@@ -565,13 +691,27 @@ const EditStudent = () => {
             <h3>Payment Details</h3>
             {student.subscription?.length ? (
               student.subscription.map((sub, index) => (
-                <div key={sub._id} style={{ marginBottom: '20px' }}>
-                  <p><strong>Course:</strong> {sub.course_enrolled?.courseName || 'N/A'}</p>
-                  <p><strong>Payment Status:</strong> {sub.payment_Status || 'N/A'}</p>
-                  <p><strong>Payment Date:</strong> {new Date(sub.created_at).toLocaleString()}</p>
-                  <p><strong>Subscription Active:</strong> {sub.is_subscription_active ? 'Yes' : 'No'}</p>
+                <div key={sub._id} style={{ marginBottom: "20px" }}>
+                  <p>
+                    <strong>Course:</strong>{" "}
+                    {sub.course_enrolled?.courseName || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Payment Status:</strong>{" "}
+                    {sub.payment_Status || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Payment Date:</strong>{" "}
+                    {new Date(sub.created_at).toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Subscription Active:</strong>{" "}
+                    {sub.is_subscription_active ? "Yes" : "No"}
+                  </p>
                   {/* <p><strong>Payment ID:</strong> {sub.payment_id || 'N/A'}</p> */}
-                  {index < student.subscription.length - 1 && <hr style={{ margin: '15px 0' }} />}
+                  {index < student.subscription.length - 1 && (
+                    <hr style={{ margin: "15px 0" }} />
+                  )}
                 </div>
               ))
             ) : (
@@ -581,8 +721,7 @@ const EditStudent = () => {
         </>
       )}
       <FlexRow style={{ marginTop: 24 }}>
-        {
-          !readOnlyPermissions &&
+        {!readOnlyPermissions && (
           <SubmitButton
             type="button"
             disabled={processing}
@@ -590,15 +729,13 @@ const EditStudent = () => {
           >
             {processing ? "Saving…" : "Save changes"}
           </SubmitButton>
-        }
+        )}
 
         <DeleteModal
           isOpen={isDeleteOpen}
           onClose={cancelDelete}
           onDelete={handleDelete}
         />
-
-
       </FlexRow>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </FormContainer>
