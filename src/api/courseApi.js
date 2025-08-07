@@ -133,3 +133,14 @@ export const getAllCourseByCategoryName = async (categoryName) => {
         throw error;
     }
 };
+
+
+export const publishCourse = async (id) => {
+    try {
+        const response = await api.patch(`/api/v1/course/${id}/publish`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
