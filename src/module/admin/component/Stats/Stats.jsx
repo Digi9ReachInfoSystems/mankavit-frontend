@@ -1,14 +1,14 @@
-
-
-
 import React, { useEffect, useState } from 'react';
-import { StatsContainer, StatCard, StatTitle, StatValue, MenuIcon } from './Stats.styles';
+import { StatsContainer, StatCard, StatTitle, StatValue } from './Stats.styles';
+import { useNavigate } from 'react-router-dom';
 
-import { getNoOfCourses } from '../../../../api/courseApi'; // <-- update path
+import { getNoOfCourses } from '../../../../api/courseApi';
 import { getNoOfNotes } from '../../../../api/notesApi';
 import { getNoOfStudents } from '../../../../api/authApi';
 import { getNoOfSubjects } from '../../../../api/subjectApi';
+
 const Stats = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     courses: null,
     students: null,
@@ -21,7 +21,6 @@ const Stats = () => {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        // Fetch all stats in parallel
         const [coursesRes, studentsRes, subjectsRes, notesRes] = await Promise.all([
           getNoOfCourses(),
           getNoOfStudents(),
@@ -35,7 +34,6 @@ const Stats = () => {
           notes: notesRes.count ?? 0,
         });
       } catch (err) {
-        // If error, keep stats at 0 or show error message
         setStats({ courses: 0, students: 0, subjects: 0, notes: 0 });
       } finally {
         setLoading(false);
@@ -45,20 +43,22 @@ const Stats = () => {
   }, []);
 
   const statsData = [
-    { title: 'Total Courses', value: stats.courses ?? '-' },
-    { title: 'Total Students', value: stats.students ?? '-' },
-    { title: 'Subjects', value: stats.subjects ?? '-' },
-    { title: 'Notes', value: stats.notes ?? '-' },
-    // { title: 'Mock Tests(is not integarted)', value: stats.notes ?? '-' },
+    { title: 'Total Courses', value: stats.courses ?? '-', onClick: () => navigate('/admin/course-management') },
+    { title: 'Total Students', value: stats.students ?? '-', onClick: () => navigate('/admin/student-management') },
+    { title: 'Subjects', value: stats.subjects ?? '-', onClick: () => navigate('/admin/subject-management') },
+    { title: 'Notes', value: stats.notes ?? '-', onClick: () => navigate('/admin/notes-management') },
   ];
 
   return (
     <StatsContainer>
       {statsData.map((stat, index) => (
-        <StatCard key={index}>
+        <StatCard
+          key={index}
+          onClick={stat.onClick}
+          style={{ cursor: stat.onClick ? 'pointer' : 'default' }}
+        >
           <div className='stat-header'>
             <StatTitle>{stat.title}</StatTitle>
-            {/* <MenuIcon>...</MenuIcon> */}
           </div>
           <StatValue>
             {loading ? <span style={{ fontSize: '12px' }}>Loading...</span> : stat.value}

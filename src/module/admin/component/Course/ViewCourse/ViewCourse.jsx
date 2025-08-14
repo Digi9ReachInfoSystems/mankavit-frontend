@@ -120,10 +120,10 @@ export default function ViewCourse() {
 
         <FormRow>
           <Column>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label>Duration</Label>
               <p className="field">{courseData.duration || "Not specified"}</p>
-            </FieldWrapper>
+            </FieldWrapper> */}
           </Column>
           <Column>
             <FieldWrapper>
@@ -135,10 +135,10 @@ export default function ViewCourse() {
 
         <FormRow>
           <Column>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label>Success Rate</Label>
               <p className="field">{courseData.successRate ? `${courseData.successRate}%` : "Not specified"}</p>
-            </FieldWrapper>
+            </FieldWrapper> */}
           </Column>
           <Column>
             <FieldWrapper>

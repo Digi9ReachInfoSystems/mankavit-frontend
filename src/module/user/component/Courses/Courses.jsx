@@ -146,8 +146,10 @@ const Courses = () => {
 
                                 {course.course_status !== "completed" ? (
                                     <Details>
-                                        <DetailItem><FcCalendar /> Duration: {course.duration || 'N/A'} months</DetailItem>
-                                        <DetailItem>🏆 Success Rate: {course.successRate || 'N/A'}%</DetailItem>
+                                        {/* <DetailItem><FcCalendar /> Duration: {course.duration || 'N/A'} months</DetailItem> */}
+                                        {/* <DetailItem>🏆 Success Rate: {course.successRate || 'N/A'}%</DetailItem> */}
+                                            <DetailItemok style={{ color: "#206666ff" }}>Finish 100% to unlock the certificate</DetailItemok>
+                                                                              
                                     </Details>
                                 ) : (
                                     <Details>
