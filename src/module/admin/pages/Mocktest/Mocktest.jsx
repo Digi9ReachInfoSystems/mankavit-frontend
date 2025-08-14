@@ -422,7 +422,7 @@ export default function MockTestsTable() {
                       />
                     </TableCell>
                   )}
-                  <TableCell>{item.mockTitle}</TableCell>
+                  <TableCell><a href={`/admin/mock-test/edit/${item.id}`}>{item.mockTitle}</a></TableCell>
                   <TableCell>{item.createdOn}</TableCell>
                   <TableCell>{item.updatedOn}</TableCell>
                   <TableCell>
