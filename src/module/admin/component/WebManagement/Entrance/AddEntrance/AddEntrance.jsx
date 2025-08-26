@@ -8,7 +8,7 @@ import {
   SubmitButton,
   ErrorText,
   EditorWrapper
-} from '../AddEntrance/AddEntrance.style';
+} from './Addentrance.style';
 import { createEntrnace } from '../../../../../../api/entranceApi';
 import { useNavigate } from 'react-router-dom';
 

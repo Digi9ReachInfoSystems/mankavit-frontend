@@ -846,7 +846,7 @@
 //   );
 // }
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
 import {
@@ -899,6 +899,9 @@ import {
   saveMocktest,
   submitMocktest,
   getAttemptById,
+  saveforLaterMockTestUseAttempt,
+  updateMocktestLastsavedTime,
+  checkMockTestAttempted,
 } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
 
@@ -928,13 +931,13 @@ const QuestionContent = styled.div`
   padding: 15px;
 `;
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, message }) => {
   if (!isOpen) return null;
 
   return (
     <ModalOverlay>
       <ModalContent>
-        <ModalTitle>Do you want to submit the test?</ModalTitle>
+        <ModalTitle>{message}</ModalTitle>
         <ModalButtons>
           <ModalButton onClick={onClose}>No</ModalButton>
           <ModalButton primary onClick={onConfirm}>
@@ -967,7 +970,36 @@ export default function TextScreen() {
   const [initialTime, setInitialTime] = useState(0);
   const [testStartTime, setTestStartTime] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showSaveForLater, setShowSaveForLater] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!urlAttemptId || !userId) return;
+
+    // Call immediately once
+    updateMocktestLastsavedTime({ attemptId: urlAttemptId, user_id: userId })
+      .then(() => {
+        // console.log("Auto-saved immediately")
+      })
+      .catch((err) => {
+        // console.error("Auto-save failed:", err)
+      });
+
+    // Then every 60 seconds
+    const interval = setInterval(() => {
+      updateMocktestLastsavedTime({ attemptId: urlAttemptId, user_id: userId })
+        .then(() => {
+          // console.log("Auto-saved attempt progress")
+        })
+        .catch((err) => {
+          // console.error("Auto-save failed:", err)
+        });
+    }, 60000);
+
+    // Cleanup when leaving page
+    return () => clearInterval(interval);
+  }, [urlAttemptId, userId]);
 
   // unwrap { data } or { body: { data } }
   const unwrap = (r) => r?.data?.body?.data ?? r?.data;
@@ -980,8 +1012,17 @@ export default function TextScreen() {
         const test = unwrap(resTest);
         setMockTest(test);
         setQuestions(test.questions);
-        setInitialTime(test.duration);
-
+        // setInitialTime(test.duration);
+        // console.log("location", location);
+        const checkPauseAttempt = await checkMockTestAttempted(
+          userId,
+          testId,
+          subjectId
+        );
+        setInitialTime(checkPauseAttempt.remainingTime ?? test.duration);
+        if (checkPauseAttempt?.remainingTime) {
+          localStorage.removeItem(`testTime_${testId}_${urlAttemptId}`);
+        }
         // Initialize test start time
         const startTime = Date.now();
         setTestStartTime(startTime);
@@ -989,6 +1030,7 @@ export default function TextScreen() {
         // Check for existing time in localStorage
         const timeKey = `testTime_${testId}_${urlAttemptId}`;
         const storedTime = localStorage.getItem(timeKey);
+        // console.log("storedTime", storedTime);
 
         if (storedTime) {
           const { remainingMinutes, remainingSeconds, timestamp } =
@@ -1005,12 +1047,25 @@ export default function TextScreen() {
           const seconds = totalRemainingSeconds % 60;
           setTimeLeft({ m: minutes, s: seconds });
         } else {
-          setTimeLeft({ m: test.duration, s: 0 });
+          const remaining = checkPauseAttempt.remainingTime; // e.g. 98.07
+          let minutes = 0;
+          let seconds = 0;
+          if (remaining !== undefined && remaining !== null) {
+            const [minStr, secStr] = remaining.toString().split(".");
+
+            minutes = parseInt(minStr, 10); // "98" -> 98
+            seconds = parseInt(secStr?.padEnd(2, "0"), 10) || 0; // "07" -> 7
+
+            // console.log("Minutes:", minutes, "Seconds:", seconds);
+          }
+          // setTimeLeft({ m: test.duration, s: 0 });
+          setTimeLeft({ m: minutes, s: seconds });
+
           localStorage.setItem(
             timeKey,
             JSON.stringify({
-              remainingMinutes: test.duration,
-              remainingSeconds: 0,
+              remainingMinutes: minutes,
+              remainingSeconds: seconds,
               timestamp: startTime,
             })
           );
@@ -1382,7 +1437,7 @@ export default function TextScreen() {
         payload.answer = ans.answer;
       }
 
-      await saveMocktest(payload);
+      // await saveMocktest(payload);
 
       // Then submit the test
       const res = await submitMocktest({
@@ -1401,8 +1456,28 @@ export default function TextScreen() {
     }
   };
 
+  const handleSaveForLater = async () => {
+    try {
+      const payload = {
+        attemptId: urlAttemptId,
+        user_id: userId,
+      };
+      const res = await saveforLaterMockTestUseAttempt(payload);
+      if (res.success) {
+        toast.success("Mocktest saved for later successfully");
+        navigate(`/user`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save for later");
+    }
+  };
+
   const handleSubmitClick = () => setShowConfirmation(true);
   const handleCancelSubmit = () => setShowConfirmation(false);
+
+  const handleSaveForLaterClick = () => setShowSaveForLater(true);
+  const handleCancelSaveForLater = () => setShowSaveForLater(false);
 
   // —— Counts derived ONLY from status (no content checks) ——
   const getStatusCounts = () => {
@@ -1514,11 +1589,13 @@ export default function TextScreen() {
                             typeof opt === "object" ? opt.text : opt;
                           return (
                             <OptionLabel key={idx}>
-                              <input
-                                type="radio"
-                                checked={currAns.answerIndex === idx}
-                                onChange={() => handleOptionSelect(idx)}
-                              />
+                             
+                             <input
+                                  type="radio"
+                                  checked={currAns.answerIndex === idx}
+                                  onChange={() => handleOptionSelect(idx)}
+                                />
+
                               {label}
                             </OptionLabel>
                           );
@@ -1588,10 +1665,11 @@ export default function TextScreen() {
             <button className="save" onClick={saveAndNext}>
               Save & Next
             </button>
+            <SubmitButton onClick={handleSaveForLaterClick}>
+              Save For Later
+            </SubmitButton>
             <SubmitButton onClick={handleSubmitClick}>Submit Test</SubmitButton>
           </LeftButtonsWrap>
-
-          
         </StickyActionBar>
       </Content>
 
@@ -1655,7 +1733,14 @@ export default function TextScreen() {
       <ConfirmationModal
         isOpen={showConfirmation}
         onClose={handleCancelSubmit}
+        message={"Do you want to submit the test?"}
         onConfirm={handleSubmit}
+      />
+      <ConfirmationModal
+        isOpen={showSaveForLater}
+        message={"Do you want to save the test for later?"}
+        onClose={handleCancelSaveForLater}
+        onConfirm={handleSaveForLater}
       />
     </Container>
   );
