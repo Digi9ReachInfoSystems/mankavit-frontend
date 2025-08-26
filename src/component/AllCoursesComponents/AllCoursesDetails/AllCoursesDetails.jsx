@@ -41,6 +41,10 @@ import { getAllCourses, getAllUserCourseByCategory, getAllUserCourses, getCourse
 import { getCategories } from '../../../api/categoryApi';
 import { useNavigate } from 'react-router-dom';
 import { getCookiesData } from '../../../utils/cookiesService';
+import LawAcademy from '../LawAcademy/LawAcademy';
+import EnrollCourse from '../EnrollCourse/EnrollCourse';
+import Aspirants from '../../AboutUsComponents/Aspirants/Aspirants';
+import Footer from '../../../pages/LandingPage/Footer/Footer';
 
 const AllCoursesDetails = () => {
   const navigate = useNavigate();
@@ -168,6 +172,7 @@ const transformed = data.map(course => {
   if (loading) return <div>Loading courses...</div>;
 
   return (
+    <>
     <Container>
       <Title>
         Our <span>Courses</span>
@@ -264,6 +269,8 @@ const transformed = data.map(course => {
         })}
       </CardGrid>
     </Container>
+     
+    </>
   );
 };
 

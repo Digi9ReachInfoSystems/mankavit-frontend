@@ -18,7 +18,7 @@ import {
   DashboardButton,
   Caret,
 } from "./LandingHeader.styles";
-import { IoNotificationsOutline } from "react-icons/io5";
+// import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { BsChevronCompactDown } from "react-icons/bs";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -242,9 +242,9 @@ useEffect(() => {
           <div className="menu-container" ref={menuRef}>
            <NavLinks className={mobileMenuOpen ? "open" : ""}>
   {["Courses", "About", "Blog", "Results", "Entrances", "Prev. Year Ques.",
-    <Link to="/user/notification" key="notif">
-      <IoNotificationsOutline className="notification-icon" />
-    </Link>
+    // <Link to="/user/notification" key="notif">
+    //   <IoNotificationsOutline className="notification-icon" />
+    // </Link>
   ].map((item) => {
     const key = typeof item === "string" ? item : "notif";
 

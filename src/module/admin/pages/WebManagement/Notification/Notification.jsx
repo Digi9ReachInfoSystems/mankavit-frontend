@@ -14,26 +14,36 @@ import "react-toastify/dist/ReactToastify.css";
 import { createNotification } from "../../../../../api/notificationApi";
 import { getAuth } from "../../../../../utils/authService";
 
+// Helper: make a local "YYYY-MM-DDTHH:mm" string for datetime-local
+const localInputDatetime = (date = new Date()) => {
+  // normalize seconds/ms and remove timezone offset to keep local wall time
+  const d = new Date(date);
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+};
+
 const Notification = ({
-  scheduleTime: defaultSchedule = new Date().toISOString().slice(0,16),
+  // default to local time, not UTC
+  scheduleTime: defaultSchedule = localInputDatetime(),
 }) => {
-  // scheduleTime in "YYYY-MM-DDTHH:mm" format for datetime-local
+  // scheduleTime must be a local string for datetime-local
   const [scheduleTime, setScheduleTime] = useState(defaultSchedule);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    useEffect(() => {
-      const apiCaller = async () => {
-        const response = await getAuth();
-        response.Permissions;
-        if (response.isSuperAdmin === true) {
-          setReadOnlyPermissions(false);
-        } else {
-          setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
-        }
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
       }
-      apiCaller();
-    }, []);
+    };
+    apiCaller();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +52,8 @@ const Notification = ({
       return;
     }
     try {
+      // scheduleTime is local (no TZ); new Date() interprets it as local,
+      // then toISOString() converts to UTC for the API (correct)
       await createNotification({
         title,
         description,
@@ -51,8 +63,8 @@ const Notification = ({
       toast.success("Notification scheduled successfully.");
       setTitle("");
       setDescription("");
-      // reset schedule to now + 1 hour (optional)
-      setScheduleTime(new Date().toISOString().slice(0,16));
+      // reset schedule to now (local) + 0h (or add your own offset if you want)
+      setScheduleTime(localInputDatetime());
     } catch (error) {
       console.error(error);
       toast.error("Failed to schedule notification. Please try again.");

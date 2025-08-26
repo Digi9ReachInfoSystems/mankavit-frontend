@@ -276,8 +276,11 @@ export const UnreadDot = styled.span`
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  background: #ef4444; /* Red dot */
+  box-shadow: 0 0 0 2px white; /* Optional: adds a little spacing from text */
+  align-self: center; /* Vertically center */
+  margin-left: auto; /* Pushes it to the far right */
+  display: inline-block;
 `;
 
 // Pill count (recommended)
@@ -296,3 +299,4 @@ export const UnreadBadge = styled.span`
   line-height: 1;
   margin-left: auto; /* keep it to the right */
 `;
+

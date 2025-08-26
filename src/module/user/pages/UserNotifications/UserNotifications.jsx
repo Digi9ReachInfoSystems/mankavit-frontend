@@ -57,7 +57,7 @@ const UserNotifications = () => {
       <Title>Your Notifications</Title>
 
       {notifications.length === 0 ? (
-        <p>No notifications to display.</p>
+        <p style={{ textAlign: "center" }}>No notifications to display.</p>
       ) : (
         notifications.map((note) => (
           <NotificationContainer key={note._id}>

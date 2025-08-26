@@ -35,3 +35,12 @@ export const clearNotification = async (notificationId) => {
         throw error;
     }
 }
+
+export const markNotificationasread = async (userId) => {
+    try {
+        const response = await api.put(`/notifications/markAsRead/${userId}`,);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
