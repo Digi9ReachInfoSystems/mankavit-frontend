@@ -515,7 +515,7 @@ const handleSave = async () => {
 
       {/* Added new fields */}
       <FlexRow>
-        <InputGroup>
+        {/* <InputGroup>
           <Label>Father's Name</Label>
           <InputField
             name="fathers_name"
@@ -523,8 +523,8 @@ const handleSave = async () => {
             onChange={onFormChange}
             disabled={processing}
           />
-        </InputGroup>
-        <InputGroup>
+        </InputGroup> */}
+        {/* <InputGroup>
           <Label>Father's Occupation</Label>
           <InputField
             name="fathers_occupation"
@@ -532,11 +532,11 @@ const handleSave = async () => {
             onChange={onFormChange}
             disabled={processing}
           />
-        </InputGroup>
+        </InputGroup> */}
       </FlexRow>
 
       <FlexRow>
-        <InputGroup>
+        {/* <InputGroup>
           <Label>Current Occupation</Label>
           <InputField
             name="current_occupation"
@@ -544,7 +544,7 @@ const handleSave = async () => {
             onChange={onFormChange}
             disabled={processing}
           />
-        </InputGroup>
+        </InputGroup> */}
         <InputGroup>
           <Label>Date of Birth</Label>
           <InputField
@@ -557,7 +557,7 @@ const handleSave = async () => {
         </InputGroup>
       </FlexRow>
 
-      <InputGroup>
+      {/* <InputGroup>
         <Label>Present Address</Label>
         <InputField
           as="textarea"
@@ -567,8 +567,8 @@ const handleSave = async () => {
           onChange={onFormChange}
           disabled={processing}
         />
-      </InputGroup>
-
+      </InputGroup> */}
+{/* 
       <FlexRow>
         <InputGroup>
           <Label>Passing Year</Label>
@@ -588,7 +588,7 @@ const handleSave = async () => {
             disabled={processing}
           />
         </InputGroup>
-      </FlexRow>
+      </FlexRow> */}
 
       {/* ============== COURSES ============== */}
       <CourseSelection>

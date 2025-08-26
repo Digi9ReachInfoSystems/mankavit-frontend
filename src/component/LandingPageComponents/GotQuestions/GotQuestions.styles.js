@@ -199,6 +199,8 @@ export const Answer = styled.p`
 `;
 
 export const ViewAllButton = styled.button`
+width: 20%;
+margin:auto;
   margin-top: 22px;
   background: linear-gradient(90deg, #0dcaf0, #007bff);
   color: white;

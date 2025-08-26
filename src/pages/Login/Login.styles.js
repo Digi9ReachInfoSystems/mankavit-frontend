@@ -64,39 +64,43 @@ export const Form = styled.form`
   width: 100%;
   max-width: 597px;
   height: 80%;
-  flex:2;
-margin: 105px 105px 105px 0px!important;
- @media (min-width:  1200px) and (min-height: 800px) {
-      //  padding-top: 180px;
-       max-width: 700px;
-       margin: 105px 105px 105px 105px !important;
-   }
-   @media (min-width: 760px and max-width: 1200px) {
-       max-width: 500px;
-       margin: 105px 105px 105px 105px !important;
-   }
-    @media (max-width: 480px) {
-        margin:0px!important;
-        padding: 0px;
-        box-shadow: none;
-    }
-    @media (min-width: 800px) and (max-width: 1000px) {
-     margin:10px 5px 60px 5px !important;
-       max-width: 550px;
-       height: 40%!important; 
-       align-items: center;
-       flex:2;
-   
-    }
-    @media (min-width: 1000px)and (max-width: 1200px) {
-         flex:1;
-         margin:60px 65px 60px 20px !important;
-    }
-    @media (min-width: 1000px)and (max-width: 1200px)and (min-height: 800px) {
-        
-         margin:60px 65px 60px 60px !important;
-    }
+  flex: 2;
+  margin: 105px 105px 105px 0px !important;
+
+  @media (min-width: 1200px) and (min-height: 800px) {
+    max-width: 700px;
+    margin: 105px !important;
+  }
+
+  @media (min-width: 760px) and (max-width: 1200px) {
+    max-width: 500px;
+    margin: 105px !important;
+  }
+
+  @media (max-width: 480px) {
+    margin: 0 !important;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  @media (min-width: 800px) and (max-width: 1000px) {
+    margin: 10px 5px 60px 5px !important;
+    max-width: 550px;
+    height: 40% !important; 
+    align-items: center;
+    flex: 2;
+  }
+
+  @media (min-width: 1000px) and (max-width: 1200px) {
+    flex: 1;
+    margin: 60px 65px 60px 20px !important;
+  }
+
+  @media (min-width: 1000px) and (max-width: 1200px) and (min-height: 800px) {
+    margin: 60px 65px 60px 60px !important;
+  }
 `;
+
 export const FormContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -108,6 +112,12 @@ export const FormContent = styled.div`
      @media (max-width: 480px) {
         margin :60px 30px 60px 30px;
     }
+        @media (min-width: 800px) and (max-width: 1000px) {
+            margin:60px 130px 60px 130px ;
+        }
+            @media (min-width: 480px) and (max-width: 800px) {
+                margin:0px 130px 60px 130px ;
+            }
     @media (min-width: 800px) and (max-width: 1000px) {
        margin:60px 130px 60px 130px ;
     }
