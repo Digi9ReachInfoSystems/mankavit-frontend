@@ -19,104 +19,99 @@ import {
 } from "./EditQuestionPaper.style";
 import upload from "../../../../../../assets/upload.png";
 import { useNavigate, useParams } from "react-router-dom";
-import { getQuestionPaperById, updateQuestionPaperById } from "../../../../../../api/questionPaperApi";
+import {
+  getQuestionPaperByTitleAndYear,
+  updateQuestionPaperById,
+  addExistingTitlePaper,
+  removeQuestionpaper
+} from "../../../../../../api/questionPaperApi";
 import { uploadFileToAzureStorage } from "../../../../../../utils/azureStorageService";
-import { message } from "antd";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { getAuth } from "../../../../../../utils/authService";
 
-const years = [2024, 2023, 2022, 2021];
+const years = [2025, 2024, 2023, 2022, 2021, 2020, 2019];
 
 const EditQuestionPaper = () => {
-  const { id } = useParams();
+  // Expect route like: /admin/web-management/question-paper/edit/:title/:year
+  const { title: routeTitle, year: routeYear } = useParams();
+  console.log("routeTitle", routeTitle, "routeYear", routeYear);
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    year: years[0],
     title: "",
+    year: years[0],
     description: "",
     file: null,
     existingFileUrl: ""
   });
+
   const [dragOver, setDragOver] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const fileInputRef = useRef();
+  const [error, setError] = useState(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const fileInputRef = useRef();
+
+  // Permissions
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
-      response.Permissions;
-      if (response.isSuperAdmin === true) {
+      if (response?.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
-        setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
-        if (response.Permissions["webManagement"].readOnly) {
-          toast.error('You do not have permission to edit question papers.', {
+        const ro = response?.Permissions?.["webManagement"]?.readOnly ?? true;
+        setReadOnlyPermissions(ro);
+        if (ro) {
+          toast.error("You do not have permission to edit question papers.", {
             position: "top-right",
             autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
             theme: "colored",
-            onClose: () => {
-              navigate('/admin/');
-            }
+            onClose: () => navigate("/admin/")
           });
         }
       }
-    }
+    };
     apiCaller();
-  }, []);
+  }, [navigate]);
 
+  // Load existing paper
   useEffect(() => {
-    const fetchQuestionPaper = async () => {
+    (async () => {
+      if (!routeTitle || !routeYear) {
+        navigate("/admin/web-management/question-paper");
+        return;
+      }
       try {
         setLoading(true);
-        const response = await getQuestionPaperById(id);
-        if (!response) {
-          throw new Error("Question paper not found");
-        }
+        const data = await getQuestionPaperByTitleAndYear(routeTitle, Number(routeYear));
         setFormData({
-          year: response.year || years[0],
-          title: response.title || "",
-          description: response.description || "",
+          title: data.title,
+          year: data.year,
+          description: data.description || "",
           file: null,
-          existingFileUrl: response.question_url || ""
+          existingFileUrl: data.question_url || ""
         });
-      } catch (error) {
-        console.error("Error fetching question paper:", error);
-        message.error(error.message || "Failed to load question paper");
+      } catch (e) {
+        console.error("Fetch error:", e);
+        toast.error(e?.response?.data?.error || e?.message || "Failed to load question paper");
         navigate("/admin/web-management/question-paper");
       } finally {
         setLoading(false);
       }
-    };
-
-    if (id) {
-      fetchQuestionPaper();
-    } else {
-      navigate("/admin/web-management/question-paper");
-    }
-  }, [id, navigate]);
+    })();
+  }, [routeTitle, routeYear, navigate]);
 
   const handleFile = (f) => {
     if (!f) return;
-
     if (f.type !== "application/pdf") {
       setError("Please upload a valid PDF file");
       return;
     }
-
     if (f.size > 10 * 1024 * 1024) {
       setError("File size must be less than 10MB");
       return;
     }
-
     setFormData(prev => ({ ...prev, file: f }));
     setError(null);
   };
@@ -124,89 +119,100 @@ const EditQuestionPaper = () => {
   const onDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    const f = e.dataTransfer.files[0];
-    handleFile(f);
+    handleFile(e.dataTransfer.files[0]);
   };
 
-  const onChangeFile = (e) => {
-    handleFile(e.target.files[0]);
-  };
+  const onChangeFile = (e) => handleFile(e.target.files[0]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    // prevent editing title (since backend uses it as key)
+    if (name === "title") return;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    if (readOnlyPermissions) return;
 
-    if (!formData.title || !formData.description) {
+    if (!formData.description) {
       setError("Please fill all fields");
+      toast.error("Please fill all fields");
       return;
     }
 
     setIsSubmitting(true);
 
+    const oldTitle = routeTitle;
+    const oldYear = Number(routeYear);
+    const newYear = Number(formData.year);
+
     try {
+      // 1) Upload new file if provided
       let fileUrl = formData.existingFileUrl;
-      let fileName = formData.existingFileUrl.split('/').pop();
-
       if (formData.file) {
-        message.loading({ content: 'Uploading new file...', key: 'upload', duration: 0 });
         const uploadResponse = await uploadFileToAzureStorage(formData.file, "questionpaper");
-
         if (!uploadResponse?.blobUrl) {
           throw new Error(uploadResponse?.message || "File upload failed");
         }
         fileUrl = uploadResponse.blobUrl;
-        fileName = formData.file.name;
       }
 
-      const questionPaperData = {
-        year: formData.year.toString(),
-        title: formData.title,
-        description: formData.description,
-        question_url: fileUrl,
-        fileName: fileName
-      };
+      // 2) If year unchanged -> simple update
+      if (newYear === oldYear) {
+        await updateQuestionPaperById(oldTitle, oldYear, {
+          description: formData.description.trim(),
+          question_url: fileUrl
+        });
+        toast.success("Question paper updated successfully!");
+        setTimeout(() => {
+          navigate("/admin/web-management/question-paper");
+        }, 1000);
+        return;
+      }
 
-      await updateQuestionPaperById(id, questionPaperData);
+      // 3) If year changed -> add paper with new year, then remove old one.
+      //    This keeps backend consistent and respects duplicate-year checks.
+      await addExistingTitlePaper(oldTitle, {
+        year: newYear,
+        description: formData.description.trim(),
+        question_url: fileUrl
+      });
 
-      toast.success("Data updated successfully!");
+      // Remove old
+      await removeQuestionpaper(oldTitle, oldYear);
+
+      toast.success("Question paper year updated successfully!");
       setTimeout(() => {
-        navigate("/admin/web-management/question-paper");
+        navigate(`/admin/web-management/question-paper`);
       }, 1000);
+    } catch (err) {
+      console.error("Update error:", err);
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to update. Please try again.";
 
-    } catch (error) {
-      console.error("Update error:", error);
-      toast.error("Failed to update. Please try again.");
-      setError(error.message || "Failed to update. Please try again.");
-
+      // If duplicate year
+      if (String(msg).toLowerCase().includes("already has a paper")) {
+        setError("This title already has a paper for the selected year.");
+        toast.error("Duplicate year for this title.");
+      } else {
+        setError(msg);
+        toast.error(msg);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (loading) {
-    return <Container>Loading...</Container>;
-  }
+  if (loading) return <Container>Loading...</Container>;
 
   return (
     <Container>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='colored'
-      />
+      <ToastContainer position="top-right" autoClose={5000} theme="colored" />
 
       <h2>Edit Question Paper</h2>
       <Form onSubmit={handleSubmit}>
@@ -218,10 +224,8 @@ const EditQuestionPaper = () => {
             <TextInput
               id="title"
               name="title"
-              placeholder="Enter title"
               value={formData.title}
-              onChange={handleInputChange}
-              required
+              disabled
             />
           </FormGroup>
 
@@ -282,20 +286,26 @@ const EditQuestionPaper = () => {
                 {formData.file
                   ? formData.file.name
                   : formData.existingFileUrl
-                    ? formData.existingFileUrl.split('/').pop()
+                    ? formData.existingFileUrl.split("/").pop()
                     : "Drag and drop PDF here, or click add PDF"}
               </UploadText>
               {!formData.file && !formData.existingFileUrl && <UploadButton>Add Pdf</UploadButton>}
             </UploadContent>
           </UploadBox>
+
           {formData.existingFileUrl && !formData.file && (
-            <a href={formData.existingFileUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1890ff', marginTop: '8px', display: 'inline-block' }}>
+            <a
+              href={formData.existingFileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#1890ff", marginTop: 8, display: "inline-block" }}
+            >
               View Current PDF
             </a>
           )}
         </FormGroup>
 
-        <SubmitButton type="submit" disabled={isSubmitting}>
+        <SubmitButton type="submit" disabled={isSubmitting || readOnlyPermissions}>
           {isSubmitting ? "Updating..." : "Update Question Paper"}
         </SubmitButton>
       </Form>

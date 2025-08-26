@@ -14,9 +14,21 @@ export const TableWrapper = styled.div`
 export const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-      min-width: 900px;
+  table-layout: fixed;
 
+  thead th:nth-child(1),
+  tbody td:nth-child(1) { width: 25%; }  /* Title */
+
+  thead th:nth-child(2),
+  tbody td:nth-child(2) { width: 25%; }  /* Year */
+
+  thead th:nth-child(3),
+  tbody td:nth-child(3) { width: 25%; }  /* View PDF */
+
+  thead th:nth-child(4),
+  tbody td:nth-child(4) { width: 25%; }  /* Actions */
 `;
+
 
 export const TableHead = styled.thead`
   background-color: ${(props) => props.theme.colors.black};

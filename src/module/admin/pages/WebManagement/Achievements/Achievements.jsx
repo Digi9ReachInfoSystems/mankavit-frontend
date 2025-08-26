@@ -59,33 +59,32 @@ const Achievements = () => {
   }, []);
 
   // Fetch all achievers
-  useEffect(() => {
-    const fetchAchievers = async () => {
-      try {
-        const res = await getAllAchievers();
+// Fetch all achievers
+useEffect(() => {
+  const fetchAchievers = async () => {
+    try {
+      const res = await getAllAchievers();
 
-        // convert a MongoDB ObjectId into a Date (fallback)
-        const idToDate = (id) =>
-          new Date(parseInt(id.substring(0, 8), 16) * 1000);
+      // ✅ sort by sequence numerically
+      const sorted = (Array.isArray(res) ? res : []).sort((a, b) => {
+        const seqA = parseFloat(a.sequence) || 0;
+        const seqB = parseFloat(b.sequence) || 0;
+        return seqA - seqB; // ascending
+      });
 
-        // 🔥 sort: newest first
-        const sorted = (Array.isArray(res) ? res : []).sort((a, b) => {
-          const dateA = new Date(a.createdAt || a.updatedAt) || idToDate(a._id);
-          const dateB = new Date(b.createdAt || b.updatedAt) || idToDate(b._id);
-          return dateB - dateA;                       // descending
-        });
+      setAchievers(sorted);
+    } catch (err) {
+      console.error("Error fetching achievers:", err);
+      setError("Failed to load achievers");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setAchievers(sorted);
-      } catch (err) {
-        console.error("Error fetching achievers:", err);
-        setError("Failed to load achievers");
-      } finally {
-        setLoading(false);
-      }
-    };
+  fetchAchievers();
+}, []);
 
-    fetchAchievers();
-  }, []);
+
 
   const getCreatedAtFromId = (id) => {
     if (!id || id.length < 8) return "Invalid Date";
@@ -172,9 +171,11 @@ const Achievements = () => {
             <Table>
               <TableHead>
                 <tr>
+                   <Th>Student Name</Th>
                   <Th>Rank</Th>
                   <Th>Exam Name</Th>
-                  <Th>Student Name</Th>
+                 
+                  <Th>Sequence</Th>
                   <Th>Image</Th>
                   <Th>Date Created</Th>
                   <Th>Actions</Th>
@@ -190,9 +191,11 @@ const Achievements = () => {
                 ) : (
                   paginatedAchievers.map((item) => (
                     <tr key={item._id}>
+                        <Td>{item.name}</Td>
                       <Td>AIR {item.rank}</Td>
                       <Td>{item.exam_name || "N/A"}</Td>
-                      <Td>{item.name}</Td>
+                    
+                      <Td>{item.sequence}</Td>
                       <Td>
                         {item.image ? (
                           <span
@@ -218,12 +221,12 @@ const Achievements = () => {
                         })}
                       </Td>
                       <Td>
-                        <IoEyeOutline
+                        {/* <IoEyeOutline
                           size={20}
                           color="#000000"
                           style={{ cursor: "pointer", marginRight: "10px" }}
                           onClick={() => handleViewClick(item._id)}
-                        />
+                        /> */}
                         {
                           !readOnlyPermissions && (
                             <>

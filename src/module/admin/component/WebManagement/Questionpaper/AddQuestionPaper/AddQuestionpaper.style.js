@@ -39,6 +39,7 @@ width: 100%;
 
 export const FormGroup = styled.div`
   margin-bottom: ${theme.spacing(3)};
+  width: 100%;
 `;
 
 export const Label = styled.label`
@@ -50,7 +51,7 @@ export const Label = styled.label`
 `;
 
 export const Select = styled.select`
-  width: 100%;
+  width: 50%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
@@ -60,7 +61,7 @@ export const Select = styled.select`
 `;
 
 export const TextInput = styled.input`
-  width: 100%;
+  width: 50%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};

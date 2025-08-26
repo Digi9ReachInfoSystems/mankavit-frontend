@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Title,
@@ -10,19 +10,20 @@ import {
   FeatureTitle,
   FeatureText,
   Description,
-  EnrollButton
+  EnrollButton,
+  ScrollIndicator,
+  LoadingSpinner
 } from "./EnrollCourse.styles";
-import image1 from "../../../assets/Study1.png";
-import image2 from "../../../assets/Study2.png";
-import image3 from "../../../assets/Study3.png";
-
-
 import { getAllWhy } from "../../../api/whyApi";
 import { getCookiesData } from "../../../utils/cookiesService";
 import { useNavigate } from "react-router-dom";
+
 const EnrollCourse = () => {
-  const [ whys, setWhys ] = React.useState([]);
-  const naviagate= useNavigate();
+  const [whys, setWhys] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,25 +31,47 @@ const EnrollCourse = () => {
         setWhys(response);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
-  const handleEnrollNow = async() => {
-    const cookieData= await getCookiesData()
+
+  const handleEnrollNow = async () => {
+    const cookieData = await getCookiesData();
+    navigate("/login");
+  };
+
+  const handleScroll = (direction) => {
+    const featuresContainer = document.getElementById('features-container');
+    const scrollAmount = 300;
     
-     
-      naviagate("/login");
-   
+    if (direction === 'left') {
+      featuresContainer.scrollLeft -= scrollAmount;
+    } else {
+      featuresContainer.scrollLeft += scrollAmount;
+    }
+    
+    setScrollPosition(featuresContainer.scrollLeft);
+  };
+
+  if (loading) {
+    return (
+      <Container>
+        <LoadingSpinner />
+      </Container>
+    );
   }
- 
+
   return (
     <Container>
       <Title>
         Why Choose <Highlight>Our Courses?</Highlight>
       </Title>
       <Line />
-      <Features>
+      
+      <Features id="features-container">
         {whys.map((item, index) => (
           <FeatureCard key={index}>
             <FeatureImage src={item.image} alt={item.title} />
@@ -57,10 +80,33 @@ const EnrollCourse = () => {
           </FeatureCard>
         ))}
       </Features>
-      <Description>
+      
+      <ScrollIndicator>
+        <button 
+          onClick={() => handleScroll('left')} 
+          disabled={scrollPosition === 0}
+          aria-label="Scroll left"
+        >
+          &#8249;
+        </button>
+        <button 
+          onClick={() => handleScroll('right')}
+          aria-label="Scroll right"
+        >
+          &#8250;
+        </button>
+      </ScrollIndicator>
+      
+      {/* <Description>
         Take the first step towards your legal career. Choose the course that best suits your goals and enroll now. Our team is here to assist you every step of the way!
       </Description>
-      <EnrollButton onClick={handleEnrollNow}>Enroll Now</EnrollButton>
+      
+      <EnrollButton onClick={handleEnrollNow}>
+        Enroll Now
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </EnrollButton> */}
     </Container>
   );
 };

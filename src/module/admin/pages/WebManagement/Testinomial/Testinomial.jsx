@@ -65,21 +65,30 @@ const Testimonial = () => {
     }
     apiCaller();
   }, []);
+const toMillis = (d) => (d ? new Date(d).getTime() : 0);
+const oidToMillis = (id) =>
+  id && typeof id === "string" && id.length >= 8
+    ? parseInt(id.substring(0, 8), 16) * 1000
+    : 0;
+const fetchTestimonials = async () => {
+  try {
+    const res = await getAlltestimonials();
 
-  const fetchTestimonials = async () => {
-    try {
-      const res = await getAlltestimonials();
-      const sorted = res.sort((a, b) =>
-        new Date(b.createdAt || b.updatedAt || b._id) -
-        new Date(a.createdAt || a.updatedAt || a._id)
-      );
-      setData(sorted);
-    } catch (err) {
-      console.error("Failed to fetch testimonials", err);
-      toast.error("Failed to fetch testimonials");
-    }
-  };
+    const sorted = [...res].sort((a, b) => {
+      const aTime =
+        toMillis(a.createdAt) || toMillis(a.updatedAt) || oidToMillis(a._id);
+      const bTime =
+        toMillis(b.createdAt) || toMillis(b.updatedAt) || oidToMillis(b._id);
+      return bTime - aTime; // newest first
+    });
 
+    setData(sorted);
+    setCurrentPage(1); // show newest on first row/page
+  } catch (err) {
+    console.error("Failed to fetch testimonials", err);
+    toast.error("Failed to fetch testimonials");
+  }
+};
   const handleDelete = (id) => {
     setDeleteId(id);
     setDeleteModalOpen(true);

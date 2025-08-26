@@ -16,6 +16,7 @@ import {
   SignInButton,
   Hamburger,
   DashboardButton,
+  Caret,
 } from "./LandingHeader.styles";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
@@ -34,6 +35,7 @@ import Telegram from "../../../assets/telegram.svg";
 import { getSocialMediaLinks } from "../../../api/youtuubeApi";
 import { getCookiesData } from "../../../utils/cookiesService";
 import { getUserByUserId } from "../../../api/authApi";
+import { getAllEntrances } from "../../../api/entranceApi";
 
 const iconMap = {
   youtubechannel: Youtube,
@@ -54,6 +56,9 @@ const Header = () => {
   const [socialLinks, setSocialLinks] = useState([]);
   const [tickers, setTickers] = useState([]);
 
+  const [entrances, setEntrances] = useState([]);
+  const [entrancesLoading, setEntrancesLoading] = useState(false);
+
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -64,7 +69,7 @@ const Header = () => {
       try {
         // getAllTickers() returns an array, not { data: [...] }
         const list = await getAllTickers();
-        console.log("Get all ticker response", list);
+        // console.log("Get all ticker response", list);
         setTickers(Array.isArray(list) ? list : []);
       } catch (error) {
         console.error("Error fetching tickers:", error);
@@ -73,6 +78,23 @@ const Header = () => {
     fetchTickers();
   }, []); // ← only once on mount
 
+  useEffect(() => {
+    const loadEntrances = async () => {
+      try {
+        setEntrancesLoading(true);
+        const data = await getAllEntrances(); // expects an array of entrances
+        // If backend returns extra fields, we only need _id + title
+        const list = Array.isArray(data) ? data : [];
+        setEntrances(list);
+      } catch (e) {
+        console.error("Failed to load entrances", e);
+        setEntrances([]);
+      } finally {
+        setEntrancesLoading(false);
+      }
+    };
+    loadEntrances();
+  }, []);
 
   useEffect(() => {
     /** Fetch user details if cookies exist */
@@ -94,7 +116,9 @@ const Header = () => {
         const raw = response?.data?.[0];
         if (raw && typeof raw === "object") {
           const links = Object.entries(raw)
-            .filter(([, val]) => typeof val === "string" && val.startsWith("http"))
+            .filter(
+              ([, val]) => typeof val === "string" && val.startsWith("http")
+            )
             .map(([platform, url]) => {
               let key = platform.toLowerCase().replace(/\s/g, "");
               if (key === "teligram") key = "telegram"; // backend typo
@@ -111,21 +135,24 @@ const Header = () => {
     fetchSocialLinks();
   }, []);
 
-
   const handleNavClick = (link) => {
     if (link === "Blog") {
-      // open external blog in a new tab
-      window.open("https://blog.mankavit.com/", "_blank", "noopener,noreferrer");
+      window.open(
+        "https://blog.mankavit.com/",
+        "_blank",
+        "noopener,noreferrer"
+      );
       return;
     }
     const routeMap = {
       Courses: "/ourcoursedetails",
       Blog: "/userblog",
       About: "/aboutus",
+      Results: "/results",
       "Prev. Year Ques.": "/prev-years-question",
     };
     if (routeMap[link]) return navigate(routeMap[link]);
-    if (link === "Entrance") return setDropdownOpen((o) => !o);
+    if (link === "Entrances") return setDropdownOpen((o) => !o);
 
     const path = link.toLowerCase().replace(/\.\s/g, "-").replace(/\s+/g, "-");
     navigate(`/${path}`);
@@ -137,12 +164,26 @@ const Header = () => {
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMobileMenuOpen(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setDropdownOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target))
+        setMobileMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // close dropdown whenever route changes (safety)
+useEffect(() => {
+  setDropdownOpen(false);
+}, [location.pathname]);
+
+// optional: close on Escape
+useEffect(() => {
+  const onKey = (e) => e.key === "Escape" && setDropdownOpen(false);
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, []);
 
   // Highlight active nav link
   useEffect(() => {
@@ -151,24 +192,23 @@ const Header = () => {
       aboutus: "About",
       userblog: "Blog",
       results: "Results",
+      entrance: "Entrances", // ← detail page /entrance/:id
       "prev-years-question": "Prev. Year Ques.",
     };
     setActiveLink(map[location.pathname.split("/")[1]] || null);
   }, [location]);
 
-
   return (
     <Container>
       <TopBar>
         <ToolbarContainer>
-          <Headline 
-          style={{ fontSize: "20px",
-            marginLeft: "10px",
-           }}
-          >
+          <Headline style={{ fontSize: "20px", marginLeft: "10px" }}>
             <div className="marquee">
               {tickers.map((t) => (
-               <span key={t._id} dangerouslySetInnerHTML={{ __html: t.title }} />
+                <span
+                  key={t._id}
+                  dangerouslySetInnerHTML={{ __html: t.title }}
+                />
               ))}
             </div>
           </Headline>
@@ -183,7 +223,9 @@ const Header = () => {
                   src={iconSrc}
                   alt={platform}
                   style={{ cursor: "pointer" }}
-                  onClick={() => window.open(url, "_blank", "noopener,noreferrer")}
+                  onClick={() =>
+                    window.open(url, "_blank", "noopener,noreferrer")
+                  }
                 />
               );
             })}
@@ -194,32 +236,75 @@ const Header = () => {
       <NavbarMain>
         <NavBarContainer>
           <Link to="/" style={{ textDecoration: "none" }}>
-            <Logo>Mankavit</Logo>
+            <Logo>HOME</Logo>
           </Link>
 
           <div className="menu-container" ref={menuRef}>
-            <NavLinks className={mobileMenuOpen ? "open" : ""}>
-              {["Courses", "About", "Blog", "Results", "Prev. Year Ques.",
-                <Link to="/user/notification"> <IoNotificationsOutline className="notification-icon" /></Link>
-              ].map((item) => (
-                <NavLinkItem
-                  key={item}
-                  className={activeLink === item ? "active" : ""}
-                  onClick={() => handleNavClick(item)}
-                  ref={item === "Entrance" ? dropdownRef : null}
-                >
-                  {item}
-                  {item === "Entrance" && <BsChevronCompactDown size={15} style={{ fontWeight: 800 }} />}
-                  {item === "Entrance" && dropdownOpen && (
-                    <Dropdown>
-                      <DropdownItem onClick={() => navigate("/entrance/neet")}>NEET</DropdownItem>
-                      <DropdownItem onClick={() => navigate("/entrance/jee")}>JEE</DropdownItem>
-                      <DropdownItem onClick={() => navigate("/entrance/cuet")}>CUET</DropdownItem>
-                    </Dropdown>
-                  )}
-                </NavLinkItem>
-              ))}
-            </NavLinks>
+           <NavLinks className={mobileMenuOpen ? "open" : ""}>
+  {["Courses", "About", "Blog", "Results", "Entrances", "Prev. Year Ques.",
+    <Link to="/user/notification" key="notif">
+      <IoNotificationsOutline className="notification-icon" />
+    </Link>
+  ].map((item) => {
+    const key = typeof item === "string" ? item : "notif";
+
+    // Special rendering for Entrances (so clicks on items don't bubble)
+    if (item === "Entrances") {
+      return (
+        <NavLinkItem
+          key={key}
+          className={activeLink === item ? "active" : ""}
+          ref={dropdownRef}
+          onClick={(e) => {
+            e.stopPropagation();              // prevent body / parent clicks
+            setDropdownOpen((o) => !o);
+          }}
+          onMouseEnter={() => window.matchMedia("(hover: hover)").matches && setDropdownOpen(true)}
+          onMouseLeave={() => window.matchMedia("(hover: hover)").matches && setDropdownOpen(false)}
+        >
+          {item}
+          <Caret size={16} $open={dropdownOpen} />
+
+          {dropdownOpen && (
+            <Dropdown onClick={(e) => e.stopPropagation()}>
+              {entrancesLoading && <DropdownItem disabled>Loading…</DropdownItem>}
+
+              {!entrancesLoading && entrances.length === 0 && (
+                <DropdownItem disabled>No entrances</DropdownItem>
+              )}
+
+              {!entrancesLoading &&
+                entrances.map((ent) => (
+                  <DropdownItem
+                    key={ent._id}
+                    onClick={(e) => {
+                      e.stopPropagation();     // ← avoid toggling parent
+                      setDropdownOpen(false);  // ← close immediately
+                      navigate(`/entrance/${ent._id}`);
+                    }}
+                  >
+                    {ent.title}
+                  </DropdownItem>
+                ))}
+            </Dropdown>
+          )}
+        </NavLinkItem>
+      );
+    }
+
+    // Default items
+    return (
+      <NavLinkItem
+        key={key}
+        className={activeLink === item ? "active" : ""}
+        onClick={() => typeof item === "string" && handleNavClick(item)}
+      >
+        {item}
+      </NavLinkItem>
+    );
+  })}
+</NavLinks>
+
 
             {!isLoggedIn ? (
               <SignInButton onClick={handleLoginButton}>Sign In</SignInButton>
@@ -227,7 +312,11 @@ const Header = () => {
               <div className="dashboard-container">
                 <DashboardButton onClick={handleLogout}>
                   Dashboard
-                  <img src={userDetails?.photo_url} alt="Profile" className="profile-icon" />
+                  <img
+                    src={userDetails?.photo_url}
+                    alt="Profile"
+                    className="profile-icon"
+                  />
                 </DashboardButton>
               </div>
             )}

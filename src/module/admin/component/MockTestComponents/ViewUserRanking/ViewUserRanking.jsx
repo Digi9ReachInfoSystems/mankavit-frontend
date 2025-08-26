@@ -1,27 +1,33 @@
 // ViewUser.jsx
 import React, { useState, useEffect } from "react";
 import {
-    Container,
-    HeaderRow,
-    Title,
-    SortByContainer,
-    SortLabel,
-    SortSelect,
-    TableWrapper,
-    StyledTable,
-    TableHead,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableCell,
-    SearchWrapper,
-    SearchIcon,
-    SearchInput,
+  Container,
+  HeaderRow,
+  Title,
+  SortByContainer,
+  SortLabel,
+  SortSelect,
+  TableWrapper,
+  StyledTable,
+  TableHead,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  SearchWrapper,
+  SearchIcon,
+  SearchInput,
 } from "./ViewUserRanking.styles";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import Pagination from "../../Pagination/Pagination";
-import { getAttemptedUserListByMocktestId, getMocktestAttempts, getMocktestById, getRankingByMockTestSubject, getUserAnswerByMocktestIdandSubjectId } from "../../../../../api/mocktestApi";
+import {
+  getAttemptedUserListByMocktestId,
+  getMocktestAttempts,
+  getMocktestById,
+  getRankingByMockTestSubject,
+  getUserAnswerByMocktestIdandSubjectId,
+} from "../../../../../api/mocktestApi";
 import { getUserByUserId } from "../../../../../api/authApi";
 import styled from "styled-components";
 import { getAuth } from "../../../../../utils/authService";
@@ -31,242 +37,328 @@ import autoTable from "jspdf-autotable";
 const ITEMS_PER_PAGE = 10;
 const ExportButton = styled.button`
   padding: 6px 12px;
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-left: 16px;
-  &:hover { background: #1976D2; }
+  &:hover {
+    background: #1976d2;
+  }
 `;
 
 export default function ViewUserRanking() {
-    const { mockTestId, subjectId } = useParams();
-    const [userName, setUserName] = useState("");
-    const [data, setData] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchText, setSearchText] = useState("");
-    const [sortBy, setSortBy] = useState("Rank");
-    const navigate = useNavigate();
-    const [mockTestName, setMockTestName] = useState("");
-    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    useEffect(() => {
-        const apiCaller = async () => {
-            const response = await getAuth();
-            response.Permissions;
-            if (response.isSuperAdmin === true) {
-                setReadOnlyPermissions(false);
-            } else {
-                setReadOnlyPermissions(response.Permissions["mockTestManagement"].readOnly);
-            }
-        }
-        apiCaller();
-    }, []);
-   useEffect(() => {
-  const fetchUserAnswers = async () => {
-    try {
-      if (!mockTestId || !subjectId) {
-        console.error("Missing mockTestId or subjectId");
-        return;
-      }
+  const { mockTestId, subjectId } = useParams();
+  const [userName, setUserName] = useState("");
+  const [totalMarks, setTotalMarks] = useState(null);
 
-      if (!/^[a-f\d]{24}$/i.test(mockTestId) || !/^[a-f\d]{24}$/i.test(subjectId)) {
-        console.error("Invalid ID format");
-        return;
-      }
-
-      const mocktestResponse = await getMocktestById(mockTestId);
-      if (mocktestResponse.success) {
-        setMockTestName(mocktestResponse.data.title);
-      }
-     console.log("Fetching user answers for mockTestId:zcadsfds", mockTestId, subjectId);
-      const response = await getRankingByMockTestSubject(mockTestId, subjectId);
-      if (response.success) {
-        let sorted = response.data;
-        if (sortBy === "Name") {
-          sorted = [...sorted].sort((a, b) => a.userId.displayName.localeCompare(b.userId.displayName));
-        } else if (sortBy === "SubmittedAt") {
-          sorted = [...sorted].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
-        }
-        setData(sorted);
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState("");
+  const [sortBy, setSortBy] = useState("Rank");
+  const navigate = useNavigate();
+  const [mockTestName, setMockTestName] = useState("");
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
       } else {
-        throw new Error(response.message || "Failed to fetch user answers");
+        setReadOnlyPermissions(
+          response.Permissions["mockTestManagement"].readOnly
+        );
       }
-    } catch (error) {
-      console.error("Error fetching mock tests:", error);
+    };
+    apiCaller();
+  }, []);
+
+ useEffect(() => {
+  const loadMockName = async () => {
+    if (!mockTestId || !/^[a-f\d]{24}$/i.test(mockTestId)) {
+      console.error("Invalid mockTestId");
+      return;
+    }
+    const res = await getMocktestById(mockTestId);
+    if (res?.success && res.data) {
+      // Title
+      setMockTestName(res.data.mockTitle || res.data.title || res.data.name || "");
+
+      // Total marks:
+      // 1) top-level totalMarks if present
+      // 2) maxMarks alternative
+      // 3) find inside subjects array by matching the route subjectId against id/subjectId
+      let marks =
+        res.data.totalMarks ??
+        res.data.maxMarks ??
+        (Array.isArray(res.data.subjects)
+          ? (() => {
+              const match = res.data.subjects.find(s =>
+                s?.id === subjectId || s?.subjectId === subjectId
+              );
+              return match?.totalMarks;
+            })()
+          : null);
+
+      setTotalMarks(marks ?? null);
     }
   };
+  loadMockName();
+}, [mockTestId, subjectId]);
 
-  fetchUserAnswers();
-}, [mockTestId, subjectId, sortBy]);
 
-    useEffect(() => {
-        const apiCaller = async () => {
-            try {
-                if (!mockTestId || !subjectId) {
-                    console.error("Missing mockTestId or subjectId");
-                    return;
-                }
-
-                const response = await getRankingByMockTestSubject(
-                    mockTestId,
-                    subjectId
-
-                );
-                console.log("Fetching user answers for mockTestId:", response);
-
-                console.log("Fetching user answers for mockTestId:", response);
-                // console.log("subjectId", subjectId);
-                console.log("mockTestId", mockTestId);
-                console.log("View user answers response", response);
-                if (response.success) {
-                    if (sortBy === "Name") {
-                        setData(response.data.sort((a, b) => a.userId.displayName.localeCompare(b.userId.displayName)));
-                    } else if (sortBy === "SubmittedAt") {
-                        setData(response.data.sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt)));
-                    } else {
-                        setData(response.data);
-                    }
-
-                } else {
-                    throw new Error(response.message || "Failed to fetch user answers");
-                }
-            } catch (error) {
-                console.error("Error fetching mock tests:", error);
-                // You might want to set some error state here to show to the user
-            }
+  useEffect(() => {
+    const fetchUserAnswers = async () => {
+      try {
+        if (!mockTestId || !subjectId) {
+          console.error("Missing mockTestId or subjectId");
+          return;
         }
-        apiCaller();
-    }, [sortBy]);
 
+        // Validate ONLY mockTestId as ObjectId:
+        if (!/^[a-f\d]{24}$/i.test(mockTestId)) {
+          console.error("Invalid mockTestId format");
+          return;
+        }
 
-    const filtered = data.filter((item) =>
-        item.userId.displayName.toString().toLowerCase().includes(searchText.toLowerCase()) ||
-        item.userEmail.toLowerCase().includes(searchText.toLowerCase())
-    );
-    const totalEntries = filtered.length;
-    const totalPages = Math.ceil(totalEntries / ITEMS_PER_PAGE);
-    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageItems = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+        // (No subjectId ObjectId check here — allow strings like "mocktestSubject")
 
-    const handleSortChange = (e) => {
-        setSortBy(e.target.value);
+        const response = await getRankingByMockTestSubject(
+          mockTestId,
+          subjectId
+        );
+        if (response.success) {
+          let sorted = response.data;
+          if (sortBy === "Name") {
+            sorted = [...sorted].sort((a, b) =>
+              a.userId.displayName.localeCompare(b.userId.displayName)
+            );
+          } else if (sortBy === "SubmittedAt") {
+            sorted = [...sorted].sort(
+              (a, b) => new Date(a.submittedAt) - new Date(b.submittedAt)
+            );
+          }
+          setData(sorted);
+        } else {
+          throw new Error(response.message || "Failed to fetch user answers");
+        }
+      } catch (error) {
+        console.error("Error fetching mock tests:", error);
+      }
     };
 
+    fetchUserAnswers();
+  }, [mockTestId, subjectId, sortBy]);
 
-    const handleView = (attempt) => {
-        console.log("attempt", attempt);
-        navigate(`/admin/mock-test/user-result/view-result/${attempt}`);
-        // console.log("View attempt with ID:", attemptId);
+  useEffect(() => {
+    const apiCaller = async () => {
+      try {
+        if (!mockTestId || !subjectId) {
+          console.error("Missing mockTestId or subjectId");
+          return;
+        }
+
+        const response = await getRankingByMockTestSubject(
+          mockTestId,
+          subjectId
+        );
+        // console.log("Fetching user answers for mockTestId:", response);
+
+        // console.log("Fetching user answers for mockTestId:", response);
+        // console.log("subjectId", subjectId);
+        console.log("mockTestId", mockTestId);
+        console.log("View user answers response", response);
+        if (response.success) {
+          if (sortBy === "Name") {
+            setData(
+              response.data.sort((a, b) =>
+                a.userId.displayName.localeCompare(b.userId.displayName)
+              )
+            );
+          } else if (sortBy === "SubmittedAt") {
+            setData(
+              response.data.sort(
+                (a, b) => new Date(a.submittedAt) - new Date(b.submittedAt)
+              )
+            );
+          } else {
+            setData(response.data);
+          }
+        } else {
+          throw new Error(response.message || "Failed to fetch user answers");
+        }
+      } catch (error) {
+        console.error("Error fetching mock tests:", error);
+        // You might want to set some error state here to show to the user
+      }
     };
-    const exportPDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text(`Mock Test Ranking - ${mockTestName} `, 14, 22);
+    apiCaller();
+  }, [sortBy]);
 
-        const columns = [
-            "Rank",
-            "Name",
-            "Email",
-            "Best Score",
-            "Total Attempts",
-            "Submitted At",
+  const filtered = data.filter(
+    (item) =>
+      item.userId.displayName
+        .toString()
+        .toLowerCase()
+        .includes(searchText.toLowerCase()) ||
+      item.userEmail.toLowerCase().includes(searchText.toLowerCase())
+  );
+  const totalEntries = filtered.length;
+  const totalPages = Math.ceil(totalEntries / ITEMS_PER_PAGE);
+  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
-        ];
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
 
-        const rows = filtered.map(item => [
-            item.rank,
-            item.userId.displayName || "N/A",
-            item.userEmail || "N/A",
-            item.bestScore || "N/A",
-            item.attemptsCount || "N/A",
-            new Date(item.submittedAt).toLocaleString() || "N/A",
-        ]);
+  const handleView = (attempt) => {
+    console.log("attempt", attempt);
+    navigate(`/admin/mock-test/user-result/view-result/${attempt}`);
+    // console.log("View attempt with ID:", attemptId);
+  };
+const exportPDF = () => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14;
+  const rightX = pageWidth - margin;
 
-        // <— note: calling the imported function directly
-        autoTable(doc, {
-            head: [columns],
-            body: rows,
-            startY: 30,
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [33, 150, 243] },
-        });
+  const title = "Mankavit Law Academy";
+  const subTitle = mockTestName || "Untitled Mock Test";
+  const totalMarksText = `Total Marks: ${totalMarks ?? "-"}`;
 
-        doc.save(`MockTestRanking-${mockTestName}-${new Date().toLocaleString()}.pdf`);
-    };
+  // Titles in red
+  doc.setTextColor(255, 0, 0);
+  doc.setFontSize(18);
+  doc.text(title, margin, 22);      // Academy title
+  doc.setFontSize(14);
+  doc.text(subTitle, margin, 32);   // Mock test name
 
-    return (
-        <Container>
-            <HeaderRow>
-                <Title>
-                    List of Students  <small>({pageItems.length}/{totalEntries})</small>
-                </Title>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <SortByContainer>
+  // Reset color for rest
+  doc.setTextColor(255, 0, 0);
 
-                        <SortLabel>Sort by:</SortLabel>
-                        <SortSelect value={sortBy} onChange={handleSortChange}>
-                            <option value="Rank">Rank</option>
-                            <option value="Name">Name</option>
-                            <option value="SubmittedAt">Submited At</option>
-                            {/* <option value="Active">Active</option> */}
-                        </SortSelect>
-                    </SortByContainer>
-                    {
-                        !readOnlyPermissions && (
-                            <ExportButton onClick={exportPDF}>
-                                Export PDF
-                            </ExportButton>
-                        )
-                    }
-                </div>
+  // Total marks on the right, below titles
+  doc.setFontSize(12);
+  doc.text(totalMarksText, rightX, 40, { align: "right" });
 
-            </HeaderRow>
+  // Table
+  const columns = ["Rank", "Name", "Marks"];
+  const rows = filtered.map(item => [
+    item.rank,
+    item.userId.displayName || "N/A",
+    item.bestScore ?? "N/A",
+  ]);
+  doc.setTextColor(0, 0, 0); // before autoTable(...)
 
-            <SearchWrapper>
-                <SearchIcon><CiSearch size={18} /></SearchIcon>
-                <SearchInput
-                    placeholder="Search"
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                />
-            </SearchWrapper>
 
-            <TableWrapper>
-                <StyledTable>
-                    <TableHead>
-                        <TableRow>
-                            <TableHeader>Rank</TableHeader>
-                            <TableHeader>Name</TableHeader>
-                            <TableHeader>Email</TableHeader>
-                            <TableHeader>Best Score</TableHeader>
-                            <TableHeader>Total Attempts</TableHeader>
+autoTable(doc, {
+  head: [columns],
+  body: rows,
+  startY: 48,
+  theme: "grid", // adds borders around all cells
+  styles: {
+    fontSize: 10,
+    cellPadding: 3,
+    textColor: [0, 0, 0],
+    lineWidth: 0.1,        // border width
+    lineColor: [0, 0, 0],  // border color
+  },
+  headStyles: {
+    fillColor: [255, 255, 255], // white header background
+    textColor: [0, 0, 0],
+    fontStyle: "bold",
+  },
+  didParseCell: (data) => {
+    if (data.section === "body") {
+      // First body row has index 0 -> treat as "odd" -> grey
+      const isOddRow = data.row.index % 2 === 0;
+      data.cell.styles.fillColor = isOddRow ? [245, 245, 245] : [255, 255, 255];
+    }
+  },
+});
 
-                            <TableHeader>Submitted At</TableHeader>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {pageItems.map((item) => (
-                            <TableRow key={item._id}>
-                                <TableCell>{item.rank}</TableCell>
-                                <TableCell>{item.userId.displayName || " "}</TableCell>
-                                <TableCell>{item.userEmail || "0"}</TableCell>
-                                <TableCell>{item.bestScore || "0"}</TableCell>
-                                <TableCell>{item.attemptsCount}</TableCell>
-                                <TableCell>{new Date(item.submittedAt).toLocaleString()}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </StyledTable>
-            </TableWrapper>
 
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                totalItems={totalEntries}
-                itemsPerPage={ITEMS_PER_PAGE}
-            />
-        </Container>
-    );
+
+
+  doc.save(`MockTestRanking-${subTitle}-${new Date().toLocaleString()}.pdf`);
+};
+
+
+  return (
+    <Container>
+      <HeaderRow>
+        <Title>
+          List of Students{" "}
+          <small>
+            ({pageItems.length}/{totalEntries})
+          </small>
+        </Title>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <SortByContainer>
+            <SortLabel>Sort by:</SortLabel>
+            <SortSelect value={sortBy} onChange={handleSortChange}>
+              <option value="Rank">Rank</option>
+              <option value="Name">Name</option>
+              <option value="SubmittedAt">Submited At</option>
+              {/* <option value="Active">Active</option> */}
+            </SortSelect>
+          </SortByContainer>
+          {!readOnlyPermissions && (
+            <ExportButton onClick={exportPDF}>Export PDF</ExportButton>
+          )}
+        </div>
+      </HeaderRow>
+
+      <SearchWrapper>
+        <SearchIcon>
+          <CiSearch size={18} />
+        </SearchIcon>
+        <SearchInput
+          placeholder="Search"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </SearchWrapper>
+
+      <TableWrapper>
+        <StyledTable>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Rank</TableHeader>
+              <TableHeader>Name</TableHeader>
+              <TableHeader>Email</TableHeader>
+              <TableHeader>Best Score</TableHeader>
+              <TableHeader>Total Attempts</TableHeader>
+
+              <TableHeader>Submitted At</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {pageItems.map((item) => (
+              <TableRow key={item._id}>
+                <TableCell>{item.rank}</TableCell>
+                <TableCell>{item.userId.displayName || " "}</TableCell>
+                <TableCell>{item.userEmail || "0"}</TableCell>
+                <TableCell>{item.bestScore || "0"}</TableCell>
+                <TableCell>{item.attemptsCount}</TableCell>
+                <TableCell>
+                  {new Date(item.submittedAt).toLocaleString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </StyledTable>
+      </TableWrapper>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={totalEntries}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
+    </Container>
+  );
 }

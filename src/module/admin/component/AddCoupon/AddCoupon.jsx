@@ -225,51 +225,56 @@ const AddCoupon = () => {
         return Object.keys(errs).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   const handleSubmit = async (e) => {
+  e.preventDefault();
 
-        if (!validateForm()) {
-            return;
-        }
+  if (!validateForm()) {
+    return;
+  }
 
-        setIsLoading(true);
+  setIsLoading(true);
 
-        try {
-            // Final check if image was uploaded
-            let finalCouponImage = couponData.coupon_image;
+  try {
+    // Convert dates to UTC format
+    const startDate = new Date(couponData.start_date);
+    const endDate = new Date(couponData.end_date);
+    
+    // Format dates in ISO format (UTC)
+    const formattedStartDate = startDate.toISOString();
+    const formattedEndDate = endDate.toISOString();
 
-            if (couponImage && !finalCouponImage) {
-                finalCouponImage = await uploadFile(couponImage, 'coupons');
-            }
+    let finalCouponImage = couponData.coupon_image;
 
-            const payload = {
-                ...couponData,
-                coupon_image: finalCouponImage,
-                discount_amount: Number(couponData.discount_amount)
-            };
+    if (couponImage && !finalCouponImage) {
+      finalCouponImage = await uploadFile(couponImage, 'coupons');
+    }
 
-            await createCoupon(payload);
-            toast.success('Coupon created successfully!', {
-                onClose: () => {
-                    navigate('/admin/web-management/coupon');
-                    // isLoading(false);
-                    setIsLoading(false);
-                }
-            });
-            // setTimeout(() => navigate('/admin/coupon-management'), 1000);
-        } catch (err) {
-            console.error('Full submission error:', {
-                message: err.message,
-                response: err.response,
-                stack: err.stack
-            });
-            // isLoading(false);
-            toast.error(err.response?.data?.message || 'Failed to create coupon');
-        } finally {
-            // setIsLoading(false);
-            setIsLoading(false);
-        }
+    const payload = {
+      ...couponData,
+      start_date: formattedStartDate,
+      end_date: formattedEndDate,
+      coupon_image: finalCouponImage,
+      discount_amount: Number(couponData.discount_amount)
     };
+
+    await createCoupon(payload);
+    toast.success('Coupon created successfully!', {
+      onClose: () => {
+        navigate('/admin/web-management/coupon');
+        setIsLoading(false);
+      }
+    });
+  } catch (err) {
+    console.error('Full submission error:', {
+      message: err.message,
+      response: err.response,
+      stack: err.stack
+    });
+    toast.error(err.response?.data?.message || 'Failed to create coupon');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     return (
         <FormContainer onSubmit={handleSubmit}>

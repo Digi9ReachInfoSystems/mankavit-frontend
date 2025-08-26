@@ -131,7 +131,7 @@ const CreateMockTest = () => {
   if (!testDetails.description) newErrors.description = 'Description is required';
   if (!testDetails.duration) newErrors.duration = 'Duration is required';
   if (!testDetails.maxAttempts) newErrors.maxAttempts = 'Max attempts is required';
-  if (!testDetails.selectedSubjects.length) newErrors.selectedSubjects = 'Select at least one subject';
+  // if (!testDetails.selectedSubjects.length) newErrors.selectedSubjects = 'Select at least one subject';
 
   if (Object.keys(newErrors).length) {
     setErrors(newErrors);

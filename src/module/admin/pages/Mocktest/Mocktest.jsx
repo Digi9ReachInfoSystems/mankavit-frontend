@@ -405,7 +405,7 @@ export default function MockTestsTable() {
                 <TableHeader>Question type</TableHeader>
                 <TableHeader>Total marks</TableHeader>
                 <TableHeader>Published</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
                 <TableHeader>View Submission</TableHeader>
                 <TableHeader>View Ranking</TableHeader>
               </TableRow>
@@ -459,7 +459,7 @@ export default function MockTestsTable() {
                       </ToggleLabel>
                     </ToggleSwitch>
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <ActionsContainer>
                       {!readOnlyPermissions && (
                         <>
@@ -479,7 +479,7 @@ export default function MockTestsTable() {
                         </>
                       )}
                     </ActionsContainer>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell style={{ textAlign: "center" }}>
                     <button
                       style={{

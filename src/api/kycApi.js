@@ -49,3 +49,14 @@ export const getKYCbyUserId = async (userId) => {
     throw error;
   }
 }
+
+
+export const updateKycById = async (id, kycData) => {
+  try {
+    const response = await api.put(`/kyc/${id}`, kycData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating KYC by ID:', error);
+    throw error;
+  }
+}

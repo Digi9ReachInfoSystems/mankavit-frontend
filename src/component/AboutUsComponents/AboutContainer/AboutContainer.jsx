@@ -1,13 +1,15 @@
-// src/components/AboutContainer/AboutContainer.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   AboutmainContainer,
+  AboutTitleWrap,
   AboutTitle,
+  TitleAccent,
   AboutContent,
-  ContentOne,
-  ContentTwo
-} from './AboutContainer.styles';
-import { getAllAboutUs } from '../../../api/aboutUsApi';
+  ContentCard,
+  SkeletonCard,
+  ErrorBanner,
+} from "./AboutContainer.styles";
+import { getAllAboutUs } from "../../../api/aboutUsApi";
 
 const AboutContainer = () => {
   const [aboutItems, setAboutItems] = useState([]);
@@ -20,11 +22,11 @@ const AboutContainer = () => {
       setError(null);
       try {
         const data = await getAllAboutUs();
-        // Expecting an array like [{ _id, title, description, … }, …]
         setAboutItems(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setError('Could not load About Us content.');
+        setError("Could not load About Us content.");
+        setAboutItems([]);
       } finally {
         setLoading(false);
       }
@@ -34,28 +36,34 @@ const AboutContainer = () => {
   }, []);
 
   return (
-    <AboutmainContainer>
-      <AboutTitle>About Us</AboutTitle>
+    <AboutmainContainer aria-busy={loading}>
+      <AboutTitleWrap>
+        <AboutTitle>About Us</AboutTitle>
+        {/* <TitleAccent aria-hidden /> */}
+      </AboutTitleWrap>
 
-      {loading && <p>Loading…</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <ErrorBanner role="alert">{error}</ErrorBanner>}
 
-      {!loading && !error && (
-        <AboutContent>
-          {aboutItems.map((item, idx) => {
-            // alternate components for styling
-            const Component = idx % 2 === 0 ? ContentOne : ContentTwo;
-            return (
-              <Component key={item._id}>
-                {/* if you have a title field and want to render it: */}
-                {item.title && <strong>{item.title}</strong>}
-                {/* <p>{item.description}</p> */}
-                <p dangerouslySetInnerHTML={{ __html: item.description }} />
-              </Component>
-            );
-          })}
-        </AboutContent>
-      )}
+      <AboutContent>
+        {loading &&
+          Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+
+        {!loading &&
+          !error &&
+          aboutItems.map((item, idx) => (
+            <ContentCard
+              key={item._id || idx}
+              $alt={idx % 2 === 1}
+              aria-label={item?.title || `About section ${idx + 1}`}
+            >
+              {item?.title && <h3>{item.title}</h3>}
+              {/* We preserve your HTML rendering */}
+              <div
+                dangerouslySetInnerHTML={{ __html: item?.description || "" }}
+              />
+            </ContentCard>
+          ))}
+      </AboutContent>
     </AboutmainContainer>
   );
 };

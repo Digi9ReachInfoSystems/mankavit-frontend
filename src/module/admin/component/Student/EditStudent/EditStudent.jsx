@@ -57,6 +57,8 @@ const EditStudent = () => {
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [form, setForm] = useState({ 
     displayName: "", 
+    first_name: "",
+    last_name: "",
     email: "", 
     phone: "",
     fathers_name: "",
@@ -113,7 +115,7 @@ const EditStudent = () => {
     try {
       setLoadingStudent(true);
       const res = await getUserByUserId(userId);
-      console.log("Student data:", res);
+      console.log("Student data: updatinmg", res);
       if (!res.success || !res.user) throw new Error("Student not found");
 
       const stu = res.user;
@@ -133,6 +135,8 @@ const EditStudent = () => {
 
       setForm({
         displayName: stu.displayName || "",
+        first_name: stu.first_name || "",
+        last_name: stu.last_name || "",
         email: stu.email || "",
         phone: stu.phone || "",
         masterOtp: stu.masterOtp,
@@ -211,31 +215,58 @@ const EditStudent = () => {
   const onFormChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  // const validate = () => {
+  //   console.log("form validation", form);
+  //   const errs = {};
+  //   if (!form.displayName.trim()) errs.displayName = "Name required";
+  //   if (!form.first_name.trim()) errs.first_name = "First name required";
+  //   if (!form.last_name.trim()) errs.last_name = "Last name required";
+  //   if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
+  //   if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
+  //   // if (selected.length === 0) errs.courseIds = "Select at least one course";
+
+  //   if (form.masterOtp && (form.masterOtp.length !== 6 || isNaN(form.masterOtp))) {
+  //     errs.masterOtp = "OTP must be 6 digits";
+  //   }
+
+  //   setFormErrors(errs);
+  //   return Object.keys(errs).length === 0;
+  // };
+
   const validate = () => {
-    console.log("form validation", form);
-    const errs = {};
-    if (!form.displayName.trim()) errs.displayName = "Name required";
-    if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
-    if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
-    // if (selected.length === 0) errs.courseIds = "Select at least one course";
+  const errs = {};
 
-    if (form.masterOtp && (form.masterOtp.length !== 6 || isNaN(form.masterOtp))) {
-      errs.masterOtp = "OTP must be 6 digits";
-    }
+  // Required in your UI
+  if (!form.displayName.trim()) errs.displayName = "Name required";
+  if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
 
-    setFormErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
+  // If you want to store E.164 or just 10 digits, pick one:
+  // A) allow +countrycode
+  if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
+  // B) or force 10 digits (India)
+  // if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) errs.phone = "Invalid phone (must be 10 digits)";
+
+  // Only validate these if you actually show the inputs
+  if (form.masterOtp && (form.masterOtp.length !== 6 || isNaN(form.masterOtp))) {
+    errs.masterOtp = "OTP must be 6 digits";
+  }
+
+  setFormErrors(errs);
+  return Object.keys(errs).length === 0;
+};
+
 
 const handleSave = async () => {
   if (!student || !validate()) return;
   setProcessing(true);
   try {
-    /* 1️⃣ Update profile */
+    // 1️⃣ Update profile (SEND displayName)
     await updateUserById(student._id, {
-      displayName: form.displayName.trim(),
+      displayName: form.displayName.trim(),          // <— put this back
+      // first_name: form.first_name.trim(),          // only if you bring inputs back
+      // last_name : form.last_name.trim(),           // only if you bring inputs back
       email: form.email.trim(),
-      phone: form.phone.trim(),
+      phone: form.phone.trim(),                      // or normalize to +91...
       masterOtp: form.masterOtp,
       fathers_name: form.fathers_name.trim(),
       fathers_occupation: form.fathers_occupation.trim(),
@@ -243,30 +274,25 @@ const handleSave = async () => {
       present_address: form.present_address.trim(),
       passing_year: form.passing_year.trim(),
       college_name: form.college_name.trim(),
-      date_of_birth: form.date_of_birth ? new Date(form.date_of_birth) : null
+      date_of_birth: form.date_of_birth ? new Date(form.date_of_birth) : null,
     });
 
-      /* 2️⃣ Sync course enrolments */
-      const toAdd = selected.filter((id) => !currentIds.includes(id));
-      const toRemove = currentIds.filter((id) => !selected.includes(id));
-      if (toAdd.length)
-        await addCourseToStudent({ userId: student._id, courseIds: toAdd });
-      if (toRemove.length)
-        await removeCourseFromStudent({
-          userId: student._id,
-          courseIds: toRemove,
-        });
+    // 2️⃣ Sync course enrollments (unchanged)
+    const toAdd = selected.filter((id) => !currentIds.includes(id));
+    const toRemove = currentIds.filter((id) => !selected.includes(id));
+    if (toAdd.length) await addCourseToStudent({ userId: student._id, courseIds: toAdd });
+    if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
 
-      toast.success("Student updated successfully");
-      setTimeout(() => navigate("/admin/student-management"), 1000);
-      // navigate("/admin/student-management");
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Update failed");
-    } finally {
-      setProcessing(false);
-    }
-  };
+    toast.success("Student updated successfully");
+    setTimeout(() => navigate("/admin/student-management"), 1000);
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Update failed");
+  } finally {
+    setProcessing(false);
+  }
+};
+
 
   const handleForceLogout = async () => {
     if (!student?.email) {
@@ -427,7 +453,7 @@ const handleSave = async () => {
         </FlexRow>
       )}
 
-      <InputGroup>
+      <InputGroup style={{width:"50%"}}>
         <Label>Name*</Label>
         <InputField
           name="displayName"
@@ -439,6 +465,30 @@ const handleSave = async () => {
           <ErrorMessage>{formErrors.displayName}</ErrorMessage>
         )}
       </InputGroup>
+      {/* <InputGroup>
+        <Label>First name</Label>
+        <InputField
+          name="first_name"
+          value={form.first_name}
+          onChange={onFormChange}
+          disabled={processing}
+        />
+        {formErrors.first_name && (
+          <ErrorMessage>{formErrors.first_name}</ErrorMessage>
+        )}
+      </InputGroup>
+      <InputGroup>
+        <Label>Last name</Label>
+        <InputField
+          name="last_name"
+          value={form.last_name}
+          onChange={onFormChange}
+          disabled={processing}
+        />
+        {formErrors.last_name && (
+          <ErrorMessage>{formErrors.last_name}</ErrorMessage>
+        )}
+      </InputGroup> */}
 
       <FlexRow>
         <InputGroup>

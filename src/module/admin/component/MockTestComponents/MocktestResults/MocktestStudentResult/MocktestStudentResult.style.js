@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import theme from "../../../../../../theme/Theme";
 
 export const Container = styled.div`
 margin-left: 40px;
@@ -25,7 +26,7 @@ export const UserInfo = styled.div`
 `;
 
 export const QuestionCard = styled.div`
-  background: #fafafa;
+  background: ${theme.colors.platinumlightgray};
   border-left: 5px solid #2a2a72;
   padding: 16px;
   margin-bottom: 24px;
@@ -45,6 +46,7 @@ export const Label = styled.div`
 export const QuestionText = styled.div`
   font-size: 1rem;
   color: #333;
+  font-weight:bold;
 `;
 
 export const AnswerText = styled.div`
@@ -101,4 +103,36 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+`;
+
+// --- NEW: inline question number + text
+export const QuestionLine = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+`;
+
+export const QIndex = styled.span`
+  font-weight: 700;
+  white-space: nowrap;
+`;
+
+// --- NEW: number-only list (no bullets) for options
+export const OptionsList = styled.ul`
+  list-style: none;
+  padding-left: 0;
+  margin-top: 6px;
+`;
+
+export const OptionItem = styled.li`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: ${(p) => (p.$bold ? 600 : 400)};
+  color: ${(p) => (p.$correct ? "#0a8a0a" : p.$wrong ? "#d32f2f" : "inherit")};
+`;
+
+export const OptionNumber = styled.span`
+  min-width: 20px;
+  font-weight: 600;
 `;

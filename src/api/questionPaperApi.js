@@ -44,9 +44,42 @@ export const updateQuestionPaperById = async (id, data) => {
     }
 }
 
-export const deleteQuestionPaper = async (id) => {
+export const deleteQuestionPaper = async (title) => {
     try {
-        const response = await api.delete(`/question/deleteQuestionPaper/${id}`);
+        const response = await api.delete(`/question/deleteQuestionPaper/${title}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const removeQuestionpaper = async (title, year) => {
+    try {
+        const response = await api.put(`/question/removeQuestionPaper/${title}/${year}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const addExistingTitlePaper = async (title,data) => {
+    try {
+        console.log("DSata",data);
+        const response = await api.put(`/question/addQuestionPaper/${title}`,data);
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+
+export const getQuestionPaperByTitleAndYear = async (title, year) => {
+    try {
+        const response = await api.get(`/question/getQuestionPaperByTitleAndYear/${title}/${year}`);
         return response.data;
     } catch (error) {
         console.log(error);

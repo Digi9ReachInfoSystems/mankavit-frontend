@@ -54,7 +54,7 @@ export default function AddCourse() {
   const [description, setDescription] = useState("");
 
   // New state fields
-  const [duration, setDuration] = useState("");
+  const [duration, setDuration] = useState(null);
   const [courseExpiry, setCourseExpiry] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [searchSubject, setSearchSubject] = useState("");
@@ -71,9 +71,6 @@ export default function AddCourse() {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  // const filteredSubjects = subjectsCheckboxes.filter((subject) =>
-  //   subject.label.toLowerCase().includes(searchSubject.toLowerCase())
-  // );
   useEffect(() => {
     const apiCaller = async () => {
       try {
@@ -200,75 +197,97 @@ export default function AddCourse() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Basic validations
-      if (!courseTitle) return toast.error("Please enter course title.");
-      if (!internalTitle)
-        return toast.error("Please enter internal course title.");
-      if (!discountedPrice || isNaN(discountedPrice))
-        return toast.error("Discounted price should be a number.");
-      if (!actualPrice || isNaN(actualPrice))
-        return toast.error("Actual price should be a number.");
-      if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Basic validations - Only required fields
+    if (!courseTitle) return toast.error("Please enter course title.");
+    if (!internalTitle)
+      return toast.error("Please enter internal course title.");
+    if (!actualPrice || isNaN(actualPrice))
+      return toast.error("Actual price should be a number.");
+    if (!discountedPrice || isNaN(discountedPrice))
+      return toast.error("Discounted price should be a number.");
+    if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
 
-      // Rearrange subjects before submission
+    // Rearrange subjects if any are selected
+    if (selectedSubjects.length > 0) {
       const subjectIds = selectedSubjects.map((subject) => subject.id);
       await rearrangeSubjects(subjectIds);
-
-      // Upload image
-      const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
-      const fileURL = fileData.blobUrl;
-
-      // Prepare payload
-      const payload = {
-        courseName: internalTitle,
-        courseDisplayName: courseTitle,
-        shortDescription,
-        description,
-        category: categoryCheckboxes.filter((i) => i.checked).map((i) => i.id),
-        price: Number(actualPrice),
-        discountPrice: Number(discountedPrice),
-        discountActive: isKYCRequired,
-        duration,
-        isPublished,
-        subjects: subjectIds,
-        image: fileURL,
-        courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
-      };
-
-      const createCourseResponse = await createCourse(payload);
-      if (createCourseResponse) {
-        toast.success("Course created successfully.");
-
-        // Reset form
-        setInternalTitle("");
-        setCourseTitle("");
-        setShortDescription("");
-        setDescription("");
-        setDuration("");
-        setActualPrice("");
-        setDiscountedPrice("");
-        setIsKYCRequired(false);
-        setSelectedSubjects([]);
-        setSubjectCheckboxes((prev) =>
-          prev.map((i) => ({ ...i, checked: false }))
-        );
-        setCategoryCheckboxes((prev) =>
-          prev.map((i) => ({ ...i, checked: false }))
-        );
-        setThumbnailFile(null);
-        setPreviewUrl(null);
-        setCourseExpiry(null);
-
-        setTimeout(() => navigate("/admin/course-management"), 1000);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to create course. Please try again.");
     }
-  };
+
+    // Upload image
+    const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
+    const fileURL = fileData.blobUrl;
+
+    // Prepare payload with proper defaults for all fields
+    const payload = {
+      courseName: internalTitle,
+      courseDisplayName: courseTitle,
+      price: Number(actualPrice),
+      discountPrice: Number(discountedPrice),
+      image: fileURL,
+      shortDescription: shortDescription || "",
+      description: description || "",
+      duration: duration || null,
+      discountActive: isKYCRequired,
+      isPublished: isPublished,
+      courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
+    };
+
+    // Add categories and subjects only if they exist
+    const selectedCategories = categoryCheckboxes
+      .filter((i) => i.checked)
+      .map((i) => i.id);
+    if (selectedCategories.length > 0) {
+      payload.category = selectedCategories;
+    } else {
+      payload.category = []; // Ensure it's always an array
+    }
+
+    const subjectIds = selectedSubjects.map((subject) => subject.id);
+    if (subjectIds.length > 0) {
+      payload.subjects = subjectIds;
+    } else {
+      payload.subjects = []; // Ensure it's always an array
+    }
+
+    console.log("Sending payload:", payload); // For debugging
+
+    const createCourseResponse = await createCourse(payload);
+    if (createCourseResponse) {
+      toast.success("Course created successfully.");
+
+      // Reset form
+      setInternalTitle("");
+      setCourseTitle("");
+      setShortDescription("");
+      setDescription("");
+      setDuration(null);
+      setActualPrice("");
+      setDiscountedPrice("");
+      setIsKYCRequired(false);
+      setSelectedSubjects([]);
+      setSubjectCheckboxes((prev) =>
+        prev.map((i) => ({ ...i, checked: false }))
+      );
+      setCategoryCheckboxes((prev) =>
+        prev.map((i) => ({ ...i, checked: false }))
+      );
+      setThumbnailFile(null);
+      setPreviewUrl(null);
+      setCourseExpiry("");
+
+      setTimeout(() => navigate("/admin/course-management"), 1000);
+    }
+  } catch (err) {
+    console.error("Error details:", err.response?.data || err.message);
+    toast.error(
+      err.response?.data?.message ||
+        "Failed to create course. Please try again."
+    );
+  }
+};
 
   return (
     <Container>
@@ -290,23 +309,25 @@ export default function AddCourse() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="courseTitle">Course Title</Label>
+              <Label htmlFor="courseTitle">Course Title *</Label>
               <Input
                 id="courseTitle"
                 value={courseTitle}
                 onChange={(e) => setCourseTitle(e.target.value)}
                 placeholder="Enter Course Title"
+                required
               />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="internalTitle">Course Internal Title</Label>
+              <Label htmlFor="internalTitle">Course Internal Title *</Label>
               <Input
                 id="internalTitle"
                 value={internalTitle}
                 onChange={(e) => setInternalTitle(e.target.value)}
                 placeholder="Enter Internal Title"
+                required
               />
             </FieldWrapper>
           </Column>
@@ -352,7 +373,7 @@ export default function AddCourse() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="discountedPrice">Discounted Price</Label>
+              <Label htmlFor="discountedPrice">Discounted Price *</Label>
               <PriceInput
                 id="discountedPrice"
                 value={discountedPrice}
@@ -361,12 +382,13 @@ export default function AddCourse() {
                   setDiscountedPrice(filteredData);
                 }}
                 placeholder="Enter Discounted Price in ₹ (eg: 2999)"
+                required
               />
             </FieldWrapper>
           </Column>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="actualPrice">Actual Price</Label>
+              <Label htmlFor="actualPrice">Actual Price *</Label>
               <PriceInput
                 id="actualPrice"
                 value={actualPrice}
@@ -375,6 +397,7 @@ export default function AddCourse() {
                   setActualPrice(filteredData);
                 }}
                 placeholder="Enter Actual Price in ₹ (eg: 3999)"
+                required
               />
             </FieldWrapper>
           </Column>
@@ -382,17 +405,18 @@ export default function AddCourse() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="duration">Course Duration</Label>
+              <Label htmlFor="duration">Course Duration (Days)</Label>
               <Input
                 id="duration"
                 value={duration}
+                type="number"
                 onChange={(e) => setDuration(e.target.value)}
-                placeholder="e.g. 6 Months"
+                placeholder="Enter Duration in days"
               />
             </FieldWrapper>
           </Column>
           <Column>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label htmlFor="courseExpiry">Course Expiry Date</Label>
               <Input
                 id="courseExpiry"
@@ -400,7 +424,7 @@ export default function AddCourse() {
                 value={courseExpiry}
                 onChange={(e) => setCourseExpiry(e.target.value)}
               />
-            </FieldWrapper>
+            </FieldWrapper> */}
           </Column>
         </FormRow>
 
@@ -497,7 +521,7 @@ export default function AddCourse() {
 
         <FormRow>
           <Column style={{ flex: 1 }}>
-            <Label>Upload Thumbnail</Label>
+            <Label>Upload Thumbnail *</Label>
             <UploadArea onClick={handleUploadAreaClick}>
               {thumbnailFile ? (
                 previewUrl ? (
@@ -536,6 +560,7 @@ export default function AddCourse() {
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
+                required
               />
             </UploadArea>
           </Column>

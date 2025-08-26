@@ -26,7 +26,8 @@ const AddAchievements = () => {
     studentName: '',
     rank: '',
     examDetails: '',
-    image: null
+    image: null,
+    sequence: ''
   });
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -79,7 +80,7 @@ const AddAchievements = () => {
   };
 
   const handleSubmit = async () => {
-    const { studentName, rank, examDetails, image } = formData;
+    const { studentName, rank, examDetails, image, sequence } = formData;
 
     if (!studentName || !rank || !examDetails || !image) {
       toast.error("Please fill all fields and upload an image.");
@@ -110,6 +111,7 @@ const AddAchievements = () => {
         rank: rank,
         exam_name: examDetails,
         image: uploadResponse.blobUrl, // Use blobUrl here
+         sequence: parseFloat(sequence)
       };
 
       console.log("Submitting achiever data:", achieverData);
@@ -185,6 +187,17 @@ const AddAchievements = () => {
         value={formData.rank}
         onChange={handleChange}
       />
+      <Label>Sequence</Label>
+<Input
+  name="sequence"
+  placeholder="Enter sequence (e.g. 1, 1.1, 2, 2.1)"
+  value={formData.sequence}
+  onChange={(e) => {
+    // allow only numbers and dot
+    const filteredValue = e.target.value.replace(/[^0-9.]/g, '');
+    setFormData(prev => ({ ...prev, sequence: filteredValue }));
+  }}
+/>
 
       <Label>Exam details</Label>
       <TextArea

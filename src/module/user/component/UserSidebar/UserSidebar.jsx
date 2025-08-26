@@ -14,7 +14,9 @@ import {
   ModalContainer,
   ModalContent,
   ModalButtons,
-  ModalButton
+  ModalButton,
+  UnreadDot,         // <-- NEW
+  UnreadBadge        // <-- NEW
 } from './UserSidebar.style';
 import {
   FaTachometerAlt,
@@ -29,20 +31,57 @@ import { AiOutlineRight, AiOutlineLeft } from "react-icons/ai";
 import { MdOutlineMenuOpen } from "react-icons/md";
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { getUserByUserId, logoutUser } from '../../../../api/authApi';
+import { getUserNotifications } from '../../../../api/notificationApi'; // <-- ADD THIS (use your actual path)
+
 const UserSidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const [id, setId] = useState('');
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // NEW: unread notifications
+  const [unreadCount, setUnreadCount] = useState(0);
+
   useEffect(() => {
     const { userId } = getCookiesData();
     setId(userId);
   }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(prev => !prev);
-  };
+  // NEW: load notifications (once id is known). You can also poll if you want.
+  useEffect(() => {
+    if (!id) return;
+
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const res = await getUserNotifications(id);
+        // Accept either: { data: [...] } or straight array
+        const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+        // Heuristic: treat items with read === false / is_read === false / isRead === false as unread
+        const unread = list.filter(n =>
+          n?.read === false || n?.is_read === false || n?.isRead === false
+        ).length;
+
+        if (!cancelled) setUnreadCount(unread);
+      } catch (e) {
+        console.error('Failed to load notifications', e);
+        if (!cancelled) setUnreadCount(0);
+      }
+    };
+
+    load();
+
+    // OPTIONAL: refresh every 60s
+    const t = setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [id]);
+
+  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
 
   const handleClickOutside = (event) => {
     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
@@ -56,36 +95,32 @@ const UserSidebar = () => {
     } else {
       document.removeEventListener('mousedown', handleClickOutside);
     }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSidebarOpen]);
 
   const handleMenuClick = () => {
-    if (window.innerWidth <= 576) {
-      setIsSidebarOpen(false);
-    }
+    if (window.innerWidth <= 576) setIsSidebarOpen(false);
   };
+
   const handleConfirmLogout = async () => {
     const userData = await getUserByUserId(id);
     const response = await logoutUser({ email: userData.user.email });
-    if (response.success) {
-      navigate("/");
-    }
-  };
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
-  const handleCancelLogout = () => {
-    setShowLogoutModal(false);
+    if (response.success) navigate("/");
   };
 
+  const handleLogoutClick = () => setShowLogoutModal(true);
+  const handleCancelLogout = () => setShowLogoutModal(false);
 
+  // NEW: When user opens the notifications page, clear local badge (until next fetch)
+  const onOpenNotifications = () => {
+    handleMenuClick();
+    setUnreadCount(0);
+  };
 
   return (
     <>
       {/* Toggle Button */}
-      <ToggleButton onClick={toggleSidebar} >
+      <ToggleButton onClick={toggleSidebar}>
         <MdOutlineMenuOpen size={24} />
       </ToggleButton>
 
@@ -98,24 +133,41 @@ const UserSidebar = () => {
                 <FaTachometerAlt className='sidebar-icon' /> Dashboard
               </MenuLink>
             </MenuItem>
+
             <MenuItem>
               <MenuLink to="/user/my-courses" onClick={handleMenuClick}>
-                <FaBookOpen className='sidebar-icon' /> My Courses <AiOutlineRight className='arrow-icon' />
+                <FaBookOpen className='sidebar-icon' /> My Courses
+                <AiOutlineRight className='arrow-icon' />
               </MenuLink>
             </MenuItem>
+
             <MenuItem>
               <MenuLink to={`/user/profile/${id}`} onClick={handleMenuClick}>
                 <FaUser className='sidebar-icon' /> Profile
               </MenuLink>
             </MenuItem>
+
             <MenuItem>
               <MenuLink to="/user/tandc" onClick={handleMenuClick}>
                 <FaFileContract className='sidebar-icon' /> T&amp;C
               </MenuLink>
             </MenuItem>
+
             <MenuItem>
-              <MenuLink to="/user/notification" onClick={handleMenuClick}>
+              <MenuLink
+                to="/user/notification"
+                onClick={onOpenNotifications}
+                aria-label={unreadCount > 0 ? `${unreadCount} new notifications` : 'Notification'}
+              >
                 <FaBell className='sidebar-icon' /> Notification
+
+                {/* Choose one of these two indicators: count pill or dot. Keep both; count preferred. */}
+                {unreadCount > 0 ? (
+                  <UnreadBadge>{unreadCount > 99 ? '99+' : unreadCount}</UnreadBadge>
+                ) : null}
+                {/* Or if you prefer a simple dot instead of count:
+                {unreadCount > 0 && <UnreadDot aria-hidden />}
+                */}
               </MenuLink>
             </MenuItem>
 
@@ -128,14 +180,10 @@ const UserSidebar = () => {
             <LogoutButton onClick={handleLogoutClick}>
               <FaPowerOff size={28} /> Log out
             </LogoutButton>
-
           </MenuList>
-
-          {/* <LogoutContainer>
-         
-          </LogoutContainer> */}
         </SidebarContainer>
       </SidebarWrapper>
+
       {showLogoutModal && (
         <ModalOverlay>
           <ModalContainer>

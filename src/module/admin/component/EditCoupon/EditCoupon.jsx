@@ -96,44 +96,47 @@ const EditCoupon = () => {
     };
 
     useEffect(() => {
-        const fetchCouponData = async () => {
-            setIsLoadingData(true);
-            try {
-                const response = await getCouponById(id);
-                const data = response?.coupon || response;
+       const fetchCouponData = async () => {
+  setIsLoadingData(true);
+  try {
+    const response = await getCouponById(id);
+    const data = response?.coupon || response;
 
-                // Format dates for datetime-local input
-                const formatDateForInput = (dateString) => {
-                    if (!dateString) return '';
-                    const date = new Date(dateString);
-                    return date.toISOString().slice(0, 16);
-                };
+    // Format dates for datetime-local input (convert from UTC to local time)
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      
+      // Convert UTC date to local timezone for the input field
+      const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+      return localDate.toISOString().slice(0, 16);
+    };
 
-                setCouponData({
-                    _id: data._id,
-                    coupon_name: data.coupon_name,
-                    coupon_des: data.coupon_des,
-                    start_date: formatDateForInput(data.start_date),
-                    end_date: formatDateForInput(data.end_date),
-                    discount_amount: data.discount_amount,
-                    coupon_image: data.coupon_image,
-                    coupon_type: data.coupon_type,
-                    user_list: data.user_list?.map(user => typeof user === 'object' ? user._id : user) || [],
-                    coupon_code: data.coupon_code,
-                    is_active: data.is_active || false
-                });
+    setCouponData({
+      _id: data._id,
+      coupon_name: data.coupon_name,
+      coupon_des: data.coupon_des,
+      start_date: formatDateForInput(data.start_date),
+      end_date: formatDateForInput(data.end_date),
+      discount_amount: data.discount_amount,
+      coupon_image: data.coupon_image,
+      coupon_type: data.coupon_type,
+      user_list: data.user_list?.map(user => typeof user === 'object' ? user._id : user) || [],
+      coupon_code: data.coupon_code,
+      is_active: data.is_active || false
+    });
 
-                // If coupon type is "Selected users", fetch users
-                if (data.coupon_type === 'Selected users') {
-                    fetchUsers();
-                }
-            } catch (error) {
-                console.error('Error fetching coupon data:', error);
-                toast.error('Failed to load coupon data');
-            } finally {
-                setIsLoadingData(false);
-            }
-        };
+    // If coupon type is "Selected users", fetch users
+    if (data.coupon_type === 'Selected users') {
+      fetchUsers();
+    }
+  } catch (error) {
+    console.error('Error fetching coupon data:', error);
+    toast.error('Failed to load coupon data');
+  } finally {
+    setIsLoadingData(false);
+  }
+};
 
 
 
@@ -286,44 +289,54 @@ const EditCoupon = () => {
         return Object.keys(errs).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   const handleSubmit = async (e) => {
+  e.preventDefault();
 
-        if (!validateForm()) {
-            return;
-        }
+  if (!validateForm()) {
+    return;
+  }
 
-        setIsLoading(true);
+  setIsLoading(true);
 
-        try {
-            // Final check if image was uploaded
-            let finalCouponImage = couponData.coupon_image;
+  try {
+    // Convert dates to UTC format
+    const startDate = new Date(couponData.start_date);
+    const endDate = new Date(couponData.end_date);
+    
+    // Format dates in ISO format (UTC)
+    const formattedStartDate = startDate.toISOString();
+    const formattedEndDate = endDate.toISOString();
 
-            if (couponImage && !finalCouponImage) {
-                finalCouponImage = await uploadFile(couponImage, 'coupons');
-            }
+    // Final check if image was uploaded
+    let finalCouponImage = couponData.coupon_image;
 
-            const payload = {
-                ...couponData,
-                coupon_image: finalCouponImage,
-                discount_amount: Number(couponData.discount_amount)
-            };
+    if (couponImage && !finalCouponImage) {
+      finalCouponImage = await uploadFile(couponImage, 'coupons');
+    }
 
-            await updateCoupon(id, payload);
-            toast.success('Coupon updated successfully!', {
-                onClose: () => navigate('/admin/web-management/coupon')
-            });
-        } catch (err) {
-            console.error('Full submission error:', {
-                message: err.message,
-                response: err.response,
-                stack: err.stack
-            });
-            toast.error(err.response?.data?.message || 'Failed to update coupon');
-        } finally {
-            setIsLoading(false);
-        }
+    const payload = {
+      ...couponData,
+      start_date: formattedStartDate,
+      end_date: formattedEndDate,
+      coupon_image: finalCouponImage,
+      discount_amount: Number(couponData.discount_amount)
     };
+
+    await updateCoupon(id, payload);
+    toast.success('Coupon updated successfully!', {
+      onClose: () => navigate('/admin/web-management/coupon')
+    });
+  } catch (err) {
+    console.error('Full submission error:', {
+      message: err.message,
+      response: err.response,
+      stack: err.stack
+    });
+    toast.error(err.response?.data?.message || 'Failed to update coupon');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     if (isLoadingData) {
         return <div>Loading coupon data...</div>;

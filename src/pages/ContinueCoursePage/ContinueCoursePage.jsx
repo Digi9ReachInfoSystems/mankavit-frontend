@@ -6,7 +6,7 @@ import ContinueCourse from '../../component/ContinueCourse/ContinueCourse'
 const ContinueCoursePage = () => {
   return (
     <div>
-      {/* <Header/> */}
+      <Header/>
       <ContinueCourse/>
       <Footer/>
     </div>

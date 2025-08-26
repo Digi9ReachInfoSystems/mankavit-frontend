@@ -195,8 +195,8 @@ const OtpSignup = () => {
                 <FormContent>
                     <LoginTitle>OTP Verification</LoginTitle>
                     <LoginSubTitle>
-                        OTP has been sent on your email address <br />
-                        Please enter OTP to verify email
+                        OTP has been sent to your mobile number. <br />
+                        Please enter OTP to verify your account
                     </LoginSubTitle>
 
                     {/* Show error message if any */}

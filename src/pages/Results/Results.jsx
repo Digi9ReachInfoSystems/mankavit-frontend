@@ -4,12 +4,14 @@ import MeetAchievers from '../../component/ResultsComponents/MeetAchievers/MeetA
 import Footer from '../LandingPage/Footer/Footer'
 import Aspirants from '../../component/AboutUsComponents/Aspirants/Aspirants'
 import VideoandTestimonial from '../../component/ResultsComponents/VideoandTestimonial/VideoandTestimonial'
+import Achievers from '../../component/LandingPageComponents/Achievers/Achievers'
 
 const Results = () => {
   return (
     <div>
       <Header/>
-      <MeetAchievers/>
+      {/* <MeetAchievers/> */}
+<Achievers/>
       <VideoandTestimonial/>
       <Aspirants/>
       <Footer/>

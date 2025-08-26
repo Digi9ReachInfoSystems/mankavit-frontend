@@ -157,7 +157,7 @@ export default function EditCourse() {
           actualPrice: data.price?.toString() || "",
           discountedPrice: data.discountPrice?.toString() || "",
           isKYCRequired: data.discountActive || false,
-          duration: data.duration || "",
+          duration: data.duration || null,
           noOfVideos: data.no_of_videos?.toString() || "",
           successRate: data.successRate?.toString() || "",
           courseIncludes: Array.isArray(data.course_includes)
@@ -284,70 +284,101 @@ export default function EditCourse() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (
-      Number(formData.discountedPrice || 0) > Number(formData.actualPrice || 0)
-    ) {
-      toast.error("Discount price cannot exceed regular price");
-      return;
+  // === Required fields validation ===
+  if (!formData.courseTitle?.trim()) {
+    toast.error("Please enter course title.");
+    return;
+  }
+  if (!formData.internalTitle?.trim()) {
+    toast.error("Please enter internal course title.");
+    return;
+  }
+  if (formData.discountedPrice === "" || isNaN(formData.discountedPrice)) {
+    toast.error("Discounted price should be a number.");
+    return;
+  }
+  if (formData.actualPrice === "" || isNaN(formData.actualPrice)) {
+    toast.error("Actual price should be a number.");
+    return;
+  }
+  if (Number(formData.discountedPrice || 0) > Number(formData.actualPrice || 0)) {
+    toast.error("Discount price cannot exceed regular price.");
+    return;
+  }
+  // Image is mandatory: must have either existing previewUrl or new file
+  if (!formData.thumbnailFile && !formData.previewUrl) {
+    toast.error("Please upload a thumbnail image.");
+    return;
+  }
+
+  try {
+    // === Resolve image URL ===
+    let fileURL = formData.previewUrl;
+    if (formData.thumbnailFile) {
+      const fileData = await uploadFileToAzureStorage(formData.thumbnailFile, "course");
+      fileURL = fileData.blobUrl;
     }
 
-    try {
-      let fileURL = formData.previewUrl;
-      if (formData.thumbnailFile) {
-        const fileData = await uploadFileToAzureStorage(
-          formData.thumbnailFile,
-          "course"
-        );
-        fileURL = fileData.blobUrl;
-      }
-
-      // Rearrange subjects before submission
-      const subjectIds = selectedSubjects.map((subject) => subject.id);
-      await rearrangeSubjects(subjectIds);
-
-      const categories = categoryCheckboxes
-        .filter((item) => item.checked)
-        .map((item) => item.id);
-
-      const payload = {
-        courseName: formData.internalTitle,
-        courseDisplayName: formData.courseTitle,
-        shortDescription: formData.shortDescription,
-        description: formData.description,
-        category: categories,
-        price: Number(formData.actualPrice || 0),
-        discountPrice: Number(formData.discountedPrice || 0),
-        discountActive: formData.isKYCRequired,
-        duration: formData.duration,
-        no_of_videos: Number(formData.noOfVideos || 0),
-        successRate: Number(formData.successRate || 0),
-        course_includes: formData.courseIncludes
-          .split(",")
-          .map((i) => i.trim())
-          .filter((i) => i.length > 0),
-        live_class: formData.liveClass,
-        recorded_class: formData.recordedClass,
-        isPublished: formData.isPublished,
-        status: formData.status,
-        subjects: subjectIds,
-        course_rating: Number(formData.ratting) || 0,
-        image: fileURL,
-        courseExpiry: formData.courseExpiry
-          ? new Date(formData.courseExpiry)
-          : null,
-      };
-
-      await updateCourseById(id, payload);
-      toast.success("Course updated successfully");
-      setTimeout(() => navigate("/admin/course-management"), 1000);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update course. Please try again.");
+    // === Subjects are OPTIONAL ===
+    let subjectIds = [];
+    if (selectedSubjects.length > 0) {
+      subjectIds = selectedSubjects.map((s) => s.id);
+      await rearrangeSubjects(subjectIds); // only if there are any
     }
-  };
+
+    // Categories can be empty (optional)
+    const categories = categoryCheckboxes
+      .filter((item) => item.checked)
+      .map((item) => item.id);
+
+    // Build payload: requireds always present; others are optional
+    const payload = {
+      // required
+      courseName: formData.internalTitle,
+      courseDisplayName: formData.courseTitle,
+      price: Number(formData.actualPrice || 0),
+      discountPrice: Number(formData.discountedPrice || 0),
+      image: fileURL,
+
+      // optional (send as you had them; no extra mandatory checks)
+      shortDescription: formData.shortDescription,
+      description: formData.description,
+      category: categories,
+      discountActive: formData.isKYCRequired,
+      duration: formData.duration,
+      no_of_videos: formData.noOfVideos ? Number(formData.noOfVideos) : undefined,
+      successRate: formData.successRate ? Number(formData.successRate) : undefined,
+      course_includes: formData.courseIncludes
+        ? formData.courseIncludes
+            .split(",")
+            .map((i) => i.trim())
+            .filter((i) => i.length > 0)
+        : undefined,
+      live_class: formData.liveClass,
+      recorded_class: formData.recordedClass,
+      isPublished: formData.isPublished,
+      status: formData.status,
+      course_rating: formData.ratting ? Number(formData.ratting) : undefined,
+      courseExpiry: formData.courseExpiry ? new Date(formData.courseExpiry) : null,
+    };
+
+    // Only include subjects if any selected
+    if (subjectIds.length > 0) {
+      payload.subjects = subjectIds;
+    }
+
+    await updateCourseById(id, payload);
+    toast.success("Course updated successfully");
+    setTimeout(() => navigate("/admin/course-management"), 1000);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update course. Please try again.");
+  }
+};
+
 
   const sanitizeInput = (value, type = "text") => {
     if (type === "number") {
@@ -576,7 +607,7 @@ export default function EditCourse() {
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">Duration ( Days )</Label>
               <Input
                 id="duration"
                 value={formData.duration}
@@ -586,7 +617,7 @@ export default function EditCourse() {
             </FieldWrapper>
           </Column>
           <Column>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label htmlFor="courseExpiry">Course Expiry Date</Label>
               <Input
                 id="courseExpiry"
@@ -596,7 +627,7 @@ export default function EditCourse() {
                   handleInputChange("courseExpiry", e.target.value)
                 }
               />
-            </FieldWrapper>
+            </FieldWrapper> */}
           </Column>
         </FormRow>
 

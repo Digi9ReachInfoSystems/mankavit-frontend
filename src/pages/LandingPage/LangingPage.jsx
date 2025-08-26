@@ -7,6 +7,8 @@ import WantToLearn from "../../component/LandingPageComponents/WantToLearn/WantT
 import GotQuestion from "../../component/LandingPageComponents/GotQuestions/GotQuestions";
 import Footer from "../../pages/LandingPage/Footer/Footer";
 import LegalEducationHero from "../../component/LandingPageComponents/LegalEducationHero/LegalEducationHero";
+import GotQuestions2 from "../../component/LandingPageComponents/GotQuestions2/GotQuestions2";
+import Aspirants from "../../component/AboutUsComponents/Aspirants/Aspirants";
 
 const LandingPage = () => {
     return <>
@@ -15,8 +17,9 @@ const LandingPage = () => {
     <StudyWithUs />
     <Achievers />
     <VideoAndReviews /> 
+    <Aspirants />
     <WantToLearn />
-    <GotQuestion />
+    <GotQuestions2 />
     <Footer />
     </>;
 };
