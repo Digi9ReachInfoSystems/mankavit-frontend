@@ -205,64 +205,68 @@ export default function UpdateKYC() {
   const sanitizeBaseName = (s) => (s || "document").replace(/[^\w\-]+/g, "_");
 
   // Always tries blob download; DOES NOT open a new tab.
-  const downloadFile = async (url, baseFilename = "document") => {
-    try {
-      let token = null;
-      try {
-        const auth = await getAuth();
-        token = auth?.accessToken || auth?.token || null;
-      } catch (_) {}
+// Replace your current downloadFile with this
+const downloadFile = async (url, baseFilename = "document") => {
+  try {
+    // IMPORTANT: do NOT send credentials or Authorization headers to Azure Blob
+    const res = await fetch(url, {
+      method: "GET",
+      mode: "cors",
+      credentials: "omit",
+      // no custom headers here
+    });
 
-      let res = await fetch(url, {
-        method: "GET",
-        mode: "cors",
-        credentials: "include",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+    if (!res.ok) throw new Error(`Download failed (${res.status})`);
 
-      if (!res.ok && token) {
-        res = await fetch(url, {
-          method: "GET",
-          mode: "cors",
-          credentials: "include",
-        });
-      }
+    // Try filename from headers, else fall back
+    const cd = res.headers.get("content-disposition");
+    const mime = res.headers.get("content-type") || "";
+    const getFilenameFromContentDisposition = (cd) => {
+      if (!cd) return null;
+      const star = cd.match(/filename\*\s*=\s*[^']*''([^;]+)/i);
+      if (star?.[1]) return decodeURIComponent(star[1]);
+      const plain = cd.match(/filename\s*=\s*"?([^"]+)"?/i);
+      return plain?.[1] || null;
+    };
+    const extFromMime = (type) => {
+      const map = {
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "application/pdf": "pdf",
+      };
+      return map[type] || "";
+    };
+    const sanitize = (s) => (s || "document").replace(/[^\w\-]+/g, "_");
+    const ensureExt = (name, ext) => (/\.[a-z0-9]+$/i.test(name) ? name : `${name}.${ext}`);
 
-      if (!res.ok) {
-        throw new Error(`Download failed (${res.status})`);
-      }
+    let finalName =
+      getFilenameFromContentDisposition(cd) ||
+      ensureExt(sanitize(baseFilename), extFromMime(mime)) ||
+      "document";
 
-      const cd = res.headers.get("content-disposition");
-      const mime = res.headers.get("content-type") || "";
-      const fromHeader = getFilenameFromContentDisposition(cd);
-      const ext = extFromMime(mime);
-
-      let finalName =
-        fromHeader ||
-        ensureExtension(sanitizeBaseName(baseFilename), ext) ||
-        "document";
-
-      const blob = await res.blob();
-      if (!/\.[a-z0-9]+$/i.test(finalName)) {
-        const ext2 = extFromMime(blob.type);
-        if (ext2) finalName = `${finalName}.${ext2}`;
-      }
-
-      const objectUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = finalName;
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(objectUrl);
-      toast.success("Download started");
-    } catch (err) {
-      console.error("Download error:", err);
-      toast.error("Unable to download file");
+    const blob = await res.blob();
+    if (!/\.[a-z0-9]+$/i.test(finalName)) {
+      const ext2 = extFromMime(blob.type);
+      if (ext2) finalName = `${finalName}.${ext2}`;
     }
-  };
+
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    a.download = finalName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+    toast.success("Download started");
+  } catch (err) {
+    console.error("Download error:", err);
+    toast.error("Unable to download file");
+  }
+};
+
 
   const formatDate = (iso) => {
     if (!iso) return "N/A";

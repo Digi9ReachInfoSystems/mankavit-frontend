@@ -28,13 +28,12 @@ export default function Footer() {
           <FooterSection>
             <SectionTitle>Contact Us</SectionTitle>
 
-           <ContactInfo>
-  <MdEmail className="icon" />
-  <a href="mailto:mankavit.clatcoaching11@gmail.com">
-    mankavit.clatcoaching11@gmail.com
-  </a>
-</ContactInfo>
-
+            <ContactInfo>
+              <MdEmail className="icon" />
+              <a href="mailto:mankavit.clatcoaching11@gmail.com">
+                mankavit.clatcoaching11@gmail.com
+              </a>
+            </ContactInfo>
 
             <Phone>
               <a href="tel:+91-7979700796">

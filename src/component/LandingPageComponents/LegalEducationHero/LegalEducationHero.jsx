@@ -357,6 +357,7 @@ import {
   StatsDescription,
 } from "./LegalEducationHero.styles";
 import heroImage from "../../../assets/LandingBannerImag.png";
+// import heroImage from "../../../assets/anuja.jpg";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";

@@ -52,7 +52,7 @@ export const TelegramBanner = styled.div`
       width: 80px;
       height: 80px;
     }
-      @media (max-width: 1024px) {
+    @media (max-width: 1024px) {
       width: 60px;
       height: 60px;
     }
@@ -101,7 +101,7 @@ export const PaperCard = styled.div`
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
-    gap:0.5rem
+    gap: 0.5rem;
   }
 
   .image-placeholder {
@@ -119,7 +119,7 @@ export const PaperCard = styled.div`
       width: 200px;
       height: unset;
     }
-      @media (max-width: 768px) {
+    @media (max-width: 768px) {
       width: 100px;
     }
   }
@@ -163,12 +163,11 @@ export const YearButtons = styled.div`
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  align-items: center;
 
   @media (max-width: 768px) {
     gap: 0.5rem;
   }
-
-  @
 `;
 
 export const YearButton = styled.button`
@@ -178,7 +177,7 @@ export const YearButton = styled.button`
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  min-width: 60px; /* Default width */
+  min-width: 60px;
 
   &:hover {
     background: #e0f7ff;
@@ -194,51 +193,31 @@ export const YearButton = styled.button`
     min-width: 50px;
     font-size: 11px;
     padding: 0.2rem 0.4rem;
-    display: none;
   }
 `;
 
-
-
-
 export const CustomAntdSelect = styled(AntdSelectBase)`
-  .ant-select-single {
+  .ant-select-selector {
     border-radius: 8px !important;
     border-color: #ccc !important;
     height: 40px !important;
     display: flex;
     align-items: center;
     background: #fff;
-    width: 100% !important;
-
-    @media (max-width: 1360px) {
-      width: 70% !important;
-    }
-
-    @media (max-width: 1024px) {
-      width: 50% !important;
-    }
-      @media (max-width: 768px) {
-      width: 50% !important;
-    }
-
-    @media (max-width: 480px) {
-      width: 20% !important;
-    }
   }
-
-  :where(.css-dev-only-do-not-override-1m63z2v).ant-select-single {
-    font-size: 14px;
-    height: 32px;
-
-    @media (max-width: 480px) {
-      width: 100%;
-    }
-    
-}
 
   .ant-select-selection-placeholder {
     color: #242526 !important;
     font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .ant-select-selector {
+      height: 36px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 100% !important;
   }
 `;
