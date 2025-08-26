@@ -56,12 +56,12 @@ const AddStudent = () => {
     id_proof: '',
     passport_photo: '',
     courseIds: [],
-    fathers_name: '',
-    fathers_occupation: '',
-    current_occupation: '',
-    present_address: '',
-    passing_year: '',
-    college_name: '',
+    // fathers_name: '',
+    // fathers_occupation: '',
+    // current_occupation: '',
+    // present_address: '',
+    // passing_year: '',
+    // college_name: '',
     date_of_birth: ''
   });
   console.log('studentData', studentData);
@@ -250,12 +250,12 @@ const handleSubmit = async (e) => {
       passport_photo: finalPassportPhoto,
       courseIds: studentData.courseIds,
 
-      fathers_name: studentData.fathers_name,
-      fathers_occupation: studentData.fathers_occupation,
-      current_occupation: studentData.current_occupation,
-      present_address: studentData.present_address,
-      passing_year: studentData.passing_year,
-      college_name: studentData.college_name,
+      // fathers_name: studentData.fathers_name,
+      // fathers_occupation: studentData.fathers_occupation,
+      // current_occupation: studentData.current_occupation,
+      // present_address: studentData.present_address,
+      // passing_year: studentData.passing_year,
+      // college_name: studentData.college_name,
       date_of_birth: studentData.date_of_birth,
     };
 
@@ -334,7 +334,7 @@ console.log('Create Student Response:', response);
           />
         </InputGroup>
       </FlexRow>
-
+{/* 
       <FlexRow>
         <InputGroup>
           <Label>Father's Name</Label>
@@ -356,9 +356,9 @@ console.log('Create Student Response:', response);
             disabled={isLoading}
           />
         </InputGroup>
-      </FlexRow>
+      </FlexRow> */}
 
-      <InputGroup>
+      {/* <InputGroup>
         <Label>Current Occupation</Label>
         <InputField
           name="current_occupation"
@@ -379,9 +379,9 @@ console.log('Create Student Response:', response);
           disabled={isLoading}
           rows="3"
         />
-      </InputGroup>
+      </InputGroup> */}
 
-      <FlexRow>
+      {/* <FlexRow>
         <InputGroup>
           <Label>College Name</Label>
           <InputField
@@ -404,8 +404,8 @@ console.log('Create Student Response:', response);
             max={new Date().getFullYear() + 5}
             disabled={isLoading}
           />
-        </InputGroup>
-      </FlexRow>
+        </InputGroup> */}
+      {/* </FlexRow> */}
 
       <FlexRow>
         <InputGroup>

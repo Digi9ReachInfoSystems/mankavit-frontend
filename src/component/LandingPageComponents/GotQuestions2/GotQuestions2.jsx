@@ -279,7 +279,7 @@ const GotQuestions2 = () => {
           {!loading && !error && (
             <>
               {faqs.length > 0 ? (
-                faqs.map((faq, idx) => (
+                faqs.slice(0, 5).map((faq, idx) => (
                   <QuestionItem key={faq._id || idx}>
                     <QuestionHeader onClick={() => toggleQuestion(idx)}>
                       <QuestionText>{faq.question}</QuestionText>
