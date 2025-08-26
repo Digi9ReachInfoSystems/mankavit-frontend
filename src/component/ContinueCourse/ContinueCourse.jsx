@@ -68,8 +68,6 @@
 //   document.body.removeChild(link);
 // };
 
-
-
 // const AccordionList = ({
 //   data,
 //   activeIndex,
@@ -449,8 +447,6 @@
 //   );
 // };
 
-
-
 // const ContinueCourse = () => {
 //   const navigate = useNavigate();
 //   const { id } = useParams();
@@ -599,7 +595,6 @@
 //     }
 //   };
 
-
 //   useEffect(() => {
 //     if (course?.notes) {
 //       setNotes(course.notes);
@@ -740,8 +735,6 @@
 //           </Rating> */}
 //           <CourseDetails>
 
-
-
 //             {/* <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
 //               <PlayButton >
 //                 <span>
@@ -759,8 +752,6 @@
 //                 </CourseStats> */}
 //               {/* </div> */}
 //             {/* </div> */}
-
-
 
 //             <button
 //               style={{
@@ -832,7 +823,6 @@
 //           </CourseDetails>
 //         </HeaderSection>
 
-
 //       </CourseInfo>
 
 //       {course?.live_class && (
@@ -851,8 +841,6 @@
 //     onClose={() => setShowPDFViewer(false)}
 //   />
 // )} */}
-
-
 
 //       {notes.length > 0 && (
 //         <NotesSection>
@@ -942,7 +930,6 @@
 
 // export default ContinueCourse;
 
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -963,7 +950,7 @@ import {
   BlinkingIcon,
   TVIcon,
   LiveClass,
-  Statdesc
+  Statdesc,
 } from "./ContinueCourse.styles";
 
 import { FaFilePdf, FaDownload } from "react-icons/fa";
@@ -972,16 +959,20 @@ import {
   FaPlay,
   FaChevronDown,
   FaChevronUp,
-  FaCheckCircle
+  FaCheckCircle,
 } from "react-icons/fa";
 import { MdLiveTv } from "react-icons/md";
 
 import { getCourseById } from "../../api/courseApi";
-import { getMocktestBySubjectId, getAllUserAttemptByUserId } from "../../api/mocktestApi";
+import {
+  getMocktestBySubjectId,
+  getAllUserAttemptByUserId,
+  checkMockTestAttempted,
+} from "../../api/mocktestApi";
 import {
   getCourseByIdWithUSerProgress,
   startSubject,
-  startLecturer
+  startLecturer,
 } from "../../api/userProgressApi";
 import { getCookiesData } from "../../utils/cookiesService";
 import { getLiveMeetings } from "../../api/meetingApi";
@@ -1015,11 +1006,34 @@ const AccordionList = ({
   completedSubjects = [],
   isMockTestTab = false,
   userId,
-  attemptsData = {} // <— cache injected from parent
+  attemptsData = {}, // <— cache injected from parent
 }) => {
+  const [resumeTests, setResumeTests] = React.useState({});
+
+
+  // Fetch resumetest for lectures when data changes
+  React.useEffect(() => {
+    const apiCaller = async () => {
+      data.map((item, idx) => {
+        item.lectures.map(async (lecture, i) => {
+          attemptsData[lecture._id];
+          const response = await checkMockTestAttempted(
+            userId,
+            lecture._id,
+            item._id
+          );
+          attemptsData[lecture._id].resumetest = response.success || false;
+          // console.log("resumetest",   attemptsData[lecture._id]);
+        });
+      });
+    };
+    apiCaller();
+  }, [attemptsData]);
   return (
     <VideoList>
-      {data && data.length === 0 && <p style={{ padding: 24 }}>No items found.</p>}
+      {data && data.length === 0 && (
+        <p style={{ padding: 24 }}>No items found.</p>
+      )}
 
       {data &&
         data.map((item, idx) => (
@@ -1028,7 +1042,7 @@ const AccordionList = ({
               style={{
                 background: "#f5f6fa",
                 boxShadow: activeIndex === idx ? "0 2px 8px #eee" : "none",
-                position: "relative"
+                position: "relative",
               }}
               onClick={async () => {
                 const newIndex = idx === activeIndex ? null : idx;
@@ -1047,7 +1061,9 @@ const AccordionList = ({
                 {item.completed && (
                   <FaCheckCircle style={{ color: "green", marginRight: 10 }} />
                 )}
-                <Playbutton>{activeIndex === idx ? <FaChevronUp /> : <FaChevronDown />}</Playbutton>
+                <Playbutton>
+                  {activeIndex === idx ? <FaChevronUp /> : <FaChevronDown />}
+                </Playbutton>
               </div>
             </VideoItem>
 
@@ -1057,7 +1073,7 @@ const AccordionList = ({
                   paddingLeft: 24,
                   background: "#fff",
                   borderRadius: 8,
-                  marginTop: 4
+                  marginTop: 4,
                 }}
               >
                 {item.lectures && item.lectures.length > 0 ? (
@@ -1068,19 +1084,41 @@ const AccordionList = ({
 
                       // instant defaults
                       const defaultMaxText =
-                        lecture.maxAttempts == null ? "Unlimited" : lecture.maxAttempts;
+                        lecture.maxAttempts == null
+                          ? "Unlimited"
+                          : lecture.maxAttempts;
 
                       const infoLine = meta
-                        ? `${lecture.duration} | Max Attempts: ${meta.isUnlimited ? "Unlimited" : meta.max}`
+                        ? `${lecture.duration} | Max Attempts: ${
+                            meta.isUnlimited ? "Unlimited" : meta.max
+                          }`
                         : `${lecture.duration} | Max Attempts: ${defaultMaxText}`;
 
                       const showViewResults = !!meta && meta.attemptsCount > 0;
-
+                      // console.log("meta", meta);
+                      // console.log(
+                      //   "showViewResults",
+                      //   userId,
+                      //   lecture._id,
+                      //   item._id
+                      // );
+                      // let resumetest = false;
+                      // checkMockTestAttempted(userId, lecture._id, item._id)
+                      //   .then((res) => {
+                      //     console.log("resumetest bb  ", res);
+                      //     resumetest = res.success;
+                      //   })
+                      //   .catch((err) => {
+                      //     // console.log("resumetest", err);
+                      //     resumetest = false;
+                      //   });
+                      // console.log("resumetest answer", resumetest);
                       // Optimistic: allow Start while meta is warming
                       const canStart = !meta
                         ? true
                         : meta.isUnlimited ||
-                          (Number.isFinite(meta.remaining) && meta.remaining > 0);
+                          (Number.isFinite(meta.remaining) &&
+                            meta.remaining > 0);
 
                       const remainingText =
                         meta &&
@@ -1088,7 +1126,7 @@ const AccordionList = ({
                         Number.isFinite(meta.remaining) &&
                         meta.remaining > 0
                           ? ` | Remaining: ${meta.remaining}`
-                          : "";
+                          : " | Remaining:0";
 
                       return (
                         <VideoItem
@@ -1099,16 +1137,18 @@ const AccordionList = ({
                             cursor: "pointer",
                             marginBottom: 4,
                             padding: "12px 0",
-                            borderBottom: "1px solid #eee"
+                            borderBottom: "1px solid #eee",
                           }}
                         >
                           <div className="video-info" style={{ width: "100%" }}>
-                            <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                            <FaPlay
+                              style={{ marginRight: 12, color: "#007bff" }}
+                            />
                             <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                width: "100%"
+                                width: "100%",
                               }}
                             >
                               <p style={{ fontSize: 16, fontWeight: 500 }}>
@@ -1121,7 +1161,7 @@ const AccordionList = ({
                                   justifyContent: "space-between",
                                   width: "100%",
                                   alignItems: "center",
-                                  marginTop: 4
+                                  marginTop: 4,
                                 }}
                               >
                                 <span style={{ fontSize: 14, color: "#888" }}>
@@ -1134,7 +1174,9 @@ const AccordionList = ({
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/user-view-results/${userId}/${lecture._id}`);
+                                        navigate(
+                                          `/user-view-results/${userId}/${lecture._id}`
+                                        );
                                       }}
                                       style={{
                                         background: "transparent",
@@ -1142,18 +1184,20 @@ const AccordionList = ({
                                         color: "#4CAF50",
                                         padding: "4px 8px",
                                         borderRadius: 4,
-                                        fontSize: 14
+                                        fontSize: 14,
                                       }}
                                     >
                                       View Results
                                     </button>
                                   )}
 
-                                  {canStart && (
+                                  {meta?.resumetest ? (
                                     <div
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/start-test/${lecture._id}/${item._id}`);
+                                        navigate(
+                                          `/start-test/${lecture._id}/${item._id}`
+                                        );
                                       }}
                                       style={{
                                         fontSize: 14,
@@ -1162,12 +1206,32 @@ const AccordionList = ({
                                         cursor: "pointer",
                                         padding: "4px 8px",
                                         border: "1px solid #007bff",
-                                        borderRadius: 4
+                                        borderRadius: 4,
+                                      }}
+                                    >
+                                      Resume Test
+                                    </div>
+                                  ) : canStart ? (
+                                    <div
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(
+                                          `/start-test/${lecture._id}/${item._id}`
+                                        );
+                                      }}
+                                      style={{
+                                        fontSize: 14,
+                                        color: "#007bff",
+                                        textDecoration: "none",
+                                        cursor: "pointer",
+                                        padding: "4px 8px",
+                                        border: "1px solid #007bff",
+                                        borderRadius: 4,
                                       }}
                                     >
                                       Start Test
                                     </div>
-                                  )}
+                                  ) : null}
                                 </div>
                               </div>
                             </div>
@@ -1186,43 +1250,49 @@ const AccordionList = ({
                           cursor: "pointer",
                           marginBottom: 4,
                           padding: "12px 0",
-                          borderBottom: "1px solid #eee"
+                          borderBottom: "1px solid #eee",
                         }}
                         onClick={async () => {
                           await handleStartLecture(item._id, lecture._id);
-                          navigate(`/course/liveclass/${courseId}/${item._id}/${lecture._id}`);
+                          navigate(
+                            `/course/liveclass/${courseId}/${item._id}/${lecture._id}`
+                          );
                         }}
                       >
                         <div className="video-info" style={{ width: "100%" }}>
-                          <FaPlay style={{ marginRight: 12, color: "#007bff" }} />
+                          <FaPlay
+                            style={{ marginRight: 12, color: "#007bff" }}
+                          />
                           <div
                             style={{
                               display: "flex",
                               flexDirection: "column",
-                              width: "100%"
+                              width: "100%",
                             }}
                           >
                             <p style={{ fontSize: 16, fontWeight: 500 }}>
                               {lecture.lectureName}
                               {lecture.completed && (
-                                <FaCheckCircle style={{ color: "green", marginLeft: 6 }} />
+                                <FaCheckCircle
+                                  style={{ color: "green", marginLeft: 6 }}
+                                />
                               )}
                             </p>
                             <p
                               style={{
                                 fontSize: 14,
                                 color: "#666",
-                                margin: "4px 0"
+                                margin: "4px 0",
                               }}
                               dangerouslySetInnerHTML={{
-                                __html: lecture.description
+                                __html: lecture.description,
                               }}
                             />
                             <div
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                width: "100%"
+                                width: "100%",
                               }}
                             >
                               <span style={{ fontSize: 14, color: "#888" }} />
@@ -1230,7 +1300,7 @@ const AccordionList = ({
                                 style={{
                                   fontSize: 14,
                                   color: "#007bff",
-                                  textDecoration: "none"
+                                  textDecoration: "none",
                                 }}
                               >
                                 Join Class
@@ -1286,10 +1356,20 @@ const ContinueCourse = () => {
     const attemptsCount = Array.isArray(attemptsArr) ? attemptsArr.length : 0;
     const rawMax = lecture?.maxAttempts;
     const hasFiniteMax =
-      rawMax !== null && rawMax !== undefined && Number.isFinite(Number(rawMax));
+      rawMax !== null &&
+      rawMax !== undefined &&
+      Number.isFinite(Number(rawMax));
     const max = hasFiniteMax ? Number(rawMax) : Infinity;
-    const remaining = Number.isFinite(max) ? Math.max(max - attemptsCount, 0) : Infinity;
-    return { attempts: attemptsArr || [], attemptsCount, max, remaining, isUnlimited: !Number.isFinite(max) };
+    const remaining = Number.isFinite(max)
+      ? Math.max(max - attemptsCount, 0)
+      : Infinity;
+    return {
+      attempts: attemptsArr || [],
+      attemptsCount,
+      max,
+      remaining,
+      isUnlimited: !Number.isFinite(max),
+    };
   }, []);
 
   /* ---------------- concurrency-limited attempts prefetcher ------------------- */
@@ -1308,15 +1388,22 @@ const ContinueCourse = () => {
           try {
             const res = await getAllUserAttemptByUserId(uid, lecture._id);
             const meta = computeAttemptMeta(lecture, res?.data || []);
-            setAttemptsCache((prev) => ({ ...prev, [lecture._id]: meta }));
+            console.log("getAllUserAttemptByUserId", lecture);
+            setAttemptsCache((prev) => ({
+              ...prev,
+              [lecture._id]: {...meta,resumetest: false},
+            }));
           } catch (e) {
             const meta = computeAttemptMeta(lecture, []);
-            setAttemptsCache((prev) => ({ ...prev, [lecture._id]: meta }));
+            setAttemptsCache((prev) => ({ ...prev, [lecture._id]: {...meta,resumetest: false} }));
           }
         }
       };
 
-      const workers = Array.from({ length: Math.min(concurrency, toFetch.length) }, worker);
+      const workers = Array.from(
+        { length: Math.min(concurrency, toFetch.length) },
+        worker
+      );
       await Promise.all(workers);
     },
     [attemptsCache, computeAttemptMeta]
@@ -1328,7 +1415,7 @@ const ContinueCourse = () => {
       const cookies = await getCookiesData();
       const liveClassRes = await getLiveMeetings({
         courseIds: [id],
-        studentId: cookies.userId
+        studentId: cookies.userId,
       });
       if (Array.isArray(liveClassRes?.data) && liveClassRes.data.length > 0) {
         setLiveClass(true);
@@ -1350,7 +1437,10 @@ const ContinueCourse = () => {
       setUserId(cookies.userId);
 
       try {
-        const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, id);
+        const progressResponse = await getCourseByIdWithUSerProgress(
+          cookies.userId,
+          id
+        );
         if (progressResponse?.success) {
           setProgressData(progressResponse.data);
           setCourse(progressResponse.data);
@@ -1412,7 +1502,7 @@ const ContinueCourse = () => {
       setCurrentNote({
         file: note.fileUrl,
         name: note.originalName || `note-${note._id}.pdf`,
-        isDownloadable: false
+        isDownloadable: false,
       });
       setShowPDFViewer(true);
     }
@@ -1444,8 +1534,8 @@ const ContinueCourse = () => {
         duration: lec.duration || "Duration not specified",
         videoUrl: lec.videoUrl || "#",
         completedPercentage: lec.completedPercentage || 0,
-        completed: lec.completed || false
-      }))
+        completed: lec.completed || false,
+      })),
     }));
 
     let mockTestData = [];
@@ -1459,10 +1549,12 @@ const ContinueCourse = () => {
             lectures: mockTests.map((test, idx) => ({
               _id: test._id,
               lectureName: test.title || `Mock Test ${idx + 1}`,
-              duration: `${test.number_of_questions ?? "N/A"} Questions | ${test.duration ?? "N/A"} mins`,
+              duration: `${test.number_of_questions ?? "N/A"} Questions | ${
+                test.duration ?? "N/A"
+              } mins`,
               maxAttempts: test.maxAttempts,
-              videoUrl: "#"
-            }))
+              videoUrl: "#",
+            })),
           };
         })
       );
@@ -1473,14 +1565,14 @@ const ContinueCourse = () => {
     return {
       Subjects: subjects,
       "Mock Test": mockTestData,
-      "Recorded Class": recordedClasses
+      "Recorded Class": recordedClasses,
     };
   };
 
   const [accordionData, setAccordionData] = useState({
     Subjects: [],
     "Mock Test": [],
-    "Recorded Class": []
+    "Recorded Class": [],
   });
 
   /* -------- when course ready, build accordion and warm attempts cache ------- */
@@ -1495,8 +1587,12 @@ const ContinueCourse = () => {
 
       // Warm attempts cache immediately (once) so Mock Test tab is instant
       if (!attemptsWarm && userId) {
-        const allMockLectures = (data["Mock Test"] || []).flatMap((s) => s.lectures || []);
-        prefetchAttempts(allMockLectures, userId).finally(() => setAttemptsWarm(true));
+        const allMockLectures = (data["Mock Test"] || []).flatMap(
+          (s) => s.lectures || []
+        );
+        prefetchAttempts(allMockLectures, userId).finally(() =>
+          setAttemptsWarm(true)
+        );
       }
     })();
 
@@ -1519,7 +1615,9 @@ const ContinueCourse = () => {
         });
       }
     });
-    return totalLectures > 0 ? Math.round((completed / totalLectures) * 100) : 0;
+    return totalLectures > 0
+      ? Math.round((completed / totalLectures) * 100)
+      : 0;
   };
 
   /* ------------------------ tab data with empty-subject filter ---------------- */
@@ -1555,8 +1653,8 @@ const ContinueCourse = () => {
                     role: 1,
                     userName: userData.user.displayName || "React",
                     userEmail: userData.user.email || "",
-                    leaveUrl: `/continueCourse/${id}`
-                  }
+                    leaveUrl: `/continueCourse/${id}`,
+                  },
                 });
               }}
             >
@@ -1566,10 +1664,12 @@ const ContinueCourse = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: "12px",
-                    justifyContent: "center"
+                    justifyContent: "center",
                   }}
                 >
-                  <p style={{ fontSize: "24px", marginTop: "14px" }}>Join Live Class Now</p>
+                  <p style={{ fontSize: "24px", marginTop: "14px" }}>
+                    Join Live Class Now
+                  </p>
                   <BlinkingIcon>
                     <MdLiveTv color="#ff4757" size={28} />
                   </BlinkingIcon>
@@ -1583,7 +1683,10 @@ const ContinueCourse = () => {
 
       {course?.live_class && (
         <LiveClass>
-          Live Class <TVIcon><MdLiveTv /></TVIcon>
+          Live Class{" "}
+          <TVIcon>
+            <MdLiveTv />
+          </TVIcon>
         </LiveClass>
       )}
 
@@ -1591,10 +1694,19 @@ const ContinueCourse = () => {
         <NotesSection>
           <h3>Course Notes</h3>
           {notes.map((note) => (
-            <NoteItem key={note._id} onClick={() => handleOpenNote(note)} isDownloadable={note.isDownload}>
+            <NoteItem
+              key={note._id}
+              onClick={() => handleOpenNote(note)}
+              isDownloadable={note.isDownload}
+            >
               <div className="note-icon">
                 <FaFilePdf />
-                {note.isDownload && <FaDownload className="download-icon" style={{ color: "green" }} />}
+                {note.isDownload && (
+                  <FaDownload
+                    className="download-icon"
+                    style={{ color: "green" }}
+                  />
+                )}
               </div>
               <div className="note-info">
                 <h4>{note.name || "Untitled Note"}</h4>

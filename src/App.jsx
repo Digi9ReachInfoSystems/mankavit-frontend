@@ -523,12 +523,12 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<UserDashboard />} />t
-            <Route path="profile/:id" element={<Profile />} />
-            <Route path="tandc" element={<TandC />} />
-            <Route path="my-courses" element={<Mycourses />} />
-            <Route path="contactsupport" element={<ContactSupport />} />
-            <Route path="notification" element={<UserNotifications />} />
+            <Route index element={ <ProtectedRoute roles={["user"]}><UserDashboard /></ProtectedRoute>} />t
+            <Route path="profile/:id" element={ <ProtectedRoute roles={["user"]}><Profile /></ProtectedRoute>} />
+            <Route path="tandc" element={ <ProtectedRoute roles={["user"]}><TandC /></ProtectedRoute>} />
+            <Route path="my-courses" element={ <ProtectedRoute roles={["user"]}><Mycourses /></ProtectedRoute>} />
+            <Route path="contactsupport" element={ <ProtectedRoute roles={["user"]}><ContactSupport /></ProtectedRoute> }/>
+            <Route path="notification" element={ <ProtectedRoute roles={["user"]}><UserNotifications /></ProtectedRoute>} />
             <Route
               path="completed-courses"
               element={<CompletedCoursesPage />}

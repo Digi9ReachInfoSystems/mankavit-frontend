@@ -7,6 +7,7 @@ export const getAuth = async () => {
     const cookiesData = await getCookiesData();
     const { userId } = cookiesData;
     const response = await verifyUser({ userId });
+    // console.log("response 123", response);
 
     if (!response.data.success) {
         return { isAuthenticated: false, userId: null, role: null , isSuperAdmin: false};

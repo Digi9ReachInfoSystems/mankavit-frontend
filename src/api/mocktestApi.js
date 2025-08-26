@@ -345,3 +345,35 @@ export const bulkdeleteUserAttempts = async (attemptIds) => {
         throw error;
     }
 }
+
+export const checkMockTestAttempted = async (user_id, mockTestId,subjectId) => {
+    try {
+        const response = await api.post(`/userAttempt/checkForPausedMockTest`,{
+            user_id: user_id,
+            mockTestId: mockTestId,
+            subject: subjectId
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export const saveforLaterMockTestUseAttempt = async (data) => {
+    try {
+        const response = await api.post('/userAttempt/saveForLater', data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const updateMocktestLastsavedTime = async (data) => {
+    try {
+        const response = await api.post(`/userAttempt/updateLastSavedTime`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

@@ -15,10 +15,10 @@ const encryptData = (payload) => {
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7
     });
-    console.log({
-      iv: iv.toString(CryptoJS.enc.Hex),
-      content: encrypted.ciphertext.toString(CryptoJS.enc.Hex)
-    });
+    // console.log({
+    //   iv: iv.toString(CryptoJS.enc.Hex),
+    //   content: encrypted.ciphertext.toString(CryptoJS.enc.Hex)
+    // });
 
     return {
       iv: iv.toString(CryptoJS.enc.Hex),
