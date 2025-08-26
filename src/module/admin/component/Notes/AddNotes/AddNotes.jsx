@@ -363,7 +363,7 @@ export default function AddNote() {
           {selectedSubjects.map((subject, index) => (
             <SelectedSubjectItem key={subject.id}>
               <SubjectName>{subject.label}</SubjectName>
-              <div>
+              {/* <div>
                 <ArrowButton 
                   style={{backgroundColor: "green"}}
                   type="button" 
@@ -380,7 +380,7 @@ export default function AddNote() {
                 >
                   ↓
                 </ArrowButton>
-              </div>
+              </div> */}
             </SelectedSubjectItem>
           ))}
                 </SelectedSubjectsList>

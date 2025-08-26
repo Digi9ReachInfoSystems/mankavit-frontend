@@ -16,7 +16,7 @@ import {
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
-  ErrorText,           // ← import this from your styles
+  ErrorText,           // ← from your styles
 } from './EditMocktest.style';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -25,6 +25,26 @@ import {
 } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
 import JoditEditor from 'jodit-react';
+
+/* ---------------------- Time helpers (no +5:30 shift) ---------------------- */
+/* 
+  We treat the wall-clock picked in <input type="datetime-local"> as canonical.
+  - When SAVING: "YYYY-MM-DDTHH:mm"  -> "YYYY-MM-DDTHH:mm:00.000Z"
+  - When LOADING from API: take the first 16 chars for the input value.
+  This keeps the digits the same for users and avoids timezone jumps.
+*/
+const localInputToUTC = (localValue) => {
+  if (!localValue) return '';
+  // localValue like "2025-08-19T05:00"
+  return `${localValue}:00.000Z`;
+};
+
+const utcToLocalInput = (s) => {
+  if (!s) return '';
+  // s like "2025-08-19T05:00:00.000Z" -> "2025-08-19T05:00"
+  return String(s).slice(0, 16);
+};
+/* --------------------------------------------------------------------------- */
 
 const EditMockTest = () => {
   const { mockTestId } = useParams();
@@ -36,7 +56,6 @@ const EditMockTest = () => {
     title: '',
     description: '',
     duration: '',
-    // passingMarks: '',
     startDate: '',
     endDate: '',
     maxAttempts: 1,
@@ -46,7 +65,8 @@ const EditMockTest = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [subjects, setSubjects] = useState([]);
   const editor = useRef(null);
-  // fetch subjects
+
+  // fetch subjects (optional; user may leave empty)
   useEffect(() => {
     (async () => {
       try {
@@ -68,19 +88,19 @@ const EditMockTest = () => {
       }
       try {
         const { data } = await getMocktestById(mockTestId);
+        console.log('Mocktest by ids', data);
         setTestDetails({
           title: data.title || '',
           description: data.description || '',
           duration: data.duration || '',
-          // passingMarks: data.passingMarks || '',
-          startDate: formatDateTimeLocal(data.startDate),
-          endDate: formatDateTimeLocal(data.endDate),
-          maxAttempts: data.maxAttempts || 1,
+          startDate: utcToLocalInput(data.startDate), // fixed: keep wall-clock
+          endDate: utcToLocalInput(data.endDate),     // fixed: keep wall-clock
+          maxAttempts: data.maxAttempts ?? 1,
           selectedSubjects: Array.isArray(data.subject)
             ? data.subject.map(s => (typeof s === 'object' ? s._id : s))
-            : typeof data.subject === 'object' && data.subject !== null
+            : (typeof data.subject === 'object' && data.subject !== null)
               ? [data.subject._id]
-              : [data.subject],
+              : [data.subject].filter(Boolean),
         });
       } catch (e) {
         console.error(e);
@@ -90,28 +110,11 @@ const EditMockTest = () => {
       }
     })();
   }, [mockTestId]);
+
   const config = useMemo(() => ({
-    readonly: false, // all options from https://xdsoft.net/jodit/docs/,
-    placeholder: testDetails.description || 'Start typings...',
-    //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
-    //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
-    //   'align', 'outdent', 'indent', '|', 'link', 'image'],
-    // toolbarAdaptive: false,
-    // showCharsCounter: false,
-    // showWordsCounter: false,
-    // showXPathInStatusbar: false,
-    // askBeforePasteHTML: true,
-    // askBeforePasteFromWord: true,
-    // uploader: {
-    //   insertImageAsBase64URI: true
-    // },
-    // style: {
-    //   background: '#f5f5f5',
-    //   color: '#333'
-    // }
-  }),
-    [testDetails]
-  );
+    readonly: false,
+    placeholder: testDetails.description || 'Start typing...',
+  }), [testDetails]);
 
   const handleTestDetailChange = (field, value) => {
     setTestDetails(prev => ({ ...prev, [field]: value }));
@@ -131,14 +134,11 @@ const EditMockTest = () => {
     e.preventDefault();
     const newErr = {};
 
+    // Required fields (dates & subjects are OPTIONAL per your request)
     if (!testDetails.title) newErr.title = 'Test title is required';
     if (!testDetails.description) newErr.description = 'Description is required';
     if (!testDetails.duration) newErr.duration = 'Duration is required';
-    // if (!testDetails.passingMarks) newErr.passingMarks = 'Passing marks are required';
     if (!testDetails.maxAttempts) newErr.maxAttempts = 'Max attempts is required';
-    if (!testDetails.startDate) newErr.startDate = 'Start date is required';
-    if (!testDetails.endDate) newErr.endDate = 'End date is required';
-    if (!testDetails.selectedSubjects.length) newErr.selectedSubjects = 'Select at least one subject';
 
     if (Object.keys(newErr).length) {
       setErrors(newErr);
@@ -148,17 +148,24 @@ const EditMockTest = () => {
     setErrors({});
     setIsSubmitting(true);
     try {
-      await updateMocktestById(mockTestId, {
+      const payload = {
         title: testDetails.title,
         description: testDetails.description,
         duration: testDetails.duration,
-        // passingMarks: testDetails.passingMarks,
         maxAttempts: testDetails.maxAttempts,
-        startDate: testDetails.startDate,
-        endDate: testDetails.endDate,
-        subject: testDetails.selectedSubjects,
-      });
- navigate(`/admin/mock-test`);
+      };
+
+      // Include dates only if provided (no timezone shift)
+      if (testDetails.startDate) payload.startDate = localInputToUTC(testDetails.startDate);
+      if (testDetails.endDate)   payload.endDate   = localInputToUTC(testDetails.endDate);
+
+      // Include subjects only if provided (optional)
+      if (testDetails.selectedSubjects?.length) {
+        payload.subject = testDetails.selectedSubjects;
+      }
+
+      await updateMocktestById(mockTestId, payload);
+      navigate(`/admin/mock-test`);
     } catch (e) {
       console.error(e);
       setErrors({ form: e.response?.data?.message || 'Failed to update mock test' });
@@ -167,27 +174,21 @@ const EditMockTest = () => {
     }
   };
 
-  const formatDateTimeLocal = s => {
-    if (!s) return '';
-    const d = new Date(s);
-    const pad = n => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
-
   if (isLoading) return <Container>Loading...</Container>;
 
   return (
     <Container>
       <Title>Edit Mock Test</Title>
       {errors.form && <ErrorText>{errors.form}</ErrorText>}
-<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-  <Button
-    type="button"
-    onClick={() => navigate(`/admin/mock-test/questions-list/${mockTestId}`)}
-  >
-    Edit Questions
-  </Button>
-</div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <Button
+          type="button"
+          onClick={() => navigate(`/admin/mock-test/questions-list/${mockTestId}`)}
+        >
+          Edit Questions
+        </Button>
+      </div>
 
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
@@ -210,19 +211,19 @@ const EditMockTest = () => {
               ref={editor}
               value={testDetails.description}
               config={config}
-              tabIndex={1} // tabIndex of textarea
-              onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
-              onChange={newContent => { handleTestDetailChange('description', newContent) }}
+              tabIndex={1}
+              onChange={newContent => { handleTestDetailChange('description', newContent); }}
             />
             {errors.description && <ErrorText>{errors.description}</ErrorText>}
           </FormGroup>
         </FormRow>
 
         <SubTitle>Mock Test Settings</SubTitle>
+
         <FormRow>
           <FormGroup>
             <CheckboxSection>
-              <CheckboxSectionTitle>Subjects</CheckboxSectionTitle>
+              <CheckboxSectionTitle>Subjects (optional)</CheckboxSectionTitle>
               <CheckboxList>
                 {subjects.map(sub => (
                   <CheckboxLabel key={sub._id}>
@@ -236,7 +237,7 @@ const EditMockTest = () => {
                 ))}
               </CheckboxList>
             </CheckboxSection>
-            {errors.selectedSubjects && <ErrorText>{errors.selectedSubjects}</ErrorText>}
+            {/* subjects optional -> no error */}
           </FormGroup>
         </FormRow>
 
@@ -252,18 +253,6 @@ const EditMockTest = () => {
             />
             {errors.duration && <ErrorText>{errors.duration}</ErrorText>}
           </FormGroup>
-          {/* <FormGroup>
-            <Label htmlFor="passingMarks">Passing Marks (%):</Label>
-            <Input
-              id="passingMarks"
-              type="number"
-              min="0" max="100"
-              value={testDetails.passingMarks}
-              onChange={e => handleTestDetailChange('passingMarks', e.target.value)}
-              placeholder="Enter passing percentage"
-            />
-            {errors.passingMarks && <ErrorText>{errors.passingMarks}</ErrorText>}
-          </FormGroup> */}
         </FormRow>
 
         <FormRow>
@@ -290,7 +279,7 @@ const EditMockTest = () => {
               value={testDetails.startDate}
               onChange={e => handleTestDetailChange('startDate', e.target.value)}
             />
-            {errors.startDate && <ErrorText>{errors.startDate}</ErrorText>}
+            {/* optional -> no error */}
           </FormGroup>
           <FormGroup>
             <Label htmlFor="endDate">End Date:</Label>
@@ -300,7 +289,7 @@ const EditMockTest = () => {
               value={testDetails.endDate}
               onChange={e => handleTestDetailChange('endDate', e.target.value)}
             />
-            {errors.endDate && <ErrorText>{errors.endDate}</ErrorText>}
+            {/* optional -> no error */}
           </FormGroup>
         </FormRow>
 

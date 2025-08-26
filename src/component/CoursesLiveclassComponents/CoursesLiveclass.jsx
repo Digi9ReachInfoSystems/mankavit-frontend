@@ -1,409 +1,742 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-    Container,
-    VideoContainer,
-    StyledVideo,
-    OverlayText,
-    Tag,
-    PhoneNumber,
-    VideoPlayer,
-    BottomTitle,
-    TopBar,
-    ButtonGroup,
-    ActionButton,
-    TabContentWrapper,
-    ContentText,
-    MovingOverlay,
-    VideoPlayerContainer,
-    FullscreenButton,
-    MainContainer
-} from './CoursesLiveclass.styles';
-import { FaUser, FaDownload, FaPlay, FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
-import { getCourseById } from '../../api/courseApi';
-import { getCourseByIdWithUSerProgress } from '../../api/userProgressApi';
-import { completeLecturer, startSubject, startLecturer } from '../../api/userProgressApi';
-import { getCookiesData } from '../../utils/cookiesService';
-import FeedbackModal from '../FeedbackModal/FeedbackModal';
-import { getUserByUserId } from '../../api/authApi';
-import { set } from 'date-fns';
-import { FaFilePdf } from 'react-icons/fa'; // Add this import at the top
+  Container,
+  VideoContainer,
+  StyledVideo,
+  OverlayText,
+  Tag,
+  PhoneNumber,
+  VideoPlayer,
+  BottomTitle,
+  TopBar,
+  ButtonGroup,
+  ActionButton,
+  TabContentWrapper,
+  ContentText,
+  MovingOverlay,
+  VideoPlayerContainer,
+  FullscreenButton,
+  MainContainer,
+} from "./CoursesLiveclass.styles";
+import {
+  FaUser,
+  FaDownload,
+  FaPlay,
+  FaChevronDown,
+  FaChevronUp,
+  FaCheckCircle,
+} from "react-icons/fa";
+import { getCourseById } from "../../api/courseApi";
+import { getCourseByIdWithUSerProgress } from "../../api/userProgressApi";
+import {
+  completeLecturer,
+  startSubject,
+  startLecturer,
+} from "../../api/userProgressApi";
+import { getCookiesData } from "../../utils/cookiesService";
+import FeedbackModal from "../FeedbackModal/FeedbackModal";
+import { getUserByUserId } from "../../api/authApi";
+import { FaFilePdf } from "react-icons/fa";
+import {
+  getMocktestBySubjectId,
+  getAllUserAttemptByUserId,
+} from "../../api/mocktestApi";
+import PdfModal from "./PDFModal";
+
 // PDF Modal component updated to hide default print/save toolbar
-const PdfModal = ({ file, name, onClose, isDownloadable }) => {
-  const pdfUrl = `${file}#toolbar=0&navpanes=0&scrollbar=0`;
-  
-  // Simple right-click prevention handler
-  const preventRightClick = (e) => {
-    if (e.button === 2) { // Check if right mouse button
-      e.preventDefault();
+// const PdfModal = ({ file, name, onClose, isDownloadable }) => {
+//   const pdfUrl = `${file}#toolbar=0&navpanes=0&scrollbar=0`;
+
+//   // Simple right-click prevention handler
+//   const preventRightClick = (e) => {
+//     if (e.button === 2) {
+//       // Check if right mouse button
+//       e.preventDefault();
+//     }
+//   };
+
+//   return (
+//     <div
+//       onContextMenu={(e) => e.preventDefault()} // Prevent context menu
+//       onMouseDown={preventRightClick} // Prevent right-click
+//       style={{
+//         position: "fixed",
+//         top: 0,
+//         left: 0,
+//         right: 0,
+//         bottom: 0,
+//         backgroundColor: "rgba(0,0,0,0.7)",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         zIndex: 1000,
+//       }}
+//     >
+//       <div
+//         style={{
+//           backgroundColor: "white",
+//           borderRadius: "8px",
+//           width: "90%",
+//           maxWidth: "900px",
+//           height: "90%",
+//           display: "flex",
+//           flexDirection: "column",
+//         }}
+//       >
+//         <div
+//           style={{
+//             padding: "15px",
+//             display: "flex",
+//             justifyContent: "space-between",
+//             alignItems: "center",
+//             borderBottom: "1px solid #eee",
+//           }}
+//         >
+//           <h3 style={{ margin: 0 }}>{name}</h3>
+//           <button
+//             onClick={onClose}
+//             style={{
+//               padding: "5px 10px",
+//               background: "#e74c3c",
+//               color: "white",
+//               border: "none",
+//               borderRadius: "4px",
+//               cursor: "pointer",
+//             }}
+//           >
+//             Close
+//           </button>
+//         </div>
+//         <div style={{ flex: 1, position: "relative" }}>
+//           <iframe
+//             src={pdfUrl}
+//             style={{ width: "100%", height: "100%", border: "none" }}
+//             title={name}
+//             onContextMenu={(e) => e.preventDefault()}
+//             onMouseDown={preventRightClick}
+//           />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+const CoursesLiveclass = () => {
+  const { courseId, subjectid, lectureId } = useParams();
+  const navigate = useNavigate();
+  const tabContentRef = useRef(null);
+  const videoRef = useRef(null);
+
+  const [activeTab, setActiveTab] = useState("Overview");
+  const [course, setCourse] = useState(null);
+  const [lecture, setLecture] = useState(null);
+  const [subjectId, setSubjectId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [videoError, setVideoError] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [activeAccordion, setActiveAccordion] = useState(null);
+  const [completedLectures, setCompletedLectures] = useState([]);
+  const [completedSubjects, setCompletedSubjects] = useState([]);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [showFeedbackButton, setShowFeedbackButton] = useState(false);
+  const [overlayPosition, setOverlayPosition] = useState({ top: 50, left: 50 });
+  const [userPhoneNumber, setUserPhoneNumber] = useState("");
+  const videoContainerRef = useRef(null);
+  const [currentNote, setCurrentNote] = useState(null);
+  const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [notes, setNotes] = useState([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // --- Mock Test integration state ---
+  const [mockData, setMockData] = useState([]); // subjects -> lectures (mock tests)
+  const [mockActiveAccordion, setMockActiveAccordion] = useState(null);
+  const [attemptsData, setAttemptsData] = useState({}); // { [mockId]: { attemptsCount, max, remaining, isUnlimited, attempts[] } }
+  const [attemptsLoading, setAttemptsLoading] = useState({}); // { [mockId]: boolean }
+
+  useEffect(() => {
+    const handleFSChange = () => {
+      // check vendor-prefixed properties too
+      const active =
+        !!document.fullscreenElement ||
+        !!document.webkitFullscreenElement ||
+        !!document.mozFullScreenElement ||
+        !!document.msFullscreenElement;
+      setIsFullscreen(active);
+    };
+
+    document.addEventListener("fullscreenchange", handleFSChange);
+    document.addEventListener("webkitfullscreenchange", handleFSChange);
+    document.addEventListener("mozfullscreenchange", handleFSChange);
+    document.addEventListener("MSFullscreenChange", handleFSChange);
+
+    // initialize once
+    handleFSChange();
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFSChange);
+      document.removeEventListener("webkitfullscreenchange", handleFSChange);
+      document.removeEventListener("mozfullscreenchange", handleFSChange);
+      document.removeEventListener("MSFullscreenChange", handleFSChange);
+    };
+  }, []);
+
+  // Move overlay regularly
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const top = Math.floor(Math.random() * 80) + 5; // 5–85%
+      const left = Math.floor(Math.random() * 80) + 5;
+      setOverlayPosition({ top, left });
+    }, 4000); // every 4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto fullscreen when play
+  useEffect(() => {
+    const player = videoRef.current;
+    if (player) {
+      const onPlay = () => handleFullscreen();
+      player.addEventListener("play", onPlay);
+      return () => player.removeEventListener("play", onPlay);
+    }
+  }, []);
+
+  // --- Attempts math + fetchers for mock tests ---
+  const computeAttemptMeta = (lec, attemptsArr) => {
+    const attemptsCount = Array.isArray(attemptsArr) ? attemptsArr.length : 0;
+    const rawMax = lec?.maxAttempts;
+    const hasFiniteMax =
+      rawMax !== null &&
+      rawMax !== undefined &&
+      Number.isFinite(Number(rawMax));
+    const max = hasFiniteMax ? Number(rawMax) : Infinity;
+    const remaining = Number.isFinite(max)
+      ? Math.max(max - attemptsCount, 0)
+      : Infinity;
+    return {
+      attemptsCount,
+      max,
+      remaining,
+      isUnlimited: !Number.isFinite(max),
+    };
+  };
+
+  const prefetchAttemptsForLectures = async (lectures = [], uid) => {
+    if (!uid || !lectures.length) return;
+
+    const toFetch = lectures.filter((l) => !attemptsData[l._id]);
+    if (toFetch.length === 0) return;
+
+    setAttemptsLoading((prev) => {
+      const next = { ...prev };
+      toFetch.forEach((l) => (next[l._id] = true));
+      return next;
+    });
+
+    try {
+      const results = await Promise.all(
+        toFetch.map(async (l) => {
+          try {
+            const res = await getAllUserAttemptByUserId(uid, l._id);
+            const meta = computeAttemptMeta(l, res?.data || []);
+            return [l._id, { attempts: res?.data || [], ...meta }];
+          } catch (e) {
+            console.error("attempts fetch failed:", e);
+            const meta = computeAttemptMeta(l, []);
+            return [l._id, { attempts: [], ...meta }];
+          }
+        })
+      );
+
+      setAttemptsData((prev) => {
+        const merged = { ...prev };
+        results.forEach(([id, val]) => (merged[id] = val));
+        return merged;
+      });
+    } finally {
+      setAttemptsLoading((prev) => {
+        const next = { ...prev };
+        toFetch.forEach((l) => delete next[l._id]);
+        return next;
+      });
     }
   };
 
-  return (
-    <div
-      onContextMenu={(e) => e.preventDefault()} // Prevent context menu
-      onMouseDown={preventRightClick} // Prevent right-click
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000
-      }}
-    >
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        width: '90%',
-        maxWidth: '900px',
-        height: '90%',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        <div style={{
-          padding: '15px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          borderBottom: '1px solid #eee'
-        }}>
-          <h3 style={{ margin: 0 }}>{name}</h3>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '5px 10px',
-              background: '#e74c3c',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Close
-          </button>
+  const buildMockData = async (courseObj) => {
+    const list = await Promise.all(
+      (courseObj.subjects || []).map(async (subject) => {
+        try {
+          const resp = await getMocktestBySubjectId(subject._id);
+          const tests = (resp?.data || []).map((t, idx) => ({
+            _id: t._id,
+            lectureName: t.title || `Mock Test ${idx + 1}`,
+            duration: `${t.number_of_questions || "N/A"} Questions | ${
+              t.duration || "N/A"
+            } mins`,
+            maxAttempts: t.maxAttempts,
+          }));
+          return {
+            _id: subject._id,
+            name: subject.subjectName || "Subject",
+            lectures: tests,
+          };
+        } catch (e) {
+          console.error("mock tests fetch error:", e);
+          return {
+            _id: subject._id,
+            name: subject.subjectName || "Subject",
+            lectures: [],
+          };
+        }
+      })
+    );
+
+    setMockData(
+      list.filter((s) => Array.isArray(s.lectures) && s.lectures.length > 0)
+    );
+  };
+
+  // Fetch data (course, progress, lecture) + build mock data
+  useEffect(() => {
+    const fetchData = async () => {
+      const cookies = await getCookiesData();
+      const userData = await getUserByUserId(cookies.userId);
+      setUserId(cookies.userId);
+      setUserPhoneNumber(userData.user.phone);
+
+      try {
+        const progressResponse = await getCourseByIdWithUSerProgress(
+          cookies.userId,
+          courseId
+        );
+        if (progressResponse?.success) {
+          setCourse(progressResponse.data);
+
+          // Extract completed lectures and subjects
+          const lectures = [];
+          const subjects = [];
+
+          (progressResponse.data.subjects || []).forEach(
+            async (subject, subIndex) => {
+              if (subject.completed) subjects.push(subject._id);
+
+              if (subject._id === subjectid) {
+                setSubjectId(subject._id);
+                await handleStartSubject(subject._id);
+                setActiveAccordion(subIndex);
+
+                (subject.lectures || []).forEach((lecture) => {
+                  if (lecture.completed) lectures.push(lecture._id);
+                  if (lecture._id === lectureId) {
+                    setLecture(lecture);
+                    startLecturer(
+                      cookies.userId,
+                      courseId,
+                      subject._id,
+                      lecture._id
+                    );
+                  }
+                });
+              }
+            }
+          );
+
+          setCompletedLectures(lectures);
+          setCompletedSubjects(subjects);
+
+          // Build mock test data for this course
+          await buildMockData(progressResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching course with progress:", error);
+
+        // Fallback to regular course fetch if progress fails
+        const response = await getCourseById(courseId);
+        if (response?.success) {
+          const courseData = response.data;
+          setCourse(courseData);
+
+          for (const subject of courseData.subjects || []) {
+            const found = (subject.lectures || []).find(
+              (lec) => lec._id === lectureId
+            );
+            if (found) {
+              setLecture(found);
+              setSubjectId(subject._id);
+              break;
+            }
+          }
+
+          // Build mock test data for fallback course object
+          await buildMockData(courseData);
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [courseId, subjectid, lectureId]);
+
+  // Handle hash routing (if you use it)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      setActiveTab(hash || "Overview");
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    setActiveTab(window.location.hash.replace("#", "") || "Overview");
+  }, []);
+
+  useEffect(() => {
+    if (tabContentRef.current) {
+      tabContentRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [activeTab]);
+
+  // Prefetch attempts for mock tests on tab open / data change
+  useEffect(() => {
+    if (activeTab !== "MockTest" || !userId) return;
+    const allLectures = mockData.flatMap((s) => s.lectures || []);
+    if (allLectures.length) prefetchAttemptsForLectures(allLectures, userId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, userId, JSON.stringify(mockData)]);
+
+  // Ensure active subject's mock tests are fetched (fast if cached)
+  useEffect(() => {
+    if (activeTab !== "MockTest" || mockActiveAccordion == null || !userId)
+      return;
+    const subject = mockData[mockActiveAccordion];
+    const lectures = Array.isArray(subject?.lectures) ? subject.lectures : [];
+    if (lectures.length) prefetchAttemptsForLectures(lectures, userId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mockActiveAccordion, activeTab, userId]);
+
+  const handleVideoError = () => {
+    setVideoError(true);
+    console.error("Error loading video");
+  };
+
+  const handleVideoEnd = async () => {
+    if (userId && courseId && subjectId && lectureId) {
+      try {
+        const data = await completeLecturer(
+          userId,
+          courseId,
+          subjectid,
+          lectureId
+        );
+
+        let nextLecture = null;
+        let nextSubject = null;
+
+        for (const subject of course.subjects) {
+          if (subject._id === subjectid) {
+            const currentIndex = subject.lectures.findIndex(
+              (lec) => lec._id === lectureId
+            );
+
+            if (currentIndex !== -1) {
+              if (currentIndex < subject.lectures.length - 1) {
+                nextLecture = subject.lectures[currentIndex + 1];
+                nextSubject = subject._id;
+                setLecture(nextLecture);
+              } else {
+                const currentSubjectIndex = course.subjects.findIndex(
+                  (sub) => sub._id === subjectId
+                );
+                for (
+                  let i = currentSubjectIndex + 1;
+                  i < course.subjects.length;
+                  i++
+                ) {
+                  if (course.subjects[i].lectures.length > 0) {
+                    setSubjectId(course.subjects[i]._id);
+                    setLecture(course.subjects[i].lectures[0]);
+                    await handleStartSubject(course.subjects[i]._id);
+                    nextSubject = course.subjects[i]._id;
+                    nextLecture = course.subjects[i].lectures[0];
+                    break;
+                  }
+                }
+              }
+            }
+            break;
+          }
+        }
+
+        if (nextLecture) {
+          await handleStartSubject(nextSubject);
+          await handleStartLecture(nextSubject, nextLecture._id);
+          navigate(
+            `/course/liveclass/${courseId}/${nextSubject}/${nextLecture._id}`
+          );
+          setLecture(nextLecture);
+          return nextLecture._id;
+        } else if (nextLecture == null && nextSubject == null) {
+          const cookies = await getCookiesData();
+          const progressResponse = await getCourseByIdWithUSerProgress(
+            cookies.userId,
+            courseId
+          );
+          if (progressResponse.data?.completed) {
+            if (progressResponse.data?.viewedCertificate) {
+              navigate(`/user`);
+            } else {
+              navigate(`/courseComplte/${courseId}`);
+            }
+          } else {
+            navigate(`/continueCourse/${courseId}`);
+          }
+        }
+      } catch (error) {
+        console.error("Error completing lecture:", error);
+      }
+    }
+  };
+
+  const handleStartSubject = async (subId) => {
+    setSubjectId(subId);
+    if (userId && courseId && subId) {
+      try {
+        await startSubject(userId, courseId, subId);
+      } catch (error) {
+        console.error("Error starting subject:", error);
+      }
+    }
+  };
+
+  const handleStartLecture = async (subId, lecId) => {
+    if (userId && courseId && subId && lecId) {
+      try {
+        await startLecturer(userId, courseId, subId, lecId);
+        navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
+      } catch (error) {
+        console.error("Error starting lecture:", error);
+      }
+    }
+  };
+
+  const renderMockTestsTab = () => {
+    if (!mockData.length)
+      return <ContentText>No mock tests available.</ContentText>;
+
+    return mockData.map((subject, sIdx) => (
+      <div key={subject._id} style={{ marginBottom: 24 }}>
+        <div
+          style={{
+            cursor: "pointer",
+            padding: 12,
+            background: "#f5f6fa",
+            borderRadius: 8,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+          onClick={() =>
+            setMockActiveAccordion(sIdx === mockActiveAccordion ? null : sIdx)
+          }
+        >
+          <strong>{subject.name}</strong>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {subject.completed && (
+              <FaCheckCircle style={{ color: "green", marginRight: 10 }} />
+            )}
+            {mockActiveAccordion === sIdx ? <FaChevronUp /> : <FaChevronDown />}
+          </div>
         </div>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <iframe
-            src={pdfUrl}
-            style={{ width: '100%', height: '100%', border: 'none' }}
-            title={name}
-            onContextMenu={(e) => e.preventDefault()}
-            onMouseDown={preventRightClick}
-          />
-        </div>
+
+        {mockActiveAccordion === sIdx && (
+          <div style={{ paddingLeft: 16, marginTop: 8 }}>
+            {(subject.lectures || []).map((lec) => {
+              const meta = attemptsData[lec._id];
+              const isLoading = !!attemptsLoading[lec._id];
+
+              const Skeleton = () => (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <div
+                    style={{
+                      height: 30,
+                      width: 110,
+                      borderRadius: 4,
+                      background: "#eee",
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 30,
+                      width: 100,
+                      borderRadius: 4,
+                      background: "#eee",
+                    }}
+                  />
+                </div>
+              );
+
+              let infoLine = lec.duration;
+              let showRemaining = false;
+              let remainingText = "";
+              let showViewResults = false;
+              let canStart = true;
+
+              if (!isLoading && meta) {
+                const { attemptsCount, isUnlimited, max, remaining } = meta;
+                showViewResults = attemptsCount > 0;
+                canStart =
+                  isUnlimited || (Number.isFinite(remaining) && remaining > 0);
+
+                const maxText = isUnlimited
+                  ? "Unlimited"
+                  : Number.isFinite(max)
+                  ? max
+                  : lec.maxAttempts ?? "Unlimited";
+                infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
+
+                if (
+                  !isUnlimited &&
+                  Number.isFinite(remaining) &&
+                  remaining > 0
+                ) {
+                  showRemaining = true;
+                  remainingText = ` | Remaining: ${remaining}`;
+                }
+              } else if (!meta) {
+                const maxText =
+                  lec.maxAttempts == null ? "Unlimited" : lec.maxAttempts;
+                infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
+              }
+
+              return (
+                <div
+                  key={lec._id}
+                  style={{
+                    padding: 12,
+                    borderBottom: "1px solid #eee",
+                    backgroundColor: "transparent",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1, paddingRight: 12 }}>
+                    <p style={{ margin: 0, fontWeight: 500 }}>
+                      {lec.lectureName}
+                    </p>
+                    <span style={{ fontSize: 14, color: "#888" }}>
+                      {infoLine}
+                      {showRemaining ? remainingText : ""}
+                    </span>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {isLoading ? (
+                      <Skeleton />
+                    ) : (
+                      <>
+                        {showViewResults && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(
+                                `/user-view-results/${userId}/${lec._id}`
+                              );
+                            }}
+                            style={{
+                              background: "transparent",
+                              border: "1px solid #4CAF50",
+                              color: "#4CAF50",
+                              padding: "4px 8px",
+                              borderRadius: 4,
+                              fontSize: 14,
+                            }}
+                          >
+                            View Results
+                          </button>
+                        )}
+
+                        {canStart && (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/start-test/${lec._id}/${subject._id}`);
+                            }}
+                            style={{
+                              fontSize: 14,
+                              color: "#007bff",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                              padding: "4px 8px",
+                              border: "1px solid #007bff",
+                              borderRadius: 4,
+                            }}
+                          >
+                            Start Test
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </div>
-  );
-};
+    ));
+  };
 
-
-const CoursesLiveclass = () => {
-    const { courseId, subjectid, lectureId } = useParams();
-    const navigate = useNavigate();
-    const tabContentRef = useRef(null);
-    const videoRef = useRef(null);
-
-    const [activeTab, setActiveTab] = useState('Overview');
-    const [course, setCourse] = useState(null);
-    const [lecture, setLecture] = useState(null);
-    const [subjectId, setSubjectId] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [videoError, setVideoError] = useState(false);
-    const [userId, setUserId] = useState(null);
-    const [activeAccordion, setActiveAccordion] = useState(null);
-    const [completedLectures, setCompletedLectures] = useState([]);
-    const [completedSubjects, setCompletedSubjects] = useState([]);
-    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-    const [showFeedbackButton, setShowFeedbackButton] = useState(false);
-    const [overlayPosition, setOverlayPosition] = useState({ top: 50, left: 50 });
-    const [userPhoneNumber, setUserPhoneNumber] = useState('');
-    const videoContainerRef = useRef(null);
-    const [currentNote, setCurrentNote] = useState(null);
-    const [showPDFViewer, setShowPDFViewer] = useState(false);
-    const [notes, setNotes] = useState([]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const top = Math.floor(Math.random() * 80) + 5;  // 5–85%
-            const left = Math.floor(Math.random() * 80) + 5;
-            setOverlayPosition({ top, left });
-        }, 4000); // every 3 seconds
-
-        return () => clearInterval(interval);
-    }, []);
-    useEffect(() => {
-        const player = videoRef.current;
-        if (player) {
-            const onPlay = () => handleFullscreen();
-            player.addEventListener('play', onPlay);
-            return () => player.removeEventListener('play', onPlay);
-        }
-    }, []);
-
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const cookies = await getCookiesData();
-            const userData = await getUserByUserId(cookies.userId);
-            console.log("userData", userData);
-            setUserId(cookies.userId);
-            setUserPhoneNumber(userData.user.phone);
-
-            try {
-                const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
-                console.log("Progress Response:", progressResponse);
-                if (progressResponse?.success) {
-                    setCourse(progressResponse.data);
-
-                    // Extract completed lectures and subjects
-                    const lectures = [];
-                    const subjects = [];
-
-                    (progressResponse.data.subjects || []).forEach(async (subject, subIndex) => {
-                        if (subject.completed) {
-                            subjects.push(subject._id);
-                        }
-                        if (subject._id === subjectid) {
-                            setSubjectId(subject._id);
-                            await handleStartSubject(subject._id);
-                            setActiveAccordion(subIndex);
-                            console.log("Setting subjectId:", subject._id, "for lectureId:", lectureId);
-
-
-                            (subject.lectures || []).forEach(lecture => {
-                                if (lecture.completed) {
-                                    lectures.push(lecture._id);
-                                }
-                                if (lecture._id === lectureId) {
-                                    console.log("Setting lecture:", lecture, "for subject:", subject._id);
-                                    setLecture(lecture);
-                                    startLecturer(cookies.userId, courseId, subject._id, lecture._id);
-                                    // setSubjectId(subject._id);
-                                    //  console.log("", "lectureId", lectureId," subject._id", subject._id);
-                                }
-                            });
-                        }
-                    });
-
-                    setCompletedLectures(lectures);
-                    setCompletedSubjects(subjects);
-                }
-            } catch (error) {
-                console.error("Error fetching course with progress:", error);
-
-                // Fallback to regular course fetch if progress fails
-                const response = await getCourseById(courseId);
-                if (response?.success) {
-                    const courseData = response.data;
-                    setCourse(courseData);
-
-                    for (const subject of courseData.subjects || []) {
-                        const found = (subject.lectures || []).find(lec => lec._id === lectureId);
-                        if (found) {
-                            console.log("Found lecture:", found, "subject._id", subject._id);
-                            setLecture(found);
-                            setSubjectId(subject._id);
-                            break;
-                        }
-                    }
-                }
-            }
-            setLoading(false);
-        };
-
-        fetchData();
-    }, [courseId, subjectid, lectureId]);
-
-    useEffect(() => {
-        const handleHashChange = () => {
-            const hash = window.location.hash.replace('#', '');
-            setActiveTab(hash || 'Overview');
-        };
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
-
-    useEffect(() => {
-        setActiveTab(window.location.hash.replace('#', '') || 'Overview');
-    }, []);
-
-    useEffect(() => {
-        if (tabContentRef.current) {
-            tabContentRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [activeTab]);
-
-    const handleVideoError = () => {
-        setVideoError(true);
-        console.error("Error loading video");
-    };
-
-    const handleVideoEnd = async () => {
-        if (userId && courseId && subjectId && lectureId) {
-            try {
-                console.log("Completing lecture:", userId, courseId, subjectId, lectureId);
-                const data = await completeLecturer(userId, courseId, subjectid, lectureId);
-                console.log("Lecture completed:", data);
-                // let next = false;
-                // let nextLec;
-                // const nextLecture = course.subjects.map(subject => {
-                //     if (subject._id === subjectId) {
-
-                //         subject.lectures.find((lec,index) => {
-                //             if (next) {
-                //                 nextLec = lec; // Set nextLec to the next lecture after the current one
-                //                 next = false; // Stop searching after finding the next lecture
-                //             };
-                //             if (lec._id === lectureId) {
-                //                 next = true; // Set next to true after finding the current lecture
-                //                 // return false; // Skip the current lecture
-                //             }
-                //             if(subject.lectures.length - 1 === index&&(!next) ) {
-                //                 // write logic to set subject to next, 
-                //             }
-                //         });
-
-                //     }
-                //     return null;
-                // });
-                let nextLecture = null;
-                let nextSubject = null;
-                // Loop through all subjects
-                for (const subject of course.subjects) {
-                    console.log("subject", subject)
-                    if (subject._id === subjectid) {
-                        // Find the index of the current lecture
-                        const currentIndex = subject.lectures.findIndex(lec => lec._id === lectureId);
-
-                        if (currentIndex !== -1) {
-                            // Check if there's a next lecture in this subject
-                            if (currentIndex < subject.lectures.length - 1) {
-                                nextLecture = subject.lectures[currentIndex + 1];
-                                nextSubject = subject._id; // Set the next subject to the current one
-                                setLecture(nextLecture);
-                            } else {
-                                // Find the next subject with lectures
-                                const currentSubjectIndex = course.subjects.findIndex(sub => sub._id === subjectId);
-                                for (let i = currentSubjectIndex + 1; i < course.subjects.length; i++) {
-                                    if (course.subjects[i].lectures.length > 0) {
-                                        setSubjectId(course.subjects[i]._id);
-                                        setLecture(course.subjects[i].lectures[0]);
-                                        await handleStartSubject(course.subjects[i]._id);
-                                        // Set the first lecture of the next subject
-                                        nextSubject = course.subjects[i]._id;
-                                        nextLecture = course.subjects[i].lectures[0];
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        break; // We found our subject, no need to continue
-                    }
-                }
-                console.log("Next Lecture:", nextLecture, "Next Subject:", nextSubject);
-
-                if (nextLecture) {
-                    await handleStartSubject(nextSubject);
-                    await handleStartLecture(nextSubject, nextLecture._id);
-                    navigate(`/course/liveclass/${courseId}/${nextSubject}/${nextLecture._id}`);
-                    setLecture(nextLecture);
-                    return nextLecture._id;
-                } else if (nextLecture == null && nextSubject == null) {
-                    const cookies = await getCookiesData();
-                    const progressResponse = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
-                    // If no next lecture, navigate to course overview
-                    // console.log("No next lecture found, navigating to course overview", course);
-                    // navigate(`/courseComplte/${courseId}`);
-
-                    if (progressResponse.data?.completed) {
-                        if (progressResponse.data?.viewedCertificate) {
-                            navigate(`/user`);
-                        } else {
-                            navigate(`/courseComplte/${courseId}`);
-                        }
-
-                    } else {
-                        navigate(`/continueCourse/${courseId}`);
-                    }
-                }
-                // setCompletedLectures(prev => [...prev, lectureId]);
-
-                // Check if all lectures in this subject are completed
-                // const currentSubject = course.subjects.find(s => s._id === subjectId);
-                // if (currentSubject) {
-                //     const allLecturesCompleted = currentSubject.lectures.every(lec => 
-                //         completedLectures.includes(lec._id) || lec._id === lectureId
-                //     );
-
-                //     if (allLecturesCompleted) {
-                //         setCompletedSubjects(prev => [...prev, subjectId]);
-                //     }
-                // }
-            } catch (error) {
-                console.error("Error completing lecture:", error);
-            }
-        }
-    };
-
-    const handleStartSubject = async (subjectId) => {
-        setSubjectId(subjectId);
-        if (userId && courseId && subjectId) {
-            try {
-                const data = await startSubject(userId, courseId, subjectId);
-
-                console.log("Subject started:", data);
-            } catch (error) {
-                console.error("Error starting subject:", error);
-            }
-        }
-    };
-
-    const handleStartLecture = async (subjectId, lecId) => {
-        if (userId && courseId && subjectId && lecId) {
-            try {
-                await startLecturer(userId, courseId, subjectId, lecId);
-                navigate(`/course/liveclass/${courseId}/${subjectId}/${lecId}`);
-            } catch (error) {
-                console.error("Error starting lecture:", error);
-            }
-        }
-    };
-
- const renderTabContent = () => {
+  const renderTabContent = () => {
     if (loading) return <ContentText>Loading...</ContentText>;
     if (!course) return <ContentText>Course not found.</ContentText>;
 
-if (activeTab === 'Notes') {
+    if (activeTab === "Notes") {
       const allNotes = [];
-      course.subjects.forEach(subject => {
-        subject.notes.forEach(note => allNotes.push({ ...note, subjectName: subject.subjectName }));
+      (course.subjects || []).forEach((subject) => {
+        if (Array.isArray(subject.notes)) {
+          subject.notes.forEach((note) =>
+            allNotes.push({ ...note, subjectName: subject.subjectName })
+          );
+        }
       });
-      if (!allNotes.length) return <ContentText>No notes available for this course.</ContentText>;
+      if (!allNotes.length)
+        return <ContentText>No notes available for this course.</ContentText>;
 
       return (
         <>
           {allNotes.map((note, i) => {
-            const noteUrl = note.fileUrl.startsWith('http') ?
-              note.fileUrl :
-              `${process.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
+            const noteUrl = note.fileUrl?.startsWith("http")
+              ? note.fileUrl
+              : `${process.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
             return (
               <ContentText key={i}>
-                <div className="note-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div
+                  className="note-header"
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <span>
-                    <FaFilePdf style={{ marginRight: 8, color: '#e74c3c' }} />
+                    <FaFilePdf style={{ marginRight: 8, color: "#e74c3c" }} />
                     {note.noteName || `Note ${i + 1}`}
-                    {note.subjectName && <em style={{ marginLeft: 8, color: '#666' }}>({note.subjectName})</em>}
                   </span>
-                  <div style={{ display: 'flex', gap: 8 }}>
+
+                  <div style={{ display: "flex", gap: 8 }}>
                     <button
-                      onClick={() => setCurrentNote({ file: noteUrl, name: note.noteName, isDownloadable: note.isDownload })}
-                      style={{ background: '#0494fa', color: 'white', padding: '6px 12px', borderRadius: 4 }}
+                      onClick={() =>
+                        setCurrentNote({
+                          file: noteUrl,
+                          name: note.noteName,
+                          isDownloadable: note.isDownload,
+                        })
+                      }
+                      style={{
+                        background: "#0494fa",
+                        color: "white",
+                        padding: "6px 12px",
+                        borderRadius: 4,
+                      }}
                     >
                       View
                     </button>
@@ -411,14 +744,19 @@ if (activeTab === 'Notes') {
                       <a
                         href={noteUrl}
                         download
-                        style={{ background: '#d4b200', color: 'white', padding: '6px 12px', borderRadius: 4, textDecoration: 'none' }}
+                        style={{
+                          background: "#d4b200",
+                          color: "white",
+                          padding: "6px 12px",
+                          borderRadius: 4,
+                          textDecoration: "none",
+                        }}
                       >
                         Download
                       </a>
                     )}
                   </div>
                 </div>
-                <p>{note.noteDisplayName || 'No description available'}</p>
               </ContentText>
             );
           })}
@@ -434,215 +772,234 @@ if (activeTab === 'Notes') {
       );
     }
 
-        if (activeTab === 'Overview') {
-            // const initialUpdate=async () => {
-            //     course.subjects.forEach(async (subject) => {
-            //         if (subject._id === subjectId) {
-            //             setActiveAccordion(course.subjects.indexOf(subject));
-            //             await handleStartSubject(subject._id);
-            //         }
-            //     });
-            // }
-            // initialUpdate();
-            return course.subjects.map((subject, sIdx) => (
-                <div key={subject._id} style={{ marginBottom: 24 }}>
-                    <div
-                        style={{
-                            cursor: 'pointer',
-                            padding: 12,
-                            background: '#f5f6fa',
-                            borderRadius: 8,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}
-                        onClick={async () => {
-                            const newIndex = sIdx === activeAccordion ? null : sIdx;
-                            setActiveAccordion(newIndex);
-                            if (newIndex !== null) await handleStartSubject(subject._id);
-                        }}
-                    >
-                        <strong>{subject.subjectName}</strong>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {subject.completed && (
-                                <FaCheckCircle style={{ color: 'green', marginRight: 10 }} />
-                            )}
-                            {activeAccordion === sIdx ? <FaChevronUp /> : <FaChevronDown />}
-                        </div>
-                    </div>
-                    {activeAccordion === sIdx && (
-                        <div style={{ paddingLeft: 16, marginTop: 8 }}>
-                            {(subject.lectures || []).map((lec, lIdx) => {
-                                const isCompleted = completedLectures.includes(lec._id);
-                                return (
-                                    <div
-                                        key={lec._id}
-                                        onClick={() => handleStartLecture(subject._id, lec._id)}
-                                        style={{
-                                            padding: 12,
-                                            borderBottom: '1px solid #eee',
-                                            cursor: 'pointer',
-                                            backgroundColor: lec._id === lectureId ? '#e9f5ff' : 'transparent',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        <div>
-                                            <p style={{ margin: 0, fontWeight: 500 }}>
-                                                {lec.lectureName}{" "}
-                                                {lec.completed && (
-                                                    <FaCheckCircle style={{ color: 'green', marginLeft: 6 }} />
-                                                )}
-                                            </p>
-                                            {/* <p style={{ margin: '4px 0', color: '#666' }}>{lec.description}</p> */}
-                                            <p dangerouslySetInnerHTML={{ __html: lec.description }}  style={{ margin: '4px 0', color: '#666' }} />
-                                            {/* <p style={{ fontSize: 12, color: '#888' }}><strong>Duration:</strong> {lec.duration}</p> */}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
+    if (activeTab === "Overview") {
+      return (course.subjects || []).map((subject, sIdx) => (
+        <div key={subject._id} style={{ marginBottom: 24 }}>
+          <div
+            style={{
+              cursor: "pointer",
+              padding: 12,
+              background: "#f5f6fa",
+              borderRadius: 8,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+            onClick={async () => {
+              const newIndex = sIdx === activeAccordion ? null : sIdx;
+              setActiveAccordion(newIndex);
+              if (newIndex !== null) await handleStartSubject(subject._id);
+            }}
+          >
+            <strong>{subject.subjectName}</strong>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {subject.completed && (
+                <FaCheckCircle style={{ color: "green", marginRight: 10 }} />
+              )}
+              {activeAccordion === sIdx ? <FaChevronUp /> : <FaChevronDown />}
+            </div>
+          </div>
+          {activeAccordion === sIdx && (
+            <div style={{ paddingLeft: 16, marginTop: 8 }}>
+              {(subject.lectures || []).map((lec) => (
+                <div
+                  key={lec._id}
+                  onClick={() => handleStartLecture(subject._id, lec._id)}
+                  style={{
+                    padding: 12,
+                    borderBottom: "1px solid #eee",
+                    cursor: "pointer",
+                    backgroundColor:
+                      lec._id === lectureId ? "#e9f5ff" : "transparent",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <p style={{ margin: 0, fontWeight: 500 }}>
+                      {lec.lectureName}{" "}
+                      {lec.completed && (
+                        <FaCheckCircle
+                          style={{ color: "green", marginLeft: 6 }}
+                        />
+                      )}
+                    </p>
+                    <p
+                      dangerouslySetInnerHTML={{ __html: lec.description }}
+                      style={{ margin: "4px 0", color: "#666" }}
+                    />
+                  </div>
                 </div>
-            ));
-        }
+              ))}
+            </div>
+          )}
+        </div>
+      ));
+    }
 
-        return <ContentText>Tab not found.</ContentText>;
-    };
+    if (activeTab === "MockTest") {
+      return renderMockTestsTab();
+    }
 
-    const calculateProgress = () => {
-        if (!course || !course.subjects) return 0;
+    return <ContentText>Tab not found.</ContentText>;
+  };
 
-        let totalLectures = 0;
-        let completed = 0;
+  const calculateProgress = () => {
+    if (!course || !course.subjects) return 0;
 
-        course.subjects.forEach(subject => {
-            if (subject.lectures) {
-                totalLectures += subject.lectures.length;
-                subject.lectures.forEach(lecture => {
-                    if (completedLectures.includes(lecture._id)) completed++;
-                });
-            }
+    let totalLectures = 0;
+    let completed = 0;
+
+    course.subjects.forEach((subject) => {
+      if (subject.lectures) {
+        totalLectures += subject.lectures.length;
+        subject.lectures.forEach((lecture) => {
+          if (completedLectures.includes(lecture._id)) completed++;
         });
+      }
+    });
 
-        return totalLectures > 0 ? Math.round((completed / totalLectures) * 100) : 0;
-    };
+    return totalLectures > 0
+      ? Math.round((completed / totalLectures) * 100)
+      : 0;
+  };
 
-    if (loading) return <Container>Loading...</Container>;
+  if (loading) return <Container>Loading...</Container>;
 
-    const handleReviewSubmit = async ({ rating, review }) => {
-        try {
+  const handleReviewSubmit = async ({ rating, review }) => {
+    try {
+      console.log("Review submitted:");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
 
-            console.log("Review submitted:",);
-            // You might want to show a success message here
-        } catch (error) {
-            console.error("Error submitting review:", error);
-        }
-    };
+  //   const handleFullscreen = () => {
+  //     const container = videoContainerRef.current;
+  //     if (container?.requestFullscreen) container.requestFullscreen();
+  //     else if (container?.webkitRequestFullscreen)
+  //       container.webkitRequestFullscreen();
+  //     else if (container?.msRequestFullscreen) container.msRequestFullscreen();
+  //   };
 
-    const handleFullscreen = () => {
-        const container = videoContainerRef.current;
-        if (container.requestFullscreen) container.requestFullscreen();
-        else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
-        else if (container.msRequestFullscreen) container.msRequestFullscreen();
-    };
+  const handleFullscreen = () => {
+    const el = videoContainerRef.current;
+    if (!el) return;
 
-    return (
-        <MainContainer>
-        {/* <Container> */}
-            <VideoContainer>
+    // Toggle: exit if already in fullscreen, else request
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      return;
+    }
 
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); // Safari
+    else if (el.msRequestFullscreen) el.msRequestFullscreen(); // IE/Edge (old)
+    else if (el.mozRequestFullScreen) el.mozRequestFullScreen(); // Firefox (old)
+  };
 
-                <StyledVideo ref={videoContainerRef}>
-                    {lecture && (
-                        <>
+  return (
+    <MainContainer>
+      <VideoContainer>
+        <StyledVideo ref={videoContainerRef}>
+          {lecture && (
+            <>
+              <VideoPlayerContainer>
+                <VideoPlayer
+                  ref={videoRef}
+                  onError={handleVideoError}
+                  onEnded={handleVideoEnd}
+                  controls
+                  controlsList="nodownload nofullscreen noremoteplayback"
+                  disablePictureInPicture
+                >
+                  {lecture?.videoUrl && !videoError ? (
+                    <source src={lecture.videoUrl} type="video/mp4" />
+                  ) : (
+                    <div className="video-error">
+                      {videoError
+                        ? "Error loading video"
+                        : "Your browser does not support the video tag"}
+                    </div>
+                  )}
+                  {userId && (
+                    <MovingOverlay
+                      style={{
+                        top: `${overlayPosition.top}%`,
+                        left: `${overlayPosition.left}%`,
+                      }}
+                    >
+                      {userPhoneNumber || userId}
+                    </MovingOverlay>
+                  )}
+                </VideoPlayer>
 
+                {/* ✅ Overlay within the same fullscreen container */}
+                {userId && (
+                  <MovingOverlay
+                    style={{
+                      top: `${overlayPosition.top}%`,
+                      left: `${overlayPosition.left}%`,
+                    }}
+                  >
+                    {userPhoneNumber || userId}
+                  </MovingOverlay>
+                )}
+              </VideoPlayerContainer>
+            </>
+          )}
+          {/* Fullscreen button OUTSIDE the video player, exactly below it */}
+          <div
+            style={{ display: "flex", justifyContent: "center", marginTop: 12 }}
+          >
+            <FullscreenButton
+              onClick={handleFullscreen}
+              aria-label={
+                isFullscreen ? "View in Small Screen" : "View Full Screen"
+              }
+            >
+              {isFullscreen ? "View in Small Screen" : "View Full Screen"}
+            </FullscreenButton>
+          </div>
 
-                            <VideoPlayerContainer ref={videoContainerRef}>
-                                <VideoPlayer
-                                    ref={videoRef}
-                                    onError={handleVideoError}
-                                    onEnded={handleVideoEnd}
-                                    // poster={course?.image || ""}
-                                    controls
-                                    controlsList="nodownload nofullscreen noremoteplayback"
-                                    disablePictureInPicture
-                                >
-                                    {lecture?.videoUrl && !videoError ? (
-                                        <source src={lecture.videoUrl} type="video/mp4" />
-                                    ) : (
-                                        <div className="video-error">
-                                            {videoError
-                                                ? "Error loading video"
-                                                : "Your browser does not support the video tag"}
-                                        </div>
-                                    )}
-                                    {userId && (
-                                        <MovingOverlay style={{
-                                            top: `${overlayPosition.top}%`,
-                                            left: `${overlayPosition.left}%`
-                                        }}>
-                                            {userPhoneNumber || userId}
-                                        </MovingOverlay>
-                                    )}
-                                </VideoPlayer>
+          <TopBar>
+            <OverlayText>
+              <h4>{lecture?.lectureName || "Lecture"}</h4>
+            </OverlayText>
+          </TopBar>
+          <BottomTitle>
+            Course: {course?.courseDisplayName || "Course"} | Progress:{" "}
+            {course?.completedPercentage || 0}%
+          </BottomTitle>
+        </StyledVideo>
+      </VideoContainer>
 
-                                {/* ✅ Overlay within the same fullscreen container */}
-                                {userId && (
-                                    <MovingOverlay style={{
-                                        top: `${overlayPosition.top}%`,
-                                        left: `${overlayPosition.left}%`
-                                    }}>
-                                        {userPhoneNumber || userId}
-                                    </MovingOverlay>
-                                )}
-                                {/* ✅ Manual fullscreen button */}
-                                {/* <FullscreenButton onClick={() => {
-                                    const container = videoContainerRef.current;
-                                    if (container.requestFullscreen) container.requestFullscreen();
-                                    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
-                                    else if (container.msRequestFullscreen) container.msRequestFullscreen();
-                                }}>
-                                    Enter Fullscreen
-                                </FullscreenButton> */}
-                            </VideoPlayerContainer>
-                        </>
-                    )}
-
-                    <TopBar>
-                        <OverlayText>
-                            <h4>{lecture?.lectureName || 'Lecture'}</h4>
-                            {/* <Tag>📊 Topic</Tag> */}
-                        </OverlayText>
-                        {/* <PhoneNumber>
-                            <FaUser style={{ marginRight: '8px' }} />
-                            {course?.student_enrolled?.length || 0} students enrolled
-                        </PhoneNumber> */}
-                    </TopBar>
-                    <BottomTitle>
-                        Course: {course?.courseDisplayName || 'Course'} |
-                        Progress: {course.completedPercentage || 0}%
-                    </BottomTitle>
-                </StyledVideo>
-            </VideoContainer>
-
-            <TabContentWrapper ref={tabContentRef}>
-                <ButtonGroup>
-                    <ActionButton active={activeTab === 'Overview'} onClick={() => setActiveTab('Overview')}>
-                        Overview
-                    </ActionButton>
-                    <ActionButton active={activeTab === 'Notes'} onClick={() => setActiveTab('Notes')}>
-                        Notes ({course?.no_of_notes || 0})
-                    </ActionButton>
-                </ButtonGroup>
-                {renderTabContent()}
-            </TabContentWrapper>
-
-        {/* </Container> */}
-        </MainContainer>
-
-    );
+      <TabContentWrapper ref={tabContentRef}>
+        <ButtonGroup>
+          <ActionButton
+            active={activeTab === "Overview"}
+            onClick={() => setActiveTab("Overview")}
+          >
+            Video lectures
+          </ActionButton>
+          <ActionButton
+            active={activeTab === "Notes"}
+            onClick={() => setActiveTab("Notes")}
+          >
+            Notes ({course?.no_of_notes || 0})
+          </ActionButton>
+          <ActionButton
+            active={activeTab === "MockTest"}
+            onClick={() => setActiveTab("MockTest")}
+          >
+            Mock Test
+          </ActionButton>
+        </ButtonGroup>
+        {renderTabContent()}
+      </TabContentWrapper>
+    </MainContainer>
+  );
 };
 
 export default CoursesLiveclass;

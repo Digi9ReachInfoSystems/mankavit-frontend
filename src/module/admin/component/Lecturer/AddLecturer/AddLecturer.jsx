@@ -235,7 +235,7 @@ export default function AddLecturer() {
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
-                      <div>
+                      {/* <div>
                         <MoveButton 
                         style={
                           {backgroundColor:"green"}
@@ -255,7 +255,7 @@ export default function AddLecturer() {
                         >
                           <FaArrowDown />
                         </MoveButton>
-                      </div>
+                      </div> */}
                     </SelectedSubjectItem>
                   ))
                 ) : (

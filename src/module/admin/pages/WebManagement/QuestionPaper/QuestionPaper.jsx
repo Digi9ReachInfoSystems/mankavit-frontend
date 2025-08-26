@@ -15,7 +15,7 @@ import {
   ButtonContainer,
   Container,
   HeaderRow,
-  Title
+  Title,
 } from "../QuestionPaper/QuestionPaper.style";
 import Pagination from "../../../component/Pagination/Pagination";
 import { useNavigate } from "react-router-dom";
@@ -25,11 +25,11 @@ import { IoEyeOutline } from "react-icons/io5";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import {
   getAllQuestionPapers,
-  deleteQuestionPaper
+  deleteQuestionPaper,
 } from "../../../../../api/questionPaperApi";
 import { notification } from "antd";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { getAuth } from "../../../../../utils/authService";
 
@@ -41,7 +41,8 @@ const QuestionPaper = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  // const [deleteId, setDeleteId] = useState(null);
+  const [deleteTitle, setDeleteTitle] = useState(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   useEffect(() => {
     const apiCaller = async () => {
@@ -52,7 +53,7 @@ const QuestionPaper = () => {
       } else {
         setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
       }
-    }
+    };
     apiCaller();
   }, []);
 
@@ -63,7 +64,7 @@ const QuestionPaper = () => {
     if (item._id && item._id.length >= 8) {
       return parseInt(item._id.substring(0, 8), 16) * 1000; // fallback
     }
-    return 0;                       // unknown → oldest
+    return 0; // unknown → oldest
   };
 
   useEffect(() => {
@@ -71,14 +72,15 @@ const QuestionPaper = () => {
       try {
         setLoading(true);
         const response = await getAllQuestionPapers();
-        const sorted = (response.data ?? response).sort((a, b) => ts(b) - ts(a));
+        const sorted = (response.data ?? response).sort(
+          (a, b) => ts(b) - ts(a)
+        );
         setData(sorted);
-
       } catch (error) {
         console.error("Error fetching question papers:", error);
         notification.error({
           message: "Error",
-          description: "Failed to fetch question papers"
+          description: "Failed to fetch question papers",
         });
       } finally {
         setLoading(false);
@@ -94,27 +96,28 @@ const QuestionPaper = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleDelete = (id) => {
-    setDeleteId(id);
+  const handleDelete = (title) => {
+    setDeleteTitle(title);
     setModal(true);
   };
+
 
   const handleConfirmDelete = async () => {
     try {
       setLoading(true);
-      await deleteQuestionPaper(deleteId);
+   await deleteQuestionPaper(deleteTitle);
       setData((prev) =>
         prev
-          .filter((item) => item._id !== deleteId)
-          .sort((a, b) => ts(b) - ts(a))
-      );
+       .filter((item) => item.title !== deleteTitle)
+       .sort((a, b) => ts(b) - ts(a))
+    );
       toast.success("Data deleted successfully");
     } catch (error) {
       console.error("Error deleting question paper:", error);
       toast.error("Failed to delete. Please try again");
     } finally {
       setModal(false);
-      setDeleteId(null);
+      setDeleteTitle(null);
       setLoading(false);
     }
   };
@@ -125,7 +128,6 @@ const QuestionPaper = () => {
 
   return (
     <>
-
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -136,19 +138,19 @@ const QuestionPaper = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme='colored'
+        theme="colored"
       />
-      {
-        !readOnlyPermissions && (
-          <ButtonContainer>
-            <CreateButton onClick={() => navigate("/admin/web-management/question-paper/create")}>
-              Add Question Paper
-            </CreateButton>
-          </ButtonContainer>
-        )
-      }
-
-
+      {!readOnlyPermissions && (
+        <ButtonContainer>
+          <CreateButton
+            onClick={() =>
+              navigate("/admin/web-management/question-paper/create")
+            }
+          >
+            Add Question Paper
+          </CreateButton>
+        </ButtonContainer>
+      )}
 
       <Container>
         <HeaderRow>
@@ -160,56 +162,62 @@ const QuestionPaper = () => {
             <TableHead>
               <tr>
                 <TableHeader>Title</TableHeader>
-                <TableHeader>Description</TableHeader>
-                <TableHeader>View PDF</TableHeader>
+                {/* <TableHeader>Description</TableHeader> */}
+
                 <TableHeader>Year</TableHeader>
+                <TableHeader>View PDF</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </tr>
             </TableHead>
             <TableBody>
-              {currentItems.map((row) => (
-                <TableRow key={row._id}>
-                  <TableCell>{row.title}</TableCell>
-                  <TableCell>{row.description}</TableCell>
-                  <TableCell>
-                    <PdfLink href={row.question_url} target="_blank" rel="noopener noreferrer">
-                      View
-                    </PdfLink>
-                  </TableCell>
-                  <TableCell>{row.year}</TableCell>
-                  <TableCell>
-                    <ActionsWrapper>
-                      <IoEyeOutline
-                        title="View"
-                        size={20}
-                        color="#000"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleViewClick(row)}
-                      />{
-                        !readOnlyPermissions && (
+              {currentItems.map((row) =>
+                (row.papers || []).map((paper) => (
+                  <TableRow key={`${row._id}-${paper.year}`}>
+                    <TableCell>{row.title}</TableCell>
+                    {/* <TableCell>{paper.description}</TableCell> */}
+                    <TableCell>{paper.year}</TableCell>
+                    <TableCell>
+                      <PdfLink
+                        href={paper.question_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View
+                      </PdfLink>
+                    </TableCell>
+
+                    <TableCell>
+                      <ActionsWrapper>
+                      
+                        {!readOnlyPermissions && (
                           <>
-                            <BiEditAlt
+                            {/* <BiEditAlt
                               title="Edit"
                               size={20}
                               color="#000"
                               style={{ cursor: "pointer" }}
-                              onClick={() => navigate(`/admin/web-management/question-paper/edit/${row._id}`)}
-                            />
+                              onClick={() =>
+                                navigate(
+                                  `/admin/web-management/question-paper/edit/${encodeURIComponent(
+                                    row.title
+                                  )}/${paper.year}`
+                                )
+                              }
+                            /> */}
                             <RiDeleteBin6Line
-                              title="Delete"
+                              title="Delete Title"
                               size={20}
                               color="#FB4F4F"
                               style={{ cursor: "pointer" }}
-                              onClick={() => handleDelete(row._id)}
+                          onClick={() => handleDelete(row.title)}
                             />
                           </>
-                        )
-                      }
-
-                    </ActionsWrapper>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        )}
+                      </ActionsWrapper>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </StyledTable>
         </TableWrapper>
@@ -221,7 +229,6 @@ const QuestionPaper = () => {
           totalItems={data.length}
           itemsPerPage={ITEMS_PER_PAGE}
         />
-
       </Container>
 
       {modal && (

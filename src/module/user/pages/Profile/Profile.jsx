@@ -40,41 +40,55 @@ import {
   updateUserById,
   verifyChangePasswordOtp,
 } from "../../../../api/authApi";
+import { createKycApi, getKYCbyUserId } from "../../../../api/kycApi"; // <-- make sure these paths are correct
 import { uploadFileToAzureStorage } from "../../../../utils/azureStorageService";
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+const DISABLE_WHEN = ["pending", "approved"]; // read-only in these states
+
 const Profile = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // user id from route
   const navigate = useNavigate();
 
   const profilePhotoInputRef = useRef(null);
   const passportPhotoInputRef = useRef(null);
   const idProofInputRef = useRef(null);
 
+  // read-only profile info coming from User service
   const [profileData, setProfileData] = useState({
     name: "",
     email: "",
     mobile: "",
-    fathers_name: "",
-    fathers_occupation: "",
-    current_occupation: "",
-    present_address: "",
-    passing_year: "",
-    college_name: "",
-    date_of_birth: "",
   });
 
+  // KYC form state
+  const [kycData, setKycData] = useState({
+    fathers_name: "",
+    fathers_occupation: "",
+    current_occupation: "", // either "LLB" or free text via Other
+    present_address: "",
+    date_of_birth: "",
+    how_did_you_get_to_know_us: "",
+  });
+
+  const [currentOccupationType, setCurrentOccupationType] = useState("LLB"); // "LLB" | "Other"
+
   const [profileImage, setProfileImage] = useState(profilePlaceholder);
-  const [passportPhoto, setPassportPhoto] = useState(null);
-  const [uploadedIDProof, setUploadedIDProof] = useState(null);
+  const [passportPhoto, setPassportPhoto] = useState(null); // {name,url,type}
+  const [uploadedIDProof, setUploadedIDProof] = useState(null); // {name,url,type}
 
   const [modalFile, setModalFile] = useState(null);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // KYC status and editability
+  const [kycStatus, setKycStatus] = useState("not-applied");
+  const [isKycReadOnly, setIsKycReadOnly] = useState(false);
+
+  // Password modal state (unchanged)
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [otp, setOtp] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -82,26 +96,39 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordModalError, setPasswordModalError] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0); // seconds remaining
+  const [resendTimer, setResendTimer] = useState(0);
   const resendTimerRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  // put this near the top, after other imports/state
+  const HOW_OPTIONS = [
+    "Instagram",
+    "Telegram",
+    "Facebook",
+    "WhatsApp",
+    "YouTube",
+    "Website",
+    "Friend",
+    "Other",
+  ];
 
+  // NEW: local state for the source select + the 'Other' text
+  const [howSource, setHowSource] = useState("Instagram");
+  const [howOther, setHowOther] = useState("");
+
+  // restore resend OTP countdown if needed
   useEffect(() => {
     const savedTime = localStorage.getItem("otp_expiry");
     if (savedTime) {
       const remaining = Math.floor((parseInt(savedTime) - Date.now()) / 1000);
       if (remaining > 0) {
-        // setIsOtpSent(true);
         setResendTimer(remaining);
         startCountdown(remaining);
       }
     }
   }, []);
-  useEffect(() => {
-    return () => clearInterval(resendTimerRef.current);
-  }, []);
+  useEffect(() => () => clearInterval(resendTimerRef.current), []);
 
   const startCountdown = (initial) => {
     setResendTimer(initial);
@@ -110,7 +137,6 @@ const Profile = () => {
         if (prev <= 1) {
           clearInterval(resendTimerRef.current);
           localStorage.removeItem("otp_expiry");
-          // setIsOtpSent(false);
           return 0;
         }
         return prev - 1;
@@ -118,85 +144,122 @@ const Profile = () => {
     }, 1000);
   };
 
+  // bootstrap: load user basics + existing KYC (if any)
   useEffect(() => {
     if (!id) {
       navigate("/error");
       return;
     }
+
     (async () => {
       setIsLoading(true);
       try {
-        const resp = await getUserByUserId(id);
-        // console.log('resp', resp);
-        if (!resp.success || !resp.user) {
+        // 1) Load User for read-only header fields
+        const userResp = await getUserByUserId(id);
+        if (!userResp.success || !userResp.user)
           throw new Error("User not found");
-        }
-        const u = resp.user;
+        const u = userResp.user;
         setProfileData({
           name: u.displayName || "",
           email: u.email || "",
           mobile: u.phone?.startsWith("+91") ? u.phone.slice(3) : u.phone || "",
-
-          fathers_name: u.fathers_name || "",
-          fathers_occupation: u.fathers_occupation || "",
-          current_occupation: u.current_occupation || "",
-          present_address: u.present_address || "",
-          passing_year: u.passing_year || "",
-          college_name: u.college_name || "",
-          date_of_birth: u.date_of_birth ? u.date_of_birth.slice(0, 10) : '',
-
         });
         setProfileImage(u.photo_url || profilePlaceholder);
 
-        if (u.passportPhotoUrl) {
-          setPassportPhoto({
-            name: "Passport Photo",
-            url: u.passportPhotoUrl,
-            type: "image/*",
-          });
+        // 2) Try fetch KYC for this user
+        let userIdForKyc = id;
+        try {
+          const cookies = await getCookiesData();
+          if (cookies?.userId) userIdForKyc = cookies.userId;
+        } catch {
+          // ignore
         }
-        if (u.idProofUrl) {
-          setUploadedIDProof({
-            name: "ID Proof",
-            url: u.idProofUrl,
-            type: u.idProofUrl.endsWith(".pdf") ? "application/pdf" : "image/*",
-          });
+
+        try {
+          const kycResp = await getKYCbyUserId(userIdForKyc);
+          // If exists, show values and set editability per status
+          if (kycResp?.success && kycResp?.data) {
+            const k = kycResp.data;
+            setKycStatus(k.status || "pending");
+            setIsKycReadOnly(DISABLE_WHEN.includes(k.status));
+
+            setKycData({
+              fathers_name: k.fathers_name || "",
+              fathers_occupation: k.fathers_occupation || "",
+              current_occupation: k.current_occupation || "",
+              present_address: k.present_address || "",
+              date_of_birth: k.date_of_birth
+                ? new Date(k.date_of_birth).toISOString().slice(0, 10)
+                : "",
+              how_did_you_get_to_know_us: k.how_did_you_get_to_know_us || "",
+            });
+
+            // files
+            if (k.passport_photo) {
+              setPassportPhoto({
+                name: "Passport Photo",
+                url: k.passport_photo,
+                type: "image/*",
+              });
+            }
+            if (k.id_proof) {
+              setUploadedIDProof({
+                name: "ID Proof",
+                url: k.id_proof,
+                type: k.id_proof.endsWith(".pdf")
+                  ? "application/pdf"
+                  : "image/*",
+              });
+            }
+
+            // occupation type prefill
+            setCurrentOccupationType(
+              k.current_occupation &&
+                k.current_occupation.toLowerCase() !== "llb"
+                ? "Other"
+                : "LLB"
+            );
+            // Seed "How did you get to know us?" using the fetched KYC record
+            const rawSrc = (k.how_did_you_get_to_know_us || "").trim();
+            const matched = HOW_OPTIONS.find(
+              (opt) => opt.toLowerCase() === rawSrc.toLowerCase()
+            );
+            if (matched) {
+              setHowSource(matched);
+              setHowOther("");
+            } else if (rawSrc) {
+              setHowSource("Other");
+              setHowOther(rawSrc);
+            } else {
+              setHowSource("Instagram");
+              setHowOther("");
+            }
+          }
+        } catch (e) {
+          // No KYC yet (404) -> keep as not-applied, editable
+          setKycStatus("not-applied");
+          setIsKycReadOnly(false);
         }
       } catch (err) {
         console.error(err);
-        setError(err.message);
+        setError(err.message || "Failed to load profile");
       } finally {
         setIsLoading(false);
       }
     })();
   }, [id, navigate]);
 
+  // file pickers
   const handleProfilePhotoUploadClick = () =>
-    profilePhotoInputRef.current.click();
+    profilePhotoInputRef.current?.click();
   const handlePassportPhotoUploadClick = () =>
-    passportPhotoInputRef.current.click();
-  const handleIDProofUploadClick = () => idProofInputRef.current.click();
-
-  // const handleProfilePhotoFileChange = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file?.type.startsWith('image/')) {
-  //     return alert('Select a valid image');
-  //   }
-  //   setIsLoading(true);
-  //   try {
-  //     // Upload to 'profile' container in Azure Storage
-  //     const { blobUrl, url } = await uploadFileToAzureStorage(file, 'profile');
-  //     setProfileImage(blobUrl || url);
-  //   } catch {
-  //     alert('Upload failed');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+    passportPhotoInputRef.current?.click();
+  const handleIDProofUploadClick = () => idProofInputRef.current?.click();
 
   const handlePassportPhotoFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file?.type.startsWith("image/")) return alert("Select a valid image");
+    const file = e.target.files?.[0];
+    if (!file?.type.startsWith("image/"))
+      return toast.error("Select a valid image");
     setIsLoading(true);
     try {
       const { blobUrl, url } = await uploadFileToAzureStorage(file, "users");
@@ -206,7 +269,6 @@ const Profile = () => {
         type: file.type,
       });
     } catch {
-      // alert('Upload failed');
       toast.error("Upload failed");
     } finally {
       setIsLoading(false);
@@ -214,7 +276,7 @@ const Profile = () => {
   };
 
   const handleIDProofFileChange = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
     setIsLoading(true);
     try {
@@ -225,7 +287,6 @@ const Profile = () => {
         type: file.type,
       });
     } catch {
-      // alert('Upload failed');
       toast.error("Upload failed");
     } finally {
       setIsLoading(false);
@@ -234,125 +295,153 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "mobile") {
-      const digits = value.replace(/\D/g, "").slice(0, 10);
-      setProfileData((p) => ({ ...p, mobile: digits }));
-    } else if (name === "name") {
-      const letters = value.replace(/[^a-zA-Z\s]/g, "");
-      setProfileData((p) => ({ ...p, name: letters }));
-    } else {
-      setProfileData((p) => ({ ...p, [name]: value }));
+    // only KYC fields are editable here
+    if (name === "date_of_birth") {
+      setKycData((p) => ({ ...p, [name]: value }));
+      return;
     }
+    setKycData((p) => ({ ...p, [name]: value }));
   };
 
   const handleFileClick = (file) => setModalFile(file);
   const closeModal = () => setModalFile(null);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   try {
-  //     const updateData = {
-  //       displayName: profileData.name,
-  //       phone: profileData.mobile ? `+91${profileData.mobile}` : '',
-  //       photo_url: profileImage !== profilePlaceholder ? profileImage : '',
-  //       email: profileData.email
-  //     };
-
-  //     const response = await updateUserById(id, updateData);
-
-  //     if (!response.success) {
-  //       throw new Error(response.message || 'Failed to update user');
-  //     }
-
-  //     setShowSuccessGif(true);
-  //     setTimeout(() => setShowSuccessGif(false), 3000);
-  //   } catch (error) {
-  //     console.error('Update error:', error);
-  //     setError(error.message || 'Failed to update user');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-  // Update the handleProfilePhotoFileChange function
+  // Upload avatar (optional; still updates user photo_url)
   const handleProfilePhotoFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file?.type.startsWith("image/")) {
-      return alert("Please select a valid image file (JPEG, PNG)");
-    }
+    const file = e.target.files?.[0];
+    if (!file?.type.startsWith("image/"))
+      return toast.error("Please select an image");
     setIsLoading(true);
     try {
       const data = await uploadFileToAzureStorage(file, "profile");
       setProfileImage(data.blobUrl);
-      return data.blobUrl; // Return the URL so we can use it in handleSubmit
     } catch (error) {
-      // console.error('Upload error:', error);
-      // alert('Profile photo upload failed. Please try again.');
       toast.error("Profile photo upload failed. Please try again.");
-      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Update the handleSubmit function
-  const handleSubmit = async (e) => {
-    // console.log('Profile Image:', profileImage);
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
+  // Save avatar to user (optional and separate from KYC)
+  // Save avatar to user (optional and separate from KYC)
+  const handleSaveUserAvatar = async () => {
     try {
-      // Prepare the update data
-      const updateData = {
-        displayName: profileData.name.trim(),
-        phone: profileData.mobile ? `${profileData.mobile}` : "",
-        email: profileData.email.trim(),
-        fathers_name: profileData.fathers_name.trim(),
-        fathers_occupation: profileData.fathers_occupation.trim(),
-        current_occupation: profileData.current_occupation.trim(),
-        // permanent_address: profileData.permanent_address.trim(),
-        present_address: profileData.present_address.trim(),
-        passing_year: profileData.passing_year.trim(),
-        college_name: profileData.college_name.trim(),
-        date_of_birth: profileData.date_of_birth
-          ? new Date(profileData.date_of_birth).toISOString()
-          : null,
+      const payload = {
         photo_url: profileImage !== profilePlaceholder ? profileImage : "",
       };
-      console.log("Update Data:", updateData);
-      // Validate required fields
-      if (!updateData.displayName) {
-        throw new Error("Full name is required");
-      }
-      if (!updateData.email) {
-        throw new Error("Email is required");
-      }
+      const resp = await updateUserById(id, payload);
+      if (!resp.success)
+        throw new Error(resp.message || "Failed to update profile photo");
 
-      // console.log('Submitting update:', updateData); // Debug log
+      toast.success("Profile photo updated");
 
-      const response = await updateUserById(id, updateData);
-      // console.log('Update response:', response);
+      // reload the page to reflect everywhere
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // small delay to show toast
+    } catch (err) {
+      toast.error(err.message || "Could not update profile photo");
+    }
+  };
 
-      if (!response.success) {
-        throw new Error(response.message || "Failed to update user profile");
+  const validateKyc = () => {
+    if (!uploadedIDProof?.url) return "ID Proof is required";
+    if (!passportPhoto?.url) return "Passport photo is required";
+    if (!kycData.date_of_birth) return "Date of birth is required";
+    if (!kycData.fathers_name?.trim()) return "Father's name is required";
+    if (!kycData.fathers_occupation?.trim())
+      return "Father's occupation is required";
+    if (!kycData.present_address?.trim()) return "Present address is required";
+    const occ =
+      currentOccupationType === "LLB"
+        ? "LLB"
+        : kycData.current_occupation?.trim();
+    if (!occ) return "Current occupation is required";
+
+    const src = howSource === "Other" ? howOther.trim() : howSource;
+    if (!src) return "Please tell us how you got to know us";
+
+    return null;
+  };
+
+  // Treat anything ending in .pdf or with application/pdf as a PDF
+const isPdfFile = (file) =>
+  !!file &&
+  (file.type === "application/pdf" ||
+    (typeof file.url === "string" && file.url.toLowerCase().endsWith(".pdf")));
+
+
+  // Submit KYC: create or update via createKycApi (backend upserts)
+  const handleSubmitKyc = async (e) => {
+    e.preventDefault();
+
+    // lock form if read-only and not rejected
+    if (isKycReadOnly && kycStatus !== "rejected") {
+      toast.info("KYC is already submitted");
+      return;
+    }
+
+    const validationError = validateKyc();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    try {
+      // let userIdForKyc = id;
+      // const cookies = await getCookiesData().catch(() => null);
+      // if (cookies?.userId) userIdForKyc = cookies.userId;
+      let userIdForKyc = id;
+      try {
+        const cookies = await getCookiesData(); // or just getCookiesData() if it’s sync
+        if (cookies?.userId) userIdForKyc = cookies.userId;
+      } catch {
+        // ignore, keep fallback id
       }
+      const src = howSource === "Other" ? howOther.trim() : howSource;
+
+      const payload = {
+        id_proof: uploadedIDProof.url,
+        passport_photo: passportPhoto.url,
+        userref: userIdForKyc,
+        date_of_birth: new Date(kycData.date_of_birth).toISOString(),
+        fathers_name: kycData.fathers_name.trim(),
+        fathers_occupation: kycData.fathers_occupation.trim(),
+        present_address: kycData.present_address.trim(),
+        current_occupation:
+          currentOccupationType === "LLB"
+            ? "LLB"
+            : (kycData.current_occupation || "").trim(),
+        how_did_you_get_to_know_us: src, // <— HERE
+      };
+
+      const resp = await createKycApi(payload);
+
+      if (!resp?.success)
+        throw new Error(resp?.message || "Failed to submit KYC");
 
       setShowSuccessGif(true);
-      setTimeout(() => setShowSuccessGif(false), 1000);
-    } catch (error) {
-      console.error("Update error:", error);
-      setError(error.message || "Failed to update profile. Please try again.");
+      setTimeout(() => setShowSuccessGif(false), 1200);
+
+      // After submit, lock the form (pending)
+      setKycStatus(resp?.data?.status || "pending");
+      setIsKycReadOnly(true);
+      toast.success(resp.message || "KYC submitted successfully");
+    } catch (err) {
+      console.error("KYC submit error:", err);
+      setError(err.message || "Failed to submit KYC. Please try again.");
+      toast.error(err.message || "Failed to submit KYC");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoading) return <div>Loading…</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (isLoading && !showSuccessGif) return <div>Loading…</div>;
+  if (error && !showSuccessGif) return <div>Error: {error}</div>;
 
   const handleResendOtp = async () => {
-    // console.log('handleResendOtp');
     try {
       const cookiesData = await getCookiesData();
       const response = await resendChangePasswordOtp({
@@ -360,14 +449,11 @@ const Profile = () => {
       });
       if (response.success) {
         toast.success("OTP has been sent to your phone number successfully");
-        // setIsOtpSent(true);
-
         const expiryTime = Date.now() + 60 * 1000; // 1 minute
         localStorage.setItem("otp_expiry", expiryTime.toString());
-
         setIsOtpSent(true);
         setResendTimer(60);
-        clearInterval(resendTimerRef.current); // clear existing
+        clearInterval(resendTimerRef.current);
         startCountdown(60);
       }
     } catch (err) {
@@ -378,37 +464,25 @@ const Profile = () => {
 
   const handleSavePassword = async () => {
     setPasswordModalError("");
-
-    if (!otp || !currentPassword || !newPassword || !confirmPassword) {
+    if (!otp || !currentPassword || !newPassword || !confirmPassword)
       return setPasswordModalError("All fields are required");
-    }
-
-    if (newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword)
       return setPasswordModalError("Passwords do not match");
-    }
-    if (otp.length !== 6) {
+    if (otp.length !== 6 || isNaN(otp))
       return setPasswordModalError("OTP must be 6 digits");
-    }
-    if (isNaN(otp)) {
-      return setPasswordModalError("OTP must be 6 digits");
-    }
-
-    if (newPassword.length < 6) {
+    if (newPassword.length < 6)
       return setPasswordModalError("Password must be at least 6 characters");
-    }
 
     try {
-      // Call your API to update the password here
       const cookiesData = await getCookiesData();
-      const response = await verifyChangePasswordOtp({
+      await verifyChangePasswordOtp({
         userId: cookiesData.userId,
         Otp: otp,
-        currentPassword: currentPassword,
-        newPassword: newPassword,
-        confirmPassword: confirmPassword,
+        currentPassword,
+        newPassword,
+        confirmPassword,
       });
       setShowPasswordModal(false);
-      // Optionally reset fields:
       setOtp("");
       setCurrentPassword("");
       setNewPassword("");
@@ -423,23 +497,20 @@ const Profile = () => {
       setPasswordModalError("Failed to update password");
     }
   };
+
   const handleChangePasswordClick = async () => {
     try {
       const coookiesData = await getCookiesData();
       const response = await changePasswordOtpSend({
         userId: coookiesData.userId,
       });
-      console.log("response", response);
       if (response.success) {
         toast.success("OTP has been sent to your phone number successfully ");
         setIsOtpSent(true);
         const expiryTime = Date.now() + 60 * 1000; // 1 minute
         localStorage.setItem("otp_expiry", expiryTime.toString());
-
-        setIsOtpSent(true);
-        console.log("isOtpSent", isOtpSent);
         setResendTimer(60);
-        clearInterval(resendTimerRef.current); // clear existing
+        clearInterval(resendTimerRef.current);
         startCountdown(60);
       }
     } catch (err) {
@@ -454,11 +525,11 @@ const Profile = () => {
       {showSuccessGif ? (
         <UpdatedGif>
           <img src={profileUpdatedGif} alt="Updated" />
-          <p>Profile Updated</p>
+          <p>{kycStatus === "not-applied" ? "KYC Submitted" : "Updated"}</p>
         </UpdatedGif>
       ) : (
-        <Form onSubmit={handleSubmit}>
-          {/* Profile Photo */}
+        <Form onSubmit={handleSubmitKyc}>
+          {/* Header: Profile Photo + Save Avatar (optional) */}
           <div style={{ position: "relative", display: "inline-block" }}>
             <ProfileImage src={profileImage} alt="Profile" />
             <CameraImage
@@ -473,17 +544,22 @@ const Profile = () => {
               accept="image/*"
               onChange={handleProfilePhotoFileChange}
             />
+            <div style={{ marginTop: 8 }}>
+              <SubmitButton
+                type="button"
+                disabled={isLoading}
+                onClick={handleSaveUserAvatar}
+              >
+                Save Avatar
+              </SubmitButton>
+            </div>
           </div>
 
           <FormWrapper>
+            {/* Read-only user basics */}
             <InputGroup>
               <Label>Full Name</Label>
-              <InputField
-                name="name"
-                value={profileData.name}
-                // onChange={handleInputChange}
-                disabled
-              />
+              <InputField name="name" value={profileData.name} disabled />
             </InputGroup>
 
             <FlexRow>
@@ -493,7 +569,6 @@ const Profile = () => {
                   type="email"
                   name="email"
                   value={profileData.email}
-                  // onChange={handleInputChange}
                   disabled
                 />
               </InputGroup>
@@ -505,140 +580,348 @@ const Profile = () => {
                   <MobileNumberInput
                     name="mobile"
                     value={profileData.mobile}
-                    // onChange={handleInputChange}
                     disabled
                   />
                 </MobileInputContainer>
               </InputGroup>
             </FlexRow>
-<FlexRow>
-            <InputGroup>
-              <Label>Father's name</Label>
-              <InputField
-                name="fathers_name"
-                value={profileData.fathers_name}
-                onChange={handleInputChange}
-                // disabled
-              />
-            </InputGroup>
-            <InputGroup>
-              <Label>Father's occupation</Label>
-              <InputField
-                name="fathers_occupation"
-                value={profileData.fathers_occupation}
-                onChange={handleInputChange}
-                // disabled
-              />
-            </InputGroup>
-            </FlexRow>
-            <FlexRow>
-            <InputGroup>
-              <Label>Cuurent occupation</Label>
-              <InputField
-                name="current_occupation"
-                value={profileData.current_occupation}
-                onChange={handleInputChange}
-                // disabled
-              />
-            </InputGroup>
 
-            <InputGroup>
-              <Label>Present address</Label>
-              <InputField
-                name="present_address"
-                value={profileData.present_address}
-                onChange={handleInputChange}
-                // disabled
-              />
-            </InputGroup>
-            </FlexRow>
+            {/* KYC fields */}
             <FlexRow>
-            <InputGroup>
-              <Label>Passing year</Label>
-              <InputField
-                name="passing_year"
-                ///only numbers are allowed
-                value={profileData.passing_year}
-                onChange={handleInputChange}
-                // disabled
-              />
-            </InputGroup>
+              <InputGroup>
+                <Label>Father's name</Label>
+                <InputField
+                  name="fathers_name"
+                  value={kycData.fathers_name}
+                  onChange={handleInputChange}
+                  disabled={isKycReadOnly}
+                />
+              </InputGroup>
+              <InputGroup>
+                <Label>Father's occupation</Label>
+                <InputField
+                  name="fathers_occupation"
+                  value={kycData.fathers_occupation}
+                  onChange={handleInputChange}
+                  disabled={isKycReadOnly}
+                />
+              </InputGroup>
+            </FlexRow>
 
-            <InputGroup>
-              <Label>Date of birth</Label>
-              <InputField
-                type="date"
-                name="date_of_birth"
-                value={profileData.date_of_birth}
-                onChange={handleInputChange}
-              />
-            </InputGroup>
-</FlexRow>
-            {/* <FlexRow>
+            <FlexRow>
+              <InputGroup>
+                <Label>Current occupation</Label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <select
+                    value={currentOccupationType}
+                    onChange={(e) => setCurrentOccupationType(e.target.value)}
+                    disabled={isKycReadOnly}
+                    style={{
+                      padding: "10px",
+                      borderRadius: 8,
+                      border: "1px solid #ddd",
+                    }}
+                  >
+                    <option value="LLB">LLB</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  {currentOccupationType === "Other" && (
+                    <InputField
+                      name="current_occupation"
+                      placeholder="Enter occupation"
+                      value={kycData.current_occupation}
+                      onChange={handleInputChange}
+                      disabled={isKycReadOnly}
+                    />
+                  )}
+                </div>
+              </InputGroup>
+
+              <InputGroup>
+                <Label>Present address</Label>
+                <InputField
+                  name="present_address"
+                  value={kycData.present_address}
+                  onChange={handleInputChange}
+                  disabled={isKycReadOnly}
+                />
+              </InputGroup>
+            </FlexRow>
+
+            <FlexRow>
+              <InputGroup>
+                <Label>Date of birth</Label>
+                <InputField
+                  type="date"
+                  name="date_of_birth"
+                  value={kycData.date_of_birth}
+                  onChange={handleInputChange}
+                  disabled={isKycReadOnly}
+                />
+              </InputGroup>
+              <InputGroup>
+                <Label>How did you get to know us?</Label>
+                <div
+                  style={{ display: "flex", gap: 8, alignItems: "flex-start" }}
+                >
+                  <select
+                    value={howSource}
+                    onChange={(e) => setHowSource(e.target.value)}
+                    disabled={isKycReadOnly}
+                    style={{
+                      padding: "10px",
+                      borderRadius: 8,
+                      border: "1px solid #ddd",
+                      minWidth: 220,
+                    }}
+                  >
+                    {HOW_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+
+                  {howSource === "Other" && (
+                    <InputField
+                      as="textarea"
+                      rows={3}
+                      placeholder="Please specify…"
+                      value={howOther}
+                      onChange={(e) => setHowOther(e.target.value)}
+                      disabled={isKycReadOnly}
+                      style={{ flex: 1 }}
+                    />
+                  )}
+                </div>
+              </InputGroup>
+            </FlexRow>
+
+            {/* File uploads for KYC */}
+            {/* File uploads for KYC */}
+            <FlexRow>
+              {/* Passport Photo */}
               <UploadSection>
                 <Label>Passport Photo</Label>
-                <FlexUpload>
-                  <UploadButton onClick={handlePassportPhotoUploadClick}>
-                    <MdOutlineFileUpload /> Upload
-                  </UploadButton>
-                  <BrowseButton onClick={handlePassportPhotoUploadClick}>
-                    Browse
-                  </BrowseButton>
-                </FlexUpload>
-                <input
-                  type="file"
-                  ref={passportPhotoInputRef}
-                  style={{ display: 'none' }}
-                  accept="image/*"
-                  onChange={handlePassportPhotoFileChange}
-                />
-                {passportPhoto && (
-                  <UploadedFileName onClick={() => handleFileClick(passportPhoto)}>
-                    {passportPhoto.name}
-                  </UploadedFileName>
+
+                {isKycReadOnly ? (
+                  // READ-ONLY: show small preview only
+                  passportPhoto ? (
+                    <div
+                      onClick={() => handleFileClick(passportPhoto)}
+                      style={{
+                        width: 140,
+                        border: "1px solid #eee",
+                        borderRadius: 8,
+                        padding: 8,
+                        cursor: "pointer",
+                        display: "inline-block",
+                        background: "#fafafa",
+                      }}
+                    >
+                      <img
+                        src={passportPhoto.url}
+                        alt="Passport Photo"
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          borderRadius: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontSize: 12,
+                          textAlign: "center",
+                        }}
+                      >
+                        Passport Photo
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "#888" }}>
+                      No passport photo
+                    </div>
+                  )
+                ) : (
+                  // EDITABLE: show upload controls
+                  <>
+                    <FlexUpload>
+                      <UploadButton
+                        onClick={handlePassportPhotoUploadClick}
+                        disabled={isKycReadOnly}
+                      >
+                        <MdOutlineFileUpload /> Upload
+                      </UploadButton>
+                      <BrowseButton
+                        onClick={handlePassportPhotoUploadClick}
+                        disabled={isKycReadOnly}
+                      >
+                        Browse
+                      </BrowseButton>
+                    </FlexUpload>
+
+                    <input
+                      type="file"
+                      ref={passportPhotoInputRef}
+                      style={{ display: "none" }}
+                      accept="image/*"
+                      onChange={handlePassportPhotoFileChange}
+                      disabled={isKycReadOnly}
+                    />
+
+                    {passportPhoto && (
+                      <UploadedFileName
+                        onClick={() => handleFileClick(passportPhoto)}
+                      >
+                        {passportPhoto.name}
+                      </UploadedFileName>
+                    )}
+                  </>
                 )}
               </UploadSection>
 
+              {/* ID Proof */}
               <UploadSection>
-                <Label>ID Proof</Label>
-                <FlexUpload>
-                  <UploadButton onClick={handleIDProofUploadClick}>
-                    <MdOutlineFileUpload /> Upload
-                  </UploadButton>
-                  <BrowseButton onClick={handleIDProofUploadClick}>
-                    Browse
-                  </BrowseButton>
-                </FlexUpload>
-                <input
-                  type="file"
-                  ref={idProofInputRef}
-                  style={{ display: 'none' }}
-                  accept="image/*,application/pdf"
-                  onChange={handleIDProofFileChange}
-                />
-                {uploadedIDProof && (
-                  <UploadedFileName onClick={() => handleFileClick(uploadedIDProof)}>
-                    {uploadedIDProof.name}
-                  </UploadedFileName>
+                <Label>ID Proof {isKycReadOnly ? "" : "(image/pdf)"}</Label>
+
+                {isKycReadOnly ? (
+                  // READ-ONLY: show small preview only
+                  uploadedIDProof ? (
+                    <div
+                      onClick={() => handleFileClick(uploadedIDProof)}
+                      style={{
+                        width: 140,
+                        border: "1px solid #eee",
+                        borderRadius: 8,
+                        padding: 8,
+                        cursor: "pointer",
+                        display: "inline-block",
+                        background: "#fafafa",
+                      }}
+                    >
+                      {isPdfFile(uploadedIDProof) ? (
+                        <div
+                          style={{
+                            height: 90,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: 6,
+                            border: "1px dashed #ddd",
+                            fontSize: 12,
+                          }}
+                        >
+                          PDF
+                        </div>
+                      ) : (
+                        <img
+                          src={uploadedIDProof.url}
+                          alt="ID Proof"
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            borderRadius: 6,
+                          }}
+                        />
+                      )}
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontSize: 12,
+                          textAlign: "center",
+                        }}
+                      >
+                        ID Proof
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "#888" }}>
+                      No ID proof
+                    </div>
+                  )
+                ) : (
+                  // EDITABLE: show upload controls
+                  <>
+                    <FlexUpload>
+                      <UploadButton
+                        onClick={handleIDProofUploadClick}
+                        disabled={isKycReadOnly}
+                      >
+                        <MdOutlineFileUpload /> Upload
+                      </UploadButton>
+                      <BrowseButton
+                        onClick={handleIDProofUploadClick}
+                        disabled={isKycReadOnly}
+                      >
+                        Browse
+                      </BrowseButton>
+                    </FlexUpload>
+
+                    <input
+                      type="file"
+                      ref={idProofInputRef}
+                      style={{ display: "none" }}
+                      accept="image/*,application/pdf"
+                      onChange={handleIDProofFileChange}
+                      disabled={isKycReadOnly}
+                    />
+
+                    {uploadedIDProof && (
+                      <UploadedFileName
+                        onClick={() => handleFileClick(uploadedIDProof)}
+                      >
+                        {uploadedIDProof.name}
+                      </UploadedFileName>
+                    )}
+                  </>
                 )}
               </UploadSection>
-            </FlexRow> */}
+            </FlexRow>
+
+            {/* KYC status badge */}
+            <div style={{ margin: "10px 0" }}>
+              <strong>KYC Status:</strong> {kycStatus}
+              {isKycReadOnly && kycStatus === "approved" && (
+                <span style={{ marginLeft: 8, color: "green" }}>
+                  (read-only)
+                </span>
+              )}
+              {isKycReadOnly && kycStatus === "pending" && (
+                <span style={{ marginLeft: 8, color: "#e69100" }}>
+                  (submitted, under review)
+                </span>
+              )}
+              {!isKycReadOnly && kycStatus === "rejected" && (
+                <span style={{ marginLeft: 8, color: "#c00" }}>
+                  (rejected — please correct and resubmit)
+                </span>
+              )}
+            </div>
+
+            {/* CTAs */}
             <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-start",
-                gap: "20px",
-              }}
+              style={{ display: "flex", justifyContent: "flex-start", gap: 20 }}
             >
               <SubmitButton
+                as="button" // <-- ensures a real <button>
                 type="submit"
-                disabled={isLoading}
-                onClick={handleSubmit}
+                onClick={handleSubmitKyc} // <-- safety net: click will call handler
+                disabled={
+                  isLoading || (isKycReadOnly && kycStatus !== "rejected")
+                }
               >
-                {isLoading ? "Saving..." : "Save Changes"}
+                {isLoading
+                  ? "Saving..."
+                  : kycStatus === "not-applied"
+                  ? "Submit KYC"
+                  : kycStatus === "rejected"
+                  ? "Resubmit KYC"
+                  : "Submitted"}
               </SubmitButton>
+
               <SubmitButton
-                type="submit"
+                type="button"
                 disabled={isLoading}
                 onClick={(e) => {
                   e.preventDefault();
@@ -654,7 +937,7 @@ const Profile = () => {
             <ModalOverlay onClick={closeModal}>
               <ModalContent onClick={(e) => e.stopPropagation()}>
                 <CloseButton onClick={closeModal}>×</CloseButton>
-                {modalFile.type.startsWith("image/") ? (
+                {modalFile.type?.startsWith("image/") ? (
                   <img
                     src={modalFile.url}
                     alt="Preview"
@@ -710,22 +993,14 @@ const Profile = () => {
                 onChange={(e) => setOtp(e.target.value)}
                 placeholder="Enter OTP"
               />
-              {/* <SubmitButton
-                style={{ marginTop: '8px', width: '100%', height: '70px' }}
-                onClick={handleResendOtp}
-              > */}
-
               {isOtpSent ? (
                 resendTimer > 0 ? (
-                  <SubmitButton
-                    disabled
-                    style={{ width: "100%", height: "70px" }}
-                  >
+                  <SubmitButton disabled style={{ width: "100%", height: 70 }}>
                     Resend OTP in {resendTimer}s
                   </SubmitButton>
                 ) : (
                   <SubmitButton
-                    style={{ width: "100%", height: "70px" }}
+                    style={{ width: "100%", height: 70 }}
                     onClick={handleResendOtp}
                   >
                     Resend OTP
@@ -733,13 +1008,12 @@ const Profile = () => {
                 )
               ) : (
                 <SubmitButton
-                  style={{ width: "100%", height: "70px" }}
+                  style={{ width: "100%", height: 70 }}
                   onClick={handleChangePasswordClick}
                 >
                   Send OTP
                 </SubmitButton>
               )}
-              {/* </SubmitButton> */}
             </InputGroup>
 
             <InputGroup>
@@ -749,14 +1023,14 @@ const Profile = () => {
                   type={showCurrentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  style={{ paddingRight: "40px" }}
+                  placeholder="Enter current password"
+                  style={{ paddingRight: 40 }}
                 />
                 <span
                   onClick={() => setShowCurrentPassword((prev) => !prev)}
                   style={{
                     position: "absolute",
-                    right: "10px",
+                    right: 10,
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
@@ -776,13 +1050,13 @@ const Profile = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new password"
-                  style={{ paddingRight: "40px" }}
+                  style={{ paddingRight: 40 }}
                 />
                 <span
                   onClick={() => setShowPassword((prev) => !prev)}
                   style={{
                     position: "absolute",
-                    right: "10px",
+                    right: 10,
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
@@ -801,14 +1075,14 @@ const Profile = () => {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  style={{ paddingRight: "40px" }}
+                  placeholder="Re-enter new password"
+                  style={{ paddingRight: 40 }}
                 />
                 <span
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
                   style={{
                     position: "absolute",
-                    right: "10px",
+                    right: 10,
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",

@@ -5,8 +5,6 @@ export const Container = styled.div`
   width: 80%;
   display: flex;
   flex-direction: column;
-//   align-items: center;
-  justify-content: center;
   margin: 0 auto;
  
   @media (max-width: 1360px) {
@@ -45,10 +43,10 @@ export const FilterBar = styled.div`
 `;
  
 export const FilterButton = styled.button`
-background: ${({ active }) =>
-  active
-    ? 'linear-gradient(to right, #0DCAF0, #007BFF)'
-    : '#D3D3D3'};
+  background: ${({ active }) =>
+    active
+      ? 'linear-gradient(to right, #0DCAF0, #007BFF)'
+      : '#D3D3D3'};
   color: ${({ theme }) => theme.colors.white};
   border: none;
   padding: 0.5rem 1rem;
@@ -76,10 +74,6 @@ export const SearchIcon = styled.div`
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
- 
-  @media (max-width: 768px) {
-   
-  }
 `;
  
 export const SearchInput = styled.input`
@@ -111,258 +105,6 @@ export const SliderIcon = styled.div`
   border-radius: 8px;
 `;
  
-export const CardGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
- 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
- 
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
- 
-  @media (max-width: 540px) {
-    grid-template-columns: repeat(1, 1fr);
-    gap: 1rem;
-  }
-`;
- 
-export const CourseCard = styled.div`
-  background-color: #ABBED110;
-//   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: 0.2s ease;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  position: relative;
-  // height: 500px;
-  min-width: 230px;
-  margin-bottom: 20px;
- 
-  // &:hover {
-  //   transform: translateY(-4px);
-  // }
- 
-  @media (max-width: 1024px) {
-    height: 450px;
-  }
- 
-  @media (max-width: 768px) {
-    height: 400px;
-  }
- 
-`;
- 
-export const ImageWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  // height: 200px;
- 
-  img {
-    width: 100%;
-    height: 180px;
- 
-    @media (max-width: 768px) {
-      height: 100px;
-    }
-  }
-`;
- 
-export const CourseContent = styled.div`
-  padding: 1rem;
-  padding: 20px 30px;
-`;
- 
-export const CourseMain = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 30px;
- 
-  @media (max-width: 1320px) {
-    margin-bottom: 15px;
-  }
-`;
- 
-export const RatingWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 4px;
- 
-  svg {
-    margin-right: 4px;
-  }
-`;
- 
- 
-export const CourseHead = styled.div`
-  display: flex;
-  gap: 15px;
-  align-items: flex-start;
-  color: ${({ theme }) => theme.colors.darkgray};
-  font-weight: 400;
-  flex-direction: column;
-  height: 100px;
-  justify-content: flex-start;
-`;
- 
-export const CourseTitle = styled.h3`
-  font-size: 26px;
-  margin: 0;
-  word-warp: warp;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  width: 100%;
-  max-width: 100%;
- 
-  @media (max-width: 1320px) {
-    font-size: 22px;
-  }
- 
-  @media (max-width: 768px) {
-    font-size: 28px;
-  }
-`;
- 
-export const CourseMinititle = styled.p`
-display: flex;
-align-items: left;
-justify-content: left;
-  color: #555;
-  font-size: 16px;
-  margin: 5px 0 0 0;
-    word-warp: warp;
-  // overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  width: 100%;
-    max-width: 100%;
- 
-  @media (max-width: 1320px) {
-    font-size: 14px;
-  }
- 
-  @media (max-width: 768px) {
-    font-size: 16px;
-  }
-`;
- 
-export const CourseDesc = styled.p`
-  margin: 0.5rem 0;
-  color: ${({ theme }) => theme.colors.test};
-  font-size: 16px;
-  font-wieght: 300;
-  line-height: 1.5;
-  // height: 50px;
-    word-warp: warp;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  width: 100%;
- 
-  @media (max-width: 1320px) {
-    font-size: 14px;
-  }
- 
-    @media (max-width: 1320px) {
-    font-size: 16px;
-  }
-`;
- 
-export const Details = styled.div`
-  margin: 0.5rem 0;
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.colors.chorcaolgray};
-  height: 100px;
-  overflow-y: auto;
-`;
- 
-export const DetailItem = styled.div`
-  margin: 3px 0;
-`;
- 
-export const PriceActions = styled.div`
-  display: flex;
-  // justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  width: 100%;
-  position: absolute;
-  bottom: 0;
- 
-`;
- 
-export const Price = styled.div`
-  color: ${({ theme }) => theme.colors.white};
-  background: linear-gradient(to right, #0DCAF0, #007BFF);
-  width: 50%;
-  padding: 10px 12px;
-  border-bottom-left-radius: 12px;
-  font-size: 15px;
-  font-wight: 700;
-  text-align: center;
-`;
- 
-export const ViewButton = styled.button`
-  color: ${({ theme }) => theme.colors.vividblue};
-  background: transparent;
-  border: none;
-  padding: 10px 12px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  width: 50%;
- 
-  @media (max-width: 1024px) {
-    font-size: 12px;
-  }
- 
-  @media (max-width: 768px) {
-    font-size: 15px;
-  }
-`;
- 
-export const ContinueButton = styled.button`
-  color: ${({ theme }) => theme.colors.white};
-  background: linear-gradient(to right, #0DCAF0, #007BFF);
-  border: none;
-  padding: 10px 12px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  width: 100%;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-`;
-export const EnrolledTag = styled.div`
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: #28a745;
-  color: white;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 6px;
-  z-index: 1;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-`;
-
 export const Ribbon = styled.div`
   width: 120px;
   background: ${({ className }) =>
@@ -380,17 +122,248 @@ export const Ribbon = styled.div`
   padding: 4px 0;
 `;
 
+export const CardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+
+  @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 560px)  { grid-template-columns: 1fr; }
+`;
+
+export const CourseCard = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 500px; /* Fixed height for all cards */
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 1px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 6px rgba(16,24,40,0.06), 0 16px 36px rgba(16,24,40,0.12);
+  }
+`;
+
+export const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 180px; /* Fixed image height */
+  background: #f3f5f9;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0));
+    pointer-events: none;
+  }
+`;
+
+export const CourseContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 18px;
+  gap: 12px;
+`;
+
+export const CourseMain = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+`;
+
+export const RatingWrapper = styled.div`
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff7ed;
+  border: 1px solid #ffe7c2;
+`;
+
+export const CourseHead = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: ${({ theme }) => theme.colors.darkgray};
+  min-height: 76px;
+`;
+
+export const CourseTitle = styled.h3`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+  height: 46px;
+`;
+
+export const CourseMinititle = styled.p`
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+`;
+
+export const CourseDesc = styled.p`
+  margin: 0;
+  color: #3a4457;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  flex-grow: 1;
+  min-height: 66px;
+`;
+
+export const EnrolledTag = styled.div`
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #16a34a;
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  z-index: 2;
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.25);
+`;
+
+export const PriceActions = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid #eef2f7;
+  background: #ffffff;
+  margin-top: auto;
+`;
+
+export const Price = styled.button`
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 12px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  background: linear-gradient(90deg, #0DCAF0 0%, #007BFF 100%);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.05s ease;
+
+  &:hover { filter: brightness(0.98); }
+  &:active { transform: translateY(1px); }
+
+  border-bottom-left-radius: 16px;
+`;
+
+export const ViewButton = styled.button`
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 12px 14px;
+  color: #0b63f6;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    background: #f3f6ff;
+    color: #0849b8;
+  }
+
+  border-bottom-right-radius: 16px;
+`;
+
+export const OldPrice = styled.span`
+  text-decoration: line-through;
+  opacity: 0.7;
+  margin-right: 8px;
+  font-weight: 600;
+  font-size: 13px;
+`;
+
+export const NewPrice = styled.span`
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-size: 14px;
+`;
+
+export const DiscountBadge = styled.span`
+  background: #e6f6ea;
+  color: #157f3b;
+  border: 1px solid #ccebd7;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  vertical-align: middle;
+`;
+
 export const VerticalTag = styled.div`
   position: absolute;
   top: 30px;
   left: 0;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  background-color: #28a745;
-  color: white;
+  background: #22c55e;
+  color: #fff;
   font-size: 12px;
   padding: 6px 8px;
-  font-weight: 600;
-  border-radius: 0 4px 4px 0;
+  font-weight: 700;
+  border-radius: 0 6px 6px 0;
   z-index: 1;
+`;
+
+export const DetailItem = styled.div`
+  margin: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+`;
+
+export const Details = styled.div`
+  margin: 0.5rem 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: #64748b;
 `;

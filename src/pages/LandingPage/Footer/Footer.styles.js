@@ -144,32 +144,41 @@ export const SectionTitle = styled.h3`
 `;
 
 export const ContactInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
   font-size: 20px;
   font-weight: 300;
   color: ${props => props.theme.colors.lightwhite};
   margin-bottom: 10px;
-  width: 70%;
+  width: 100%;
+  line-height: 1;          /* keep tight so it doesn’t wrap weirdly */
 
-  @media (max-width: 1360px) {
-    font-size: 16px;
+  .icon {
+    flex: 0 0 auto;
+    font-size: 1.2em;      /* scale with text */
   }
 
-  @media (max-width: 768px) {
-    font-size: 12px;
-    margin-bottom: 5px;
+  a {
+    color: ${props => props.theme.colors.lightwhite};
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis; /* if email is long */
+    white-space: nowrap;     /* keep in one line */
   }
 
-  @media (max-width: 540px) {
-    font-size: 11px;
-    width: 100%;
+  a:hover {
+    text-decoration: underline;
+    color: #ccc;
   }
 
-  @media (max-width: 480px) {
-    font-size: 12px;
-    // width: 70%;
-    // text-align: center;
-  }
+  @media (max-width: 1360px) { font-size: 16px; }
+  @media (max-width: 768px)  { font-size: 12px; }
+  @media (max-width: 540px)  { font-size: 11px; width: 100%; white-space: normal; }
+  @media (max-width: 480px)  { font-size: 12px; }
 `;
+
 
 export const Phone = styled.div`
   font-size: 20px;

@@ -1,151 +1,206 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const Container = styled.div`
-  // padding: 40px 20px;
-  // text-align: center;
-   padding: 2rem;
+  padding: 4rem 2rem;
   width: 80%;
+  // max-width: 1200px;
   display: flex;
   flex-direction: column;
-//   align-items: center;
+  align-items: center;
   justify-content: center;
   margin: 0 auto;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 
-
-  @media (max-width: 1320px) {
-    // max-width: 90%;
+  @media (max-width: 768px) {
+    width: 95%;
+    padding: 2rem 1rem;
   }
 `;
 
 export const Title = styled.h2`
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #2d3748;
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
 `;
 
 export const Highlight = styled.span`
   color: #007bff;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 export const Line = styled.div`
-  width: 60px;
-  height: 3px;
-  background-color: #007bff;
-  margin: 10px auto 30px;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
 `;
 
 export const Features = styled.div`
   display: flex;
-  justify-content: space-between;
-  gap: 30px;
-  margin-bottom: 30px;
-  overflow-x: scroll;
+  justify-content: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
   width: 100%;
-
-   @media (max-width: 1360px) {
-    gap: 1rem;
-}
-
-@media (max-width: 1024px) {
-    gap: 1rem;
-}
-
+  scroll-behavior: smooth;
+  padding: 1rem 0;
+  scrollbar-width: none; /* Firefox */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+  
   @media (max-width: 768px) {
-    gap: 1rem;
-    flex-direction: row;
-}
-
-@media (max-width: 540px) {
-    gap: 0.5rem;
-    // flex-direction: column;
-}
-
-@media (max-width: 480px) {
-    gap: 0.5rem;
-    flex-direction: column;
-}
-
-  // @media (max-width: 576px) {
-  //   flex-direction: column;
-  // }
+    gap: 1.5rem;
+  }
 `;
 
 export const FeatureCard = styled.div`
   min-width: 300px;
   text-align: center;
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+  }
+  
+  @media (max-width: 480px) {
+    min-width: 280px;
+  }
 `;
 
 export const FeatureImage = styled.img`
   width: 100%;
-  height: 300px;
-  // object-fit: cover;
-  border-radius: 8px;
-
-   @media (max-width: 1360px) {
-    height: 200px;
-    width: 300px;
-}
-
-@media (max-width: 1024px) {
-    height: 200px;
-    width: 250px;
-}
-  @media (max-width: 768px) {
-    height: 250px;
-    width: 300px;
-}
-
-@media (max-width: 540px) {
-    height: 250px;
-    width: 250px;
-}
-
-@media (max-width: 480px) {
-    height: 200px;
-    width: 300px;
-}
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  
+  @media (max-width: 1024px) {
+    height: 180px;
+  }
 `;
 
 export const FeatureTitle = styled.h3`
-  margin-top: 15px;
-  font-size: 1.1rem;
+  margin-top: 1rem;
+  font-size: 1.25rem;
   font-weight: 600;
+  color: #2d3748;
 `;
 
 export const FeatureText = styled.p`
-  font-size: 0.95rem;
-  color: #555;
-  margin-top: 10px;
+  font-size: 1rem;
+  color: #718096;
+  margin-top: 0.75rem;
+  line-height: 1.5;
 `;
 
 export const Description = styled.p`
-  font-size: 1.5rem;
-  color: #333;
-  max-width: 100%;
-  text-align: left;
-  margin-bottom: 50px;
-
-  @media (max-width: 1024px) {
-    font-size: 1.2rem;
+  font-size: 1.25rem;
+  color: #4a5568;
+  max-width: 800px;
+  text-align: center;
+  margin: 2rem auto 3rem;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin: 1.5rem auto 2.5rem;
   }
 `;
 
 export const EnrollButton = styled.button`
-  background: linear-gradient(to right, #0DCAF0, #007BFF);
+  background: linear-gradient(to right, #007BFF, #0DCAF0);
   color: white;
-  font-size: 24px;
-  font-weight: 500;
-  padding: 12px 30px;
-  border-radius: 6px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
   border: none;
   cursor: pointer;
-  transition: background 0.3s;
-  width: 20%;
-
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  
   &:hover {
-    background-color: #005dc4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(to right, #0069d9, #0cb9e1);
   }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    padding: 0.875rem 2rem;
+  }
+`;
 
-  @media (max-width: 1024px) {
-    font-size: 20px; 
+export const ScrollIndicator = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  button {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
+    color: #007bff;
+    
+    &:hover:not(:disabled) {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
+`;
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+export const LoadingSpinner = styled.div`
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${spin} 1s linear infinite;
 `;

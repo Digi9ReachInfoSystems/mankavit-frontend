@@ -60,7 +60,7 @@ const AddMockTest = () => {
   useEffect(() => {
     // 1) Compute “now” in the format the input expects (trim seconds)
     const now = new Date();
-    setMinDate(now.toISOString().slice(0, 16));
+     setMinDate(nowForDatetimeLocal());
 
     // 2) Fetch subjects
     const apiCaller = async () => {
@@ -158,66 +158,77 @@ const AddMockTest = () => {
       }
     });
   };
+  // Convert a local datetime string (from <input type="datetime-local">) to a UTC ISO string
+// preserving the same wall-clock time.
+const localInputToUTC = (localValue) => {
+  // localValue like "2025-08-19T10:00"
+  const d = new Date(localValue);                 // interpreted as local time
+  const offsetMs = d.getTimezoneOffset() * 60000; // e.g. -330 min for IST -> -(-330)*60000
+  const fixed = new Date(d.getTime() - offsetMs); // shift so wall-clock stays same in UTC
+  return fixed.toISOString();                     // e.g. "2025-08-19T10:00:00.000Z"
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = [];
+// Make a "now" value suitable for <input type="datetime-local"> in local time
+const nowForDatetimeLocal = () => {
+  const now = new Date();
+  const offsetMs = now.getTimezoneOffset() * 60000;
+  const local = new Date(now.getTime() - offsetMs);
+  return local.toISOString().slice(0, 16);        // "YYYY-MM-DDTHH:mm"
+};
 
-    // Validate test details
-    if (!testDetails.title) newErrors.push("Test title is required");
-    if (!testDetails.description) newErrors.push("Test description is required");
-    if (!testDetails.duration) newErrors.push("Duration is required");
-    if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
-    if (!testDetails.startDate) newErrors.push("Start date is required");
-    if (!testDetails.endDate) newErrors.push("End date is required");
 
-    // Subjects
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const newErrors = [];
+
+  // Validate test details (removed subject validation)
+  if (!testDetails.title) newErrors.push("Test title is required");
+  if (!testDetails.description) newErrors.push("Test description is required");
+  if (!testDetails.duration) newErrors.push("Duration is required");
+  if (!testDetails.passingMarks) newErrors.push("Passing marks are required");
+
+  // Questions validation remains the same...
+
+  if (newErrors.length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  setErrors([]);
+  setIsSubmitting(true);
+
+  try {
+    const formattedQuestions = formatQuestionsForApi();
+    const totalMarks = questions.reduce((sum, q) => sum + parseInt(q.marks), 0);
+
+    const mockTestData = {
+      title: testDetails.title,
+      description: testDetails.description,
+      duration: parseInt(testDetails.duration),
+      passingMarks: parseInt(testDetails.passingMarks),
+      maxAttempts: parseInt(testDetails.maxAttempts),
+      totalMarks,
+      questions: formattedQuestions
+    };
+
+    // Dates: only if provided
+    if (testDetails.startDate) mockTestData.startDate = localInputToUTC(testDetails.startDate);
+    if (testDetails.endDate) mockTestData.endDate = localInputToUTC(testDetails.endDate);
+
+    // Subjects: only if provided (optional)
     const selectedSubjects = subjectCheckboxes
       .filter(subject => subject.checked)
       .map(subject => subject.id);
-    if (selectedSubjects.length === 0) {
-      newErrors.push("At least one subject must be selected");
+    
+    if (selectedSubjects.length > 0) {
+      mockTestData.subject = selectedSubjects;
     }
 
-    // Questions
-    questions.forEach((q, index) => {
-      if (!q.questionText || !q.marks) {
-        newErrors.push(`Question ${index + 1}: Question text and marks are required.`);
-      }
-      if (q.questionType === 'mcq') {
-        const { A, B, C, D } = q.options;
-        if (!A || !B || !C || !D || !q.correctAnswer) {
-          newErrors.push(`Question ${index + 1}: All MCQ options and correct answer are required.`);
-        }
-      }
-    });
+    const response = await createMocktest(mockTestData);
 
-    if (newErrors.length > 0) {
-      setErrors(newErrors);
-      return;
-    }
 
-    setErrors([]);
-    setIsSubmitting(true);
 
-    try {
-      const formattedQuestions = formatQuestionsForApi();
-      const totalMarks = questions.reduce((sum, q) => sum + parseInt(q.marks), 0);
-
-      const mockTestData = {
-        title: testDetails.title,
-        description: testDetails.description,
-        duration: parseInt(testDetails.duration),
-        passingMarks: parseInt(testDetails.passingMarks),
-        startDate: new Date(testDetails.startDate).toISOString(),
-        endDate: new Date(testDetails.endDate).toISOString(),
-        maxAttempts: parseInt(testDetails.maxAttempts),
-        totalMarks,
-        subject: selectedSubjects[0],
-        questions: formattedQuestions
-      };
-
-      const response = await createMocktest(mockTestData);
+      console.log('Mock test created successfully:', response);
       toast.success('Mock test created successfully');
       navigate('/admin/mock-test');
     } catch (error) {

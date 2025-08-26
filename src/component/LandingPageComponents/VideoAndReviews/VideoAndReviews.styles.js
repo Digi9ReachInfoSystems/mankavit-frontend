@@ -182,7 +182,7 @@ font-size: 22px;
 
 export const VideoWrapper = styled.div`
   width: 80%;
-  height: 600px;
+  height: 500px;
   margin: 0 auto 60px;
   background-color: #f0f0f0;
   border-radius: 12px;

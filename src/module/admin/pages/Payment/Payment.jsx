@@ -92,37 +92,51 @@ export default function Payment() {
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [couponDataToShow, setCouponDataToShow] = useState(null);
 
-  // Fetch payments + courses on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [paymentsRes, coursesRes] = await Promise.all([
-          getAllPayments(),
-          getAllCourses(),
-        ]);
-        // build course map
-        const map = {};
-        (coursesRes.data || []).forEach(c => {
-          map[c._id] = c.courseName;
-        });
-        setCoursesMap(map);
+ const [coursesWithPayments, setCoursesWithPayments] = useState(new Set());
 
-        if (paymentsRes?.success && paymentsRes.payments) {
-          setPayments(paymentsRes.payments);
-          setFilteredPayments(paymentsRes.payments);
-        } else {
-          setError("No payment data received from server");
-        }
-      } catch (err) {
-        console.error("Error fetching payments or courses:", err);
-        setError(err.message || "Failed to fetch data");
-      } finally {
-        setLoading(false);
+// Modify your initial data fetch useEffect to track courses with payments
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [paymentsRes, coursesRes] = await Promise.all([
+        getAllPayments(),
+        getAllCourses(),
+      ]);
+      
+      console.log("All payments", paymentsRes);
+      
+      // Build course map and track which courses have payments
+      const map = {};
+      const paymentCourseIds = new Set();
+      
+      (coursesRes.data || []).forEach(c => {
+        map[c._id] = c.courseName;
+      });
+      
+      (paymentsRes.payments || []).forEach(payment => {
+        const courseId = payment.courseRef?._id || payment.courseRef;
+        if (courseId) paymentCourseIds.add(courseId);
+      });
+      
+      setCoursesMap(map);
+      setCoursesWithPayments(paymentCourseIds);
+
+      if (paymentsRes?.success && paymentsRes.payments) {
+        setPayments(paymentsRes.payments);
+        setFilteredPayments(paymentsRes.payments);
+      } else {
+        setError("No payment data received from server");
       }
-    };
-    fetchData();
-  }, []);
+    } catch (err) {
+      console.error("Error fetching payments or courses:", err);
+      setError(err.message || "Failed to fetch data");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
 
   // Refetch when course filter changes
   useEffect(() => {
@@ -152,16 +166,15 @@ export default function Payment() {
   useEffect(() => {
     let data = [...payments];
 
-    if (searchQuery) {
-      data = data.filter(item => {
-        const student = getNestedValue(item, 'userRef.displayName').toLowerCase();
-        const course = getNestedValue(item, 'courseRef.courseName').toLowerCase();
-        return (
-          student.includes(searchQuery.toLowerCase()) ||
-          course.includes(searchQuery.toLowerCase())
-        );
-      });
-    }
+   if (searchQuery) {
+  const q = searchQuery.toLowerCase();
+  data = data.filter((item) => {
+    const student = (getNestedValue(item, "userRef.displayName", "") || "").toLowerCase();
+    const course  = (getCourseName(item) || "").toLowerCase();
+    return student.includes(q) || course.includes(q);
+  });
+}
+
 
     switch (sortBy) {
       case "Student":
@@ -183,6 +196,23 @@ export default function Payment() {
     setFilteredPayments(data);
     setCurrentPage(1);
   }, [searchQuery, sortBy, payments]);
+// Resolve course name whether courseRef is an id or populated object (or 'course' field)
+const getCourseName = (item) => {
+  const cr = item?.courseRef ?? item?.course;
+  if (!cr) return "N/A";
+
+  // If it's just an ObjectId string, map it
+  if (typeof cr === "string") {
+    return coursesMap[cr] || "N/A";
+  }
+
+  // If it's an object, try known fields or map by _id
+  if (typeof cr === "object") {
+    return cr.courseName || cr.courseDisplayName || coursesMap[cr._id] || "N/A";
+  }
+
+  return "N/A";
+};
 
   // Helpers
   const formatDate = iso => {
@@ -211,7 +241,9 @@ export default function Payment() {
     ];
 
     const rows = filteredPayments.map(item => [
-      getNestedValue(item, 'courseRef.courseName'),
+      // getNestedValue(item, 'courseRef.courseName'),
+      getCourseName(item),
+
       getNestedValue(item, 'userRef.displayName'),
       item.transactionId || item.razorpay_payment_id || "N/A",
       `₹${item.amountPaid ?? "N/A"}`,
@@ -270,14 +302,16 @@ export default function Payment() {
           <SortByContainer>
             <SortLabel>Filter by Course:</SortLabel>
             <SortSelect
-              value={selectedCourseId}
-              onChange={e => setSelectedCourseId(e.target.value)}
-            >
-              <option value="all">All</option>
-              {Object.entries(coursesMap).map(([id, name]) => (
-                <option key={id} value={id}>{name}</option>
-              ))}
-            </SortSelect>
+  value={selectedCourseId}
+  onChange={e => setSelectedCourseId(e.target.value)}
+>
+  <option value="all">All</option>
+  {Object.entries(coursesMap)
+    .filter(([id]) => coursesWithPayments.has(id))
+    .map(([id, name]) => (
+      <option key={id} value={id}>{name}</option>
+    ))}
+</SortSelect>
           </SortByContainer>
 
           <SortByContainer style={{ marginLeft: 16 }}>
@@ -332,7 +366,9 @@ export default function Payment() {
               // console.log("item", item);
               return (
                 <TableRow key={item._id}>
-                  <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell>
+                  {/* <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell> */}
+              <TableCell>{getCourseName(item)}</TableCell>
+
                   <TableCell>{getNestedValue(item, 'userRef.displayName')}</TableCell>
                   <TableCell>{item.transactionId || item.razorpay_payment_id || "N/A"}</TableCell>
                   <TableCell>₹{item.amountPaid ?? "N/A"}</TableCell>

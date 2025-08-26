@@ -51,6 +51,44 @@ const GlobalStyle = createGlobalStyle`
 
   transition: margin-left 0.3s ease, width 0.3s ease;
     }
+
+
+  * {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+  }
+
+  /* …but allow it where users need to type or edit */
+  input, textarea, [contenteditable="true"], .allow-select, [data-allow-select="true"] {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
+
+  /* Prevent long-press save/share on iOS */
+  html, body {
+    -webkit-touch-callout: none;
+  }
+
+  /* Make images harder to drag */
+  img, video {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  /* OPTIONAL: block printing entirely
+  @media print {
+    html, body, #root {
+      display: none !important;
+    }
+  }
+  */
 `;
+
+
+
 
 export default GlobalStyle;

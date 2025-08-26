@@ -237,49 +237,58 @@ export default function EditSubject() {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (readOnlyPermissions) return;
-    
-    if (!subjectTitle.trim() || !internalTitle.trim()) {
-      return toast.error("Please fill in all required fields.");
-    }
-    let imageUrl = previewUrl;
-    if (thumbnailFile) {
-      try {
-        const { blobUrl } = await uploadFileToAzureStorage(thumbnailFile, "subjects");
-        imageUrl = blobUrl;
-      } catch {
-        return toast.error("Failed to upload image");
-      }
-    }
-
+const handleSubmit = async e => {
+  e.preventDefault();
+  if (readOnlyPermissions) return;
+  
+  if (!subjectTitle.trim() || !internalTitle.trim()) {
+    return toast.error("Subject Title and Internal Title are required.");
+  }
+  
+  let imageUrl = previewUrl;
+  if (!imageUrl) {
+    return toast.error("Image is required.");
+  }
+  
+  if (thumbnailFile) {
     try {
-      // Rearrange items in the correct order (except courses)
-      await Promise.all([
-        rearrangeNotes({ noteIds: selectedNotes.map(n => n.id) }),
-        rearrangeLectures({ lectureIds: selectedLectures.map(l => l.id) }),
-        rearrangeMocktest({ mocktestIds: selectedMockTests.map(m => m.id) })
-      ]);
-
-      await updateSubjectById(id, {
-        subjectName: internalTitle,
-        subjectDisplayName: subjectTitle,
-        vimeoShowcaseID: vimeoId,
-        description: shortDescription,
-        notes: selectedNotes.map(n => n.id),
-        lectures: selectedLectures.map(l => l.id),
-        mockTests: selectedMockTests.map(m => m.id),
-        courses: selectedCourses.map(c => c.id),
-        image: imageUrl,
-      });
-      toast.success("Subject updated successfully");
-      setTimeout(() => navigate("/admin/subject-management"), 1000);
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message;
-      toast.error(msg || "Update failed");
+      const { blobUrl } = await uploadFileToAzureStorage(thumbnailFile, "subjects");
+      imageUrl = blobUrl;
+    } catch {
+      return toast.error("Failed to upload image");
     }
-  };
+  }
+
+  try {
+    // Rearrange items only if there are selected items
+    if (selectedNotes.length > 0) {
+      await rearrangeNotes({ noteIds: selectedNotes.map(n => n.id) });
+    }
+    if (selectedLectures.length > 0) {
+      await rearrangeLectures({ lectureIds: selectedLectures.map(l => l.id) });
+    }
+    if (selectedMockTests.length > 0) {
+      await rearrangeMocktest({ mocktestIds: selectedMockTests.map(m => m.id) });
+    }
+
+    await updateSubjectById(id, {
+      subjectName: internalTitle,
+      subjectDisplayName: subjectTitle,
+      vimeoShowcaseID: vimeoId || "", // Optional
+      description: shortDescription || "", // Optional
+      notes: selectedNotes.map(n => n.id) || [], // Optional
+      lectures: selectedLectures.map(l => l.id) || [], // Optional
+      mockTests: selectedMockTests.map(m => m.id) || [], // Optional
+      courses: selectedCourses.map(c => c.id) || [], // Optional
+      image: imageUrl,
+    });
+    toast.success("Subject updated successfully");
+    setTimeout(() => navigate("/admin/subject-management"), 1000);
+  } catch (err) {
+    const msg = err.response?.data?.message || err.message;
+    toast.error(msg || "Update failed");
+  }
+};
 
   const editorConfig = useMemo(() => ({
     readonly: readOnlyPermissions,

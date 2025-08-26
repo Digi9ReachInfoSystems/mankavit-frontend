@@ -51,8 +51,8 @@ export const Label = styled.label`
 
     small {
     font-size: 14px;
-    color: #696969; /* Dim Gray */
-    font-weight: 400;
+    color: #000000ff; /* Dim Gray */
+    font-weight: 500;
     margin-left: 5px;
 
     @media (max-width: 1024px) {

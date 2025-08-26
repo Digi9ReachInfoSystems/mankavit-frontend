@@ -1,12 +1,18 @@
 import styled from "styled-components";
-import { FaClock, FaListOl, FaQuestionCircle, FaExclamationTriangle, FaLightbulb } from "react-icons/fa";
+import {
+  FaClock,
+  FaListOl,
+  FaQuestionCircle,
+  FaExclamationTriangle,
+  FaLightbulb,
+} from "react-icons/fa";
 
 export const Container = styled.div`
   width: 80%;
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: "Inter", "Segoe UI", sans-serif;
   color: #2d3748;
   background: #fff;
   border-radius: 16px;
@@ -51,7 +57,7 @@ export const Title = styled.h1`
   padding-bottom: 1rem;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -329,7 +335,7 @@ export const TipItem = styled.li`
   position: relative;
 
   &::before {
-    content: '•';
+    content: "•";
     color: #4299e1;
     font-weight: bold;
     display: inline-block;
@@ -351,6 +357,10 @@ export const SubList = styled.ol`
   font-size: 1rem;
   line-height: 1.7;
   color: #4a5568;
+  list-style-type: lower-alpha;
+  @media (max-width: 480px) {
+    margin-left: 1rem;
+  }
 `;
 
 export const IndicatorsSection = styled.div`
@@ -391,28 +401,28 @@ export const LegendItem = styled.div`
   cursor: pointer;
   font-weight: bold;
 
-  &.answered { 
-    background: #7bd37b; 
-    clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%); 
+  &.answered {
+    background: #7bd37b;
+    clip-path: polygon(0 35%, 33% 0, 70% 0, 100% 35%, 99% 100%, 1% 100%);
   }
-  &.not-answered { 
-    background: #f44336; 
-    clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%); 
+  &.not-answered {
+    background: #f44336;
+    clip-path: polygon(1% 1%, 100% 0%, 100% 75%, 75% 100%, 23% 100%, 0% 79%);
   }
-  &.marked { 
-    background: #a855f7; 
-    border-radius: 50%; 
+  &.marked {
+    background: #a855f7;
+    border-radius: 50%;
   }
-  &.unattempted { 
-    background: rgb(253, 253, 255); 
-    border-radius: 10px; 
-    border: 1px solid #ccc; 
+  &.unattempted {
+    background: rgb(253, 253, 255);
+    border-radius: 10px;
+    border: 1px solid #ccc;
   }
   &.answered-marked {
     background: #c084fc;
     border-radius: 50%;
     position: relative;
-    
+
     &::after {
       content: "✓";
       position: absolute;
@@ -423,11 +433,11 @@ export const LegendItem = styled.div`
       right: -5px;
     }
   }
-  &.not-answered-marked { 
-    background: #c084fc; 
-    border-radius: 50%; 
+  &.not-answered-marked {
+    background: #c084fc;
+    border-radius: 50%;
   }
-  
+
   @media (max-width: 1360px) {
     width: 20px;
     height: 20px;

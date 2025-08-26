@@ -118,6 +118,12 @@ export const MenuItem = styled.li`
   margin-bottom: ${theme.spacing(2)};
 `;
 
+// export const MenuLink = styled(NavLink)`
+//   /* your existing styles */
+
+// `;
+
+
 export const MenuLink = styled(RouterNavLink).attrs(() => ({
   activeClassName: 'active'
 }))`
@@ -262,3 +268,31 @@ export const ModalButton = styled.button`
 `;
 
 
+
+// Ensure MenuLink is display:flex so the badge/dot can sit on the right
+
+// Tiny red dot (if you choose the dot-only approach)
+export const UnreadDot = styled.span`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+`;
+
+// Pill count (recommended)
+export const UnreadBadge = styled.span`
+  min-width: 22px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin-left: auto; /* keep it to the right */
+`;

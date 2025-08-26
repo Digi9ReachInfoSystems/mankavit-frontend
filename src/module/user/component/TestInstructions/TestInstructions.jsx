@@ -141,54 +141,117 @@ export default function TestInstructions() {
         </CardBody>
       </TestCard>
 
-      <InstructionsContainer>
-        <Instructions>
-          <SectionTitle>
-            <span>📝</span> Test Guidelines
-          </SectionTitle>
-          <List>
-            <ListItem>
-              <strong>Navigation:</strong> Use the navigation buttons to move between questions.
-            </ListItem>
-            <ListItem>
-              <strong>Time Management:</strong> The timer will be visible throughout the test.
-            </ListItem>
-            <ListItem>
-              <strong>Submission:</strong> All answers are auto-saved. Submit when finished.
-            </ListItem>
-          </List>
+<InstructionsContainer>
+  <Instructions>
+    <SectionTitle>
+      <span>📝</span> Test Guidelines
+    </SectionTitle>
 
-          <RulesSection>
-            <SectionTitle>
-              <span>⚖️</span> Rules & Regulations
-            </SectionTitle>
-            <List>
-              <ListItem>Do not refresh or close the browser during the test.</ListItem>
-              <ListItem>All questions are mandatory unless specified otherwise.</ListItem>
-              <ListItem>Use of external resources is strictly prohibited.</ListItem>
-              <ListItem>You must complete the test in one sitting.</ListItem>
-            </List>
-          </RulesSection>
+    {/* General Instructions */}
+    <SectionTitle as="h4" style={{ marginTop: "1rem" }}>
+      General Instructions
+    </SectionTitle>
+    <List>
+      <ListItem>
+        The clock is set on the server. A countdown timer at the top-left shows
+        your remaining time. The exam auto-submits when time runs out — you do
+        not need to submit manually.
+      </ListItem>
+    </List>
 
-          <ImportantNote>
-            <NoteIcon><FaExclamationTriangle /></NoteIcon>
-            <div>
-              <strong>Important:</strong> Once started, you cannot pause the test. 
-              The timer will continue running even if you close the browser.
-            </div>
-          </ImportantNote>
+    {/* Navigating to a Question */}
+    <SectionTitle as="h4" style={{ marginTop: "1.25rem" }}>
+      Navigating to a Question
+    </SectionTitle>
+    <List>
+      <ListItem>
+        For multiple-choice questions:
+        <SubList>
+          <li>
+            Click a question number in the right-side palette to jump directly
+            to it. <strong>Note:</strong> using the palette <strong>does not</strong> save the
+            current answer.
+          </li>
+          <li>
+            Click <strong>Save &amp; Next</strong> to save your current answer and move to
+            the next question in sequence.
+          </li>
+          <li>
+            Choose an option and click <strong>Mark for Review &amp; Next</strong> to save
+            your answer, flag the question for review, and go to the next one.
+          </li>
+        </SubList>
+      </ListItem>
+    </List>
 
-          <TipsSection>
-            <SectionTitle>
-              <span>💡</span> Helpful Tips
-            </SectionTitle>
-            <List>
-              <TipItem>Read each question carefully before answering.</TipItem>
-              <TipItem>Manage your time wisely - don't spend too long on one question.</TipItem>
-              <TipItem>For MCQs, eliminate obviously wrong options first.</TipItem>
-              <TipItem>Review your answers if time permits.</TipItem>
-            </List>
-          </TipsSection>
+    {/* Answering Questions */}
+    <SectionTitle as="h4" style={{ marginTop: "1.25rem" }}>
+      Answering Questions
+    </SectionTitle>
+    <List>
+      <ListItem>
+        For multiple-choice questions:
+        <SubList>
+          <li>Select an answer by clicking one of the option buttons.</li>
+          <li>To change your answer, click another option.</li>
+          <li>
+            To <strong>save</strong> your answer, you <strong>MUST</strong> click{" "}
+            <strong>Save &amp; Next</strong>.
+          </li>
+          <li>Click <strong>Clear Response</strong> to deselect your choice.</li>
+          <li>
+            Click <strong>Mark for Review &amp; Next</strong> to flag a question.
+            If an answer is selected on a marked question, it <em>will</em> be
+            counted in the final evaluation.
+          </li>
+        </SubList>
+      </ListItem>
+
+      <ListItem>
+        To change an answer later: open that question, select the new option,
+        then click <strong>Save &amp; Next</strong>.
+      </ListItem>
+
+      <ListItem>
+        Only questions that are <strong>saved</strong> or <strong>marked for review after
+        answering</strong> will be considered for evaluation.
+      </ListItem>
+    </List>
+
+    {/* Keep your other sections unchanged */}
+    {/* <RulesSection>
+      <SectionTitle>
+        <span>⚖️</span> Rules & Regulations
+      </SectionTitle>
+      <List>
+        <ListItem>Do not refresh or close the browser during the test.</ListItem>
+        <ListItem>All questions are mandatory unless specified otherwise.</ListItem>
+        <ListItem>Use of external resources is strictly prohibited.</ListItem>
+        <ListItem>You must complete the test in one sitting.</ListItem>
+      </List>
+    </RulesSection> */}
+
+    <ImportantNote>
+      <NoteIcon />
+      <div>
+        <strong>Important:</strong> Once started, you cannot pause the test. The
+        timer continues even if you close the browser.
+      </div>
+    </ImportantNote>
+
+    <TipsSection>
+      <SectionTitle>
+        <span>💡</span> Helpful Tips
+      </SectionTitle>
+      <List>
+        <TipItem>Read each question carefully before answering.</TipItem>
+        <TipItem>Manage your time; don’t spend too long on one question.</TipItem>
+        <TipItem>For MCQs, eliminate obviously wrong options first.</TipItem>
+        <TipItem>Review your answers if time permits.</TipItem>
+      </List>
+    </TipsSection>
+
+
           <IndicatorsSection>
         <SectionTitle>
           <span>🔵</span> Question Indicators
@@ -205,19 +268,19 @@ export default function TestInstructions() {
           </LegendRow>
           <LegendRow>
             <LegendItem className="marked" />
-            <LegendLabel>Marked for Review</LegendLabel>
+            <LegendLabel>Marked</LegendLabel>
           </LegendRow>
           <LegendRow>
             <LegendItem className="answered-marked" />
-            <LegendLabel>Answered & Marked</LegendLabel>
+            <LegendLabel>Answered & Marked For Review</LegendLabel>
           </LegendRow>
-          <LegendRow>
+          {/* <LegendRow>
             <LegendItem className="not-answered-marked" />
             <LegendLabel>Not Answered & Marked</LegendLabel>
-          </LegendRow>
+          </LegendRow> */}
           <LegendRow>
             <LegendItem className="unattempted" />
-            <LegendLabel>Unattempted</LegendLabel>
+            <LegendLabel>Not Visited</LegendLabel>
           </LegendRow>
         </LegendContainer>
       </IndicatorsSection>

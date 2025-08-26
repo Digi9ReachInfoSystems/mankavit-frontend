@@ -44,20 +44,14 @@ export default function AddSubject() {
   const [shortDescription, setShortDescription] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
-
-  // checkbox items
   const [notesCheckboxes, setNotesCheckboxes] = useState([]);
   const [lecturesCheckboxes, setLecturesCheckboxes] = useState([]);
   const [mockTestCheckboxes, setMockTestCheckboxes] = useState([]);
   const [coursesCheckboxes, setCoursesCheckboxes] = useState([]);
-
-  // selected items
   const [selectedNotes, setSelectedNotes] = useState([]);
   const [selectedLectures, setSelectedLectures] = useState([]);
   const [selectedMockTests, setSelectedMockTests] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
-
-  // search states
   const [notesSearch, setNotesSearch] = useState("");
   const [lecturesSearch, setLecturesSearch] = useState("");
   const [mockSearch, setMockSearch] = useState("");
@@ -66,8 +60,6 @@ export default function AddSubject() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const editor = useRef(null);
-
-  // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -174,55 +166,68 @@ export default function AddSubject() {
   };
 
   // Handle form submission
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (!internalTitle.trim()) {
-      toast.error("Subject Name is required");
-      return;
+ const handleSubmit = async e => {
+  e.preventDefault();
+  if (!internalTitle.trim()) {
+    toast.error("Subject internal title is required");
+    return;
+  }
+  if(!subjectTitle.trim()) {
+    toast.error("Subject title is required");
+    return;
+  }
+  if (!thumbnailFile) {
+    toast.error("Thumbnail image is required");
+    return;
+  }
+
+  try {
+    // Upload thumbnail
+    const { blobUrl } = await uploadFileToAzureStorage(thumbnailFile, "subjects");
+
+    // Rearrange items in the correct order (except courses)
+    if (selectedNotes.length > 0) {
+      await rearrangeNotes({ noteIds: selectedNotes.map(n => n.id) });
     }
-    try {
-      // Upload thumbnail
-      const { blobUrl } = await uploadFileToAzureStorage(thumbnailFile, "subjects");
-
-      // Rearrange items in the correct order (except courses)
-      await Promise.all([
-        rearrangeNotes({ noteIds: selectedNotes.map(n => n.id) }),
-        rearrangeLectures({ lectureIds: selectedLectures.map(l => l.id) }),
-        rearrangeMocktest({ mocktestIds: selectedMockTests.map(m => m.id) })
-      ]);
-
-      // Create subject
-      await createSubject({
-        subjectName: internalTitle,
-        subjectDisplayName: subjectTitle,
-        vimeoShowcaseID: vimeoId,
-        description: shortDescription,
-        notes: selectedNotes.map(n => n.id),
-        lectures: selectedLectures.map(l => l.id),
-        mockTests: selectedMockTests.map(m => m.id),
-        courses: selectedCourses.map(c => c.id),
-        image: blobUrl,
-      });
-
-      toast.success("Subject created successfully");
-      // Reset form
-      setSubjectTitle("");
-      setInternalTitle("");
-      setVimeoId("");
-      setShortDescription("");
-      setThumbnailFile(null);
-      setSelectedNotes([]);
-      setSelectedLectures([]);
-      setSelectedMockTests([]);
-      setSelectedCourses([]);
-      
-      setTimeout(() => navigate("/admin/subject-management"), 1000);
-    } catch (err) {
-      console.error(err);
-      const msg = err.response?.data?.message || err.message;
-      toast.error(msg || "Failed to create subject. Please try again");
+    if (selectedLectures.length > 0) {
+      await rearrangeLectures({ lectureIds: selectedLectures.map(l => l.id) });
     }
-  };
+    if (selectedMockTests.length > 0) {
+      await rearrangeMocktest({ mocktestIds: selectedMockTests.map(m => m.id) });
+    }
+
+    // Create subject with optional fields
+    await createSubject({
+      subjectName: internalTitle || "",
+      subjectDisplayName: subjectTitle || "", // Optional
+      vimeoShowcaseID: vimeoId || "", // Optional
+      description: shortDescription || "", // Optional
+      notes: selectedNotes.map(n => n.id) || [], // Optional
+      lectures: selectedLectures.map(l => l.id) || [], // Optional
+      mockTests: selectedMockTests.map(m => m.id) || [], // Optional
+      courses: selectedCourses.map(c => c.id) || [], // Optional
+      image: blobUrl,
+    });
+
+    toast.success("Subject created successfully");
+    // Reset form
+    setSubjectTitle("");
+    setInternalTitle("");
+    setVimeoId("");
+    setShortDescription("");
+    setThumbnailFile(null);
+    setSelectedNotes([]);
+    setSelectedLectures([]);
+    setSelectedMockTests([]);
+    setSelectedCourses([]);
+    
+    setTimeout(() => navigate("/admin/subject-management"), 1000);
+  } catch (err) {
+    console.error(err);
+    const msg = err.response?.data?.message || err.message;
+    toast.error(msg || "Failed to create subject. Please try again");
+  }
+};
 
   const editorConfig = useMemo(() => ({ readonly: false, placeholder: shortDescription }), []);
 

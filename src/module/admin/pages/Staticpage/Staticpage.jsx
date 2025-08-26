@@ -16,17 +16,17 @@ import {
 import { message } from 'antd';
 import { getAuth } from '../../../../utils/authService';
 import JoditEditor from 'jodit-react';
+import { toast } from 'react-toastify';
 
 const Staticpage = () => {
-  // form fields
+
 
   const [privacyPolicy, setPrivacyPolicy] = useState('');
   const [terms, setTerms] = useState('');
+  const [refund, setRefund] = useState('');
 
-  // recordId tells us if we should create or update
   const [recordId, setRecordId] = useState(null);
 
-  // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -100,6 +100,7 @@ const Staticpage = () => {
           setRecordId(existing._id);
           setPrivacyPolicy(existing.privacy);
           setTerms(existing.terms);
+          setRefund(existing.refund);
         }
       } catch (err) {
         console.error("Failed to load static page:", err);
@@ -117,18 +118,21 @@ const Staticpage = () => {
     setError('');
     setSuccess('');
 
-    const payload = { privacy: privacyPolicy, terms };
+    const payload = { privacy: privacyPolicy, terms, refund };
 
     try {
       if (recordId) {
         await updatestaticById(recordId, payload);
-        setSuccess("Updated successfully.");
+        console.log("Updated successfully.", payload);
+        // setSuccess("Updated successfully.");
+        toast.success("Updated successfully.");
         // message.success("Updated successfully.");
       } else {
         const created = await createStatic(payload);
         setRecordId(created._id);
         // setSuccess("Created successfully.");
-        message.success("Created successfully.");
+        // message.success("Created successfully.");
+        toast.success("Created successfully.");
       }
     } catch (err) {
       console.error("Save failed:", err.response?.data || err.message);
@@ -140,7 +144,7 @@ const Staticpage = () => {
 
   return (
     <Container>
-      <Title>Static Page</Title>
+      {/* <Title>Static Page</Title> */}
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -175,14 +179,23 @@ const Staticpage = () => {
             onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
             onChange={newContent => { setTerms(newContent) }}
           />
-          {/* <Textarea
-            id="terms"
-            rows={8}
-            placeholder="Write Terms and Conditions here"
-            value={terms}
-            onChange={(e) => setTerms(e.target.value)}
-          /> */}
+        
         </FormGroup>
+
+        
+        <FormGroup>
+          <Label htmlFor="terms">Return and Refund Policy</Label>
+           <JoditEditor
+            ref={editor}
+            value={refund}
+            config={configds}
+            tabIndex={1} // tabIndex of textarea
+            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onChange={newContent => { setRefund(newContent) }}
+          />
+        
+        </FormGroup>
+
         {!readOnlyPermissions && (
           <Button type="submit" disabled={loading}>
             {loading

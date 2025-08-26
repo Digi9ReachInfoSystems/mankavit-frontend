@@ -1,355 +1,283 @@
-import styled from 'styled-components';
+// Drop-in replacement for the styled-components at the bottom of your file.
+// No functionality changed; purely visual improvements.
+
+import styled, { keyframes } from 'styled-components';
+
+const floatIn = keyframes`
+  from { transform: translateY(6px); opacity: .0; }
+  to { transform: translateY(0); opacity: 1; }
+`;
+
+const shimmer = keyframes`
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+`;
 
 export const CourseWrapper = styled.div`
-display: flex;
+  display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 0rem;
-  // padding: 0 2rem;
+  margin-bottom: 3rem;
   width: 100%;
-  // max-width: 75vw;
   box-sizing: border-box;
-  overflow-x: auto;
-  
-  @media (max-width: 986px) {
-    padding: 1rem;
-  }
-
-  @media (max-width: 480px) {
-    padding: 0;
-    margin-bottom: 0;
-  }
+  overflow-x: hidden;
 `;
 
 export const Title = styled.h1`
-  font-size: 32px;
-  font-weight: 400;
-    margin-top: 10px;
-    margin-bottom: 0;
-      color: ${({ theme }) => theme.colors.jetBlack};
-
-  @media (max-width: 768px) {
-    font-size: 28px;
-    margin: 0;
-  }
-
-  @media (max-width: 480px) {
-  font-size: 24px;
-    margin: 0;
-  }
+  font-size: 2.25rem; /* 36px */
+  font-weight: 600;
+  margin: 0.25rem 0 0.25rem 0;
+  color: ${({ theme }) => theme.colors.jetBlack};
+  letter-spacing: -0.02em;
 `;
-
-export const FilterBar = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 1.5rem 0;
-  gap: 15px;
-  flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    gap: 0.5rem;
-    margin: 0 0 1rem 0;
-  }
-
-  @media (max-width: 480px) {
-    gap: 0.5rem;
-    margin: 0;
-  }
-`;
-
-export const FilterButton = styled.button`
-  background: ${({ active }) =>
-    active ? 'linear-gradient(to right, #0DCAF0, #007BFF)' : '#D3D3D3'};
-  color: ${({ theme }) => theme.colors.white};
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 12px;
-  fpnt-size: 14px;
-  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
-
-  &:hover {
-    background: linear-gradient(to right, #0DCAF0, #007BFF);
-    opacity: 0.5;
-  }
-`;
-
-
-
-// export const CardGrid = styled.div`
-//   display: flex;
-//   gap: 2rem;
-//   overflow-x: auto; 
-//   flex-wrap: nowrap;
-//   max-width: 1300px;
-
-//   // &::-webkit-scrollbar {
-//   //   height: 8px; /* customize scrollbar height */
-//   // }
-
-//   // &::-webkit-scrollbar-thumb {
-//   //   background: #ccc;
-//   //   border-radius: 10px;
-//   // }
-
-//   @media (max-width: 768px) {
-//     gap: 1rem;
-//   }
-// `;
 
 export const CardGrid = styled.div`
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   overflow-x: auto;
-  // flex-wrap: nowrap;
-  width: 100%;
+  padding-bottom: .25rem;
 
-  // Important: Prevent shrinking
-  & > * {
-    flex-shrink: 0;
+  /* Smooth scroll and prettier scrollbar */
+  scroll-behavior: smooth;
+  &::-webkit-scrollbar { height: 10px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #b9c7ff, #7fb3ff);
+    border-radius: 999px;
   }
+
+  /* Prevent shrinking */
+  & > * { flex-shrink: 0; }
 
   @media (max-width: 768px) {
     gap: 1rem;
   }
 `;
 
-
 export const CourseCard = styled.div`
- background: #ABBED140;
-  // border: 2px solid ${({ completed }) => (completed ? '#28a745' : '#e0e0e0')};
-  // border-radius: 14px;
-  // overflow: hidden;
-  // box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
+  position: relative;
   display: flex;
   flex-direction: column;
-  transition: border 0.3s ease;
-  // overflow: hidden;
-  // min-width: 300px; 
-  max-width: 300px; 
-  margin-bottom: 1rem;
-    position: relative;
-  height: 550px;
+  width: 300px;
+  height: 450px;
+  border-radius: 18px;
+  background: radial-gradient(90% 120% at 100% 0%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%),
+              linear-gradient(180deg, rgba(171,190,209,0.3), rgba(171,190,209,0.15));
+  box-shadow: 0 10px 25px rgba(16, 24, 40, 0.10), 0 2px 6px rgba(16, 24, 40, 0.06);
+  backdrop-filter: saturate(120%) blur(6px);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  animation: ${floatIn} .35s ease both;
 
-  @media (max-width: 1024px) {
-    max-width: 280px;
-
-    @media (max-width: 768px) {
-    max-width: 230px;
-    }
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 38px rgba(16, 24, 40, 0.16), 0 6px 12px rgba(16, 24, 40, 0.08);
+    border-color: rgba(0, 123, 255, 0.18);
   }
-`;
 
+  @media (max-width: 1024px) { width: 280px; }
+  @media (max-width: 768px) { width: 240px; height: 500px; }
+  @media (max-width: 480px) { width: 270px; }
+`;
 
 export const ImageWrapper = styled.div`
   position: relative;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  overflow: hidden;
 
   img {
     width: 100%;
-    height: 150px;
+    height: 160px;
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform .4s ease;
+  }
 
-   @media (max-width: 1360px) {
-      height: 110px;
-    }
-    @media (max-width: 768px) {
-      height: 90px;
-    }
+  ${CourseCard}:hover & img { transform: scale(1.05); }
+
+  /* Subtle top gradient overlay */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.00) 60%);
+    pointer-events: none;
   }
 `;
 
 export const ProgressContainer = styled.div`
-  margin-bottom: 0;
-    padding: 10px 40px;
-      height: 60px;
-
-     @media (max-width: 768px) {
-      padding: 10px 20px;
-    }
+  padding: 12px 18px 8px 18px;
 `;
 
-export const ProgressBarContainer = styled.div`
-   margin-bottom: 5px;
-    padding: 10px 40px;
-
-    .stars {
-      display: flex;
-      font-size: 18px;
-    }
-
-    @media (max-width: 1024px) {
-      margin-bottom: 6px;
-    }
-    @media (max-width: 768px) {
-      padding: 10px 20px;
-      margin-bottom: 5px;
-    }   
-`; 
-
 export const ProgressLabel = styled.div`
-  font-size: 1.2rem;
+  font-size: .95rem;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-  margin-top: 0;
-  text-align: left;
-
-   @media (max-width: 768px) {
-    font-size: 1rem;
-  }
-   
+  color: #334155; /* slate-700 */
 `;
 
 export const ProgressBar = styled.div`
   width: 100%;
-  height: 12px;
-  background-color: #ccc;
-  border-radius: 6px;
+  height: 10px;
+  margin-top: 8px;
+  background: linear-gradient(180deg, #eef2f7, #e6ebf1);
+  border-radius: 999px;
   overflow: hidden;
-  margin-top: 5px;
-
-   @media (max-width: 768px) {
-    height: 8px;
-  }
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
 `;
 
 export const ProgressFill = styled.div`
   height: 100%;
-  background: linear-gradient(to right, #0DCAF0, #007BFF);
-  border-radius: 6px 0 0 6px;
-  transition: width 0.4s ease;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0DCAF0, #007BFF, #66b2ff);
+  background-size: 200% 100%;
+  animation: ${shimmer} 2.4s linear infinite;
+  transition: width .4s ease;
 `;
 
 export const CourseContent = styled.div`
-//   padding: 1rem;
-  padding: 15px 40px;
-
-    @media (max-width: 768px) {
-    padding: 0px 20px;
-  }
+  padding: 12px 18px 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
 `;
 
 export const CourseMain = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  gap: .35rem;
 `;
 
 export const CourseHead = styled.div`
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
   color: ${({ theme }) => theme.colors.darkgray};
   font-weight: 400;
 `;
 
 export const CourseTitle = styled.h3`
-  font-size: 28px;
+  font-size: 1.35rem;
+  line-height: 1.2;
   margin: 0;
-    word-break: break-word;
+  color: ${({ theme }) => theme.colors.jetBlack};
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  height: 68px;
-
-    @media (max-width: 768px) {
-    font-size: 24px;
-  }
+  min-height: 2.6em;
 `;
 
 export const CourseMinititle = styled.p`
-  font-size: 16px; 
-  margin: 5px 0 ;
-    word-break: break-word;
+  font-size: .95rem;
+  color: #475569; /* slate-600 */
+  margin: 0.15rem 0 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-    height: 38px;
-
-   @media (max-width: 768px) {
-    font-size: 14px;
-  }
+  min-height: 2.2em;
 `;
 
 export const CourseDesc = styled.p`
-  margin: 0.5rem 0;
+  margin: 0.25rem 0 0.1rem 0;
   color: ${({ theme }) => theme.colors.test};
-  font-size: 16px;
-  font-wieght: 300;
-  line-height: 1.5;
-      word-break: break-word;
+  font-size: .95rem;
+  line-height: 1.45;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-    height: 50px;
-
-
-   @media (max-width: 768px) {
-    font-size: 14px;
-  }
 `;
 
 export const Details = styled.div`
-  margin: 0.5rem 0;
-  font-size: 16px;
-  font-weight: 400;
+  margin: .35rem 0 .5rem 0;
+  font-size: .95rem;
+  font-weight: 500;
   color: ${({ theme }) => theme.colors.chorcaolgray};
-
-    @media (max-width: 768px) {
-    font-size: 14px;
-  }
+  display: grid;
+  gap: .35rem;
 `;
 
 export const DetailItem = styled.div`
-  margin: 3px 0;
+  margin: 0;
 `;
 
 export const DetailItemok = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
-  color: #28a745;
-  font-size: 18px;
-  line-height: 1.3;
-
-    @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
+  gap: .6rem;
+  color: #16a34a; /* green-600 */
+  font-size: 1rem;
+  line-height: 1.35;
 `;
 
 export const PriceActions = styled.div`
   display: flex;
-  // justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
-    position: absolute;
+  margin-top: auto;
+  position: absolute;
   bottom: 0;
   width: 100%;
-
-   @media (max-width: 1024px) {
-    margin-top: 0rem;
-  }
 `;
 
 export const ViewButton = styled.button`
-  background-color: ${(props) => (props.completed ? '#02B029' : '#007bff')};
+  background-color: ${(props) => (props.completed ? '#10b981' : '#007bff')};
   color: #fff;
-  padding: 1rem 1.2rem;
+  padding: 0.95rem 1.2rem;
   border: none;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 700;
   width: 100%;
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.04) inset;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+  &:active { transform: translateY(1px); }
+`;
+
+export const NoCourseFoundButton = styled.button`
+  background-color: #007bff;
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: .95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  margin-left: 10px;
+  transition: filter .2s ease;
+  &:hover { filter: brightness(1.05); }
+`;
+
+export const FilterBar = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 1.25rem 0 1rem 0;
+  gap: 10px;
+  flex-wrap: wrap;
+`;
+
+export const FilterButton = styled.button`
+  --active: linear-gradient(90deg, #0DCAF0, #007BFF);
+  background: ${({ active }) => (active ? 'var(--active)' : '#E5E7EB')};
+  color: ${({ active, theme }) => (active ? theme.colors.white : '#111827')};
+  border: 1px solid ${({ active }) => (active ? 'transparent' : '#E5E7EB')};
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: 999px;
+  font-size: .95rem;
+  font-weight: 600;
+  transition: all .2s ease;
+  box-shadow: ${({ active }) => (active ? '0 4px 12px rgba(0,123,255,0.25)' : 'none')};
+
+  &:hover { background: var(--active); color: #fff; }
 `;

@@ -1,238 +1,307 @@
-import styled from "styled-components";
+// src/pages/Admin/StudentManagement/updateKYC/updateKYC.style.js
+import styled, { keyframes } from "styled-components";
+
+/* ====== Layout ====== */
 
 export const Container = styled.div`
-margin-left: 40px;
-margin-top: 20px;
-  background-color: ${(props) => props.theme.colors.white};
-  border-radius: 6px;
-  padding: ${(props) => props.theme.spacing(3)};
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  font-family: ${(props) => props.theme.fonts.body};
+  margin-left: 40px;
+  margin-top: 20px;
   min-height: 750px;
-
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    padding: ${(props) => props.theme.spacing(2)};
-  }
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  box-shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  overflow: hidden;
 
   @media (max-width: 768px) {
-    margin:0;
-}
+    margin: 0;
+    border-radius: 0;
+  }
+`;
+
+/* ====== Header ====== */
+
+export const HeaderBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: radial-gradient(1200px circle at 0% -10%, #eef4ff 0%, transparent 40%),
+              radial-gradient(1200px circle at 100% 0%, #f2fffb 0%, transparent 40%);
+`;
+
+export const HeaderLeft = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
+
+export const HeaderRight = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
+
+export const Avatar = styled.div`
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #e6eeff;
+  color: #2a2a72;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 `;
 
 export const Title = styled.h1`
-  font-family: ${(props) => props.theme.fonts.heading};
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: ${(props) => props.theme.spacing(1)};
-  margin-top: 0;
-  color: ${(props) => props.theme.colors.brightblue};
-
-  @media (max-width: 1024px) {
-    font-size: 24px;
-  }
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
 `;
 
-export const FormWrapper = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+export const SubTitle = styled.div`
+  font-size: 13px;
+  color: #475569;
+  margin-top: 2px;
 `;
 
-export const FormRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -10px 15px;
-`;
+/* ====== Badges & Dots ====== */
 
-export const Column = styled.div`
-  flex: 1;
-  min-width: 250px;
-  padding: 0 10px;
-  margin-bottom: 15px;
-`;
-
-export const FieldWrapper = styled.div`
-  margin-bottom: 15px;
-  display: flex;
-  gap: 30px;
-  align-items: center;
-
-`;
-
-export const Label = styled.label`
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-  color: #555;
-`;
-
-export const KYCTitle = styled.p`
-font-weight: 500;
-color: #555;
-font-size: 18px;
-margin-bottom: 10px;
-`;
-
-export const Input = styled.input`
-  width: 100%;
-  padding: 16px;
-  font-weight: 400;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  color: ${(props) => props.theme.colors.dimGray};
-  box-sizing: border-box;
-  cursor: default;
-
-  &:hover {
-    outline: none;
-  }
-
-  &:active {
-    outline: none;
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
-
-export const StatusWrapper = styled.div`
-  display: flex;
+export const Badge = styled.span`
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  color: ${({ $tone }) =>
+    $tone === "success" ? "#065f46" :
+    $tone === "danger"  ? "#7f1d1d" :
+    $tone === "warning" ? "#7c4a03" : "#1e293b"};
+
+  background: ${({ $tone }) =>
+    $tone === "success" ? "#dcfce7" :
+    $tone === "danger"  ? "#fee2e2" :
+    $tone === "warning" ? "#fef3c7" : "#e2e8f0"};
 `;
 
 export const KycDot = styled.span`
   height: 10px;
   width: 10px;
   border-radius: 50%;
-  background-color: ${({ status }) => 
-    status === "approved" ? "#28a745" :
-    status === "rejected" ? "#dc3545" : 
-    status === "pending" ? "#ffc107" : "#6c757d"};
-`;
-
-export const SubmitButton = styled.button`
-  background-color: #28a745;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: #218838;
-  }
-
-  &:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-  }
-`;
-
-export const RejectButton = styled(SubmitButton)`
-  background-color: #dc3545;
-  margin-right: 10px;
-
-  &:hover {
-    background-color: #c82333;
-  }
-`;
-
-export const DocumentLink = styled.a`
-  color: #007bff;
-  text-decoration: none;
-  cursor: pointer;
   display: inline-block;
-  // margin-top: 5px;
+  background-color: ${({ status }) =>
+    status === "approved" ? "#16a34a" :
+    status === "rejected" ? "#dc2626" :
+    status === "pending"  ? "#f59e0b" : "#64748b"};
+`;
+
+/* ====== Buttons ====== */
+
+export const GhostButton = styled.button`
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s ease;
 
   &:hover {
-    text-decoration: underline;
+    background: #f8fafc;
   }
 `;
 
-export const DocumentImage = styled.img`
-  max-width: 100px;
-  max-height: 100px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-top: 5px;
+export const PrimaryButton = styled.button`
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .1s ease, box-shadow .2s ease;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+
+  &:hover { transform: translateY(-1px); }
+  &:disabled { background: #93c5fd; cursor: not-allowed; box-shadow: none; }
 `;
 
-export const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 20px;
-  gap: 20px;
+export const DangerButton = styled(PrimaryButton)`
+  background: #ef4444;
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.25);
 `;
 
-export const NoKycContainer = styled.div`
+/* ====== Content & Cards ====== */
+
+export const Content = styled.div`
+  padding: 22px 24px 28px;
+`;
+
+export const Grid2 = styled.div`
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const Card = styled.div`
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 6px 18px rgba(18, 38, 63, 0.05);
+
+  h3 {
+    margin: 0 0 14px 0;
+    font-size: 16px;
+    color: #0f172a;
+  }
+`;
+
+/* ====== Fields ====== */
+
+export const Field = styled.div`
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+`;
+
+export const Label = styled.label`
+  font-size: 12px;
+  color: #64748b;
+`;
+
+export const ReadonlyInput = styled.input`
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  color: #0f172a;
+`;
+
+export const StatusRow = styled.div`
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 14px;
+`;
+
+export const ActionsRow = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+`;
+
+/* ====== Documents ====== */
+
+export const DocsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat( auto-fill, minmax(210px, 1fr) );
+  gap: 14px;
+`;
+
+export const DocCard = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  cursor: zoom-in;
+  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.08);
+  }
+`;
+
+export const DocThumb = styled.img`
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  background: #f1f5f9;
+`;
+
+// export const DocMeta = styled.div`
+//   padding: 10px 12px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+
+//   .name {
+//     font-size: 14px;
+//     color: #0f172a;
+//     font-weight: 600;
+//   }
+
+//   a {
+//     font-size: 12px;
+//     color: #2563eb;
+//     text-decoration: none;
+//   }
+// `;
+
+/* ====== Empty / Fallback ====== */
+
+export const EmptyState = styled.div`
+  padding: 40px 20px;
   text-align: center;
 `;
 
-export const NoKycMessage = styled.p`
-  font-size: 16px;
-  color: #6c757d;
-  margin-bottom: 20px;
+export const EmptyTitle = styled.h2`
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  color: #0f172a;
 `;
 
-export const BackButton = styled.button`
-  background-color: #6c757d;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+export const EmptyText = styled.p`
+  margin: 0 0 14px 0;
   font-size: 14px;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: #5a6268;
-  }
+  color: #64748b;
 `;
 
-export const StatusInfo = styled.p`
-  font-size: 14px;
-  color: #6c757d;
-  margin-top: 10px;
-`;
+/* ====== Modal ====== */
 
 export const ModalOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
+  inset: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
 `;
 
 export const Modal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  z-index: 9999;
+  position: relative;
+  max-width: min(900px, 92vw);
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 24px 48px rgba(2, 6, 23, 0.35);
 
-  .modal-image {
-  width: 500px;
-  height: 500px;
-  }
-
-  .modal-title {
-    font-weight: bold;
-    margin-bottom: 10px;
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 86vh;
+    object-fit: contain;
+    background: #000000;
   }
 `;
 
@@ -240,8 +309,93 @@ export const ModalCloseButton = styled.button`
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: transparent;
+  height: 36px;
+  width: 36px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  color: white;
   border: none;
   cursor: pointer;
   font-size: 20px;
+  line-height: 0;
+  display: grid;
+  place-items: center;
+`;
+
+/* ====== Loader ====== */
+
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+export const LoaderWrap = styled.div`
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  color: #334155;
+`;
+
+export const Spinner = styled.div`
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
+`;
+
+export const DocMeta = styled.div`
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .name {
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  .actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    a {
+      font-size: 12px;
+      color: #2563eb;
+      text-decoration: none;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+      transition: background .15s ease, border-color .15s ease;
+
+      &:hover {
+        background: #e0edff;
+        border-color: #c7ddff;
+      }
+    }
+
+    .download {
+      font-size: 12px;
+      color: #065f46;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #bbf7d0;
+      background: #dcfce7;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .05s ease;
+
+      &:hover {
+        background: #c8f7d7;
+        border-color: #99e9b7;
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
 `;

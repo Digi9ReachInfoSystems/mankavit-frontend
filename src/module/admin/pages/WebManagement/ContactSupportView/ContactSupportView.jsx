@@ -185,7 +185,7 @@ const ContactSupportView = () => {
                       <Td>{item.name || "N/A"}</Td>
                       <Td>{item.email || "N/A"}</Td>
 
-                      <Td>{item.description?.slice(0, 50)}...</Td>
+                      <Td>{item.description?.slice(0, 160)}...</Td>
                       <Td>
                         <StatusBadge color={getStatusBadgeColor(item.status) }>
                           {item.status || "N/A"}

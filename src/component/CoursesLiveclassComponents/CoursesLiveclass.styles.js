@@ -90,7 +90,7 @@ export const Tag = styled.span`
 export const PhoneNumber = styled.div`
   display: flex;
   align-items: center;
-  background-color: rgba(0,0,0,0.6);
+  // background-color: rgba(0,0,0,0.6);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
@@ -215,8 +215,9 @@ export const CompletedBadge = styled.div`
 export const MovingOverlay = styled.div`
   position: absolute;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
+  // background: rgba(0, 0, 0, 0.4);
+  color: #e2e618ff;
+  // color: white;
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 14px;

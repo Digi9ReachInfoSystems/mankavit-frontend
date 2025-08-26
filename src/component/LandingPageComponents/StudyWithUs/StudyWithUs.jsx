@@ -1,106 +1,128 @@
+import { useEffect, useRef, useState } from "react";
 import {
   Container,
+  Content,
   Title,
   Highlight,
-  Divider,
-  // CardsWrapper,
-  Card,
-  CardImage,
-  CardTitle,
-  CardDescription,
-  Content,
-  CarouselContainer,
+  CarouselViewport,
   CarouselTrack,
-  CarouselButton,
-  ButtonWrapper
+  NavButton,
+  Slide,          // styled(Card)
+  Visual,
+  AvatarWrap,
+  Avatar,
+  CardBody,
+  CardTitle,
+  MetaRow,
+  Stars,
+  Subtitle
 } from "./StudyWithUs.styles";
 import { getAllWhy } from "../../../api/whyApi";
-import { useEffect, useState, useRef } from "react";
+import { FaStar } from "react-icons/fa";
+
+const pastel = ["#e6f2ff","#ffefe6","#fff9e6","#eaf7ff","#ffeaf2","#eaf7f0"];
+const stripHtml = (html = "") => html.replace(/<[^>]*>/g, "").trim();
 
 const StudyWithUs = () => {
   const [whys, setWhys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const trackRef = useRef(null);
+  const drag = useRef({ down: false, startX: 0, scrollLeft: 0 });
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         setLoading(true);
-        const response = await getAllWhy();
-        
-        if (Array.isArray(response)) {
-          setWhys(response);
-        } else if (response.data && Array.isArray(response.data)) {
-          setWhys(response.data);
-        } else {
-          throw new Error("Invalid data format received from API");
-        }
-      } catch (error) {
-        console.error("Error fetching why data:", error);
-        setError(error.message);
+        const res = await getAllWhy();
+        setWhys(Array.isArray(res) ? res : res?.data ?? []);
+      } catch (e) {
+        setError(e?.message || "Failed to load");
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, []);
 
-  const scrollToCard = (index) => {
-    if (trackRef.current) {
-      const cardWidth = trackRef.current.children[0]?.offsetWidth || 0;
-      const gap = parseInt(window.getComputedStyle(trackRef.current).gap) || 0;
-      const scrollPosition = index * (cardWidth + gap);
-      
-      trackRef.current.scrollTo({
-        left: scrollPosition,
-        behavior: 'smooth'
-      });
-      setCurrentIndex(index);
+  const scrollSlides = (n) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const first = el.children?.[0];
+    const w = first?.offsetWidth || 300;
+    const gap = parseInt(getComputedStyle(el).gap || "0", 10);
+    el.scrollBy({ left: n * (w + gap), behavior: "smooth" });
+  };
+
+  // drag-to-scroll
+  const onDown = (e) => {
+    const el = trackRef.current;
+    if (!el) return;
+    drag.current.down = true;
+    el.classList.add("dragging");
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    drag.current.startX = clientX + el.scrollLeft;
+    drag.current.scrollLeft = el.scrollLeft;
+  };
+  const onMove = (e) => {
+    if (!drag.current.down) return;
+    e.preventDefault();
+    const el = trackRef.current;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    el.scrollLeft = drag.current.startX - clientX;
+  };
+  const onUp = () => {
+    drag.current.down = false;
+    trackRef.current?.classList.remove("dragging");
+  };
+  const onWheel = (e) => {
+    // make mouse wheel scroll horizontally
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      trackRef.current.scrollLeft += e.deltaY;
     }
   };
 
-  const handleNext = () => {
-    const nextIndex = (currentIndex + 1) % whys.length;
-    scrollToCard(nextIndex);
-  }; 
-
-  const handlePrev = () => {
-    const prevIndex = (currentIndex - 1 + whys.length) % whys.length;
-    scrollToCard(prevIndex);
-  };
-
   if (loading) return <Container><Content>Loading...</Content></Container>;
-  if (error) return <Container><Content>Error: {error}</Content></Container>;
-  if (!whys || whys.length === 0) return <Container><Content>No data available</Content></Container>;
+  if (error)   return <Container><Content>Error: {error}</Content></Container>;
+  if (!whys?.length) return <Container><Content>No data available</Content></Container>;
 
   return (
     <Container>
       <Content>
-        <Title>
-          Why Study <Highlight>With Us</Highlight>
-        </Title>
-        <Divider />
-        <CarouselContainer>
-          <CarouselTrack ref={trackRef}>
-            {whys.map((card, index) => (
-              <Card key={index}>
-                <CardImage src={card.image} alt={card.title} />
-                <CardTitle>{card.title}</CardTitle>
-                <CardDescription dangerouslySetInnerHTML={{ __html: card.description }} />
-              </Card>
+        <Title>Why Study <Highlight>With Us</Highlight></Title>
+
+        <CarouselViewport>
+          <NavButton $left onClick={() => scrollSlides(-1)} aria-label="Previous">‹</NavButton>
+          <CarouselTrack
+            ref={trackRef}
+            onMouseDown={onDown}
+            onMouseMove={onMove}
+            onMouseLeave={onUp}
+            onMouseUp={onUp}
+            onTouchStart={onDown}
+            onTouchMove={onMove}
+            onTouchEnd={onUp}
+            onWheel={onWheel}
+          >
+            {whys.map((item, idx) => (
+              <Slide key={item._id || idx}>
+                <Visual $bg={pastel[idx % pastel.length]}>
+                  <AvatarWrap>
+                    <Avatar src={item.image} alt={item.title} loading="lazy" />
+                  </AvatarWrap>
+                </Visual>
+                <CardBody>
+                  <CardTitle title={item.title}>{item.title}</CardTitle>
+                 
+                  <Subtitle title={stripHtml(item.description)}>
+                    {stripHtml(item.description)}
+                  </Subtitle>
+                </CardBody>
+              </Slide>
             ))}
           </CarouselTrack>
-          <ButtonWrapper>
-            <CarouselButton onClick={handlePrev} aria-label="Previous card">
-              {/* &lt; */}
-            </CarouselButton>
-            <CarouselButton onClick={handleNext} aria-label="Next card">
-              {/* &gt; */}
-            </CarouselButton>
-          </ButtonWrapper>
-        </CarouselContainer>
+          <NavButton onClick={() => scrollSlides(1)} aria-label="Next">›</NavButton>
+        </CarouselViewport>
       </Content>
     </Container>
   );

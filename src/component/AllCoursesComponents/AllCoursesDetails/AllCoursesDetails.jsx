@@ -25,7 +25,10 @@ import {
   RatingWrapper,
   EnrolledTag,
   Ribbon,
-  VerticalTag
+  VerticalTag,
+  OldPrice,
+  NewPrice,
+  DiscountBadge
 } from './AllCoursesDetails.styles';
 
 import { CiSearch } from 'react-icons/ci';
@@ -65,6 +68,14 @@ const AllCoursesDetails = () => {
     fetchCategories();
   }, []);
 
+  
+const formatINR = (n) =>
+  typeof n === "number"
+    ? n.toLocaleString("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 })
+    : n;
+
+  
+
   // Fetch courses when activeTab changes
   useEffect(() => {
     const fetchCourses = async () => {
@@ -95,21 +106,40 @@ const AllCoursesDetails = () => {
           }
         }
         console.log("data", data);
+const transformed = data.map(course => {
+  const mrp = Number(course.price ?? 0);
+  const sale =
+    course.discountPrice != null
+      ? Number(course.discountPrice)
+      : course.offerPrice != null
+        ? Number(course.offerPrice)
+        : mrp;
 
-        const transformed = data.map(course => ({
-          id: course._id,
-          title: course.courseDisplayName || 'Untitled Course',
-          minititle: course.courseName || '',
-          desc: course.description || 'No description available',
-          duration: course.duration || 'Not specified',
-          success: course.successRate || 'N/A',
-          price: course.price >= 0 ? `₹${course.price}/-` : 'Price not available',
-          rating: course.rating || 0,
-          category: course.category || 'All',
-          image: course.image || lawimg,
-          isEnrolled: course.isEnrolled || false,
-          actualPrice: course.price >= 0 ? course.price : 0
-        }));
+  const discountPct =
+    mrp > 0 && sale >= 0 && sale < mrp
+      ? Math.round(((mrp - sale) / mrp) * 100)
+      : 0;
+
+  return {
+    id: course._id,
+    title: course.courseDisplayName || 'Untitled Course',
+    minititle: course.courseName || '',
+    desc: course.description || 'No description available',
+    duration: course.duration || 'Not specified',
+    success: course.successRate || 'N/A',
+    rating: course.rating || 0,
+    category: course.category || 'All',
+    image: course.image || lawimg,
+    isEnrolled: course.isEnrolled || false,
+
+    // pricing fields used below
+    mrp,
+    sale,
+    discountPct,
+    isFree: sale === 0
+  };
+});
+
         console.log("transformed", transformed);
         setCourses(transformed);
       } catch (err) {
@@ -192,41 +222,41 @@ const AllCoursesDetails = () => {
                   <CourseTitle>{course.title}</CourseTitle>
                   <CourseMinititle>{course.minititle}</CourseMinititle>
                 </CourseHead>
-                <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc }} />
+                <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc.slice(0, 100) + "..."  }} />
               </CourseMain>
               {/* <Details>
                 <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
                 <DetailItem>🏆 Success Rate: {course.success}</DetailItem>
               </Details> */}
             </CourseContent>
-            {
-              course.isEnrolled ? (
-                <PriceActions>
-                  <Price style={{ width: "100%", }}
-                    onClick={() => { navigate("/user") }}
-                  >Continue Learning</Price>
-                  {/* <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
-                    View details
-                  </ViewButton> */}
-                </PriceActions>
-              ) : (
-                course.actualPrice >0 ? (
-                <PriceActions>
-                  <Price onClick={() => handleViewDetails(course.id, course.isEnrolled)}>{course.price}</Price>
-                  <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
-                    View details
-                  </ViewButton>
-                </PriceActions>) : (
-                  <PriceActions>
-                    <Price onClick={() => handleViewDetails(course.id, course.isEnrolled)}>Free</Price>
-                    <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
-                      View details
-                    </ViewButton>
-                  </PriceActions>
-                )
+       {course.isEnrolled ? (
+  <PriceActions>
+    <Price style={{ width: "200%" }} onClick={() => { navigate("/user"); }}>
+      Continue Learning
+    </Price>
+  </PriceActions>
+) : (
+  <PriceActions>
+    <Price onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
+      {course.isFree ? (
+        <NewPrice>Free</NewPrice>
+      ) : course.discountPct > 0 ? (
+        <>
+          <OldPrice>{formatINR(course.mrp)}</OldPrice>
+          <NewPrice>{formatINR(course.sale)}</NewPrice>
+          {/* <DiscountBadge>{course.discountPct}% OFF</DiscountBadge> */}
+        </>
+      ) : (
+        <NewPrice>{formatINR(course.mrp)}</NewPrice>
+      )}
+    </Price>
 
-              )
-            }
+    <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
+      View details
+    </ViewButton>
+  </PriceActions>
+)}
+
 
 
           </CourseCard>

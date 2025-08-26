@@ -297,7 +297,7 @@ export const BrowseButton = styled.button`
 `;
 
 export const SubmitButton = styled.button`
-  width: 20%;
+  // width: 20%;
   background:linear-gradient(to right, #0dcaf0, #007bff);
   color: ${(props) => props.theme.colors.secondary};
   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};

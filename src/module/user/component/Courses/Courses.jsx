@@ -39,7 +39,23 @@ const Courses = () => {
     const [error, setError] = useState(null);
     const { userId } = getCookiesData();
     const navigate = useNavigate();
+  const getCtaText = (course) => {
+    const completed = course.course_status === "completed";
+    const pct = Number(course.completePercentage || 0);
+    const isZero = pct === 0;
 
+    if (completed) return "Completed";
+    // If KYC required and user hasn't applied / was rejected, keep your original message
+    if (
+      !course.kycStatus &&
+      (course.userKycStatus === "not-applied" ||
+        course.userKycStatus === "rejected")
+    ) {
+      return "Complete KYC to continue";
+    }
+    // Otherwise decide based on progress
+    return isZero ? "Start Learning" : "Continue Learning";
+  };
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -109,7 +125,7 @@ const Courses = () => {
 
     return (
         <CourseWrapper>
-            <Title>My Courses</Title>
+            <Title>My Courses </Title>
 
             <CardGrid>
                 {courses.length > 0 ? (
@@ -126,9 +142,9 @@ const Courses = () => {
                                 </ProgressBar>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
                                     <ProgressLabel style={{ color: "#22c55e" }}></ProgressLabel>
-                                    <div className='stars' style={{ color: '#facc15' }}>
+                                    {/* <div className='stars' style={{ color: '#facc15' }}>
                                         {renderStars(course.course_rating)}
-                                    </div>
+                                    </div> */}
                                 </div>
                             </ProgressContainer>
 
@@ -139,7 +155,7 @@ const Courses = () => {
                                     <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
                                     {/* <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle> */}
                                     {/* </CourseHead> */}
-                                    <CourseMinititle dangerouslySetInnerHTML={{ __html: course.shortDescription.slice(0, 60) + "..." || 'Course Description' }} />
+                                    {/* <CourseMinititle dangerouslySetInnerHTML={{ __html: course.shortDescription.slice(0, 60) + "..." || 'Course Description' }} /> */}
                                     {/* <CourseDesc>{course.description || 'Course description not available'}</CourseDesc> */}
                                     {/* <CourseDesc dangerouslySetInnerHTML={{ __html: course.description.slice(0, 60) + "..." || 'Course description not available' }} /> */}
                                 </CourseMain>
@@ -161,27 +177,25 @@ const Courses = () => {
                             </CourseContent>
 
                             <PriceActions>
-                                <ViewButton
-                                    completed={course.course_status === "completed"}
-                                    onClick={() => {
-                                        if (course.kycStatus) {
-                                            navigate(`/continueCourse/${course._id}`)
-                                        } else {
-                                            if (course.userKycStatus == "not-applied" || course.userKycStatus == "rejected") {
-                                                navigate(`/kyc`)
-                                            } else {
-                                                navigate(`/continueCourse/${course._id}`)
-                                            }
-                                        }
-
-
-                                    }
-                                    }
-                                >
-                                    {
-                                        course.kycStatus ? (course.course_status === "completed" ? 'Completed' : 'Continue Learning') : course.userKycStatus == "not-applied" || course.userKycStatus == "rejected" ? "Complete KYC to continue" : "Continue Learning"
-                                    }
-                                </ViewButton>
+                               <ViewButton
+                                                completed={course.course_status === "completed"}
+                                                onClick={() => {
+                                                  if (course.kycStatus) {
+                                                    navigate(`/continueCourse/${course._id}`);
+                                                  } else {
+                                                    if (
+                                                      course.userKycStatus == "not-applied" ||
+                                                      course.userKycStatus == "rejected"
+                                                    ) {
+                                                      navigate(`/kyc`);
+                                                    } else {
+                                                      navigate(`/continueCourse/${course._id}`);
+                                                    }
+                                                  }
+                                                }}
+                                              >
+                                                {getCtaText(course)}
+                                              </ViewButton>
 
                             </PriceActions>
                         </CourseCard>

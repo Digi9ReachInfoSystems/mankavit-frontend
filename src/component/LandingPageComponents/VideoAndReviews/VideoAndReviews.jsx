@@ -152,7 +152,7 @@ const VideoAndReviews = () => {
           <p>No homepage video set or video link is not embeddable.</p>
         )}
       </VideoWrapper>
-
+{/* 
       <Title>
         What Are <Highlight>They Saying</Highlight>
       </Title>
@@ -190,7 +190,7 @@ const VideoAndReviews = () => {
             <Role>{t.role}</Role>
           </Card>
         ))}
-      </CardWrapper>
+      </CardWrapper> */}
     </Container>
   );
 };
