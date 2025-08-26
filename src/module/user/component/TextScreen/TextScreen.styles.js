@@ -929,7 +929,9 @@ export const OptionsList = styled.div`
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  align-items: center;
+  // align-items: center;
+  align-items: baseline;
+
   gap: 10px;
 
   @media (max-width: 1360px) {

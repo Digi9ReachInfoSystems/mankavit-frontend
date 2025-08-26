@@ -72,8 +72,11 @@ export default function TestInstructions() {
       if (!res.success) {
         throw new Error(res.message || "Could not start test");
       }
+ 
       const attempt = res.data;
-      navigate(`/test-question/${testId}/${subjectId}/${attempt._id}`);
+      navigate(`/test-question/${testId}/${subjectId}/${attempt._id}`,{
+        state: { remainingTime: res.remainingTime }
+      });
     } catch (err) {
       console.error("startMocktest failed", err);
       alert("Failed to start test: " + err.message);
