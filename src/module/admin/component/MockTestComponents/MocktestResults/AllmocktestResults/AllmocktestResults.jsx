@@ -83,6 +83,7 @@ export default function AllmocktestResults() {
           getAllUserAttempts(),
           getAllMocktest()
         ]);
+        console.log("attemptsResponse", attemptsResponse);
 
         console.log("Results response", attemptsResponse);
         const mapped = (attemptsResponse.data || []).map((item) => ({
@@ -446,7 +447,22 @@ export default function AllmocktestResults() {
                   <TableCell>{item.email}</TableCell>
                   <TableCell>{item.rank}</TableCell>
                   <TableCell>
-                    {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]
+                    <a 
+                    navigate
+                    style={{
+                      cursor: "pointer",
+                      color: "#1890ff",
+                      textDecoration: "none",
+                    }}
+                    onClick={() =>
+                      navigate(
+                        `/admin/results/user-attempts/attempt/${item._id}`
+                      )
+                    }
+                    >
+
+                  
+                    {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]  </a>
                   </TableCell>
                   <TableCell>{item.timeToComplete}</TableCell>
                   <TableCell>{item.submissionDate}</TableCell>
@@ -495,3 +511,24 @@ export default function AllmocktestResults() {
     </>
   );
 }
+
+
+
+  // <TableCell>
+  //                   <a 
+  //                   navigate
+  //                   style={{
+  //                     cursor: "pointer",
+  //                     color: "#1890ff",
+  //                     textDecoration: "none",
+  //                   }}
+  //                   onClick={() =>
+  //                     navigate(
+  //                       `/admin/results/user-attempts/attempt/${item._id}`
+  //                     )
+  //                   }
+  //                   >
+
+                  
+  //                   {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]  </a>
+  //                 </TableCell>

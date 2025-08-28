@@ -188,3 +188,39 @@ export const ErrorText = styled.div`
   font-size: 0.875rem;
   margin-top: 4px;
 `;
+
+
+
+export const SelectedSubjectsContainer = styled.div`
+  flex: 1;
+  margin-left: 20px;
+  background: ${(props) => props.theme.colors.backgrounGrey};
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+`;
+
+export const SelectedSubjectItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: ${(props) => props.theme.colors.white};
+  border: 1px solid ${(props) => props.theme.colors.grey};
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+`;
+
+export const SubjectName = styled.span`
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.black};
+`;
+
+export const RemoveButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: red;
+`;

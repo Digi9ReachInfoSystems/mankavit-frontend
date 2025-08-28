@@ -200,7 +200,7 @@ export const UploadArea = styled.div`
   text-align: center;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
-  width: 80%;
+  width: 40%;
   // margin-left: 60px;
 
   p {

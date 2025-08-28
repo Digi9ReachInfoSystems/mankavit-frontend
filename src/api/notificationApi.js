@@ -44,3 +44,12 @@ export const markNotificationasread = async (userId) => {
         throw error;
     }
 }
+
+export const getAllNotifications = async () => {
+    try {
+        const response = await api.get(`/notifications/getAllNotifications`,);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

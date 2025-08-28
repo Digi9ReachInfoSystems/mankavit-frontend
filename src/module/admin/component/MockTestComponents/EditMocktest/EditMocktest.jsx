@@ -1,4 +1,3 @@
-// src/components/.../EditMockTest.jsx
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Container,
@@ -10,13 +9,16 @@ import {
   Button,
   FormRow,
   SubTitle,
-  TextInput,
   CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
-  ErrorText,           // ← from your styles
+  ErrorText,
+  SelectedSubjectsContainer,
+  SelectedSubjectItem,
+  SubjectName,
+  RemoveButton
 } from './EditMocktest.style';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -27,21 +29,13 @@ import { getSubjects } from '../../../../../api/subjectApi';
 import JoditEditor from 'jodit-react';
 
 /* ---------------------- Time helpers (no +5:30 shift) ---------------------- */
-/* 
-  We treat the wall-clock picked in <input type="datetime-local"> as canonical.
-  - When SAVING: "YYYY-MM-DDTHH:mm"  -> "YYYY-MM-DDTHH:mm:00.000Z"
-  - When LOADING from API: take the first 16 chars for the input value.
-  This keeps the digits the same for users and avoids timezone jumps.
-*/
 const localInputToUTC = (localValue) => {
   if (!localValue) return '';
-  // localValue like "2025-08-19T05:00"
   return `${localValue}:00.000Z`;
 };
 
 const utcToLocalInput = (s) => {
   if (!s) return '';
-  // s like "2025-08-19T05:00:00.000Z" -> "2025-08-19T05:00"
   return String(s).slice(0, 16);
 };
 /* --------------------------------------------------------------------------- */
@@ -50,7 +44,6 @@ const EditMockTest = () => {
   const { mockTestId } = useParams();
   const navigate = useNavigate();
 
-  // errors keyed by field name or 'form'
   const [errors, setErrors] = useState({});
   const [testDetails, setTestDetails] = useState({
     title: '',
@@ -66,7 +59,6 @@ const EditMockTest = () => {
   const [subjects, setSubjects] = useState([]);
   const editor = useRef(null);
 
-  // fetch subjects (optional; user may leave empty)
   useEffect(() => {
     (async () => {
       try {
@@ -78,7 +70,6 @@ const EditMockTest = () => {
     })();
   }, []);
 
-  // fetch existing mock test
   useEffect(() => {
     (async () => {
       if (!mockTestId) {
@@ -88,13 +79,12 @@ const EditMockTest = () => {
       }
       try {
         const { data } = await getMocktestById(mockTestId);
-        console.log('Mocktest by ids', data);
         setTestDetails({
           title: data.title || '',
           description: data.description || '',
           duration: data.duration || '',
-          startDate: utcToLocalInput(data.startDate), // fixed: keep wall-clock
-          endDate: utcToLocalInput(data.endDate),     // fixed: keep wall-clock
+          startDate: utcToLocalInput(data.startDate),
+          endDate: utcToLocalInput(data.endDate),
           maxAttempts: data.maxAttempts ?? 1,
           selectedSubjects: Array.isArray(data.subject)
             ? data.subject.map(s => (typeof s === 'object' ? s._id : s))
@@ -130,11 +120,17 @@ const EditMockTest = () => {
     setErrors(prev => ({ ...prev, selectedSubjects: '' }));
   };
 
+  const handleRemoveSubject = id => {
+    setTestDetails(prev => ({
+      ...prev,
+      selectedSubjects: prev.selectedSubjects.filter(sid => sid !== id),
+    }));
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     const newErr = {};
 
-    // Required fields (dates & subjects are OPTIONAL per your request)
     if (!testDetails.title) newErr.title = 'Test title is required';
     if (!testDetails.description) newErr.description = 'Description is required';
     if (!testDetails.duration) newErr.duration = 'Duration is required';
@@ -155,11 +151,8 @@ const EditMockTest = () => {
         maxAttempts: testDetails.maxAttempts,
       };
 
-      // Include dates only if provided (no timezone shift)
       if (testDetails.startDate) payload.startDate = localInputToUTC(testDetails.startDate);
       if (testDetails.endDate)   payload.endDate   = localInputToUTC(testDetails.endDate);
-
-      // Include subjects only if provided (optional)
       if (testDetails.selectedSubjects?.length) {
         payload.subject = testDetails.selectedSubjects;
       }
@@ -220,10 +213,10 @@ const EditMockTest = () => {
 
         <SubTitle>Mock Test Settings</SubTitle>
 
-        <FormRow>
-          <FormGroup>
+        <FormRow style={{ alignItems: 'flex-start' }}>
+          <FormGroup style={{ flex: 1 }}>
             <CheckboxSection>
-              <CheckboxSectionTitle>Subjects (optional)</CheckboxSectionTitle>
+              <CheckboxSectionTitle>Available Subjects (optional)</CheckboxSectionTitle>
               <CheckboxList>
                 {subjects.map(sub => (
                   <CheckboxLabel key={sub._id}>
@@ -237,8 +230,25 @@ const EditMockTest = () => {
                 ))}
               </CheckboxList>
             </CheckboxSection>
-            {/* subjects optional -> no error */}
           </FormGroup>
+
+          {/* Adjacent selected subjects */}
+          <SelectedSubjectsContainer>
+            <CheckboxSectionTitle>Selected Subjects ({testDetails.selectedSubjects.length})</CheckboxSectionTitle>
+            {testDetails.selectedSubjects.length > 0 ? (
+              testDetails.selectedSubjects.map(id => {
+                const sub = subjects.find(s => s._id === id);
+                return (
+                  <SelectedSubjectItem key={id}>
+                    <SubjectName>{sub?.subjectDisplayName || sub?.subjectName || id}</SubjectName>
+                    <RemoveButton type="button" onClick={() => handleRemoveSubject(id)}>❌</RemoveButton>
+                  </SelectedSubjectItem>
+                );
+              })
+            ) : (
+              <p>No subjects selected</p>
+            )}
+          </SelectedSubjectsContainer>
         </FormRow>
 
         <FormRow>
@@ -279,7 +289,6 @@ const EditMockTest = () => {
               value={testDetails.startDate}
               onChange={e => handleTestDetailChange('startDate', e.target.value)}
             />
-            {/* optional -> no error */}
           </FormGroup>
           <FormGroup>
             <Label htmlFor="endDate">End Date:</Label>
@@ -289,7 +298,6 @@ const EditMockTest = () => {
               value={testDetails.endDate}
               onChange={e => handleTestDetailChange('endDate', e.target.value)}
             />
-            {/* optional -> no error */}
           </FormGroup>
         </FormRow>
 

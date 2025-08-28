@@ -1,4 +1,4 @@
-// src/components/Notification/Notification.jsx
+// src/components/Notification/NotificationCreate.jsx
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -14,9 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { createNotification } from "../../../../../api/notificationApi";
 import { getAuth } from "../../../../../utils/authService";
 
-// Helper: make a local "YYYY-MM-DDTHH:mm" string for datetime-local
 const localInputDatetime = (date = new Date()) => {
-  // normalize seconds/ms and remove timezone offset to keep local wall time
   const d = new Date(date);
   d.setSeconds(0, 0);
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -24,10 +22,8 @@ const localInputDatetime = (date = new Date()) => {
 };
 
 const Notification = ({
-  // default to local time, not UTC
   scheduleTime: defaultSchedule = localInputDatetime(),
 }) => {
-  // scheduleTime must be a local string for datetime-local
   const [scheduleTime, setScheduleTime] = useState(defaultSchedule);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -52,8 +48,6 @@ const Notification = ({
       return;
     }
     try {
-      // scheduleTime is local (no TZ); new Date() interprets it as local,
-      // then toISOString() converts to UTC for the API (correct)
       await createNotification({
         title,
         description,
@@ -63,7 +57,6 @@ const Notification = ({
       toast.success("Notification scheduled successfully.");
       setTitle("");
       setDescription("");
-      // reset schedule to now (local) + 0h (or add your own offset if you want)
       setScheduleTime(localInputDatetime());
     } catch (error) {
       console.error(error);
@@ -73,7 +66,7 @@ const Notification = ({
 
   return (
     <Container>
-      <h2>Schedule Notification</h2>
+      <h2>Create Notification</h2>
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <Label>Send At</Label>
@@ -110,18 +103,7 @@ const Notification = ({
         <SubmitButton type="submit">Send Notification</SubmitButton>
       </form>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+      <ToastContainer position="top-right" autoClose={5000} theme="colored" />
     </Container>
   );
 };

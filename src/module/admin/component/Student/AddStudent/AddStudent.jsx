@@ -191,7 +191,7 @@ const handleChange = (e) => {
     
     // Required fields
     const requiredFields = [
-      'first_name', 'last_name', 'age', 'email', 
+      'first_name', 'last_name', 'email', 
       'phone', 'password', 'passport_photo', 'id_proof'
     ];
     
@@ -245,7 +245,7 @@ const handleSubmit = async (e) => {
       photo_url: finalPassportPhoto,
       first_name: studentData.first_name,
       last_name: studentData.last_name,
-      age: studentData.age,
+      // age: studentData.age,
       id_proof: finalIdProof,
       passport_photo: finalPassportPhoto,
       courseIds: studentData.courseIds,
@@ -309,7 +309,7 @@ console.log('Create Student Response:', response);
       </FlexRow>
 
       <FlexRow>
-        <InputGroup>
+        {/* <InputGroup>
           <Label>Age*</Label>
           <InputField
             type="number"
@@ -322,10 +322,11 @@ console.log('Create Student Response:', response);
             disabled={isLoading}
           />
           {formErrors.age && <ErrorMessage>{formErrors.age}</ErrorMessage>}
-        </InputGroup>
-        <InputGroup>
+        </InputGroup> */}
+        <InputGroup >
           <Label>Date of Birth</Label>
           <InputField
+          style={{ width: '50%' }}
             type="date"
             name="date_of_birth"
             value={studentData.date_of_birth}
