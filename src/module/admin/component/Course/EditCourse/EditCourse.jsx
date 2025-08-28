@@ -284,107 +284,134 @@ export default function EditCourse() {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // === Required fields validation ===
-  if (!formData.courseTitle?.trim()) {
-    toast.error("Please enter course title.");
-    return;
-  }
-  if (!formData.internalTitle?.trim()) {
-    toast.error("Please enter internal course title.");
-    return;
-  }
-  if (formData.discountedPrice === "" || isNaN(formData.discountedPrice)) {
-    toast.error("Discounted price should be a number.");
-    return;
-  }
-  if (formData.actualPrice === "" || isNaN(formData.actualPrice)) {
-    toast.error("Actual price should be a number.");
-    return;
-  }
-  if (Number(formData.discountedPrice || 0) > Number(formData.actualPrice || 0)) {
-    toast.error("Discount price cannot exceed regular price.");
-    return;
-  }
-  // Image is mandatory: must have either existing previewUrl or new file
-  if (!formData.thumbnailFile && !formData.previewUrl) {
-    toast.error("Please upload a thumbnail image.");
-    return;
-  }
-
-  try {
-    // === Resolve image URL ===
-    let fileURL = formData.previewUrl;
-    if (formData.thumbnailFile) {
-      const fileData = await uploadFileToAzureStorage(formData.thumbnailFile, "course");
-      fileURL = fileData.blobUrl;
+    // === Required fields validation ===
+    if (!formData.courseTitle?.trim()) {
+      toast.error("Please enter course title.");
+      return;
+    }
+    if (!formData.internalTitle?.trim()) {
+      toast.error("Please enter internal course title.");
+      return;
+    }
+    if (formData.discountedPrice === "" || isNaN(formData.discountedPrice)) {
+      toast.error("Discounted price should be a number.");
+      return;
+    }
+    if (formData.actualPrice === "" || isNaN(formData.actualPrice)) {
+      toast.error("Actual price should be a number.");
+      return;
+    }
+    if (
+      Number(formData.discountedPrice || 0) > Number(formData.actualPrice || 0)
+    ) {
+      toast.error("Discount price cannot exceed regular price.");
+      return;
+    }
+    // Image is mandatory: must have either existing previewUrl or new file
+    if (!formData.thumbnailFile && !formData.previewUrl) {
+      toast.error("Please upload a thumbnail image.");
+      return;
     }
 
-    // === Subjects are OPTIONAL ===
-    let subjectIds = [];
-    if (selectedSubjects.length > 0) {
-      subjectIds = selectedSubjects.map((s) => s.id);
-      await rearrangeSubjects(subjectIds); // only if there are any
+    try {
+      // === Resolve image URL ===
+      let fileURL = formData.previewUrl;
+      if (formData.thumbnailFile) {
+        const fileData = await uploadFileToAzureStorage(
+          formData.thumbnailFile,
+          "course"
+        );
+        fileURL = fileData.blobUrl;
+      }
+
+      // === Subjects are OPTIONAL ===
+      let subjectIds = [];
+      if (selectedSubjects.length > 0) {
+        subjectIds = selectedSubjects.map((s) => s.id);
+        await rearrangeSubjects(subjectIds); // only if there are any
+      }
+
+      // Categories can be empty (optional)
+      const categories = categoryCheckboxes
+        .filter((item) => item.checked)
+        .map((item) => item.id);
+
+      // Build payload: requireds always present; others are optional
+      const payload = {
+        // required
+        courseName: formData.internalTitle,
+        courseDisplayName: formData.courseTitle,
+        price: Number(formData.actualPrice || 0),
+        discountPrice: Number(formData.discountedPrice || 0),
+        image: fileURL,
+
+        // optional (send as you had them; no extra mandatory checks)
+        shortDescription: formData.shortDescription,
+        description: formData.description,
+        category: categories,
+        discountActive: formData.isKYCRequired,
+        duration: formData.duration,
+        no_of_videos: formData.noOfVideos
+          ? Number(formData.noOfVideos)
+          : undefined,
+        successRate: formData.successRate
+          ? Number(formData.successRate)
+          : undefined,
+        course_includes: formData.courseIncludes
+          ? formData.courseIncludes
+              .split(",")
+              .map((i) => i.trim())
+              .filter((i) => i.length > 0)
+          : undefined,
+        live_class: formData.liveClass,
+        recorded_class: formData.recordedClass,
+        isPublished: formData.isPublished,
+        status: formData.status,
+        course_rating: formData.ratting ? Number(formData.ratting) : undefined,
+        courseExpiry: formData.courseExpiry
+          ? new Date(formData.courseExpiry)
+          : null,
+      };
+
+      // Only include subjects if any selected
+      // === Subjects (always include, even empty) ===
+      // let subjectIds = [];
+      if (selectedSubjects.length > 0) {
+        subjectIds = selectedSubjects.map((s) => s.id);
+        await rearrangeSubjects(subjectIds); // keep this only if order is important
+      }
+
+      payload.subjects = subjectIds; // ✅ always included
+
+      await updateCourseById(id, payload);
+      toast.success("Course updated successfully");
+      setTimeout(() => navigate("/admin/course-management"), 1000);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update course. Please try again.");
     }
-
-    // Categories can be empty (optional)
-    const categories = categoryCheckboxes
-      .filter((item) => item.checked)
-      .map((item) => item.id);
-
-    // Build payload: requireds always present; others are optional
-    const payload = {
-      // required
-      courseName: formData.internalTitle,
-      courseDisplayName: formData.courseTitle,
-      price: Number(formData.actualPrice || 0),
-      discountPrice: Number(formData.discountedPrice || 0),
-      image: fileURL,
-
-      // optional (send as you had them; no extra mandatory checks)
-      shortDescription: formData.shortDescription,
-      description: formData.description,
-      category: categories,
-      discountActive: formData.isKYCRequired,
-      duration: formData.duration,
-      no_of_videos: formData.noOfVideos ? Number(formData.noOfVideos) : undefined,
-      successRate: formData.successRate ? Number(formData.successRate) : undefined,
-      course_includes: formData.courseIncludes
-        ? formData.courseIncludes
-            .split(",")
-            .map((i) => i.trim())
-            .filter((i) => i.length > 0)
-        : undefined,
-      live_class: formData.liveClass,
-      recorded_class: formData.recordedClass,
-      isPublished: formData.isPublished,
-      status: formData.status,
-      course_rating: formData.ratting ? Number(formData.ratting) : undefined,
-      courseExpiry: formData.courseExpiry ? new Date(formData.courseExpiry) : null,
-    };
-
-    // Only include subjects if any selected
-    if (subjectIds.length > 0) {
-      payload.subjects = subjectIds;
-    }
-
-    await updateCourseById(id, payload);
-    toast.success("Course updated successfully");
-    setTimeout(() => navigate("/admin/course-management"), 1000);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update course. Please try again.");
-  }
-};
-
+  };
 
   const sanitizeInput = (value, type = "text") => {
     if (type === "number") {
       return value.replace(/[^0-9]/g, "");
     }
     return value.replace(/[^a-zA-Z0-9\s.,-]/g, "");
+  };
+
+  const handleRemoveSelectedSubject = (id) => {
+    // Remove from selected subjects
+    const newSelectedSubjects = selectedSubjects.filter((s) => s.id !== id);
+    setSelectedSubjects(newSelectedSubjects);
+
+    // Uncheck it in available subjects list too
+    const updatedCheckboxes = subjectCheckboxes.map((s) =>
+      s.id === id ? { ...s, checked: false } : s
+    );
+    setSubjectCheckboxes(updatedCheckboxes);
   };
 
   return (
@@ -509,53 +536,60 @@ export default function EditCourse() {
         </FormRow>
 
         {/* Subjects Section */}
-           <FormRow>
-                 <Column>
-                   <SubjectsContainer>
-                     <CheckboxSection>
-                       <CheckboxSectionTitle>Available Subjects ({subjectCheckboxes.length})</CheckboxSectionTitle>
-                       {/* Add the search input here */}
-                       <SearchWrapper style={{ marginBottom: "15px" }}>
-                         <SearchIcon>
-                           <CiSearch size={18} />
-                         </SearchIcon>
-                         <SearchInput
-                           placeholder="Search subjects..."
-                           value={searchSubject}
-                           onChange={(e) => setSearchSubject(e.target.value)}
-                         />
-                       </SearchWrapper>
-                       <CheckboxList>
-                         {subjectCheckboxes
-                           .filter((subject) =>
-                             subject.label
-                               .toLowerCase()
-                               .includes(searchSubject.toLowerCase())
-                           )
-                           .map((item, index) => (
-                             <CheckboxLabel key={item.id || index}>
-                               <CheckboxInput
-                                 type="checkbox"
-                                 checked={item.checked}
-                                 onChange={() => handleSubjectCheckboxChange(index)}
-                               />
-                               {item.label}
-                             </CheckboxLabel>
-                           ))}
-                       </CheckboxList>
-                     </CheckboxSection>
-
+        <FormRow>
+          <Column>
+            <SubjectsContainer>
+              <CheckboxSection>
+                <CheckboxSectionTitle>
+                  Available Subjects ({subjectCheckboxes.length})
+                </CheckboxSectionTitle>
+                {/* Add the search input here */}
+                <SearchWrapper style={{ marginBottom: "15px" }}>
+                  <SearchIcon>
+                    <CiSearch size={18} />
+                  </SearchIcon>
+                  <SearchInput
+                    placeholder="Search subjects..."
+                    value={searchSubject}
+                    onChange={(e) => setSearchSubject(e.target.value)}
+                  />
+                </SearchWrapper>
+                <CheckboxList>
+                  {subjectCheckboxes
+                    .filter((subject) =>
+                      subject.label
+                        .toLowerCase()
+                        .includes(searchSubject.toLowerCase())
+                    )
+                    .map((item, index) => (
+                      <CheckboxLabel key={item.id || index}>
+                        <CheckboxInput
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={() => handleSubjectCheckboxChange(index)}
+                        />
+                        {item.label}
+                      </CheckboxLabel>
+                    ))}
+                </CheckboxList>
+              </CheckboxSection>
 
               <SelectedSubjectsContainer>
-                <CheckboxSectionTitle>Selected Subjects ({selectedSubjects.length})</CheckboxSectionTitle>
-
-               
+                <CheckboxSectionTitle>
+                  Selected Subjects ({selectedSubjects.length})
+                </CheckboxSectionTitle>
 
                 {selectedSubjects.length > 0 ? (
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
-                      <div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          alignItems: "center",
+                        }}
+                      >
                         <MoveButton
                           style={{ backgroundColor: "green" }}
                           type="button"
@@ -571,6 +605,16 @@ export default function EditCourse() {
                           disabled={index === selectedSubjects.length - 1}
                         >
                           <FaArrowDown />
+                        </MoveButton>
+                        {/* 🚀 New Delete button */}
+                        <MoveButton
+                          style={{ backgroundColor: "gray" }}
+                          type="button"
+                          onClick={() =>
+                            handleRemoveSelectedSubject(subject.id)
+                          }
+                        >
+                          ❌
                         </MoveButton>
                       </div>
                     </SelectedSubjectItem>

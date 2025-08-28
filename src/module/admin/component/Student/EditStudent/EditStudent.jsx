@@ -100,7 +100,7 @@ const EditStudent = () => {
   useEffect(() => {
     const apiCaller = async () => {
       const res = await getUserByUserId(userId);
-      console.log("Student data:", res);
+      console.log("Student data by id:", res);
       if (!res.success || !res.user) throw new Error("Student not found");
       const stu = res.user;
       console.log("isBlocked", stu);
@@ -548,6 +548,7 @@ const handleSave = async () => {
         <InputGroup>
           <Label>Date of Birth</Label>
           <InputField
+           style={{ width: '50%' }}
             type="date"
             name="date_of_birth"
             value={form.date_of_birth}

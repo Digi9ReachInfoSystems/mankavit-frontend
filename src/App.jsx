@@ -170,6 +170,7 @@ import EditEntrance from "./module/admin/component/WebManagement/Entrance/EditEn
 import Entrances from "./component/Entrances/Entrances";
 import OverallEntrance from "./component/OverallEntrance/OverallEntrance";
 import Refund from "./component/StaticPages/RefundPolicy/Refund";
+import NotificationsList from "./module/admin/pages/WebManagement/Notification/NotificationList";
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
   useEffect(() => {
@@ -1114,6 +1115,14 @@ function App() {
 
             <Route
               path="web-management/notification"
+              element={
+                <AdminRoute Access={"webManagement"}>
+                  <NotificationsList />
+                </AdminRoute>
+              }
+            />
+              <Route
+              path="web-management/notification/create"
               element={
                 <AdminRoute Access={"webManagement"}>
                   <Notification />

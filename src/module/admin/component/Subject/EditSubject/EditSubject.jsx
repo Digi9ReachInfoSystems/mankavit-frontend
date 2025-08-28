@@ -290,6 +290,21 @@ const handleSubmit = async e => {
   }
 };
 
+const handleRemoveSelectedItem = (type, id) => {
+  if (readOnlyPermissions) return;
+
+  // Update selected state
+  const setters = {
+    notes: setSelectedNotes,
+    lectures: setSelectedLectures,
+    mockTests: setSelectedMockTests,
+    courses: setSelectedCourses
+  };
+
+  setters[type](prev => prev.filter(item => item.id !== id));
+};
+
+
   const editorConfig = useMemo(() => ({
     readonly: readOnlyPermissions,
     // placeholder: "Enter description here...",
@@ -329,17 +344,20 @@ const handleSubmit = async e => {
   };
 
   // Render selected items with move buttons (except for courses)
-  const renderSelectedItems = (items, type) => (
-    <SelectedSubjectsContainer>
-      <CheckboxSectionTitle>Selected {type} ({items.length})</CheckboxSectionTitle>
-      {items.length > 0 ? (
-        items.map((item, index) => (
-          <SelectedSubjectItem key={item.id}>
-            <SubjectName>{item.label}</SubjectName>
+const renderSelectedItems = (items, type) => (
+  <SelectedSubjectsContainer>
+    <CheckboxSectionTitle>
+      Selected {type} ({items.length})
+    </CheckboxSectionTitle>
+    {items.length > 0 ? (
+      items.map((item, index) => (
+        <SelectedSubjectItem key={item.id}>
+          <SubjectName>{item.label}</SubjectName>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             {type !== 'courses' && !readOnlyPermissions && (
-              <div>
+              <>
                 <MoveButton
-                  style={{backgroundColor: 'green'}}
+                  style={{ backgroundColor: 'green' }}
                   type="button"
                   onClick={() => moveItem(type, index, 'up')}
                   disabled={index === 0}
@@ -347,22 +365,34 @@ const handleSubmit = async e => {
                   <FaArrowUp />
                 </MoveButton>
                 <MoveButton
-                  style={{backgroundColor: 'red'}}
+                  style={{ backgroundColor: 'red' }}
                   type="button"
                   onClick={() => moveItem(type, index, 'down')}
                   disabled={index === items.length - 1}
                 >
                   <FaArrowDown />
                 </MoveButton>
-              </div>
+              </>
             )}
-          </SelectedSubjectItem>
-        ))
-      ) : (
-        <p>No {type} selected</p>
-      )}
-    </SelectedSubjectsContainer>
-  );
+            {/* ❌ Delete button */}
+            {!readOnlyPermissions && (
+              <MoveButton
+                style={{ backgroundColor: 'gray' }}
+                type="button"
+                onClick={() => handleRemoveSelectedItem(type, item.id)}
+              >
+                ❌
+              </MoveButton>
+            )}
+          </div>
+        </SelectedSubjectItem>
+      ))
+    ) : (
+      <p>No {type} selected</p>
+    )}
+  </SelectedSubjectsContainer>
+);
+
 
   return (
     <Container>

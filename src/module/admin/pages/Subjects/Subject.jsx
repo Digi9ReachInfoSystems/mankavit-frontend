@@ -43,7 +43,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { getAuth } from "../../../../utils/authService";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 
 export default function Subjects() {
   const navigate = useNavigate();

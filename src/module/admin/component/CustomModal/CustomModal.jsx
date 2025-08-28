@@ -72,6 +72,8 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           <Link
             to={`/admin/student-management/edit/${student._id}`}
             className="subject-link"
+                target="_blank"
+            rel="noopener noreferrer"
           >
             {student.displayName}
           </Link>
@@ -118,6 +120,9 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           <Link
             to={`/admin/course-management/edit/${course._id}`}
             className="subject-link"
+                target="_blank"
+            rel="noopener noreferrer"
+            
           >
             {course.courseName}
           </Link>
@@ -140,6 +145,8 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
               <Link
                 to={`/admin/subject-management/edit/${matchedSubject._id}`}
                 className="subject-link"
+                   target="_blank"
+            rel="noopener noreferrer"
               >
                 {matchedSubject.subjectName}
               </Link>
@@ -156,6 +163,8 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           <Link
             to={`/admin/mock-test/edit/${mockTest._id}`}
             className="subject-link"
+                target="_blank"
+            rel="noopener noreferrer"
           >
             {mockTest.title}
           </Link>

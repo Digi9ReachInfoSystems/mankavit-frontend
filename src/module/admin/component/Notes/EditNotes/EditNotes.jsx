@@ -338,7 +338,7 @@ const filteredSubjects = subjectsCheckboxes.filter(subject =>
           {selectedSubjects.map((subject, index) => (
             <SelectedSubjectItem key={subject.id}>
               <SubjectName>{subject.label}</SubjectName>
-              {/* <div>
+              <div>
                 <ArrowButton 
                   style={{backgroundColor: "green"}}
                   type="button" 
@@ -355,7 +355,7 @@ const filteredSubjects = subjectsCheckboxes.filter(subject =>
                 >
                   ↓
                 </ArrowButton>
-              </div> */}
+              </div>
             </SelectedSubjectItem>
           ))}
         </SelectedSubjectsList>

@@ -34,7 +34,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { set } from "date-fns";
 import { getAuth } from "../../../../utils/authService";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 
 export default function NotesManagement() {
   const navigate = useNavigate();

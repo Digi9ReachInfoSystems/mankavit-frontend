@@ -194,7 +194,7 @@ export const CheckboxInput = styled.input`
 `;
 
 export const UploadArea = styled.div`
-width: 45%;
+width: 25%;
   border: 2px dashed ${(props) => props.theme.colors.grey};
   border-radius: 8px;
   padding: ${(props) => props.theme.spacing(6)};
