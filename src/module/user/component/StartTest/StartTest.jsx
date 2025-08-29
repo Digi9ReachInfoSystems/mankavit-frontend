@@ -114,13 +114,20 @@ const StartTest = () => {
                 background: "linear-gradient(90deg, #ff4e50, #f9d423)",
               }}
               onClick={async () => {
-                const cookiesData = await getCookiesData();
-                const response = await submitMocktest({
-                  user_id: cookiesData.userId,
-                  attemptId: attemptId,
-                });
-                if (response.success) {
-                  navigate(`/test-instructions/${testId}/${subjectId}`);
+                try {
+                  console.log("attemptId", attemptId);
+                  const cookiesData = await getCookiesData();
+
+                  const response = await submitMocktest({
+                    user_id: cookiesData.userId,
+                    attemptId: attemptId,
+                  });
+                  console.log("response", response);
+                  if (response.success) {
+                    navigate(`/test-instructions/${testId}/${subjectId}`);
+                  }
+                } catch (e) {
+                  console.log(e);
                 }
               }}
             >
