@@ -1388,7 +1388,6 @@ const ContinueCourse = () => {
           try {
             const res = await getAllUserAttemptByUserId(uid, lecture._id);
             const meta = computeAttemptMeta(lecture, res?.data || []);
-            console.log("getAllUserAttemptByUserId", lecture);
             setAttemptsCache((prev) => ({
               ...prev,
               [lecture._id]: {...meta,resumetest: false},
@@ -1459,7 +1458,7 @@ const ContinueCourse = () => {
           throw new Error("progress fetch failed");
         }
       } catch (error) {
-        console.error("Error fetching course with progress:", error);
+        // console.error("Error fetching course with progress:", error);
         const response = await getCourseById(id);
         if (response?.success) setCourse(response.data);
       }
@@ -1478,7 +1477,7 @@ const ContinueCourse = () => {
     try {
       await startSubject(userId, course._id, subjectId);
     } catch (err) {
-      console.error("Failed to start subject:", err);
+      // console.error("Failed to start subject:", err);
     }
   };
 
@@ -1487,13 +1486,13 @@ const ContinueCourse = () => {
     try {
       await startLecturer(userId, course._id, subjectId, lectureId);
     } catch (err) {
-      console.error("Failed to start lecture:", err);
+      // console.error("Failed to start lecture:", err);
     }
   };
 
   const handleOpenNote = (note) => {
     if (!note?.fileUrl) {
-      console.error("No file URL found for this note");
+      // console.error("No file URL found for this note");
       return;
     }
     if (note.isDownload) {
@@ -1514,7 +1513,7 @@ const ContinueCourse = () => {
       const response = await getMocktestBySubjectId(subjectId);
       return response.data || [];
     } catch (error) {
-      console.error("Error fetching mock tests:", error);
+      // console.error("Error fetching mock tests:", error);
       return [];
     }
   };

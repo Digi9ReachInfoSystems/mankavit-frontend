@@ -41,6 +41,7 @@ import { FaFilePdf } from "react-icons/fa";
 import {
   getMocktestBySubjectId,
   getAllUserAttemptByUserId,
+  checkMockTestAttempted,
 } from "../../api/mocktestApi";
 import PdfModal from "./PDFModal";
 
@@ -153,7 +154,15 @@ const CoursesLiveclass = () => {
   const [mockActiveAccordion, setMockActiveAccordion] = useState(null);
   const [attemptsData, setAttemptsData] = useState({}); // { [mockId]: { attemptsCount, max, remaining, isUnlimited, attempts[] } }
   const [attemptsLoading, setAttemptsLoading] = useState({}); // { [mockId]: boolean }
-
+  const [resumeTests, setResumeTests] = useState({});
+  const checkResumeMockTest = async (userId, mockId, subjectId) => {
+    try {
+      const res = await checkMockTestAttempted(userId, mockId, subjectId);
+      setResumeTests((prev) => ({ ...prev, [mockId]: res.success }));
+    } catch (error) {
+      setResumeTests((prev) => ({ ...prev, [mockId]: false }));
+    }
+  };
   useEffect(() => {
     const handleFSChange = () => {
       // check vendor-prefixed properties too
@@ -555,6 +564,9 @@ const CoursesLiveclass = () => {
             {(subject.lectures || []).map((lec) => {
               const meta = attemptsData[lec._id];
               const isLoading = !!attemptsLoading[lec._id];
+              if (resumeTests[lec._id] === undefined && userId) {
+                checkResumeMockTest(userId, lec._id, subject._id);
+              }
 
               const Skeleton = () => (
                 <div style={{ display: "flex", gap: 8 }}>
@@ -582,6 +594,7 @@ const CoursesLiveclass = () => {
               let remainingText = "";
               let showViewResults = false;
               let canStart = true;
+               const resumetest = resumeTests[lec._id]; 
 
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
@@ -658,7 +671,7 @@ const CoursesLiveclass = () => {
                           </button>
                         )}
 
-                        {canStart && (
+                        {/* {canStart && (
                           <div
                             onClick={(e) => {
                               e.stopPropagation();
@@ -676,7 +689,44 @@ const CoursesLiveclass = () => {
                           >
                             Start Test
                           </div>
-                        )}
+                        )} */}
+                        {resumetest ? (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/start-test/${lec._id}/${subject._id}`);
+                            }}
+                            style={{
+                              fontSize: 14,
+                              color: "#007bff",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                              padding: "4px 8px",
+                              border: "1px solid #007bff",
+                              borderRadius: 4,
+                            }}
+                          >
+                            Resume Test
+                          </div>
+                        ) : canStart ? (
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/start-test/${lec._id}/${subject._id}`);
+                            }}
+                            style={{
+                              fontSize: 14,
+                              color: "#007bff",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                              padding: "4px 8px",
+                              border: "1px solid #007bff",
+                              borderRadius: 4,
+                            }}
+                          >
+                            Start Test
+                          </div>
+                        ) : null}
                       </>
                     )}
                   </div>
