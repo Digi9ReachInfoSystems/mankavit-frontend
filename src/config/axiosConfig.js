@@ -6,8 +6,8 @@ import { getCookiesData } from "../utils/cookiesService";
 
 // Create an Axios instance with the base URL and common configurations
 const api = axios.create({
-    // baseURL: import.meta.env.VITE_APP_PROD_BASE_URL, // Replace with your backend base URL
-    baseURL: import.meta.env.VITE_APP_DEV_BASE_URL,     //
+    baseURL: import.meta.env.VITE_APP_PROD_BASE_URL, // Replace with your backend base URL
+    // baseURL: import.meta.env.VITE_APP_DEV_BASE_URL,     //
 
     timeout: 30000, // Optional: Timeout after 10 seconds
     headers: {
