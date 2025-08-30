@@ -217,19 +217,20 @@ export default function AddNote() {
         });
         return;
       }
-      if (pdfFile.type != "application/pdf") {
-        toast.error("Please select pdf file.", {
-          duration: 3000,
-          position: "top-right",
-          ariaProps: {
-            role: "status",
-            "aria-live": "polite",
-          },
-        });
-        return;
-      }
+      // if (pdfFile.type != "application/pdf") {
+      //   toast.error("Please select pdf file.", {
+      //     duration: 3000,
+      //     position: "top-right",
+      //     ariaProps: {
+      //       role: "status",
+      //       "aria-live": "polite",
+      //     },
+      //   });
+      //   return;
+      // }
 
       const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
+      console.log("fileData", fileData);
       const fileURL = fileData.blobUrl;
       const subjects = selectedSubjects.map((item) => item.id);
 
@@ -410,7 +411,7 @@ export default function AddNote() {
               <FileInput
                 ref={fileInputRef}
                 type="file"
-                accept="application/pdf"
+                // accept="application/pdf"
                 onChange={handleFileChange}
               />
             </UploadArea>
