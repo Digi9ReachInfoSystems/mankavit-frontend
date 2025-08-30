@@ -42,8 +42,10 @@ import {
   getMocktestBySubjectId,
   getAllUserAttemptByUserId,
   checkMockTestAttempted,
+  viewUserMocktestAttemptResult,
 } from "../../api/mocktestApi";
 import PdfModal from "./PDFModal";
+import { m } from "framer-motion";
 
 // PDF Modal component updated to hide default print/save toolbar
 // const PdfModal = ({ file, name, onClose, isDownloadable }) => {
@@ -155,12 +157,24 @@ const CoursesLiveclass = () => {
   const [attemptsData, setAttemptsData] = useState({}); // { [mockId]: { attemptsCount, max, remaining, isUnlimited, attempts[] } }
   const [attemptsLoading, setAttemptsLoading] = useState({}); // { [mockId]: boolean }
   const [resumeTests, setResumeTests] = useState({});
+  const [viewResults, setViewResults] = useState({});
   const checkResumeMockTest = async (userId, mockId, subjectId) => {
     try {
       const res = await checkMockTestAttempted(userId, mockId, subjectId);
+
       setResumeTests((prev) => ({ ...prev, [mockId]: res.success }));
     } catch (error) {
       setResumeTests((prev) => ({ ...prev, [mockId]: false }));
+    }
+  };
+  const checkViewResultMockTest = async (userId, mockId) => {
+    try {
+      const res = await viewUserMocktestAttemptResult(userId, mockId);
+      setViewResults((prev) => ({ ...prev, [mockId]: Object.keys(res.result).length === 0
+              ? false
+              : true || false }));
+    } catch (error) {
+      setViewResults((prev) => ({ ...prev, [mockId]: false }));
     }
   };
   useEffect(() => {
@@ -566,6 +580,7 @@ const CoursesLiveclass = () => {
               const isLoading = !!attemptsLoading[lec._id];
               if (resumeTests[lec._id] === undefined && userId) {
                 checkResumeMockTest(userId, lec._id, subject._id);
+                checkViewResultMockTest(userId, lec._id);
               }
 
               const Skeleton = () => (
@@ -592,15 +607,17 @@ const CoursesLiveclass = () => {
               let infoLine = lec.duration;
               let showRemaining = false;
               let remainingText = "";
-              let showViewResults = false;
+              // let showViewResults = false;
+              const showViewResults = viewResults[lec._id]; 
               let canStart = true;
                const resumetest = resumeTests[lec._id]; 
+              //  const  canStart=canAttend[lec._id] || false;
 
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
-                showViewResults = attemptsCount > 0;
-                canStart =
-                  isUnlimited || (Number.isFinite(remaining) && remaining > 0);
+                // showViewResults = attemptsCount > 0;
+                // canStart =
+                //   isUnlimited || (Number.isFinite(remaining) && remaining > 0);
 
                 const maxText = isUnlimited
                   ? "Unlimited"
@@ -622,6 +639,7 @@ const CoursesLiveclass = () => {
                   lec.maxAttempts == null ? "Unlimited" : lec.maxAttempts;
                 infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
               }
+             
 
               return (
                 <div

@@ -968,6 +968,7 @@ import {
   getMocktestBySubjectId,
   getAllUserAttemptByUserId,
   checkMockTestAttempted,
+  viewUserMocktestAttemptResult,
 } from "../../api/mocktestApi";
 import {
   getCourseByIdWithUSerProgress,
@@ -1010,7 +1011,6 @@ const AccordionList = ({
 }) => {
   const [resumeTests, setResumeTests] = React.useState({});
 
-
   // Fetch resumetest for lectures when data changes
   React.useEffect(() => {
     const apiCaller = async () => {
@@ -1022,7 +1022,16 @@ const AccordionList = ({
             lecture._id,
             item._id
           );
+          const viewResults = await viewUserMocktestAttemptResult(
+            userId,
+            lecture._id
+          );
           attemptsData[lecture._id].resumetest = response.success || false;
+          attemptsData[lecture._id].viewResults =
+            Object.keys(viewResults.result).length === 0
+              ? false
+              : true || false;
+          attemptsData[lecture._id].canStart =viewResults.remainigAttempts > 0 || false;
           // console.log("resumetest",   attemptsData[lecture._id]);
         });
       });
@@ -1094,7 +1103,9 @@ const AccordionList = ({
                           }`
                         : `${lecture.duration} | Max Attempts: ${defaultMaxText}`;
 
-                      const showViewResults = !!meta && meta.attemptsCount > 0;
+                      // const showViewResults = !!meta && meta.attemptsCount > 0;
+                      const showViewResults = meta?.viewResults;
+
                       // console.log("meta", meta);
                       // console.log(
                       //   "showViewResults",
@@ -1114,11 +1125,12 @@ const AccordionList = ({
                       //   });
                       // console.log("resumetest answer", resumetest);
                       // Optimistic: allow Start while meta is warming
-                      const canStart = !meta
-                        ? true
-                        : meta.isUnlimited ||
-                          (Number.isFinite(meta.remaining) &&
-                            meta.remaining > 0);
+                      // const canStart = !meta
+                      //   ? true
+                      //   : meta.isUnlimited ||
+                      //     (Number.isFinite(meta.remaining) &&
+                      //       meta.remaining > 0);
+                      const canStart = meta?.canStart || false;
 
                       const remainingText =
                         meta &&
@@ -1388,13 +1400,21 @@ const ContinueCourse = () => {
           try {
             const res = await getAllUserAttemptByUserId(uid, lecture._id);
             const meta = computeAttemptMeta(lecture, res?.data || []);
+          const viewResults = await viewUserMocktestAttemptResult(
+            userId,
+            lecture._id
+          );
+          const canStart =viewResults.remainigAttempts > 0 || false;
             setAttemptsCache((prev) => ({
               ...prev,
-              [lecture._id]: {...meta,resumetest: false},
+              [lecture._id]: { ...meta, resumetest: false ,canStart:canStart },
             }));
           } catch (e) {
             const meta = computeAttemptMeta(lecture, []);
-            setAttemptsCache((prev) => ({ ...prev, [lecture._id]: {...meta,resumetest: false} }));
+            setAttemptsCache((prev) => ({
+              ...prev,
+              [lecture._id]: { ...meta, resumetest: false ,canStart:false },
+            }));
           }
         }
       };
