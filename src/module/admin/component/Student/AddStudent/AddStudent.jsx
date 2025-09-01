@@ -326,7 +326,7 @@ console.log('Create Student Response:', response);
         <InputGroup >
           <Label>Date of Birth</Label>
           <InputField
-          style={{ width: '50%' }}
+          // style={{ width: '50%' }}
             type="date"
             name="date_of_birth"
             value={studentData.date_of_birth}
@@ -334,6 +334,23 @@ console.log('Create Student Response:', response);
             disabled={isLoading}
           />
         </InputGroup>
+             <InputGroup style={{ width: '50%' }}>
+        <Label>Password*</Label>
+        <PasswordInputWrapper>
+          <InputField
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            value={studentData.password}
+            onChange={handleChange}
+            placeholder="Enter Password"
+            disabled={isLoading}
+          />
+          <PasswordToggle onClick={togglePasswordVisibility} disabled={isLoading}>
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </PasswordToggle>
+        </PasswordInputWrapper>
+        {formErrors.password && <ErrorMessage>{formErrors.password}</ErrorMessage>}
+      </InputGroup>
       </FlexRow>
 {/* 
       <FlexRow>
@@ -436,23 +453,7 @@ console.log('Create Student Response:', response);
         </InputGroup>
       </FlexRow>
 
-      <InputGroup style={{ width: '50%' }}>
-        <Label>Password*</Label>
-        <PasswordInputWrapper>
-          <InputField
-            type={showPassword ? 'text' : 'password'}
-            name="password"
-            value={studentData.password}
-            onChange={handleChange}
-            placeholder="Enter Password"
-            disabled={isLoading}
-          />
-          <PasswordToggle onClick={togglePasswordVisibility} disabled={isLoading}>
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </PasswordToggle>
-        </PasswordInputWrapper>
-        {formErrors.password && <ErrorMessage>{formErrors.password}</ErrorMessage>}
-      </InputGroup>
+ 
 
       <FlexRow>
         <UploadSection $hasError={!!formErrors.passport_photo}>

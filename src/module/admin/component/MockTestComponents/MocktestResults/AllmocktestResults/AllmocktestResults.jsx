@@ -18,9 +18,14 @@ import {
   ActionsContainer,
   ButtonContainer,
   FilterByContainer,
-  CreateButton
+  CreateButton,
 } from "./AllmocktestResults.styles";
-import { getAllUserAttempts, getAllMocktest, bulkdeleteUserAttempts,getRankingByMockTestSubject } from "../../../../../../api/mocktestApi";
+import {
+  getAllUserAttempts,
+  getAllMocktest,
+  bulkdeleteUserAttempts,
+  getRankingByMockTestSubject,
+} from "../../../../../../api/mocktestApi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -48,7 +53,7 @@ export default function AllmocktestResults() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-    const [selectedAttempts, setSelectedAttempts] = useState([]);
+  const [selectedAttempts, setSelectedAttempts] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
 
@@ -81,7 +86,7 @@ export default function AllmocktestResults() {
       try {
         const [attemptsResponse, mockTestsResponse] = await Promise.all([
           getAllUserAttempts(),
-          getAllMocktest()
+          getAllMocktest(),
         ]);
         console.log("attemptsResponse", attemptsResponse);
 
@@ -90,6 +95,7 @@ export default function AllmocktestResults() {
           _id: item._id,
           testName: item.mockTestId?.title || "Untitled Test",
           testId: item.mockTestId?._id,
+          subjectId: item.mockTestId?.subjectId,
           studentName: item.userId?.displayName || "Anonymous",
           email: item.userId?.email || "-",
           marks: item.totalMarks || 0,
@@ -105,7 +111,7 @@ export default function AllmocktestResults() {
           status: item.status,
           userId: item.userId?._id,
           submittedAt: item.submittedAt,
-          rank: item.ranking?.rank
+          rank: item.ranking?.rank,
         }));
 
         setData(mapped.sort((a, b) => ts(b) - ts(a)));
@@ -215,7 +221,9 @@ export default function AllmocktestResults() {
         break;
       default:
         // Default sort by submission date (newest first)
-        result.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+        result.sort(
+          (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+        );
         break;
     }
 
@@ -238,17 +246,17 @@ export default function AllmocktestResults() {
     if (selectAll) {
       setSelectedAttempts([]);
     } else {
-      setSelectedAttempts(filteredAndSorted.map(item => item._id));
+      setSelectedAttempts(filteredAndSorted.map((item) => item._id));
     }
     setSelectAll(!selectAll);
   };
-   const handleBulkDeleteClick = () => {
+  const handleBulkDeleteClick = () => {
     setBulkDeleteModalOpen(true);
   };
-    const handleCheckboxChange = (attemptId) => {
-    setSelectedAttempts(prev =>
+  const handleCheckboxChange = (attemptId) => {
+    setSelectedAttempts((prev) =>
       prev.includes(attemptId)
-        ? prev.filter(id => id !== attemptId)
+        ? prev.filter((id) => id !== attemptId)
         : [...prev, attemptId]
     );
   };
@@ -257,10 +265,14 @@ export default function AllmocktestResults() {
     try {
       setLoading(true);
       const response = await bulkdeleteUserAttempts(selectedAttempts);
-      
+
       if (response.success) {
-        toast.success(response.message || "Selected attempts deleted successfully");
-        setData(prev => prev.filter(item => !selectedAttempts.includes(item._id)));
+        toast.success(
+          response.message || "Selected attempts deleted successfully"
+        );
+        setData((prev) =>
+          prev.filter((item) => !selectedAttempts.includes(item._id))
+        );
         setSelectedAttempts([]);
         setSelectAll(false);
       } else {
@@ -414,20 +426,21 @@ export default function AllmocktestResults() {
                       />
                     </TableCell>
                   )}
+
                   <TableCell
-                    style={{
-                      cursor: "pointer",
-                      color: "#1890ff",
-                      textDecoration: "none",
+                    style={{ cursor: "pointer", color: "#1890ff" }}
+                    onClick={() => {
+                      navigate(
+                        `/admin/mock-test/user-result/${item.testId}/${item._id}`,
+                        {
+                          state: { studentName: item.studentName },
+                        }
+                      );
                     }}
-                    onClick={() =>
-                      navigate(`/admin/results/studentName/${item.userId}`, {
-                        state: { studentName: item.studentName },
-                      })
-                    }
                   >
                     {item.testName}
                   </TableCell>
+
                   <TableCell>
                     <span
                       style={{
@@ -436,9 +449,9 @@ export default function AllmocktestResults() {
                         textDecoration: "none",
                       }}
                       onClick={() =>
-                        navigate(
-                          `/admin/student-management/edit/${item.userId}`
-                        )
+                        navigate(`/admin/results/studentName/${item.userId}`, {
+                          state: { studentName: item.studentName },
+                        })
                       }
                     >
                       {item.studentName}
@@ -447,22 +460,21 @@ export default function AllmocktestResults() {
                   <TableCell>{item.email}</TableCell>
                   <TableCell>{item.rank}</TableCell>
                   <TableCell>
-                    <a 
-                    navigate
-                    style={{
-                      cursor: "pointer",
-                      color: "#1890ff",
-                      textDecoration: "none",
-                    }}
-                    onClick={() =>
-                      navigate(
-                        `/admin/results/user-attempts/attempt/${item._id}`
-                      )
-                    }
+                    <a
+                      navigate
+                      style={{
+                        cursor: "pointer",
+                        color: "#1890ff",
+                        textDecoration: "none",
+                      }}
+                      onClick={() =>
+                        navigate(
+                          `/admin/results/user-attempts/attempt/${item._id}`
+                        )
+                      }
                     >
-
-                  
-                    {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]  </a>
+                      {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]{" "}
+                    </a>
                   </TableCell>
                   <TableCell>{item.timeToComplete}</TableCell>
                   <TableCell>{item.submissionDate}</TableCell>
@@ -512,23 +524,20 @@ export default function AllmocktestResults() {
   );
 }
 
+// <TableCell>
+//                   <a
+//                   navigate
+//                   style={{
+//                     cursor: "pointer",
+//                     color: "#1890ff",
+//                     textDecoration: "none",
+//                   }}
+//                   onClick={() =>
+//                     navigate(
+//                       `/admin/results/user-attempts/attempt/${item._id}`
+//                     )
+//                   }
+//                   >
 
-
-  // <TableCell>
-  //                   <a 
-  //                   navigate
-  //                   style={{
-  //                     cursor: "pointer",
-  //                     color: "#1890ff",
-  //                     textDecoration: "none",
-  //                   }}
-  //                   onClick={() =>
-  //                     navigate(
-  //                       `/admin/results/user-attempts/attempt/${item._id}`
-  //                     )
-  //                   }
-  //                   >
-
-                  
-  //                   {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]  </a>
-  //                 </TableCell>
+//                   {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]  </a>
+//                 </TableCell>

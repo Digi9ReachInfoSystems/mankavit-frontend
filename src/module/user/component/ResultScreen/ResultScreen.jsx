@@ -485,7 +485,9 @@ import {
   getMocktestAttempts,
 } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
-import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+// import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+import { RxDoubleArrowRight } from "react-icons/rx";
+import { RxDoubleArrowLeft } from "react-icons/rx";
 
 // --- small helpers for layout inside this file only ---
 const PassageContainer = styled.div`
@@ -653,7 +655,7 @@ export default function ResultScreen() {
     return (
       <div style={{ marginTop: 16 }}>
         <p>
-          <strong>Expected Answer:</strong>
+          <strong>Explanation:</strong>
         </p>
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
@@ -668,7 +670,7 @@ export default function ResultScreen() {
           aria-label="Toggle question navigator"
           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
         >
-          {sidebarOpen ? <FaAngleDoubleRight /> : <FaAngleDoubleLeft />}
+          {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
         </ToggleSidebarBtn>
 
         {/* HEADER — Back + Title tight */}

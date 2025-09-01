@@ -101,6 +101,8 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
               <Link
                 to={`/admin/course-management/edit/${matchedCourse._id}`}
                 className="subject-link"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 {matchedCourse.courseName}
               </Link>
