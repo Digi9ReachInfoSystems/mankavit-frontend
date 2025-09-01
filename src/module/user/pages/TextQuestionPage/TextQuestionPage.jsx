@@ -7,7 +7,7 @@ const TextQuestionPage = () => {
     return (
         <>
         <TextScreen />
-         <Footer />
+         {/* <Footer /> */}
         </>
     );
 };

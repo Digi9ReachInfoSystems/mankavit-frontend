@@ -283,6 +283,9 @@ export default function EditCourse() {
       }));
     }
   };
+  const handleSubjectClick = (id) => {
+    navigate(`/admin/subject-management/edit/${id}`);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -568,7 +571,17 @@ export default function EditCourse() {
                           checked={item.checked}
                           onChange={() => handleSubjectCheckboxChange(index)}
                         />
-                        {item.label}
+                        <span
+                          style={{
+                            cursor: "pointer",
+                            marginLeft: "8px",
+                            color: "blue",
+                            textDecoration: "none",
+                          }}
+                          onClick={() => handleSubjectClick(item.id)}
+                        >
+                          {item.label}
+                        </span>
                       </CheckboxLabel>
                     ))}
                 </CheckboxList>
@@ -582,7 +595,15 @@ export default function EditCourse() {
                 {selectedSubjects.length > 0 ? (
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
-                      <SubjectName>{subject.label}</SubjectName>
+                      <SubjectName 
+                         style={{
+                            cursor: "pointer",
+                            marginLeft: "8px",
+                            color: "blue",
+                            textDecoration: "none",
+                          }}
+                          onClick={() => handleSubjectClick(subject.id)}
+                      >{subject.label}</SubjectName>
                       <div
                         style={{
                           display: "flex",

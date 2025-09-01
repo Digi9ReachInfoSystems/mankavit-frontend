@@ -26,6 +26,10 @@ import {
   ModalContent,
   CloseButton,
   ErrorMessage,
+  GreyButton,
+  TermsContainer,
+  TermsLink,
+  PasswordModal
 } from "./Profile.styles";
 
 import { MdOutlineFileUpload } from "react-icons/md";
@@ -101,6 +105,8 @@ const Profile = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
   // put this near the top, after other imports/state
   const HOW_OPTIONS = [
     "Instagram",
@@ -365,11 +371,11 @@ const Profile = () => {
   };
 
   // Treat anything ending in .pdf or with application/pdf as a PDF
-const isPdfFile = (file) =>
-  !!file &&
-  (file.type === "application/pdf" ||
-    (typeof file.url === "string" && file.url.toLowerCase().endsWith(".pdf")));
-
+  const isPdfFile = (file) =>
+    !!file &&
+    (file.type === "application/pdf" ||
+      (typeof file.url === "string" &&
+        file.url.toLowerCase().endsWith(".pdf")));
 
   // Submit KYC: create or update via createKycApi (backend upserts)
   const handleSubmitKyc = async (e) => {
@@ -898,12 +904,26 @@ const isPdfFile = (file) =>
                 </span>
               )}
             </div>
+            <TermsContainer>
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                disabled={isKycReadOnly && kycStatus !== "rejected"}
+              />
+              <span>
+                I accept the{" "}
+                <TermsLink onClick={() => navigate("/user/tandc")}>
+                  Terms and Conditions
+                </TermsLink>
+              </span>
+            </TermsContainer>
 
             {/* CTAs */}
             <div
               style={{ display: "flex", justifyContent: "flex-start", gap: 20 }}
             >
-              <SubmitButton
+              {/* <SubmitButton
                 as="button" // <-- ensures a real <button>
                 type="submit"
                 onClick={handleSubmitKyc} // <-- safety net: click will call handler
@@ -918,7 +938,29 @@ const isPdfFile = (file) =>
                   : kycStatus === "rejected"
                   ? "Resubmit KYC"
                   : "Submitted"}
-              </SubmitButton>
+              </SubmitButton> */}
+
+           {kycStatus === "not-applied" || kycStatus === "rejected" ? (
+  <SubmitButton
+    as="button"
+    type="submit"
+    onClick={handleSubmitKyc}
+    disabled={
+      isLoading ||
+      (isKycReadOnly && kycStatus !== "rejected") ||
+      !acceptedTerms ||
+      !!validateKyc()   // 🚀 disable if validation fails
+    }
+  >
+    {isLoading
+      ? "Saving..."
+      : kycStatus === "not-applied"
+      ? "Submit KYC"
+      : "Resubmit KYC"}
+  </SubmitButton>
+) : (
+  <GreyButton disabled>Submitted</GreyButton>
+)}
 
               <SubmitButton
                 type="button"
@@ -969,7 +1011,8 @@ const isPdfFile = (file) =>
             setShowPasswordModal(false);
           }}
         >
-          <ModalContent onClick={(e) => e.stopPropagation()}>
+ <PasswordModal onClick={(e) => e.stopPropagation()}>
+
             <CloseButton
               onClick={() => {
                 setOtp("");
@@ -995,12 +1038,12 @@ const isPdfFile = (file) =>
               />
               {isOtpSent ? (
                 resendTimer > 0 ? (
-                  <SubmitButton disabled style={{ width: "100%", height: 70 }}>
+                  <SubmitButton disabled style={{ width: "100%", height: 40 }}>
                     Resend OTP in {resendTimer}s
                   </SubmitButton>
                 ) : (
                   <SubmitButton
-                    style={{ width: "100%", height: 70 }}
+                    style={{ width: "100%", height: 40 }}
                     onClick={handleResendOtp}
                   >
                     Resend OTP
@@ -1008,7 +1051,7 @@ const isPdfFile = (file) =>
                 )
               ) : (
                 <SubmitButton
-                  style={{ width: "100%", height: 70 }}
+                  style={{ width: "100%", height: 40 }}
                   onClick={handleChangePasswordClick}
                 >
                   Send OTP
@@ -1119,7 +1162,7 @@ const isPdfFile = (file) =>
                 Cancel
               </SubmitButton>
             </div>
-          </ModalContent>
+          </PasswordModal>
         </ModalOverlay>
       )}
     </FormContainer>
