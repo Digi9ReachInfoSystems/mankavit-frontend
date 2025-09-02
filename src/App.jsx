@@ -182,61 +182,61 @@ function App() {
 
 
 
-// useEffect(() => {
-//    const isEditable = (el) =>
-//     !!el &&
-//     (el.closest('input, textarea, [contenteditable="true"], .allow-select, [data-allow-select="true"]'));
+  // useEffect(() => {
+  //    const isEditable = (el) =>
+  //     !!el &&
+  //     (el.closest('input, textarea, [contenteditable="true"], .allow-select, [data-allow-select="true"]'));
 
-//   const prevent = (e) => {
-//     if (isEditable(e.target)) return;       // allow forms/editors
-//     e.preventDefault();
-//     e.stopPropagation();
-//     return false;
-//   };
+  //   const prevent = (e) => {
+  //     if (isEditable(e.target)) return;       // allow forms/editors
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     return false;
+  //   };
 
-//   const onKeyDown = (e) => {
-//     if (isEditable(e.target)) return;
+  //   const onKeyDown = (e) => {
+  //     if (isEditable(e.target)) return;
 
-//     const key = (e.key || '').toLowerCase();
-//     const ctrl = e.ctrlKey || e.metaKey;
+  //     const key = (e.key || '').toLowerCase();
+  //     const ctrl = e.ctrlKey || e.metaKey;
 
-//     // Block common copy/save/print/select-all/view-source shortcuts
-//     if (
-//       (ctrl && ['c', 'x', 'v', 's', 'p', 'a', 'u'].includes(key)) ||
-//       // Optional: block F12 (DevTools) / Ctrl+Shift+I (not 100% reliable)
-//       key === 'f12' ||
-//       (ctrl && e.shiftKey && key === 'i')
-//     ) {
-//       prevent(e);
-//     }
-//   };
+  //     // Block common copy/save/print/select-all/view-source shortcuts
+  //     if (
+  //       (ctrl && ['c', 'x', 'v', 's', 'p', 'a', 'u'].includes(key)) ||
+  //       // Optional: block F12 (DevTools) / Ctrl+Shift+I (not 100% reliable)
+  //       key === 'f12' ||
+  //       (ctrl && e.shiftKey && key === 'i')
+  //     ) {
+  //       prevent(e);
+  //     }
+  //   };
 
-//   // Mouse / selection / clipboard
-//   document.addEventListener('contextmenu', prevent, true);
-//   document.addEventListener('selectstart', prevent, true);
-//   document.addEventListener('dragstart', prevent, true);
-//   document.addEventListener('copy', prevent, true);
-//   document.addEventListener('cut', prevent, true);
-//   document.addEventListener('paste', prevent, true);
-//   document.addEventListener('keydown', onKeyDown, true);
+  //   // Mouse / selection / clipboard
+  //   document.addEventListener('contextmenu', prevent, true);
+  //   document.addEventListener('selectstart', prevent, true);
+  //   document.addEventListener('dragstart', prevent, true);
+  //   document.addEventListener('copy', prevent, true);
+  //   document.addEventListener('cut', prevent, true);
+  //   document.addEventListener('paste', prevent, true);
+  //   document.addEventListener('keydown', onKeyDown, true);
 
-//   // Also block the basic right-click you already had
-//   const disableRightClick = (e) => prevent(e);
-//   document.addEventListener('mousedown', (e) => {
-//     if (e.button === 2 && !isEditable(e.target)) prevent(e);
-//   }, true);
+  //   // Also block the basic right-click you already had
+  //   const disableRightClick = (e) => prevent(e);
+  //   document.addEventListener('mousedown', (e) => {
+  //     if (e.button === 2 && !isEditable(e.target)) prevent(e);
+  //   }, true);
 
-//   return () => {
-//     document.removeEventListener('contextmenu', prevent, true);
-//     document.removeEventListener('selectstart', prevent, true);
-//     document.removeEventListener('dragstart', prevent, true);
-//     document.removeEventListener('copy', prevent, true);
-//     document.removeEventListener('cut', prevent, true);
-//     document.removeEventListener('paste', prevent, true);
-//     document.removeEventListener('keydown', onKeyDown, true);
-//     document.removeEventListener('mousedown', disableRightClick, true);
-//   };
-// }, []);
+  //   return () => {
+  //     document.removeEventListener('contextmenu', prevent, true);
+  //     document.removeEventListener('selectstart', prevent, true);
+  //     document.removeEventListener('dragstart', prevent, true);
+  //     document.removeEventListener('copy', prevent, true);
+  //     document.removeEventListener('cut', prevent, true);
+  //     document.removeEventListener('paste', prevent, true);
+  //     document.removeEventListener('keydown', onKeyDown, true);
+  //     document.removeEventListener('mousedown', disableRightClick, true);
+  //   };
+  // }, []);
 
 
   return (
@@ -316,11 +316,11 @@ function App() {
             }
           />
 
-             <Route
+          <Route
             path="/refundpolicy"
             element={
               <UserRoute>
-                < Refund/>
+                < Refund />
               </UserRoute>
             }
           />
@@ -378,9 +378,9 @@ function App() {
           <Route
             path="/course/liveclass/:courseId/:subjectid/:lectureId"
             element={
-              <UserRoute>
+             <ProtectedRoute roles={["user"]}>
                 <CoursesLiveclassPage />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
@@ -394,9 +394,9 @@ function App() {
           <Route
             path="/continueCourse/:id"
             element={
-              <UserRoute>
+             <ProtectedRoute roles={["user"]}>
                 <ContinueCoursePage />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           {/* <Route path='/kyc' element={<UserRoute><KYCpage /></UserRoute>} /> */}
@@ -435,49 +435,49 @@ function App() {
           <Route
             path="/start-test/:testId/:subjectId"
             element={
-              <UserRoute>
+              <ProtectedRoute roles={["user"]}>
                 <StarttestPage />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/test-instructions/:testId/:subjectId"
             element={
-              <UserRoute>
+              <ProtectedRoute roles={["user"]}>
                 <TestInstructionsPage />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/test-submitted"
             element={
-              <UserRoute>
+              <ProtectedRoute roles={["user"]}>
                 <TestsubmittedPage />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/exam-summary"
             element={
-              <UserRoute>
+              <ProtectedRoute roles={["user"]}>
                 <ExamSummary />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/test-results/:testId/:subjectId/:attemptId"
             element={
-              <UserRoute>
+               <ProtectedRoute roles={["user"]}>
                 <TestResults />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/user-view-results/:userId/:mockTestId"
             element={
-              <UserRoute>
+              <ProtectedRoute roles={["user"]}>
                 <UserViewAttempResult />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
@@ -494,9 +494,9 @@ function App() {
           <Route
             path="/test-question/:testId/:subjectId/:attemptId"
             element={
-              <UserRoute>
+             <ProtectedRoute roles={["user"]}>
                 <TextQuestionPage />
-              </UserRoute>
+              </ProtectedRoute>
             }
           />
           <Route
@@ -524,12 +524,12 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={ <ProtectedRoute roles={["user"]}><UserDashboard /></ProtectedRoute>} />t
-            <Route path="profile/:id" element={ <ProtectedRoute roles={["user"]}><Profile /></ProtectedRoute>} />
-            <Route path="tandc" element={ <ProtectedRoute roles={["user"]}><TandC /></ProtectedRoute>} />
-            <Route path="my-courses" element={ <ProtectedRoute roles={["user"]}><Mycourses /></ProtectedRoute>} />
-            <Route path="contactsupport" element={ <ProtectedRoute roles={["user"]}><ContactSupport /></ProtectedRoute> }/>
-            <Route path="notification" element={ <ProtectedRoute roles={["user"]}><UserNotifications /></ProtectedRoute>} />
+            <Route index element={<ProtectedRoute roles={["user"]}><UserDashboard /></ProtectedRoute>} />t
+            <Route path="profile/:id" element={<ProtectedRoute roles={["user"]}><Profile /></ProtectedRoute>} />
+            <Route path="tandc" element={<ProtectedRoute roles={["user"]}><TandC /></ProtectedRoute>} />
+            <Route path="my-courses" element={<ProtectedRoute roles={["user"]}><Mycourses /></ProtectedRoute>} />
+            <Route path="contactsupport" element={<ProtectedRoute roles={["user"]}><ContactSupport /></ProtectedRoute>} />
+            <Route path="notification" element={<ProtectedRoute roles={["user"]}><UserNotifications /></ProtectedRoute>} />
             <Route
               path="completed-courses"
               element={<CompletedCoursesPage />}
@@ -1121,7 +1121,7 @@ function App() {
                 </AdminRoute>
               }
             />
-              <Route
+            <Route
               path="web-management/notification/create"
               element={
                 <AdminRoute Access={"webManagement"}>

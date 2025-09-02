@@ -43,6 +43,7 @@ import {
   getAllUserAttemptByUserId,
   checkMockTestAttempted,
   viewUserMocktestAttemptResult,
+  getMockTestStats,
 } from "../../api/mocktestApi";
 import PdfModal from "./PDFModal";
 import { m } from "framer-motion";
@@ -189,9 +190,11 @@ const handlePdfFullscreen = () => {
   const checkViewResultMockTest = async (userId, mockId) => {
     try {
       const res = await viewUserMocktestAttemptResult(userId, mockId);
-      setViewResults((prev) => ({ ...prev, [mockId]: Object.keys(res.result).length === 0
-              ? false
-              : true || false }));
+      setViewResults((prev) => ({
+        ...prev, [mockId]: Object.keys(res.result).length === 0
+          ? false
+          : true || false
+      }));
     } catch (error) {
       setViewResults((prev) => ({ ...prev, [mockId]: false }));
     }
@@ -245,7 +248,7 @@ const handlePdfFullscreen = () => {
   }, []);
 
   // --- Attempts math + fetchers for mock tests ---
-  const computeAttemptMeta = (lec, attemptsArr) => {
+  const computeAttemptMeta = async (lec, attemptsArr) => {
     const attemptsCount = Array.isArray(attemptsArr) ? attemptsArr.length : 0;
     const rawMax = lec?.maxAttempts;
     const hasFiniteMax =
@@ -256,12 +259,17 @@ const handlePdfFullscreen = () => {
     const remaining = Number.isFinite(max)
       ? Math.max(max - attemptsCount, 0)
       : Infinity;
-    return {
-      attemptsCount,
-      max,
-      remaining,
-      isUnlimited: !Number.isFinite(max),
-    };
+    const cookiesData = await getCookiesData();
+    const uid = cookiesData.userId;
+
+    const response = await getMockTestStats(uid, lec._id);
+    return response;
+    // return {
+    //   attemptsCount,
+    //   max,
+    //   remaining,
+    //   isUnlimited: !Number.isFinite(max),
+    // };
   };
 
   const prefetchAttemptsForLectures = async (lectures = [], uid) => {
@@ -281,12 +289,30 @@ const handlePdfFullscreen = () => {
         toFetch.map(async (l) => {
           try {
             const res = await getAllUserAttemptByUserId(uid, l._id);
-            const meta = computeAttemptMeta(l, res?.data || []);
-            return [l._id, { attempts: res?.data || [], ...meta }];
+            const meta = await computeAttemptMeta(l, res?.data || []);
+            return [l._id, {
+              attempts: res?.data || [],
+              ...meta,
+              max: meta.data.maxAttempts,
+              resumetest: meta.data.resume,
+              canStart: meta.data.start,
+              isUnlimited: meta.data.isUnlimited,
+              attemptsCount: meta.data.attemptCount,
+              remaining: meta.data.maxAttempts - meta.data.attemptCount,
+            }];
           } catch (e) {
             console.error("attempts fetch failed:", e);
-            const meta = computeAttemptMeta(l, []);
-            return [l._id, { attempts: [], ...meta }];
+            const meta = await computeAttemptMeta(l, []);
+            return [l._id, {
+              attempts: [],
+              ...meta,
+              max: meta.data.maxAttempts,
+              resumetest: meta.data.resume,
+              canStart: meta.data.start,
+              isUnlimited: meta.data.isUnlimited,
+              attemptsCount: meta.data.attemptCount,
+              remaining: meta.data.maxAttempts - meta.data.attemptCount,
+            }];
           }
         })
       );
@@ -313,9 +339,8 @@ const handlePdfFullscreen = () => {
           const tests = (resp?.data || []).map((t, idx) => ({
             _id: t._id,
             lectureName: t.title || `Mock Test ${idx + 1}`,
-            duration: `${t.number_of_questions || "N/A"} Questions | ${
-              t.duration || "N/A"
-            } mins`,
+            duration: `${t.number_of_questions || "N/A"} Questions | ${t.duration || "N/A"
+              } mins`,
             maxAttempts: t.maxAttempts,
           }));
           return {
@@ -627,22 +652,25 @@ const handlePdfFullscreen = () => {
               let showRemaining = false;
               let remainingText = "";
               // let showViewResults = false;
-              const showViewResults = viewResults[lec._id]; 
+              const showViewResults = viewResults[lec._id];
               let canStart = true;
-               const resumetest = resumeTests[lec._id]; 
+              const resumetest = resumeTests[lec._id];
               //  const  canStart=canAttend[lec._id] || false;
 
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
+                console.log(
+                  "meta",meta,
+                )
                 // showViewResults = attemptsCount > 0;
-                // canStart =
+                canStart =meta.canStart;
                 //   isUnlimited || (Number.isFinite(remaining) && remaining > 0);
 
                 const maxText = isUnlimited
                   ? "Unlimited"
                   : Number.isFinite(max)
-                  ? max
-                  : lec.maxAttempts ?? "Unlimited";
+                    ? max
+                    : lec.maxAttempts ?? "Unlimited";
                 infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
 
                 if (
@@ -658,7 +686,7 @@ const handlePdfFullscreen = () => {
                   lec.maxAttempts == null ? "Unlimited" : lec.maxAttempts;
                 infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
               }
-             
+
 
               return (
                 <div

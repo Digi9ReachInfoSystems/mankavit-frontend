@@ -27,6 +27,7 @@ import {
 } from '../../../../../api/mocktestApi';
 import { getSubjects } from '../../../../../api/subjectApi';
 import JoditEditor from 'jodit-react';
+import { getAuth } from '../../../../../utils/authService';
 
 /* ---------------------- Time helpers (no +5:30 shift) ---------------------- */
 const localInputToUTC = (localValue) => {
@@ -43,6 +44,20 @@ const utcToLocalInput = (s) => {
 const EditMockTest = () => {
   const { mockTestId } = useParams();
   const navigate = useNavigate();
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const [errors, setErrors] = useState({});
   const [testDetails, setTestDetails] = useState({
@@ -152,7 +167,7 @@ const EditMockTest = () => {
       };
 
       if (testDetails.startDate) payload.startDate = localInputToUTC(testDetails.startDate);
-      if (testDetails.endDate)   payload.endDate   = localInputToUTC(testDetails.endDate);
+      if (testDetails.endDate) payload.endDate = localInputToUTC(testDetails.endDate);
       if (testDetails.selectedSubjects?.length) {
         payload.subject = testDetails.selectedSubjects;
       }
@@ -171,7 +186,7 @@ const EditMockTest = () => {
 
   return (
     <Container>
-      <Title>Edit Mock Test</Title>
+      <Title>{!readOnlyPermissions ? "Edit":"View"} Mock Test</Title>
       {errors.form && <ErrorText>{errors.form}</ErrorText>}
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
@@ -179,7 +194,7 @@ const EditMockTest = () => {
           type="button"
           onClick={() => navigate(`/admin/mock-test/questions-list/${mockTestId}`)}
         >
-          Edit Questions
+         {!readOnlyPermissions?" Edit Questions":"View questions"}
         </Button>
       </div>
 
@@ -300,10 +315,14 @@ const EditMockTest = () => {
             />
           </FormGroup>
         </FormRow>
+        {
+          !readOnlyPermissions && (
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Updating...' : 'Update Mock Test'}
+            </Button>
+          )
+        }
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Updating...' : 'Update Mock Test'}
-        </Button>
       </FormWrapper>
     </Container>
   );

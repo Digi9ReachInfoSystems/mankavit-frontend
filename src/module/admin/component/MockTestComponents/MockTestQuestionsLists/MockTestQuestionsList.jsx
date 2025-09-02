@@ -839,7 +839,7 @@ import {
   PageFooter,
   PageControl,
 } from "./MockTestQuestionsList.styles";
-import { FaTrash, FaPlus, FaEdit, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaTrash, FaPlus, FaEdit, FaArrowUp, FaArrowDown, FaEye } from "react-icons/fa";
 import {
   addmocktestquestions,
   removemocktestquestions,
@@ -851,6 +851,7 @@ import { useParams } from "react-router-dom";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { toast } from "react-toastify";
 import JoditEditor from "jodit-react";
+import { getAuth } from "../../../../../utils/authService";
 
 // helpers
 const createEmptyOption = () => ({ text: "", marks: -0.25, isCorrect: false });
@@ -873,6 +874,19 @@ const MockTestQuestionsList = () => {
     isOpen: false,
     index: null, // question index
   });
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const editor = useRef(null);
   const config = useMemo(
@@ -899,11 +913,11 @@ const MockTestQuestionsList = () => {
           type: q.type,
           options: q.options
             ? q.options.map((opt, index) => ({
-                text: opt.text,
-                marks: opt.marks ?? (index === q.correctAnswer ? 1 : -0.25),
-                isCorrect: index === q.correctAnswer,
-                raw: (opt.marks ?? (index === q.correctAnswer ? "1" : "-0.25")).toString(),
-              }))
+              text: opt.text,
+              marks: opt.marks ?? (index === q.correctAnswer ? 1 : -0.25),
+              isCorrect: index === q.correctAnswer,
+              raw: (opt.marks ?? (index === q.correctAnswer ? "1" : "-0.25")).toString(),
+            }))
             : [],
           marks: q.marks || 0,
           expectedAnswer: q.expectedAnswer || "",
@@ -978,9 +992,9 @@ const MockTestQuestionsList = () => {
           questionText: q.text,
           options: isMcq
             ? q.options.map((opt) => ({
-                text: opt.text,
-                marks: opt.marks,
-              }))
+              text: opt.text,
+              marks: opt.marks,
+            }))
             : [],
           correctAnswer: isMcq ? q.options.findIndex((o) => o.isCorrect) : null,
           marks: q.marks,
@@ -1125,9 +1139,15 @@ const MockTestQuestionsList = () => {
       <Title>📝 Mock Test Questions</Title>
 
       {questions.length === 0 ? (
-        <CreateButton onClick={addQuestion}>
-          <FaPlus /> Create New Question
-        </CreateButton>
+        <>
+          {
+            !readOnlyPermissions && (
+              <CreateButton onClick={addQuestion}>
+                <FaPlus /> Create New Question
+              </CreateButton>
+            )
+          }
+        </>
       ) : (
         <>
           {questions.map((q, qi) => {
@@ -1145,27 +1165,35 @@ const MockTestQuestionsList = () => {
 
                   <QuestionActions>
                     <IconButton onClick={() => setEditingIndex(qi)} title="Edit">
-                      <FaEdit />
+                      {!readOnlyPermissions ? <FaEdit /> : <FaEye />}
                     </IconButton>
-                    <IconButton onClick={() => handleDeleteQuestion(qi)} title="Delete">
-                      <FaTrash color="red" />
-                    </IconButton>
-                    <PageControl>
-                      <IconButton
-                        onClick={() => moveQuestion(qi, "up")}
-                        disabled={qi === 0}
-                        title="Move up"
-                      >
-                        <FaArrowUp color={qi === 0 ? "gray" : "green"} />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => moveQuestion(qi, "down")}
-                        disabled={qi === questions.length - 1}
-                        title="Move down"
-                      >
-                        <FaArrowDown color={qi === questions.length - 1 ? "gray" : "red"} />
-                      </IconButton>
-                    </PageControl>
+                    {
+                      !readOnlyPermissions && (
+                        <>
+                          <IconButton onClick={() => handleDeleteQuestion(qi)} title="Delete">
+                            <FaTrash color="red" />
+                          </IconButton>
+                          <PageControl>
+                            <IconButton
+                              onClick={() => moveQuestion(qi, "up")}
+                              disabled={qi === 0}
+                              title="Move up"
+                            >
+                              <FaArrowUp color={qi === 0 ? "gray" : "green"} />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => moveQuestion(qi, "down")}
+                              disabled={qi === questions.length - 1}
+                              title="Move down"
+                            >
+                              <FaArrowDown color={qi === questions.length - 1 ? "gray" : "red"} />
+                            </IconButton>
+                          </PageControl>
+                        </>
+                      )
+                    }
+
+
                   </QuestionActions>
                 </Question>
 
@@ -1303,8 +1331,14 @@ const MockTestQuestionsList = () => {
                               <input
                                 type="checkbox"
                                 checked={opt.isCorrect}
-                                onChange={(e) =>
-                                  updateOptionField(qi, oi, "isCorrect", e.target.checked)
+                                onChange={(e) => {
+                                  if (readOnlyPermissions) {
+                                    return;
+                                  } else {
+                                    updateOptionField(qi, oi, "isCorrect", e.target.checked)
+                                  }
+
+                                }
                                 }
                                 style={{
                                   width: "90%",
@@ -1317,17 +1351,28 @@ const MockTestQuestionsList = () => {
                               Correct
                             </label>
 
-                            <IconButton
-                              onClick={() => deleteOption(qi, oi)}
-                              style={{ color: "red", padding: "0.25rem" }}
-                            >
-                              <FaTrash size={14} />
-                            </IconButton>
+                            {
+                              !readOnlyPermissions && (
+                                <IconButton
+                                  onClick={() => deleteOption(qi, oi)}
+                                  style={{ color: "red", padding: "0.25rem" }}
+                                >
+                                  <FaTrash size={14} />
+                                </IconButton>
+                              )
+                            }
+
+
                           </div>
                         ))}
-                        <CreateButton onClick={() => addOption(qi)}>
-                          <FaPlus /> Add New Option
-                        </CreateButton>
+                        {
+                          !readOnlyPermissions && (
+                            <CreateButton onClick={() => addOption(qi)}>
+                              <FaPlus /> Add New Option
+                            </CreateButton>
+                          )
+                        }
+
                       </div>
                     )}
 
@@ -1372,9 +1417,14 @@ const MockTestQuestionsList = () => {
                     </div>
 
                     <div style={{ marginTop: "1.5rem", textAlign: "right" }}>
-                      <CreateButton onClick={() => saveQuestion(qi)}>
-                        Save Question
-                      </CreateButton>
+                      {
+                        !readOnlyPermissions && (
+                          <CreateButton onClick={() => saveQuestion(qi)}>
+                            Save Question
+                          </CreateButton>
+                        )
+                      }
+
                     </div>
                   </div>
                 )}
@@ -1383,9 +1433,14 @@ const MockTestQuestionsList = () => {
           })}
 
           <PageFooter>
-            <CreateButton onClick={addQuestion}>
-              <FaPlus /> Create New Question
-            </CreateButton>
+            {
+              !readOnlyPermissions && (
+                <CreateButton onClick={addQuestion}>
+                  <FaPlus /> Create New Question
+                </CreateButton>
+              )
+            }
+
           </PageFooter>
         </>
       )}

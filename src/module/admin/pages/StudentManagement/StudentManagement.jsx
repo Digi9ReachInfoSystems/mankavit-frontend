@@ -70,7 +70,7 @@ export default function StudentManagement() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [selectedCourseId, setSelectedCourseId] = useState("all");
-  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(true);
 
 
   // Timestamp helper

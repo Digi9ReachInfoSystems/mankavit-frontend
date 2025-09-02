@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
@@ -112,6 +112,11 @@ const isBlank = (ans, isMcq) => {
 };
 
 export default function TextScreen() {
+
+
+
+
+
   const { testId, subjectId, attemptId: urlAttemptId } = useParams();
   const navigate = useNavigate();
   const { userId } = getCookiesData();
@@ -129,6 +134,43 @@ export default function TextScreen() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
 
+  const answerRef = useRef(null);
+  useBlockClipboard(answerRef);
+
+  function useBlockClipboard(ref) {
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+
+      const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+
+      const onKeyDown = (e) => {
+        const key = (e.key || "").toLowerCase();
+        const ctrlOrMeta = e.ctrlKey || e.metaKey;
+        // Ctrl/Cmd + C/V/X/A and Shift+Insert
+        if (
+          (ctrlOrMeta && ["c", "v", "x", "a"].includes(key)) ||
+          (e.shiftKey && key === "insert")
+        ) prevent(e);
+      };
+
+      const onBeforeInput = (e) => {
+        // blocks modern paste path
+        if (e.inputType === "insertFromPaste") prevent(e);
+      };
+
+      const types = ["copy", "cut", "paste", "drop", "dragstart", "contextmenu"];
+      types.forEach((t) => el.addEventListener(t, prevent, { capture: true }));
+      el.addEventListener("keydown", onKeyDown, true);
+      el.addEventListener("beforeinput", onBeforeInput, true);
+
+      return () => {
+        types.forEach((t) => el.removeEventListener(t, prevent, { capture: true }));
+        el.removeEventListener("keydown", onKeyDown, true);
+        el.removeEventListener("beforeinput", onBeforeInput, true);
+      };
+    }, [ref]);
+  }
   useEffect(() => {
     if (!urlAttemptId || !userId) return;
 
@@ -848,12 +890,12 @@ export default function TextScreen() {
                             typeof opt === "object" ? opt.text : opt;
                           return (
                             <OptionLabel key={idx}>
-                             
-                             <input
-                                  type="radio"
-                                  checked={currAns.answerIndex === idx}
-                                  onChange={() => handleOptionSelect(idx)}
-                                />
+
+                              <input
+                                type="radio"
+                                checked={currAns.answerIndex === idx}
+                                onChange={() => handleOptionSelect(idx)}
+                              />
 
                               {label}
                             </OptionLabel>
@@ -862,10 +904,25 @@ export default function TextScreen() {
                       </OptionsList>
                     ) : (
                       <textarea
+                        ref={answerRef}
                         className="textarea"
                         value={currAns.answer}
                         onChange={handleTextChange}
                         placeholder="Type your answer…"
+                        // extra inline guards (belt & suspenders)
+                        onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        spellCheck={false}
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        style={
+                          {
+                            userSelect: "none"
+                          }
+                        }
                       />
                     )}
                   </QuestionBox>
@@ -896,10 +953,25 @@ export default function TextScreen() {
                     </OptionsList>
                   ) : (
                     <textarea
-                      className="textarea"
-                      value={currAns.answer}
-                      onChange={handleTextChange}
-                      placeholder="Type your answer…"
+                      ref={answerRef}
+                        className="textarea"
+                        value={currAns.answer}
+                        onChange={handleTextChange}
+                        placeholder="Type your answer…"
+                        // extra inline guards (belt & suspenders)
+                        onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        spellCheck={false}
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        style={
+                          {
+                            userSelect: "none"
+                          }
+                        }
                     />
                   )}
                 </QuestionBox>
