@@ -106,8 +106,9 @@ export const Timer = styled.div`
   }
 `;
 
-export const Section = styled.div`
+export const SectionQuestion = styled.div`
   display: flex;
+  
   @media (max-width: 990px) {
     flex-direction: column;
   }
