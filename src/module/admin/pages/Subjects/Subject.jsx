@@ -121,7 +121,7 @@ export default function Subjects() {
           id: item._id,
           subjectName: item.subjectDisplayName,
           internalName: item.subjectName,
-          mockTest: item.mockTests.map((mockTest) => mockTest.title),
+          mockTest: item.mockTests.map((mockTest) => ({title:mockTest.title, id:mockTest._id})),
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
         }));
@@ -491,8 +491,10 @@ export default function Subjects() {
                     <a
                       href="#view"
                       onClick={() => {
+                        console.log("Itemns", item);
                         const mockTest = item.mockTest.map((mockTest) => {
-                          return { title: mockTest };
+                          return { title: mockTest.title, _id: mockTest.id };
+
                         });
                         console.log("mockTestwew", mockTest);
                         handleOpenModal("mockTests", mockTest);

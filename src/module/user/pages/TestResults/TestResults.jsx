@@ -6,7 +6,7 @@ const TestResults = () => {
   return (
     <>
      <ResultScreen/>
-     <Footer/> 
+     {/* <Footer/>  */}
     </>
   )
 }

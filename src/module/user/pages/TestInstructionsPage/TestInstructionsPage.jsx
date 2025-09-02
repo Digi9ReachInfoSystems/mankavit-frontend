@@ -6,7 +6,7 @@ const TestInstructionsPage = () => {
   return (
     <>
      <TestInstructions/>
-      <Footer/>
+      {/* <Footer/> */}
     </>
   )
 }

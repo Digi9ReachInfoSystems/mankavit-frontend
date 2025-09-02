@@ -1,850 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import { useNavigate, useParams } from "react-router-dom";
-// import styled from "styled-components";
-
-// import { toast } from "react-toastify";
-// import {
-//   Container,
-//   Content,
-//   Header,
-//   LeftDiv,
-//   LeftIcon,
-//   HeaderLeft,
-//   Language,
-//   RightIcon,
-//   QuestionType,
-//   Timer,
-//   Text,
-//   TimeSlot,
-//   Complier,
-//   QuestionNumber,
-//   QuestionTitle,
-//   Section,
-//   PassageBox,
-//   HorizontalLine,
-//   QuestionBox,
-//   QuestionText,
-//   OptionsList,
-//   OptionLabel,
-//   ButtonGroup,
-//   LeftButton,
-//   ReviewButton,
-//   ClearButton,
-//   RightButton,
-//   NextButton,
-//   SidebarContainer,
-//   UserCard,
-//   UserImage,
-//   UserInfo,
-//   UserName,
-//   UserEmail,
-//   Divider,
-//   Legend,
-//   OptionLabelList,
-//   LegendText,
-//   LegendItem,
-//   QuestionNav,
-//   Grid,
-//   GridButton,
-//   FooterButtons,
-//   SaveButton,
-//   ModalOverlay,
-//   ModalContent,
-//   ModalTitle,
-//   ModalButtons,
-//   ModalButton,
-//   ToggleSidebarBtn,
-// } from "./TextScreen.styles";
-// import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
-// import Profile from "../../../../assets/profile.png";
-// import {
-//   getMocktestById,
-//   getMocktestAttempts,
-//   startMocktest,
-//   saveMocktest,
-//   submitMocktest,
-// } from "../../../../api/mocktestApi";
-// import { getCookiesData } from "../../../../utils/cookiesService";
-// import { getAttemptById } from "../../../../api/mocktestApi";
-// import { FaAngleDoubleLeft } from "react-icons/fa";
-// import { FaAngleDoubleRight } from "react-icons/fa";
-// // Status constants
-// const STATUS = {
-//   UNATTEMPTED: "unattempted",
-//   NOT_ANSWERED: "not-answered",
-//   ANSWERED: "answered",
-//   NOT_ANSWERED_MARKED: "not-answered-marked-for-review",
-//   ANSWERED_MARKED: "answered-marked-for-review",
-// };
-
-// const PassageContainer = styled.div`
-//   display: flex;
-//   gap: 20px;
-//   width: 100%;
-// `;
-
-// const PassageContent = styled.div`
-//   flex: 1;
-//   padding: 15px;
-//   border-right: ${(props) => (props.hasPassage ? "1px solid #ddd" : "none")};
-// `;
-
-// const QuestionContent = styled.div`
-//   flex: 1;
-//   padding: 15px;
-// `;
-
-// const ConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
-//   if (!isOpen) return null;
-
-//   return (
-//     <ModalOverlay>
-//       <ModalContent>
-//         <ModalTitle>Do you want to submit the test?</ModalTitle>
-//         <ModalButtons>
-//           <ModalButton onClick={onClose}>No</ModalButton>
-//           <ModalButton primary onClick={onConfirm}>
-//             Yes
-//           </ModalButton>
-//         </ModalButtons>
-//       </ModalContent>
-//     </ModalOverlay>
-//   );
-// };
-
-// export default function TextScreen() {
-//   const { testId, subjectId, attemptId: urlAttemptId } = useParams();
-//   const navigate = useNavigate();
-//   const { userId } = getCookiesData();
-//   const [actionPerformed, setActionPerformed] = useState(false);
-
-//   const [mockTest, setMockTest] = useState(null);
-//   const [questions, setQuestions] = useState([]);
-//   const [answers, setAnswers] = useState([]);
-//   const [currentIndex, setCurrentIndex] = useState(0);
-//   const [timeLeft, setTimeLeft] = useState({ m: 0, s: 0 });
-//   const [loading, setLoading] = useState(true);
-//   const [initialTime, setInitialTime] = useState(0);
-//   const [testStartTime, setTestStartTime] = useState(null);
-//   const [showConfirmation, setShowConfirmation] = useState(false);
-//   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-//   // unwrap { data } or { body: { data } }
-//   const unwrap = (r) => r?.data?.body?.data ?? r?.data;
-
-//   useEffect(() => {
-//     (async () => {
-//       try {
-//         // 1) fetch test
-//         const resTest = await getMocktestById(testId);
-//         console.log("resTest", resTest);
-//         const test = unwrap(resTest);
-//         setMockTest(test);
-//         setQuestions(test.questions);
-//         setInitialTime(test.duration);
-
-//         // Initialize test start time
-//         const startTime = Date.now();
-//         setTestStartTime(startTime);
-
-//         // Check for existing time in localStorage
-//         const timeKey = `testTime_${testId}_${urlAttemptId}`;
-//         const storedTime = localStorage.getItem(timeKey);
-
-//         if (storedTime) {
-//           const { remainingMinutes, remainingSeconds, timestamp } =
-//             JSON.parse(storedTime);
-//           const timeElapsedMs = Date.now() - timestamp;
-//           const timeElapsedSeconds = Math.floor(timeElapsedMs / 1000);
-
-//           let totalRemainingSeconds =
-//             remainingMinutes * 60 + remainingSeconds - timeElapsedSeconds;
-
-//           // Ensure we don't go negative
-//           totalRemainingSeconds = Math.max(0, totalRemainingSeconds);
-
-//           const minutes = Math.floor(totalRemainingSeconds / 60);
-//           const seconds = totalRemainingSeconds % 60;
-//           setTimeLeft({ m: minutes, s: seconds });
-//         } else {
-//           setTimeLeft({ m: test.duration, s: 0 });
-//           // Save initial time to localStorage
-//           localStorage.setItem(
-//             timeKey,
-//             JSON.stringify({
-//               remainingMinutes: test.duration,
-//               remainingSeconds: 0,
-//               timestamp: startTime,
-//             })
-//           );
-//         }
-
-//         // 2) fetch existing attempts
-//         let attempt = null;
-//         if (urlAttemptId) {
-//           // Use the new endpoint to get full attempt details
-//           const resAttempt = await getAttemptById(urlAttemptId);
-//           attempt = unwrap(resAttempt);
-//         } else {
-//           const resAttempts = await getMocktestAttempts(userId, testId);
-//           const arr = unwrap(resAttempts) || [];
-
-//           if (arr.length >= test.maxAttempts) {
-//             toast.error(
-//               `You have reached the maximum of ${test.maxAttempts} attempts.`
-//             );
-//             return navigate(-1);
-//           }
-
-//           const resStart = await startMocktest({
-//             mockTestId: testId,
-//             subject: subjectId,
-//             user_id: userId,
-//           });
-//           attempt = unwrap(resStart);
-//         }
-
-//         if (!urlAttemptId && attempt._id) {
-//           navigate(`/test-question/${testId}/${subjectId}/${attempt._id}`, {
-//             replace: true,
-//           });
-//         }
-
-//         // 3) build answers state with status from API response
-//         setAnswers(
-//           test.questions.map((q, index) => {
-//             const saved =
-//               (attempt.answers || []).find((a) => a.questionId === q._id) || {};
-//             return {
-//               attemptId: attempt._id,
-//               questionId: q._id,
-//               answer: saved.answer || "",
-//               answerIndex: saved.answerIndex ?? null,
-//               status: saved.status || STATUS.UNATTEMPTED,
-//               questionNumber: index + 1,
-//             };
-//           })
-//         );
-//       } catch (err) {
-//         console.error(err);
-//         toast.error(err.message || "Failed to load test.");
-//         navigate("/error", { state: { message: err.message } });
-//       } finally {
-//         setLoading(false);
-//       }
-//     })();
-//   }, [testId, subjectId, userId, urlAttemptId, actionPerformed]);
-
-//   // countdown
-//   useEffect(() => {
-//     if (loading || !initialTime) return;
-
-//     const timeKey = `testTime_${testId}_${urlAttemptId}`;
-
-//     const handleBeforeUnload = () => {
-//       localStorage.setItem(
-//         timeKey,
-//         JSON.stringify({
-//           remainingMinutes: timeLeft.m,
-//           remainingSeconds: timeLeft.s,
-//           timestamp: Date.now(),
-//         })
-//       );
-//     };
-
-//     window.addEventListener("beforeunload", handleBeforeUnload);
-
-//     const timer = setInterval(() => {
-//       setTimeLeft(({ m, s }) => {
-//         // Save time every 30 seconds to localStorage
-//         if (s % 30 === 0) {
-//           localStorage.setItem(
-//             timeKey,
-//             JSON.stringify({
-//               remainingMinutes: m,
-//               remainingSeconds: s,
-//               timestamp: Date.now(),
-//             })
-//           );
-//         }
-
-//         if (m === 0 && s === 0) {
-//           clearInterval(timer);
-//           handleSubmit();
-//           return { m: 0, s: 0 };
-//         }
-//         if (s > 0) return { m, s: s - 1 };
-//         return { m: m - 1, s: 59 };
-//       });
-//     }, 1000);
-
-//     return () => {
-//       clearInterval(timer);
-//       window.removeEventListener("beforeunload", handleBeforeUnload);
-//     };
-//   }, [loading, initialTime]);
-
-//   if (loading) return <div>Loading…</div>;
-//   if (!mockTest) return <div>No test data</div>;
-
-//   const currentQ = questions[currentIndex];
-//   const currAns = answers[currentIndex] || {};
-//   const isMCQ = currentQ.type === "mcq";
-//   const hasPassage = currentQ.isPassage;
-
-//   function updateAnswer(upd) {
-//     setAnswers((a) => {
-//       const copy = [...a];
-//       copy[currentIndex] = { ...copy[currentIndex], ...upd };
-//       return copy;
-//     });
-//   }
-
-//   const handleOptionSelect = (idx) => {
-//     const opt = currentQ.options[idx];
-//     const text = typeof opt === "object" ? opt.text : opt;
-
-//     let newStatus = STATUS.ANSWERED;
-//     if (
-//       currAns.status === STATUS.NOT_ANSWERED_MARKED ||
-//       currAns.status === STATUS.ANSWERED_MARKED
-//     ) {
-//       newStatus = STATUS.ANSWERED_MARKED;
-//     }
-
-//     updateAnswer({
-//       answer: text,
-//       answerIndex: idx,
-//       status: newStatus,
-//     });
-//   };
-
-//   const handleTextChange = (e) => {
-//     const value = e.target.value;
-
-//     let newStatus = STATUS.ANSWERED;
-//     if (
-//       currAns.status === STATUS.NOT_ANSWERED_MARKED ||
-//       currAns.status === STATUS.ANSWERED_MARKED
-//     ) {
-//       newStatus = STATUS.ANSWERED_MARKED;
-//     }
-
-//     updateAnswer({
-//       answer: value,
-//       answerIndex: null,
-//       status: newStatus,
-//     });
-//   };
-
-//   const handleMarkAndNext = async () => {
-//     const ans = answers[currentIndex];
-
-//     let newStatus;
-//     if ((ans.answer && ans.answer.trim() !== "") || ans.answerIndex !== null) {
-//       newStatus = STATUS.ANSWERED_MARKED;
-//     } else {
-//       newStatus = STATUS.NOT_ANSWERED_MARKED;
-//     }
-
-//     const payload = {
-//       attemptId: ans.attemptId,
-//       user_id: userId,
-//       questionId: ans.questionId,
-//       status: newStatus,
-//       answer: ans.answer || "",
-//       userAnswerIndex: isMCQ ? ans.answerIndex : null,
-//     };
-
-//     try {
-//       await saveMocktest(payload);
-//       setAnswers((prev) => {
-//         const copy = [...prev];
-//         copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
-//         return copy;
-//       });
-
-//       if (currentIndex < questions.length - 1) goToQuestion(currentIndex + 1);
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to save answer");
-//     } finally {
-//       setActionPerformed(!actionPerformed);
-//     }
-//   };
-
-//   const saveAndNext = async () => {
-//     const ans = answers[currentIndex];
-//     const isEmpty =
-//       (!ans.answer || ans.answer.trim() === "") &&
-//       (ans.answerIndex === null || ans.answerIndex === undefined);
-
-//     const newStatus = isEmpty ? STATUS.NOT_ANSWERED : STATUS.ANSWERED;
-
-//     const payload = {
-//       attemptId: ans.attemptId,
-//       user_id: userId,
-//       questionId: ans.questionId,
-//       status: newStatus,
-//       answer: isEmpty ? "" : ans.answer,
-//       userAnswerIndex: isMCQ ? (isEmpty ? null : ans.answerIndex) : null,
-//     };
-
-//     try {
-//       await saveMocktest(payload);
-
-//       setAnswers((prev) => {
-//         const copy = [...prev];
-//         copy[currentIndex] = {
-//           ...copy[currentIndex],
-//           status: newStatus,
-//           answer: isEmpty ? "" : ans.answer,
-//           answerIndex: isEmpty ? null : ans.answerIndex,
-//         };
-//         return copy;
-//       });
-
-//       if (currentIndex < questions.length - 1) {
-//         goToQuestion(currentIndex + 1);
-//       } else {
-//         goToQuestion(0);
-//       }
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to save answer");
-//     } finally {
-//       setActionPerformed(!actionPerformed);
-//     }
-//   };
-
-//   const goToQuestion = async (i) => {
-//     const prevAns = answers[currentIndex];
-//     const newAns = answers[i];
-
-//     // If current question has no answer, mark as NOT_ANSWERED before leaving
-//     if (
-//       prevAns &&
-//       currentIndex !== i &&
-//       prevAns.status === STATUS.UNATTEMPTED
-//     ) {
-//       const isEmpty =
-//         (!prevAns.answer || prevAns.answer.trim() === "") &&
-//         (prevAns.answerIndex === null || prevAns.answerIndex === undefined);
-
-//       if (isEmpty) {
-//         const payload = {
-//           attemptId: prevAns.attemptId,
-//           user_id: userId,
-//           questionId: prevAns.questionId,
-//           status: STATUS.NOT_ANSWERED,
-//           answer: "",
-//           userAnswerIndex: isMCQ ? null : undefined,
-//         };
-
-//         try {
-//           await saveMocktest(payload);
-//           setAnswers((prev) => {
-//             const copy = [...prev];
-//             copy[currentIndex] = {
-//               ...copy[currentIndex],
-//               answer: "",
-//               answerIndex: null,
-//               status: STATUS.NOT_ANSWERED,
-//             };
-//             return copy;
-//           });
-//         } catch (err) {
-//           console.error("Failed to auto-mark not-answered on navigation", err);
-//         }
-//       }
-//     }
-
-//     // Mark the target question as NOT_ANSWERED if it's unattempted or blank
-//     if (
-//       newAns.status === STATUS.UNATTEMPTED ||
-//       (newAns.status === STATUS.NOT_ANSWERED &&
-//         newAns.answer === "" &&
-//         newAns.answerIndex === null)
-//     ) {
-//       setAnswers((prev) => {
-//         const copy = [...prev];
-//         const q = questions[i];
-//         const isEmpty =
-//           (!copy[i].answer || copy[i].answer.trim() === "") &&
-//           (copy[i].answerIndex === null || copy[i].answerIndex === undefined);
-
-//         copy[i] = {
-//           ...copy[i],
-//           status: isEmpty ? STATUS.NOT_ANSWERED : copy[i].status,
-//         };
-//         return copy;
-//       });
-//     }
-
-//     setCurrentIndex(i);
-//   };
-
-//   const handleClear = async () => {
-//     const ans = answers[currentIndex];
-
-//     const payload = {
-//       attemptId: ans.attemptId,
-//       user_id: userId,
-//       questionId: ans.questionId,
-//       status: STATUS.NOT_ANSWERED,
-//       answer: "",
-//       userAnswerIndex: null,
-//     };
-
-//     try {
-//       await saveMocktest(payload);
-
-//       setAnswers((prev) => {
-//         const copy = [...prev];
-//         copy[currentIndex] = {
-//           ...copy[currentIndex],
-//           answer: "",
-//           answerIndex: null,
-//           status: STATUS.NOT_ANSWERED,
-//         };
-//         return copy;
-//       });
-
-//       toast.info("Response cleared");
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to clear answer");
-//     } finally {
-//       setActionPerformed(!actionPerformed);
-//     }
-//   };
-//   const handleSubmit = async () => {
-//     const ans = answers[currentIndex];
-
-//     try {
-//       // Save current answer before submitting
-//       const payload = {
-//         attemptId: ans.attemptId,
-//         user_id: userId,
-//         questionId: ans.questionId,
-//         status: ans.status,
-//       };
-//       const timeKey = `testTime_${testId}_${urlAttemptId}`;
-//       if (isMCQ) {
-//         payload.userAnswerIndex = ans.answerIndex;
-//         payload.answer = ans.answer;
-//       } else {
-//         payload.answer = ans.answer;
-//       }
-
-//       await saveMocktest(payload);
-//       console.log("Saved answer", ans);
-
-//       // Then submit the test
-//       const res = await submitMocktest({
-//         attemptId: ans.attemptId,
-//         user_id: userId,
-//       });
-//       console.log("Respoonse", res);
-//       const data = unwrap(res);
-//       if (data) {
-//         localStorage.removeItem(timeKey);
-//         toast.success("Test submitted successfully");
-//         navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
-//       }
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to submit test");
-//     }
-//   };
-
-//   const handleSubmitClick = () => {
-//     setShowConfirmation(true);
-//   };
-
-//   const handleCancelSubmit = () => {
-//     setShowConfirmation(false);
-//   };
-
-//   const getStatusCounts = () => {
-//     const counts = {
-//       unattempted: 0,
-//       answered: 0,
-//       answeredMarked: 0,
-//       notAnsweredMarked: 0,
-//       notAnswered: 0,
-//     };
-
-//     answers.forEach((answer) => {
-//       // Treat unattempted as not-answered if it's not the current question?
-//       // Or better: only unattempted if never visited
-//       if (
-//         answer.status === STATUS.UNATTEMPTED &&
-//         (!answer.answer || answer.answerIndex === null)
-//       ) {
-//         counts.unattempted++;
-//       } else if (answer.status === STATUS.ANSWERED) {
-//         counts.answered++;
-//       } else if (answer.status === STATUS.ANSWERED_MARKED) {
-//         counts.answeredMarked++;
-//       } else if (answer.status === STATUS.NOT_ANSWERED_MARKED) {
-//         counts.notAnsweredMarked++;
-//       } else {
-//         counts.notAnswered++;
-//       }
-//     });
-
-//     return counts;
-//   };
-//   const getStatus = (n) => {
-//     const answer = answers[n - 1];
-//     if (!answer) return "unattempted";
-
-//     // If the user has visited this question at any point, never show unattempted
-//     if (
-//       answer.status === STATUS.UNATTEMPTED &&
-//       (!answer.answer || answer.answerIndex === null)
-//     ) {
-//       // But if never interacted, still show as unattempted?
-//       // Or force not-answered on visit?
-//       // Let’s say: after visit → not-answered
-//       // return "not-answered";
-//     }
-
-//     switch (answer.status) {
-//       case STATUS.ANSWERED:
-//         return "answered";
-//       case STATUS.ANSWERED_MARKED:
-//         return "answered-marked";
-//       case STATUS.NOT_ANSWERED_MARKED:
-//         return "not-answered-marked";
-//       case STATUS.NOT_ANSWERED:
-//         return "not-answered";
-//       case STATUS.UNATTEMPTED:
-//         return "unattempted";
-//       default:
-//         return "unattempted";
-//     }
-//   };
-
-//   return (
-//     <Container>
-//       <Content $sidebarOpen={sidebarOpen}>
-//         <ToggleSidebarBtn
-//           onClick={() => setSidebarOpen((s) => !s)}
-//           aria-label="Toggle question navigator"
-//           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
-//         >
-//           {sidebarOpen ? <FaAngleDoubleRight /> : <FaAngleDoubleLeft />}
-//         </ToggleSidebarBtn>
-
-//         <Header>
-//           <LeftDiv>
-//             <LeftIcon onClick={() => navigate(-1)}>
-//               <FaAngleLeft />
-//             </LeftIcon>
-//             <HeaderLeft>
-//               <Language>Back</Language>
-//             </HeaderLeft>
-//           </LeftDiv>
-//           <RightIcon>
-//             <FaAngleRight />
-//           </RightIcon>
-//         </Header>
-//         <div style={{ flex: 1, textAlign: "left" }}>
-//           <h4 style={{ margin: 0 }}>{mockTest?.title || "Mock Test"}</h4>
-//         </div>
-
-//         <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
-//         <Timer>
-//           <Text>Time Left:</Text>
-
-//           <TimeSlot>
-//             {String(timeLeft.m).padStart(2, "0")}:
-//             {String(timeLeft.s).padStart(2, "0")}
-//           </TimeSlot>
-//           {/* <Text>title:{currentQ.title}</Text> */}
-
-//           {/* //i wnat to display mocktest title on the screen */}
-//         </Timer>
-
-//         <Complier>
-//           <QuestionNumber>
-//             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
-//           </QuestionNumber>
-//           <Section>
-//             {hasPassage ? (
-//               <PassageContainer>
-//                 <PassageContent hasPassage={hasPassage}>
-//                   <PassageBox
-//                     dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
-//                   />
-//                 </PassageContent>
-//                 <QuestionContent>
-//                   <QuestionBox>
-//                     <QuestionText
-//                       dangerouslySetInnerHTML={{
-//                         __html: currentQ.questionText,
-//                       }}
-//                     />
-//                     {isMCQ ? (
-//                       <OptionsList>
-//                         {currentQ.options.map((opt, idx) => {
-//                           const label =
-//                             typeof opt === "object" ? opt.text : opt;
-//                           return (
-//                             <OptionLabel key={idx}>
-//                               <input
-//                                 type="radio"
-//                                 checked={currAns.answerIndex === idx}
-//                                 onChange={() => handleOptionSelect(idx)}
-//                               />
-//                               {label}
-//                             </OptionLabel>
-//                           );
-//                         })}
-//                       </OptionsList>
-//                     ) : (
-//                       <textarea
-//                         className="textarea"
-//                         value={currAns.answer}
-//                         onChange={handleTextChange}
-//                         placeholder="Type your answer…"
-//                       />
-//                     )}
-//                   </QuestionBox>
-//                 </QuestionContent>
-//               </PassageContainer>
-//             ) : (
-//               <>
-//                 <PassageBox
-//                   dangerouslySetInnerHTML={{ __html: currentQ.questionText }}
-//                 />
-//                 <HorizontalLine />
-//                 <QuestionBox>
-//                   {isMCQ ? (
-//                     <OptionsList>
-//                       {currentQ.options.map((opt, idx) => {
-//                         const label = typeof opt === "object" ? opt.text : opt;
-//                         return (
-//                           <OptionLabel key={idx}>
-//                             <input
-//                               type="radio"
-//                               checked={currAns.answerIndex === idx}
-//                               onChange={() => handleOptionSelect(idx)}
-//                             />
-//                             {label}
-//                           </OptionLabel>
-//                         );
-//                       })}
-//                     </OptionsList>
-//                   ) : (
-//                     <textarea
-//                       className="textarea"
-//                       value={currAns.answer}
-//                       onChange={handleTextChange}
-//                       placeholder="Type your answer…"
-//                     />
-//                   )}
-//                 </QuestionBox>
-//               </>
-//             )}
-//           </Section>
-//         </Complier>
-
-//         <ButtonGroup>
-//           <LeftButton>
-//             <ReviewButton onClick={handleMarkAndNext}>Mark & Next</ReviewButton>
-//             <ClearButton
-//               onClick={handleClear}
-//               style={{
-//                 backgroundColor:
-//                   currAns.answer || currAns.answerIndex !== null
-//                     ? "#ffcccc"
-//                     : "",
-//                 fontWeight:
-//                   currAns.answer || currAns.answerIndex !== null
-//                     ? "600"
-//                     : "400",
-//               }}
-//             >
-//               Clear Response
-//             </ClearButton>
-//           </LeftButton>
-//           <RightButton>
-//             <NextButton onClick={saveAndNext}>Save & Next</NextButton>
-//           </RightButton>
-//         </ButtonGroup>
-//       </Content>
-
-//       <SidebarContainer $open={sidebarOpen}>
-//         <Divider />
-
-//         <Legend>
-//           <OptionLabelList>
-//             <LegendItem className="answered">
-//               {getStatusCounts().answered}
-//             </LegendItem>
-//             <LegendText>Answered</LegendText>
-//           </OptionLabelList>
-
-//           <OptionLabelList>
-//             <LegendItem className="not-answered">
-//               {getStatusCounts().notAnswered}
-//             </LegendItem>
-//             <LegendText>Not Answered</LegendText>
-//           </OptionLabelList>
-
-//           <OptionLabelList>
-//             <LegendItem className="not-answered-marked">
-//               {getStatusCounts().notAnsweredMarked}
-//             </LegendItem>
-//             <LegendText>Marked</LegendText>
-//           </OptionLabelList>
-
-//           <OptionLabelList>
-//             <LegendItem className="unattempted">
-//               {getStatusCounts().unattempted}
-//             </LegendItem>
-//             <LegendText>Not Visited</LegendText>
-//           </OptionLabelList>
-
-//           <OptionLabelList>
-//             <LegendItem className="answered-marked">
-//               {getStatusCounts().answeredMarked}
-//             </LegendItem>
-//             <LegendText>Answered & Marked For Review</LegendText>
-//           </OptionLabelList>
-//         </Legend>
-
-//         <QuestionNav>
-//           <Grid>
-//             {questions.map((_, i) => (
-//               <GridButton
-//                 key={i}
-//                 className={getStatus(i + 1)}
-//                 onClick={() => goToQuestion(i)}
-//                 active={currentIndex === i}
-//               >
-//                 {i + 1}
-//               </GridButton>
-//             ))}
-//           </Grid>
-//         </QuestionNav>
-
-//         <FooterButtons>
-//           <NextButton onClick={handleSubmitClick}>Submit Test</NextButton>
-//         </FooterButtons>
-//       </SidebarContainer>
-
-//       <ConfirmationModal
-//         isOpen={showConfirmation}
-//         onClose={handleCancelSubmit}
-//         onConfirm={handleSubmit}
-//       />
-//     </Container>
-//   );
-// }
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -904,6 +57,8 @@ import {
   checkMockTestAttempted,
 } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
+import { RxDoubleArrowRight } from "react-icons/rx";
+import { RxDoubleArrowLeft } from "react-icons/rx";
 
 // Status constants
 const STATUS = {
@@ -1373,44 +528,96 @@ export default function TextScreen() {
     }
   };
 
-  const goToQuestion = async (i) => {
-    const prevAns = answers[currentIndex];
-    const newAns = answers[i];
+  // const goToQuestion = async (i) => {
+  //   const prevAns = answers[currentIndex];
+  //   const newAns = answers[i];
 
-    // Ensure leaving question is classified properly
-    if (
-      prevAns &&
-      currentIndex !== i &&
-      prevAns.status === STATUS.UNATTEMPTED &&
-      isBlank(prevAns, questions[currentIndex].type === "mcq")
-    ) {
-      const payload = {
-        attemptId: prevAns.attemptId,
-        user_id: userId,
-        questionId: prevAns.questionId,
-        status: STATUS.NOT_ANSWERED,
-        answer: "",
-        userAnswerIndex:
-          questions[currentIndex].type === "mcq" ? null : undefined,
-      };
-      try {
-        await saveMocktest(payload);
-      } catch (err) {
-        console.error("Failed to auto-mark not-answered on navigation", err);
-      } finally {
-        setAnswers((prev) => {
-          const copy = [...prev];
-          copy[currentIndex] = {
-            ...copy[currentIndex],
-            answer: "",
-            answerIndex: null,
-            status: STATUS.NOT_ANSWERED,
-          };
-          return copy;
-        });
-      }
+  //   // Ensure leaving question is classified properly
+  //   if (
+  //     prevAns &&
+  //     currentIndex !== i &&
+  //     prevAns.status === STATUS.UNATTEMPTED &&
+  //     isBlank(prevAns, questions[currentIndex].type === "mcq")
+  //   ) {
+  //     const payload = {
+  //       attemptId: prevAns.attemptId,
+  //       user_id: userId,
+  //       questionId: prevAns.questionId,
+  //       status: STATUS.NOT_ANSWERED,
+  //       answer: "",
+  //       userAnswerIndex:
+  //         questions[currentIndex].type === "mcq" ? null : undefined,
+  //     };
+  //     try {
+  //       await saveMocktest(payload);
+  //     } catch (err) {
+  //       console.error("Failed to auto-mark not-answered on navigation", err);
+  //     } finally {
+  //       setAnswers((prev) => {
+  //         const copy = [...prev];
+  //         copy[currentIndex] = {
+  //           ...copy[currentIndex],
+  //           answer: "",
+  //           answerIndex: null,
+  //           status: STATUS.NOT_ANSWERED,
+  //         };
+  //         return copy;
+  //       });
+  //     }
+  //   }
+
+  //   // When visiting a question for the first time and it's blank → NOT_ANSWERED.
+  //   if (
+  //     newAns &&
+  //     newAns.status === STATUS.UNATTEMPTED &&
+  //     isBlank(newAns, questions[i].type === "mcq")
+  //   ) {
+  //     setAnswers((prev) => {
+  //       const copy = [...prev];
+  //       copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
+  //       return copy;
+  //     });
+  //   }
+
+  //   setCurrentIndex(i);
+  // };
+
+
+  const goToQuestion = async (i) => {
+  const prevAns = answers[currentIndex];
+  const newAns = answers[i];
+
+
+ if (prevAns && currentIndex !== i) {
+    let newStatus;
+    if (isBlank(prevAns, questions[currentIndex].type === "mcq")) {
+      newStatus = STATUS.NOT_ANSWERED;
+    } else {
+ newStatus = STATUS.ANSWERED;
     }
 
+    const payload = {
+      attemptId: prevAns.attemptId,
+      user_id: userId,
+      questionId: prevAns.questionId,
+      status: newStatus,
+      answer: prevAns.answer || "",
+      userAnswerIndex:
+        questions[currentIndex].type === "mcq" ? prevAns.answerIndex : null,
+    };
+    try {
+      await saveMocktest(payload);
+    } catch (err) {
+      console.error("Failed to save on navigation", err);
+    } finally {
+      setAnswers((prev) => {
+        const copy = [...prev];
+        copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
+        return copy;
+      });
+    }
+  }
+  
     // When visiting a question for the first time and it's blank → NOT_ANSWERED.
     if (
       newAns &&
@@ -1426,6 +633,8 @@ export default function TextScreen() {
 
     setCurrentIndex(i);
   };
+
+
 
   const handleClear = async () => {
     const ans = answers[currentIndex];
@@ -1460,19 +669,68 @@ export default function TextScreen() {
     }
   };
 
-  const handleSubmit = async () => {
-    const ans = answers[currentIndex];
+  // const handleSubmit = async () => {
+  //   const ans = answers[currentIndex];
 
-    try {
-      // Save current answer before submitting
-      const payload = {
-        attemptId: ans.attemptId,
-        user_id: userId,
-        questionId: ans.questionId,
-        status: ans.status,
-      };
-      const timeKey = `testTime_${testId}_${urlAttemptId}`;
-      if (isMCQ) {
+  //   try {
+  //     // Save current answer before submitting
+  //     const payload = {
+  //       attemptId: ans.attemptId,
+  //       user_id: userId,
+  //       questionId: ans.questionId,
+  //       status: ans.status,
+  //     };
+  //     const timeKey = `testTime_${testId}_${urlAttemptId}`;
+  //     if (isMCQ) {
+  //       payload.userAnswerIndex = ans.answerIndex;
+  //       payload.answer = ans.answer;
+  //     } else {
+  //       payload.answer = ans.answer;
+  //     }
+
+  //     // await saveMocktest(payload);
+
+  //     // Then submit the test
+  //     const res = await submitMocktest({
+  //       attemptId: ans.attemptId,
+  //       user_id: userId,
+  //     });
+  //     const data = unwrap(res);
+  //     if (data) {
+  //       localStorage.removeItem(timeKey);
+  //       toast.success("Test submitted successfully");
+  //       navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to submit test");
+  //   }
+  // };
+
+  const handleSubmit = async () => {
+  const ans = answers[currentIndex];
+
+  try {
+
+    let finalStatus;
+    if (isBlank(ans, isMCQ)) {
+      finalStatus = STATUS.NOT_ANSWERED;
+    } else {
+      finalStatus = STATUS.ANSWERED;
+    }
+
+    const payload = {
+      attemptId: ans.attemptId,
+      user_id: userId,
+      questionId: ans.questionId,
+      status: finalStatus,
+      answer: ans.answer || "",
+      userAnswerIndex: isMCQ ? ans.answerIndex : null,
+    };
+    await saveMocktest(payload);
+
+    const timeKey = `testTime_${testId}_${urlAttemptId}`;
+    if (isMCQ) {
         payload.userAnswerIndex = ans.answerIndex;
         payload.answer = ans.answer;
       } else {
@@ -1497,6 +755,7 @@ export default function TextScreen() {
       toast.error("Failed to submit test");
     }
   };
+
 
   const handleSaveForLater = async () => {
     try {
@@ -1579,7 +838,7 @@ export default function TextScreen() {
           aria-label="Toggle question navigator"
           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
         >
-          {sidebarOpen ? "›" : "‹"}
+          {sidebarOpen ? <RxDoubleArrowRight  /> : <RxDoubleArrowLeft />}
         </ToggleSidebarBtn>
 
         {/* HEADER — Back + Title tight */}
@@ -1738,7 +997,7 @@ export default function TextScreen() {
               Save & Next
             </button>
             <SubmitButton onClick={handleSaveForLaterClick}>
-              Save For Later
+              Save Test
             </SubmitButton>
             <SubmitButton onClick={handleSubmitClick}>Submit Test</SubmitButton>
           </LeftButtonsWrap>

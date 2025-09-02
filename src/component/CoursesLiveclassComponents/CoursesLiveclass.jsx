@@ -159,6 +159,25 @@ const CoursesLiveclass = () => {
   const [attemptsLoading, setAttemptsLoading] = useState({}); // { [mockId]: boolean }
   const [resumeTests, setResumeTests] = useState({});
   const [viewResults, setViewResults] = useState({});
+  const [isPdfFullscreen, setIsPdfFullscreen] = useState(false);
+const pdfContainerRef = useRef(null);
+
+const handlePdfFullscreen = () => {
+  const el = pdfContainerRef.current;
+  if (!el) return;
+
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+    setIsPdfFullscreen(false);
+  } else {
+    el.requestFullscreen?.();
+    el.webkitRequestFullscreen?.();
+    el.msRequestFullscreen?.();
+    el.mozRequestFullScreen?.();
+    setIsPdfFullscreen(true);
+  }
+};
+
   const checkResumeMockTest = async (userId, mockId, subjectId) => {
     try {
       const res = await checkMockTestAttempted(userId, mockId, subjectId);

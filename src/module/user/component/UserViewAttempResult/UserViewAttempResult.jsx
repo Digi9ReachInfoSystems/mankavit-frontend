@@ -495,6 +495,8 @@ import {
   LeftButtonsWrap,
   RightStickyButton,
 } from "../UserViewAttempResult/UserViewAttempResult.style";
+import { RxDoubleArrowRight } from "react-icons/rx";
+import { RxDoubleArrowLeft } from "react-icons/rx";
 
 import {
   getMocktestById,
@@ -507,7 +509,7 @@ const ExpectedAnswer = ({ html }) => {
   return (
     <div style={{ marginTop: 16 }}>
       <p>
-        <strong>Expected Answer:</strong>
+        <strong>Explanation:</strong>
       </p>
       <div dangerouslySetInnerHTML={{ __html: html }} />
     </div>
@@ -603,9 +605,9 @@ export default function UserViewAttempResult() {
           );
         }
 
-        if (ranking?.rank) {
-          summary.push({ label: "Rank", value: `#${ranking.rank}` });
-        }
+        // if (ranking?.rank) {
+        //   summary.push({ label: "Rank", value: `#${ranking.rank}` });
+        // }
         setSummaryData(summary);
 
         // 4) normalize questions to: correct | incorrect | not-answered
@@ -681,7 +683,7 @@ export default function UserViewAttempResult() {
           aria-label="Toggle question navigator"
           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
         >
-          {sidebarOpen ? <FaAngleDoubleRight /> : <FaAngleDoubleLeft />}
+          {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
         </ToggleSidebarBtn>
 
         {/* Tight header — Back + Title inline */}

@@ -97,6 +97,11 @@ const EditStudent = () => {
     apiCaller();
   }, []);
 
+  const handleCourseNavigate = (id) => {
+  navigate(`/admin/course-management/edit/${id}`);
+};
+
+
   useEffect(() => {
     const apiCaller = async () => {
       const res = await getUserByUserId(userId);
@@ -618,9 +623,16 @@ const handleSave = async () => {
                   onChange={() => toggleCourse(c._id)}
                   disabled={processing}
                 />
-                <CourseLabel htmlFor={`en-${c._id}`}>
-                  {c.courseDisplayName || c.course_name}
-                </CourseLabel>
+      <CourseLabel htmlFor={`en-${c._id}`}>
+  <span
+    style={{ cursor: "pointer", textDecoration: "none", color: "blue" }}
+    onClick={() => handleCourseNavigate(c._id)}
+  >
+    {c.courseDisplayName || c.course_name}
+  </span>
+</CourseLabel>
+
+
               </CourseItem>
             ))}
           </CourseList>
@@ -654,9 +666,15 @@ const handleSave = async () => {
                     onChange={() => toggleCourse(c._id)}
                     disabled={processing}
                   />
-                  <CourseLabel htmlFor={`av-${c._id}`}>
-                    {c.courseDisplayName || c.course_name}
-                  </CourseLabel>
+               <CourseLabel htmlFor={`av-${c._id}`}>
+  <span
+    style={{ cursor: "pointer", textDecoration: "none", color: "blue" }}
+    onClick={() => handleCourseNavigate(c._id)}
+  >
+    {c.courseDisplayName || c.course_name}
+  </span>
+</CourseLabel>
+
                 </CourseItem>
               ))}
             </CourseList>

@@ -310,7 +310,17 @@ export const SubmitButton = styled.button`
   transition: background-color 0.2s ease;
   margin-top: ${(props) => props.theme.spacing(6)}; 
 
-  
+    &:disabled {
+    background: #ccc !important;
+    color: #666 !important;
+    cursor: not-allowed;
+  }
+
+  &:disabled:hover {
+    background: #ccc !important;
+    color: #666 !important;
+    cursor: not-allowed;
+  }
   @media (max-width: 1320px) {
     width: 40%;
   }
@@ -375,13 +385,37 @@ export const ModalOverlay = styled.div`
   z-index: 999;
 `;
 
+// export const ModalContent = styled.div`
+//   background: #fff;
+//   padding: 20px;
+//   width: 80%;
+//   max-width: 600px;
+//   border-radius: 10px;
+//   position: relative;
+// `;
+
 export const ModalContent = styled.div`
   background: #fff;
   padding: 20px;
-  width: 80%;
-  max-width: 600px;
+  width: 60%;          /* was 80% */
+  max-width: 400px;    /* was 600px */
   border-radius: 10px;
   position: relative;
+`;
+
+export const PasswordModal = styled(ModalContent)`
+  max-width: 400px;   /* narrower */
+  padding: 15px;      /* tighter padding */
+  
+  input {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
 `;
 
 export const CloseButton = styled.button`
@@ -412,4 +446,29 @@ export const TextAreaField = styled.textarea`
   border: 1px solid #ccc;
   border-radius: 4px;
   resize: none;
+`;
+
+export const TermsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  gap: 8px;
+  font-size: 14px;
+`;
+
+export const TermsLink = styled.span`
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    color: #0056b3;
+  }
+`;
+
+// Grey version of SubmitButton when submitted
+export const GreyButton = styled(SubmitButton)`
+  background: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed;
 `;
