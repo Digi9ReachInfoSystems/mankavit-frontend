@@ -6,11 +6,25 @@ import styled from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "../../../component/Pagination/Pagination";
+import { getAuth } from "../../../../../utils/authService";
 
 const NotificationsList = () => {
   const [notifications, setNotifications] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15; // show 5 notifications per page
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      }
+    }
+    apiCaller();
+  }, []);
 
   const navigate = useNavigate();
 
@@ -41,13 +55,16 @@ const NotificationsList = () => {
     <Container>
       <Header>
         <h2>All Notifications</h2>
-        <CreateButton
-          onClick={() =>
-            navigate("/admin/web-management/notification/create")
-          }
-        >
-          + Create Notification
-        </CreateButton>
+        {!readOnlyPermissions && (
+          <CreateButton
+            onClick={() =>
+              navigate("/admin/web-management/notification/create")
+            }
+          >
+            + Create Notification
+          </CreateButton>
+        )}
+
       </Header>
 
       <Table>

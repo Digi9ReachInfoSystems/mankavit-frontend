@@ -858,7 +858,7 @@ export const PassageBox = styled.div`
   padding: 15px;
   height: 600px;
   overflow-y: auto;
-
+  user-select: none;
   p {
     font-size: 20px;
     line-height: 1.6;
@@ -877,7 +877,7 @@ export const QuestionBox = styled.div`
   padding: 15px;
   height: 600px;
   overflow-y: auto;
-
+  user-select: none;
   .textarea {
     width: 100%;
     height: 550px;

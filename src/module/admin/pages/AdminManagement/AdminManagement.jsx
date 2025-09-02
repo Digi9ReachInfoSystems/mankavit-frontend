@@ -43,8 +43,10 @@ import {
   resetAdminPassword,
 } from "../../../../api/authApi";
 import { useNavigate } from "react-router-dom";
-import { blockAndUnblockUser } from "../../../../api/userApi";
+import { blockAndUnblockUser, bulkDeleteSubAdmin } from "../../../../api/userApi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import DeleteModal from "../../component/DeleteModal/DeleteModal";
+import { set } from "date-fns";
 
 export default function AdminManagement() {
   const [searchText, setSearchText] = useState("");
@@ -58,6 +60,9 @@ export default function AdminManagement() {
   const [newPassword, setNewPassword] = useState("");
   const [selectedAdminId, setSelectedAdminId] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedAdmins, setSelectedAdmins] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [BulkDelete, setBulkDelete] = useState(false);
   // Fetch admin data
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -168,6 +173,47 @@ export default function AdminManagement() {
       toast.error("Failed to reset password");
     }
   };
+
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      setSelectedAdmins([]);
+    } else {
+      setSelectedAdmins(filteredAdmins.map((c) => c._id));
+    }
+    setSelectAll(!selectAll);
+  };
+  const handleBulkDelete = async () => {
+    try {
+      setLoading(true);
+      await bulkDeleteSubAdmin(selectedAdmins);
+      toast.success("Selected SubAdmin deleted successfully", {
+        autoClose: 3000, // Ensure this matches your toast duration
+        onClose: () => {
+          window.location.reload();
+        },
+      });
+      setSelectedAdmins([]);
+      setSelectAll(false);
+      // await fetchCourses();
+      // window.location.reload(); // Reload the page to reflect changes
+      setBulkDelete(false);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete selected courses");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleCheckboxChange = (adminId) => {
+    setSelectedAdmins((prev) =>
+      prev.includes(adminId)
+        ? prev.filter((id) => id !== adminId)
+        : [...prev, adminId]
+    );
+  };
+const handleDeleteClick = () => {
+    setBulkDelete(true);
+  };
   return (
     <Container>
       <HeaderRow>
@@ -195,6 +241,14 @@ export default function AdminManagement() {
         >
           Add Admin
         </CreateButton>
+        {selectedAdmins.length > 0 && (
+          <CreateButton
+            onClick={handleDeleteClick}
+            style={{ backgroundColor: "red", marginLeft: "10px" }}
+          >
+            Delete Selected ({selectedAdmins.length})
+          </CreateButton>
+        )}
       </ButtonContainer>
 
       <SearchWrapper>
@@ -215,6 +269,13 @@ export default function AdminManagement() {
           <StyledTable>
             <TableHead>
               <TableRow>
+                <TableHeader>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </TableHeader>
                 <TableHeader>Name</TableHeader>
                 <TableHeader>Email</TableHeader>
                 <TableHeader>Role</TableHeader>
@@ -229,8 +290,17 @@ export default function AdminManagement() {
                 filteredAdmins.map((admin) => (
                   <TableRow key={admin._id || admin.id}>
                     <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedAdmins.includes(admin._id)}
+                        onChange={() => {
+                          handleCheckboxChange(admin._id)
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
                       <a
-                      style={{ textDecoration: "none" }}
+                        style={{ textDecoration: "none" }}
                         href="#"
                         onClick={() =>
                           navigate(
@@ -355,6 +425,13 @@ export default function AdminManagement() {
         </ResetPasswordModalOverlay>
       )}
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      {BulkDelete && (
+        <DeleteModal
+          isOpen={BulkDelete}
+          onClose={() => setBulkDelete(false)}
+          onDelete={handleBulkDelete}
+        />
+      )}
     </Container>
   );
 }

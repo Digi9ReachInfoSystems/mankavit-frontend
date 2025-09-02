@@ -32,7 +32,7 @@ export const getMocktestById = async (id) => {
 export const deleteMocktestById = async (id) => {
     try {
         const response = await api.delete(`/mockTest/delete/mocktestById/${id}`);
-        
+
         console.log('Delete API Response:', {
             status: response.status,
             data: response.data
@@ -59,7 +59,7 @@ export const deleteMocktestById = async (id) => {
         };
 
         console.error('Delete API Error:', errorDetails);
-        
+
         // Format a consistent error response
         throw {
             success: false,
@@ -134,11 +134,11 @@ export const getMocktestAttempts = async (user_id, mockTestId) => {
     }
 }
 
-export const evaluateMocktest = async(data) =>{
-    try{
-        const response = await api.put('/userAttempt/evaluate',data);
+export const evaluateMocktest = async (data) => {
+    try {
+        const response = await api.put('/userAttempt/evaluate', data);
         return response.data;
-    }catch(error){
+    } catch (error) {
         throw error;
     }
 }
@@ -235,11 +235,11 @@ export const getAllUpcomingMocktest = async (userId) => {
 }
 
 
-export const evaluateSingleSubjectiveQuestion = async(data) =>{
-    try{
-        const response = await api.post('/userAttempt/evaluateSingleQuestion',data);
+export const evaluateSingleSubjectiveQuestion = async (data) => {
+    try {
+        const response = await api.post('/userAttempt/evaluateSingleQuestion', data);
         return response.data;
-    }catch(error){
+    } catch (error) {
         throw error;
     }
 }
@@ -257,9 +257,9 @@ export const rearrangeMocktestQuestions = async (mocktestId, data) => {
 
 export const deleteUserAttempt = async (attemptId) => {
     try {
-        const response = await api.delete(`/userAttempt/delete/attempts`,{
-            data : {attemptId},
-            headers : {
+        const response = await api.delete(`/userAttempt/delete/attempts`, {
+            data: { attemptId },
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -279,21 +279,21 @@ export const getAllUserAttemptByUserId = async (userId) => {
     }
 }
 export const viewUserMocktestAttemptResult = async (userId, mockTestId) => {
-  try {
-    const response = await api.post(
-      '/userAttempt/get/userAttemptsByUser',
-      { user_id: userId, mockTestId },                             // ← body
-      {                                                   // ← config
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    try {
+        const response = await api.post(
+            '/userAttempt/get/userAttemptsByUser',
+            { user_id: userId, mockTestId },                             // ← body
+            {                                                   // ← config
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            },
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 
@@ -306,10 +306,10 @@ export const getMocktestBySubjectname = async (subjectName) => {
     }
 }
 
-export const bulkdeleteMocktest = async (mockTestIds ) => {
+export const bulkdeleteMocktest = async (mockTestIds) => {
     try {
         const response = await api.delete('/mockTest/bulkmocktestdelete/delete', {
-            data: { mockTestIds  },
+            data: { mockTestIds },
             // headers: {
             //     'Content-Type': 'application/json',
             //     'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
@@ -335,7 +335,7 @@ export const rearrangeMocktest = async (data) => {
 export const bulkdeleteUserAttempts = async (attemptIds) => {
     try {
         const response = await api.delete('/userAttempt/deleteAttempts/attempts/bulkdelete', {
-            data: { 
+            data: {
                 attemptIds: attemptIds // Ensure this matches the backend expectation
             }
         });
@@ -346,9 +346,9 @@ export const bulkdeleteUserAttempts = async (attemptIds) => {
     }
 }
 
-export const checkMockTestAttempted = async (user_id, mockTestId,subjectId) => {
+export const checkMockTestAttempted = async (user_id, mockTestId, subjectId) => {
     try {
-        const response = await api.post(`/userAttempt/checkForPausedMockTest`,{
+        const response = await api.post(`/userAttempt/checkForPausedMockTest`, {
             user_id: user_id,
             mockTestId: mockTestId,
             subject: subjectId
@@ -372,6 +372,15 @@ export const saveforLaterMockTestUseAttempt = async (data) => {
 export const updateMocktestLastsavedTime = async (data) => {
     try {
         const response = await api.post(`/userAttempt/updateLastSavedTime`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getMockTestStats = async (user_id, mockTestId) => {
+    try {
+        const response = await api.post(`/userAttempt/get/mocktest/attemptStats`, { user_id, mockTestId });
         return response.data;
     } catch (error) {
         throw error;

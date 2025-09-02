@@ -37,7 +37,7 @@ export default function Ticker() {
   const editor = useRef(null);
   const config = useMemo(() => ({
     readonly: false, // all options from https://xdsoft.net/jodit/docs/,
-    placeholder: formData.title || 'Start typings...',
+    placeholder: formData.title ,
     //  buttons: ['bold', 'italic', 'underline', 'strikethrough', '|',
     //   'ul', 'ol', '|', 'font', 'fontsize', 'brush', '|',
     //   'align', 'outdent', 'indent', '|', 'link', 'image'],

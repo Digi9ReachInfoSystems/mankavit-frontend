@@ -54,7 +54,7 @@ export default function NotesManagement() {
   const [selectedNotes, setSelectedNotes] = useState([]);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-  
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -213,13 +213,18 @@ export default function NotesManagement() {
       setLoading(false);
     }
   };
-  
+
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/notes-management/create")}>
-          Add Notes
-        </CreateButton>
+        {
+          !readOnlyPermissions && (
+            <CreateButton onClick={() => navigate("/admin/notes-management/create")}>
+              Add Notes
+            </CreateButton>
+          )
+        }
+
       </ButtonContainer>
 
       <Container>
@@ -258,7 +263,7 @@ export default function NotesManagement() {
             placeholder="Search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-             style={{color: "black"}}
+            style={{ color: "black" }}
           />
         </SearchWrapper>
 

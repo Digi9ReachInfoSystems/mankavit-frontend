@@ -152,9 +152,12 @@ const Category = () => {
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate("/admin/category-management/create")}>
-          Add Category
-        </CreateButton>
+        {!readOnlyPermissions && (
+          <CreateButton onClick={() => navigate("/admin/category-management/create")}>
+            Add Category
+          </CreateButton>
+        )}
+
       </ButtonContainer>
 
       <Container>
@@ -180,7 +183,7 @@ const Category = () => {
             placeholder="Search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            style={{color: "black"}}
+            style={{ color: "black" }}
           />
         </SearchWrapper>
 

@@ -969,6 +969,7 @@ import {
   getAllUserAttemptByUserId,
   checkMockTestAttempted,
   viewUserMocktestAttemptResult,
+  getMockTestStats,
 } from "../../api/mocktestApi";
 import {
   getCourseByIdWithUSerProgress,
@@ -1026,12 +1027,12 @@ const AccordionList = ({
             userId,
             lecture._id
           );
-          attemptsData[lecture._id].resumetest = response.success || false;
+          // attemptsData[lecture._id].resumetest = response.success || false;
           attemptsData[lecture._id].viewResults =
             Object.keys(viewResults.result).length === 0
               ? false
               : true || false;
-          attemptsData[lecture._id].canStart =viewResults.remainigAttempts > 0 || false;
+          // attemptsData[lecture._id].canStart = viewResults.remainigAttempts > 0 || false;
           // console.log("resumetest",   attemptsData[lecture._id]);
         });
       });
@@ -1098,9 +1099,8 @@ const AccordionList = ({
                           : lecture.maxAttempts;
 
                       const infoLine = meta
-                        ? `${lecture.duration} | Max Attempts: ${
-                            meta.isUnlimited ? "Unlimited" : meta.max
-                          }`
+                        ? `${lecture.duration} | Max Attempts: ${meta.isUnlimited ? "Unlimited" : meta.max
+                        }`
                         : `${lecture.duration} | Max Attempts: ${defaultMaxText}`;
 
                       // const showViewResults = !!meta && meta.attemptsCount > 0;
@@ -1134,11 +1134,11 @@ const AccordionList = ({
 
                       const remainingText =
                         meta &&
-                        !meta.isUnlimited &&
-                        Number.isFinite(meta.remaining) &&
-                        meta.remaining > 0
-                          ? ` | Remaining: ${meta.remaining}`
-                          : " | Remaining:0";
+                          !meta.isUnlimited ?
+                          meta.remaining > 0
+                            ? ` | Remaining: ${meta.remaining}`
+                            : " | Remaining:0"
+                          : "";
 
                       return (
                         <VideoItem
@@ -1359,12 +1359,13 @@ const ContinueCourse = () => {
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [notes, setNotes] = useState([]);
 
+
   // NEW: global attempts cache + warm flag
   const [attemptsCache, setAttemptsCache] = useState({}); // { [lectureId]: meta }
   const [attemptsWarm, setAttemptsWarm] = useState(false);
 
   /* ------------------------ computeAttemptMeta (shared) ----------------------- */
-  const computeAttemptMeta = useCallback((lecture, attemptsArr) => {
+  const computeAttemptMeta = useCallback(async (lecture, attemptsArr) => {
     const attemptsCount = Array.isArray(attemptsArr) ? attemptsArr.length : 0;
     const rawMax = lecture?.maxAttempts;
     const hasFiniteMax =
@@ -1375,13 +1376,19 @@ const ContinueCourse = () => {
     const remaining = Number.isFinite(max)
       ? Math.max(max - attemptsCount, 0)
       : Infinity;
-    return {
-      attempts: attemptsArr || [],
-      attemptsCount,
-      max,
-      remaining,
-      isUnlimited: !Number.isFinite(max),
-    };
+    const cookiesData = await getCookiesData();
+    const uid = cookiesData.userId;
+
+    const response = await getMockTestStats(uid, lecture._id);
+   
+    // return {
+    //   attempts: attemptsArr || [],
+    //   attemptsCount,
+    //   max,
+    //   remaining,
+    //   isUnlimited: !Number.isFinite(max),
+    // };
+    return response
   }, []);
 
   /* ---------------- concurrency-limited attempts prefetcher ------------------- */
@@ -1399,21 +1406,37 @@ const ContinueCourse = () => {
           const lecture = toFetch[idx++];
           try {
             const res = await getAllUserAttemptByUserId(uid, lecture._id);
-            const meta = computeAttemptMeta(lecture, res?.data || []);
-          const viewResults = await viewUserMocktestAttemptResult(
-            userId,
-            lecture._id
-          );
-          const canStart =viewResults.remainigAttempts > 0 || false;
+            const meta = await computeAttemptMeta(lecture, res?.data || []);
+            const viewResults = await viewUserMocktestAttemptResult(
+              userId,
+              lecture._id
+            );
+            const canStart = meta.data.start || false;
             setAttemptsCache((prev) => ({
               ...prev,
-              [lecture._id]: { ...meta, resumetest: false ,canStart:canStart },
+              [lecture._id]: {
+                ...meta,
+                max: meta.data.maxAttempts,
+                resumetest: meta.data.resume,
+                canStart: canStart,
+                isUnlimited: meta.data.isUnlimited,
+                attemptsCount: meta.data.attemptCount,
+                remaining: meta.data.maxAttempts - meta.data.attemptCount,
+              },
             }));
           } catch (e) {
-            const meta = computeAttemptMeta(lecture, []);
+            const meta = await computeAttemptMeta(lecture, []);
             setAttemptsCache((prev) => ({
               ...prev,
-              [lecture._id]: { ...meta, resumetest: false ,canStart:false },
+              [lecture._id]: {
+                ...meta,
+                max: meta.data.maxAttempts,
+                resumetest: meta.data.resume,
+                canStart: meta.data.start,
+                isUnlimited: meta.data.isUnlimited,
+                attemptsCount: meta.data.attemptCount,
+                remaining: meta.data.maxAttempts - meta.data.attemptCount,
+              },
             }));
           }
         }
@@ -1568,9 +1591,8 @@ const ContinueCourse = () => {
             lectures: mockTests.map((test, idx) => ({
               _id: test._id,
               lectureName: test.title || `Mock Test ${idx + 1}`,
-              duration: `${test.number_of_questions ?? "N/A"} Questions | ${
-                test.duration ?? "N/A"
-              } mins`,
+              duration: `${test.number_of_questions ?? "N/A"} Questions | ${test.duration ?? "N/A"
+                } mins`,
               maxAttempts: test.maxAttempts,
               videoUrl: "#",
             })),
