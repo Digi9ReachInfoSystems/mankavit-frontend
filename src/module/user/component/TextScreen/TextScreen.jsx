@@ -17,7 +17,7 @@ import {
   Complier,
   QuestionNumber,
   QuestionTitle,
-  Section,
+  SectionQuestion,
   PassageBox,
   HorizontalLine,
   QuestionBox,
@@ -73,6 +73,9 @@ const PassageContainer = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+   @media (max-width: 990px) {
+    flex-direction: column;
+  }
 `;
 
 const PassageContent = styled.div`
@@ -584,40 +587,40 @@ export default function TextScreen() {
 
 
   const goToQuestion = async (i) => {
-  const prevAns = answers[currentIndex];
-  const newAns = answers[i];
+    const prevAns = answers[currentIndex];
+    const newAns = answers[i];
 
 
- if (prevAns && currentIndex !== i) {
-    let newStatus;
-    if (isBlank(prevAns, questions[currentIndex].type === "mcq")) {
-      newStatus = STATUS.NOT_ANSWERED;
-    } else {
- newStatus = STATUS.ANSWERED;
+    if (prevAns && currentIndex !== i) {
+      let newStatus;
+      if (isBlank(prevAns, questions[currentIndex].type === "mcq")) {
+        newStatus = STATUS.NOT_ANSWERED;
+      } else {
+        newStatus = STATUS.ANSWERED;
+      }
+
+      const payload = {
+        attemptId: prevAns.attemptId,
+        user_id: userId,
+        questionId: prevAns.questionId,
+        status: newStatus,
+        answer: prevAns.answer || "",
+        userAnswerIndex:
+          questions[currentIndex].type === "mcq" ? prevAns.answerIndex : null,
+      };
+      try {
+        await saveMocktest(payload);
+      } catch (err) {
+        console.error("Failed to save on navigation", err);
+      } finally {
+        setAnswers((prev) => {
+          const copy = [...prev];
+          copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
+          return copy;
+        });
+      }
     }
 
-    const payload = {
-      attemptId: prevAns.attemptId,
-      user_id: userId,
-      questionId: prevAns.questionId,
-      status: newStatus,
-      answer: prevAns.answer || "",
-      userAnswerIndex:
-        questions[currentIndex].type === "mcq" ? prevAns.answerIndex : null,
-    };
-    try {
-      await saveMocktest(payload);
-    } catch (err) {
-      console.error("Failed to save on navigation", err);
-    } finally {
-      setAnswers((prev) => {
-        const copy = [...prev];
-        copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
-        return copy;
-      });
-    }
-  }
-  
     // When visiting a question for the first time and it's blank → NOT_ANSWERED.
     if (
       newAns &&
@@ -708,29 +711,29 @@ export default function TextScreen() {
   // };
 
   const handleSubmit = async () => {
-  const ans = answers[currentIndex];
+    const ans = answers[currentIndex];
 
-  try {
+    try {
 
-    let finalStatus;
-    if (isBlank(ans, isMCQ)) {
-      finalStatus = STATUS.NOT_ANSWERED;
-    } else {
-      finalStatus = STATUS.ANSWERED;
-    }
+      let finalStatus;
+      if (isBlank(ans, isMCQ)) {
+        finalStatus = STATUS.NOT_ANSWERED;
+      } else {
+        finalStatus = STATUS.ANSWERED;
+      }
 
-    const payload = {
-      attemptId: ans.attemptId,
-      user_id: userId,
-      questionId: ans.questionId,
-      status: finalStatus,
-      answer: ans.answer || "",
-      userAnswerIndex: isMCQ ? ans.answerIndex : null,
-    };
-    await saveMocktest(payload);
+      const payload = {
+        attemptId: ans.attemptId,
+        user_id: userId,
+        questionId: ans.questionId,
+        status: finalStatus,
+        answer: ans.answer || "",
+        userAnswerIndex: isMCQ ? ans.answerIndex : null,
+      };
+      await saveMocktest(payload);
 
-    const timeKey = `testTime_${testId}_${urlAttemptId}`;
-    if (isMCQ) {
+      const timeKey = `testTime_${testId}_${urlAttemptId}`;
+      if (isMCQ) {
         payload.userAnswerIndex = ans.answerIndex;
         payload.answer = ans.answer;
       } else {
@@ -838,7 +841,7 @@ export default function TextScreen() {
           aria-label="Toggle question navigator"
           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
         >
-          {sidebarOpen ? <RxDoubleArrowRight  /> : <RxDoubleArrowLeft />}
+          {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
         </ToggleSidebarBtn>
 
         {/* HEADER — Back + Title tight */}
@@ -867,8 +870,7 @@ export default function TextScreen() {
           <QuestionNumber>
             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
-
-          <Section>
+          <SectionQuestion >
             {hasPassage ? (
               <PassageContainer>
                 <PassageContent hasPassage={hasPassage}>
@@ -954,30 +956,30 @@ export default function TextScreen() {
                   ) : (
                     <textarea
                       ref={answerRef}
-                        className="textarea"
-                        value={currAns.answer}
-                        onChange={handleTextChange}
-                        placeholder="Type your answer…"
-                        // extra inline guards (belt & suspenders)
-                        onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                        onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                        onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        spellCheck={false}
-                        autoCorrect="off"
-                        autoCapitalize="off"
-                        style={
-                          {
-                            userSelect: "none"
-                          }
+                      className="textarea"
+                      value={currAns.answer}
+                      onChange={handleTextChange}
+                      placeholder="Type your answer…"
+                      // extra inline guards (belt & suspenders)
+                      onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                      onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                      onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                      onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      spellCheck={false}
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      style={
+                        {
+                          userSelect: "none"
                         }
+                      }
                     />
                   )}
-                </QuestionBox>
+                </QuestionBox >
               </>
             )}
-          </Section>
+          </SectionQuestion>
         </Complier>
 
         {/* STICKY ACTION BAR — always visible, one line */}
