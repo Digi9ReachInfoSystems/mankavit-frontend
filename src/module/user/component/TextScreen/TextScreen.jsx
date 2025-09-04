@@ -136,6 +136,46 @@ export default function TextScreen() {
   const [showSaveForLater, setShowSaveForLater] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const [isSaving, setIsSaving] = useState(false);
+  
+
+    const answerRef = useRef(null);
+  useBlockClipboard(answerRef);
+
+  function useBlockClipboard(ref) {
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+
+      const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+
+      const onKeyDown = (e) => {
+        const key = (e.key || "").toLowerCase();
+        const ctrlOrMeta = e.ctrlKey || e.metaKey;
+        // Ctrl/Cmd + C/V/X/A and Shift+Insert
+        if (
+          (ctrlOrMeta && ["c", "v", "x", "a"].includes(key)) ||
+          (e.shiftKey && key === "insert")
+        ) prevent(e);
+      };
+
+      const onBeforeInput = (e) => {
+        // blocks modern paste path
+        if (e.inputType === "insertFromPaste") prevent(e);
+      };
+
+      const types = ["copy", "cut", "paste", "drop", "dragstart", "contextmenu"];
+      types.forEach((t) => el.addEventListener(t, prevent, { capture: true }));
+      el.addEventListener("keydown", onKeyDown, true);
+      el.addEventListener("beforeinput", onBeforeInput, true);
+
+      return () => {
+        types.forEach((t) => el.removeEventListener(t, prevent, { capture: true }));
+        el.removeEventListener("keydown", onKeyDown, true);
+        el.removeEventListener("beforeinput", onBeforeInput, true);
+      };
+    }, [ref]);
+  }
 
   useEffect(() => {
     if (!urlAttemptId || !userId) return;
@@ -424,6 +464,8 @@ export default function TextScreen() {
 
 // 1) Mark & Next — compute the status and pass it to goToQuestion.
 //    We also optimistically update local state so Legend/Grid update instantly.
+// 1) Mark & Next — compute the status and pass it to goToQuestion.
+//    We also optimistically update local state so Legend/Grid update instantly.
 const handleMarkAndNext = async () => {
   if (isSaving) return;
   setIsSaving(true);
@@ -467,6 +509,7 @@ const handleMarkAndNext = async () => {
     setIsSaving(false);
   }
 };
+
 
 
   const saveAndNext = async () => {
@@ -564,53 +607,58 @@ const handleMarkAndNext = async () => {
   // };
 
 
-  const goToQuestion = async (i) => {
+// 2) goToQuestion — accept an override so we DON'T read the stale status.
+//    Only auto-classify if nothing was forced and it was truly UNATTEMPTED.
+const goToQuestion = async (i, opts = {}) => {
+  const { forcePrevStatus, prevAnswer, prevAnswerIndex } = opts;
   const prevAns = answers[currentIndex];
-  const newAns = answers[i];
+  const nextAns = answers[i];
 
+  if (prevAns && currentIndex !== i) {
+    const prevIsMcq = questions[currentIndex].type === "mcq";
 
- if (prevAns && currentIndex !== i) {
-    let newStatus;
-    if (isBlank(prevAns, questions[currentIndex].type === "mcq")) {
-      newStatus = STATUS.NOT_ANSWERED;
-    } else {
- newStatus = STATUS.ANSWERED;
+    let statusToSave = forcePrevStatus ?? prevAns.status;
+    if (!forcePrevStatus && statusToSave === STATUS.UNATTEMPTED) {
+      statusToSave = isBlank(prevAns, prevIsMcq)
+        ? STATUS.NOT_ANSWERED
+        : STATUS.ANSWERED;
     }
 
-    const payload = {
-      attemptId: prevAns.attemptId,
-      user_id: userId,
-      questionId: prevAns.questionId,
-      status: newStatus,
-      answer: prevAns.answer || "",
-      userAnswerIndex:
-        questions[currentIndex].type === "mcq" ? prevAns.answerIndex : null,
-    };
     try {
-      await saveMocktest(payload);
+      await saveMocktest({
+        attemptId: prevAns.attemptId,
+        user_id: userId,
+        questionId: prevAns.questionId,
+        status: statusToSave,
+        answer: prevAnswer ?? prevAns.answer ?? "",
+        userAnswerIndex: prevIsMcq
+          ? (prevAnswerIndex ?? prevAns.answerIndex ?? null)
+          : null,
+      });
     } catch (err) {
       console.error("Failed to save on navigation", err);
     } finally {
-      setAnswers((prev) => {
+      // reflect the exact status we persisted
+      setAnswers(prev => {
         const copy = [...prev];
-        copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
+        copy[currentIndex] = { ...copy[currentIndex], status: statusToSave };
         return copy;
       });
     }
   }
-  
-    // When visiting a question for the first time and it's blank → NOT_ANSWERED.
-    if (
-      newAns &&
-      newAns.status === STATUS.UNATTEMPTED &&
-      isBlank(newAns, questions[i].type === "mcq")
-    ) {
-      setAnswers((prev) => {
-        const copy = [...prev];
-        copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
-        return copy;
-      });
-    }
+
+  // First visit of a blank question → show as NOT_ANSWERED (red)
+  if (
+    nextAns &&
+    nextAns.status === STATUS.UNATTEMPTED &&
+    isBlank(nextAns, questions[i].type === "mcq")
+  ) {
+    setAnswers(prev => {
+      const copy = [...prev];
+      copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
+      return copy;
+    });
+  }
 
   setCurrentIndex(i);
 };
