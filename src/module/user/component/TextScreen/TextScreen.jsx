@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
@@ -17,7 +17,7 @@ import {
   Complier,
   QuestionNumber,
   QuestionTitle,
-  Section,
+  SectionQuestion,
   PassageBox,
   HorizontalLine,
   QuestionBox,
@@ -73,6 +73,9 @@ const PassageContainer = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+   @media (max-width: 990px) {
+    flex-direction: column;
+  }
 `;
 
 const PassageContent = styled.div`
@@ -112,6 +115,11 @@ const isBlank = (ans, isMcq) => {
 };
 
 export default function TextScreen() {
+
+
+
+
+
   const { testId, subjectId, attemptId: urlAttemptId } = useParams();
   const navigate = useNavigate();
   const { userId } = getCookiesData();
@@ -128,7 +136,7 @@ export default function TextScreen() {
   const [showSaveForLater, setShowSaveForLater] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     if (!urlAttemptId || !userId) return;
 
@@ -556,59 +564,53 @@ const handleMarkAndNext = async () => {
   // };
 
 
-  // Replace your goToQuestion with this:
-// 2) goToQuestion — accept an override so we DON'T read the stale status.
-//    Only auto-classify if nothing was forced and it was truly UNATTEMPTED.
-const goToQuestion = async (i, opts = {}) => {
-  const { forcePrevStatus, prevAnswer, prevAnswerIndex } = opts;
+  const goToQuestion = async (i) => {
   const prevAns = answers[currentIndex];
-  const nextAns = answers[i];
+  const newAns = answers[i];
 
-  if (prevAns && currentIndex !== i) {
-    const prevIsMcq = questions[currentIndex].type === "mcq";
 
-    let statusToSave = forcePrevStatus ?? prevAns.status;
-    if (!forcePrevStatus && statusToSave === STATUS.UNATTEMPTED) {
-      statusToSave = isBlank(prevAns, prevIsMcq)
-        ? STATUS.NOT_ANSWERED
-        : STATUS.ANSWERED;
+ if (prevAns && currentIndex !== i) {
+    let newStatus;
+    if (isBlank(prevAns, questions[currentIndex].type === "mcq")) {
+      newStatus = STATUS.NOT_ANSWERED;
+    } else {
+ newStatus = STATUS.ANSWERED;
     }
 
+    const payload = {
+      attemptId: prevAns.attemptId,
+      user_id: userId,
+      questionId: prevAns.questionId,
+      status: newStatus,
+      answer: prevAns.answer || "",
+      userAnswerIndex:
+        questions[currentIndex].type === "mcq" ? prevAns.answerIndex : null,
+    };
     try {
-      await saveMocktest({
-        attemptId: prevAns.attemptId,
-        user_id: userId,
-        questionId: prevAns.questionId,
-        status: statusToSave,
-        answer: prevAnswer ?? prevAns.answer ?? "",
-        userAnswerIndex: prevIsMcq
-          ? (prevAnswerIndex ?? prevAns.answerIndex ?? null)
-          : null,
-      });
+      await saveMocktest(payload);
     } catch (err) {
       console.error("Failed to save on navigation", err);
     } finally {
-      // reflect the exact status we persisted
-      setAnswers(prev => {
+      setAnswers((prev) => {
         const copy = [...prev];
-        copy[currentIndex] = { ...copy[currentIndex], status: statusToSave };
+        copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
         return copy;
       });
     }
   }
-
-  // First visit of a blank question → show as NOT_ANSWERED (red)
-  if (
-    nextAns &&
-    nextAns.status === STATUS.UNATTEMPTED &&
-    isBlank(nextAns, questions[i].type === "mcq")
-  ) {
-    setAnswers(prev => {
-      const copy = [...prev];
-      copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
-      return copy;
-    });
-  }
+  
+    // When visiting a question for the first time and it's blank → NOT_ANSWERED.
+    if (
+      newAns &&
+      newAns.status === STATUS.UNATTEMPTED &&
+      isBlank(newAns, questions[i].type === "mcq")
+    ) {
+      setAnswers((prev) => {
+        const copy = [...prev];
+        copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
+        return copy;
+      });
+    }
 
   setCurrentIndex(i);
 };
@@ -687,29 +689,29 @@ const goToQuestion = async (i, opts = {}) => {
   // };
 
   const handleSubmit = async () => {
-  const ans = answers[currentIndex];
+    const ans = answers[currentIndex];
 
-  try {
+    try {
 
-    let finalStatus;
-    if (isBlank(ans, isMCQ)) {
-      finalStatus = STATUS.NOT_ANSWERED;
-    } else {
-      finalStatus = STATUS.ANSWERED;
-    }
+      let finalStatus;
+      if (isBlank(ans, isMCQ)) {
+        finalStatus = STATUS.NOT_ANSWERED;
+      } else {
+        finalStatus = STATUS.ANSWERED;
+      }
 
-    const payload = {
-      attemptId: ans.attemptId,
-      user_id: userId,
-      questionId: ans.questionId,
-      status: finalStatus,
-      answer: ans.answer || "",
-      userAnswerIndex: isMCQ ? ans.answerIndex : null,
-    };
-    await saveMocktest(payload);
+      const payload = {
+        attemptId: ans.attemptId,
+        user_id: userId,
+        questionId: ans.questionId,
+        status: finalStatus,
+        answer: ans.answer || "",
+        userAnswerIndex: isMCQ ? ans.answerIndex : null,
+      };
+      await saveMocktest(payload);
 
-    const timeKey = `testTime_${testId}_${urlAttemptId}`;
-    if (isMCQ) {
+      const timeKey = `testTime_${testId}_${urlAttemptId}`;
+      if (isMCQ) {
         payload.userAnswerIndex = ans.answerIndex;
         payload.answer = ans.answer;
       } else {
@@ -817,7 +819,7 @@ const goToQuestion = async (i, opts = {}) => {
           aria-label="Toggle question navigator"
           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
         >
-          {sidebarOpen ? <RxDoubleArrowRight  /> : <RxDoubleArrowLeft />}
+          {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
         </ToggleSidebarBtn>
 
         {/* HEADER — Back + Title tight */}
@@ -846,8 +848,7 @@ const goToQuestion = async (i, opts = {}) => {
           <QuestionNumber>
             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
-
-          <Section>
+          <SectionQuestion >
             {hasPassage ? (
               <PassageContainer>
                 <PassageContent hasPassage={hasPassage}>
@@ -869,12 +870,12 @@ const goToQuestion = async (i, opts = {}) => {
                             typeof opt === "object" ? opt.text : opt;
                           return (
                             <OptionLabel key={idx}>
-                             
-                             <input
-                                  type="radio"
-                                  checked={currAns.answerIndex === idx}
-                                  onChange={() => handleOptionSelect(idx)}
-                                />
+
+                              <input
+                                type="radio"
+                                checked={currAns.answerIndex === idx}
+                                onChange={() => handleOptionSelect(idx)}
+                              />
 
                               {label}
                             </OptionLabel>
@@ -883,10 +884,25 @@ const goToQuestion = async (i, opts = {}) => {
                       </OptionsList>
                     ) : (
                       <textarea
+                        ref={answerRef}
                         className="textarea"
                         value={currAns.answer}
                         onChange={handleTextChange}
                         placeholder="Type your answer…"
+                        // extra inline guards (belt & suspenders)
+                        onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        spellCheck={false}
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        style={
+                          {
+                            userSelect: "none"
+                          }
+                        }
                       />
                     )}
                   </QuestionBox>
@@ -917,16 +933,31 @@ const goToQuestion = async (i, opts = {}) => {
                     </OptionsList>
                   ) : (
                     <textarea
+                      ref={answerRef}
                       className="textarea"
                       value={currAns.answer}
                       onChange={handleTextChange}
                       placeholder="Type your answer…"
+                      // extra inline guards (belt & suspenders)
+                      onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                      onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                      onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
+                      onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      spellCheck={false}
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      style={
+                        {
+                          userSelect: "none"
+                        }
+                      }
                     />
                   )}
-                </QuestionBox>
+                </QuestionBox >
               </>
             )}
-          </Section>
+          </SectionQuestion>
         </Complier>
 
         {/* STICKY ACTION BAR — always visible, one line */}

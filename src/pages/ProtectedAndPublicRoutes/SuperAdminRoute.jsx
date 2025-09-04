@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { getAuth } from '../../utils/authService';
 import Lottie from "lottie-react";
 import loadingAnimation from "../../assets/Lottie/loading.json";
@@ -11,7 +11,8 @@ const SuperAdminRoute = ({ children, }) => {
         isSuperAdmin: false,
         Permissions: {}
     });
-
+    const navigate = useNavigate();
+    const intervalRef = useRef(null);
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -36,6 +37,39 @@ const SuperAdminRoute = ({ children, }) => {
 
         checkAuth();
     }, []);
+    // useEffect(() => {
+
+    //     if (authStatus.isLoading || !authStatus.isAuthenticated) return;
+
+    //     const tick = async () => {
+    //         try {
+    //             const { isAuthenticated, role } = await getAuth();
+    //             setAuthStatus({
+    //                 isAuthenticated,
+    //                 role,
+    //                 isLoading: false
+    //             });        // optional if refresh does a verify
+    //         } catch (err) {
+    //             try { await logout(); } catch { }
+    //             setAuthStatus({ isAuthenticated: false, role: null, isLoading: false });
+    //             navigate("/", { replace: true });
+    //         }
+    //     };
+    //     const onVisibility = () => {
+    //         if (document.visibilityState === "visible") tick();
+    //     };
+    //     document.addEventListener("visibilitychange", onVisibility);
+
+    //     tick();
+    //     intervalRef.current = setInterval(() => {
+    //         if (document.visibilityState === "visible" && navigator.onLine) tick();
+    //     }, CHECK_INTERVAL_MS);
+
+    //     return () => {
+    //         document.removeEventListener("visibilitychange", onVisibility);
+    //         if (intervalRef.current) clearInterval(intervalRef.current);
+    //     };
+    // }, [authStatus.isAuthenticated, authStatus.isLoading, navigate]);
 
     if (authStatus.isLoading) {
         return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>

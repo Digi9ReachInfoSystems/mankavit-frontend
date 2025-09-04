@@ -117,3 +117,20 @@ export const studentByCourse = (courseId) => {
     throw error;
   }
 };
+
+
+export const bulkDeleteSubAdmin = async (adminIds) => {
+    try {
+
+        const response = await api.delete('/user/bulkdelete/subadmin', {
+            data: { adminIds },
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

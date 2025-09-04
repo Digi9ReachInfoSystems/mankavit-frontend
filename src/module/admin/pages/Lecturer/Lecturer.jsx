@@ -45,7 +45,7 @@ export default function Lecturer() {
   const [subjectsMap, setSubjectsMap] = useState({});
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
-const [currentSubjects, setCurrentSubjects] = useState([]);
+  const [currentSubjects, setCurrentSubjects] = useState([]);
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -60,26 +60,26 @@ const [currentSubjects, setCurrentSubjects] = useState([]);
   }, []);
 
   const handleViewSubjects = (subjects) => {
-  setCurrentSubjects(subjects);
-  setSubjectsModalOpen(true);
-};
-
-  useEffect(() => {
-  const fetchSubjects = async () => {
-    try {
-      const res = await getSubjects(); // should return list with { _id, subjectName }
-      const map = {};
-      res.data.forEach(subject => {
-        map[subject._id] = subject.subjectName;
-      });
-      setSubjectsMap(map);
-    } catch (error) {
-      console.error('Failed to fetch subjects:', error);
-    }
+    setCurrentSubjects(subjects);
+    setSubjectsModalOpen(true);
   };
 
-  fetchSubjects();
-}, []);
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const res = await getSubjects(); // should return list with { _id, subjectName }
+        const map = {};
+        res.data.forEach(subject => {
+          map[subject._id] = subject.subjectName;
+        });
+        setSubjectsMap(map);
+      } catch (error) {
+        console.error('Failed to fetch subjects:', error);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
 
   const fetchLectures = async () => {
     try {
@@ -229,10 +229,10 @@ const [currentSubjects, setCurrentSubjects] = useState([]);
   };
 
   const handleSubjectClick = (subjectId) => {
-  navigate(`/admin/subject-management/view/${subjectId}`);
-};
-  
-    const formatToIST = (isoString, options = {}) => {
+    navigate(`/admin/subject-management/view/${subjectId}`);
+  };
+
+  const formatToIST = (isoString, options = {}) => {
     try {
       const date = new Date(isoString);
       return new Intl.DateTimeFormat("en-IN", {
@@ -250,13 +250,18 @@ const [currentSubjects, setCurrentSubjects] = useState([]);
       return "Invalid date";
     }
   };
-  
+
   return (
     <>
       <ButtonContainer>
-        <CreateButton onClick={() => navigate('/admin/lecturer-management/create')}>
-          Add Video
-        </CreateButton>
+        {
+          !readOnlyPermissions && (
+            <CreateButton onClick={() => navigate('/admin/lecturer-management/create')}>
+              Add Video
+            </CreateButton>
+          )
+        }
+
       </ButtonContainer>
 
       <Container>
@@ -300,7 +305,7 @@ const [currentSubjects, setCurrentSubjects] = useState([]);
             placeholder="Search"
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
-            style={{color: "black"}}
+            style={{ color: "black" }}
           />
         </SearchWrapper>
 
@@ -412,35 +417,35 @@ const [currentSubjects, setCurrentSubjects] = useState([]);
                       />
                     </ActionsContainer>
                   </TableCell> */}
-      <TableCell>
-  {(item.subjectRef || []).length > 0 ? (
-    <>
-      {(item.subjectRef || []).length} {/* Show count of subjects */}
-      <button
-        style={{
-          background: 'none',
-          border: 'none',
-          color: '#1890ff',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          marginLeft: '5px',
-        }}
-        onClick={() => {
-          // Map subjectRef IDs to subject objects with names
-          const subjects = (item.subjectRef || []).map(id => ({
-            _id: id,
-            subjectName: subjectsMap[id] || 'Unknown'
-          }));
-          handleViewSubjects(subjects);
-        }}
-      >
-        View
-      </button>
-    </>
-  ) : (
-    'No subjects'
-  )}
-</TableCell>
+                  <TableCell>
+                    {(item.subjectRef || []).length > 0 ? (
+                      <>
+                        {(item.subjectRef || []).length} {/* Show count of subjects */}
+                        <button
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#1890ff',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            marginLeft: '5px',
+                          }}
+                          onClick={() => {
+                            // Map subjectRef IDs to subject objects with names
+                            const subjects = (item.subjectRef || []).map(id => ({
+                              _id: id,
+                              subjectName: subjectsMap[id] || 'Unknown'
+                            }));
+                            handleViewSubjects(subjects);
+                          }}
+                        >
+                          View
+                        </button>
+                      </>
+                    ) : (
+                      'No subjects'
+                    )}
+                  </TableCell>
 
                 </TableRow>
               ))}
@@ -457,13 +462,13 @@ const [currentSubjects, setCurrentSubjects] = useState([]);
         />
       </Container >
       {subjectsModalOpen && (
-  <CustomModal
-    title="Subjects"
-    type="subjects"
-    data={currentSubjects}
-    onClose={() => setSubjectsModalOpen(false)}
-  />
-)}
+        <CustomModal
+          title="Subjects"
+          type="subjects"
+          data={currentSubjects}
+          onClose={() => setSubjectsModalOpen(false)}
+        />
+      )}
 
       {deleteModalOpen && (
         <DeleteModal

@@ -32,6 +32,7 @@ import {
 } from '../../../../api/userDashboardAPI';
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { Link, useNavigate } from 'react-router-dom';
+import { startCourse } from '../../../../api/userProgressApi';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
@@ -39,23 +40,23 @@ const Courses = () => {
     const [error, setError] = useState(null);
     const { userId } = getCookiesData();
     const navigate = useNavigate();
-  const getCtaText = (course) => {
-    const completed = course.course_status === "completed";
-    const pct = Number(course.completePercentage || 0);
-    const isZero = pct === 0;
+    const getCtaText = (course) => {
+        const completed = course.course_status === "completed";
+        const pct = Number(course.completePercentage || 0);
+        const isZero = pct === 0;
 
-    if (completed) return "Completed";
-    // If KYC required and user hasn't applied / was rejected, keep your original message
-    if (
-      !course.kycStatus &&
-      (course.userKycStatus === "not-applied" ||
-        course.userKycStatus === "rejected")
-    ) {
-      return "Complete KYC to continue";
-    }
-    // Otherwise decide based on progress
-    return isZero ? "Start Learning" : "Continue Learning";
-  };
+        if (completed) return "Completed";
+        // If KYC required and user hasn't applied / was rejected, keep your original message
+        if (
+            !course.kycStatus &&
+            (course.userKycStatus === "not-applied" ||
+                course.userKycStatus === "rejected")
+        ) {
+            return "Complete KYC to continue";
+        }
+        // Otherwise decide based on progress
+        return isZero ? "Start Learning" : "Continue Learning";
+    };
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -164,8 +165,8 @@ const Courses = () => {
                                     <Details>
                                         {/* <DetailItem><FcCalendar /> Duration: {course.duration || 'N/A'} months</DetailItem> */}
                                         {/* <DetailItem>🏆 Success Rate: {course.successRate || 'N/A'}%</DetailItem> */}
-                                            <DetailItemok style={{ color: "#206666ff" }}>Finish 100% to unlock the certificate</DetailItemok>
-                                                                              
+                                        <DetailItemok style={{ color: "#206666ff" }}>Finish 100% to unlock the certificate</DetailItemok>
+
                                     </Details>
                                 ) : (
                                     <Details>
@@ -177,25 +178,43 @@ const Courses = () => {
                             </CourseContent>
 
                             <PriceActions>
-                               <ViewButton
-                                                completed={course.course_status === "completed"}
-                                                onClick={() => {
-                                                  if (course.kycStatus) {
-                                                    navigate(`/continueCourse/${course._id}`);
-                                                  } else {
-                                                    if (
-                                                      course.userKycStatus == "not-applied" ||
-                                                      course.userKycStatus == "rejected"
-                                                    ) {
-                                                      navigate(`/kyc`);
-                                                    } else {
-                                                      navigate(`/continueCourse/${course._id}`);
-                                                    }
-                                                  }
-                                                }}
-                                              >
-                                                {getCtaText(course)}
-                                              </ViewButton>
+                                <ViewButton
+                                    completed={course.course_status === "completed"}
+                                    onClick={async () => {
+                                        if (course.kycStatus) {
+                                            console.log("KYC already done", course);
+                                            const response = await startCourse(userId, course._id);
+                                            console.log("start course response", response);
+                                            if (response) {
+                                                // Successfully started the course, navigate to course content
+                                                navigate(`/continueCourse/${course._id}`);
+                                            } else {
+
+                                            }
+                                            // navigate(`/continueCourse/${course._id}`);
+                                        } else {
+                                            if (
+                                                course.userKycStatus == "not-applied" ||
+                                                course.userKycStatus == "rejected"
+                                            ) {
+                                                navigate(`/kyc`);
+                                            } else {
+
+                                                const response = await startCourse(userId, course._id);
+                                                console.log("start course response", response);
+                                                if (response.success) {
+                                                    // Successfully started the course, navigate to course content
+                                                    // navigate(`/continueCourse/${course._id}`);
+                                                } else {
+
+                                                }
+                                                //   navigate(`/continueCourse/${course._id}`);
+                                            }
+                                        }
+                                    }}
+                                >
+                                    {getCtaText(course)}
+                                </ViewButton>
 
                             </PriceActions>
                         </CourseCard>
@@ -214,7 +233,7 @@ const Courses = () => {
                     }}>
                         <div>
                             No courses found.
-                          <Link to={"/ourcoursedetails"}>  <NoCourseFoundButton >
+                            <Link to={"/ourcoursedetails"}>  <NoCourseFoundButton >
                                 Explore our courses
                             </NoCourseFoundButton></Link>
                         </div>

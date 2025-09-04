@@ -153,7 +153,11 @@ const AdminMission = () => {
       />
 
       <BtnAchieve>
-        <AddButton onClick={handleAdd}>Add Mission</AddButton>
+        {
+          !readOnlyPermissions && (
+            <AddButton onClick={handleAdd}>Add Mission</AddButton>
+          )
+        }
       </BtnAchieve>
 
       <Container>

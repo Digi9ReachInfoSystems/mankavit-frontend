@@ -108,7 +108,7 @@ const StartTest = () => {
             >
               Resume Test
             </StartButton>
-            <StartButton
+            {/* <StartButton
               style={{
                 width: "250px",
                 background: "linear-gradient(90deg, #ff4e50, #f9d423)",
@@ -132,7 +132,7 @@ const StartTest = () => {
               }}
             >
               Submit & Start New Attempt
-            </StartButton>
+            </StartButton> */}
           </div>
         </Card>
       </CardContainer>

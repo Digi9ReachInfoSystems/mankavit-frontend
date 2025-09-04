@@ -39,7 +39,7 @@ const Sidebar = () => {
   //   { path: "/admin/payment-management", label: "Payment" },
   //   { path: "/admin/static-page", label: "Static Page" },
   // ];
-
+ 
   const mockTestItems = [
     { path: "/admin/mock-test", label: "View Mock Test" },
     { path: "/admin/mock-test/create-mock-test", label: "Create Mock Test" },
@@ -140,6 +140,9 @@ const Sidebar = () => {
         }
         if (response.Permissions.webManagement.access) {
           sectionData["Web Management"] = webManagementItems;
+        }
+        if (response.Permissions.paymentManagement.access) {
+          menuItemsData.push({ path: "/admin/payment-management", label: "Payment" },);
         }
 
 

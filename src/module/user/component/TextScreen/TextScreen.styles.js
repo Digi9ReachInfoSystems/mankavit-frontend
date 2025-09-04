@@ -106,8 +106,9 @@ export const Timer = styled.div`
   }
 `;
 
-export const Section = styled.div`
+export const SectionQuestion = styled.div`
   display: flex;
+  
   @media (max-width: 990px) {
     flex-direction: column;
   }
@@ -120,7 +121,7 @@ export const PassageBox = styled.div`
   height: 600px;
   overflow-y: auto;
   font-size: 16px;
-
+  user-select: none;
   p {
     font-size: 18px;
     line-height: 1.6;
@@ -140,7 +141,7 @@ export const QuestionBox = styled.div`
   height: 600px;
   font-size: 16px;
   overflow-y: auto;
-
+  user-select: none;
   .textarea {
     width: 100%;
     height: 550px;
