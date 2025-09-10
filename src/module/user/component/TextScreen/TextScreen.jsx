@@ -136,8 +136,10 @@ export default function TextScreen() {
   const [showSaveForLater, setShowSaveForLater] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const [isSaving, setIsSaving] = useState(false);
+  
 
-  const answerRef = useRef(null);
+    const answerRef = useRef(null);
   useBlockClipboard(answerRef);
 
   function useBlockClipboard(ref) {
@@ -174,6 +176,7 @@ export default function TextScreen() {
       };
     }, [ref]);
   }
+
   useEffect(() => {
     if (!urlAttemptId || !userId) return;
 
@@ -457,39 +460,57 @@ export default function TextScreen() {
     });
   };
 
-  const handleMarkAndNext = async () => {
-    const ans = answers[currentIndex];
 
-    let newStatus;
-    if ((ans.answer && ans.answer.trim() !== "") || ans.answerIndex !== null) {
-      newStatus = STATUS.ANSWERED_MARKED;
-    } else {
-      newStatus = STATUS.NOT_ANSWERED_MARKED;
-    }
 
-    const payload = {
-      attemptId: ans.attemptId,
-      user_id: userId,
-      questionId: ans.questionId,
-      status: newStatus,
-      answer: ans.answer || "",
-      userAnswerIndex: isMCQ ? ans.answerIndex : null,
-    };
+// 1) Mark & Next — compute the status and pass it to goToQuestion.
+//    We also optimistically update local state so Legend/Grid update instantly.
+// 1) Mark & Next — compute the status and pass it to goToQuestion.
+//    We also optimistically update local state so Legend/Grid update instantly.
+const handleMarkAndNext = async () => {
+  if (isSaving) return;
+  setIsSaving(true);
 
-    try {
-      await saveMocktest(payload);
-      setAnswers((prev) => {
-        const copy = [...prev];
-        copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
-        return copy;
+  const ans = answers[currentIndex];
+  const isMcq = questions[currentIndex].type === "mcq";
+  const blank = isBlank(ans, isMcq);
+
+  const newStatus = blank
+    ? STATUS.NOT_ANSWERED_MARKED
+    : STATUS.ANSWERED_MARKED;
+
+  // optimistic UI update
+  setAnswers(prev =>
+    prev.map((a, idx) => (idx === currentIndex ? { ...a, status: newStatus } : a))
+  );
+
+  try {
+    // if not the last question, let goToQuestion persist the status we just chose
+    if (currentIndex < questions.length - 1) {
+      await goToQuestion(currentIndex + 1, {
+        forcePrevStatus: newStatus,
+        prevAnswer: ans.answer || "",
+        prevAnswerIndex: isMcq ? ans.answerIndex : null,
       });
-
-      if (currentIndex < questions.length - 1) goToQuestion(currentIndex + 1);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to save answer");
+    } else {
+      // last question → persist here
+      await saveMocktest({
+        attemptId: ans.attemptId,
+        user_id: userId,
+        questionId: ans.questionId,
+        status: newStatus,
+        answer: ans.answer || "",
+        userAnswerIndex: isMcq ? ans.answerIndex : null,
+      });
     }
-  };
+  } catch (err) {
+    console.error("Failed to mark for review:", err);
+    toast.error("Could not save marked status");
+  } finally {
+    setIsSaving(false);
+  }
+};
+
+
 
   const saveAndNext = async () => {
     const ans = answers[currentIndex];
@@ -586,56 +607,61 @@ export default function TextScreen() {
   // };
 
 
-  const goToQuestion = async (i) => {
-    const prevAns = answers[currentIndex];
-    const newAns = answers[i];
+// 2) goToQuestion — accept an override so we DON'T read the stale status.
+//    Only auto-classify if nothing was forced and it was truly UNATTEMPTED.
+const goToQuestion = async (i, opts = {}) => {
+  const { forcePrevStatus, prevAnswer, prevAnswerIndex } = opts;
+  const prevAns = answers[currentIndex];
+  const nextAns = answers[i];
 
+  if (prevAns && currentIndex !== i) {
+    const prevIsMcq = questions[currentIndex].type === "mcq";
 
-    if (prevAns && currentIndex !== i) {
-      let newStatus;
-      if (isBlank(prevAns, questions[currentIndex].type === "mcq")) {
-        newStatus = STATUS.NOT_ANSWERED;
-      } else {
-        newStatus = STATUS.ANSWERED;
-      }
+    let statusToSave = forcePrevStatus ?? prevAns.status;
+    if (!forcePrevStatus && statusToSave === STATUS.UNATTEMPTED) {
+      statusToSave = isBlank(prevAns, prevIsMcq)
+        ? STATUS.NOT_ANSWERED
+        : STATUS.ANSWERED;
+    }
 
-      const payload = {
+    try {
+      await saveMocktest({
         attemptId: prevAns.attemptId,
         user_id: userId,
         questionId: prevAns.questionId,
-        status: newStatus,
-        answer: prevAns.answer || "",
-        userAnswerIndex:
-          questions[currentIndex].type === "mcq" ? prevAns.answerIndex : null,
-      };
-      try {
-        await saveMocktest(payload);
-      } catch (err) {
-        console.error("Failed to save on navigation", err);
-      } finally {
-        setAnswers((prev) => {
-          const copy = [...prev];
-          copy[currentIndex] = { ...copy[currentIndex], status: newStatus };
-          return copy;
-        });
-      }
-    }
-
-    // When visiting a question for the first time and it's blank → NOT_ANSWERED.
-    if (
-      newAns &&
-      newAns.status === STATUS.UNATTEMPTED &&
-      isBlank(newAns, questions[i].type === "mcq")
-    ) {
-      setAnswers((prev) => {
+        status: statusToSave,
+        answer: prevAnswer ?? prevAns.answer ?? "",
+        userAnswerIndex: prevIsMcq
+          ? (prevAnswerIndex ?? prevAns.answerIndex ?? null)
+          : null,
+      });
+    } catch (err) {
+      console.error("Failed to save on navigation", err);
+    } finally {
+      // reflect the exact status we persisted
+      setAnswers(prev => {
         const copy = [...prev];
-        copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
+        copy[currentIndex] = { ...copy[currentIndex], status: statusToSave };
         return copy;
       });
     }
+  }
 
-    setCurrentIndex(i);
-  };
+  // First visit of a blank question → show as NOT_ANSWERED (red)
+  if (
+    nextAns &&
+    nextAns.status === STATUS.UNATTEMPTED &&
+    isBlank(nextAns, questions[i].type === "mcq")
+  ) {
+    setAnswers(prev => {
+      const copy = [...prev];
+      copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
+      return copy;
+    });
+  }
+
+  setCurrentIndex(i);
+};
 
 
 
@@ -985,9 +1011,9 @@ export default function TextScreen() {
         {/* STICKY ACTION BAR — always visible, one line */}
         <StickyActionBar>
           <LeftButtonsWrap>
-            <button className="review" onClick={handleMarkAndNext}>
-              Mark & Next
-            </button>
+          <button className="review" onClick={handleMarkAndNext} disabled={isSaving}>
+  {isSaving ? "Marking..." : "Mark & Next"}
+</button>
             <button className="clear" onClick={handleClear}>
               Clear Response
             </button>
@@ -1009,42 +1035,46 @@ export default function TextScreen() {
       <SidebarContainer $open={sidebarOpen}>
         <Divider />
 
-        <Legend>
-          <OptionLabelList>
-            <LegendItem className="answered">
-              {getStatusCounts().answered}
-            </LegendItem>
-            <LegendText>Answered</LegendText>
-          </OptionLabelList>
-
-          <OptionLabelList>
-            <LegendItem className="not-answered">
-              {getStatusCounts().notAnswered}
-            </LegendItem>
-            <LegendText>Not Answered</LegendText>
-          </OptionLabelList>
-
-          <OptionLabelList>
-            <LegendItem className="not-answered-marked">
-              {getStatusCounts().notAnsweredMarked}
-            </LegendItem>
-            <LegendText>Marked</LegendText>
-          </OptionLabelList>
-
-          <OptionLabelList>
-            <LegendItem className="unattempted">
-              {getStatusCounts().unattempted}
-            </LegendItem>
-            <LegendText>Not Visited</LegendText>
-          </OptionLabelList>
-
-          <OptionLabelList>
-            <LegendItem className="answered-marked">
-              {getStatusCounts().answeredMarked}
-            </LegendItem>
-            <LegendText>Answered & Marked</LegendText>
-          </OptionLabelList>
-        </Legend>
+     <Legend>
+  {Object.entries(getStatusCounts()).map(([key, count]) => {
+    let className;
+    switch (key) {
+      case "answered":
+        className = "answered";
+        break;
+      case "notAnswered":
+        className = "not-answered";
+        break;
+      case "notAnsweredMarked":
+        className = "not-answered-marked";
+        break;
+      case "unattempted":
+        className = "unattempted";
+        break;
+      case "answeredMarked":
+        className = "answered-marked";
+        break;
+      default:
+        return null;
+    }
+    return (
+      <OptionLabelList key={key}>
+        <LegendItem className={className}>{count}</LegendItem>
+        <LegendText>
+          {key === "answeredMarked"
+            ? "Answered & Marked"
+            : key === "notAnsweredMarked"
+            ? "Marked"
+            : key === "notAnswered"
+            ? "Not Answered"
+            : key === "unattempted"
+            ? "Not Visited"
+            : key.charAt(0).toUpperCase() + key.slice(1)}
+        </LegendText>
+      </OptionLabelList>
+    );
+  })}
+</Legend>
 
         {/* SCROLLABLE QUESTION MAP */}
         <QuestionNav>
@@ -1078,3 +1108,4 @@ export default function TextScreen() {
     </Container>
   );
 }
+
