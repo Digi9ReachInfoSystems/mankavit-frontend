@@ -21,7 +21,9 @@ import {
     DetailItemok,
     PriceActions,
     ViewButton,
-    NoCourseFoundButton
+    NoCourseFoundButton,
+    liveClassBadge,
+    BlinkingIcon
 } from './Courses.styles';
 import lawimg from "../../../../assets/lawentrance.png";
 import { FcCalendar } from "react-icons/fc";
@@ -33,6 +35,7 @@ import {
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { Link, useNavigate } from 'react-router-dom';
 import { startCourse } from '../../../../api/userProgressApi';
+import { getLiveMeetings } from '../../../../api/meetingApi';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
@@ -40,6 +43,7 @@ const Courses = () => {
     const [error, setError] = useState(null);
     const { userId } = getCookiesData();
     const navigate = useNavigate();
+    const [liveStatus, setLiveStatus] = useState({});
     const getCtaText = (course) => {
         const completed = course.course_status === "completed";
         const pct = Number(course.completePercentage || 0);
@@ -58,6 +62,14 @@ const Courses = () => {
         return isZero ? "Start Learning" : "Continue Learning";
     };
     useEffect(() => {
+        if (courses.length === 0) return;
+        const ids = courses.map(c => c._id);
+        console.log("ids", ids);
+        pollLiveStatuses(ids);
+        const interval = setInterval(() => pollLiveStatuses(ids), 30000);
+        return () => clearInterval(interval);
+    }, [courses]);
+    useEffect(() => {
         const fetchCourses = async () => {
             try {
                 setLoading(true);
@@ -66,6 +78,7 @@ const Courses = () => {
                 // Corrected data extraction based on your API response
                 if (response && response.enrolledCourses) {
                     setCourses(response.enrolledCourses);
+
                 }
                 else {
                     setCourses([]);
@@ -85,6 +98,24 @@ const Courses = () => {
             setLoading(false);
         }
     }, [userId]);
+    const pollLiveStatuses = async (courseIds) => {
+        try {
+            const res = await getLiveMeetings({ courseIds });
+            console.log("live meetings", res);
+            // res.data may contain active meetings, group by courseId
+            const statusMap = {};
+            res.data.forEach(meeting => {
+                console.log("meeting", meeting);
+                meeting.course_Ref.map(id => {
+                    statusMap[id._id] = true;
+                })
+
+            });
+            setLiveStatus(statusMap);
+        } catch (err) {
+            console.error("Error fetching live statuses", err);
+        }
+    };
 
     const renderStars = (rating) => {
         if (!rating) return null;
@@ -124,6 +155,7 @@ const Courses = () => {
         );
     }
 
+
     return (
         <CourseWrapper>
             <Title>My Courses </Title>
@@ -135,6 +167,7 @@ const Courses = () => {
                             <ImageWrapper>
                                 <img src={course.image || lawimg} alt="Course Banner" />
                             </ImageWrapper>
+
 
                             <ProgressContainer>
                                 <ProgressLabel>{course.completePercentage || 0}% Completed</ProgressLabel>
@@ -149,7 +182,12 @@ const Courses = () => {
                                 </div>
                             </ProgressContainer>
 
-
+                            {liveStatus[course._id] && (
+                                <BlinkingIcon>
+                                   🔴 Live Class Ongoing
+                                  
+                                </BlinkingIcon>
+                            )}
                             <CourseContent>
                                 <CourseMain>
                                     {/* <CourseHead> */}
@@ -175,6 +213,8 @@ const Courses = () => {
                                         </DetailItemok>
                                     </Details>
                                 )}
+
+
                             </CourseContent>
 
                             <PriceActions>

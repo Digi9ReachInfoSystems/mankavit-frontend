@@ -11,7 +11,7 @@ export const generateSignature = async (data) => {
     }
 };
 
-export const getAllMeetings = async (courseId,from,to) => {
+export const getAllMeetings = async (courseId,from,to,hostEmail,isSuperAdmin) => {
     try {
         let queryParams = '';
         const params = [];
@@ -19,6 +19,8 @@ export const getAllMeetings = async (courseId,from,to) => {
         if (courseId) params.push(`courseId=${courseId}`);
         if (from) params.push(`from=${from}`);
         if (to) params.push(`to=${to}`);
+        if (hostEmail) params.push(`hostEmail=${hostEmail}`);
+        if (isSuperAdmin) params.push(`isSuperAdmin=${isSuperAdmin}`);
         
         if (params.length > 0) {
             queryParams = `?${params.join('&')}`;
@@ -31,7 +33,7 @@ export const getAllMeetings = async (courseId,from,to) => {
 };
 export  const createMeeting = async (data) => {
     try {
-        const response = await api.post('/api/v1/zoom/create', data);
+        const response = await api.post('/meeting/create/Meeting', data);
         return response.data;
     } catch (error) {
         throw error;
@@ -70,3 +72,18 @@ export const generateAccessToken = async (data) => {
         throw error;
     }
 }
+
+export const bulkDeleteMeetings = async (meetingIds) => {
+  try {
+    const response = await api.delete("/meeting/bulk/delete/meetings", {
+      data: { ids: meetingIds },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // If using auth
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

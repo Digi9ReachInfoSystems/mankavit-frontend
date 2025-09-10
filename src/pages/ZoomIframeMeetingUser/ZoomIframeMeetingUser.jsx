@@ -80,7 +80,7 @@ const ZoomIframeMeetingUser = () => {
       <iframe
         src={`https://zoom.us/wc/join/${meetingData.meetingNumber}?pwd=${meetingData.passWord}`}
         style={{ width: '100%', height: '90%', border: 'none' }}
-        allow="microphone; camera; fullscreen"
+         allow="camera; microphone; fullscreen; speaker; display-capture"
         title="Zoom Meeting"
 
         allowFullScreen

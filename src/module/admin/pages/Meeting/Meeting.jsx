@@ -33,9 +33,11 @@ import { getAllCourses, deleteCourseById } from "../../../../api/courseApi";
 import { IoEyeOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { getAllMeetings } from "../../../../api/meetingApi";
+import { bulkDeleteMeetings, getAllMeetings } from "../../../../api/meetingApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { getUserByUserId } from "../../../../api/authApi";
+import { getAuth } from "../../../../utils/authService";
+import { set } from "date-fns";
 
 
 
@@ -61,26 +63,57 @@ export default function Meeting() {
     const [selectedCourseFilter, setSelectedCourseFilter] = useState(null);
     const [dateRange, setDateRange] = useState(null);
     const [coursesList, setCoursesList] = useState([]);
-
-
+    const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+    const [superAdmin, setSuperAdmin] = useState(false);
+    const [selectedMeetings, setSelectedMeetings] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+    const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+    const [loadData, setLoadData] = useState(false);
+    useEffect(() => {
+        const apiCaller = async () => {
+            const response = await getAuth();
+            response.Permissions;
+            if (response.isSuperAdmin === true) {
+                setReadOnlyPermissions(false);
+            } else {
+                setReadOnlyPermissions(response.Permissions["meetingManagement"].readOnly);
+            }
+        }
+        apiCaller();
+    }, []);
     useEffect(() => {
         // fetchCourses();
-        fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null);
-    }, [selectedCourseFilter, dateRange]);
-    const fetchMeetings = async (courseId = null, from = null, to = null) => {
+        const apiCaller = async () => {
+            const cookiesData = getCookiesData();
+            const userData = await getUserByUserId(cookiesData.userId);
+            console.log("userData", userData);
+            if (userData.user.isSuperAdmin === true) {
+                setSuperAdmin(true);
+            } else {
+                setSuperAdmin(false);
+            }
+            fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null, userData.user.email, userData.user.isSuperAdmin);
+
+        }
+        apiCaller();
+
+    }, [selectedCourseFilter, dateRange, loadData]);
+    const fetchMeetings = async (courseId = null, from = null, to = null, hostEmail, isSuperAdmin = false) => {
         try {
-            const response = await getAllMeetings(courseId, from, to);
-            console.log("response 111 ", response);
+            const response = await getAllMeetings(courseId, from, to, hostEmail, isSuperAdmin);
+            console.log("Meetings response:", response);
             const meetingData = response.map((item) => ({
                 id: item._id || '',
-                courseName: item.course_Ref.courseName,
+                courses: item.course_Ref,
                 meetingName: item.meeting_title,
                 meetingDuration: item.meeting_duration,
                 meetingDate: item.meeting_time,
-                students: item.students || [],
                 meetingNumber: item?.zoom_meeting_id,
                 passWord: item?.zoom_passcode,
                 meetingTitle: item?.meeting_title,
+                isHostMeeting: item.isHostMeeting,
+                isPastMeeting: item.isPastMeeting,
+
             }))
             // Also fetch courses list for the dropdown
             const coursesResponse = await getAllCourses();
@@ -129,9 +162,9 @@ export default function Meeting() {
         }
 
         // Filter
-        if (searchText) {
+        if (searchText != ``) {
             processedData = processedData.filter((item) =>
-                item.courseName.toLowerCase().includes(searchText.toLowerCase())
+                item.meetingName.toLowerCase().includes(searchText.toLowerCase())
             );
         }
 
@@ -216,6 +249,10 @@ export default function Meeting() {
         if (!students || students.length === 0) return [];
         return students.map(student => student.displayName);
     }
+    const getCourseNames = (courses) => {
+        if (!courses || courses.length === 0) return [];
+        return courses;
+    }
     // Add this function to handle filter application
     const handleApplyFilters = () => {
         const fromDate = dateRange ? dateRange[0].format('YYYY-MM-DD') : null;
@@ -230,6 +267,41 @@ export default function Meeting() {
         fetchMeetings();
     };
 
+    const handleSelectAllChange = () => {
+        if (selectAll) {
+            setSelectedMeetings([]);
+        } else {
+            setSelectedMeetings(currentItems.map((c) => c.id));
+        }
+        setSelectAll(!selectAll);
+    };
+    const handleBulkDelete = async () => {
+        try {
+            setLoading(true);
+            await bulkDeleteMeetings(selectedMeetings);
+            toast.success("Selected Meetings deleted successfully");
+            setSelectedMeetings([]);
+            setSelectAll(false);
+
+        } catch (error) {
+            console.error("Bulk delete failed:", error);
+            toast.error("Failed to delete selected courses");
+        } finally {
+            setBulkDeleteModalOpen(false);
+            setLoading(false);
+            setLoadData(!loadData);
+        }
+    };
+    const handleBulkDeleteClick = () => {
+        setBulkDeleteModalOpen(true);
+    };
+    const handleCheckboxChange = (meetingId) => {
+        setSelectedMeetings((prev) =>
+            prev.includes(meetingId)
+                ? prev.filter((id) => id !== meetingId)
+                : [...prev, meetingId]
+        );
+    };
 
     return (
         <>
@@ -246,10 +318,24 @@ export default function Meeting() {
                 theme='colored'
             />
             <ButtonContainer>
-                <CreateButton onClick={() => navigate("/admin/meeting-management/create")}>
-                    Add Meeting
-                </CreateButton>
+                {
+                    !readOnlyPermissions &&
+
+                    <CreateButton onClick={() => navigate("/admin/meeting-management/create")}>
+                        Add Meeting
+                    </CreateButton>
+                }
+
+                {selectedMeetings.length > 0 && (
+                    <CreateButton
+                        onClick={handleBulkDeleteClick}
+                        style={{ backgroundColor: "red", marginLeft: "10px" }}
+                    >
+                        Delete  ({selectedMeetings.length})
+                    </CreateButton>
+                )}
             </ButtonContainer>
+
 
             <Container>
 
@@ -345,11 +431,20 @@ export default function Meeting() {
                             <StyledTable>
                                 <TableHead>
                                     <TableRow>
+                                        {!readOnlyPermissions && (
+                                            <TableHeader>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectAll}
+                                                    onChange={handleSelectAllChange}
+                                                />
+                                            </TableHeader>
+                                        )}
                                         <TableHeader>Meeting Name</TableHeader>
                                         <TableHeader>Course Name</TableHeader>
                                         <TableHeader>Duration (mins)</TableHeader>
                                         {/* <TableHeader>No. of Mock Test</TableHeader> */}
-                                        <TableHeader>No. of Student </TableHeader>
+                                        {/* <TableHeader>No. of Student </TableHeader> */}
                                         <TableHeader>Start Date and Time IST</TableHeader>
                                         <TableHeader>Actions</TableHeader>
                                     </TableRow>
@@ -363,17 +458,33 @@ export default function Meeting() {
                 students: item.students || [], */}
                                     {currentItems.map((item) => (
                                         <TableRow key={item.id}>
+                                            {!readOnlyPermissions && (
+                                                <TableCell>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedMeetings.includes(item.id)}
+                                                        onChange={() => handleCheckboxChange(item.id)}
+                                                    />
+                                                </TableCell>
+                                            )}
                                             <TableCell>{item.meetingName.slice(0, 30)}</TableCell>
-                                            <TableCell>{item.courseName.slice(0, 30)}</TableCell>
-                                            <TableCell>{item.meetingDuration}</TableCell>
                                             <TableCell>
+                                                {getCourseNames(item.courses).length}
+                                                <a href="#view"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        openModal("courses", getCourseNames(item.courses));
+                                                    }}> View</a>
+                                            </TableCell>
+                                            <TableCell>{item.meetingDuration}</TableCell>
+                                            {/* <TableCell>
                                                 {getStudentNames(item.students).length}
                                                 <a href="#view"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         openModal("subjects", getStudentNames(item.students));
                                                     }}> View</a>
-                                            </TableCell>
+                                            </TableCell> */}
                                             {/* <TableCell>
                                                 {item.mockTests.length}
                                                 <a href="#view" onClick={(e) => {
@@ -391,49 +502,57 @@ export default function Meeting() {
                                             <TableCell>{formatToIST(item.meetingDate)}</TableCell>
                                             <TableCell>
                                                 <ActionsContainer>
-                                                    <button
+                                                    {
+                                                        item.isHostMeeting ?
+                                                            item.isPastMeeting ?
+                                                                null :
+                                                                (<button
 
-                                                        style={{
-                                                            backgroundColor: '#2D8CFF',
-                                                            color: '#ffffff',
-                                                            padding: '12px 40px',
-                                                            borderRadius: '10px',
-                                                            border: 'none',
-                                                            cursor: 'pointer',
-                                                            fontSize: '1rem',
-                                                            fontWeight: '500',
-                                                            transition: 'background-color 0.3s',
-                                                            ':hover': {
-                                                                backgroundColor: '#1a7ae8'
-                                                            }
+                                                                    style={{
+                                                                        backgroundColor: '#2D8CFF',
+                                                                        color: '#ffffff',
+                                                                        padding: '12px 40px',
+                                                                        borderRadius: '10px',
+                                                                        border: 'none',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '1rem',
+                                                                        fontWeight: '500',
+                                                                        transition: 'background-color 0.3s',
+                                                                        ':hover': {
+                                                                            backgroundColor: '#1a7ae8'
+                                                                        }
 
-                                                        }}
-                                                        onClick={async () => {
-                                                            const cookiesData = getCookiesData();
-                                                            const userData = await getUserByUserId(cookiesData.userId);
-                                                            console.log("userData", userData);
-                                                            // navigate(`/zoom-meeting`, {
-                                                            //     state: {
-                                                            //         // meetingNumber: item?.meetingNumber,
-                                                            //         // passWord: item?.passWord,
-                                                            //         meetingNumber: item?.meetingNumber,
-                                                            //         passWord: item?.passWord,
-                                                            //         meetingTitle: item?.meetingTitle,
-                                                            //         role: 0 ,
-                                                            //         userName: userData.user.displayName || "React",
-                                                            //         userEmail: userData.user.email || "",
-                                                            //         leaveUrl: `/admin/meeting-management`,
-                                                            //     }
-                                                            // })
-                                                            navigate(`/admin/meeting-hosting`,{
-                                                                state: {
-                                                                 meetingNumber: item?.meetingNumber,
-                                                                  passWord: item?.passWord,
-                                                            }})
-                                                        }}
-                                                    >
-                                                        Host Meeting
-                                                    </button>
+                                                                    }}
+                                                                    onClick={async () => {
+                                                                        const cookiesData = getCookiesData();
+                                                                        const userData = await getUserByUserId(cookiesData.userId);
+                                                                        console.log("userData", userData);
+                                                                        navigate(`/admin/meeting-management/join`, {
+                                                                            state: {
+                                                                                // meetingNumber: item?.meetingNumber,
+                                                                                // passWord: item?.passWord,
+                                                                                meetingNumber: item?.meetingNumber,
+                                                                                passWord: item?.passWord,
+                                                                                meetingTitle: item?.meetingTitle,
+                                                                                role: 1,
+                                                                                userName: userData.user.displayName || "React",
+                                                                                userEmail: userData.user.email || "",
+                                                                                // userEmail: "mankavit.clatcoaching11@gmail.com",
+                                                                                leaveUrl: `/admin/meeting-management`,
+                                                                            }
+                                                                        })
+                                                                        // navigate(`/admin/meeting-hosting`,{
+                                                                        //     state: {
+                                                                        //      meetingNumber: item?.meetingNumber,
+                                                                        //       passWord: item?.passWord,
+                                                                        // }})
+                                                                    }}
+                                                                >
+                                                                    Host Meeting
+                                                                </button>) :
+                                                            null
+                                                    }
+
 
                                                     {/* <IoEyeOutline
                                                         title="View"
@@ -490,6 +609,11 @@ export default function Meeting() {
                         onClose={() => setModalOpen(false)}
                     />
                 )}
+                <DeleteModal
+                    isOpen={bulkDeleteModalOpen}
+                    onClose={() => setBulkDeleteModalOpen(false)}
+                    onDelete={handleBulkDelete}
+                />
             </Container>
         </>
     );

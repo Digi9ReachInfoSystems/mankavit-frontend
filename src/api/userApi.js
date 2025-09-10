@@ -120,17 +120,25 @@ export const studentByCourse = (courseId) => {
 
 
 export const bulkDeleteSubAdmin = async (adminIds) => {
-    try {
+  try {
 
-        const response = await api.delete('/user/bulkdelete/subadmin', {
-            data: { adminIds },
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+    const response = await api.delete('/user/bulkdelete/subadmin', {
+      data: { adminIds },
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export const getMeetingHostAdmins = async () => {
+  try {
+    const response = await api.get('/user/get/admins/meetingHosts');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }

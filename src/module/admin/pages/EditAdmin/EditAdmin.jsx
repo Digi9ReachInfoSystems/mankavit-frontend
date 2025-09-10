@@ -39,6 +39,7 @@ const EditAdmin = () => {
             webManagement: { access: false, readOnly: false },
             mockTestManagement: { access: false, readOnly: false },
             staticPageManagement: { access: false, readOnly: false },
+            meetingManagement: { access: false, readOnly: false },
         }
     });
 
@@ -65,6 +66,7 @@ const EditAdmin = () => {
                         webManagement: { access: false, readOnly: false },
                         mockTestManagement: { access: false, readOnly: false },
                         staticPageManagement: { access: false, readOnly: false },
+                        meetingManagement: { access: false, readOnly: false },
                     }
                 });
             } catch (error) {
