@@ -171,6 +171,7 @@ import Entrances from "./component/Entrances/Entrances";
 import OverallEntrance from "./component/OverallEntrance/OverallEntrance";
 import Refund from "./component/StaticPages/RefundPolicy/Refund";
 import NotificationsList from "./module/admin/pages/WebManagement/Notification/NotificationList";
+import AdminZoomMeeting from "./module/admin/pages/AdminZoomMeeting/AdminZoomMeeting";
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
   useEffect(() => {
@@ -378,7 +379,7 @@ function App() {
           <Route
             path="/course/liveclass/:courseId/:subjectid/:lectureId"
             element={
-             <ProtectedRoute roles={["user"]}>
+              <ProtectedRoute roles={["user"]}>
                 <CoursesLiveclassPage />
               </ProtectedRoute>
             }
@@ -394,7 +395,7 @@ function App() {
           <Route
             path="/continueCourse/:id"
             element={
-             <ProtectedRoute roles={["user"]}>
+              <ProtectedRoute roles={["user"]}>
                 <ContinueCoursePage />
               </ProtectedRoute>
             }
@@ -467,7 +468,7 @@ function App() {
           <Route
             path="/test-results/:testId/:subjectId/:attemptId"
             element={
-               <ProtectedRoute roles={["user"]}>
+              <ProtectedRoute roles={["user"]}>
                 <TestResults />
               </ProtectedRoute>
             }
@@ -494,7 +495,7 @@ function App() {
           <Route
             path="/test-question/:testId/:subjectId/:attemptId"
             element={
-             <ProtectedRoute roles={["user"]}>
+              <ProtectedRoute roles={["user"]}>
                 <TextQuestionPage />
               </ProtectedRoute>
             }
@@ -507,7 +508,7 @@ function App() {
               </UserRoute>
             }
           />
-          <Route path="/zoom-meeting" element={<ZoomMeeting />} />
+          <Route path="/zoom-meeting" element={<ProtectedRoute roles={["user"]}><ZoomMeeting /></ProtectedRoute>} />
           <Route
             path="/*"
             element={
@@ -537,6 +538,8 @@ function App() {
             <Route path="meeting-join" element={<ZoomIframeMeetingUser />} />
             {/* </Route> */}
           </Route>
+            <Route path="/admin/meeting-management/join" element={<AdminRoute Access={"meetingManagement"}><AdminZoomMeeting /></AdminRoute>} />
+
           <Route
             path="/admin"
             element={
@@ -579,9 +582,6 @@ function App() {
               }
             />
 
-            <Route path="meeting-management" element={<Meeting />} />
-            <Route path="meeting-management/create" element={<AddMeeting />} />
-            <Route path="meeting-hosting" element={<ZoomIframeMeeting />} />
 
             <Route
               path="student-management"
@@ -1345,6 +1345,10 @@ function App() {
               }
             />
 
+            <Route path="meeting-management" element={<AdminRoute Access={"meetingManagement"}><Meeting /></AdminRoute>} />
+            <Route path="meeting-management/create" element={<AdminRoute Access={"meetingManagement"}><AddMeeting /></AdminRoute>} />
+            {/* <Route path="meeting-hosting" element={<ZoomIframeMeeting />} /> */}
+
             <Route
               path="subadmins-management"
               element={
@@ -1369,6 +1373,8 @@ function App() {
                 </SuperAdminRoute>
               }
             />
+
+
             {/* <Route path="subadmins-management/view/:id" element={<ViewSubAdmin />} /> */}
           </Route>
         </Routes>

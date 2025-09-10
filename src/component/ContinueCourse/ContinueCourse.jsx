@@ -1457,7 +1457,7 @@ const ContinueCourse = () => {
       const cookies = await getCookiesData();
       const liveClassRes = await getLiveMeetings({
         courseIds: [id],
-        studentId: cookies.userId,
+        // studentId: cookies.userId,
       });
       if (Array.isArray(liveClassRes?.data) && liveClassRes.data.length > 0) {
         setLiveClass(true);
@@ -1686,16 +1686,28 @@ const ContinueCourse = () => {
               onClick={async () => {
                 const cookiesData = await getCookiesData();
                 const userData = await getUserByUserId(cookiesData.userId);
-                navigate(`/user/meeting-join`, {
+                // navigate(`/user/meeting-join`, {
+                //   state: {
+                //     meetingNumber: liveClassData?.zoom_meeting_id,
+                //     passWord: liveClassData?.zoom_passcode,
+                //     meetingTitle: liveClassData?.meeting_title,
+                //     role: 1,
+                //     userName: userData.user.displayName || "React",
+                //     userEmail: userData.user.email || "",
+                //     leaveUrl: `/continueCourse/${id}`,
+                //   },
+                // });
+                 navigate(`/zoom-meeting`, {
                   state: {
                     meetingNumber: liveClassData?.zoom_meeting_id,
                     passWord: liveClassData?.zoom_passcode,
                     meetingTitle: liveClassData?.meeting_title,
-                    role: 1,
+                    role: 0,
                     userName: userData.user.displayName || "React",
                     userEmail: userData.user.email || "",
                     leaveUrl: `/continueCourse/${id}`,
                   },
+                  replace: true 
                 });
               }}
             >

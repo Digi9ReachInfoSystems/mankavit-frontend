@@ -102,8 +102,9 @@ const Sidebar = () => {
           "Course Management": courseManagementItems,
           "Web Management": webManagementItems,
           // "Meeting": meetingsItems,
+           "Meeting Management": meetingsItems,
           "Admin Management": adminItems,
-          "Meeting": meetingsItems
+         
         })
         setMenuItems(
           [
@@ -143,6 +144,9 @@ const Sidebar = () => {
         }
         if (response.Permissions.paymentManagement.access) {
           menuItemsData.push({ path: "/admin/payment-management", label: "Payment" },);
+        }
+        if (response.Permissions.meetingManagement.access) {
+          sectionData["Meeting Management"] = meetingsItems;
         }
 
 

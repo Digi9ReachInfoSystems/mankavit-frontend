@@ -14,11 +14,12 @@ import ApplicationByCourses from "../../component/ApplicationByCourses/Applicati
 import CourseList from "../../component/CourseList/CoursesList";
 import { getMasterOtp, updateMasterOtp } from "../../../../api/masterOtpApi";
 import toast, { Toaster } from "react-hot-toast";
+import { getAuth } from "../../../../utils/authService";
 
 const Dashboard = () => {
   const [otp, setOtp] = useState("");
   const [isOtpValid, setIsOtpValid] = useState(true);
-
+  const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getMasterOtp();
@@ -26,6 +27,19 @@ const Dashboard = () => {
     };
     apiCaller();
   }, [])
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      response.Permissions;
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(true);
+      }
+    }
+    apiCaller();
+  }, []);
+
 
 
   const handleOtpChange = (e) => {
@@ -34,14 +48,14 @@ const Dashboard = () => {
     if (/^\d{0,6}$/.test(value)) {
       setOtp(value);
       setIsOtpValid(true);
-      
+
     }
 
   };
 
   const handleUpdateOtp = () => {
     if (otp.length === 6) {
-     const updateResponse = updateMasterOtp({otp});
+      const updateResponse = updateMasterOtp({ otp });
       console.log("Updating OTP to:", otp);
       toast.success("OTP updated successfully!");
       // alert(`OTP updated successfully: ${otp}`);
@@ -54,23 +68,27 @@ const Dashboard = () => {
     <DashboardWrapper>
       <DashboardContent>
         <Stats />
-<Toaster />
+        <Toaster />
         {/* Master OTP Section */}
-        <MasterOtpSection>
-          <h3>Master OTP</h3>
-          <div>
-            <OtpInput
-              type="text"
-              value={otp}
-              onChange={handleOtpChange}
-              placeholder="Enter 6-digit OTP"
-              maxLength="6"
-              isValid={isOtpValid}
-            />
-            <UpdateButton onClick={handleUpdateOtp}>Update</UpdateButton>
-          </div>
-          {!isOtpValid && <p className="error">Please enter a valid 6-digit OTP</p>}
-        </MasterOtpSection>
+        {
+          !readOnlyPermissions &&
+          <MasterOtpSection>
+            <h3>Master OTP</h3>
+            <div>
+              <OtpInput
+                type="text"
+                value={otp}
+                onChange={handleOtpChange}
+                placeholder="Enter 6-digit OTP"
+                maxLength="6"
+                isValid={isOtpValid}
+              />
+              <UpdateButton onClick={handleUpdateOtp}>Update</UpdateButton>
+            </div>
+            {!isOtpValid && <p className="error">Please enter a valid 6-digit OTP</p>}
+          </MasterOtpSection>
+        }
+
 
       </DashboardContent>
       {/* <Application> 

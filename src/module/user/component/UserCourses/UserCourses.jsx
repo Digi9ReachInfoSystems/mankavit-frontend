@@ -21,6 +21,7 @@ import {
   DetailItemok,
   PriceActions,
   ViewButton,
+  BlinkingIcon
 } from "./UserCourses.styles";
 import { useNavigate } from "react-router-dom";
 import lawimg from "../../../../assets/lawentrance.png";
@@ -32,6 +33,7 @@ import {
   getAllCompletedCourses,
 } from "../../../../api/userDashboardAPI";
 import { getCookiesData } from "../../../../utils/cookiesService";
+import { getLiveMeetings } from "../../../../api/meetingApi";
 
 const UserCourses = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -39,6 +41,15 @@ const UserCourses = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [liveStatus, setLiveStatus] = useState({});
+  useEffect(() => {
+    if (courses.length === 0) return;
+    const ids = courses.map(c => c._id);
+    console.log("ids", ids);
+    pollLiveStatuses(ids);
+    const interval = setInterval(() => pollLiveStatuses(ids), 30000);
+    return () => clearInterval(interval);
+  }, [courses]);
 
   // Get userId from cookies
   const { userId } = getCookiesData();
@@ -112,6 +123,24 @@ const UserCourses = () => {
     }
     return stars;
   };
+  const pollLiveStatuses = async (courseIds) => {
+    try {
+      const res = await getLiveMeetings({ courseIds });
+      console.log("live meetings", res);
+      // res.data may contain active meetings, group by courseId
+      const statusMap = {};
+      res.data.forEach(meeting => {
+        console.log("meeting", meeting);
+        meeting.course_Ref.map(id => {
+          statusMap[id._id] = true;
+        })
+
+      });
+      setLiveStatus(statusMap);
+    } catch (err) {
+      console.error("Error fetching live statuses", err);
+    }
+  };
 
   return (
     <CourseWrapper>
@@ -183,6 +212,12 @@ const UserCourses = () => {
                     </div> */}
                   </div>
                 </ProgressContainer>
+                {liveStatus[course._id] && (
+                  <BlinkingIcon>
+                    🔴 Live Class Ongoing
+
+                  </BlinkingIcon>
+                )}
 
                 <CourseContent>
                   <CourseMain>

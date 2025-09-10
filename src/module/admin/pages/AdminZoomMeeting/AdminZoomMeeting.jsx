@@ -1,26 +1,21 @@
 import React from 'react';
 import { ZoomMtg } from '@zoom/meetingsdk';
-import './ZoomMeeting.css';
-import { generateAccessToken, generateSignature } from '../../api/meetingApi';
+// import './ZoomMeeting.css';
+import { generateAccessToken, generateSignature } from '../../../../api/meetingApi';
 import { useLocation } from 'react-router-dom';
 
 ZoomMtg.preLoadWasm();
 ZoomMtg.prepareWebSDK();
 
-const ZoomMeeting = () => {
-    const authEndpoint = 'http://localhost:4000';
+const AdminZoomMeeting = () => {
+    // const authEndpoint = 'http://localhost:4000';
     const sdkKey = import.meta.env.VITE_APP_ZOOM_MEETING_SDK_KEY;
-    //   const meetingNumber = '81264566859';
-    //   const passWord = '12345';
-    //   const role = 0;
-    //   const userName = 'React';
-    //   const userEmail = '';
     const registrantToken = '';
     let zakToken = '';
     //   const leaveUrl = 'http://localhost:5173';
     const location = useLocation()
     const { meetingNumber, passWord, role, userName, userEmail, leaveUrl, meetingTitle } = location.state;
-    console.log("meeting details", location.state);
+    // console.log("meeting details", location.state);
     const getSignature = async () => {
         try {
             //   const req = await fetch(authEndpoint, {
@@ -34,11 +29,9 @@ const ZoomMeeting = () => {
                 zakToken = zak.accessToken;
                 console.log("zak", zak);
             }
-            const response = await generateSignature({ meetingNumber, role , expirationSeconds:172800,videoWebRtcMode:0 });
-            console.log("signature", response); 
-            // console.log('Generated Signature:', res,"\n", response,"\n",res==response,"\n role", role);
+            const response = await generateSignature({ meetingNumber, role });
+            // console.log("signature", response); // console.log('Generated Signature:', res,"\n", response,"\n",res==response,"\n role", role);
             startMeeting(response.signature);
-            // startMeeting("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBLZXkiOiI1R0pOYWNuUFJjYXV4TTg3VDg2VVJ3Iiwic2RrS2V5IjoiNUdKTmFjblBSY2F1eE04N1Q4NlVSdyIsIm1uIjoiODk3NTI2ODE5MDIiLCJyb2xlIjowLCJ0b2tlbkV4cCI6MTc1NzMyMTQxMywiaWF0IjoxNzU3MzE3ODEzLCJleHAiOjE3NTczMjE0MTN9.gQzu97Ee9H5WeCCWvDZvWAI_UbuFMTy80wm4EBm13ls");
         } catch (e) {
             console.error('Error fetching signature:', e);
         }
@@ -110,11 +103,11 @@ const ZoomMeeting = () => {
                         }
                     }}
                 >
-                    Join Meeting
+                    Host Meeting
                 </button>
             </div>
         </div>
     );
 };
 
-export default ZoomMeeting;
+export default AdminZoomMeeting;

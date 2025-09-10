@@ -1,306 +1,127 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const MainContainer = styled.div`
-  padding: 0rem 1rem;
-//   display: flex;
+  padding: 1rem;
+  display: flex;
   flex-direction: column;
-//   align-items: center;
-  justify-content: center;
-  // margin-left: 30px;
-  margin-bottom: 0;
- width: 100%;
- box-sizing: border-box;
+  width: 100%;
+  box-sizing: border-box;
+`;
 
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-
-  @media (max-width: 480px) {
-    padding: 0rem;
-  }
-  `;
+export const SectionTitle = styled.h2`
+  margin-bottom: 1rem;
+  font-size: 24px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.charcoalGray};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 
 export const ListSection = styled.div`
-  margin-top: 0rem;
-
-  @media (max-width: 480px) {
-    margin-top: 0;
-  }
+  margin-top: 1.5rem;
 `;
 
 export const ListCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.aliceBlue};
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  cursor: pointer;
-  border: 2px solid transparent;
-background-image: linear-gradient(white, white), linear-gradient(to right, #0DCAF0, #007BFF);
-background-origin: border-box;
-background-clip: padding-box, border-box;
- 
-&:hover {
-  border: 2px solid ${({ theme }) => theme.colors.vividRed};
-}
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.lightGray};
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease;
 
-@media (max-width: 480px) {
-  padding: 5px;
-}
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
 `;
 
 export const ListTime = styled.div`
   text-align: center;
-  margin-right: 1rem;
-  background: linear-gradient(to right, #0DCAF0, #007BFF);
-  padding: 15px;
-  width: 80px;
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
-
-  @media (max-width: 1024px) {
-    width: 70px;
-  }
-
-  @media (max-width: 480px) {
-    width: 50px;
-    padding: 10px;
-  }
+  padding: 1rem;
+  min-width: 80px;
+  background: linear-gradient(135deg, #0dcaf0, #007bff);
+  color: white;
 `;
 
 export const Testdate = styled.div`
-  font-size: 32px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.aliceBlue};
-  margin-bottom: 5px;
-  margin-top: 0;
-  text-align: left;
-
-  @media (max-width: 1024px) {
-    font-size: 24px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 20px;
-  }
+  font-size: 26px;
+  font-weight: bold;
 `;
 
 export const Testmonth = styled.div`
   font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.aliceBlue};
-  margin-bottom: 5px;
-  margin-top: 0;
-  text-align: left;
-
-  @media (max-width: 1024px) {
-    font-size: 12px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 12px;
-  }
+  text-transform: uppercase;
+  opacity: 0.9;
 `;
 
 export const Testtime = styled.div`
-  font-size: 18px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.pastelBlue};
-  margin-bottom: 5px;
-  margin-top: 0;
-  text-align: left;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-  }
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 4px;
 `;
 
 export const ListContent = styled.div`
-   ${({ theme }) => theme.colors.darkblueGray};
-   font-size: 22px;
-
-   @media (max-width: 1024px) {
-    font-size: 18px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 16px;
-  }
+  flex: 1;
+  padding: 1rem;
 `;
 
 export const Testtitle = styled.h5`
-  margin: 0;
-     font-size: 20px;
-  font-weight: 400;
-
-  @media (max-width: 1024px) {
-    font-size: 18px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-  }
-`;
-
-export const Testsubtitle = styled.h5`
-margin: 0;
-   font-size: 20px;
-  font-weight: 700;
-
-  @media (max-width: 1024px) {
-    font-size: 18px;
-  }
-
-  @media (max-width: 480px) {
-    // font-size: 12px ;
-    display: none;
-      }
-`;
-
-export const Testpara = styled.p`
-  margin: 0.2rem 0 0;
-  font-weight: 700;
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-  }
-`;
-
-export const ClassCard = styled.div`
-  text-align: center;
-  margin-right: 1rem;
-  background: ${({ theme }) => theme.colors.vividRed};
-  padding: 15px;
-  width: 80px;
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
-
-  @media (max-width: 1024px) {
-    width: 70px;
-  }
-
-  @media (max-width: 480px) {
-    width: 50px;
-    padding: 10px;
-  }
-`;
-
-export const Classtime = styled.p`
-  margin: 0.2rem 0 0;
-  font-weight: 700;
+  margin: 0 0 0.5rem 0;
   font-size: 18px;
-  color: ${({ theme }) => theme.colors.white};
-  text-align: left;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-  }
+  font-weight: 600;
 `;
 
-export const LiveBadge = styled.span`
-display: flex;
-align-items: center;
-  color: ${({ theme }) => theme.colors.white};
-  // padding: 0.1rem 0.3rem;
-  font-size: 20px;
-  border-radius: 5px;
-
-  .liveDot{
-  width: 12px;
-  height: 12px;
-  background-color: ${({ theme }) => theme.colors.white};
-  border-radius: 50%;
-  margin-left: 5px;
-
-  @media (max-width: 1024px) {
-    width: 10px;
-    height: 10px;
-  }
-
-  @media (max-width: 480px) {
-    width: 8px;
-    height: 8px;
-  }
-}
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-  }
-`;
-
-export const Testattempt = styled.p`
-  margin: 12px 0px 5px 0;
+export const Testsubtitle = styled.h6`
+  margin: 0;
+  font-size: 14px;
   font-weight: 400;
-  font-size: 16px;
-  color: ${({ theme }) => theme.colors.salmonPink};
-
-  @media (max-width: 1024px) {
-    font-size: 14px;
-  }
-
-  @media (max-width: 480px) {
-    margin: 5px 0px 5px 0;
-  }
+  color: ${({ theme }) => theme.colors.graniteGray};
 `;
 
-export const Testdetails = styled.p`
+export const Testdetails = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  // justify-content: center;
-  margin: 0 0;
-  font-weight: 100;
+  flex-wrap: wrap;
+  gap: 10px;
   font-size: 14px;
   color: ${({ theme }) => theme.colors.graniteGray};
 
-   .testDetails{
-    margin: 0;
-  }
-
-  .endLine{
-    height: 15px;
+  .endLine {
     width: 1px;
     background-color: ${({ theme }) => theme.colors.graniteGray};
-    margin: 0 10px;
-
-    @media (max-width: 1024px) {
-      height: 14px;
-      margin: 0 8px;
-    }
-
-    @media (max-width: 480px) {
-      display: none;
-    }
+    margin: 0 5px;
   }
+`;
 
-  @media (max-width: 1024px) {
-    font-size: 12px;
-  }
+export const ClassCard = styled(ListTime)`
+  background: ${({ theme }) => theme.colors.vividRed};
+`;
 
-  @media (max-width: 480px) {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
+export const Classtime = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+`;
+
+export const LiveBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.white};
+
+  .liveDot {
+    width: 8px;
+    height: 8px;
+    background-color: ${({ theme }) => theme.colors.white};
+    border-radius: 50%;
+    margin-left: 6px;
   }
- }
 `;
 
 export const ViewAllLink = styled.span`
-  float: right;
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 500;
   color: ${({ theme }) => theme.colors.royalBlue};
   cursor: pointer;
 
@@ -310,17 +131,33 @@ export const ViewAllLink = styled.span`
 `;
 
 
-export const SectionTitle = styled.h2`
-  margin-bottom: 1rem;
-  font-size: 32px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.charcoalGray};
+export const ScrollableList = styled.div`
+  max-height: 300px; /* adjust as needed */
+  overflow-y: auto;
+  padding-right: 8px;
+  padding-top: 5px;
 
-  @media (max-width: 1024px) {
-    font-size: 28px;
+  &::-webkit-scrollbar {
+    width: 6px;
   }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.royalBlue};
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: ${({ theme }) => theme.colors.aliceBlue};
+  }
+`;
 
-  @media (max-width: 480px) {
-    font-size: 24px;
-  }
+export const EmptyState = styled.p`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.graniteGray};
+  margin: 1rem 0;
+  text-align: center;
+`;
+export const Testpara = styled.div`
+`;
+
+
+export const Testattempt = styled.div`
 `;

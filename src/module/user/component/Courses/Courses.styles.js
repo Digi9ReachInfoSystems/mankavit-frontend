@@ -281,3 +281,28 @@ export const FilterButton = styled.button`
 
   &:hover { background: var(--active); color: #fff; }
 `;
+// .blinking-live {
+//   color: red;
+//   font-weight: bold;
+//   margin: 0.5rem 0;
+//   padding-left: 1rem;
+//   animation: blink 1s infinite;
+// }
+
+
+export const blink = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+`;
+export const BlinkingIcon = styled.span`
+  animation: ${blink} 1.5s infinite;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 1rem;
+`;
+export const liveClassBadge = styled.span`
+  animation: ${blink} 1.5s infinite;
+  display: inline-flex;
+  align-items: center;
+`;
