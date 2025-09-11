@@ -107,6 +107,7 @@ const Profile = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+
   // put this near the top, after other imports/state
   const HOW_OPTIONS = [
     "Instagram",
@@ -526,6 +527,10 @@ const Profile = () => {
     }
   };
 
+    // Show T&C only for the first submission flow
+const showTerms = kycStatus === "not-applied";
+
+
   return (
     <FormContainer>
       {showSuccessGif ? (
@@ -904,20 +909,23 @@ const Profile = () => {
                 </span>
               )}
             </div>
-            <TermsContainer>
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                disabled={isKycReadOnly && kycStatus !== "rejected"}
-              />
-              <span>
-                I accept the{" "}
-                <TermsLink onClick={() => navigate("/user/tandc")}>
-                  Terms and Conditions
-                </TermsLink>
-              </span>
-            </TermsContainer>
+     {showTerms && (
+  <TermsContainer>
+    <input
+      type="checkbox"
+      checked={acceptedTerms}
+      onChange={(e) => setAcceptedTerms(e.target.checked)}
+      disabled={isKycReadOnly && kycStatus !== "rejected"}
+    />
+    <span>
+      I accept the{" "}
+      <TermsLink onClick={() => navigate("/user/tandc")}>
+        Terms and Conditions
+      </TermsLink>
+    </span>
+  </TermsContainer>
+)}
+
 
             {/* CTAs */}
             <div

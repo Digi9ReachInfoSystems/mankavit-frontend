@@ -289,24 +289,28 @@ export default function EditSubject() {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const handleNavigate = (type, id) => {
-    switch (type) {
-      case "notes":
-        navigate(`/admin/notes-management/edit/${id}`);
-        break;
-      case "lectures":
-        navigate(`/admin/lecturer-management/edit/${id}`);
-        break;
-      case "mockTests":
-        navigate(`/admin/mock-test/edit/${id}`);
-        break;
-      case "courses":
-        navigate(`/admin/course-management/edit/${id}`);
-        break;
-      default:
-        break;
-    }
-  };
+const handleNavigate = (type, id) => {
+  let url = "";
+  
+  switch (type) {
+    case "notes":
+      url = `/admin/notes-management/edit/${id}`;
+      break;
+    case "lectures":
+      url = `/admin/lecturer-management/edit/${id}`;
+      break;
+    case "mockTests":
+      url = `/admin/mock-test/edit/${id}`;
+      break;
+    case "courses":
+      url = `/admin/course-management/edit/${id}`;
+      break;
+    default:
+      return;
+  }
+  
+  window.open(url, "_blank");
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -70,25 +70,26 @@ const oidToMillis = (id) =>
   id && typeof id === "string" && id.length >= 8
     ? parseInt(id.substring(0, 8), 16) * 1000
     : 0;
+
 const fetchTestimonials = async () => {
   try {
     const res = await getAlltestimonials();
 
-    const sorted = [...res].sort((a, b) => {
-      const aTime =
-        toMillis(a.createdAt) || toMillis(a.updatedAt) || oidToMillis(a._id);
-      const bTime =
-        toMillis(b.createdAt) || toMillis(b.updatedAt) || oidToMillis(b._id);
-      return bTime - aTime; // newest first
-    });
+    // normalize possible shapes: array or { data: array }
+    const arr = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+
+    // sort by createdAt desc; fallback to ObjectId timestamp if createdAt missing
+    const key = (x) => toMillis(x.createdAt) || oidToMillis(x._id);
+    const sorted = [...arr].sort((a, b) => key(b) - key(a));
 
     setData(sorted);
-    setCurrentPage(1); // show newest on first row/page
+    setCurrentPage(1);
   } catch (err) {
     console.error("Failed to fetch testimonials", err);
     toast.error("Failed to fetch testimonials");
   }
 };
+
   const handleDelete = (id) => {
     setDeleteId(id);
     setDeleteModalOpen(true);
