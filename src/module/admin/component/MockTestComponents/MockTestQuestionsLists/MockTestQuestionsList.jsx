@@ -826,6 +826,16 @@
 
 // export default MockTestQuestionsList;
 
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   MockTestQuestionsListContainer,
@@ -1088,7 +1098,7 @@ const MockTestQuestionsList = () => {
     };
 
     if (isSubjective) {
-      payload.expectedAnswer = "";
+      // payload.expectedAnswer = "";
       payload.marks = Number(q.marks) || 0;
     } else {
       const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");

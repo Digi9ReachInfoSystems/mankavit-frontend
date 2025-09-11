@@ -73,7 +73,7 @@ const PassageContainer = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
-   @media (max-width: 990px) {
+  @media (max-width: 990px) {
     flex-direction: column;
   }
 `;
@@ -115,11 +115,6 @@ const isBlank = (ans, isMcq) => {
 };
 
 export default function TextScreen() {
-
-
-
-
-
   const { testId, subjectId, attemptId: urlAttemptId } = useParams();
   const navigate = useNavigate();
   const { userId } = getCookiesData();
@@ -137,9 +132,8 @@ export default function TextScreen() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const [isSaving, setIsSaving] = useState(false);
-  
 
-    const answerRef = useRef(null);
+  const answerRef = useRef(null);
   useBlockClipboard(answerRef);
 
   function useBlockClipboard(ref) {
@@ -147,7 +141,10 @@ export default function TextScreen() {
       const el = ref.current;
       if (!el) return;
 
-      const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+      const prevent = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
 
       const onKeyDown = (e) => {
         const key = (e.key || "").toLowerCase();
@@ -156,7 +153,8 @@ export default function TextScreen() {
         if (
           (ctrlOrMeta && ["c", "v", "x", "a"].includes(key)) ||
           (e.shiftKey && key === "insert")
-        ) prevent(e);
+        )
+          prevent(e);
       };
 
       const onBeforeInput = (e) => {
@@ -164,13 +162,22 @@ export default function TextScreen() {
         if (e.inputType === "insertFromPaste") prevent(e);
       };
 
-      const types = ["copy", "cut", "paste", "drop", "dragstart", "contextmenu"];
+      const types = [
+        "copy",
+        "cut",
+        "paste",
+        "drop",
+        "dragstart",
+        "contextmenu",
+      ];
       types.forEach((t) => el.addEventListener(t, prevent, { capture: true }));
       el.addEventListener("keydown", onKeyDown, true);
       el.addEventListener("beforeinput", onBeforeInput, true);
 
       return () => {
-        types.forEach((t) => el.removeEventListener(t, prevent, { capture: true }));
+        types.forEach((t) =>
+          el.removeEventListener(t, prevent, { capture: true })
+        );
         el.removeEventListener("keydown", onKeyDown, true);
         el.removeEventListener("beforeinput", onBeforeInput, true);
       };
@@ -460,62 +467,61 @@ export default function TextScreen() {
     });
   };
 
+  // 1) Mark & Next — compute the status and pass it to goToQuestion.
+  //    We also optimistically update local state so Legend/Grid update instantly.
+  // 1) Mark & Next — compute the status and pass it to goToQuestion.
+  //    We also optimistically update local state so Legend/Grid update instantly.
+  const handleMarkAndNext = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
 
+    const ans = answers[currentIndex];
+    const isMcq = questions[currentIndex].type === "mcq";
+    const blank = isBlank(ans, isMcq);
 
-// 1) Mark & Next — compute the status and pass it to goToQuestion.
-//    We also optimistically update local state so Legend/Grid update instantly.
-// 1) Mark & Next — compute the status and pass it to goToQuestion.
-//    We also optimistically update local state so Legend/Grid update instantly.
-const handleMarkAndNext = async () => {
-  if (isSaving) return;
-  setIsSaving(true);
+    const newStatus = blank
+      ? STATUS.NOT_ANSWERED_MARKED
+      : STATUS.ANSWERED_MARKED;
 
-  const ans = answers[currentIndex];
-  const isMcq = questions[currentIndex].type === "mcq";
-  const blank = isBlank(ans, isMcq);
+    // optimistic UI update
+    setAnswers((prev) =>
+      prev.map((a, idx) =>
+        idx === currentIndex ? { ...a, status: newStatus } : a
+      )
+    );
 
-  const newStatus = blank
-    ? STATUS.NOT_ANSWERED_MARKED
-    : STATUS.ANSWERED_MARKED;
-
-  // optimistic UI update
-  setAnswers(prev =>
-    prev.map((a, idx) => (idx === currentIndex ? { ...a, status: newStatus } : a))
-  );
-
-  try {
-    // if not the last question, let goToQuestion persist the status we just chose
-    if (currentIndex < questions.length - 1) {
-      await goToQuestion(currentIndex + 1, {
-        forcePrevStatus: newStatus,
-        prevAnswer: ans.answer || "",
-        prevAnswerIndex: isMcq ? ans.answerIndex : null,
-      });
-    } else {
-      // last question → persist here
-      await saveMocktest({
-        attemptId: ans.attemptId,
-        user_id: userId,
-        questionId: ans.questionId,
-        status: newStatus,
-        answer: ans.answer || "",
-        userAnswerIndex: isMcq ? ans.answerIndex : null,
-      });
+    try {
+      // if not the last question, let goToQuestion persist the status we just chose
+      if (currentIndex < questions.length - 1) {
+        await goToQuestion(currentIndex + 1, {
+          forcePrevStatus: newStatus,
+          prevAnswer: ans.answer || "",
+          prevAnswerIndex: isMcq ? ans.answerIndex : null,
+        });
+      } else {
+        // last question → persist here
+        await saveMocktest({
+          attemptId: ans.attemptId,
+          user_id: userId,
+          questionId: ans.questionId,
+          status: newStatus,
+          answer: ans.answer || "",
+          userAnswerIndex: isMcq ? ans.answerIndex : null,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to mark for review:", err);
+      toast.error("Could not save marked status");
+    } finally {
+      setIsSaving(false);
     }
-  } catch (err) {
-    console.error("Failed to mark for review:", err);
-    toast.error("Could not save marked status");
-  } finally {
-    setIsSaving(false);
-  }
-};
-
-
+  };
 
   const saveAndNext = async () => {
     const ans = answers[currentIndex];
     const empty = isBlank(ans, isMCQ);
 
+    // ✅ Final status should drop any "marked" state
     const newStatus = empty ? STATUS.NOT_ANSWERED : STATUS.ANSWERED;
 
     const payload = {
@@ -528,8 +534,10 @@ const handleMarkAndNext = async () => {
     };
 
     try {
+      // Persist the final status first
       await saveMocktest(payload);
 
+      // Update local UI immediately
       setAnswers((prev) => {
         const copy = [...prev];
         copy[currentIndex] = {
@@ -541,10 +549,20 @@ const handleMarkAndNext = async () => {
         return copy;
       });
 
+      // ⬅️ This is the important part: force the status when leaving the question
       if (currentIndex < questions.length - 1) {
-        goToQuestion(currentIndex + 1);
+        await goToQuestion(currentIndex + 1, {
+          forcePrevStatus: newStatus,
+          prevAnswer: empty ? "" : ans.answer,
+          prevAnswerIndex: isMCQ ? (empty ? null : ans.answerIndex) : null,
+        });
       } else {
-        goToQuestion(0);
+        // wrap to first (or keep as-is if you prefer)
+        await goToQuestion(0, {
+          forcePrevStatus: newStatus,
+          prevAnswer: empty ? "" : ans.answer,
+          prevAnswerIndex: isMCQ ? (empty ? null : ans.answerIndex) : null,
+        });
       }
     } catch (err) {
       console.error(err);
@@ -606,64 +624,61 @@ const handleMarkAndNext = async () => {
   //   setCurrentIndex(i);
   // };
 
+  // 2) goToQuestion — accept an override so we DON'T read the stale status.
+  //    Only auto-classify if nothing was forced and it was truly UNATTEMPTED.
+  const goToQuestion = async (i, opts = {}) => {
+    const { forcePrevStatus, prevAnswer, prevAnswerIndex } = opts;
+    const prevAns = answers[currentIndex];
+    const nextAns = answers[i];
 
-// 2) goToQuestion — accept an override so we DON'T read the stale status.
-//    Only auto-classify if nothing was forced and it was truly UNATTEMPTED.
-const goToQuestion = async (i, opts = {}) => {
-  const { forcePrevStatus, prevAnswer, prevAnswerIndex } = opts;
-  const prevAns = answers[currentIndex];
-  const nextAns = answers[i];
+    if (prevAns && currentIndex !== i) {
+      const prevIsMcq = questions[currentIndex].type === "mcq";
 
-  if (prevAns && currentIndex !== i) {
-    const prevIsMcq = questions[currentIndex].type === "mcq";
+      let statusToSave = forcePrevStatus ?? prevAns.status;
+      if (!forcePrevStatus && statusToSave === STATUS.UNATTEMPTED) {
+        statusToSave = isBlank(prevAns, prevIsMcq)
+          ? STATUS.NOT_ANSWERED
+          : STATUS.ANSWERED;
+      }
 
-    let statusToSave = forcePrevStatus ?? prevAns.status;
-    if (!forcePrevStatus && statusToSave === STATUS.UNATTEMPTED) {
-      statusToSave = isBlank(prevAns, prevIsMcq)
-        ? STATUS.NOT_ANSWERED
-        : STATUS.ANSWERED;
+      try {
+        await saveMocktest({
+          attemptId: prevAns.attemptId,
+          user_id: userId,
+          questionId: prevAns.questionId,
+          status: statusToSave,
+          answer: prevAnswer ?? prevAns.answer ?? "",
+          userAnswerIndex: prevIsMcq
+            ? prevAnswerIndex ?? prevAns.answerIndex ?? null
+            : null,
+        });
+      } catch (err) {
+        console.error("Failed to save on navigation", err);
+      } finally {
+        // reflect the exact status we persisted
+        setAnswers((prev) => {
+          const copy = [...prev];
+          copy[currentIndex] = { ...copy[currentIndex], status: statusToSave };
+          return copy;
+        });
+      }
     }
 
-    try {
-      await saveMocktest({
-        attemptId: prevAns.attemptId,
-        user_id: userId,
-        questionId: prevAns.questionId,
-        status: statusToSave,
-        answer: prevAnswer ?? prevAns.answer ?? "",
-        userAnswerIndex: prevIsMcq
-          ? (prevAnswerIndex ?? prevAns.answerIndex ?? null)
-          : null,
-      });
-    } catch (err) {
-      console.error("Failed to save on navigation", err);
-    } finally {
-      // reflect the exact status we persisted
-      setAnswers(prev => {
+    // First visit of a blank question → show as NOT_ANSWERED (red)
+    if (
+      nextAns &&
+      nextAns.status === STATUS.UNATTEMPTED &&
+      isBlank(nextAns, questions[i].type === "mcq")
+    ) {
+      setAnswers((prev) => {
         const copy = [...prev];
-        copy[currentIndex] = { ...copy[currentIndex], status: statusToSave };
+        copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
         return copy;
       });
     }
-  }
 
-  // First visit of a blank question → show as NOT_ANSWERED (red)
-  if (
-    nextAns &&
-    nextAns.status === STATUS.UNATTEMPTED &&
-    isBlank(nextAns, questions[i].type === "mcq")
-  ) {
-    setAnswers(prev => {
-      const copy = [...prev];
-      copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
-      return copy;
-    });
-  }
-
-  setCurrentIndex(i);
-};
-
-
+    setCurrentIndex(i);
+  };
 
   const handleClear = async () => {
     const ans = answers[currentIndex];
@@ -740,7 +755,6 @@ const goToQuestion = async (i, opts = {}) => {
     const ans = answers[currentIndex];
 
     try {
-
       let finalStatus;
       if (isBlank(ans, isMCQ)) {
         finalStatus = STATUS.NOT_ANSWERED;
@@ -784,7 +798,6 @@ const goToQuestion = async (i, opts = {}) => {
       toast.error("Failed to submit test");
     }
   };
-
 
   const handleSaveForLater = async () => {
     try {
@@ -859,6 +872,53 @@ const goToQuestion = async (i, opts = {}) => {
     }
   };
 
+  const handleOptionClick = async (idx) => {
+    // Only for MCQ
+    if (!isMCQ) return;
+
+    const ans = answers[currentIndex];
+    const isSelected = ans?.answerIndex === idx;
+
+    // If it wasn't selected, let onChange select it normally
+    if (!isSelected) return;
+
+    // Keep "marked for review" state if it was marked
+    const wasMarked =
+      ans.status === STATUS.ANSWERED_MARKED ||
+      ans.status === STATUS.NOT_ANSWERED_MARKED;
+
+    const newStatus = wasMarked
+      ? STATUS.NOT_ANSWERED_MARKED
+      : STATUS.NOT_ANSWERED;
+
+    // Clear locally
+    setAnswers((prev) => {
+      const copy = [...prev];
+      copy[currentIndex] = {
+        ...copy[currentIndex],
+        answer: "",
+        answerIndex: null,
+        status: newStatus,
+      };
+      return copy;
+    });
+
+    // Persist
+    try {
+      await saveMocktest({
+        attemptId: ans.attemptId,
+        user_id: userId,
+        questionId: ans.questionId,
+        status: newStatus,
+        answer: "",
+        userAnswerIndex: null,
+      });
+    } catch (e) {
+      console.error("Failed to clear on click", e);
+      toast.error("Could not clear selection");
+    }
+  };
+
   return (
     <Container>
       <Content $sidebarOpen={sidebarOpen}>
@@ -896,7 +956,7 @@ const goToQuestion = async (i, opts = {}) => {
           <QuestionNumber>
             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
-          <SectionQuestion >
+          <SectionQuestion>
             {hasPassage ? (
               <PassageContainer>
                 <PassageContent hasPassage={hasPassage}>
@@ -918,11 +978,11 @@ const goToQuestion = async (i, opts = {}) => {
                             typeof opt === "object" ? opt.text : opt;
                           return (
                             <OptionLabel key={idx}>
-
                               <input
                                 type="radio"
                                 checked={currAns.answerIndex === idx}
-                                onChange={() => handleOptionSelect(idx)}
+                                onClick={() => handleOptionClick(idx)} // ← toggles off if same option
+                                onChange={() => handleOptionSelect(idx)} // ← normal select
                               />
 
                               {label}
@@ -938,19 +998,41 @@ const goToQuestion = async (i, opts = {}) => {
                         onChange={handleTextChange}
                         placeholder="Type your answer…"
                         // extra inline guards (belt & suspenders)
-                        onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                        onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                        onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        onCopy={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toast.info(
+                            "Copy,Cut,Paste actions are PROHIBITED !.."
+                          );
+                        }}
+                        onCut={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toast.info(
+                            "Copy,Cut,Paste actions are PROHIBITED !.."
+                          );
+                        }}
+                        onPaste={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toast.info(
+                            "Copy,Cut,Paste actions are PROHIBITED !.."
+                          );
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
                         spellCheck={false}
                         autoCorrect="off"
                         autoCapitalize="off"
-                        style={
-                          {
-                            userSelect: "none"
-                          }
-                        }
+                        style={{
+                          userSelect: "none",
+                        }}
                       />
                     )}
                   </QuestionBox>
@@ -972,8 +1054,10 @@ const goToQuestion = async (i, opts = {}) => {
                             <input
                               type="radio"
                               checked={currAns.answerIndex === idx}
-                              onChange={() => handleOptionSelect(idx)}
+                              onClick={() => handleOptionClick(idx)} // ← toggles off if same option
+                              onChange={() => handleOptionSelect(idx)} // ← normal select
                             />
+
                             {label}
                           </OptionLabel>
                         );
@@ -987,22 +1071,38 @@ const goToQuestion = async (i, opts = {}) => {
                       onChange={handleTextChange}
                       placeholder="Type your answer…"
                       // extra inline guards (belt & suspenders)
-                      onCopy={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                      onCut={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                      onPaste={(e) => { e.preventDefault(); e.stopPropagation(); toast.info("Copy,Cut,Paste actions are PROHIBITED !.."); }}
-                      onDrop={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onCopy={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+                      }}
+                      onCut={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       spellCheck={false}
                       autoCorrect="off"
                       autoCapitalize="off"
-                      style={
-                        {
-                          userSelect: "none"
-                        }
-                      }
+                      style={{
+                        userSelect: "none",
+                      }}
                     />
                   )}
-                </QuestionBox >
+                </QuestionBox>
               </>
             )}
           </SectionQuestion>
@@ -1011,9 +1111,13 @@ const goToQuestion = async (i, opts = {}) => {
         {/* STICKY ACTION BAR — always visible, one line */}
         <StickyActionBar>
           <LeftButtonsWrap>
-          <button className="review" onClick={handleMarkAndNext} disabled={isSaving}>
-  {isSaving ? "Marking..." : "Mark & Next"}
-</button>
+            <button
+              className="review"
+              onClick={handleMarkAndNext}
+              disabled={isSaving}
+            >
+              {isSaving ? "Marking..." : "Mark & Next"}
+            </button>
             <button className="clear" onClick={handleClear}>
               Clear Response
             </button>
@@ -1035,46 +1139,46 @@ const goToQuestion = async (i, opts = {}) => {
       <SidebarContainer $open={sidebarOpen}>
         <Divider />
 
-     <Legend>
-  {Object.entries(getStatusCounts()).map(([key, count]) => {
-    let className;
-    switch (key) {
-      case "answered":
-        className = "answered";
-        break;
-      case "notAnswered":
-        className = "not-answered";
-        break;
-      case "notAnsweredMarked":
-        className = "not-answered-marked";
-        break;
-      case "unattempted":
-        className = "unattempted";
-        break;
-      case "answeredMarked":
-        className = "answered-marked";
-        break;
-      default:
-        return null;
-    }
-    return (
-      <OptionLabelList key={key}>
-        <LegendItem className={className}>{count}</LegendItem>
-        <LegendText>
-          {key === "answeredMarked"
-            ? "Answered & Marked"
-            : key === "notAnsweredMarked"
-            ? "Marked"
-            : key === "notAnswered"
-            ? "Not Answered"
-            : key === "unattempted"
-            ? "Not Visited"
-            : key.charAt(0).toUpperCase() + key.slice(1)}
-        </LegendText>
-      </OptionLabelList>
-    );
-  })}
-</Legend>
+        <Legend>
+          {Object.entries(getStatusCounts()).map(([key, count]) => {
+            let className;
+            switch (key) {
+              case "answered":
+                className = "answered";
+                break;
+              case "notAnswered":
+                className = "not-answered";
+                break;
+              case "notAnsweredMarked":
+                className = "not-answered-marked";
+                break;
+              case "unattempted":
+                className = "unattempted";
+                break;
+              case "answeredMarked":
+                className = "answered-marked";
+                break;
+              default:
+                return null;
+            }
+            return (
+              <OptionLabelList key={key}>
+                <LegendItem className={className}>{count}</LegendItem>
+                <LegendText>
+                  {key === "answeredMarked"
+                    ? "Answered & Marked"
+                    : key === "notAnsweredMarked"
+                    ? "Marked"
+                    : key === "notAnswered"
+                    ? "Not Answered"
+                    : key === "unattempted"
+                    ? "Not Visited"
+                    : key.charAt(0).toUpperCase() + key.slice(1)}
+                </LegendText>
+              </OptionLabelList>
+            );
+          })}
+        </Legend>
 
         {/* SCROLLABLE QUESTION MAP */}
         <QuestionNav>
@@ -1108,4 +1212,3 @@ const goToQuestion = async (i, opts = {}) => {
     </Container>
   );
 }
-

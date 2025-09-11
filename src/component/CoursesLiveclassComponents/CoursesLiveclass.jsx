@@ -48,83 +48,7 @@ import {
 import PdfModal from "./PDFModal";
 import { m } from "framer-motion";
 
-// PDF Modal component updated to hide default print/save toolbar
-// const PdfModal = ({ file, name, onClose, isDownloadable }) => {
-//   const pdfUrl = `${file}#toolbar=0&navpanes=0&scrollbar=0`;
 
-//   // Simple right-click prevention handler
-//   const preventRightClick = (e) => {
-//     if (e.button === 2) {
-//       // Check if right mouse button
-//       e.preventDefault();
-//     }
-//   };
-
-//   return (
-//     <div
-//       onContextMenu={(e) => e.preventDefault()} // Prevent context menu
-//       onMouseDown={preventRightClick} // Prevent right-click
-//       style={{
-//         position: "fixed",
-//         top: 0,
-//         left: 0,
-//         right: 0,
-//         bottom: 0,
-//         backgroundColor: "rgba(0,0,0,0.7)",
-//         display: "flex",
-//         justifyContent: "center",
-//         alignItems: "center",
-//         zIndex: 1000,
-//       }}
-//     >
-//       <div
-//         style={{
-//           backgroundColor: "white",
-//           borderRadius: "8px",
-//           width: "90%",
-//           maxWidth: "900px",
-//           height: "90%",
-//           display: "flex",
-//           flexDirection: "column",
-//         }}
-//       >
-//         <div
-//           style={{
-//             padding: "15px",
-//             display: "flex",
-//             justifyContent: "space-between",
-//             alignItems: "center",
-//             borderBottom: "1px solid #eee",
-//           }}
-//         >
-//           <h3 style={{ margin: 0 }}>{name}</h3>
-//           <button
-//             onClick={onClose}
-//             style={{
-//               padding: "5px 10px",
-//               background: "#e74c3c",
-//               color: "white",
-//               border: "none",
-//               borderRadius: "4px",
-//               cursor: "pointer",
-//             }}
-//           >
-//             Close
-//           </button>
-//         </div>
-//         <div style={{ flex: 1, position: "relative" }}>
-//           <iframe
-//             src={pdfUrl}
-//             style={{ width: "100%", height: "100%", border: "none" }}
-//             title={name}
-//             onContextMenu={(e) => e.preventDefault()}
-//             onMouseDown={preventRightClick}
-//           />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 const CoursesLiveclass = () => {
   const { courseId, subjectid, lectureId } = useParams();
@@ -345,7 +269,7 @@ const handlePdfFullscreen = () => {
           }));
           return {
             _id: subject._id,
-            name: subject.subjectName || "Subject",
+            name: subject.subjectDisplayName || "Subject",
             lectures: tests,
           };
         } catch (e) {
@@ -834,7 +758,7 @@ const handlePdfFullscreen = () => {
                 >
                   <span>
                     <FaFilePdf style={{ marginRight: 8, color: "#e74c3c" }} />
-                    {note.noteName || `Note ${i + 1}`}
+                    {note.noteDisplayName || `Note ${i + 1}`}
                   </span>
 
                   <div style={{ display: "flex", gap: 8 }}>
@@ -906,7 +830,7 @@ const handlePdfFullscreen = () => {
               if (newIndex !== null) await handleStartSubject(subject._id);
             }}
           >
-            <strong>{subject.subjectName}</strong>
+            <strong>{subject.subjectDisplayName}</strong>
             <div style={{ display: "flex", alignItems: "center" }}>
               {subject.completed && (
                 <FaCheckCircle style={{ color: "green", marginRight: 10 }} />
@@ -940,10 +864,10 @@ const handlePdfFullscreen = () => {
                         />
                       )}
                     </p>
-                    <p
+                    {/* <p
                       dangerouslySetInnerHTML={{ __html: lec.description }}
                       style={{ margin: "4px 0", color: "#666" }}
-                    />
+                    /> */}
                   </div>
                 </div>
               ))}
@@ -1021,47 +945,48 @@ const handlePdfFullscreen = () => {
           {lecture && (
             <>
               <VideoPlayerContainer>
-                <VideoPlayer
-                  ref={videoRef}
-                  onError={handleVideoError}
-                  onEnded={handleVideoEnd}
-                  controls
-                  controlsList="nodownload nofullscreen noremoteplayback"
-                  disablePictureInPicture
-                >
-                  {lecture?.videoUrl && !videoError ? (
-                    <source src={lecture.videoUrl} type="video/mp4" />
-                  ) : (
-                    <div className="video-error">
-                      {videoError
-                        ? "Error loading video"
-                        : "Your browser does not support the video tag"}
-                    </div>
-                  )}
-                  {userId && (
-                    <MovingOverlay
-                      style={{
-                        top: `${overlayPosition.top}%`,
-                        left: `${overlayPosition.left}%`,
-                      }}
-                    >
-                      {userPhoneNumber || userId}
-                    </MovingOverlay>
-                  )}
-                </VideoPlayer>
+  <VideoPlayer
+    ref={videoRef}
+    onError={handleVideoError}
+    onEnded={handleVideoEnd}
+    controls
+    controlsList="nodownload nofullscreen noremoteplayback"
+    disablePictureInPicture
+  >
+    {lecture?.videoUrl && !videoError ? (
+      <source src={lecture.videoUrl} type="video/mp4" />
+    ) : (
+      <div className="video-error">
+        {videoError ? "Error loading video" : "Your browser does not support the video tag"}
+      </div>
+    )}
+    {userId && (
+      <MovingOverlay
+        style={{ top: `${overlayPosition.top}%`, left: `${overlayPosition.left}%` }}
+      >
+        {userPhoneNumber || userId}
+      </MovingOverlay>
+    )}
+  </VideoPlayer>
 
-                {/* ✅ Overlay within the same fullscreen container */}
-                {userId && (
-                  <MovingOverlay
-                    style={{
-                      top: `${overlayPosition.top}%`,
-                      left: `${overlayPosition.left}%`,
-                    }}
-                  >
-                    {userPhoneNumber || userId}
-                  </MovingOverlay>
-                )}
-              </VideoPlayerContainer>
+  {/* Keep overlay duplication if you need it */}
+  {userId && (
+    <MovingOverlay
+      style={{ top: `${overlayPosition.top}%`, left: `${overlayPosition.left}%` }}
+    >
+      {userPhoneNumber || userId}
+    </MovingOverlay>
+  )}
+
+  {/* ✅ Top-right fullscreen toggle */}
+  {/* <FullscreenButton
+    onClick={handleFullscreen}
+    aria-label={isFullscreen ? "View in Small Screen" : "[]]"}
+  >
+    {isFullscreen ? "View Small Screen" : "[]"}
+  </FullscreenButton> */}
+</VideoPlayerContainer>
+
             </>
           )}
           {/* Fullscreen button OUTSIDE the video player, exactly below it */}
@@ -1071,10 +996,10 @@ const handlePdfFullscreen = () => {
             <FullscreenButton
               onClick={handleFullscreen}
               aria-label={
-                isFullscreen ? "View in Small Screen" : "View Full Screen"
+                isFullscreen ? "[  ]" : "[  ]"
               }
             >
-              {isFullscreen ? "View in Small Screen" : "View Full Screen"}
+              {isFullscreen ? "[  ]" : "[  ]"}
             </FullscreenButton>
           </div>
 

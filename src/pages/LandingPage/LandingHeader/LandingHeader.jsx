@@ -17,13 +17,15 @@ import {
   Hamburger,
   DashboardButton,
   Caret,
+  Brand,
+  BrandLogo,
 } from "./LandingHeader.styles";
 // import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { BsChevronCompactDown } from "react-icons/bs";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { getAllTickers } from "../../../api/tickerApi";
-
+import Mankavitlogo from "../../../assets/mankavitlogo.png";
 // SVG Icons
 import Youtube from "../../../assets/youtube.svg";
 import Facebook from "../../../assets/facebook.svg";
@@ -174,16 +176,16 @@ const Header = () => {
   }, []);
 
   // close dropdown whenever route changes (safety)
-useEffect(() => {
-  setDropdownOpen(false);
-}, [location.pathname]);
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [location.pathname]);
 
-// optional: close on Escape
-useEffect(() => {
-  const onKey = (e) => e.key === "Escape" && setDropdownOpen(false);
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, []);
+  // optional: close on Escape
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && setDropdownOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // Highlight active nav link
   useEffect(() => {
@@ -201,9 +203,20 @@ useEffect(() => {
   return (
     <Container>
       <TopBar>
+        <Brand>
+         <BrandLogo src={Mankavitlogo} alt="Mankavit" />
+       </Brand>
         <ToolbarContainer>
-          <Headline style={{ fontSize: "20px", marginLeft: "10px" }}>
-            <div className="marquee">
+          <Headline
+            style={{
+              fontSize: "20px",
+              marginLeft: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <div className="marquee" style={{ flex: 1 }}>
               {tickers.map((t) => (
                 <span
                   key={t._id}
@@ -240,71 +253,86 @@ useEffect(() => {
           </Link>
 
           <div className="menu-container" ref={menuRef}>
-           <NavLinks className={mobileMenuOpen ? "open" : ""}>
-  {["Courses", "About", "Blog", "Results", "Entrances", "Prev. Year Ques.",
-    // <Link to="/user/notification" key="notif">
-    //   <IoNotificationsOutline className="notification-icon" />
-    // </Link>
-  ].map((item) => {
-    const key = typeof item === "string" ? item : "notif";
+            <NavLinks className={mobileMenuOpen ? "open" : ""}>
+              {[
+                "Courses",
+                "About",
+                "Blog",
+                "Results",
+                "Entrances",
+                "Prev. Year Ques.",
+                // <Link to="/user/notification" key="notif">
+                //   <IoNotificationsOutline className="notification-icon" />
+                // </Link>
+              ].map((item) => {
+                const key = typeof item === "string" ? item : "notif";
 
-    // Special rendering for Entrances (so clicks on items don't bubble)
-    if (item === "Entrances") {
-      return (
-        <NavLinkItem
-          key={key}
-          className={activeLink === item ? "active" : ""}
-          ref={dropdownRef}
-          onClick={(e) => {
-            e.stopPropagation();              // prevent body / parent clicks
-            setDropdownOpen((o) => !o);
-          }}
-          onMouseEnter={() => window.matchMedia("(hover: hover)").matches && setDropdownOpen(true)}
-          onMouseLeave={() => window.matchMedia("(hover: hover)").matches && setDropdownOpen(false)}
-        >
-          {item}
-          <Caret size={16} $open={dropdownOpen} />
+                // Special rendering for Entrances (so clicks on items don't bubble)
+                if (item === "Entrances") {
+                  return (
+                    <NavLinkItem
+                      key={key}
+                      className={activeLink === item ? "active" : ""}
+                      ref={dropdownRef}
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent body / parent clicks
+                        setDropdownOpen((o) => !o);
+                      }}
+                      onMouseEnter={() =>
+                        window.matchMedia("(hover: hover)").matches &&
+                        setDropdownOpen(true)
+                      }
+                      onMouseLeave={() =>
+                        window.matchMedia("(hover: hover)").matches &&
+                        setDropdownOpen(false)
+                      }
+                    >
+                      {item}
+                      <Caret size={16} $open={dropdownOpen} />
 
-          {dropdownOpen && (
-            <Dropdown onClick={(e) => e.stopPropagation()}>
-              {entrancesLoading && <DropdownItem disabled>Loading…</DropdownItem>}
+                      {dropdownOpen && (
+                        <Dropdown onClick={(e) => e.stopPropagation()}>
+                          {entrancesLoading && (
+                            <DropdownItem disabled>Loading…</DropdownItem>
+                          )}
 
-              {!entrancesLoading && entrances.length === 0 && (
-                <DropdownItem disabled>No entrances</DropdownItem>
-              )}
+                          {!entrancesLoading && entrances.length === 0 && (
+                            <DropdownItem disabled>No entrances</DropdownItem>
+                          )}
 
-              {!entrancesLoading &&
-                entrances.map((ent) => (
-                  <DropdownItem
-                    key={ent._id}
-                    onClick={(e) => {
-                      e.stopPropagation();     // ← avoid toggling parent
-                      setDropdownOpen(false);  // ← close immediately
-                      navigate(`/entrance/${ent._id}`);
-                    }}
+                          {!entrancesLoading &&
+                            entrances.map((ent) => (
+                              <DropdownItem
+                                key={ent._id}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // ← avoid toggling parent
+                                  setDropdownOpen(false); // ← close immediately
+                                  navigate(`/entrance/${ent._id}`);
+                                }}
+                              >
+                                {ent.title}
+                              </DropdownItem>
+                            ))}
+                        </Dropdown>
+                      )}
+                    </NavLinkItem>
+                  );
+                }
+
+                // Default items
+                return (
+                  <NavLinkItem
+                    key={key}
+                    className={activeLink === item ? "active" : ""}
+                    onClick={() =>
+                      typeof item === "string" && handleNavClick(item)
+                    }
                   >
-                    {ent.title}
-                  </DropdownItem>
-                ))}
-            </Dropdown>
-          )}
-        </NavLinkItem>
-      );
-    }
-
-    // Default items
-    return (
-      <NavLinkItem
-        key={key}
-        className={activeLink === item ? "active" : ""}
-        onClick={() => typeof item === "string" && handleNavClick(item)}
-      >
-        {item}
-      </NavLinkItem>
-    );
-  })}
-</NavLinks>
-
+                    {item}
+                  </NavLinkItem>
+                );
+              })}
+            </NavLinks>
 
             {!isLoggedIn ? (
               <SignInButton onClick={handleLoginButton}>Sign In</SignInButton>

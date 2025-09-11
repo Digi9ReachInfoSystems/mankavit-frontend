@@ -284,7 +284,8 @@ export default function EditCourse() {
     }
   };
   const handleSubjectClick = (id) => {
-    navigate(`/admin/subject-management/edit/${id}`);
+    window.open(`/admin/subject-management/edit/${id}`,"_blank", "noopener,noreferrer");
+    // window.open(`/admin/subject-management/edit/${id}`, "_blank");
   };
 
   const handleSubmit = async (e) => {
