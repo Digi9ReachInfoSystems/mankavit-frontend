@@ -345,7 +345,7 @@ const handlePdfFullscreen = () => {
           }));
           return {
             _id: subject._id,
-            name: subject.subjectName || "Subject",
+            name: subject.subjectDisplayName || "Subject",
             lectures: tests,
           };
         } catch (e) {
@@ -834,7 +834,7 @@ const handlePdfFullscreen = () => {
                 >
                   <span>
                     <FaFilePdf style={{ marginRight: 8, color: "#e74c3c" }} />
-                    {note.noteName || `Note ${i + 1}`}
+                    {note.noteDisplayName || `Note ${i + 1}`}
                   </span>
 
                   <div style={{ display: "flex", gap: 8 }}>
@@ -906,7 +906,7 @@ const handlePdfFullscreen = () => {
               if (newIndex !== null) await handleStartSubject(subject._id);
             }}
           >
-            <strong>{subject.subjectName}</strong>
+            <strong>{subject.subjectDisplayName}</strong>
             <div style={{ display: "flex", alignItems: "center" }}>
               {subject.completed && (
                 <FaCheckCircle style={{ color: "green", marginRight: 10 }} />
@@ -940,10 +940,10 @@ const handlePdfFullscreen = () => {
                         />
                       )}
                     </p>
-                    <p
+                    {/* <p
                       dangerouslySetInnerHTML={{ __html: lec.description }}
                       style={{ margin: "4px 0", color: "#666" }}
-                    />
+                    /> */}
                   </div>
                 </div>
               ))}

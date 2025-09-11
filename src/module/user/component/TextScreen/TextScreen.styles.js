@@ -16,14 +16,14 @@ export const Content = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  // height: 100vh;
+  height: 100vh;        /* make this the scroll area */
+  overflow-y: auto;     /* enable scrolling here */
   width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
   padding-right: 20px;
 
   @media (max-width: 1360px) {
     width: ${(p) => (p.$sidebarOpen ? "75%" : "100%")};
   }
-
   @media (max-width: 576px) {
     width: 100%;
     padding-right: 0;
@@ -58,11 +58,21 @@ export const ToggleSidebarBtn = styled.button`
 `;
 
 export const Header = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 20;                /* stay above content */
+  background: #ffffff;        /* avoid transparent bleed-through */
+  border-bottom: 1px solid #e5e7eb;
+  /* optional: subtle frosted look like your footer */
+  backdrop-filter: saturate(120%) blur(6px);
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px; /* tighter */
+  padding: 10px 0;            /* give the sticky area some height */
+  margin-bottom: 12px;
 `;
+
 
 export const HeaderLeft = styled.div`
   display: flex;

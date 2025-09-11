@@ -97,10 +97,10 @@ const EditStudent = () => {
     apiCaller();
   }, []);
 
-  const handleCourseNavigate = (id) => {
-  navigate(`/admin/course-management/edit/${id}`);
+  // Replace the existing handleCourseNavigate function with this:
+const handleCourseNavigate = (id) => {
+  window.open(`/admin/course-management/edit/${id}`, "_blank", "noopener,noreferrer");
 };
-
 
   useEffect(() => {
     const apiCaller = async () => {

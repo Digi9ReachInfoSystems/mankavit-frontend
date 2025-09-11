@@ -1,3 +1,4 @@
+// src/module/user/components/UserCourses/UserCourses.jsx
 import React, { useState, useEffect } from "react";
 import {
   CourseWrapper,
@@ -21,12 +22,14 @@ import {
   DetailItemok,
   PriceActions,
   ViewButton,
-  BlinkingIcon
+  BlinkingIcon,
+  ShowMoreBar,
+  ToggleAllButton,
 } from "./UserCourses.styles";
 import { useNavigate } from "react-router-dom";
 import lawimg from "../../../../assets/lawentrance.png";
 import { FaStar } from "react-icons/fa";
-import { FcOk, FcCalendar } from "react-icons/fc";
+import { FcOk } from "react-icons/fc";
 import {
   getAllEnrolledCourses,
   getAllOngoingCourses,
@@ -40,36 +43,35 @@ const UserCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const [liveStatus, setLiveStatus] = useState({});
-  useEffect(() => {
-    if (courses.length === 0) return;
-    const ids = courses.map(c => c._id);
-    console.log("ids", ids);
-    pollLiveStatuses(ids);
-    const interval = setInterval(() => pollLiveStatuses(ids), 30000);
-    return () => clearInterval(interval);
-  }, [courses]);
+  const [viewAll, setViewAll] = useState(false); // ⬅️ View all / Show less toggle
+  const navigate = useNavigate();
 
   // Get userId from cookies
   const { userId } = getCookiesData();
+
   const getCtaText = (course) => {
     const completed = course.course_status === "completed";
     const pct = Number(course.completePercentage || 0);
     const isZero = pct === 0;
 
     if (completed) return "Completed";
-    // If KYC required and user hasn't applied / was rejected, keep your original message
     if (
       !course.kycStatus &&
-      (course.userKycStatus === "not-applied" ||
-        course.userKycStatus === "rejected")
+      (course.userKycStatus === "not-applied" || course.userKycStatus === "rejected")
     ) {
       return "Complete KYC to continue";
     }
-    // Otherwise decide based on progress
     return isZero ? "Start Learning" : "Continue Learning";
   };
+
+  useEffect(() => {
+    if (courses.length === 0) return;
+    const ids = courses.map((c) => c._id);
+    pollLiveStatuses(ids);
+    const interval = setInterval(() => pollLiveStatuses(ids), 30000);
+    return () => clearInterval(interval);
+  }, [courses]);
 
   // Fetch courses based on activeTab
   useEffect(() => {
@@ -85,20 +87,14 @@ const UserCourses = () => {
         let response = {};
         if (activeTab === "All") {
           response = await getAllEnrolledCourses(userId);
-          console.log("Enrolle course", response);
         } else if (activeTab === "Ongoing") {
           response = await getAllOngoingCourses(userId);
-          console.log("Ongoing course", response);
         } else if (activeTab === "Completed") {
           response = await getAllCompletedCourses(userId);
-          console.log("Completed course", response);
         }
-        // Now, set courses from response.enrolledCourses
-        setCourses(
-          Array.isArray(response.enrolledCourses)
-            ? response.enrolledCourses
-            : []
-        );
+        setCourses(Array.isArray(response.enrolledCourses) ? response.enrolledCourses : []);
+        // Reset viewAll whenever the tab changes
+        setViewAll(false);
       } catch (err) {
         setError("Failed to fetch courses. Please try again.");
         setCourses([]);
@@ -123,18 +119,15 @@ const UserCourses = () => {
     }
     return stars;
   };
+
   const pollLiveStatuses = async (courseIds) => {
     try {
       const res = await getLiveMeetings({ courseIds });
-      console.log("live meetings", res);
-      // res.data may contain active meetings, group by courseId
       const statusMap = {};
-      res.data.forEach(meeting => {
-        console.log("meeting", meeting);
-        meeting.course_Ref.map(id => {
+      (res?.data || []).forEach((meeting) => {
+        (meeting?.course_Ref || []).forEach((id) => {
           statusMap[id._id] = true;
-        })
-
+        });
       });
       setLiveStatus(statusMap);
     } catch (err) {
@@ -142,27 +135,21 @@ const UserCourses = () => {
     }
   };
 
+  // Show 8 (4x2) by default; expand to all with the toggle
+  const displayedCourses = viewAll ? courses : courses.slice(0, 8);
+
   return (
     <CourseWrapper>
-      <Title>My Courses </Title>
+      <Title>My Courses</Title>
 
       <FilterBar>
-        <FilterButton
-          active={activeTab === "All"}
-          onClick={() => setActiveTab("All")}
-        >
+        <FilterButton active={activeTab === "All"} onClick={() => setActiveTab("All")}>
           All
         </FilterButton>
-        <FilterButton
-          active={activeTab === "Ongoing"}
-          onClick={() => setActiveTab("Ongoing")}
-        >
+        <FilterButton active={activeTab === "Ongoing"} onClick={() => setActiveTab("Ongoing")}>
           Ongoing
         </FilterButton>
-        <FilterButton
-          active={activeTab === "Completed"}
-          onClick={() => setActiveTab("Completed")}
-        >
+        <FilterButton active={activeTab === "Completed"} onClick={() => setActiveTab("Completed")}>
           Completed
         </FilterButton>
       </FilterBar>
@@ -179,120 +166,109 @@ const UserCourses = () => {
       )}
 
       {!loading && !error && (
-        <CardGrid>
-          {courses.length > 0 ? (
-            courses.map((course, index) => (
-              <CourseCard
-                key={index}
-                completed={course.course_status === "completed"}
-              >
-                <ImageWrapper>
-                  <img src={course.image} alt="Course Banner" />
-                </ImageWrapper>
-                <ProgressContainer>
-                  <ProgressLabel>
-                    {course.completePercentage || 0}% Completed
-                  </ProgressLabel>
-                  <ProgressBar>
-                    <ProgressFill
-                      style={{ width: `${course.completePercentage || 0}%` }}
-                    />
-                  </ProgressBar>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "1rem",
-                      marginTop: "0.5rem",
-                    }}
-                  >
-                    <ProgressLabel style={{ color: "#22c55e" }}></ProgressLabel>
-                    {/* <div className="stars" style={{ color: "#facc15" }}>
-                      {renderStars(course.course_rating)}
-                    </div> */}
-                  </div>
-                </ProgressContainer>
-                {liveStatus[course._id] && (
-                  <BlinkingIcon>
-                    🔴 Live Class Ongoing
+        <>
+          <CardGrid>
+            {displayedCourses.length > 0 ? (
+              displayedCourses.map((course, index) => (
+                <CourseCard key={index} completed={course.course_status === "completed"}>
+                  <ImageWrapper>
+                    <img src={course.image || lawimg} alt="Course Banner" />
+                  </ImageWrapper>
 
-                  </BlinkingIcon>
-                )}
-
-                <CourseContent>
-                  <CourseMain>
-                    <CourseTitle>
-                      {course.courseDisplayName ||
-                        course.courseName ||
-                        "Course Title"}
-                    </CourseTitle>
-                    {/* <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle> */}
-                    {/* <CourseMinititle
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          course.shortDescription.slice(0, 60) + "..." ||
-                          "Course Description",
+                  <ProgressContainer>
+                    <ProgressLabel>{course.completePercentage || 0}% Completed</ProgressLabel>
+                    <ProgressBar>
+                      <ProgressFill style={{ width: `${course.completePercentage || 0}%` }} />
+                    </ProgressBar>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                        marginTop: "0.5rem",
                       }}
-                    /> */}
-                    {/* <CourseDesc>{course.description || 'Course description not available'}</CourseDesc> */}
-                    {/* <CourseDesc dangerouslySetInnerHTML={{ __html: course.description.slice(0, 60)+"..." || 'Course description not available' }} /> */}
-                  </CourseMain>
+                    >
+                      <ProgressLabel style={{ color: "#22c55e" }} />
+                      {/* <div className="stars" style={{ color: "#facc15" }}>
+                        {renderStars(course.course_rating)}
+                      </div> */}
+                    </div>
+                  </ProgressContainer>
 
-                  {course.course_status !== "completed" ? (
-                    <Details>
-                      {/* <DetailItem><FcCalendar /> Duration: {course.duration || 'N/A'} months</DetailItem> */}
-                      {/* <DetailItem>🏆 Success Rate: {course.successRate || 'N/A'}%</DetailItem> */}
-                      <DetailItemok style={{ color: "#206666ff" }}>
-                        Finish 100% to unlock the certificate
-                      </DetailItemok>
-                    </Details>
-                  ) : (
-                    <Details>
-                      <DetailItemok>
-                        <FcOk fontSize={30} /> You have successfully Completed
-                        this course
-                      </DetailItemok>
-                    </Details>
+                  {liveStatus[course._id] && (
+                    <BlinkingIcon>🔴 Live Class Ongoing</BlinkingIcon>
                   )}
-                </CourseContent>
 
-                <PriceActions>
-                  <ViewButton
-                    completed={course.course_status === "completed"}
-                    onClick={() => {
-                      if (course.kycStatus) {
-                        navigate(`/continueCourse/${course._id}`);
-                      } else {
-                        if (
-                          course.userKycStatus == "not-applied" ||
-                          course.userKycStatus == "rejected"
-                        ) {
-                          navigate(`/kyc`);
-                        } else {
+                  <CourseContent>
+                    <CourseMain>
+                      <CourseTitle>
+                        {course.courseDisplayName || course.courseName || "Course Title"}
+                      </CourseTitle>
+                      {/* <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle> */}
+                    </CourseMain>
+
+                    {course.course_status !== "completed" ? (
+                      <Details>
+                        <DetailItemok style={{ color: "#206666ff" }}>
+                          Finish 100% to unlock the certificate
+                        </DetailItemok>
+                      </Details>
+                    ) : (
+                      <Details>
+                        <DetailItemok>
+                          <FcOk fontSize={30} /> You have successfully Completed this course
+                        </DetailItemok>
+                      </Details>
+                    )}
+                  </CourseContent>
+
+                  <PriceActions>
+                    <ViewButton
+                      completed={course.course_status === "completed"}
+                      onClick={() => {
+                        if (course.kycStatus) {
                           navigate(`/continueCourse/${course._id}`);
+                        } else {
+                          if (
+                            course.userKycStatus === "not-applied" ||
+                            course.userKycStatus === "rejected"
+                          ) {
+                            navigate(`/kyc`);
+                          } else {
+                            navigate(`/continueCourse/${course._id}`);
+                          }
                         }
-                      }
-                    }}
-                  >
-                    {getCtaText(course)}
-                  </ViewButton>
-                </PriceActions>
-              </CourseCard>
-            ))
-          ) : (
-            <div
-              style={{
-                gridColumn: "1 / -1",
-                textAlign: "center",
-                padding: "2rem",
-                fontSize: "1.2rem",
-                color: "#666",
-              }}
-            >
-              No courses found. Enroll in a course to get started.
-            </div>
+                      }}
+                    >
+                      {getCtaText(course)}
+                    </ViewButton>
+                  </PriceActions>
+                </CourseCard>
+              ))
+            ) : (
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                  textAlign: "center",
+                  padding: "2rem",
+                  fontSize: "1.2rem",
+                  color: "#666",
+                }}
+              >
+                No courses found. Enroll in a course to get started.
+              </div>
+            )}
+          </CardGrid>
+
+          {/* View all / Show less toggle (only when more than 8) */}
+          {courses.length > 8 && (
+            <ShowMoreBar>
+              <ToggleAllButton onClick={() => setViewAll((v) => !v)}>
+                {viewAll ? "Show less" : `View all (${courses.length - 8} more)`}
+              </ToggleAllButton>
+            </ShowMoreBar>
           )}
-        </CardGrid>
+        </>
       )}
     </CourseWrapper>
   );

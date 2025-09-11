@@ -1,6 +1,3 @@
-// Drop-in replacement for the styled-components at the bottom of your file.
-// No functionality changed; purely visual improvements.
-
 import styled, { keyframes } from 'styled-components';
 
 const floatIn = keyframes`
@@ -30,36 +27,31 @@ export const Title = styled.h1`
   color: ${({ theme }) => theme.colors.jetBlack};
   letter-spacing: -0.02em;
 `;
-
 export const CardGrid = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: .25rem;
+  overflow: visible;           /* ⬅️ kill horizontal scroll */
+  padding-bottom: 0;
 
-  /* Smooth scroll and prettier scrollbar */
-  scroll-behavior: smooth;
-  &::-webkit-scrollbar { height: 10px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, #b9c7ff, #7fb3ff);
-    border-radius: 999px;
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
-  /* Prevent shrinking */
-  & > * { flex-shrink: 0; }
-
-  @media (max-width: 768px) {
-    gap: 1rem;
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
   }
 `;
+
 
 export const CourseCard = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 300px;
-  height: 450px;
+  width: 100%;                 /* ⬅️ fill grid cell */
+  min-height: 450px;           /* keep your card height feel */
   border-radius: 18px;
   background: radial-gradient(90% 120% at 100% 0%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%),
               linear-gradient(180deg, rgba(171,190,209,0.3), rgba(171,190,209,0.15));
@@ -74,10 +66,6 @@ export const CourseCard = styled.div`
     box-shadow: 0 16px 38px rgba(16, 24, 40, 0.16), 0 6px 12px rgba(16, 24, 40, 0.08);
     border-color: rgba(0, 123, 255, 0.18);
   }
-
-  @media (max-width: 1024px) { width: 280px; }
-  @media (max-width: 768px) { width: 240px; height: 500px; }
-  @media (max-width: 480px) { width: 270px; }
 `;
 
 export const ImageWrapper = styled.div`
@@ -224,6 +212,24 @@ export const PriceActions = styled.div`
   width: 100%;
 `;
 
+export const ShowMoreBar = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: .5rem;
+`;
+export const ToggleAllButton = styled.button`
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease, filter .2s ease, box-shadow .2s ease;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  &:hover { filter: brightness(1.05); }
+  &:active { transform: translateY(1px); }
+`;
 export const ViewButton = styled.button`
   background-color: ${(props) => (props.completed ? '#10b981' : '#007bff')};
   color: #fff;
