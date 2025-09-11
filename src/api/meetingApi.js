@@ -87,3 +87,12 @@ export const bulkDeleteMeetings = async (meetingIds) => {
     throw error;
   }
 };
+
+export const updateMeetingStatus = async (meetingId) => {
+  try {
+    const response = await api.patch(`/meeting/update/isEnded/${meetingId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

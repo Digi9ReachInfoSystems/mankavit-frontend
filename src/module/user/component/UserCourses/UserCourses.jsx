@@ -34,9 +34,11 @@ import {
 } from "../../../../api/userDashboardAPI";
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { getLiveMeetings } from "../../../../api/meetingApi";
+import { getUserByUserId } from "../../../../api/authApi";
 
 const UserCourses = () => {
   const [activeTab, setActiveTab] = useState("All");
+  const [userData, setUserData] = useState({});
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -82,6 +84,8 @@ const UserCourses = () => {
       setLoading(true);
       setError("");
       try {
+        const userData= await getUserByUserId(userId);
+        setUserData(userData.user);
         let response = {};
         if (activeTab === "All") {
           response = await getAllEnrolledCourses(userId);
@@ -108,6 +112,13 @@ const UserCourses = () => {
 
     fetchCourses();
   }, [activeTab, userId]);
+  useEffect(() => {
+    const apiCaller = async () => {
+      const userData= await getUserByUserId(userId);
+      setUserData(userData.user);
+    }
+    apiCaller();
+  },[])
 
   const renderStars = (rating) => {
     const stars = [];
@@ -260,18 +271,18 @@ const UserCourses = () => {
                   <ViewButton
                     completed={course.course_status === "completed"}
                     onClick={() => {
-                      if (course.kycStatus) {
-                        navigate(`/continueCourse/${course._id}`);
-                      } else {
+                      // if (course.kycStatus) {
+                      //   navigate(`/continueCourse/${course._id}`);
+                      // } else {
                         if (
-                          course.userKycStatus == "not-applied" ||
-                          course.userKycStatus == "rejected"
+                          userData.kyc_status === "not-applied" ||
+                          userData.kyc_status === "rejected"
                         ) {
-                          navigate(`/kyc`);
+                          navigate(`/user/kycStatus`);
                         } else {
                           navigate(`/continueCourse/${course._id}`);
                         }
-                      }
+                      // }
                     }}
                   >
                     {getCtaText(course)}

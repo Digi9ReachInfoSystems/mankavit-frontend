@@ -15,6 +15,7 @@ import {
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
+  ToggleSwitch
 } from "../AddMeeting/AddMeeting.styles";
 import { useNavigate } from "react-router-dom";
 import { DatePicker, Select } from "antd";
@@ -37,6 +38,7 @@ export default function AddMeeting() {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [meetingType, setMeetingType] = useState("me");
   const [hostId, setHostId] = useState("");
+  const [autoRecord, setAutoRecord] = useState(false);
 
   // Data lists
   const [coursesList, setCoursesList] = useState([]);
@@ -93,18 +95,19 @@ export default function AddMeeting() {
         courseIds: selectedCourses,
         meeting_type: meetingType,
         hostId: meetingType === "other_host" ? hostId : "me",
-       
+        autoRecord: autoRecord,
+
       };
-//       {
-// "topic": "Physics Workshop - Quantum Mechanics",
-//   "agenda": "Advanced quantum mechanics concepts discussion",
-//   "password": "physics456",
-//   "meeting_type": "other_host",
-//   "courseIds": ["685ce3a364f059247600867d", "685cf7b7f811d08dd9739180"],
-//   "startTime": "2025-09-09T10:00:00Z",
-//   "duration": 60,
-//    "hostId": "naven1897@gmail.com" // Zoom user ID or email of the alternate host
-// }
+      //       {
+      // "topic": "Physics Workshop - Quantum Mechanics",
+      //   "agenda": "Advanced quantum mechanics concepts discussion",
+      //   "password": "physics456",
+      //   "meeting_type": "other_host",
+      //   "courseIds": ["685ce3a364f059247600867d", "685cf7b7f811d08dd9739180"],
+      //   "startTime": "2025-09-09T10:00:00Z",
+      //   "duration": 60,
+      //    "hostId": "naven1897@gmail.com" // Zoom user ID or email of the alternate host
+      // }
 
       const response = await createMeeting(meetingData);
       if (response) {
@@ -145,6 +148,18 @@ export default function AddMeeting() {
               disabled={loading}
             />
           </FieldWrapper>
+        </FormRow>
+        <FormRow>
+          {/* <Column> */}
+            <FieldWrapper className="toggle-wrapper">
+              <Label>Auto Record</Label>
+              <ToggleSwitch
+                type="checkbox"
+                checked={autoRecord}
+                onChange={(e) => setAutoRecord(e.target.checked)}
+              />
+            </FieldWrapper>
+          {/* </Column> */}
         </FormRow>
 
         {/* Password + DateTime */}
@@ -267,10 +282,10 @@ export default function AddMeeting() {
                   value={hostId}
                   onChange={setHostId}
                   options={hostsList.map((host) => ({
-                    value:  host.email,
+                    value: host.email,
                     label: host.displayName || host.email,
                   }))}
-                    optionFilterProp="children"
+                  optionFilterProp="children"
                   placeholder="Search & select host"
                   filterOption={(input, option) =>
                     (option?.label ?? "")

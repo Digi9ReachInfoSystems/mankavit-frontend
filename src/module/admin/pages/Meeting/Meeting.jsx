@@ -19,7 +19,8 @@ import {
     SearchWrapper,
     SearchIcon,
     SearchInput,
-    ToastContainer
+    ToastContainer,
+    ToggleSwitch,
 } from "./Meeting.styles";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -33,7 +34,7 @@ import { getAllCourses, deleteCourseById } from "../../../../api/courseApi";
 import { IoEyeOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { bulkDeleteMeetings, getAllMeetings } from "../../../../api/meetingApi";
+import { bulkDeleteMeetings, getAllMeetings, updateMeetingStatus } from "../../../../api/meetingApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { getUserByUserId } from "../../../../api/authApi";
 import { getAuth } from "../../../../utils/authService";
@@ -113,6 +114,7 @@ export default function Meeting() {
                 meetingTitle: item?.meeting_title,
                 isHostMeeting: item.isHostMeeting,
                 isPastMeeting: item.isPastMeeting,
+                isEnded: item.isEnded,
 
             }))
             // Also fetch courses list for the dropdown
@@ -271,7 +273,12 @@ export default function Meeting() {
         if (selectAll) {
             setSelectedMeetings([]);
         } else {
-            setSelectedMeetings(currentItems.map((c) => c.id));
+            let courseIds = currentItems.map((c) => {
+                if(c.isEnded === false) return c.id
+                else return null
+            });
+            courseIds = courseIds.filter((id) => id !== null);
+            setSelectedMeetings(courseIds);
         }
         setSelectAll(!selectAll);
     };
@@ -446,6 +453,7 @@ export default function Meeting() {
                                         {/* <TableHeader>No. of Mock Test</TableHeader> */}
                                         {/* <TableHeader>No. of Student </TableHeader> */}
                                         <TableHeader>Start Date and Time IST</TableHeader>
+                                        <TableHeader>Meeting Ended</TableHeader>
                                         <TableHeader>Actions</TableHeader>
                                     </TableRow>
                                 </TableHead>
@@ -460,11 +468,18 @@ export default function Meeting() {
                                         <TableRow key={item.id}>
                                             {!readOnlyPermissions && (
                                                 <TableCell>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedMeetings.includes(item.id)}
-                                                        onChange={() => handleCheckboxChange(item.id)}
-                                                    />
+                                                    {
+                                                        item.isEnded ? (
+                                                            <></>
+                                                        ) : (
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedMeetings.includes(item.id)}
+                                                                onChange={() => handleCheckboxChange(item.id)}
+                                                            />
+                                                        )
+                                                    }
+
                                                 </TableCell>
                                             )}
                                             <TableCell>{item.meetingName.slice(0, 30)}</TableCell>
@@ -501,8 +516,18 @@ export default function Meeting() {
                                             </TableCell> */}
                                             <TableCell>{formatToIST(item.meetingDate)}</TableCell>
                                             <TableCell>
+                                                <ToggleSwitch
+                                                    type="checkbox"
+                                                    checked={item.isEnded}
+                                                    onChange={async (e) => {
+                                                        await updateMeetingStatus(item.id);
+                                                        setLoadData(!loadData);
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
                                                 <ActionsContainer>
-                                                    {
+                                                    {item.isEnded ? null :
                                                         item.isHostMeeting ?
                                                             item.isPastMeeting ?
                                                                 null :

@@ -36,12 +36,14 @@ import { getCookiesData } from '../../../../utils/cookiesService';
 import { Link, useNavigate } from 'react-router-dom';
 import { startCourse } from '../../../../api/userProgressApi';
 import { getLiveMeetings } from '../../../../api/meetingApi';
+import { getUserByUserId } from '../../../../api/authApi';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { userId } = getCookiesData();
+    const [userData, setUserData] = useState({});
     const navigate = useNavigate();
     const [liveStatus, setLiveStatus] = useState({});
     const getCtaText = (course) => {
@@ -73,6 +75,8 @@ const Courses = () => {
         const fetchCourses = async () => {
             try {
                 setLoading(true);
+                const userData= await getUserByUserId(userId);
+                setUserData(userData.user);
                 const response = await getAllEnrolledCourses(userId);
                 console.log("response", response);
                 // Corrected data extraction based on your API response
@@ -158,7 +162,7 @@ const Courses = () => {
 
     return (
         <CourseWrapper>
-            <Title>My Courses </Title>
+            <Title>My Courses  </Title>
 
             <CardGrid>
                 {courses.length > 0 ? (
@@ -184,8 +188,8 @@ const Courses = () => {
 
                             {liveStatus[course._id] && (
                                 <BlinkingIcon>
-                                   🔴 Live Class Ongoing
-                                  
+                                    🔴 Live Class Ongoing
+
                                 </BlinkingIcon>
                             )}
                             <CourseContent>
@@ -221,36 +225,45 @@ const Courses = () => {
                                 <ViewButton
                                     completed={course.course_status === "completed"}
                                     onClick={async () => {
-                                        if (course.kycStatus) {
-                                            console.log("KYC already done", course);
-                                            const response = await startCourse(userId, course._id);
-                                            console.log("start course response", response);
-                                            if (response) {
-                                                // Successfully started the course, navigate to course content
-                                                navigate(`/continueCourse/${course._id}`);
-                                            } else {
-
-                                            }
-                                            // navigate(`/continueCourse/${course._id}`);
+                                        // console.log("course", course,userData);
+                                        if (
+                                            userData.kyc_status === "not-applied" ||
+                                            userData.kyc_status === "rejected"
+                                        ) {
+                                            navigate(`/user/kycStatus`);
                                         } else {
-                                            if (
-                                                course.userKycStatus == "not-applied" ||
-                                                course.userKycStatus == "rejected"
-                                            ) {
-                                                navigate(`/kyc`);
-                                            } else {
-
-                                                const response = await startCourse(userId, course._id);
-                                                console.log("start course response", response);
-                                                if (response.success) {
-                                                    // Successfully started the course, navigate to course content
-                                                    // navigate(`/continueCourse/${course._id}`);
-                                                } else {
-
-                                                }
-                                                //   navigate(`/continueCourse/${course._id}`);
-                                            }
+                                            navigate(`/continueCourse/${course._id}`);
                                         }
+                                        // if (course.kycStatus) {
+                                        //     console.log("KYC already done", course);
+                                        //     const response = await startCourse(userId, course._id);
+                                        //     console.log("start course response", response);
+                                        //     if (response) {
+                                        //         // Successfully started the course, navigate to course content
+                                        //         navigate(`/continueCourse/${course._id}`);
+                                        //     } else {
+
+                                        //     }
+                                        //     // navigate(`/continueCourse/${course._id}`);
+                                        // } else {
+                                        //     if (
+                                        //         course.userKycStatus == "not-applied" ||
+                                        //         course.userKycStatus == "rejected"
+                                        //     ) {
+                                        //         navigate(`/kyc`);
+                                        //     } else {
+
+                                        //         const response = await startCourse(userId, course._id);
+                                        //         console.log("start course response", response);
+                                        //         if (response.success) {
+                                        //             // Successfully started the course, navigate to course content
+                                        //             // navigate(`/continueCourse/${course._id}`);
+                                        //         } else {
+
+                                        //         }
+                                        //         //   navigate(`/continueCourse/${course._id}`);
+                                        //     }
+                                        // }
                                     }}
                                 >
                                     {getCtaText(course)}
