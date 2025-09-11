@@ -891,7 +891,7 @@ const ContinueCourse = () => {
             setActiveAccordion(null);
           }}
         >
-          Video Lectures
+          Subject
         </button>
         {/* <button
           className={activeTab === "Mock Test" ? "active" : ""}

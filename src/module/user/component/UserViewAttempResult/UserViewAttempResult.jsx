@@ -222,8 +222,6 @@
 //     fetchResults();
 //   }, [userId, mockTestId, navigate]);
 
-  
-
 //   if (loading) return <div>Loading results...</div>;
 //   if (!attempt || !test) return <div>Unable to load your attempt.</div>;
 
@@ -558,6 +556,7 @@ export default function UserViewAttempResult() {
         // 1) get user attempt result
         const res = await viewUserMocktestAttemptResult(userId, mockTestId);
         if (!res.success) throw new Error(res.message || "Invalid response");
+        console.log("viewUserMocktestAttemptResult res:", res);
         const { result, ranking, remainigAttempts } = res;
         setAttempt(result);
         setRanking(ranking);
@@ -576,7 +575,8 @@ export default function UserViewAttempResult() {
           (a) => a.isCorrect === true
         ).length;
 
-        const hasMCQ = testData.questions?.some((q) => q.type === "mcq") || false;
+        const hasMCQ =
+          testData.questions?.some((q) => q.type === "mcq") || false;
         const hasSubjective =
           testData.questions?.some((q) => q.type !== "mcq") || false;
 
@@ -637,7 +637,15 @@ export default function UserViewAttempResult() {
             selectedOption: a.answerIndex,
             selectedAnswer: a.answer,
             correctAnswer: d.correctAnswer,
-            expectedAnswer: d.expectedAnswer || "",
+            //
+            expectedAnswer:
+              d.expectedAnswer ||
+              d.explanation ||
+              d.solution ||
+              d.answerExplanation ||
+              d.explanationHtml ||
+              "",
+
             isCorrect: a.isCorrect,
             marks: a.marksAwarded || 0,
             maxMarks: d.marks || 0,
@@ -663,7 +671,6 @@ export default function UserViewAttempResult() {
   const current = questions[currentIndex] || {};
   const isMCQ = current.type === "mcq";
   const isPass = current.isPassage;
-
   // counts for legend
   const counts = questions.reduce((c, q) => {
     c[q.status] = (c[q.status] || 0) + 1;
@@ -701,7 +708,9 @@ export default function UserViewAttempResult() {
           {ranking?.rank && <RankBadge>Rank #{ranking.rank}</RankBadge>}
         </Header>
 
-        <QuestionType>{isPass ? "Passage" : isMCQ ? "MCQ" : "Subjective"}</QuestionType>
+        <QuestionType>
+          {isPass ? "Passage" : isMCQ ? "MCQ" : "Subjective"}
+        </QuestionType>
 
         <SummaryContainer>
           {summaryData.map((s, i) => (
@@ -714,7 +723,7 @@ export default function UserViewAttempResult() {
 
         <Complier>
           <QuestionNumber>
-            <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
+            <QuestionTitle>Question{currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
 
           <Section>
@@ -744,17 +753,23 @@ export default function UserViewAttempResult() {
                           if (!sel && cor) cls = "correct-unattempted";
 
                           return (
-                            <OptionLabel key={idx} status={cls}>
-                              <input type="radio" checked={sel} readOnly />
-                              {opt.text || opt}
-                              {cor && (
-                                <span style={{ marginLeft: 10, color: "green" }}>
-                                  (Correct)
-                                </span>
-                              )}
-                            </OptionLabel>
+                            <>
+                              <OptionLabel key={idx} status={cls}>
+                                <input type="radio" checked={sel} readOnly />
+                                {opt.text || opt}
+                                {cor && (
+                                  <span
+                                    style={{ marginLeft: 10, color: "green" }}
+                                  >
+                                    (Correct)
+                                  </span>
+                                )}
+                              </OptionLabel>
+                              {/* <ExpectedAnswer html={current.expectedAnswer} /> */}
+                            </>
                           );
                         })}
+                         <ExpectedAnswer html={current.expectedAnswer} />
                       </OptionsList>
                     ) : (
                       <div>
@@ -770,7 +785,9 @@ export default function UserViewAttempResult() {
               </PassageContainer>
             ) : (
               <>
-                <PassageBox dangerouslySetInnerHTML={{ __html: current.text }} />
+                <PassageBox
+                  dangerouslySetInnerHTML={{ __html: current.text }}
+                />
                 <HorizontalLine />
                 <QuestionBox>
                   {isMCQ ? (
@@ -786,6 +803,7 @@ export default function UserViewAttempResult() {
                         if (!sel && cor) cls = "correct-unattempted";
 
                         return (
+                          <>
                           <OptionLabel key={idx} status={cls}>
                             <input type="radio" checked={sel} readOnly />
                             {opt.text || opt}
@@ -795,6 +813,8 @@ export default function UserViewAttempResult() {
                               </span>
                             )}
                           </OptionLabel>
+                        
+                          </>
                         );
                       })}
                     </OptionsList>
@@ -804,9 +824,10 @@ export default function UserViewAttempResult() {
                         <strong>Your Answer:</strong>
                       </p>
                       <p>{current.selectedAnswer || <em>Not Answered</em>}</p>
-                      <ExpectedAnswer html={current.expectedAnswer} />
+                      {/* <ExpectedAnswer html={current.expectedAnswer} /> */}
                     </div>
                   )}
+                  <ExpectedAnswer html={current.expectedAnswer} />
                 </QuestionBox>
               </>
             )}
@@ -816,8 +837,12 @@ export default function UserViewAttempResult() {
         {/* Sticky action bar — always visible */}
         <StickyActionBar>
           <LeftButtonsWrap>
-            <button className="prev" onClick={goPrev}>Previous</button>
-            <button className="next" onClick={goNext}>Next</button>
+            <button className="prev" onClick={goPrev}>
+              Previous
+            </button>
+            <button className="next" onClick={goNext}>
+              Next
+            </button>
           </LeftButtonsWrap>
 
           <RightStickyButton onClick={() => navigate("/user")}>
@@ -836,7 +861,9 @@ export default function UserViewAttempResult() {
           </OptionLabelList>
 
           <OptionLabelList>
-            <LegendItem className="incorrect">{getCount("incorrect")}</LegendItem>
+            <LegendItem className="incorrect">
+              {getCount("incorrect")}
+            </LegendItem>
             <LegendText>Incorrect</LegendText>
           </OptionLabelList>
 

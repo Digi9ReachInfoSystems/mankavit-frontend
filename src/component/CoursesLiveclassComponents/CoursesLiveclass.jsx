@@ -979,12 +979,12 @@ const handlePdfFullscreen = () => {
   )}
 
   {/* ✅ Top-right fullscreen toggle */}
-  <FullscreenButton
+  {/* <FullscreenButton
     onClick={handleFullscreen}
-    aria-label={isFullscreen ? "View in Small Screen" : "View Full Screen"}
+    aria-label={isFullscreen ? "View in Small Screen" : "[]]"}
   >
-    {isFullscreen ? "View Small Screen" : "View Full Screen"}
-  </FullscreenButton>
+    {isFullscreen ? "View Small Screen" : "[]"}
+  </FullscreenButton> */}
 </VideoPlayerContainer>
 
             </>
@@ -996,10 +996,10 @@ const handlePdfFullscreen = () => {
             <FullscreenButton
               onClick={handleFullscreen}
               aria-label={
-                isFullscreen ? "View in Small Screen" : "View Full Screen"
+                isFullscreen ? "[  ]" : "[  ]"
               }
             >
-              {isFullscreen ? "View in Small Screen" : "View Full Screen"}
+              {isFullscreen ? "[  ]" : "[  ]"}
             </FullscreenButton>
           </div>
 
