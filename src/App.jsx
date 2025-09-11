@@ -172,6 +172,8 @@ import OverallEntrance from "./component/OverallEntrance/OverallEntrance";
 import Refund from "./component/StaticPages/RefundPolicy/Refund";
 import NotificationsList from "./module/admin/pages/WebManagement/Notification/NotificationList";
 import AdminZoomMeeting from "./module/admin/pages/AdminZoomMeeting/AdminZoomMeeting";
+import { KYCSubtext } from "./module/user/pages/KYCRejected/KYCRejected.styles";
+import KYCRejected from "./module/user/pages/KYCRejected/KYCRejected";
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
   useEffect(() => {
@@ -531,6 +533,7 @@ function App() {
             <Route path="my-courses" element={<ProtectedRoute roles={["user"]}><Mycourses /></ProtectedRoute>} />
             <Route path="contactsupport" element={<ProtectedRoute roles={["user"]}><ContactSupport /></ProtectedRoute>} />
             <Route path="notification" element={<ProtectedRoute roles={["user"]}><UserNotifications /></ProtectedRoute>} />
+            <Route path="kycStatus" element={<ProtectedRoute roles={["user"]}><KYCRejected /></ProtectedRoute>} />
             <Route
               path="completed-courses"
               element={<CompletedCoursesPage />}

@@ -298,3 +298,40 @@ export const ToastContainer = styled.div`
   right: 20px;
   z-index: 9999;
 `;
+
+// Toggle Switch styled component
+export const ToggleSwitch = styled.input`
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 25px;
+  background-color: ${props => (props.checked ? props.theme.colors.emaraldgreen : '#ccc')};
+  border-radius: 25px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s;
+ 
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: white;
+    transition: transform 0.3s;
+    transform: ${props => (props.checked ? "translateX(25px)" : "translateX(0)")};
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  // &:hover {
+  //   background-color: ${props => (props.checked ? "#ccc" : "#ddd")};
+  // }
+
+`;
