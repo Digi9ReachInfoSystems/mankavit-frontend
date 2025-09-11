@@ -21,13 +21,15 @@ export const Container = styled.div`
 export const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   background-color: var(--bg-soft);
-  padding: 8px 40px;
+  padding: 12px 40px; /* Increased padding to accommodate larger logo */
   font-size: 14px;
   color: var(--muted);
 
   @media (max-width: 576px) {
-    padding: 10px 0px;
+    padding: 12px 20px; /* Adjusted mobile padding */
   }
 `;
 
@@ -39,15 +41,17 @@ export const ToolbarContainer = styled.div`
   padding: 13px 40px;
   font-size: 18px;
   color: var(--muted);
-  width: 79%;
-  margin: 0 auto;
+
+  flex: 1;            /* ✅ fill remaining space between logo and right icons */
+  min-width: 0;       /* ✅ prevents overflow when marquee text is long */
+  margin: 0;  
 
   @media (max-width: 1320px) {
     padding: 5px 30px;
   }
 
   @media (max-width: 1024px) {
-    width: 90%;
+   width: auto;
   }
 
   @media (max-width: 576px) {
@@ -259,6 +263,25 @@ const underline = css`
     background: var(--gradient);
     border-radius: 2px;
     transition: width 0.28s ease;
+  }
+`;
+export const Brand = styled.div`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  // width: 200px;
+`;
+
+export const BrandLogo = styled.img`
+  display: block;
+  height: clamp(56px, 3.5vw, 80px); /* Increased from 22px to 36px min size */
+  width: auto;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  
+  @media (max-width: 576px) {
+    height: clamp(32px, 3vw, 40px); /* Slightly larger on mobile too */
+    margin-left: 0; /* Removed the small margin on mobile */
   }
 `;
 

@@ -4,11 +4,13 @@ export const Container = styled.div`
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   display: flex;
-  
-// height: 100vh;
-  @media (max-width: 576px) {
-    flex-direction: column-reverse;
-    align-items: center;
+
+  // height: 100vh;
+  @media (max-width: 900px) {
+    flex-direction: column; /* stack: Content → Sidebar */
+    align-items: stretch; /* full width children */
+    padding: 12px;
+    gap: 12px;
   }
 `;
 
@@ -16,17 +18,19 @@ export const Content = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100vh;        /* make this the scroll area */
-  overflow-y: auto;     /* enable scrolling here */
+  height: 100vh; /* make this the scroll area */
+  overflow-y: auto; /* enable scrolling here */
   width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
   padding-right: 20px;
-
+  order: 1;
   @media (max-width: 1360px) {
     width: ${(p) => (p.$sidebarOpen ? "75%" : "100%")};
   }
-  @media (max-width: 576px) {
+  @media (max-width: 900px) {
     width: 100%;
     padding-right: 0;
+    height: auto; /* let page scroll, not Content */
+    overflow-y: visible; /* remove inner scroll */
   }
 `;
 
@@ -60,8 +64,8 @@ export const ToggleSidebarBtn = styled.button`
 export const Header = styled.div`
   position: sticky;
   top: 0;
-  z-index: 20;                /* stay above content */
-  background: #ffffff;        /* avoid transparent bleed-through */
+  z-index: 20; /* stay above content */
+  background: #ffffff; /* avoid transparent bleed-through */
   border-bottom: 1px solid #e5e7eb;
   /* optional: subtle frosted look like your footer */
   backdrop-filter: saturate(120%) blur(6px);
@@ -69,10 +73,9 @@ export const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;            /* give the sticky area some height */
+  padding: 10px 0; /* give the sticky area some height */
   margin-bottom: 12px;
 `;
-
 
 export const HeaderLeft = styled.div`
   display: flex;
@@ -118,7 +121,7 @@ export const Timer = styled.div`
 
 export const SectionQuestion = styled.div`
   display: flex;
-  
+
   @media (max-width: 990px) {
     flex-direction: column;
   }
@@ -183,7 +186,7 @@ export const HorizontalLine = styled.div`
 export const QuestionText = styled.p`
   font-size: 16px;
   font-weight: 500;
-  margin: 0 0 20px 0;]
+margin: 0 0 20px 0;
   font-size: 16px;
 
   @media (max-width: 1360px) {
@@ -233,6 +236,9 @@ export const StickyActionBar = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: saturate(120%) blur(6px);
   border-top: 1px solid #e5e7eb;
+   @media (max-width: 900px) {
+    position: static;  /* sits right below Q/A */
+ }
 `;
 
 export const LeftButtonsWrap = styled.div`
@@ -316,14 +322,17 @@ export const SidebarContainer = styled.div`
   flex-direction: column;
   align-items: center;
   font-family: "Segoe UI", sans-serif;
+order: 2;
 
   @media (max-width: 1360px) {
     width: 25%;
   }
-  @media (max-width: 576px) {
-    width: 100%;
-    padding: ${(p) => (p.$open ? "0.5rem" : "0")};
-  }
+ @media (max-width: 900px) {
+   order: 3;                      /* after Content + Buttons */
+   width: 100%;
+   padding: ${(p) => (p.$open ? "0.75rem" : "0")};
+   display: ${(p) => (p.$open ? "flex" : "none")}; /* still toggle-able */
+ }
 `;
 
 export const Divider = styled.hr`
@@ -412,6 +421,11 @@ export const QuestionNav = styled.div`
   max-height: calc(100vh - 260px); /* leaves room for legend/header */
   overflow-y: auto;
   padding-right: 4px;
+
+  @media (max-width: 900px) {
+    max-height: none;
+    overflow-y: visible;
+  }
 `;
 
 export const Grid = styled.div`
@@ -505,7 +519,7 @@ export const QuestionTitle = styled.p`
 export const Complier = styled.div`
   display: flex;
   flex-direction: column;
-   flex-grow: 1;  
+  flex-grow: 1;
 `;
 
 export const ModalOverlay = styled.div`
