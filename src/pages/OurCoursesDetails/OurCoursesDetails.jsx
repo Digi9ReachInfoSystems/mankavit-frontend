@@ -20,4 +20,4 @@ const OurCoursesDetails = () => {
   )
 }
 
-export default OurCoursesDetails
+export default OurCoursesDetails;

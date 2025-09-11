@@ -247,20 +247,42 @@ export const VideoPlayerContainer = styled.div`
 
 
 
-export const FullscreenButton = styled.button`
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  z-index: 20;
-  padding: 8px 12px;
-  border: none;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  border-radius: 6px;
-  font-size: 24px;
-  cursor: pointer;
+// export const FullscreenButton = styled.button`
+//   position: absolute;
+//   bottom: 20px;
+//   right: 20px;
+//   z-index: 20;
+//   padding: 8px 12px;
+//   border: none;
+//   background: rgba(0,0,0,0.6);
+//   color: white;
+//   border-radius: 6px;
+//   font-size: 24px;
+//   cursor: pointer;
 
-  &:hover {
-    background: rgba(0,0,0,0.8);
-  }
+//   &:hover {
+//     background: rgba(0,0,0,0.8);
+//   }
+// `;
+
+export const FullscreenButton = styled.button`
+position: absolute;
+ top: 10px;
+ right: 10px;
+ z-index: 50;                 /* above overlays */
+ padding: 8px 12px;
+ border-radius: 8px;
+ background: rgba(0,0,0,0.55);
+ color: #fff;
+ border: 1px solid rgba(255,255,255,0.35);
+ backdrop-filter: blur(2px);
+ cursor: pointer;
+ font-weight: 600;
+ line-height: 1;
+
+  /* Optional: compact on small screens */
+ @media (max-width: 600px) {
+   padding: 6px 10px;
+   font-size: 12px;
+ }
 `;
