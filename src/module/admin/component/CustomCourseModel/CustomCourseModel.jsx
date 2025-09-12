@@ -9,13 +9,13 @@ import {
   ConfirmButton,
   MocktestList,
   MocktestItem,
-} from "./CustomModal.styles";
+} from "./CustomCourseModel.styles";
 import { getSubjects } from "../../../../api/subjectApi";
 import { getAllCourses } from "../../../../api/courseApi"
 import { Link } from "react-router-dom";
 import { getAuth } from "../../../../utils/authService";
 
-const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
+const CustomCourseModel = ({ title, type, data = [], onClose, onConfirm }) => {
   console.log(type);
   console.log(data);
   const [subjectData, setSubjectData] = useState([]);
@@ -119,15 +119,15 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
       console.log(data);
       return data.map((course, index) => (
         <MocktestItem key={index}>
-          <Link
+          {/* <Link
             to={`/admin/course-management/edit/${course._id}`}
             className="subject-link"
             target="_blank"
             rel="noopener noreferrer"
 
-          >
+          > */}
             {course.courseName}
-          </Link>
+          {/* </Link> */}
         </MocktestItem>
       ));
     }
@@ -199,4 +199,4 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
   );
 };
 
-export default CustomModal;
+export default CustomCourseModel;

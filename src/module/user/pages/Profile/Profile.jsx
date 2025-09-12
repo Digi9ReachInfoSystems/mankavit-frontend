@@ -184,6 +184,7 @@ const Profile = () => {
 
         try {
           const kycResp = await getKYCbyUserId(userIdForKyc);
+          console.log("kycResp", kycResp);
           // If exists, show values and set editability per status
           if (kycResp?.success && kycResp?.data) {
             const k = kycResp.data;
@@ -527,8 +528,8 @@ const Profile = () => {
     }
   };
 
-    // Show T&C only for the first submission flow
-const showTerms = kycStatus === "not-applied";
+  // Show T&C only for the first submission flow
+  const showTerms = kycStatus === "not-applied" || kycStatus === "pending" || kycStatus === "rejected";
 
 
   return (
@@ -909,22 +910,22 @@ const showTerms = kycStatus === "not-applied";
                 </span>
               )}
             </div>
-     {showTerms && (
-  <TermsContainer>
-    <input
-      type="checkbox"
-      checked={acceptedTerms}
-      onChange={(e) => setAcceptedTerms(e.target.checked)}
-      disabled={isKycReadOnly && kycStatus !== "rejected"}
-    />
-    <span>
-      I accept the{" "}
-      <TermsLink onClick={() => navigate("/user/tandc")}>
-        Terms and Conditions
-      </TermsLink>
-    </span>
-  </TermsContainer>
-)}
+            {showTerms && (
+              <TermsContainer>
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  disabled={isKycReadOnly && kycStatus !== "rejected"}
+                />
+                <span>
+                  I accept the{" "}
+                  <TermsLink onClick={() => navigate("/user/tandc")}>
+                    Terms and Conditions
+                  </TermsLink>
+                </span>
+              </TermsContainer>
+            )}
 
 
             {/* CTAs */}
@@ -948,27 +949,28 @@ const showTerms = kycStatus === "not-applied";
                   : "Submitted"}
               </SubmitButton> */}
 
-           {kycStatus === "not-applied" || kycStatus === "rejected" ? (
-  <SubmitButton
-    as="button"
-    type="submit"
-    onClick={handleSubmitKyc}
-    disabled={
-      isLoading ||
-      (isKycReadOnly && kycStatus !== "rejected") ||
-      !acceptedTerms ||
-      !!validateKyc()   // 🚀 disable if validation fails
-    }
-  >
-    {isLoading
-      ? "Saving..."
-      : kycStatus === "not-applied"
-      ? "Submit KYC"
-      : "Resubmit KYC"}
-  </SubmitButton>
-) : (
-  <GreyButton disabled>Submitted</GreyButton>
-)}
+              {kycStatus === "not-applied" || kycStatus === "rejected" ? (
+                <SubmitButton
+                  as="button"
+                  type="submit"
+                  onClick={handleSubmitKyc}
+                  disabled={
+                    isLoading
+                    ||
+                    (isKycReadOnly || kycStatus !== "rejected")
+                    ||
+                    !acceptedTerms || !!validateKyc()   // 🚀 disable if validation fails
+                  }
+                >
+                  {isLoading
+                    ? "Saving..."
+                    : kycStatus === "not-applied"
+                      ? "Submit KYC"
+                      : "Resubmit KYC"}
+                </SubmitButton>
+              ) : (
+                <GreyButton disabled>Submitted</GreyButton>
+              )}
 
               <SubmitButton
                 type="button"
@@ -1019,7 +1021,7 @@ const showTerms = kycStatus === "not-applied";
             setShowPasswordModal(false);
           }}
         >
- <PasswordModal onClick={(e) => e.stopPropagation()}>
+          <PasswordModal onClick={(e) => e.stopPropagation()}>
 
             <CloseButton
               onClick={() => {
