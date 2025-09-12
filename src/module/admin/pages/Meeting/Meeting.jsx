@@ -39,6 +39,7 @@ import { getCookiesData } from "../../../../utils/cookiesService";
 import { getUserByUserId } from "../../../../api/authApi";
 import { getAuth } from "../../../../utils/authService";
 import { set } from "date-fns";
+import CustomCourseModel from "../../component/CustomCourseModel/CustomCourseModel";
 
 
 
@@ -619,7 +620,7 @@ export default function Meeting() {
                     onDelete={handleConfirmDelete}
                 />
                 {modalOpen && (
-                    <CustomModal
+                   <CustomCourseModel
                         title={
                             modalType === "subjects"
                                 ? "Subjects"

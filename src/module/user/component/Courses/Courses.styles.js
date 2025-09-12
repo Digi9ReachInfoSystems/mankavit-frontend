@@ -312,3 +312,19 @@ export const liveClassBadge = styled.span`
   display: inline-flex;
   align-items: center;
 `;
+
+
+export const ViewAllButton = styled.button`
+  background: linear-gradient(to right, #0dcaf0, #007bff);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+  border-radius: 999px;
+  &:hover {
+    opacity: 0.9;
+  }
+`;

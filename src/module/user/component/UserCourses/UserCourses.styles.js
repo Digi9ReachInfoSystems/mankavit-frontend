@@ -293,7 +293,7 @@ export const ShowMoreBar = styled.div`
 `;
 
 export const ToggleAllButton = styled.button`
-  background: #111827;
+  background: linear-gradient(to right, #0dcaf0, #007bff);
   color: #fff;
   border: none;
   border-radius: 999px;

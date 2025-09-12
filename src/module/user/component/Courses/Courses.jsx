@@ -1,36 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import {
-    CourseWrapper,
-    Title,
-    CardGrid,
-    CourseCard,
-    ImageWrapper,
-    ProgressContainer,
-    ProgressLabel,
-    ProgressBar,
-    // ProgressBarContainer,
-    ProgressFill,
-    CourseContent,
-    CourseMain,
-    // CourseHead,
-    CourseTitle,
-    CourseMinititle,
-    CourseDesc,
-    Details,
-    DetailItem,
-    DetailItemok,
-    PriceActions,
-    ViewButton,
-    NoCourseFoundButton,
-    liveClassBadge,
-    BlinkingIcon
+  CourseWrapper,
+  Title,
+  CardGrid,
+  CourseCard,
+  ImageWrapper,
+  ProgressContainer,
+  ProgressLabel,
+  ProgressBar,
+  ProgressFill,
+  CourseContent,
+  CourseMain,
+  CourseTitle,
+  Details,
+  DetailItemok,
+  PriceActions,
+  ViewButton,
+  NoCourseFoundButton,
+  BlinkingIcon,
+  ViewAllButton
 } from './Courses.styles';
 import lawimg from "../../../../assets/lawentrance.png";
-import { FcCalendar } from "react-icons/fc";
-import { FaStar } from "react-icons/fa";
 import { FcOk } from "react-icons/fc";
 import {
-    getAllEnrolledCourses,
+  getAllEnrolledCourses,
 } from '../../../../api/userDashboardAPI';
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { Link, useNavigate } from 'react-router-dom';
@@ -39,262 +32,188 @@ import { getLiveMeetings } from '../../../../api/meetingApi';
 import { getUserByUserId } from '../../../../api/authApi';
 
 const Courses = () => {
-    const [courses, setCourses] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { userId } = getCookiesData();
-    const [userData, setUserData] = useState({});
-    const navigate = useNavigate();
-    const [liveStatus, setLiveStatus] = useState({});
-    const getCtaText = (course) => {
-        const completed = course.course_status === "completed";
-        const pct = Number(course.completePercentage || 0);
-        const isZero = pct === 0;
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { userId } = getCookiesData();
+  const [userData, setUserData] = useState({});
+  const navigate = useNavigate();
+  const [liveStatus, setLiveStatus] = useState({});
+  const [showAll, setShowAll] = useState(false);
 
-        if (completed) return "Completed";
-        // If KYC required and user hasn't applied / was rejected, keep your original message
-        if (
-            !course.kycStatus &&
-            (course.userKycStatus === "not-applied" ||
-                course.userKycStatus === "rejected")
-        ) {
-            return "Complete KYC to continue";
-        }
-        // Otherwise decide based on progress
-        return isZero ? "Start Learning" : "Continue Learning";
-    };
-    useEffect(() => {
-        if (courses.length === 0) return;
-        const ids = courses.map(c => c._id);
-        console.log("ids", ids);
-        pollLiveStatuses(ids);
-        const interval = setInterval(() => pollLiveStatuses(ids), 30000);
-        return () => clearInterval(interval);
-    }, [courses]);
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                setLoading(true);
-                const userData= await getUserByUserId(userId);
-                setUserData(userData.user);
-                const response = await getAllEnrolledCourses(userId);
-                console.log("response", response);
-                // Corrected data extraction based on your API response
-                if (response && response.enrolledCourses) {
-                    setCourses(response.enrolledCourses);
+  const getCtaText = (course) => {
+    const completed = course.course_status === "completed";
+    const pct = Number(course.completePercentage || 0);
+    const isZero = pct === 0;
 
-                }
-                else {
-                    setCourses([]);
-                }
-            } catch (err) {
-                setError(err.message || 'Failed to fetch courses');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    if (completed) return "Completed";
+    if (
+      !course.kycStatus &&
+      (course.userKycStatus === "not-applied" || course.userKycStatus === "rejected")
+    ) {
+      return "Complete KYC to continue";
+    }
+    return isZero ? "Start Learning" : "Continue Learning";
+  };
 
-        if (userId) {
-            fetchCourses();
+  useEffect(() => {
+    if (courses.length === 0) return;
+    const ids = courses.map(c => c._id);
+    pollLiveStatuses(ids);
+    const interval = setInterval(() => pollLiveStatuses(ids), 30000);
+    return () => clearInterval(interval);
+  }, [courses]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const userData = await getUserByUserId(userId);
+        setUserData(userData.user);
+        const response = await getAllEnrolledCourses(userId);
+        if (response && response.enrolledCourses) {
+          setCourses(response.enrolledCourses);
         } else {
-            setError('User ID not found. Please login again.');
-            setLoading(false);
+          setCourses([]);
         }
-    }, [userId]);
-    const pollLiveStatuses = async (courseIds) => {
-        try {
-            const res = await getLiveMeetings({ courseIds });
-            console.log("live meetings", res);
-            // res.data may contain active meetings, group by courseId
-            const statusMap = {};
-            res.data.forEach(meeting => {
-                console.log("meeting", meeting);
-                meeting.course_Ref.map(id => {
-                    statusMap[id._id] = true;
-                })
-
-            });
-            setLiveStatus(statusMap);
-        } catch (err) {
-            console.error("Error fetching live statuses", err);
-        }
+      } catch (err) {
+        setError(err.message || 'Failed to fetch courses');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const renderStars = (rating) => {
-        if (!rating) return null;
-
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <FaStar
-                    key={i}
-                    color={i <= Math.floor(rating) ? '#facc15' : '#e4e5e9'}
-                    style={{ marginRight: 4 }}
-                />
-            );
-        }
-        return stars;
-    };
-
-    if (loading) {
-        return (
-            <CourseWrapper>
-                <Title>My Courses</Title>
-                <div style={{ textAlign: 'center', padding: '2rem' }}>
-                    Loading your courses...
-                </div>
-            </CourseWrapper>
-        );
+    if (userId) {
+      fetchCourses();
+    } else {
+      setError('User ID not found. Please login again.');
+      setLoading(false);
     }
+  }, [userId]);
 
-    if (error) {
-        return (
-            <CourseWrapper>
-                <Title>My Courses</Title>
-                <div style={{ color: 'red', textAlign: 'center', padding: '2rem' }}>
-                    {error}
-                </div>
-            </CourseWrapper>
-        );
+  const pollLiveStatuses = async (courseIds) => {
+    try {
+      const res = await getLiveMeetings({ courseIds });
+      const statusMap = {};
+      res.data.forEach(meeting => {
+        meeting.course_Ref.map(id => {
+          statusMap[id._id] = true;
+        });
+      });
+      setLiveStatus(statusMap);
+    } catch (err) {
+      console.error("Error fetching live statuses", err);
     }
+  };
 
-
+  if (loading) {
     return (
-        <CourseWrapper>
-            <Title>My Courses  </Title>
-
-            <CardGrid>
-                {courses.length > 0 ? (
-                    courses.map((course, index) => (
-                        <CourseCard key={index} completed={course.course_status === "completed"}>
-                            <ImageWrapper>
-                                <img src={course.image || lawimg} alt="Course Banner" />
-                            </ImageWrapper>
-
-
-                            <ProgressContainer>
-                                <ProgressLabel>{course.completePercentage || 0}% Completed</ProgressLabel>
-                                <ProgressBar>
-                                    <ProgressFill style={{ width: `${course.completePercentage || 0}%` }} />
-                                </ProgressBar>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                                    <ProgressLabel style={{ color: "#22c55e" }}></ProgressLabel>
-                                    {/* <div className='stars' style={{ color: '#facc15' }}>
-                                        {renderStars(course.course_rating)}
-                                    </div> */}
-                                </div>
-                            </ProgressContainer>
-
-                            {liveStatus[course._id] && (
-                                <BlinkingIcon>
-                                    🔴 Live Class Ongoing
-
-                                </BlinkingIcon>
-                            )}
-                            <CourseContent>
-                                <CourseMain>
-                                    {/* <CourseHead> */}
-                                    <CourseTitle>{course.courseDisplayName || course.courseName || 'Course Title'}</CourseTitle>
-                                    {/* <CourseMinititle>{course.shortDescription || 'Course Description'}</CourseMinititle> */}
-                                    {/* </CourseHead> */}
-                                    {/* <CourseMinititle dangerouslySetInnerHTML={{ __html: course.shortDescription.slice(0, 60) + "..." || 'Course Description' }} /> */}
-                                    {/* <CourseDesc>{course.description || 'Course description not available'}</CourseDesc> */}
-                                    {/* <CourseDesc dangerouslySetInnerHTML={{ __html: course.description.slice(0, 60) + "..." || 'Course description not available' }} /> */}
-                                </CourseMain>
-
-                                {course.course_status !== "completed" ? (
-                                    <Details>
-                                        {/* <DetailItem><FcCalendar /> Duration: {course.duration || 'N/A'} months</DetailItem> */}
-                                        {/* <DetailItem>🏆 Success Rate: {course.successRate || 'N/A'}%</DetailItem> */}
-                                        <DetailItemok style={{ color: "#206666ff" }}>Finish 100% to unlock the certificate</DetailItemok>
-
-                                    </Details>
-                                ) : (
-                                    <Details>
-                                        <DetailItemok>
-                                            <FcOk fontSize={30} /> You have successfully Completed this course
-                                        </DetailItemok>
-                                    </Details>
-                                )}
-
-
-                            </CourseContent>
-
-                            <PriceActions>
-                                <ViewButton
-                                    completed={course.course_status === "completed"}
-                                    onClick={async () => {
-                                        // console.log("course", course,userData);
-                                        if (
-                                            userData.kyc_status === "not-applied" ||
-                                            userData.kyc_status === "rejected"
-                                        ) {
-                                            navigate(`/user/kycStatus`);
-                                        } else {
-                                            navigate(`/continueCourse/${course._id}`);
-                                        }
-                                        // if (course.kycStatus) {
-                                        //     console.log("KYC already done", course);
-                                        //     const response = await startCourse(userId, course._id);
-                                        //     console.log("start course response", response);
-                                        //     if (response) {
-                                        //         // Successfully started the course, navigate to course content
-                                        //         navigate(`/continueCourse/${course._id}`);
-                                        //     } else {
-
-                                        //     }
-                                        //     // navigate(`/continueCourse/${course._id}`);
-                                        // } else {
-                                        //     if (
-                                        //         course.userKycStatus == "not-applied" ||
-                                        //         course.userKycStatus == "rejected"
-                                        //     ) {
-                                        //         navigate(`/kyc`);
-                                        //     } else {
-
-                                        //         const response = await startCourse(userId, course._id);
-                                        //         console.log("start course response", response);
-                                        //         if (response.success) {
-                                        //             // Successfully started the course, navigate to course content
-                                        //             // navigate(`/continueCourse/${course._id}`);
-                                        //         } else {
-
-                                        //         }
-                                        //         //   navigate(`/continueCourse/${course._id}`);
-                                        //     }
-                                        // }
-                                    }}
-                                >
-                                    {getCtaText(course)}
-                                </ViewButton>
-
-                            </PriceActions>
-                        </CourseCard>
-                    ))
-                ) : (
-                    <div style={{
-                        // gridColumn: '1 / -1',
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        padding: '2rem',
-                        fontSize: '1.2rem',
-                        color: '#666'
-
-                    }}>
-                        <div>
-                            No courses found.
-                            <Link to={"/ourcoursedetails"}>  <NoCourseFoundButton >
-                                Explore our courses
-                            </NoCourseFoundButton></Link>
-                        </div>
-                    </div>
-                )}
-            </CardGrid>
-        </CourseWrapper>
+      <CourseWrapper>
+        <Title>My Courses</Title>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading your courses...
+        </div>
+      </CourseWrapper>
     );
+  }
+
+  if (error) {
+    return (
+      <CourseWrapper>
+        <Title>My Courses</Title>
+        <div style={{ color: 'red', textAlign: 'center', padding: '2rem' }}>
+          {error}
+        </div>
+      </CourseWrapper>
+    );
+  }
+
+  // Slice courses if showAll is false
+  const displayedCourses = showAll ? courses : courses.slice(0, 4);
+
+  return (
+    <CourseWrapper>
+      <Title>My Courses</Title>
+      <CardGrid>
+        {displayedCourses.length > 0 ? (
+          displayedCourses.map((course, index) => (
+            <CourseCard key={index} completed={course.course_status === "completed"}>
+              <ImageWrapper>
+                <img src={course.image || lawimg} alt="Course Banner" />
+              </ImageWrapper>
+
+              <ProgressContainer>
+                <ProgressLabel>{course.completePercentage || 0}% Completed</ProgressLabel>
+                <ProgressBar>
+                  <ProgressFill style={{ width: `${course.completePercentage || 0}%` }} />
+                </ProgressBar>
+              </ProgressContainer>
+
+              {liveStatus[course._id] && (
+                <BlinkingIcon>🔴 Live Class Ongoing</BlinkingIcon>
+              )}
+
+              <CourseContent>
+                <CourseMain>
+                  <CourseTitle>
+                    {course.courseDisplayName || course.courseName || 'Course Title'}
+                  </CourseTitle>
+                </CourseMain>
+
+                {course.course_status !== "completed" ? (
+                  <Details>
+                    <DetailItemok style={{ color: "#206666ff" }}>
+                      Finish 100% to unlock the certificate
+                    </DetailItemok>
+                  </Details>
+                ) : (
+                  <Details>
+                    <DetailItemok>
+                      <FcOk fontSize={30} /> You have successfully completed this course
+                    </DetailItemok>
+                  </Details>
+                )}
+              </CourseContent>
+
+              <PriceActions>
+                <ViewButton
+                  completed={course.course_status === "completed"}
+                  onClick={() => {
+                    if (
+                      userData.kyc_status === "not-applied" ||
+                      userData.kyc_status === "rejected"
+                    ) {
+                      navigate(`/user/kycStatus`);
+                    } else {
+                      navigate(`/continueCourse/${course._id}`);
+                    }
+                  }}
+                >
+                  {getCtaText(course)}
+                </ViewButton>
+              </PriceActions>
+            </CourseCard>
+          ))
+        ) : (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            No courses found.{" "}
+            <Link to={"/ourcoursedetails"}>
+              <NoCourseFoundButton>Explore our courses</NoCourseFoundButton>
+            </Link>
+          </div>
+        )}
+      </CardGrid>
+
+      {/* Show "View All" if more than 4 courses */}
+      {courses.length > 4 && (
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <ViewAllButton onClick={() => setShowAll(!showAll)}>
+            {showAll ? "Show Less" : "View All"}
+          </ViewAllButton>
+        </div>
+      )}
+    </CourseWrapper>
+  );
 };
 
 export default Courses;
