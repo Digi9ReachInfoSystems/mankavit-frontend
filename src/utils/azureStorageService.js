@@ -7,11 +7,11 @@ export const uploadFileToAzureStorage = async (file, containerName) => {
     console.log("containerName", containerName);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("containerName", containerName);
+    formData.append("containerName", `ProjectUploads/${containerName}`);
     console.log("formData", formData);
 
     try {
-        const response = await api.post("/upload/uploadData", formData, {
+        const response = await api.post("/cloudfareR2/upload-files", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
