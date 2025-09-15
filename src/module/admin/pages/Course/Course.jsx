@@ -24,7 +24,7 @@ import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Select, Switch } from "antd";
 import {
   deleteCourseById,
@@ -191,34 +191,37 @@ export default function CoursesTable() {
     }
   };
 
-const handlePublishToggle = async (id, checked) => {
-  if (readOnlyPermissions) {
-    toast.error("You don't have permission to change publish status");
-    return;
-  }
+  const handlePublishToggle = async (id, checked) => {
+    if (readOnlyPermissions) {
+      toast.error("You don't have permission to change publish status");
+      return;
+    }
 
-  // Optimistic UI update
-  setData((d) =>
-    d.map((c) => (c.id === id ? { ...c, isPublished: checked } : c))
-  );
-
-  try {
-    // Call the publish/unpublish API
-    await publishCourse(id);
-    console.log(`Course ${checked ? "published" : "unpublished"} successfully`, id);
-    toast.success(
-      `Course ${checked ? "published" : "unpublished"} successfully`
-    );
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update publication status");
-    
-    // Rollback on error
+    // Optimistic UI update
     setData((d) =>
-      d.map((c) => (c.id === id ? { ...c, isPublished: !checked } : c))
+      d.map((c) => (c.id === id ? { ...c, isPublished: checked } : c))
     );
-  }
-};
+
+    try {
+      // Call the publish/unpublish API
+      await publishCourse(id);
+      console.log(
+        `Course ${checked ? "published" : "unpublished"} successfully`,
+        id
+      );
+      toast.success(
+        `Course ${checked ? "published" : "unpublished"} successfully`
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update publication status");
+
+      // Rollback on error
+      setData((d) =>
+        d.map((c) => (c.id === id ? { ...c, isPublished: !checked } : c))
+      );
+    }
+  };
 
   const openModal = (type, data) => {
     setModalType(type);
@@ -363,7 +366,7 @@ const handlePublishToggle = async (id, checked) => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search"
-            style={{color: "black"}}
+            style={{ color: "black" }}
           />
         </SearchWrapper>
 
@@ -407,24 +410,22 @@ const handlePublishToggle = async (id, checked) => {
                       )}
 
                       <TableCell>
-                        <a
-                          href="#"
-                          onClick={() =>
-                            navigate(`/admin/course-management/edit/${c.id}`)
-                          }
+                        <Link
+                          to={`/admin/course-management/edit/${c.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           {c.courseName}
-                        </a>
+                        </Link>
                       </TableCell>
                       <TableCell>
-                        <a
-                          href="#"
-                          onClick={() =>
-                            navigate(`/admin/course-management/edit/${c.id}`)
-                          }
+                        <Link
+                          to={`/admin/course-management/edit/${c.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           {c.internalName}
-                        </a>
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {c.subjects?.length}{" "}

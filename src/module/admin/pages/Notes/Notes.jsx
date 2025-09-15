@@ -22,7 +22,7 @@ import {
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import Pagination from "../../component/Pagination/Pagination";
 import CustomModal from "../../component/CustomModal/CustomModal";
@@ -304,7 +304,7 @@ export default function NotesManagement() {
                   }
 
                   <TableCell>
-                    <a
+                    {/* <a
                       href="#"
                       onClick={() => {
                         navigate(`/admin/notes-management/edit/${item.id}`, { state: { item } });
@@ -312,7 +312,12 @@ export default function NotesManagement() {
                       }
                     >
                       {item.noteTitle}
-                    </a>
+                    </a> */}
+                    <Link to={`/admin/notes-management/edit/${item.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{item.noteTitle}</Link>
+                    
                   </TableCell>
                   <TableCell>
                     <a

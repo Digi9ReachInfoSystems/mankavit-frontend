@@ -1,6 +1,6 @@
 // Lecturer.js
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
 import { BiEditAlt } from 'react-icons/bi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
@@ -353,7 +353,7 @@ export default function Lecturer() {
                   }
 
                   <TableCell>
-                    <a
+                    {/* <a
                       href="#"
                       onClick={() =>
                         navigate(`/admin/lecturer-management/edit/${item._id}`, {
@@ -362,7 +362,13 @@ export default function Lecturer() {
                       }
                     >
                       {item.lectureName}
-                    </a>
+                    </a> */}
+
+                    <Link to={`/admin/lecturer-management/edit/${item._id}`}
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      {item.lectureName}
+                    </Link>
                   </TableCell>
                   {/* <TableCell>{item.description || '-'}</TableCell> */}
                   {/* <TableCell>{item.duration || '-'}</TableCell> */}

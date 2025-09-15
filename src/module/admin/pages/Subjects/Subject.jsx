@@ -23,7 +23,7 @@ import {
 } from "../Subjects/Subject.style";
 import Pagination from "../../component/Pagination/Pagination";
 import { CiSearch } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import DeleteModal from "../../../admin/component/DeleteModal/DeleteModal";
@@ -462,7 +462,7 @@ export default function Subjects() {
                   )}
 
                   <TableCell>
-                    <a
+                    {/* <a
                       href="#"
                       onClick={() => {
                         navigate(`/admin/subject-management/edit/${item.id}`, {
@@ -471,7 +471,14 @@ export default function Subjects() {
                       }}
                     >
                       {item.subjectName}
-                    </a>
+                    </a> */}
+
+                    <Link to={`/admin/subject-management/edit/${item.id}`}
+                    target="_blank"
+                    
+                    rel="noopener noreferrer">
+                      {item.subjectName}
+                    </Link>
                   </TableCell>
                   <TableCell>
                     {/* <a

@@ -116,7 +116,7 @@ export  const SecCircle = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 80px;
+  font-size: 60px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 1rem;
