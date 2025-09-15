@@ -155,3 +155,19 @@ export const UploadFileName = styled.span`
 export const HiddenFileInput = styled.input`
   display: none;
 `;
+
+export const TextArea = styled.textarea`
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 80px;
+  
+  &:focus {
+    outline: none;
+    border-color: #2d79f3;
+    box-shadow: 0 0 0 2px rgba(45, 121, 243, 0.2);
+  }
+`;
