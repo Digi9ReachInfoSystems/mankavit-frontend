@@ -204,7 +204,9 @@ const Header = () => {
     <Container>
       <TopBar>
         <Brand>
+     <Link to="/">
          <BrandLogo src={Mankavitlogo} alt="Mankavit" />
+          </Link>
        </Brand>
         <ToolbarContainer>
           <Headline

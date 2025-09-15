@@ -21,6 +21,16 @@ import {
 } from './Achievers.styles';
 import { getAllAchievers } from '../../../api/achieverApi';
 
+const normalizeExam = (raw) => {
+  // Remove standalone 4-digit years, collapse spaces, uppercase for consistent keys
+  return String(raw ?? 'Unknown')
+    .replace(/\b(19|20)\d{2}\b/g, '') // drop years like 2022, 2023, 2024...
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+};
+
+
 const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) => {
   const [achievers, setAchievers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +43,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
       try {
         setLoading(true);
         const res = await getAllAchievers();
+        console.log('Fetched achievers:', res);
         const list = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
 
         const sorted = list.slice().sort((a, b) => {
@@ -53,19 +64,20 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
     fetchAchievers();
   }, []);
 
-  const { examOptions, countsByExam } = useMemo(() => {
+ const { examOptions, countsByExam } = useMemo(() => {
     const counts = achievers.reduce((acc, cur) => {
-      const key = (cur?.exam_name || 'Unknown').trim();
+      const key = normalizeExam(cur?.exam_name);
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
     const options = Object.keys(counts).sort((a, b) => a.localeCompare(b));
     return { examOptions: options, countsByExam: counts };
   }, [achievers]);
+  
 
-  const filteredAchievers = useMemo(() => {
+ const filteredAchievers = useMemo(() => {
     if (selectedExam === 'All') return achievers;
-    return achievers.filter(a => (a?.exam_name || 'Unknown').trim() === selectedExam);
+    return achievers.filter(a => normalizeExam(a?.exam_name) === selectedExam);
   }, [achievers, selectedExam]);
 
   const visible = showAll ? filteredAchievers : filteredAchievers.slice(0, 8);
@@ -96,7 +108,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
         <Title>
           Meet Our <Highlight>Achievers</Highlight>
         </Title>
-        <FilterLabel>Filter by exam:</FilterLabel>
+        {/* <FilterLabel>Filter by exam:</FilterLabel> */}
       </SectionHeader>
 
       <TopBar role="tablist" aria-label="Filter achievers by exam">

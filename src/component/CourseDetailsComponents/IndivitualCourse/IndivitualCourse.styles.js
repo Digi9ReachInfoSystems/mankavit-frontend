@@ -6,6 +6,7 @@ export const Container = styled.div`
   color: #333;
   width:80%;
   margin: 0 auto;
+  
 
   @media (max-width: 1360px) {
     width:90%;
@@ -484,6 +485,7 @@ export const Layout = styled.div`
   align-items: start;
   margin-top: 8px;
 
+
   @media (max-width: 992px) {
     grid-template-columns: 1fr; /* stack on small screens */
   }
@@ -493,6 +495,17 @@ export const RightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+`;
+
+export const Hello = styled.div`
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 2fr;
+  gap: 24px;
+  align-items: stretch;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr; /* stack on small screens */
+  }
 `;
 
 
@@ -514,3 +527,20 @@ export const RightColumn = styled.div`
 //                 ))}
 //               </FeatureColumn>
 //             </FeaturesContainer>
+
+export const LeftCol = styled.div`
+  background: linear-gradient(to right, #D4D7EA, #D4D7EA);         /* full-column red */
+  border-radius: 10px;
+  padding: 12px;
+  align-self: stretch;     /* make this grid item fill the row height */
+
+
+`;
+
+export const LeftSticky = styled.div`
+  position: sticky;
+  top: 16px;               /* keep your sticky behavior */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
