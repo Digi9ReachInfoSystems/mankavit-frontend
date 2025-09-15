@@ -896,17 +896,17 @@ const Profile = () => {
               <strong>KYC Status:</strong> {kycStatus}
               {isKycReadOnly && kycStatus === "approved" && (
                 <span style={{ marginLeft: 8, color: "green" }}>
-                  (read-only)
+                  (Read-only)
                 </span>
               )}
               {isKycReadOnly && kycStatus === "pending" && (
                 <span style={{ marginLeft: 8, color: "#e69100" }}>
-                  (submitted, under review)
+                  (Submitted, Under review)
                 </span>
               )}
               {!isKycReadOnly && kycStatus === "rejected" && (
                 <span style={{ marginLeft: 8, color: "#c00" }}>
-                  (rejected — please correct and resubmit)
+                  (Rejected — Please correct and resubmit)
                 </span>
               )}
             </div>
@@ -954,13 +954,13 @@ const Profile = () => {
                   as="button"
                   type="submit"
                   onClick={handleSubmitKyc}
-                  disabled={
-                    isLoading
-                    ||
-                    (isKycReadOnly || kycStatus !== "rejected")
-                    ||
-                    !acceptedTerms || !!validateKyc()   // 🚀 disable if validation fails
-                  }
+                disabled={
+  isLoading
+  || (isKycReadOnly && kycStatus !== "rejected")
+  || !acceptedTerms
+  || !!validateKyc()
+}
+
                 >
                   {isLoading
                     ? "Saving..."

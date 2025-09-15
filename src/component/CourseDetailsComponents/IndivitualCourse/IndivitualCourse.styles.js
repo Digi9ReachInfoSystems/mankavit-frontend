@@ -80,7 +80,7 @@ export const CourseIncludes = styled.h3`
 
 export const CourseImage = styled.img`
   width: 100%;
-  height: 600px;
+  // height: 600px;
   border-radius: 10px;
   margin-bottom: 10px;
 `;
@@ -476,3 +476,41 @@ export const SubjectListItem = styled.li`
   font-weight: 400;
   color: #313131;
 `;
+
+export const Layout = styled.div`
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;  /* image bigger than info */
+  gap: 24px;
+  align-items: start;
+  margin-top: 8px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr; /* stack on small screens */
+  }
+`;
+
+export const RightColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+
+//  <FeaturesContainer>
+//               <FeatureColumn>
+//                 <p style={{ fontWeight: "bold", fontSize: "24px" }}>Subjects included:</p>
+//                 {course.subjects.map((subj, idx) => (
+//                   <div
+//                     key={idx}
+//                     style={{
+//                       display: "flex",
+//                       // alignItems: "center",
+//                       // margin: "4px 0",
+//                     }}
+//                   >
+//                     <Bullet>•</Bullet>
+//                     <Feature>{subj.subjectName}</Feature>
+//                   </div>
+//                 ))}
+//               </FeatureColumn>
+//             </FeaturesContainer>

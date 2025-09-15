@@ -92,7 +92,8 @@ export const Avatar = styled.img`
   border-radius: 50%; object-fit: cover;
 `;
 
-export const CardBody = styled.div` padding: 14px 14px 16px; `;
+export const CardBody = styled.div` padding: 14px 14px 16px;
+height: 150px;`;
 export const CardTitle = styled.h3`
   font-size: 16px; font-weight: 700; color: #1b1b1b;
   margin: 0 0 6px; line-height: 1.25;
@@ -105,5 +106,5 @@ text-align: center; `;
 export const Subtitle = styled.p`
   font-size: 13px; color: #555; line-height: 1.45; margin: 0;
   text-align: center;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  // display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 `;
