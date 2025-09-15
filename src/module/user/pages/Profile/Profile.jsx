@@ -543,7 +543,7 @@ const Profile = () => {
         <Form onSubmit={handleSubmitKyc}>
           {/* Header: Profile Photo + Save Avatar (optional) */}
           <div style={{ position: "relative", display: "inline-block" }}>
-            <ProfileImage src={profileImage} alt="Profile" />
+            <ProfileImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${profileImage}`} alt="Profile" />
             <CameraImage
               src={cameraIcon}
               alt="Change"

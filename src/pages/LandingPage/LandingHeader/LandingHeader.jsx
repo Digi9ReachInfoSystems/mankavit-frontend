@@ -341,7 +341,7 @@ const Header = () => {
                 <DashboardButton onClick={handleLogout}>
                   Dashboard
                   <img
-                    src={userDetails?.photo_url}
+                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${userDetails?.photo_url}`}
                     alt="Profile"
                     className="profile-icon"
                   />
