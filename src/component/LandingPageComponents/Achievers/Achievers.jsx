@@ -3,21 +3,21 @@ import {
   AchieversSection,
   Title,
   Highlight,
-  Description,
   Grid,
   Card,
   AvatarWrap,
   Avatar,
   Name,
   Achievement,
-  ProgressBarWrapper,
-  ProgressBar,
   LoadingMessage,
   ErrorMessage,
   ViewAllButton,
   TopBar,
   Chip,
   ChipCount,
+  SectionHeader,
+  FilterLabel,
+  AchievementText,
 } from './Achievers.styles';
 import { getAllAchievers } from '../../../api/achieverApi';
 
@@ -26,7 +26,6 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [selectedExam, setSelectedExam] = useState('All');
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
         const res = await getAllAchievers();
         const list = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
 
-        // sort by sequence ascending: 1, 1.1, 2, 2.1 ...
         const sorted = list.slice().sort((a, b) => {
           const A = Number.parseFloat(a?.sequence ?? Number.POSITIVE_INFINITY);
           const B = Number.parseFloat(b?.sequence ?? Number.POSITIVE_INFINITY);
@@ -55,7 +53,6 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
     fetchAchievers();
   }, []);
 
-  // Build exam options + counts
   const { examOptions, countsByExam } = useMemo(() => {
     const counts = achievers.reduce((acc, cur) => {
       const key = (cur?.exam_name || 'Unknown').trim();
@@ -66,13 +63,11 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
     return { examOptions: options, countsByExam: counts };
   }, [achievers]);
 
-  // Filter achievers based on selected exam
   const filteredAchievers = useMemo(() => {
     if (selectedExam === 'All') return achievers;
     return achievers.filter(a => (a?.exam_name || 'Unknown').trim() === selectedExam);
   }, [achievers, selectedExam]);
 
-  // limit to 8 unless "view all"
   const visible = showAll ? filteredAchievers : filteredAchievers.slice(0, 8);
 
   if (loading) return <LoadingMessage>Loading achievers...</LoadingMessage>;
@@ -89,7 +84,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
 
   const handleSelect = (exam) => {
     setSelectedExam(exam);
-    setShowAll(false); // reset pagination whenever filter changes
+    setShowAll(false);
   };
 
   const totalCount = achievers.length;
@@ -97,11 +92,13 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
 
   return (
     <AchieversSection>
-      <Title>
-        Meet Our <Highlight>Achievers</Highlight>
-      </Title>
+      <SectionHeader>
+        <Title>
+          Meet Our <Highlight>Achievers</Highlight>
+        </Title>
+        <FilterLabel>Filter by exam:</FilterLabel>
+      </SectionHeader>
 
-      {/* Horizontal filter top bar */}
       <TopBar role="tablist" aria-label="Filter achievers by exam">
         <Chip
           role="tab"
@@ -126,7 +123,6 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
         ))}
       </TopBar>
 
-      {/* Grid of cards */}
       <Grid>
         {visible.map((achiever, idx) => (
           <Card key={achiever._id || idx}>
@@ -135,19 +131,14 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
             </AvatarWrap>
             <Name>{(achiever.name || '').toUpperCase()}</Name>
             <Achievement>
-              {/* “CLAT PG 2022 - AIR 1” style */}
-              {achiever.exam_name}{achiever.exam_name ? ' - ' : ''}AIR {achiever.rank}
+              <AchievementText>
+                {achiever.exam_name}{achiever.exam_name ? ' - ' : ''}AIR {achiever.rank}
+              </AchievementText>
             </Achievement>
           </Card>
         ))}
       </Grid>
 
-      {/* Optional progress bar (kept for visual polish) */}
-      <ProgressBarWrapper>
-        <ProgressBar width={scrollProgress} />
-      </ProgressBarWrapper>
-
-      {/* VIEW ALL button shows only when there are > 8 filtered items and not already showing all */}
       {!showAll && filteredCount > 8 && (
         <ViewAllButton onClick={handleViewAll}>VIEW ALL</ViewAllButton>
       )}
