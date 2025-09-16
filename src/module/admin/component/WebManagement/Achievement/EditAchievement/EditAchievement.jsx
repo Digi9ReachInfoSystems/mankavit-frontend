@@ -254,7 +254,7 @@ const EditAchievement = () => {
             />
           ) : existingImageUrl ? (
             <img 
-              src={existingImageUrl} 
+              src={existingImageUrl.startsWith('data:') ? existingImageUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${existingImageUrl}`} 
               alt="Existing" 
               style={{ maxWidth: '100%', maxHeight: '200px' }} 
             />

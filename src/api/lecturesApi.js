@@ -86,3 +86,13 @@ export const rearrangeLectures = async (data) => {
         throw error;
     }
 };
+
+export const getFolders = async () => {
+    try {
+        const response = await api.get('/cloudfareR2/list-folders/');
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

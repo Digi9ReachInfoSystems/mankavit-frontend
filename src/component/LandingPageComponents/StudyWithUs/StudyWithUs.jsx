@@ -108,7 +108,7 @@ const StudyWithUs = () => {
               <Slide key={item._id || idx}>
                 <Visual $bg={pastel[idx % pastel.length]}>
                   <AvatarWrap>
-                    <Avatar src={item.image} alt={item.title} loading="lazy" />
+                    <Avatar src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${item.image}`} alt={item.title} loading="lazy" />
                   </AvatarWrap>
                 </Visual>
                 <CardBody>

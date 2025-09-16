@@ -36,7 +36,7 @@ import {
 } from "../../api/userProgressApi";
 import { getCookiesData } from "../../utils/cookiesService";
 import FeedbackModal from "../FeedbackModal/FeedbackModal";
-import { getUserByUserId } from "../../api/authApi";
+import { getBackendAssets, getUserByUserId } from "../../api/authApi";
 import { FaFilePdf } from "react-icons/fa";
 import {
   getMocktestBySubjectId,
@@ -47,6 +47,7 @@ import {
 } from "../../api/mocktestApi";
 import PdfModal from "./PDFModal";
 import { m } from "framer-motion";
+import api from "../../config/axiosConfig";
 
 
 
@@ -84,23 +85,23 @@ const CoursesLiveclass = () => {
   const [resumeTests, setResumeTests] = useState({});
   const [viewResults, setViewResults] = useState({});
   const [isPdfFullscreen, setIsPdfFullscreen] = useState(false);
-const pdfContainerRef = useRef(null);
+  const pdfContainerRef = useRef(null);
 
-const handlePdfFullscreen = () => {
-  const el = pdfContainerRef.current;
-  if (!el) return;
+  const handlePdfFullscreen = () => {
+    const el = pdfContainerRef.current;
+    if (!el) return;
 
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-    setIsPdfFullscreen(false);
-  } else {
-    el.requestFullscreen?.();
-    el.webkitRequestFullscreen?.();
-    el.msRequestFullscreen?.();
-    el.mozRequestFullScreen?.();
-    setIsPdfFullscreen(true);
-  }
-};
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      setIsPdfFullscreen(false);
+    } else {
+      el.requestFullscreen?.();
+      el.webkitRequestFullscreen?.();
+      el.msRequestFullscreen?.();
+      el.mozRequestFullScreen?.();
+      setIsPdfFullscreen(true);
+    }
+  };
 
   const checkResumeMockTest = async (userId, mockId, subjectId) => {
     try {
@@ -584,10 +585,10 @@ const handlePdfFullscreen = () => {
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
                 console.log(
-                  "meta",meta,
+                  "meta", meta,
                 )
                 // showViewResults = attemptsCount > 0;
-                canStart =meta.canStart;
+                canStart = meta.canStart;
                 //   isUnlimited || (Number.isFinite(remaining) && remaining > 0);
 
                 const maxText = isUnlimited
@@ -728,6 +729,92 @@ const handlePdfFullscreen = () => {
     ));
   };
 
+  const NoteDownload = ({ noteUrl, noteName }) => {
+    const [signedUrl, setSignedUrl] = useState(null);
+
+    useEffect(() => {
+       if (!noteUrl) return;
+      const fetchSignedUrl = async () => {
+        try {
+          const res = await getBackendAssets(noteUrl);
+          setSignedUrl(res.url); // backend returns { url: signedUrl }
+        } catch (err) {
+          console.error("Failed to fetch signed URL", err);
+        }
+      };
+      if (noteUrl) fetchSignedUrl();
+    }, [noteUrl]);
+
+    // if (!signedUrl) {
+    //   return (
+    //     <button
+    //       disabled
+    //       style={{
+    //         background: "#ccc",
+    //         color: "white",
+    //         padding: "6px 12px",
+    //         borderRadius: 4,
+    //       }}
+    //     >
+    //       Preparing...
+    //     </button>
+    //   );
+    // }
+
+    return (
+      // <a
+      //   href={signedUrl}
+      //   download
+      //   style={{
+      //     background: "#d4b200",
+      //     color: "white",
+      //     padding: "6px 12px",
+      //     borderRadius: 4,
+      //     textDecoration: "none",
+      //   }}
+      // >
+      //   Download
+      // </a>
+      <button
+        onClick={
+          async () => {
+            try {
+              const ext = noteUrl.split(".").pop().toLowerCase().split("?")[0];
+
+              if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) {
+                window.open(signedUrl, "_blank");
+                return;
+              }
+              // console.log("signedUrl", signedUrl);
+              const response = await fetch(signedUrl);
+              // console.log("response inside", response);
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = noteName || "document";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+            } catch (err) {
+              console.error("Download failed", err);
+            }
+          }
+        }
+        style={{
+          background: "#d4b200",
+          color: "white",
+          padding: "6px 12px",
+          borderRadius: 4,
+          textDecoration: "none",
+        }}
+      >
+        Download 
+      </button>
+    );
+  };
+
   const renderTabContent = () => {
     if (loading) return <ContentText>Loading...</ContentText>;
     if (!course) return <ContentText>Course not found.</ContentText>;
@@ -747,9 +834,10 @@ const handlePdfFullscreen = () => {
       return (
         <>
           {allNotes.map((note, i) => {
-            const noteUrl = note.fileUrl?.startsWith("http")
-              ? note.fileUrl
-              : `${process.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
+            // const noteUrl = note.fileUrl?.startsWith("http")
+            //   ? note.fileUrl
+            //   : `${import.meta.env.REACT_APP_API_BASE_URL}${note.fileUrl}`;
+            const noteUrl = note.fileUrl;
             return (
               <ContentText key={i}>
                 <div
@@ -779,9 +867,15 @@ const handlePdfFullscreen = () => {
                     >
                       View
                     </button>
-                    {note.isDownload && (
+                    {/* {note.isDownload && (
                       <a
-                        href={noteUrl}
+                        // href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${noteUrl}`}
+                        // href={async (noteUrl) => {
+                        //   const response = await getBackendAssets(noteUrl);
+                        //   return response.url
+
+                        // }}
+                        href="https://mankavith.5b9eb21514883c06ea627a2bb5a71815.r2.cloudflarestorage.com/ProjectUploads/notes/17579442637661751548664879-certificate-Jayanth%20B%20R.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=30819f87a7a689cc76f47b602533c81f%2F20250916%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250916T053005Z&X-Amz-Expires=172800&X-Amz-Signature=4be69a3330587bcd0c9be17f766bfd006f825fca26ec82505f59ebdd7be1ff09&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
                         download
                         style={{
                           background: "#d4b200",
@@ -791,8 +885,11 @@ const handlePdfFullscreen = () => {
                           textDecoration: "none",
                         }}
                       >
-                        Download
+                        Download 
                       </a>
+                    )} */}
+                    {note.isDownload && (
+                      <NoteDownload noteUrl={noteUrl} noteName={note.noteName} />
                     )}
                   </div>
                 </div>
@@ -944,48 +1041,51 @@ const handlePdfFullscreen = () => {
         <StyledVideo ref={videoContainerRef}>
           {lecture && (
             <>
+
               <VideoPlayerContainer>
-  <VideoPlayer
-    ref={videoRef}
-    onError={handleVideoError}
-    onEnded={handleVideoEnd}
-    controls
-    controlsList="nodownload nofullscreen noremoteplayback"
-    disablePictureInPicture
-  >
-    {lecture?.videoUrl && !videoError ? (
-      <source src={lecture.videoUrl} type="video/mp4" />
-    ) : (
-      <div className="video-error">
-        {videoError ? "Error loading video" : "Your browser does not support the video tag"}
-      </div>
-    )}
-    {userId && (
-      <MovingOverlay
-        style={{ top: `${overlayPosition.top}%`, left: `${overlayPosition.left}%` }}
-      >
-        {userPhoneNumber || userId}
-      </MovingOverlay>
-    )}
-  </VideoPlayer>
+                <VideoPlayer
+                  ref={videoRef}
+                  onError={handleVideoError}
+                  onEnded={handleVideoEnd}
+                  controls
+                  controlsList="nodownload nofullscreen noremoteplayback"
+                  disablePictureInPicture
+                >
 
-  {/* Keep overlay duplication if you need it */}
-  {userId && (
-    <MovingOverlay
-      style={{ top: `${overlayPosition.top}%`, left: `${overlayPosition.left}%` }}
-    >
-      {userPhoneNumber || userId}
-    </MovingOverlay>
-  )}
 
-  {/* ✅ Top-right fullscreen toggle */}
-  {/* <FullscreenButton
+                  {lecture?.videoUrl && !videoError ? (
+                    <source src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture.videoUrl}`} />
+                  ) : (
+                    <div className="video-error">
+                      {videoError ? "Error loading video" : "Your browser does not support the video tag"}
+                    </div>
+                  )}
+                  {userId && (
+                    <MovingOverlay
+                      style={{ top: `${overlayPosition.top}%`, left: `${overlayPosition.left}%` }}
+                    >
+                      {userPhoneNumber || userId}
+                    </MovingOverlay>
+                  )}
+                </VideoPlayer>
+
+                {/* Keep overlay duplication if you need it */}
+                {userId && (
+                  <MovingOverlay
+                    style={{ top: `${overlayPosition.top}%`, left: `${overlayPosition.left}%` }}
+                  >
+                    {userPhoneNumber || userId}
+                  </MovingOverlay>
+                )}
+
+                {/* ✅ Top-right fullscreen toggle */}
+                {/* <FullscreenButton
     onClick={handleFullscreen}
     aria-label={isFullscreen ? "View in Small Screen" : "[]]"}
   >
     {isFullscreen ? "View Small Screen" : "[]"}
   </FullscreenButton> */}
-</VideoPlayerContainer>
+              </VideoPlayerContainer>
 
             </>
           )}

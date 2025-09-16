@@ -1,6 +1,6 @@
 // src/pages/Admin/WebManagement/WhyStudyWithUs/ViewWhyStudyWithUs.jsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
 import {
@@ -15,13 +15,13 @@ import {
 
 import uploadIcon from "../../../../../../assets/upload.png";
 import { getWhyById } from "../../../../../../api/whyApi";
-
+import JoditEditor from 'jodit-react';
 const ViewWhyStudyWithUs = () => {
   const { id } = useParams();
   const [why, setWhy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const editor = useRef(null);
   useEffect(() => {
     // Guard: don't call API until we actually have an ID
     if (!id) {
@@ -41,8 +41,8 @@ const ViewWhyStudyWithUs = () => {
         console.error("Failed to load item:", err);
         setError(
           err.response?.data?.message ||
-            err.message ||
-            "Server error while fetching item."
+          err.message ||
+          "Server error while fetching item."
         );
       } finally {
         setLoading(false);
@@ -51,6 +51,22 @@ const ViewWhyStudyWithUs = () => {
 
     fetchWhy();
   }, [id]);
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: 'Enter description here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
+  }), []);
 
   if (loading) {
     return (
@@ -81,12 +97,19 @@ const ViewWhyStudyWithUs = () => {
       <Field>{title}</Field>
 
       <Label>Description</Label>
-      <Field>{description}</Field>
+      <JoditEditor
+        ref={editor}
+        value={description}
+        config={config}
+        // onBlur={handleEditorChange}
+        // onChange={handleEditorChange}
+      />
+      {/* <Field>{description}</Field> */}
 
       <Label>Image</Label>
       <DropZone hasImage={!!image}>
         {image ? (
-          <PreviewImage src={image} alt="Preview" />
+          <PreviewImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${image}`} alt="Preview" />
         ) : (
           <ImageIcon>
             <img src={uploadIcon} alt="No image" width={50} />

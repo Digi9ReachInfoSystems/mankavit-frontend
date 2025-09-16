@@ -156,7 +156,7 @@ const EditMission = () => {
         />
         <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
           {previewUrl ? (
-            <PreviewImage src={previewUrl} alt="Preview" />
+            <PreviewImage src={previewUrl.startsWith('data:') ? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`} alt="Preview" />
           ) : (
             <>
               <ImageIcon><img src={uploadIcon} alt="Upload" width={50} /></ImageIcon>

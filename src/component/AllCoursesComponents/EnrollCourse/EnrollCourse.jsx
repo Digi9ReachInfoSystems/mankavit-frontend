@@ -74,7 +74,7 @@ const EnrollCourse = () => {
       <Features id="features-container">
         {whys.map((item, index) => (
           <FeatureCard key={index}>
-            <FeatureImage src={item.image} alt={item.title} />
+            <FeatureImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${item.image}`} alt={item.title} />
             <FeatureTitle>{item.title}</FeatureTitle>
             <FeatureText>{item.text}</FeatureText>
           </FeatureCard>

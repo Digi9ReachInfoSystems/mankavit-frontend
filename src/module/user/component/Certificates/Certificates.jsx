@@ -67,7 +67,7 @@ const Certificates = () => {
 
                             {/* <CertificateImage src={certificate.imgUrl} alt="Certificate" /> */}
                             <iframe
-                            src={`${certificate.imgUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                            src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                             width="600"
                             height="415px"
                             style={{

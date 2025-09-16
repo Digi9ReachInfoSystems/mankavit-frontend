@@ -737,7 +737,8 @@ const handleNavigate = (type, id) => {
               {previewUrl ? (
                 <>
                   <img
-                    src={previewUrl}
+                  src={previewUrl.startsWith("blob:") ? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}` }
+                    // src={previewUrl}
                     alt="Preview"
                     style={{ width: "100%", height: "100%" }}
                   />

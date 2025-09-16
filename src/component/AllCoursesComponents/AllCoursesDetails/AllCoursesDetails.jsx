@@ -216,7 +216,7 @@ const transformed = data.map(course => {
             {/* {course.isEnrolled &&   <Ribbon className="enrolled">✓ Enrolled</Ribbon>} */}
             {/* {course.isEnrolled && <VerticalTag>✓ Enrolled</VerticalTag>} */}
             <ImageWrapper>
-              <img src={course.image} alt={course.title} />
+              <img src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}`} alt={course.title} />
             </ImageWrapper>
             <CourseContent>
               <CourseMain>

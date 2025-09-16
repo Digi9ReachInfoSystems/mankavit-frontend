@@ -27,10 +27,10 @@ import {
   SubjectsContainer,
 } from "./AddLecturer.styles";
 import { useNavigate } from "react-router-dom";
-import { createLecture } from "../../../../../api/lecturesApi";
+import { createLecture, getFolders } from "../../../../../api/lecturesApi";
 import { getAllCourses } from "../../../../../api/courseApi";
 import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
-import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
+import { uploadFileToAzureStorage, uploadVideoToAzureStorage } from "../../../../../utils/azureStorageService";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import JoditEditor from 'jodit-react';
@@ -49,7 +49,33 @@ export default function AddLecturer() {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const navigate = useNavigate();
   const editor = useRef(null);
+  const [folders, setFolders] = useState([]);   // folder options from API
+  const [selectedFolder, setSelectedFolder] = useState("");
+  const [customFolder, setCustomFolder] = useState("");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [subjectsResponse, coursesResponse, foldersResponse] = await Promise.all([
+          getSubjects(),
+          getAllCourses(),
+          getFolders()   // 👈 your API for folders
+        ]);
 
+        setSubjects(subjectsResponse.data || []);
+        setCourses(coursesResponse.data || []);
+        setFolders(foldersResponse|| []);  // 👈 set folders here
+
+        // existing subjects logic...
+      } catch (error) {
+        toast.error("Failed to fetch data");
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -97,38 +123,39 @@ export default function AddLecturer() {
 
   const moveSubjectUp = (index) => {
     if (index <= 0) return;
-    
+
     const newSelectedSubjects = [...selectedSubjects];
     // Swap positions
-    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = 
+    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] =
       [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
-    
+
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const moveSubjectDown = (index) => {
     if (index >= selectedSubjects.length - 1) return;
-    
+
     const newSelectedSubjects = [...selectedSubjects];
     // Swap positions
-    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = 
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] =
       [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
-    
+
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!lectureName  || !description || !videoFile) {
+    if (!lectureName || !description || !videoFile) {
       toast.error("Please fill all required fields!");
       return;
     }
 
     try {
       setIsLoading(true);
+const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
 
       // Upload video
-      const videoResponse = await uploadFileToAzureStorage(videoFile, "lectures");
+      const videoResponse = await uploadVideoToAzureStorage(videoFile, folderName);
       if (!videoResponse?.blobUrl) {
         throw new Error("Video upload failed");
       }
@@ -136,7 +163,6 @@ export default function AddLecturer() {
       // Rearrange subjects before submission
       const subjectIds = selectedSubjects.map(subject => subject.id);
       await rearrangeSubjects(subjectIds);
-
       // Build request payload
       const submissionData = {
         lectureName,
@@ -144,6 +170,7 @@ export default function AddLecturer() {
         // duration,
         videoUrl: videoResponse.blobUrl,
         subjectRef: subjectIds,
+         folder: folderName, 
       };
 
       const response = await createLecture(submissionData);
@@ -182,14 +209,14 @@ export default function AddLecturer() {
           <Column>
             <FieldWrapper>
               <Label htmlFor="lectureName">Video title *</Label>
-              <Input 
-                id="lectureName" 
+              <Input
+                id="lectureName"
                 value={lectureName}
                 onChange={(e) => {
                   const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                   setLectureName(e.target.value);
                 }}
-                placeholder="Enter Video Title" 
+                placeholder="Enter Video Title"
               />
             </FieldWrapper>
           </Column>
@@ -209,7 +236,37 @@ export default function AddLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-        
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="folderSelect">Select Folder *</Label>
+              <select
+                id="folderSelect"
+                value={selectedFolder}
+                onChange={(e) => setSelectedFolder(e.target.value)}
+                style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              >
+                <option value="">-- Select a Folder --</option>
+                {folders.map((folder,index) => (
+                  <option key={index} value={folder}>
+                    {folder}
+                  </option>
+                ))}
+                <option value="other">Other</option>
+              </select>
+
+              {selectedFolder === "other" && (
+                <Input
+                  type="text"
+                  placeholder="Enter folder name"
+                  value={customFolder}
+                  onChange={(e) => setCustomFolder(e.target.value)}
+                  style={{ marginTop: "10px" }}
+                />
+              )}
+            </FieldWrapper>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column>
             <SubjectsContainer>
@@ -228,7 +285,7 @@ export default function AddLecturer() {
                   ))}
                 </CheckboxList>
               </CheckboxSection>
-              
+
               <SelectedSubjectsContainer>
                 <CheckboxSectionTitle>Selected Subjects </CheckboxSectionTitle>
                 {selectedSubjects.length > 0 ? (
@@ -265,7 +322,7 @@ export default function AddLecturer() {
             </SubjectsContainer>
           </Column>
         </FormRow>
-        
+
         <FormRow>
           <Column style={{ flex: 1 }}>
             <FieldWrapper>
@@ -285,11 +342,11 @@ export default function AddLecturer() {
                     <p>or <strong>Upload Video</strong></p>
                   </>
                 )}
-                <FileInput 
-                  ref={videoInputRef} 
-                  type="file" 
-                  accept="video/*" 
-                  onChange={handleVideoFileChange} 
+                <FileInput
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoFileChange}
                 />
               </UploadArea>
             </FieldWrapper>

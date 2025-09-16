@@ -212,7 +212,7 @@ const WhyStudyWithUs = () => {
         <ImageModalOverlay>
           <ImageModalContent>
             <CloseButton onClick={() => setModalOpen(false)}>X</CloseButton>
-            <ModalImage src={selectedImage} alt="Selected" />
+            <ModalImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${selectedImage}`} alt="Selected" />
           </ImageModalContent>
         </ImageModalOverlay>
       )}

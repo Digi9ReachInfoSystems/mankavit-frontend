@@ -527,6 +527,8 @@ const handleSubmit = async (e) => {
                 previewUrl ? (
                   <>
                     <img
+                    // src={previewUrl.startsWith("blob:http") ? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`}
+                      // src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`}
                       src={previewUrl}
                       alt="Preview"
                       style={{ width: "100%", height: "100%" }}

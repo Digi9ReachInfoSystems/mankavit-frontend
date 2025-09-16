@@ -173,7 +173,7 @@ const UserCourses = () => {
                   completed={course.course_status === "completed"}
                 >
                   <ImageWrapper>
-                    <img src={course.image || lawimg} alt="Course Banner" />
+                    <img src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}` || lawimg} alt="Course Banner" />
                   </ImageWrapper>
 
                   <ProgressContainer>

@@ -595,7 +595,7 @@ const downloadFile = async (url, baseFilename = "document") => {
             ) : (
               <DocsGrid>
                 {kycRecord?.id_proof && (
-                  <DocCard onClick={() => handleDocClick(kycRecord.id_proof)}>
+                  <DocCard onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`)}>
                     {isPdf(kycRecord.id_proof) ? (
                       <DocThumb
                         as="div"
@@ -610,13 +610,13 @@ const downloadFile = async (url, baseFilename = "document") => {
                         PDF Preview
                       </DocThumb>
                     ) : (
-                      <DocThumb src={kycRecord.id_proof} alt="ID Proof" />
+                      <DocThumb src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`} alt="ID Proof" />
                     )}
                     <DocMeta>
                       <div className="name">ID Proof</div>
                       <div className="actions">
                         <a
-                          href={kycRecord.id_proof}
+                          href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
@@ -642,13 +642,13 @@ const downloadFile = async (url, baseFilename = "document") => {
                 )}
 
                 {kycRecord?.passport_photo && (
-                  <DocCard onClick={() => handleDocClick(kycRecord.passport_photo)}>
-                    <DocThumb src={kycRecord.passport_photo} alt="Passport Photo" />
+                  <DocCard onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`)}>
+                    <DocThumb src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`} alt="Passport Photo" />
                     <DocMeta>
                       <div className="name">Passport Photo</div>
                       <div className="actions">
                         <a
-                          href={kycRecord.passport_photo}
+                          href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
