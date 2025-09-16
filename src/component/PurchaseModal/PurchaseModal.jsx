@@ -97,7 +97,7 @@ export default function PurchaseModal({ onClose, course }) {
 
                 <CourseCard>
                     <CourseImage
-                        src={course.image || "https://via.placeholder.com/80x80?text=📘"}
+                        src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}` }
                         alt="Course"
                     />
                     <CourseInfo>
