@@ -147,6 +147,7 @@ const Header = () => {
       return;
     }
     const routeMap = {
+        Home: "/",
       Courses: "/ourcoursedetails",
       Blog: "/userblog",
       About: "/aboutus",
@@ -251,12 +252,13 @@ const Header = () => {
       <NavbarMain>
         <NavBarContainer>
           <Link to="/" style={{ textDecoration: "none" }}>
-            <Logo>HOME</Logo>
+            <Logo></Logo>
           </Link>
 
           <div className="menu-container" ref={menuRef}>
             <NavLinks className={mobileMenuOpen ? "open" : ""}>
               {[
+                "Home",
                 "Courses",
                 "About",
                 "Blog",

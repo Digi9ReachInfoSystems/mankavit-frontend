@@ -1,102 +1,3 @@
-// // Aspirants.jsx
-// import React, { useEffect, useState } from "react";
-// import {
-//   Container,
-//   Title,
-//   Highlight,
-//   Card,
-//   Avatar,
-//   Quote,
-//   Name,
-//   Role,
-//   CardWrapper,
-//   Media,
-//   MediaContainer
-// } from "./Aspirants.styles";
-// import { getAlltestimonials } from "../../../api/testimonialApi";
-// import placeholder from "../../../assets/aspi1.png";   // fallback avatar
-
-// const Aspirants = () => {
-//   const [testimonials, setTestimonials] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchTestimonials = async () => {
-//       try {
-//         const raw = await getAlltestimonials();
-//         const data = (Array.isArray(raw) ? raw : []).map((t) => ({
-//           id: t._id || t.id,
-//           name: t.name,
-//           role: t.rank,
-//           quote: t.description,
-//           image: t.testimonial_image,
-//           video: t.testimonial_video,
-//         }));
-//         setTestimonials(data);
-//       } catch (err) {
-//         console.error("Error fetching testimonials:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchTestimonials();
-//   }, []);
-
-//   if (loading) {
-//     return (
-//       <Container>
-//         <p>Loading testimonials…</p>
-//       </Container>
-//     );
-//   }
-
-//   if (testimonials.length === 0) {
-//     return (
-//       <Container>
-//         <Title>
-//           What Are <Highlight>They Saying</Highlight>
-//         </Title>
-//         <p>No testimonials found.</p>
-//       </Container>
-//     );
-//   }
-
-//   return (
-//     <Container>
-//       <Title>
-//         What Are <Highlight>They Saying</Highlight>
-//       </Title>
-
-//       <CardWrapper>
-//         {testimonials.map((t) => (
-//           <Card key={t.id}>
-//             <MediaContainer>
-//               {t.image ? (
-//                 <Avatar src={t.image} alt={t.name} />
-//               ) : t.video ? (
-//                 <Media controls>
-//                   <source src={t.video} type="video/mp4" />
-//                   Your browser doesn't support embedded videos.
-//                 </Media>
-//               ) : (
-//                 <Avatar src={placeholder} alt="placeholder" />
-//               )}
-//             </MediaContainer>
-
-//           <Quote dangerouslySetInnerHTML={{ __html: t.quote.slice(0,60) }} />
-//             {/* <Name>{t.name}</Name> */}
-//             <Name dangerouslySetInnerHTML={{ __html: t.name }} />
-//             <Role>{t.role}</Role>
-//           </Card>
-//         ))}
-//       </CardWrapper>
-//     </Container>
-//   );
-// };
-
-// export default Aspirants;
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Container,
@@ -121,6 +22,8 @@ import {
   Dot,
   MediaOverlay,
   PlayPauseBtn,
+  MobileScrollContainer,
+  ViewMoreButton,
 } from "./Aspirants.styles";
 import { getAlltestimonials } from "../../../api/testimonialApi";
 import placeholder from "../../../assets/aspi1.png"; // fallback avatar
@@ -160,13 +63,7 @@ const CircleMedia = ({ image, video, name, active }) => {
         />
       ) : video ? (
         <>
-          <Media
-            ref={vidRef}
-            playsInline
-            preload="metadata"
-            controls={false}
-            // poster can be added if you have a thumbnail: poster="..."
-          >
+          <Media ref={vidRef} playsInline preload="metadata" controls={false}>
             <source src={video} type="video/mp4" />
             Your browser doesn't support embedded videos.
           </Media>
@@ -188,6 +85,20 @@ const Aspirants = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [idx, setIdx] = useState(0);
+  const [expandedQuotes, setExpandedQuotes] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+  const trackRef = useRef(null);
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -227,6 +138,38 @@ const Aspirants = () => {
     [idx]
   );
 
+  const toggleQuoteExpansion = (id) => {
+    setExpandedQuotes((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+const truncateText = (html, maxLength = 100) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  const text = div.textContent || div.innerText || "";
+  if (text.length <= maxLength) return html;
+  return text.substring(0, maxLength) + "...";
+};
+
+
+  // Handle horizontal scroll for mobile
+  const handleScroll = (e) => {
+    if (!isMobile) return;
+
+    const track = trackRef.current;
+    if (!track) return;
+
+    const scrollLeft = track.scrollLeft;
+    const slideWidth = track.clientWidth;
+    const newIndex = Math.round(scrollLeft / slideWidth);
+
+    if (newIndex !== idx) {
+      setIdx(newIndex);
+    }
+  };
+
   if (loading) {
     return (
       <Container>
@@ -258,41 +201,88 @@ const Aspirants = () => {
       </TitleDiv>
 
       <Container>
-        <SliderShell aria-roledescription="carousel">
-          <SlidesTrack style={trackStyle}>
+        {isMobile ? (
+          <MobileScrollContainer ref={trackRef} onScroll={handleScroll}>
             {testimonials.map((t, i) => (
-              <Slide
-                key={t.id}
-                role="group"
-                aria-label={`${idx + 1} of ${total}`}
-              >
+              <Slide key={t.id}>
                 <Card>
                   <LeftCol>
                     <CircleMedia
-                      image={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${t.image}`}
-                      video={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${t.video}`}
+                      image={`${
+                        import.meta.env.VITE_APP_IMAGE_ACCESS
+                      }/api/project/resource?fileKey=${t.image}`}
+                      video={`${
+                        import.meta.env.VITE_APP_IMAGE_ACCESS
+                      }/api/project/resource?fileKey=${t.video}`}
                       name={t.name}
                       active={i === idx}
                     />
                   </LeftCol>
 
                   <RightCol>
+                     <Name>{t.name || "Aspirant"}</Name>
+                    {t.role && <Role>{t.role}</Role>}
                     <Quote
                       dangerouslySetInnerHTML={{
-                        __html: t.quote || "“Great learning experience.”",
+                        __html: expandedQuotes[t.id]
+                          ? t.quote || "Great learning experience."
+                          : truncateText(
+                              t.quote || "Great learning experience."
+                            ),
                       }}
                     />
-                    <Name
-                      dangerouslySetInnerHTML={{ __html: t.name || "Aspirant" }}
-                    />
-                    {t.role ? <Role>{t.role}</Role> : null}
+
+                    {(t.quote || "").length > 100 && isMobile && (
+                      <ViewMoreButton
+                        onClick={() => toggleQuoteExpansion(t.id)}
+                      >
+                        {expandedQuotes[t.id] ? "View Less" : "View More"}
+                      </ViewMoreButton>
+                    )}
+
+                   
                   </RightCol>
                 </Card>
               </Slide>
             ))}
-          </SlidesTrack>
+          </MobileScrollContainer>
+        ) : (
+          <SliderShell aria-roledescription="carousel">
+            <SlidesTrack style={trackStyle}>
+              {testimonials.map((t, i) => (
+                <Slide
+                  key={t.id}
+                  role="group"
+                  aria-label={`${idx + 1} of ${total}`}
+                >
+                  <Card>
+                    <LeftCol>
+                      <CircleMedia
+                        image={`${
+                          import.meta.env.VITE_APP_IMAGE_ACCESS
+                        }/api/project/resource?fileKey=${t.image}`}
+                        video={`${
+                          import.meta.env.VITE_APP_IMAGE_ACCESS
+                        }/api/project/resource?fileKey=${t.video}`}
+                        name={t.name}
+                        active={i === idx}
+                      />
+                    </LeftCol>
 
-          {/* Controls */}
+                    <RightCol>
+                      <Quote>{t.quote || "Great learning experience."}</Quote>
+                      <Name>{t.name || "Aspirant"}</Name>
+                      {t.role && <Role>{t.role}</Role>}
+                    </RightCol>
+                  </Card>
+                </Slide>
+              ))}
+            </SlidesTrack>
+          </SliderShell>
+        )}
+
+        {/* Controls - Only show arrows and dots for desktop */}
+        {!isMobile && (
           <ControlsBar>
             <ArrowBtn aria-label="Previous" onClick={goPrev}>
               &larr;
@@ -311,7 +301,7 @@ const Aspirants = () => {
               &rarr;
             </ArrowBtn>
           </ControlsBar>
-        </SliderShell>
+        )}
       </Container>
     </>
   );

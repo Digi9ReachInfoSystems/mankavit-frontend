@@ -1,184 +1,3 @@
-// // Aspirants.styles.js
-// import styled from 'styled-components';
-
-// export const Container = styled.div`
-//    padding: 2rem;
-//   width: 80%;
-//   display: flex;
-//   flex-direction: column;
-// //   align-items: center;
-//   justify-content: center;
-//   margin: 0 auto;
- 
-// `;
-
-// export const Title = styled.h2`
-//   font-size: 48px;
-//   font-weight: 400;
-//   color: ${props => props.theme.colors.darkgray};
-//   margin-top: 20px;
-
-//   @media (max-width: 1360px) {
-//       font-size: 40px;
-//   }
-
-//   @media (max-width: 768px) {
-//       font-size: 32px;
-//   }
-// `;
-
-// export const Highlight = styled.span`
-//   color: ${props => props.theme.colors.vividblue};
-// `;
-
-// export const CardWrapper = styled.div`
-//   display: flex;
-//   flex-wrap: nowrap;
-//   overflow-x: auto;
-//   gap: 20px;
-//   margin-top: 2rem;
-//   padding-bottom: 1rem;
-
-//   scroll-snap-type: x mandatory;
-//   -webkit-overflow-scrolling: touch;
-
-//   &::-webkit-scrollbar {
-//     height: 8px;
-//   }
-
-//   &::-webkit-scrollbar-thumb {
-//     background-color: #ccc;
-//     border-radius: 10px;
-//   }
-
-//   &::-webkit-scrollbar-track {
-//     background: transparent;
-//   }
-// `;
-
-// export const Card = styled.div`
-//   flex: 0 0 auto;
-//   scroll-snap-align: start;
-//   border: ${props => props.theme.colors.darkgray} 1px solid;
-//   border-radius: 14px;
-//   min-width: 220px;
-//   max-width: 500px;
-//   padding: 1rem;
-//   transition: all 0.3s ease;
-//   width: 250px;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-
-//   @media (min-width: 768px) {
-//     width: 300px;
-//   }
-
-//   @media (min-width: 1024px) {
-//     width: 250px;
-//   }
-
-//   @media (min-width: 1360px) {
-//     width: 400px;
-//   }
-// `;
-
-// export const MediaContainer = styled.div`
-//   width: 100%;
-//   display: flex;
-//   justify-content: center;
-//   margin-bottom: 1rem;
-// `;
-
-// export const Avatar = styled.img`
-//   width: 100%;
-//   height: auto;
-//   max-height: 200px;
-//   object-fit: cover;
-//   border-radius: 0;
-// `;
-
-// export const Media = styled.video`
-//   width: 100%;
-//   height: auto;
-//   max-height: 200px;
-//   border-radius: 0;
-// `;
-
-// export const Quote = styled.p`
-//   font-size: 18px;
-//   font-weight: 300;
-//   color: ${props => props.theme.colors.test};
-//   margin-bottom: 1rem;
-//   padding: 6px;
-//   line-height: 1.5;
-
-//   @media (max-width: 1360px) {
-//       font-size: 16px;
-//   }
-
-//   @media (max-width: 1024px) {
-//       font-size: 14px;
-//       padding: 4px;
-//   }
-
-//   @media (max-width: 768px) {
-//       font-size: 14px;
-//       line-height: 1.2;
-//   }
-
-//   @media (max-width: 480px) {
-//       font-size: 16px;
-//       line-height: 1.5;
-//   }
-// `;
-
-// export const Name = styled.h4`
-//   font-size: 26px;
-//   font-weight: normal;
-//   color: ${props => props.theme.colors.darkgray};
-//   margin-bottom: 5px;
-
-//   @media (max-width: 1360px) {
-//       font-size: 22px;
-//   }
-
-//   @media (max-width: 1024px) {
-//       font-size: 20px;
-//   }
-
-//   @media (max-width: 768px) {
-//       font-size: 18px;
-//   }
-
-//   @media (max-width: 480px) {
-//       font-size: 22px;
-//   }
-// `;
-
-// export const Role = styled.p`
-//   font-size: 22px;
-//   font-weight: 600;
-//   color: ${props => props.theme.colors.darkgray};
-//   margin: 0;
-
-//   @media (max-width: 1360px) {
-//       font-size: 18px;
-//   }
-
-//   @media (max-width: 1024px) {
-//       font-size: 16px;
-//   }
-
-//   @media (max-width: 768px) {
-//       font-size: 14px;
-//   }
-
-//   @media (max-width: 480px) {
-//       font-size: 18px;
-//   }
-// `;
-
 import styled from "styled-components";
 
 /* Canvas */
@@ -199,6 +18,9 @@ export const Title = styled.h2`
   font-weight: 500;
   color: #0f172a;
   letter-spacing: -0.02em;
+  @media (max-width: 900px) {
+    font-size: 36px;
+  }
 `;
 
 /* Title wrapper with responsive left offset */
@@ -245,6 +67,7 @@ export const Slide = styled.div`
   padding: clamp(8px, 1.2vw, 14px);
 `;
 
+
 /* Testimonial Card */
 export const Card = styled.div`
   width: 100%;
@@ -269,6 +92,7 @@ export const Card = styled.div`
     padding: 18px;
   }
 `;
+
 
 export const LeftCol = styled.div`
   display: grid;
@@ -408,4 +232,59 @@ export const Dot = styled.button`
   transition: background 160ms ease, box-shadow 160ms ease, transform 80ms ease;
 
   &:hover { transform: scale(1.05); }
+`;
+
+export const MobileScrollContainer = styled.div`
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  gap: 16px;
+  padding: 8px 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+
+  ${Slide} {
+    flex: 0 0 calc(100% - 32px);
+    scroll-snap-align: start;
+    margin: 0 16px;
+  }
+
+  ${Card} {
+    min-height: 320px;
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  ${LeftCol} {
+    margin-bottom: 16px;
+  }
+
+  ${MediaBlob} {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+`;
+
+export const ViewMoreButton = styled.button`
+  background: none;
+  border: none;
+  color: #0494FA;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 8px;
+  padding: 0;
+  text-decoration: underline;
+
+  &:hover {
+    color: #0378d4;
+  }
 `;
