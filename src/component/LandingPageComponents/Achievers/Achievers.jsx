@@ -139,7 +139,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
         {visible.map((achiever, idx) => (
           <Card key={achiever._id || idx}>
             <AvatarWrap>
-              <Avatar src={achiever.image || 'default-avatar.png'} alt={achiever.name || 'Achiever'} />
+              <Avatar src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${achiever.image}` || 'default-avatar.png'} alt={achiever.name || 'Achiever'} />
             </AvatarWrap>
             <Name>{(achiever.name || '').toUpperCase()}</Name>
             <Achievement>

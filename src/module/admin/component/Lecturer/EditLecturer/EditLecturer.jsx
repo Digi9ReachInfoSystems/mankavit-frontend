@@ -35,6 +35,7 @@ import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
 import JoditEditor from 'jodit-react';
 import { getAuth } from "../../../../../utils/authService";
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { uploadVideoToAzureStorage } from "../../../../../utils/azureStorageService";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -44,6 +45,7 @@ export default function EditLecturer() {
     lectureName: "",
     duration: "",
     description: "",
+    folder: "",
   });
 
   const [videoFile, setVideoFile] = useState(null);
@@ -73,11 +75,14 @@ export default function EditLecturer() {
       try {
         const response = await getLectureById(id);
         const lecture = response.data;
-
+        console.log("lecture", lecture);
+           setCurrentVideo(lecture.videoUrl);
+        setVideoPreviewUrl(lecture.videoUrl)
         setFormData({
           lectureName: lecture.lectureName || "",
           duration: lecture.duration || "",
           description: lecture.description || "",
+          folder: lecture.folder || "",
         });
 
         const responseSubjects = await getSubjects();
@@ -86,19 +91,18 @@ export default function EditLecturer() {
           id: item._id,
           checked: lecture.subjectRef.includes(item._id),
         }));
-        
+
         setSubjectCheckboxes(subjectsData);
-        
+
         // Set selected subjects in the correct order
         const orderedSelectedSubjects = lecture.subjectRef.map(subjectId => {
           const subject = subjectsData.find(s => s.id === subjectId);
           return subject ? { ...subject } : null;
         }).filter(Boolean);
-        
+
         setSelectedSubjects(orderedSelectedSubjects);
 
-        setCurrentVideo(lecture.videoUrl);
-        setVideoPreviewUrl(lecture.videoUrl);
+      ;
       } catch (error) {
         console.error("Failed to fetch lecture:", error);
         toast.error("Failed to fetch lecture");
@@ -117,11 +121,11 @@ export default function EditLecturer() {
 
     // Update selected subjects
     const selected = updatedCheckboxes.filter(item => item.checked);
-    
+
     // Maintain the order of already selected subjects
     const newSelectedSubjects = [...selectedSubjects];
     const subjectToUpdate = updatedCheckboxes[index];
-    
+
     if (subjectToUpdate.checked) {
       // Add to selected if not already there
       if (!newSelectedSubjects.some(s => s.id === subjectToUpdate.id)) {
@@ -134,29 +138,29 @@ export default function EditLecturer() {
         newSelectedSubjects.splice(removeIndex, 1);
       }
     }
-    
+
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const moveSubjectUp = (index) => {
     if (index <= 0) return;
-    
+
     const newSelectedSubjects = [...selectedSubjects];
     // Swap positions
-    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = 
+    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] =
       [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
-    
+
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const moveSubjectDown = (index) => {
     if (index >= selectedSubjects.length - 1) return;
-    
+
     const newSelectedSubjects = [...selectedSubjects];
     // Swap positions
-    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = 
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] =
       [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
-    
+
     setSelectedSubjects(newSelectedSubjects);
   };
 
@@ -164,6 +168,7 @@ export default function EditLecturer() {
     const file = e.target.files[0];
     if (file) {
       setVideoFile(file);
+    // console.log("file URL changed", URL.createObjectURL(file));
       setVideoPreviewUrl(URL.createObjectURL(file));
     }
   };
@@ -181,12 +186,18 @@ export default function EditLecturer() {
       // Rearrange subjects before submission
       const subjectIds = selectedSubjects.map(subject => subject.id);
       await rearrangeSubjects(subjectIds);
+      // Upload video
+      const videoResponse = await uploadVideoToAzureStorage(videoFile, formData.folder);
+      if (!videoResponse?.blobUrl) {
+        throw new Error("Video upload failed");
+      }
 
       const payload = {
         lectureName,
         // duration,
         description,
         subjectRef: subjectIds,
+        videoUrl: videoResponse.blobUrl,
       };
 
       const response = await updateLectureById(id, payload);
@@ -244,7 +255,21 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-        
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label>Folder</Label>
+              <p style={{
+                padding: "8px 12px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                background: "#f9f9f9"
+              }}>
+                  {formData?.folder || "No folder assigned"}
+              </p>
+            </FieldWrapper>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column>
             <SubjectsContainer>
@@ -263,7 +288,7 @@ export default function EditLecturer() {
                   ))}
                 </CheckboxList>
               </CheckboxSection>
-              
+
               <SelectedSubjectsContainer>
                 <CheckboxSectionTitle>Selected Subjects (Drag to reorder)</CheckboxSectionTitle>
                 {selectedSubjects.length > 0 ? (
@@ -271,21 +296,21 @@ export default function EditLecturer() {
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
                       <div>
-                        <MoveButton 
-                        style={{
-                          backgroundColor:"green"
-                        }}
-                          type="button" 
+                        <MoveButton
+                          style={{
+                            backgroundColor: "green"
+                          }}
+                          type="button"
                           onClick={() => moveSubjectUp(index)}
                           disabled={index === 0}
                         >
                           <FaArrowUp />
                         </MoveButton>
-                        <MoveButton 
-                        style={{
-                          backgroundColor:"red"
-                        }}
-                          type="button" 
+                        <MoveButton
+                          style={{
+                            backgroundColor: "red"
+                          }}
+                          type="button"
                           onClick={() => moveSubjectDown(index)}
                           disabled={index === selectedSubjects.length - 1}
                         >
@@ -301,16 +326,16 @@ export default function EditLecturer() {
             </SubjectsContainer>
           </Column>
         </FormRow>
-        
+
         <FormRow>
           <Column>
             <FieldWrapper>
-              <Label>Update Video</Label>
+              <Label>Update Video </Label>
               <UploadArea onClick={handleVideoUploadClick}>
                 {videoPreviewUrl ? (
                   <VideoContainer>
-                    <VideoPlayer controls>
-                      <source src={videoPreviewUrl} type="video/mp4" />
+                    <VideoPlayer key={videoPreviewUrl}  controls>
+                      <source src={videoPreviewUrl.startsWith("blob:") ? videoPreviewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`} type="video/mp4" />
                       Your browser does not support the video tag.
                     </VideoPlayer>
                   </VideoContainer>

@@ -474,24 +474,367 @@
 
 
 // PdfModal.jsx
+// import React, { useCallback, useEffect, useRef, useState } from "react";
+// import styled from "styled-components";
+// import { Document, Page, pdfjs } from "react-pdf";
+// import {
+//   FaFilePdf,
+//   FaDownload,
+//   FaTimes,
+//   FaExpand,
+//   FaCompress,
+// } from "react-icons/fa";
+// import api from "../../config/axiosConfig";
+// import { getBackendAssets } from "../../api/authApi";
+
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+// // ===== Styles =====
+// const Backdrop = styled.div`
+//   position: fixed;
+//   inset: 0;
+//   background: rgba(0,0,0,0.7);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   z-index: 1000;
+// `;
+
+// const Modal = styled.div`
+//   background: #fff;
+//   width: min(1000px, 95vw);
+//   height: min(90vh, 900px);
+//   border-radius: 8px;
+//   display: grid;
+//   grid-template-rows: auto 1fr auto;
+//   overflow: hidden;
+
+//   /* Fill the entire screen when fullscreened */
+//   &:fullscreen, &:-webkit-full-screen {
+//     width: 100vw !important;
+//     height: 100vh !important;
+//     border-radius: 0 !important;
+//   }
+// `;
+
+// const Header = styled.div`
+//   padding: 10px 16px;
+//   border-bottom: 1px solid #eee;
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   background: #fff;
+//   position: sticky;
+//   top: 0;
+//   z-index: 2;
+// `;
+
+// const Title = styled.h3`
+//   margin: 0;
+//   font-size: 16px;
+//   font-weight: 600;
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+// `;
+
+// const Toolbar = styled.div`
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+//   flex-wrap: wrap;
+// `;
+
+// const Btn = styled.button`
+//   background: #f5f5f5;
+//   border: 1px solid #ddd;
+//   border-radius: 6px;
+//   padding: 6px 10px;
+//   cursor: pointer;
+//   &:disabled { opacity: .5; cursor: not-allowed; }
+// `;
+
+// const DownloadLink = styled.a`
+//   background: #d4b200;
+//   color: white;
+//   text-decoration: none;
+//   padding: 6px 10px;
+//   border-radius: 6px;
+//   display: flex;
+//   align-items: center;
+//   gap: 4px;
+// `;
+
+// const CloseBtn = styled(Btn)`
+//   background: #e74c3c;
+//   color: #fff;
+//   border-color: #e74c3c;
+//   display: flex;
+//   align-items: center;
+//   gap: 4px;
+// `;
+
+// const ViewerWrap = styled.div`
+//   position: relative;
+//   overflow: auto;
+//   background: #fafafa;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// `;
+
+// const PageWrap = styled.div`
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   padding: 12px;
+// `;
+
+// const Footer = styled.div`
+//   border-top: 1px solid #eee;
+//   padding: 8px 12px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   font-size: 13px;
+//   color: #666;
+//   background: #fff;
+//   position: sticky;
+//   bottom: 0;
+//   z-index: 2;
+// `;
+
+// const ScaleBadge = styled.span`
+//   padding: 2px 8px;
+//   background: #efefef;
+//   border-radius: 999px;
+//   font-size: 12px;
+// `;
+
+// const PdfModal = ({ file, name, onClose, isDownloadable }) => {
+//   console.log("file", file);
+//   const [numPages, setNumPages] = useState(null);
+//   const [page, setPage] = useState(1);
+//   const [scale, setScale] = useState(1.1);
+//   const [loading, setLoading] = useState(true);
+//   const [isFullscreen, setIsFullscreen] = useState(false);
+//   const [resolvedUrl, setResolvedUrl] = useState(null);
+//   useEffect(() => {
+//     const fetchSignedUrl = async () => {
+//       try {
+//         const data = await getBackendAssets(file);
+
+//         console.log("data", data);    // get { url: signedUrl }
+//         setResolvedUrl(data.url);
+//       } catch (err) {
+//         console.error("Failed to fetch signed URL", err);
+//       }
+//     };
+//     if (file) fetchSignedUrl();
+//   }, [file]);
+
+//   const modalRef = useRef(null);   // ⬅️ fullscreen target
+//   const viewerRef = useRef(null);  // still used for "Fit" calc
+
+//   // Disable right-click
+//   const killContext = useCallback((e) => e.preventDefault(), []);
+//   useEffect(() => {
+//     document.addEventListener("contextmenu", killContext);
+//     return () => document.removeEventListener("contextmenu", killContext);
+//   }, [killContext]);
+
+//   // Sync fullscreen state (cross-browser)
+//   useEffect(() => {
+//     const onFSChange = () => {
+//       const active =
+//         !!document.fullscreenElement ||
+//         !!document.webkitFullscreenElement ||
+//         !!document.mozFullScreenElement ||
+//         !!document.msFullscreenElement;
+//       setIsFullscreen(active);
+//     };
+//     document.addEventListener("fullscreenchange", onFSChange);
+//     document.addEventListener("webkitfullscreenchange", onFSChange);
+//     document.addEventListener("mozfullscreenchange", onFSChange);
+//     document.addEventListener("MSFullscreenChange", onFSChange);
+//     return () => {
+//       document.removeEventListener("fullscreenchange", onFSChange);
+//       document.removeEventListener("webkitfullscreenchange", onFSChange);
+//       document.removeEventListener("mozfullscreenchange", onFSChange);
+//       document.removeEventListener("MSFullscreenChange", onFSChange);
+//     };
+//   }, []);
+
+//   const onDocLoad = ({ numPages }) => {
+//     setNumPages(numPages || 1);
+//     setPage(1);
+//     setLoading(false);
+//   };
+
+//   const prevPage = () => setPage((p) => Math.max(1, p - 1));
+//   const nextPage = () => setPage((p) => Math.min(numPages || 1, p + 1));
+//   const zoomIn = () => setScale((s) => Math.min(3, +(s + 0.1).toFixed(2)));
+//   const zoomOut = () => setScale((s) => Math.max(0.5, +(s - 0.1).toFixed(2)));
+
+//   const fitWidth = () => {
+//     const wrap = viewerRef.current;
+//     if (!wrap) return;
+//     const contentWidth = wrap.clientWidth - 24; // padding
+//     const newScale = Math.max(0.5, Math.min(3, contentWidth / 800)); // assume ~800px base width
+//     setScale(+newScale.toFixed(2));
+//   };
+
+//   const toggleFullscreen = () => {
+//     const el = modalRef.current;
+//     if (!el) return;
+
+//     const exit = () =>
+//       document.exitFullscreen?.() ||
+//       document.webkitExitFullscreen?.() ||
+//       document.mozCancelFullScreen?.() ||
+//       document.msExitFullscreen?.();
+
+//     const enter = () =>
+//       el.requestFullscreen?.() ||
+//       el.webkitRequestFullscreen?.() ||
+//       el.mozRequestFullScreen?.() ||
+//       el.msRequestFullscreen?.();
+
+//     if (
+//       document.fullscreenElement ||
+//       document.webkitFullscreenElement ||
+//       document.mozFullScreenElement ||
+//       document.msFullscreenElement
+//     ) {
+//       exit();
+//     } else {
+//       enter();
+//     }
+//   };
+
+//   // Keyboard shortcuts
+//   useEffect(() => {
+//     const onKey = (e) => {
+//       if (e.key === "ArrowLeft") { e.preventDefault(); prevPage(); }
+//       else if (e.key === "ArrowRight") { e.preventDefault(); nextPage(); }
+//       else if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomIn(); }
+//       else if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomOut(); }
+//       else if (e.key.toLowerCase() === "f") { e.preventDefault(); toggleFullscreen(); }
+//       else if (e.key === "Escape" && !isFullscreen) { onClose?.(); }
+//     };
+//     document.addEventListener("keydown", onKey);
+//     return () => document.removeEventListener("keydown", onKey);
+//   }, [isFullscreen, numPages, page]);
+
+//   const handlePageInput = (e) => {
+//     const value = parseInt(e.target.value, 10);
+//     if (!isNaN(value) && value >= 1 && value <= (numPages || 1)) {
+//       setPage(value);
+//     }
+//   };
+
+//   return (
+//     <Backdrop
+//       onMouseDown={(e) => {
+//         // Don’t close on backdrop click while in fullscreen
+//         if (e.target === e.currentTarget && !isFullscreen) onClose?.();
+//       }}
+//     >
+//       <Modal ref={modalRef}>
+//         <Header>
+//           <Title>
+//             <FaFilePdf color="#e74c3c" />
+//             {name || "Document"}
+//           </Title>
+//           <Toolbar>
+//             <Btn onClick={prevPage} disabled={loading || page <= 1}>Prev</Btn>
+//             <input
+//               type="number"
+//               min="1"
+//               max={numPages || 1}
+//               value={page}
+//               onChange={handlePageInput}
+//               style={{ width: 60, textAlign: "center" }}
+//               disabled={loading}
+//             />
+//             <span> / {numPages || "…"}</span>
+//             <Btn onClick={nextPage} disabled={loading || page >= (numPages || 1)}>Next</Btn>
+
+//             <Btn onClick={zoomOut} disabled={loading}>−</Btn>
+//             <ScaleBadge>{Math.round(scale * 100)}%</ScaleBadge>
+//             <Btn onClick={zoomIn} disabled={loading}>＋</Btn>
+
+//             <Btn onClick={fitWidth} disabled={loading}>Fit</Btn>
+
+//             <Btn onClick={toggleFullscreen} aria-label="Toggle Fullscreen">
+//               {isFullscreen ? <FaCompress /> : <FaExpand />}
+//             </Btn>
+
+//             {isDownloadable && (
+//               <DownloadLink href={file} download>
+//                 <FaDownload size={14} /> Download
+//               </DownloadLink>
+//             )}
+
+//             <CloseBtn onClick={onClose}>
+//               <FaTimes size={14} /> Close
+//             </CloseBtn>
+//           </Toolbar>
+//         </Header>
+
+//         <ViewerWrap ref={viewerRef}>
+//           <Document
+//             file={resolvedUrl}
+//             onLoadSuccess={onDocLoad}
+//             onLoadError={(err) => { console.error(err); setLoading(false); }}
+//             loading={<PageWrap>Loading PDF…</PageWrap>}
+//           >
+//             <PageWrap>
+//               <Page
+//                 pageNumber={page}
+//                 scale={scale}
+//                 renderAnnotationLayer={false}
+//                 renderTextLayer={false}
+//               />
+//             </PageWrap>
+//           </Document>
+//         </ViewerWrap>
+
+//         <Footer>
+//           <span>← / → for page • + / − for zoom • F for fullscreen • Esc to {isFullscreen ? "exit fullscreen" : "close"}</span>
+//           <span>{name}</span>
+//         </Footer>
+//       </Modal>
+//     </Backdrop>
+//   );
+// };
+
+// export default PdfModal;
+
+
+// PdfModal.jsx
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Document, Page, pdfjs } from "react-pdf";
 import {
   FaFilePdf,
+  FaFileWord,
+  FaFileImage,
   FaDownload,
   FaTimes,
   FaExpand,
   FaCompress,
 } from "react-icons/fa";
+import { getBackendAssets } from "../../api/authApi";
 
+// PDF worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 // ===== Styles =====
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -507,7 +850,6 @@ const Modal = styled.div`
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
 
-  /* Fill the entire screen when fullscreened */
   &:fullscreen, &:-webkit-full-screen {
     width: 100vw !important;
     height: 100vh !important;
@@ -522,9 +864,6 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   background: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 2;
 `;
 
 const Title = styled.h3`
@@ -552,12 +891,10 @@ const Btn = styled.button`
   &:disabled { opacity: .5; cursor: not-allowed; }
 `;
 
-const DownloadLink = styled.a`
+const DownloadBtn = styled(Btn)`
   background: #d4b200;
   color: white;
-  text-decoration: none;
-  padding: 6px 10px;
-  border-radius: 6px;
+  border-color: #d4b200;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -579,6 +916,7 @@ const ViewerWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16px;
 `;
 
 const PageWrap = styled.div`
@@ -586,6 +924,18 @@ const PageWrap = styled.div`
   align-items: center;
   justify-content: center;
   padding: 12px;
+`;
+
+const ImagePreview = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+`;
+
+const IframeViewer = styled.iframe`
+  width: 100%;
+  height: 100%;
+  border: none;
 `;
 
 const Footer = styled.div`
@@ -597,9 +947,6 @@ const Footer = styled.div`
   font-size: 13px;
   color: #666;
   background: #fff;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
 `;
 
 const ScaleBadge = styled.span`
@@ -609,167 +956,117 @@ const ScaleBadge = styled.span`
   font-size: 12px;
 `;
 
+// ===== Component =====
 const PdfModal = ({ file, name, onClose, isDownloadable }) => {
+  const [resolvedUrl, setResolvedUrl] = useState(null);
+  const [fileType, setFileType] = useState("unknown");
   const [numPages, setNumPages] = useState(null);
   const [page, setPage] = useState(1);
   const [scale, setScale] = useState(1.1);
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const modalRef = useRef(null);
+  const viewerRef = useRef(null);
 
-  const modalRef = useRef(null);   // ⬅️ fullscreen target
-  const viewerRef = useRef(null);  // still used for "Fit" calc
-
-  // Disable right-click
-  const killContext = useCallback((e) => e.preventDefault(), []);
+  // Fetch signed URL
   useEffect(() => {
-    document.addEventListener("contextmenu", killContext);
-    return () => document.removeEventListener("contextmenu", killContext);
-  }, [killContext]);
-
-  // Sync fullscreen state (cross-browser)
-  useEffect(() => {
-    const onFSChange = () => {
-      const active =
-        !!document.fullscreenElement ||
-        !!document.webkitFullscreenElement ||
-        !!document.mozFullScreenElement ||
-        !!document.msFullscreenElement;
-      setIsFullscreen(active);
+    const fetchSignedUrl = async () => {
+      try {
+        const data = await getBackendAssets(file);
+        setResolvedUrl(data.url);
+        detectFileType(file);
+      } catch (err) {
+        console.error("Failed to fetch signed URL", err);
+      }
     };
-    document.addEventListener("fullscreenchange", onFSChange);
-    document.addEventListener("webkitfullscreenchange", onFSChange);
-    document.addEventListener("mozfullscreenchange", onFSChange);
-    document.addEventListener("MSFullscreenChange", onFSChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", onFSChange);
-      document.removeEventListener("webkitfullscreenchange", onFSChange);
-      document.removeEventListener("mozfullscreenchange", onFSChange);
-      document.removeEventListener("MSFullscreenChange", onFSChange);
-    };
-  }, []);
+    if (file) fetchSignedUrl();
+  }, [file]);
 
+  // Detect file type
+  const detectFileType = (url) => {
+    if (!url) return;
+    const ext = url.split(".").pop().toLowerCase().split("?")[0];
+    console.log("ext", ext);
+    if (ext === "pdf") setFileType("pdf");
+    else if (["doc", "docx"].includes(ext)) setFileType("word");
+    else if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) setFileType("image");
+    else setFileType("unknown");
+  };
+
+  // File icons
+  const getFileIcon = () => {
+    switch (fileType) {
+      case "pdf": return <FaFilePdf color="#e74c3c" />;
+      case "word": return <FaFileWord color="#2b579a" />;
+      case "image": return <FaFileImage color="#4caf50" />;
+      default: return <FaFilePdf />;
+    }
+  };
+
+  // PDF handlers
   const onDocLoad = ({ numPages }) => {
     setNumPages(numPages || 1);
     setPage(1);
     setLoading(false);
   };
-
   const prevPage = () => setPage((p) => Math.max(1, p - 1));
   const nextPage = () => setPage((p) => Math.min(numPages || 1, p + 1));
-  const zoomIn  = () => setScale((s) => Math.min(3, +(s + 0.1).toFixed(2)));
+  const zoomIn = () => setScale((s) => Math.min(3, +(s + 0.1).toFixed(2)));
   const zoomOut = () => setScale((s) => Math.max(0.5, +(s - 0.1).toFixed(2)));
-
   const fitWidth = () => {
     const wrap = viewerRef.current;
     if (!wrap) return;
-    const contentWidth = wrap.clientWidth - 24; // padding
-    const newScale = Math.max(0.5, Math.min(3, contentWidth / 800)); // assume ~800px base width
+    const contentWidth = wrap.clientWidth - 24;
+    const newScale = Math.max(0.5, Math.min(3, contentWidth / 800));
     setScale(+newScale.toFixed(2));
   };
 
+  // Fullscreen toggle
   const toggleFullscreen = () => {
     const el = modalRef.current;
     if (!el) return;
-
-    const exit = () =>
-      document.exitFullscreen?.() ||
-      document.webkitExitFullscreen?.() ||
-      document.mozCancelFullScreen?.() ||
-      document.msExitFullscreen?.();
-
-    const enter = () =>
-      el.requestFullscreen?.() ||
-      el.webkitRequestFullscreen?.() ||
-      el.mozRequestFullScreen?.() ||
-      el.msRequestFullscreen?.();
-
-    if (
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement
-    ) {
-      exit();
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      setIsFullscreen(false);
     } else {
-      enter();
+      el.requestFullscreen?.();
+      setIsFullscreen(true);
     }
   };
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "ArrowLeft") { e.preventDefault(); prevPage(); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); nextPage(); }
-      else if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomIn(); }
-      else if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomOut(); }
-      else if (e.key.toLowerCase() === "f") { e.preventDefault(); toggleFullscreen(); }
-      else if (e.key === "Escape" && !isFullscreen) { onClose?.(); }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [isFullscreen, numPages, page]);
+  // Force download
+  const handleDownload = async () => {
+    try {
+      const ext = file.split(".").pop().toLowerCase().split("?")[0];
 
-  const handlePageInput = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value >= 1 && value <= (numPages || 1)) {
-      setPage(value);
+      if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) {
+        window.open(resolvedUrl, "_blank");
+      }
+      const response = await fetch(resolvedUrl);
+      console.log("response", response);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name || "document";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed", err);
     }
   };
 
-  return (
-    <Backdrop
-      onMouseDown={(e) => {
-        // Don’t close on backdrop click while in fullscreen
-        if (e.target === e.currentTarget && !isFullscreen) onClose?.();
-      }}
-    >
-      <Modal ref={modalRef}>
-        <Header>
-          <Title>
-            <FaFilePdf color="#e74c3c" />
-            {name || "Document"}
-          </Title>
-          <Toolbar>
-            <Btn onClick={prevPage} disabled={loading || page <= 1}>Prev</Btn>
-            <input
-              type="number"
-              min="1"
-              max={numPages || 1}
-              value={page}
-              onChange={handlePageInput}
-              style={{ width: 60, textAlign: "center" }}
-              disabled={loading}
-            />
-            <span> / {numPages || "…"}</span>
-            <Btn onClick={nextPage} disabled={loading || page >= (numPages || 1)}>Next</Btn>
 
-            <Btn onClick={zoomOut} disabled={loading}>−</Btn>
-            <ScaleBadge>{Math.round(scale * 100)}%</ScaleBadge>
-            <Btn onClick={zoomIn} disabled={loading}>＋</Btn>
-
-            <Btn onClick={fitWidth} disabled={loading}>Fit</Btn>
-
-            <Btn onClick={toggleFullscreen} aria-label="Toggle Fullscreen">
-              {isFullscreen ? <FaCompress /> : <FaExpand />}
-            </Btn>
-
-            {isDownloadable && (
-              <DownloadLink href={file} download>
-                <FaDownload size={14} /> Download
-              </DownloadLink>
-            )}
-
-            <CloseBtn onClick={onClose}>
-              <FaTimes size={14} /> Close
-            </CloseBtn>
-          </Toolbar>
-        </Header>
-
-        <ViewerWrap ref={viewerRef}>
+  // Render viewer based on file type
+  const renderContent = () => {
+    switch (fileType) {
+      case "pdf":
+        return (
           <Document
-            file={file}
+            file={resolvedUrl}
             onLoadSuccess={onDocLoad}
-            onLoadError={(err) => { console.error(err); setLoading(false); }}
             loading={<PageWrap>Loading PDF…</PageWrap>}
           >
             <PageWrap>
@@ -781,10 +1078,55 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
               />
             </PageWrap>
           </Document>
+        );
+      case "image":
+        return <ImagePreview src={resolvedUrl} alt={name} />;
+      case "word":
+        const officeViewer = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(resolvedUrl)}`;
+        return <IframeViewer src={officeViewer} title={name} />;
+      default:
+        return <div style={{ padding: 40 }}>Loading...</div>;
+    }
+  };
+
+  return (
+    <Backdrop onMouseDown={(e) => { if (e.target === e.currentTarget && !isFullscreen) onClose?.(); }}>
+      <Modal ref={modalRef}>
+        <Header>
+          <Title>
+            {getFileIcon()}
+            {name || "Document"}
+          </Title>
+          <Toolbar>
+            {fileType === "pdf" && (
+              <>
+                <Btn onClick={prevPage} disabled={loading || page <= 1}>Prev</Btn>
+                <span>{loading ? "…" : `${page} / ${numPages}`}</span>
+                <Btn onClick={nextPage} disabled={loading || page >= numPages}>Next</Btn>
+                <Btn onClick={zoomOut} disabled={loading}>−</Btn>
+                <ScaleBadge>{Math.round(scale * 100)}%</ScaleBadge>
+                <Btn onClick={zoomIn} disabled={loading}>＋</Btn>
+                <Btn onClick={fitWidth} disabled={loading}>Fit</Btn>
+              </>
+            )}
+            {isDownloadable && (
+              <DownloadBtn onClick={handleDownload}>
+                <FaDownload size={14} /> Download
+              </DownloadBtn>
+            )}
+            <Btn onClick={toggleFullscreen}>
+              {isFullscreen ? <FaCompress /> : <FaExpand />}
+            </Btn>
+            <CloseBtn onClick={onClose}><FaTimes size={14} /> Close</CloseBtn>
+          </Toolbar>
+        </Header>
+
+        <ViewerWrap ref={viewerRef}>
+          {renderContent()}
         </ViewerWrap>
 
         <Footer>
-          <span>← / → for page • + / − for zoom • F for fullscreen • Esc to {isFullscreen ? "exit fullscreen" : "close"}</span>
+          <span>{fileType === "pdf" && "Use ← → for page • + / − for zoom •"} Esc to close</span>
           <span>{name}</span>
         </Footer>
       </Modal>

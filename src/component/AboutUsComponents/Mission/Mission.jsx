@@ -79,7 +79,7 @@ const Mission = () => {
         <CardsContainer id="mission-cards-container" ref={containerRef}>
           {missionData.map((item, index) => (
             <Card key={index}>
-              <CardImage src={item.image} alt={item.title} />
+              <CardImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${item.image}`}  alt={item.title} />
               <CardTitle>{item.title}</CardTitle>
               <CardDescription dangerouslySetInnerHTML={{ __html: item.description }} />
             </Card>

@@ -330,3 +330,14 @@ export const resetPassword = async (data) => {
         throw error;
     }
 }
+
+export const getBackendAssets = async (file) => {
+    try {
+        const response = await api.get(`/api/project/resource/pdf?fileKey=${file}`);
+        console.log("response", response.data);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

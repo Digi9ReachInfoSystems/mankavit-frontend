@@ -287,7 +287,7 @@ useEffect(() => {
             >
               &times;
             </CloseIcon>
-            <ModalImage src={selectedImage} alt="Achiever" />
+            <ModalImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${selectedImage}`} alt="Achiever" />
           </ModalContent>
         </ModalOverlay>
       )}

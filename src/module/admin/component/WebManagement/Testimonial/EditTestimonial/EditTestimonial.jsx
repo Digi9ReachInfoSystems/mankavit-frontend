@@ -106,6 +106,7 @@ const EditTestimonial = () => {
     setError('');
     setFormData(fd => ({ ...fd, imageFile: file }));
     const reader = new FileReader();
+    console.log(reader);
     reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
@@ -239,9 +240,9 @@ const EditTestimonial = () => {
         <label htmlFor="upload-media" style={{ cursor: 'pointer' }}>
           {previewUrl ? (
             formData.mediaType === 'image' ? (
-              <PreviewMedia as="img" src={previewUrl} alt="Preview" />
+              <PreviewMedia as="img" src={previewUrl.startsWith('data:') ? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`} alt="Preview" />
             ) : (
-              <PreviewMedia as="video" src={previewUrl} controls />
+              <PreviewMedia as="video" src={previewUrl.startsWith('data:') ? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`} controls />
             )
           ) : (
             <>

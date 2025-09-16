@@ -276,6 +276,7 @@ export default function EditCourse() {
         toast.error("Please select an image file.");
         return;
       }
+      console.log("URL ", URL.createObjectURL(file),)
       setFormData((prev) => ({
         ...prev,
         thumbnailFile: file,
@@ -704,7 +705,7 @@ export default function EditCourse() {
               {formData.previewUrl ? (
                 <>
                   <img
-                    src={formData.previewUrl}
+                    src={formData.previewUrl.startsWith("blob:http") ? formData.previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${formData.previewUrl}`}
                     alt="Preview"
                     style={{
                       width: "100%",

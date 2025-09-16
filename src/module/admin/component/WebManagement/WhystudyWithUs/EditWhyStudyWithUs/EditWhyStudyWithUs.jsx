@@ -37,7 +37,7 @@ const EditWhyStudyWithUs = () => {
 
   const config = useMemo(() => ({
     readonly: false,
-    placeholder: 'Enter description here...',
+    // placeholder: 'Enter description here...',
     buttons: [
       'bold', 'italic', 'underline', 'strikethrough', '|',
       'ul', 'ol', '|', 'font', 'fontsize', '|',
@@ -231,7 +231,7 @@ const EditWhyStudyWithUs = () => {
         />
         <label htmlFor="upload-image" style={{ cursor: readOnlyPermissions ? 'not-allowed' : 'pointer' }}>
           {previewUrl ? (
-            <PreviewImage src={previewUrl} alt="Preview" />
+            <PreviewImage src={previewUrl.startsWith("data:")? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`} alt="Preview" />
           ) : (
             <>
               <ImageIcon>

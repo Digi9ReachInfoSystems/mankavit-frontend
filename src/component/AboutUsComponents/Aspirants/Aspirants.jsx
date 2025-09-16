@@ -269,8 +269,8 @@ const Aspirants = () => {
                 <Card>
                   <LeftCol>
                     <CircleMedia
-                      image={t.image}
-                      video={t.video}
+                      image={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${t.image}`}
+                      video={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${t.video}`}
                       name={t.name}
                       active={i === idx}
                     />

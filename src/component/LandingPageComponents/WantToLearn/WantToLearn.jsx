@@ -55,7 +55,7 @@ const navigate = useNavigate();
               <Image src={lawBanner} alt="Law Banner" />
             </CardHeader> */}
             <CardHeader>
-              <Image src={course.image} alt="Law Banner" />
+              <Image src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}`} alt="Law Banner" />
             </CardHeader>
 
             <CardBody>

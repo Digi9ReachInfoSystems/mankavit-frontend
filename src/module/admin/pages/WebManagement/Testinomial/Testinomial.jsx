@@ -269,10 +269,10 @@ const fetchTestimonials = async () => {
             </CloseIcon>
 
             {mediaType === 'image' ? (
-              <ModalImage src={selectedMedia} alt="Testimonial" />
+              <ModalImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${selectedMedia}`} alt="Testimonial" />
             ) : (
               <video controls style={{ maxWidth: '100%', maxHeight: '80vh' }}>
-                <source src={selectedMedia} type="video/mp4" />
+                <source src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${selectedMedia}`} type="video/mp4" />
                 Your browser does not support HTML5 video.
               </video>
             )}
