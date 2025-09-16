@@ -33,6 +33,7 @@ import {
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { getLiveMeetings } from "../../../../api/meetingApi";
 import { getUserByUserId } from "../../../../api/authApi";
+import { startCourse } from "../../../../api/userProgressApi"; // already imported ✅
 
 const UserCourses = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -41,9 +42,10 @@ const UserCourses = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [liveStatus, setLiveStatus] = useState({});
-  const [showAll, setShowAll] = useState(false); // ✅ New
-  const navigate = useNavigate();
+  const [showAll, setShowAll] = useState(false);
+  const [submitting, setSubmitting] = useState({}); // ✅ per-card loading
 
+  const navigate = useNavigate();
   const { userId } = getCookiesData();
 
   const getCtaText = (course) => {
@@ -61,6 +63,41 @@ const UserCourses = () => {
     return pct === 0 ? "Start Learning" : "Continue Learning";
   };
 
+  // ✅ common handler for Start/Continue
+  const handleStartOrContinue = async (course) => {
+    try {
+      // KYC gate
+      if (
+        userData?.kyc_status === "not-applied" ||
+        userData?.kyc_status === "rejected"
+      ) {
+        navigate(`/user/kycStatus`);
+        return;
+      }
+
+      // Completed → just navigate
+      if (course.course_status === "completed") {
+        navigate(`/continueCourse/${course._id}`);
+        return;
+      }
+
+      // Call startCourse for BOTH Start and Continue
+      setSubmitting((s) => ({ ...s, [course._id]: true }));
+      await startCourse(userId, course._id);
+
+      // Navigate after success
+      navigate(`/continueCourse/${course._id}`);
+    } catch (e) {
+      console.error("Failed to start course", e);
+      setError(
+        e?.response?.data?.message ||
+          "Failed to start the course. Please try again."
+      );
+    } finally {
+      setSubmitting((s) => ({ ...s, [course._id]: false }));
+    }
+  };
+
   // Fetch courses on tab change
   useEffect(() => {
     const fetchCourses = async () => {
@@ -72,8 +109,8 @@ const UserCourses = () => {
       setLoading(true);
       setError("");
       try {
-        const userData = await getUserByUserId(userId);
-        setUserData(userData.user);
+        const userDataRes = await getUserByUserId(userId);
+        setUserData(userDataRes.user);
 
         let response = {};
         if (activeTab === "All") {
@@ -89,7 +126,7 @@ const UserCourses = () => {
             ? response.enrolledCourses
             : []
         );
-        setShowAll(false); // ✅ Reset to 4 when switching tab
+        setShowAll(false); // reset view
       } catch (err) {
         setError("Failed to fetch courses. Please try again.");
         setCourses([]);
@@ -114,7 +151,7 @@ const UserCourses = () => {
       const res = await getLiveMeetings({ courseIds });
       const statusMap = {};
       res.data.forEach((meeting) => {
-        meeting.course_Ref.map((id) => {
+        meeting.course_Ref.forEach((id) => {
           statusMap[id._id] = true;
         });
       });
@@ -124,7 +161,7 @@ const UserCourses = () => {
     }
   };
 
-  // ✅ Slice courses if not "show all"
+  // Slice courses if not "show all"
   const displayedCourses = showAll ? courses : courses.slice(0, 4);
 
   return (
@@ -167,76 +204,73 @@ const UserCourses = () => {
         <>
           <CardGrid>
             {displayedCourses.length > 0 ? (
-              displayedCourses.map((course, index) => (
-                <CourseCard
-                  key={index}
-                  completed={course.course_status === "completed"}
-                >
-                  <ImageWrapper>
-                    <img src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}` || lawimg} alt="Course Banner" />
-                  </ImageWrapper>
+              displayedCourses.map((course, index) => {
+                const isCompleted = course.course_status === "completed";
+                const isSubmitting = !!submitting[course._id];
 
-                  <ProgressContainer>
-                    <ProgressLabel>
-                      {course.completePercentage || 0}% Completed
-                    </ProgressLabel>
-                    <ProgressBar>
-                      <ProgressFill
-                        style={{
-                          width: `${course.completePercentage || 0}%`,
-                        }}
+                return (
+                  <CourseCard key={index} completed={isCompleted}>
+                    <ImageWrapper>
+                      <img
+                        src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}` || lawimg}
+                        alt="Course Banner"
                       />
-                    </ProgressBar>
-                  </ProgressContainer>
+                    </ImageWrapper>
 
-                  {liveStatus[course._id] && (
-                    <BlinkingIcon>🔴 Live Class Ongoing</BlinkingIcon>
-                  )}
+                    <ProgressContainer>
+                      <ProgressLabel>
+                        {course.completePercentage || 0}% Completed
+                      </ProgressLabel>
+                      <ProgressBar>
+                        <ProgressFill
+                          style={{
+                            width: `${course.completePercentage || 0}%`,
+                          }}
+                        />
+                      </ProgressBar>
+                    </ProgressContainer>
 
-                  <CourseContent>
-                    <CourseMain>
-                      <CourseTitle>
-                        {course.courseDisplayName ||
-                          course.courseName ||
-                          "Course Title"}
-                      </CourseTitle>
-                    </CourseMain>
-
-                    {course.course_status !== "completed" ? (
-                      <Details>
-                        <DetailItemok style={{ color: "#206666ff" }}>
-                          Finish 100% to unlock the certificate
-                        </DetailItemok>
-                      </Details>
-                    ) : (
-                      <Details>
-                        <DetailItemok>
-                          <FcOk fontSize={30} /> You have successfully
-                          Completed this course
-                        </DetailItemok>
-                      </Details>
+                    {liveStatus[course._id] && (
+                      <BlinkingIcon>🔴 Live Class Ongoing</BlinkingIcon>
                     )}
-                  </CourseContent>
 
-                  <PriceActions>
-                    <ViewButton
-                      completed={course.course_status === "completed"}
-                      onClick={() => {
-                        if (
-                          userData.kyc_status === "not-applied" ||
-                          userData.kyc_status === "rejected"
-                        ) {
-                          navigate(`/user/kycStatus`);
-                        } else {
-                          navigate(`/continueCourse/${course._id}`);
-                        }
-                      }}
-                    >
-                      {getCtaText(course)}
-                    </ViewButton>
-                  </PriceActions>
-                </CourseCard>
-              ))
+                    <CourseContent>
+                      <CourseMain>
+                        <CourseTitle>
+                          {course.courseDisplayName ||
+                            course.courseName ||
+                            "Course Title"}
+                        </CourseTitle>
+                      </CourseMain>
+
+                      {!isCompleted ? (
+                        <Details>
+                          <DetailItemok style={{ color: "#206666ff" }}>
+                            Finish 100% to unlock the certificate
+                          </DetailItemok>
+                        </Details>
+                      ) : (
+                        <Details>
+                          <DetailItemok>
+                            <FcOk fontSize={30} /> You have successfully
+                            Completed this course
+                          </DetailItemok>
+                        </Details>
+                      )}
+                    </CourseContent>
+
+                    <PriceActions>
+                      <ViewButton
+                        completed={isCompleted}
+                        disabled={isSubmitting}
+                        onClick={() => handleStartOrContinue(course)} // ✅
+                      >
+                        {isSubmitting ? "Please wait…" : getCtaText(course)}
+                      </ViewButton>
+                    </PriceActions>
+                  </CourseCard>
+                );
+              })
             ) : (
               <div
                 style={{
@@ -252,7 +286,6 @@ const UserCourses = () => {
             )}
           </CardGrid>
 
-          {/* ✅ Toggle View All / Show Less */}
           {courses.length > 4 && (
             <ShowMoreBar>
               <ToggleAllButton onClick={() => setShowAll(!showAll)}>

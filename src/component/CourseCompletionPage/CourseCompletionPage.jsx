@@ -89,7 +89,7 @@ const CourseCompletionPage = () => {
                             >
                         {/* <embed src={certificatePdfUrl} type="application/pdf" width="100%" height="500px" /> */}
                         <iframe
-                            src={`${certificatePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                            src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificatePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                             width="600"
                             height="415px"
 
