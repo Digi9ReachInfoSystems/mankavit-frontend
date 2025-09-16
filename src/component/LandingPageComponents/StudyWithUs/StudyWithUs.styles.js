@@ -16,6 +16,9 @@ export const Title = styled.h2`
   text-align: center;
   margin: 0 0 1.25rem 0;
   // text-align: center;
+  @media (max-width: 900px) {
+    font-size: 36px;
+  }
 `;
 export const Highlight = styled.span` color: #2d79f3; `;
 

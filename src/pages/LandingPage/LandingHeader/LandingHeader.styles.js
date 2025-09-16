@@ -24,8 +24,9 @@ export const TopBar = styled.div`
   align-items: center;
   gap: 16px;
   background-color: var(--bg-soft);
-  padding: 12px 40px; /* Increased padding to accommodate larger logo */
+  // padding: 12px 40px; /* Increased padding to accommodate larger logo */
   font-size: 14px;
+   padding: 20px 40px; 
   color: var(--muted);
 
   @media (max-width: 576px) {
@@ -274,16 +275,17 @@ export const Brand = styled.div`
 
 export const BrandLogo = styled.img`
   display: block;
-  height: clamp(56px, 3.5vw, 80px); /* Increased from 22px to 36px min size */
+  height: clamp(72px, 5vw, 120px);  // 💥 Increased min and max height
   width: auto;
   object-fit: contain;
   image-rendering: -webkit-optimize-contrast;
-  
+
   @media (max-width: 576px) {
-    height: clamp(32px, 3vw, 40px); /* Slightly larger on mobile too */
-    margin-left: 0; /* Removed the small margin on mobile */
+    height: clamp(48px, 4vw, 64px); // 💥 Also increased mobile height
+    margin-left: 0;
   }
 `;
+
 
 export const NavLinkItem = styled.div`
   position: relative;

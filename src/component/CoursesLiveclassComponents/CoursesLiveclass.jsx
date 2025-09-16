@@ -162,6 +162,30 @@ const CoursesLiveclass = () => {
     return () => clearInterval(interval);
   }, []);
 
+
+  useEffect(() => {
+  if (!course) return;
+  const sub = course.subjects?.find(s => s._id === subjectid);
+  const lecObj = sub?.lectures?.find(l => l._id === lectureId);
+
+  if (lecObj && lecObj._id !== lecture?._id) {
+    setSubjectId(sub?._id);
+    setLecture(lecObj);
+    setVideoError(false);
+
+    // hard reset the video element so the new source loads immediately
+    queueMicrotask(() => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.load();
+        // keep autoplay if you want; otherwise remove next line
+        videoRef.current.play().catch(() => {});
+      }
+    });
+  }
+}, [course, subjectid, lectureId]);  // ← depends on URL params
+
+
   // Auto fullscreen when play
   useEffect(() => {
     const player = videoRef.current;
@@ -255,6 +279,13 @@ const CoursesLiveclass = () => {
       });
     }
   };
+  useEffect(() => {
+  if (videoRef.current) {
+    videoRef.current.load();   // reload the video element
+    videoRef.current.play().catch(() => {}); // autoplay, ignore if blocked
+  }
+}, [lectureId]);
+
 
   const buildMockData = async (courseObj) => {
     const list = await Promise.all(
@@ -502,16 +533,36 @@ const CoursesLiveclass = () => {
     }
   };
 
+  // const handleStartLecture = async (subId, lecId) => {
+  //   if (userId && courseId && subId && lecId) {
+  //     try {
+  //       await startLecturer(userId, courseId, subId, lecId);
+  //       navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
+  //     } catch (error) {
+  //       console.error("Error starting lecture:", error);
+  //     }
+  //   }
+  // };
+
   const handleStartLecture = async (subId, lecId) => {
-    if (userId && courseId && subId && lecId) {
-      try {
-        await startLecturer(userId, courseId, subId, lecId);
-        navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
-      } catch (error) {
-        console.error("Error starting lecture:", error);
-      }
-    }
-  };
+  // 1) set state right away so UI updates instantly
+  const lecObj =
+    course?.subjects?.find(s => s._id === subId)?.lectures?.find(l => l._id === lecId);
+  if (lecObj) {
+    setSubjectId(subId);
+    setLecture(lecObj);
+    setVideoError(false);
+  }
+
+  // 2) fire backend calls (best-effort)
+  if (userId && courseId && subId && lecId) {
+    try { await startLecturer(userId, courseId, subId, lecId); } catch {}
+  }
+
+  // 3) navigate after state set
+  navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
+};
+
 
   const renderMockTestsTab = () => {
     if (!mockData.length)
@@ -1042,8 +1093,9 @@ const CoursesLiveclass = () => {
           {lecture && (
             <>
 
-              <VideoPlayerContainer>
+              <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
                 <VideoPlayer
+                  
                   ref={videoRef}
                   onError={handleVideoError}
                   onEnded={handleVideoEnd}

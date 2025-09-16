@@ -144,7 +144,9 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
             <Name>{(achiever.name || '').toUpperCase()}</Name>
             <Achievement>
               <AchievementText>
-                {achiever.exam_name}{achiever.exam_name ? ' - ' : ''}AIR {achiever.rank}
+                {/* {achiever.exam_name}
+                {achiever.exam_name ? ' - ' : ''} */}
+                AIR {achiever.rank}
               </AchievementText>
             </Achievement>
           </Card>
