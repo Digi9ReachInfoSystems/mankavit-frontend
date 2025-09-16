@@ -104,7 +104,7 @@ const IndividualCourses = () => {
       <Hello>
         <LeftCol>
           <LeftSticky>
-            <CourseImage src={course?.image} alt="Course" />
+            <CourseImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course?.image}`} alt="Course" />
             {userLoggedIn ? (
               <>
                 {isEnrolled ? (

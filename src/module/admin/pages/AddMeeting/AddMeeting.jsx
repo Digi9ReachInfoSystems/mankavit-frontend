@@ -25,6 +25,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
 import { getMeetingHostAdmins } from "../../../../api/userApi";
+import { Radio } from "antd";
 
 export default function AddMeeting() {
   const navigate = useNavigate();
@@ -151,14 +152,14 @@ export default function AddMeeting() {
         </FormRow>
         <FormRow>
           {/* <Column> */}
-            <FieldWrapper className="toggle-wrapper">
-              <Label>Auto Record</Label>
-              <ToggleSwitch
-                type="checkbox"
-                checked={autoRecord}
-                onChange={(e) => setAutoRecord(e.target.checked)}
-              />
-            </FieldWrapper>
+          <FieldWrapper className="toggle-wrapper">
+            <Label>Auto Record</Label>
+            <ToggleSwitch
+              type="checkbox"
+              checked={autoRecord}
+              onChange={(e) => setAutoRecord(e.target.checked)}
+            />
+          </FieldWrapper>
           {/* </Column> */}
         </FormRow>
 
@@ -258,7 +259,7 @@ export default function AddMeeting() {
         {/* Host Selection */}
         <FormRow>
           <Column>
-            <FieldWrapper>
+            {/* <FieldWrapper>
               <Label>Meeting Host*</Label>
               <Select
                 style={{ width: "100%" }}
@@ -270,7 +271,33 @@ export default function AddMeeting() {
                 ]}
                 disabled={loading}
               />
+            </FieldWrapper> */}
+            <FieldWrapper>
+              <Label>Meeting Host*</Label>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <label>
+                  <input
+                    type="radio"
+                    value="me"
+                    checked={meetingType === "me"}
+                    onChange={(e) => setMeetingType(e.target.value)}
+                    disabled={loading}
+                  />
+                  Me
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="other_host"
+                    checked={meetingType === "other_host"}
+                    onChange={(e) => setMeetingType(e.target.value)}
+                    disabled={loading}
+                  />
+                  Other Host
+                </label>
+              </div>
             </FieldWrapper>
+
           </Column>
           {meetingType === "other_host" && (
             <Column>
