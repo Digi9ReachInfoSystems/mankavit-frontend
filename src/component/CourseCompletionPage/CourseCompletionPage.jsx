@@ -105,7 +105,7 @@ const CourseCompletionPage = () => {
                         <DownloadButton onClick={() => {
                             if (certificatePdfUrl) {
                                 // Open in new tab
-                                window.open(certificatePdfUrl, "_blank");
+                                window.open(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificatePdfUrl}`, "_blank");
                             }
                         }}>
                             <FaDownload /> Download Certificate
