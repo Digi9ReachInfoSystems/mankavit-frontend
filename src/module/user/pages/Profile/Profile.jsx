@@ -732,7 +732,7 @@ const Profile = () => {
                       }}
                     >
                       <img
-                        src={passportPhoto.url}
+                        src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${passportPhoto.url}`}
                         alt="Passport Photo"
                         style={{
                           width: "100%",
@@ -828,7 +828,7 @@ const Profile = () => {
                         </div>
                       ) : (
                         <img
-                          src={uploadedIDProof.url}
+                          src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${uploadedIDProof.url}`}
                           alt="ID Proof"
                           style={{
                             width: "100%",
@@ -991,13 +991,13 @@ const Profile = () => {
                 <CloseButton onClick={closeModal}>×</CloseButton>
                 {modalFile.type?.startsWith("image/") ? (
                   <img
-                    src={modalFile.url}
+                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${modalFile.url}`}
                     alt="Preview"
                     style={{ width: "100%" }}
                   />
                 ) : (
                   <iframe
-                    src={modalFile.url}
+                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${modalFile.url}`}
                     title="Document"
                     width="100%"
                     height="500"
