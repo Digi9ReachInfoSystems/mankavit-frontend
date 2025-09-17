@@ -68,7 +68,7 @@ const UserCourses = () => {
     try {
       // KYC gate
       if (
-        userData?.kyc_status === "not-applied" ||
+        // userData?.kyc_status === "not-applied" ||
         userData?.kyc_status === "rejected"
       ) {
         navigate(`/user/kycStatus`);

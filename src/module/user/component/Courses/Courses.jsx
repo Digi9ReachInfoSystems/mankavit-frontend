@@ -331,7 +331,7 @@ const Courses = () => {
   // ✅ Centralized click handler for Start/Continue
   const handleStartOrContinue = async (course) => {
     // KYC gate
-    if (userData?.kyc_status === "not-applied" || userData?.kyc_status === "rejected") {
+    if ( userData?.kyc_status === "rejected") {
       navigate(`/user/kycStatus`);
       return;
     }
