@@ -174,6 +174,9 @@ import NotificationsList from "./module/admin/pages/WebManagement/Notification/N
 import AdminZoomMeeting from "./module/admin/pages/AdminZoomMeeting/AdminZoomMeeting";
 import { KYCSubtext } from "./module/user/pages/KYCRejected/KYCRejected.styles";
 import KYCRejected from "./module/user/pages/KYCRejected/KYCRejected";
+import TermsAndConditionsMobile from "./component/StaticPages/TermsAndConditionsMobile/TermsAndConditionsMobile";
+import PrivacyPolicyMobile from "./component/StaticPages/PrivacyPolicyMobile/PrivacyPolicyMobile";
+import AccountDeletionPage from "./component/StaticPages/AccountDeletionPage/AccountDeletionPage";
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
   useEffect(() => {
@@ -316,6 +319,30 @@ function App() {
               <UserRoute>
                 <PrivacyPolicy />
               </UserRoute>
+            }
+          />
+           <Route
+            path="/termsandcondition/mobile"
+            element={
+              // <UserRoute>
+               <TermsAndConditionsMobile/>
+              // </UserRoute>
+            }
+          />
+          <Route
+            path="/privacypolicy/mobile"
+            element={
+              // <UserRoute>
+                <PrivacyPolicyMobile/>
+              // </UserRoute>
+            }
+          />
+           <Route
+            path="/account-delete/mobile"
+            element={
+              // <UserRoute>
+                <AccountDeletionPage/>
+              // </UserRoute>
             }
           />
 
