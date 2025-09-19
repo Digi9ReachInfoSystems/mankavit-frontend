@@ -32,7 +32,7 @@ const EditLiveclass = ({ onSubmit }) => {
   // Initialize form fields with editingData
 useEffect(() => {
   if (editingData) {
-    console.log("editingData loaded:", editingData);
+    // // console.log("editingData loaded:", editingData);
     // convert to local datetime-local format
     const localDateTime = convertToLocalDatetime(editingData.schedule);
     setschedule(localDateTime || "");
@@ -61,7 +61,7 @@ const convertToLocalDatetime = (utcString) => {
 
   const submit = (e) => {
     e.preventDefault();
-    console.log("Submit values:", { schedule, title, description, file, fileName });
+    // console.log("Submit values:", { schedule, title, description, file, fileName });
 
     if (!schedule || !title || !description || (!file && !fileName)) {
       alert("Please fill out all fields and upload a banner");

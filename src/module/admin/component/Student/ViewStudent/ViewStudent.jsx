@@ -26,9 +26,9 @@ const ViewStudent = () => {
     const fetchStudentDetails = async () => {
       try {
      
-console.log("id",id);
+// // // // // // console.log("id",id);
  const student = await getUserDetails(id);
-console.log("Student details:", student);
+// // // // // // console.log("Student details:", student);
 const user = student.user;
 setStudentData(user);
 setPhotoPreview(user.passport || '');
@@ -49,7 +49,7 @@ const enrolledCourses = (user.subscription || []).map(sub => {
 setCourseNames(enrolledCourses);
 
       } catch (error) {
-        console.error("Failed to fetch student details:", error);
+        // // // // // console.error("Failed to fetch student details:", error);
       }
     };
 

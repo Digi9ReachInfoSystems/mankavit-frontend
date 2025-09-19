@@ -57,9 +57,9 @@ const ViewUserResults = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("attemptId", attemptId);
+        // // // // console.log("attemptId", attemptId);
         const response = await getAttemptById(attemptId);
-        console.log("response", response);
+        // // // console.log("response", response);
         setUserId(response.data.userId._id);
         setMockTestId(response.data.mockTestId._id);
         setEvaluationStatus(response.data.status);
@@ -81,7 +81,7 @@ const ViewUserResults = () => {
           throw new Error("Failed to fetch attempt data");
         }
       } catch (error) {
-        console.error("Error fetching attempt:", error);
+        // // // console.error("Error fetching attempt:", error);
       } finally {
         setLoading(false);
       }
@@ -122,7 +122,7 @@ const ViewUserResults = () => {
       const response = await evaluateSingleSubjectiveQuestion(payload);
       if (response.success) {
         toast.success("Single subjective question evaluation saved successfully");
-        // console.log("Single question evaluation saved successfully", response);
+        // // // // console.log("Single question evaluation saved successfully", response);
         // Update the local state with the saved data
         const updatedAttemptData = { ...attemptData };
         const answerIndex = updatedAttemptData.answers.findIndex(a => a.questionId === questionId);
@@ -133,7 +133,7 @@ const ViewUserResults = () => {
       }
     } catch (error) {
       toast.error("Failed to save single question evaluation");
-      console.error("Failed to save single question evaluation", error);
+      // // // console.error("Failed to save single question evaluation", error);
     }
   };
 
@@ -147,14 +147,14 @@ const ViewUserResults = () => {
           marks: e.marks
         }))
       };
-      console.log("payload", payload);
+      // // // console.log("payload", payload);
       const response = await evaluateMocktest(payload);
       if (response.success) {
-        console.log("Evaluation submitted successfully", response);
+        // // // console.log("Evaluation submitted successfully", response);
         navigate(`/admin/mock-test/user-attempts/${mockTestId}/${userId}`);
       }
     } catch (error) {
-      console.error("Failed to submit evaluation", error);
+      // // // console.error("Failed to submit evaluation", error);
     }
   };
 

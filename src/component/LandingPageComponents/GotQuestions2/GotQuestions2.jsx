@@ -236,7 +236,7 @@ const GotQuestions2 = () => {
       setError(null);
       try {
         const response = await getAllfaqs();
-        console.log("API Response:", response);
+        // console.log("API Response:", response);
         
         if (Array.isArray(response)) {
           setFaqs(response);
@@ -248,7 +248,7 @@ const GotQuestions2 = () => {
           throw new Error("Invalid FAQ data format");
         }
       } catch (err) {
-        console.error("Error fetching FAQs:", err);
+        // console.error("Error fetching FAQs:", err);
         setError(err.message || "Could not load FAQs");
       } finally {
         setLoading(false);

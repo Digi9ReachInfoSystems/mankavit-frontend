@@ -35,7 +35,7 @@ const years = [2025, 2024, 2023, 2022, 2021, 2020, 2019];
 const EditQuestionPaper = () => {
   // Expect route like: /admin/web-management/question-paper/edit/:title/:year
   const { title: routeTitle, year: routeYear } = useParams();
-  console.log("routeTitle", routeTitle, "routeYear", routeYear);
+  // // console.log("routeTitle", routeTitle, "routeYear", routeYear);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -93,7 +93,7 @@ const EditQuestionPaper = () => {
           existingFileUrl: data.question_url || ""
         });
       } catch (e) {
-        console.error("Fetch error:", e);
+        // // console.error("Fetch error:", e);
         toast.error(e?.response?.data?.error || e?.message || "Failed to load question paper");
         navigate("/admin/web-management/question-paper");
       } finally {
@@ -188,7 +188,7 @@ const EditQuestionPaper = () => {
         navigate(`/admin/web-management/question-paper`);
       }, 1000);
     } catch (err) {
-      console.error("Update error:", err);
+      // console.error("Update error:", err);
       const msg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||

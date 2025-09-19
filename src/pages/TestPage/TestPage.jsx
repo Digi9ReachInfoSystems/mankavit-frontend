@@ -41,12 +41,12 @@ const TestPage = () => {
       //   description: 'Payment for services',
       //   order_id: '6813574f9c3adbfb761b80c8' // Replace with your order ID if needed
       // });
-      // console.log('Order created:', response.data); 
+      // // console.log('Order created:', response.data); 
 
       // setOrderId(response.data.id);
       // return response.data;
     } catch (error) {
-      console.error('Error creating order:', error);
+      // console.error('Error creating order:', error);
       setPaymentStatus('Failed to create order');
       return null;
     } finally {
@@ -71,7 +71,7 @@ const TestPage = () => {
       description: "Payment for services",
       order_id: "order_QVHD8PCrDIgM0j",
       handler: async function (response) {
-        console.log("response", response);
+        // console.log("response", response);
         // try {
         //   const verificationResponse = await axios.post('/api/payment/verify', {
         //     razorpay_order_id: response.razorpay_order_id,
@@ -80,9 +80,9 @@ const TestPage = () => {
         //   });
 
         //   setPaymentStatus('Payment successful!');
-        //   console.log('Payment verification:', verificationResponse.data);
+        //   // console.log('Payment verification:', verificationResponse.data);
         // } catch (error) {
-        //   console.error('Payment verification failed:', error);
+        //   // console.error('Payment verification failed:', error);
         //   setPaymentStatus('Payment verification failed');
         // }
       },

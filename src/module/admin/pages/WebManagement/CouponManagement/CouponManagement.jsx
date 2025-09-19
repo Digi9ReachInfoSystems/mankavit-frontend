@@ -96,7 +96,7 @@ export default function CouponManagement() {
         setLoading(true);
         try {
             const response = await getAllCoupon();
-            console.log("response", response);
+            // // console.log("response", response);
             const couponsArray = response.coupons || [];
 
             const couponData = couponsArray.map((item) => ({
@@ -114,11 +114,11 @@ export default function CouponManagement() {
                 image: item.coupon_image,
                 createdAt: item.created_time
             }));
-            console.log("couponData", couponData);
+            // // console.log("couponData", couponData);
 
             setData(couponData);
         } catch (error) {
-            console.error("Error fetching coupons:", error);
+            // // console.error("Error fetching coupons:", error);
             toast.error("Failed to fetch coupons");
         } finally {
             setLoading(false);
@@ -149,7 +149,7 @@ export default function CouponManagement() {
         const pages = Math.ceil(total / ITEMS_PER_PAGE);
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         const items = processed.slice(start, start + ITEMS_PER_PAGE);
-        console.log(" testing ", items);
+        // // console.log(" testing ", items);
         setFilteredData(processed);
         setTOTAL_ENTRIES(total);
         setTotalPages(pages);
@@ -167,7 +167,7 @@ export default function CouponManagement() {
             toast.success("Coupon deleted successfully");
             await fetchCoupons();
         } catch (err) {
-            console.error(err);
+            // // console.error(err);
             toast.error("Delete failed");
         } finally {
             setDeleteModalOpen(false);
@@ -187,7 +187,7 @@ export default function CouponManagement() {
             toast.success(response.message);
             setLoadData(!loadData);
         } catch (err) {
-            console.error(err);
+            // // console.error(err);
             toast.error("Failed to update activation status");
             // rollback
             //   setData(d => d.map(c => c.id === id ? { ...c, isActive: !checked } : c));
@@ -242,7 +242,7 @@ export default function CouponManagement() {
             setSelectAll(false);
             await fetchCoupons();
         } catch (error) {
-            console.error("Bulk delete failed:", error);
+            // console.error("Bulk delete failed:", error);
             toast.error("Failed to delete selected coupons");
         } finally {
             setBulkDeleteModalOpen(false);

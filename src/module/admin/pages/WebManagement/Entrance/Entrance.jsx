@@ -62,7 +62,7 @@ const Entrance = () => {
       setLoading(true);
       try {
         const data = await getAllEntrances();
-        console.log("Fetched Entrance data:", data);
+        // // console.log("Fetched Entrance data:", data);
 
         if (Array.isArray(data)) {
           const sortedEntrances = data.sort((a, b) => {
@@ -72,13 +72,13 @@ const Entrance = () => {
           });
           setEntrances(sortedEntrances);
         } else {
-          console.error("Unexpected Entrance format:", data);
+          // // console.error("Unexpected Entrance format:", data);
           setEntrances([]);
           setError("Unexpected response format");
           toast.error("Unexpected response format from server");
         }
       } catch (err) {
-        console.error("Error fetching Entrances:", err);
+        // console.error("Error fetching Entrances:", err);
         setError("Failed to load Entrances");
         toast.error("Failed to load Entrances");
       } finally {

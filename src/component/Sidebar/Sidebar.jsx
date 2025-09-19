@@ -95,7 +95,7 @@ const Sidebar = () => {
     const apiCaller = async () => {
       const response = await getAuth();
       response.Permissions;
-      console.log("skndnjsjd", response);
+      // // console.log("skndnjsjd", response);
       if (response.isSuperAdmin === true) {
         setSections({
           "Mock Test": mockTestItems,
@@ -181,7 +181,7 @@ const Sidebar = () => {
       const response = await logoutUser({ email: user.email });
       if (response.success) navigate("/");
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   };
 

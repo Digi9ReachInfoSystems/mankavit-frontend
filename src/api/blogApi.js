@@ -11,7 +11,7 @@ export const createBlog = async (data) => {
 
 export const getAllBlogs = async () => {
     try {
-        console.log("getAllBlogs");
+        // console.log("getAllBlogs");
         const response = await api.get("/blog/getAllBlogs");
         return response.data;
     } catch (error) {

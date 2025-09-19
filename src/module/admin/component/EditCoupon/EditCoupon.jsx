@@ -87,7 +87,7 @@ const EditCoupon = () => {
             const response = await getAllStudents();
             setUsers(response.data?.students || []);
         } catch (error) {
-            console.error('Error fetching users:', error);
+            // // console.error('Error fetching users:', error);
             toast.error('Failed to load users');
             setUsers([]);
         } finally {
@@ -131,7 +131,7 @@ const EditCoupon = () => {
       fetchUsers();
     }
   } catch (error) {
-    console.error('Error fetching coupon data:', error);
+    // // console.error('Error fetching coupon data:', error);
     toast.error('Failed to load coupon data');
   } finally {
     setIsLoadingData(false);
@@ -196,7 +196,7 @@ const EditCoupon = () => {
             setLoadData(!loadData);
 
         } catch (err) {
-            console.log(err);
+            // // console.log(err);
             toast.error('Failed to update coupon');
         }
 
@@ -214,7 +214,7 @@ const EditCoupon = () => {
             }
             return response.blobUrl;
         } catch (error) {
-            console.error('Upload error:', error);
+            // // console.error('Upload error:', error);
             throw error;
         }
     };
@@ -234,7 +234,7 @@ const EditCoupon = () => {
             setCouponImage(file);
             toast.success('Coupon image uploaded!');
         } catch (err) {
-            console.error(err);
+            // // console.error(err);
             toast.error('Coupon image upload failed');
         } finally {
             setIsLoading(false);
@@ -327,11 +327,11 @@ const EditCoupon = () => {
       onClose: () => navigate('/admin/web-management/coupon')
     });
   } catch (err) {
-    console.error('Full submission error:', {
-      message: err.message,
-      response: err.response,
-      stack: err.stack
-    });
+    // console.error('Full submission error:', {
+    //   message: err.message,
+    //   response: err.response,
+    //   stack: err.stack
+    // });
     toast.error(err.response?.data?.message || 'Failed to update coupon');
   } finally {
     setIsLoading(false);

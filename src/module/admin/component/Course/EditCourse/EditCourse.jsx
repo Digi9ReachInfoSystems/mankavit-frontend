@@ -180,7 +180,7 @@ export default function EditCourse() {
         setSelectedSubjects(orderedSubjects);
         setCategoryCheckboxes(formattedCategories);
       } catch (error) {
-        console.error("Error fetching course data:", error);
+        // // console.error("Error fetching course data:", error);
         toast.error("Failed to load course data");
       }
     };
@@ -276,7 +276,7 @@ export default function EditCourse() {
         toast.error("Please select an image file.");
         return;
       }
-      console.log("URL ", URL.createObjectURL(file),)
+      // // console.log("URL ", URL.createObjectURL(file),)
       setFormData((prev) => ({
         ...prev,
         thumbnailFile: file,
@@ -395,7 +395,7 @@ export default function EditCourse() {
       toast.success("Course updated successfully");
       setTimeout(() => navigate("/admin/course-management"), 1000);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       toast.error("Failed to update course. Please try again.");
     }
   };

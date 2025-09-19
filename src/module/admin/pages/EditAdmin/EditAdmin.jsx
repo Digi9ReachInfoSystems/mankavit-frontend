@@ -52,7 +52,7 @@ const EditAdmin = () => {
             try {
                 const response = await getUserByUserId(id);
                 const adminData = response.user;
-                console.log("adminData", adminData.permissions);
+                // // console.log("adminData", adminData.permissions);
                 setForm({
                     email: adminData.email,
                     password: "", // Password typically isn't returned or is hashed
@@ -71,7 +71,7 @@ const EditAdmin = () => {
                 });
             } catch (error) {
                 toast.error("Failed to load admin data");
-                console.error("Error fetching admin:", error);
+                // // console.error("Error fetching admin:", error);
             } finally {
                 setInitialLoad(false);
             }
@@ -153,7 +153,7 @@ const EditAdmin = () => {
             });
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to update admin");
-            console.error("Update error:", err);
+            // console.error("Update error:", err);
         } finally {
             setIsLoading(false);
         }

@@ -73,7 +73,7 @@ const AddMockTest = () => {
         }));
         setSubjectCheckboxes(subjectsData);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        // // console.error("Error fetching data:", error);
         toast.error("Failed to fetch data");
       }
     };
@@ -228,11 +228,11 @@ const handleSubmit = async (e) => {
 
 
 
-      console.log('Mock test created successfully:', response);
+      // // console.log('Mock test created successfully:', response);
       toast.success('Mock test created successfully');
       navigate('/admin/mock-test');
     } catch (error) {
-      console.error('Error creating mock test:', error);
+      // console.error('Error creating mock test:', error);
       const errorMessage =
         error?.response?.data?.message || 'Failed to create mock test';
       setErrors([errorMessage]);

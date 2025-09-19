@@ -75,8 +75,8 @@ export default function EditLecturer() {
       try {
         const response = await getLectureById(id);
         const lecture = response.data;
-        console.log("lecture", lecture);
-           setCurrentVideo(lecture.videoUrl);
+        // // console.log("lecture", lecture);
+        setCurrentVideo(lecture.videoUrl);
         setVideoPreviewUrl(lecture.videoUrl)
         setFormData({
           lectureName: lecture.lectureName || "",
@@ -102,9 +102,9 @@ export default function EditLecturer() {
 
         setSelectedSubjects(orderedSelectedSubjects);
 
-      ;
+        ;
       } catch (error) {
-        console.error("Failed to fetch lecture:", error);
+        // // console.error("Failed to fetch lecture:", error);
         toast.error("Failed to fetch lecture");
       }
     };
@@ -168,7 +168,7 @@ export default function EditLecturer() {
     const file = e.target.files[0];
     if (file) {
       setVideoFile(file);
-    // console.log("file URL changed", URL.createObjectURL(file));
+      // // // console.log("file URL changed", URL.createObjectURL(file));
       setVideoPreviewUrl(URL.createObjectURL(file));
     }
   };
@@ -208,7 +208,7 @@ export default function EditLecturer() {
         throw new Error(response.message || "Failed to update lecture");
       }
     } catch (error) {
-      console.error("Update failed:", error);
+      // // console.error("Update failed:", error);
       toast.error("Failed to update lecture");
     }
   };
@@ -249,7 +249,8 @@ export default function EditLecturer() {
                 value={formData.description}
                 config={configDis}
                 tabIndex={1}
-                onBlur={newContent => { console.log("new", newContent); }}
+                onBlur={newContent => { // console.log("new", newContent);
+                }}
                 onChange={newContent => { setFormData({ ...formData, description: newContent }) }}
               />
             </FieldWrapper>
@@ -265,7 +266,7 @@ export default function EditLecturer() {
                 borderRadius: "4px",
                 background: "#f9f9f9"
               }}>
-                  {formData?.folder || "No folder assigned"}
+                {formData?.folder || "No folder assigned"}
               </p>
             </FieldWrapper>
           </Column>
@@ -334,7 +335,7 @@ export default function EditLecturer() {
               <UploadArea onClick={handleVideoUploadClick}>
                 {videoPreviewUrl ? (
                   <VideoContainer>
-                    <VideoPlayer key={videoPreviewUrl}  controls>
+                    <VideoPlayer key={videoPreviewUrl} controls>
                       <source src={videoPreviewUrl.startsWith("blob:") ? videoPreviewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`} type="video/mp4" />
                       Your browser does not support the video tag.
                     </VideoPlayer>

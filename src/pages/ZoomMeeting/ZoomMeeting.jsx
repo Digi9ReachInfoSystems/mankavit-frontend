@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ZoomMtg } from '@zoom/meetingsdk';
 import './ZoomMeeting.css';
 import { generateAccessToken, generateSignature } from '../../api/meetingApi';
@@ -8,6 +8,37 @@ ZoomMtg.preLoadWasm();
 ZoomMtg.prepareWebSDK();
 
 const ZoomMeeting = () => {
+
+    //  useEffect(() => {
+    //         const interval = setInterval(() => {
+    //             document.querySelectorAll(
+    //                 "button.participants-section-container__buttom-button.btn.btn-default.btn-sm"
+    //             ).forEach((btn) => {
+    //                 if (btn.innerText.trim() === "Invite") {
+    //                     btn.style.display = "none"; // or disable
+    //                 }
+    //             });
+    //         }, 100);
+
+    //         return () => clearInterval(interval);
+    //     }, []);
+     useEffect(() => {
+        // Use an interval because Zoom might re-render UI elements
+        const interval = setInterval(() => {
+          const participantsBtn = document.querySelector(
+            'button.footer-button-base__button[aria-label^="open the manage participants list pane"]'
+          );
+          if (participantsBtn) {
+            participantsBtn.disabled = true;            // disable the button
+            participantsBtn.style.pointerEvents = "none"; // block clicks
+            participantsBtn.style.opacity = "0.5";       // visually dim
+            participantsBtn.style.display = "none";
+            clearInterval(interval); // stop checking once applied
+          }
+        }, 500);
+    
+        return () => clearInterval(interval);
+      }, []);
     const authEndpoint = 'http://localhost:4000';
     const sdkKey = import.meta.env.VITE_APP_ZOOM_MEETING_SDK_KEY;
     //   const meetingNumber = '81264566859';
@@ -20,7 +51,7 @@ const ZoomMeeting = () => {
     //   const leaveUrl = 'http://localhost:5173';
     const location = useLocation()
     const { meetingNumber, passWord, role, userName, userEmail, leaveUrl, meetingTitle } = location.state;
-    console.log("meeting details", location.state);
+    // console.log("meeting details", location.state);
     const getSignature = async () => {
         try {
             //   const req = await fetch(authEndpoint, {
@@ -32,15 +63,15 @@ const ZoomMeeting = () => {
             if (role == 1) {
                 const zak = await generateAccessToken();
                 zakToken = zak.accessToken;
-                console.log("zak", zak);
+                // console.log("zak", zak);
             }
-            const response = await generateSignature({ meetingNumber, role , expirationSeconds:172800,videoWebRtcMode:0 });
-            console.log("signature", response); 
+            const response = await generateSignature({ meetingNumber, role, expirationSeconds: 172800, videoWebRtcMode: 0 });
+            // console.log("signature", response); 
             // console.log('Generated Signature:', res,"\n", response,"\n",res==response,"\n role", role);
             startMeeting(response.signature);
             // startMeeting("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBLZXkiOiI1R0pOYWNuUFJjYXV4TTg3VDg2VVJ3Iiwic2RrS2V5IjoiNUdKTmFjblBSY2F1eE04N1Q4NlVSdyIsIm1uIjoiODk3NTI2ODE5MDIiLCJyb2xlIjowLCJ0b2tlbkV4cCI6MTc1NzMyMTQxMywiaWF0IjoxNzU3MzE3ODEzLCJleHAiOjE3NTczMjE0MTN9.gQzu97Ee9H5WeCCWvDZvWAI_UbuFMTy80wm4EBm13ls");
         } catch (e) {
-            console.error('Error fetching signature:', e);
+            // console.error('Error fetching signature:', e);
         }
     };
 
@@ -51,6 +82,10 @@ const ZoomMeeting = () => {
             leaveUrl,
             patchJsMedia: true,
             isSupportAV: true,
+            disableInvite: true,
+            disableZoomLogo: true,
+            // screenShare: false,
+
             success: () => {
                 ZoomMtg.join({
                     signature,
@@ -61,11 +96,22 @@ const ZoomMeeting = () => {
                     userEmail,
                     // tk: zakToken,
                     // zak: role == 1 ? zakToken : "",
-                    success: (res) => console.log('Meeting joined', res),
-                    error: (err) => console.error('Join Error', err),
+                    success: (res) => {
+
+                        console.log('Meeting joined', res)
+
+                        ZoomMtg.showInviteFunction({ show: false });
+                        ZoomMtg.showMeetingHeader({ show: false });
+                        ZoomMtg.showRecordFunction({ show: false });
+                    },
+                    error: (err) => {
+                        // console.error('Join Error', err)
+                    },
                 });
             },
-            error: (err) => console.error('Init Error', err),
+            error: (err) => {
+                // console.error('Init Error', err)
+            }
         });
     };
 

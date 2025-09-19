@@ -3,12 +3,12 @@ import api from "../config/axiosConfig";
 
 
 export const uploadFileToAzureStorage = async (file, containerName) => {
-    console.log("file", file);
-    console.log("containerName", containerName);
+    // console.log("file", file);
+    // console.log("containerName", containerName);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("containerName", `ProjectUploads/${containerName}`);
-    console.log("formData", formData);
+    // console.log("formData", formData);
 
     try {
         const response = await api.post("/cloudfareR2/upload-files", formData, {
@@ -18,17 +18,17 @@ export const uploadFileToAzureStorage = async (file, containerName) => {
         });
         return response.data;
     } catch (error) {
-        console.error(error);
+        // console.error(error);
     }
 };
 
 export const uploadVideoToAzureStorage = async (file, containerName) => {
-    console.log("file", file);
-    console.log("containerName", containerName);
+    // console.log("file", file);
+    // console.log("containerName", containerName);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("containerName", `${containerName}`);
-    console.log("formData", formData);
+    // console.log("formData", formData);
 
     try {
         const response = await api.post("/cloudfareR2/upload-files", formData, {
@@ -38,6 +38,6 @@ export const uploadVideoToAzureStorage = async (file, containerName) => {
         });
         return response.data;
     } catch (error) {
-        console.error(error);
+        // console.error(error);
     }
 };

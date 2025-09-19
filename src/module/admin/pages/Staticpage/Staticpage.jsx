@@ -103,7 +103,7 @@ const Staticpage = () => {
           setRefund(existing.refund);
         }
       } catch (err) {
-        console.error("Failed to load static page:", err);
+        // // // console.error("Failed to load static page:", err);
         setError("Could not load existing content.");
       } finally {
         setLoading(false);
@@ -123,7 +123,7 @@ const Staticpage = () => {
     try {
       if (recordId) {
         await updatestaticById(recordId, payload);
-        console.log("Updated successfully.", payload);
+        // // // console.log("Updated successfully.", payload);
         // setSuccess("Updated successfully.");
         toast.success("Updated successfully.");
         // message.success("Updated successfully.");
@@ -135,7 +135,7 @@ const Staticpage = () => {
         toast.success("Created successfully.");
       }
     } catch (err) {
-      console.error("Save failed:", err.response?.data || err.message);
+      // // // console.error("Save failed:", err.response?.data || err.message);
       setError("Save failed. Please try again.");
     } finally {
       setLoading(false);
@@ -157,7 +157,8 @@ const Staticpage = () => {
             value={privacyPolicy}
             config={config}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { // // console.log("new", newContent); 
+            }} // preferred to use only this option to update the content for performance reasons
             onChange={newContent => { setPrivacyPolicy(newContent) }}
           />
           {/* <Textarea
@@ -176,7 +177,8 @@ const Staticpage = () => {
             value={terms}
             config={configds}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { // // // console.log("new", newContent);
+             }} // preferred to use only this option to update the content for performance reasons
             onChange={newContent => { setTerms(newContent) }}
           />
         
@@ -190,7 +192,8 @@ const Staticpage = () => {
             value={refund}
             config={configds}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { // // console.log("new", newContent);
+             }} // preferred to use only this option to update the content for performance reasons
             onChange={newContent => { setRefund(newContent) }}
           />
         

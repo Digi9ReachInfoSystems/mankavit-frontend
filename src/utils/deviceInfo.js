@@ -6,13 +6,13 @@ export const getDeviceInfo = async () => {
     .split('; ')
     .find(row => row.startsWith('deviceId='))
     ?.split('=')[1];
-    // console.log("deviceId", deviceId== undefined ,( deviceId === null ? "not found" : deviceId));
+    // // console.log("deviceId", deviceId== undefined ,( deviceId === null ? "not found" : deviceId));
   if (deviceId== undefined || deviceId === null) {
     deviceId = uuidv4();
     localStorage.setItem('deviceId', deviceId);
     document.cookie = `deviceId=${deviceId}; path=/; max-age=604800;`;
   }
-  // console.log("deviceId", deviceId);
+  // // console.log("deviceId", deviceId);
 
   const userAgent = navigator.userAgent;
 

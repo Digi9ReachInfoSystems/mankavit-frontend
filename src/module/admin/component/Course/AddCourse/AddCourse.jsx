@@ -96,7 +96,7 @@ export default function AddCourse() {
         }));
         setCategoryCheckboxes(dataCategories);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        // // console.error("Error fetching data:", error);
       }
     };
     apiCaller();
@@ -252,7 +252,7 @@ const handleSubmit = async (e) => {
       payload.subjects = []; // Ensure it's always an array
     }
 
-    console.log("Sending payload:", payload); // For debugging
+    // // console.log("Sending payload:", payload); // For debugging
 
     const createCourseResponse = await createCourse(payload);
     if (createCourseResponse) {
@@ -281,7 +281,7 @@ const handleSubmit = async (e) => {
       setTimeout(() => navigate("/admin/course-management"), 1000);
     }
   } catch (err) {
-    console.error("Error details:", err.response?.data || err.message);
+    // // console.error("Error details:", err.response?.data || err.message);
     toast.error(
       err.response?.data?.message ||
         "Failed to create course. Please try again."
@@ -342,7 +342,7 @@ const handleSubmit = async (e) => {
                 config={configDis}
                 tabIndex={1}
                 onBlur={(newContent) => {
-                  console.log("new", newContent);
+                  // // console.log("new", newContent);
                 }}
                 onChange={(newContent) => {
                   setDescription(newContent);
@@ -361,7 +361,7 @@ const handleSubmit = async (e) => {
                 config={config}
                 tabIndex={1}
                 onBlur={(newContent) => {
-                  console.log("new", newContent);
+                  // // console.log("new", newContent);
                 }}
                 onChange={(newContent) => {
                   setShortDescription(newContent);

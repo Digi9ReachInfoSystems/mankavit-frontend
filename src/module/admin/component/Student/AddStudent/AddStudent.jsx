@@ -64,19 +64,19 @@ const AddStudent = () => {
     // college_name: '',
     date_of_birth: ''
   });
-  console.log('studentData', studentData);
+  // // console.log('studentData', studentData);
 
   useEffect(() => {
     const fetchCourses = async () => {
       setIsLoadingCourses(true);
       try {
         const response = await getAllCourses();
-        console.log('Courses API response:', response);
+        // // console.log('Courses API response:', response);
         const coursesData = response?.data || response || [];
-        console.log('Processed courses data:', coursesData);
+        // // console.log('Processed courses data:', coursesData);
         setCourses(Array.isArray(coursesData) ? coursesData : []);
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        // // console.error('Error fetching courses:', error);
         toast.error('Failed to load courses');
         setCourses([]);
       } finally {
@@ -129,13 +129,13 @@ const handleChange = (e) => {
   const uploadFile = async (file, containerName) => {
     try {
       const response = await uploadFileToAzureStorage(file, containerName);
-      console.log('Upload response:', response);
+      // // console.log('Upload response:', response);
       if (!response?.blobUrl) {
         throw new Error('Upload failed - no URL returned');
       }
       return response.blobUrl;
     } catch (error) {
-      console.error('Upload error:', error);
+      // // console.error('Upload error:', error);
       throw error;
     }
   };
@@ -156,7 +156,7 @@ const handleChange = (e) => {
       setPassportPhoto(file);
       toast.success('Passport photo uploaded!');
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error('Passport photo upload failed');
     } finally {
       setIsLoading(false);
@@ -179,7 +179,7 @@ const handleChange = (e) => {
       setIdProof(file);
       toast.success('ID proof uploaded!');
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error('ID proof upload failed');
     } finally {
       setIsLoading(false);
@@ -211,7 +211,7 @@ const handleChange = (e) => {
       errs.phone = 'Invalid phone number (10-15 digits, + optional)';
     }
 
-    console.log('Validation errors:', errs);
+    // // console.log('Validation errors:', errs);
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -259,10 +259,10 @@ const handleSubmit = async (e) => {
       date_of_birth: studentData.date_of_birth,
     };
 
-    console.log('Student Final Payload:', payload,studentData);
+    // // console.log('Student Final Payload:', payload,studentData);
 
     const response = await createStudent(payload);
-console.log('Create Student Response:', response);
+// // console.log('Create Student Response:', response);
     if (response.data.success) {
       toast.success('Student created successfully!');
       setTimeout(() => navigate('/admin/student-management'), 1000);
@@ -271,7 +271,7 @@ console.log('Create Student Response:', response);
     }
 
   } catch (err) {
-    console.error('Create Student Error:', err);
+    // // console.error('Create Student Error:', err);
     toast.error(err.response?.data?.message || err.message || 'Failed to create student');
   } finally {
     setIsLoading(false);

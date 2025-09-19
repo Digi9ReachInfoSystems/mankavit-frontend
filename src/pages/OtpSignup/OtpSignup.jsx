@@ -101,7 +101,7 @@ const OtpSignup = () => {
                 }
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             if (error?.response?.data?.success == false) {
                 // setShowError(true);
                 setErrorMessage(error.response.data.message);
@@ -120,7 +120,7 @@ const OtpSignup = () => {
             setOtpDigits(Array(6).fill(''));
             // Send new OTP logic here (API call, etc.)
 
-            console.log('Resending new OTP...');
+            // console.log('Resending new OTP...');
             setResendingOtp(true);
             // const userResponse = await resendSignupOtp({ email: location.state.email });
             const userResponse = await resendPhoneOtp({ email: location.state.email });

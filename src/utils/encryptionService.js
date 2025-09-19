@@ -15,7 +15,7 @@ const encryptData = (payload) => {
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7
     });
-    // console.log({
+    // // console.log({
     //   iv: iv.toString(CryptoJS.enc.Hex),
     //   content: encrypted.ciphertext.toString(CryptoJS.enc.Hex)
     // });
@@ -25,7 +25,7 @@ const encryptData = (payload) => {
       content: encrypted.ciphertext.toString(CryptoJS.enc.Hex)
     };
   } catch (error) {
-    console.error('Encryption error:', error);
+    // console.error('Encryption error:', error);
     throw new Error('Failed to encrypt data');
   }
 };

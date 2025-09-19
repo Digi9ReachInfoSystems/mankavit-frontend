@@ -109,7 +109,7 @@
 
 //         // 1) get user attempt result
 //         const res = await viewUserMocktestAttemptResult(userId, mockTestId);
-//         console.log("viewUserMocktestAttemptResult", res);
+//         // // console.log("viewUserMocktestAttemptResult", res);
 //         if (!res.success) throw new Error(res.message || "Invalid response");
 //         const { result, ranking, remainigAttempts } = res;
 //         setAttempt(result);
@@ -212,7 +212,7 @@
 //         });
 //         setQuestions(proc);
 //       } catch (err) {
-//         console.error("Load error:", err);
+//         // // console.error("Load error:", err);
 //         toast.error(err.message || "Could not load results");
 //         navigate(-1);
 //       } finally {
@@ -556,7 +556,7 @@ export default function UserViewAttempResult() {
         // 1) get user attempt result
         const res = await viewUserMocktestAttemptResult(userId, mockTestId);
         if (!res.success) throw new Error(res.message || "Invalid response");
-        console.log("viewUserMocktestAttemptResult res:", res);
+        // // console.log("viewUserMocktestAttemptResult res:", res);
         const { result, ranking, remainigAttempts } = res;
         setAttempt(result);
         setRanking(ranking);
@@ -655,7 +655,7 @@ export default function UserViewAttempResult() {
         });
         setQuestions(proc);
       } catch (err) {
-        console.error("Load error:", err);
+        // console.error("Load error:", err);
         toast.error(err.message || "Could not load results");
         navigate(-1);
       } finally {

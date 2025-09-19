@@ -250,7 +250,7 @@ const CoursesLiveclass = () => {
               remaining: meta.data.maxAttempts - meta.data.attemptCount,
             }];
           } catch (e) {
-            console.error("attempts fetch failed:", e);
+            // // // console.error("attempts fetch failed:", e);
             const meta = await computeAttemptMeta(l, []);
             return [l._id, {
               attempts: [],
@@ -305,7 +305,7 @@ const CoursesLiveclass = () => {
             lectures: tests,
           };
         } catch (e) {
-          console.error("mock tests fetch error:", e);
+          // // console.error("mock tests fetch error:", e);
           return {
             _id: subject._id,
             name: subject.subjectName || "Subject",
@@ -372,7 +372,7 @@ const CoursesLiveclass = () => {
           await buildMockData(progressResponse.data);
         }
       } catch (error) {
-        console.error("Error fetching course with progress:", error);
+        // // console.error("Error fetching course with progress:", error);
 
         // Fallback to regular course fetch if progress fails
         const response = await getCourseById(courseId);
@@ -441,7 +441,7 @@ const CoursesLiveclass = () => {
 
   const handleVideoError = () => {
     setVideoError(true);
-    console.error("Error loading video");
+    // // console.error("Error loading video");
   };
 
   const handleVideoEnd = async () => {
@@ -517,7 +517,7 @@ const CoursesLiveclass = () => {
           }
         }
       } catch (error) {
-        console.error("Error completing lecture:", error);
+        // // console.error("Error completing lecture:", error);
       }
     }
   };
@@ -528,7 +528,7 @@ const CoursesLiveclass = () => {
       try {
         await startSubject(userId, courseId, subId);
       } catch (error) {
-        console.error("Error starting subject:", error);
+        // // console.error("Error starting subject:", error);
       }
     }
   };
@@ -539,7 +539,7 @@ const CoursesLiveclass = () => {
   //       await startLecturer(userId, courseId, subId, lecId);
   //       navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
   //     } catch (error) {
-  //       console.error("Error starting lecture:", error);
+  //       // // console.error("Error starting lecture:", error);
   //     }
   //   }
   // };
@@ -635,9 +635,9 @@ const CoursesLiveclass = () => {
 
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
-                console.log(
-                  "meta", meta,
-                )
+                // // console.log(
+                //   "meta", meta,
+                // )
                 // showViewResults = attemptsCount > 0;
                 canStart = meta.canStart;
                 //   isUnlimited || (Number.isFinite(remaining) && remaining > 0);
@@ -790,7 +790,7 @@ const CoursesLiveclass = () => {
           const res = await getBackendAssets(noteUrl);
           setSignedUrl(res.url); // backend returns { url: signedUrl }
         } catch (err) {
-          console.error("Failed to fetch signed URL", err);
+          // // console.error("Failed to fetch signed URL", err);
         }
       };
       if (noteUrl) fetchSignedUrl();
@@ -836,9 +836,9 @@ const CoursesLiveclass = () => {
                 window.open(signedUrl, "_blank");
                 return;
               }
-              // console.log("signedUrl", signedUrl);
+              // // // console.log("signedUrl", signedUrl);
               const response = await fetch(signedUrl);
-              // console.log("response inside", response);
+              // // // console.log("response inside", response);
               const blob = await response.blob();
               const url = window.URL.createObjectURL(blob);
               const a = document.createElement("a");
@@ -849,7 +849,7 @@ const CoursesLiveclass = () => {
               document.body.removeChild(a);
               window.URL.revokeObjectURL(url);
             } catch (err) {
-              console.error("Download failed", err);
+              // // console.error("Download failed", err);
             }
           }
         }
@@ -1056,9 +1056,9 @@ const CoursesLiveclass = () => {
 
   const handleReviewSubmit = async ({ rating, review }) => {
     try {
-      console.log("Review submitted:");
+      // // console.log("Review submitted:");
     } catch (error) {
-      console.error("Error submitting review:", error);
+      // // console.error("Error submitting review:", error);
     }
   };
 

@@ -59,14 +59,14 @@ const AllCoursesDetails = () => {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        console.log("data", data);
+        // // // console.log("data", data);
         // Map to titles
         const titles = data.map(cat => cat.title);
         // Ensure "All" is present at the front
         const uniqueTitles = Array.from(new Set([...titles]));
         setCategories(uniqueTitles);
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        // // console.error('Error fetching categories:', err);
       }
     };
     fetchCategories();
@@ -84,20 +84,20 @@ const formatINR = (n) =>
   useEffect(() => {
     const fetchCourses = async () => {
       const cookiesData = getCookiesData();
-      console.log("cookiesData", cookiesData, "activeTab", activeTab);
+      // // console.log("cookiesData", cookiesData, "activeTab", activeTab);
       setLoading(true);
       try {
-        console.log("Fetching courses for user:", cookiesData?.userId || 'Guest', "Category:", activeTab);
+        // // console.log("Fetching courses for user:", cookiesData?.userId || 'Guest', "Category:", activeTab);
         // Fetch courses based on user and active tab
         let data = [];
         if (cookiesData && cookiesData.userId) {
           if (activeTab === 'All') {
             const resp = await getAllUserCourses(cookiesData.userId);
-            // console.log("resp", resp);
+            // // // console.log("resp", resp);
             data = resp.data;
           } else {
             const resp = await getAllUserCourseByCategory(cookiesData.userId, activeTab);
-            console.log("resp", resp);
+            // // console.log("resp", resp);
             data = resp.data;
           }
         } else {
@@ -109,7 +109,7 @@ const formatINR = (n) =>
             data = resp.data;
           }
         }
-        console.log("data", data);
+        // // console.log("data", data);
 const transformed = data.map(course => {
   const mrp = Number(course.price ?? 0);
   const sale =
@@ -144,10 +144,10 @@ const transformed = data.map(course => {
   };
 });
 
-        console.log("transformed", transformed);
+        // // console.log("transformed", transformed);
         setCourses(transformed);
       } catch (err) {
-        console.error('Error fetching courses:', err);
+        // // console.error('Error fetching courses:', err);
       } finally {
         setLoading(false);
       }
@@ -165,7 +165,7 @@ const transformed = data.map(course => {
   });
 
   const handleViewDetails = (id, isEnrolled) => {
-    console.log("id", id, "isEnrolled", isEnrolled);
+    // // console.log("id", id, "isEnrolled", isEnrolled);
     navigate(`/coursedetails/${id}`, { state: { isEnrolled } })
   };
 
@@ -209,7 +209,7 @@ const transformed = data.map(course => {
 
       <CardGrid>
         {filteredCourses.map(course =>{
-          console.log("course skjdb", course);
+          // // console.log("course skjdb", course);
          return(
           <CourseCard key={course.id}>
             {course.isEnrolled && <EnrolledTag>Enrolled</EnrolledTag>}

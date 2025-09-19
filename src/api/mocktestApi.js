@@ -33,10 +33,10 @@ export const deleteMocktestById = async (id) => {
     try {
         const response = await api.delete(`/mockTest/delete/mocktestById/${id}`);
 
-        console.log('Delete API Response:', {
-            status: response.status,
-            data: response.data
-        });
+        // console.log('Delete API Response:', {
+        //     status: response.status,
+        //     data: response.data
+        // });
 
         if (!response.data) {
             throw new Error('Empty response from server');
@@ -58,7 +58,7 @@ export const deleteMocktestById = async (id) => {
             message: error.message
         };
 
-        console.error('Delete API Error:', errorDetails);
+        // console.error('Delete API Error:', errorDetails);
 
         // Format a consistent error response
         throw {
@@ -317,7 +317,7 @@ export const bulkdeleteMocktest = async (mockTestIds) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -341,7 +341,7 @@ export const bulkdeleteUserAttempts = async (attemptIds) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Bulk delete error:", error);
+        // console.error("Bulk delete error:", error);
         throw error;
     }
 }

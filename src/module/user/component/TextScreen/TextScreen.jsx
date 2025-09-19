@@ -190,20 +190,20 @@ export default function TextScreen() {
     // Call immediately once
     updateMocktestLastsavedTime({ attemptId: urlAttemptId, user_id: userId })
       .then(() => {
-        // console.log("Auto-saved immediately")
+        // // // // console.log("Auto-saved immediately")
       })
       .catch((err) => {
-        // console.error("Auto-save failed:", err)
+        // // // console.error("Auto-save failed:", err)
       });
 
     // Then every 60 seconds
     const interval = setInterval(() => {
       updateMocktestLastsavedTime({ attemptId: urlAttemptId, user_id: userId })
         .then(() => {
-          // console.log("Auto-saved attempt progress")
+          // // // console.log("Auto-saved attempt progress")
         })
         .catch((err) => {
-          // console.error("Auto-save failed:", err)
+          // // // console.error("Auto-save failed:", err)
         });
     }, 60000);
 
@@ -223,7 +223,7 @@ export default function TextScreen() {
         setMockTest(test);
         setQuestions(test.questions);
         // setInitialTime(test.duration);
-        // console.log("location", location);
+        // // // console.log("location", location);
         const checkPauseAttempt = await checkMockTestAttempted(
           userId,
           testId,
@@ -240,7 +240,7 @@ export default function TextScreen() {
         // Check for existing time in localStorage
         const timeKey = `testTime_${testId}_${urlAttemptId}`;
         const storedTime = localStorage.getItem(timeKey);
-        // console.log("storedTime", storedTime);
+        // // // console.log("storedTime", storedTime);
 
         if (storedTime) {
           const { remainingMinutes, remainingSeconds, timestamp } =
@@ -266,7 +266,7 @@ export default function TextScreen() {
             minutes = parseInt(minStr, 10); // "98" -> 98
             seconds = parseInt(secStr?.padEnd(2, "0"), 10) || 0; // "07" -> 7
 
-            // console.log("Minutes:", minutes, "Seconds:", seconds);
+            // // // console.log("Minutes:", minutes, "Seconds:", seconds);
           }
           // setTimeLeft({ m: test.duration, s: 0 });
           setTimeLeft({ m: minutes, s: seconds });
@@ -338,7 +338,7 @@ export default function TextScreen() {
           })
         );
       } catch (err) {
-        console.error(err);
+        // // console.error(err);
         toast.error(err.message || "Failed to load test.");
         navigate("/error", { state: { message: err.message } });
       } finally {
@@ -510,7 +510,7 @@ export default function TextScreen() {
         });
       }
     } catch (err) {
-      console.error("Failed to mark for review:", err);
+      // // console.error("Failed to mark for review:", err);
       toast.error("Could not save marked status");
     } finally {
       setIsSaving(false);
@@ -565,7 +565,7 @@ export default function TextScreen() {
         });
       }
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Failed to save answer");
     }
   };
@@ -593,7 +593,7 @@ export default function TextScreen() {
   //     try {
   //       await saveMocktest(payload);
   //     } catch (err) {
-  //       console.error("Failed to auto-mark not-answered on navigation", err);
+  //       // // console.error("Failed to auto-mark not-answered on navigation", err);
   //     } finally {
   //       setAnswers((prev) => {
   //         const copy = [...prev];
@@ -653,7 +653,7 @@ export default function TextScreen() {
             : null,
         });
       } catch (err) {
-        console.error("Failed to save on navigation", err);
+        // // console.error("Failed to save on navigation", err);
       } finally {
         // reflect the exact status we persisted
         setAnswers((prev) => {
@@ -708,7 +708,7 @@ export default function TextScreen() {
 
       toast.info("Response cleared");
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Failed to clear answer");
     }
   };
@@ -746,7 +746,7 @@ export default function TextScreen() {
   //       navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
   //     }
   //   } catch (err) {
-  //     console.error(err);
+  //     // // console.error(err);
   //     toast.error("Failed to submit test");
   //   }
   // };
@@ -794,7 +794,7 @@ export default function TextScreen() {
         navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
       }
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Failed to submit test");
     }
   };
@@ -811,7 +811,7 @@ export default function TextScreen() {
         navigate(`/user`);
       }
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Failed to save for later");
     }
   };
@@ -914,7 +914,7 @@ export default function TextScreen() {
         userAnswerIndex: null,
       });
     } catch (e) {
-      console.error("Failed to clear on click", e);
+      // // console.error("Failed to clear on click", e);
       toast.error("Could not clear selection");
     }
   };

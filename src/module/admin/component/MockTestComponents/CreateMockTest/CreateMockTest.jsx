@@ -101,7 +101,7 @@ const CreateMockTest = () => {
         const response = await getSubjects();
         setSubjects(response.data);
       } catch (error) {
-        console.error('Error fetching subjects', error);
+        // // console.error('Error fetching subjects', error);
       } finally {
         setIsLoadingSubjects(false);
       }
@@ -161,7 +161,7 @@ const CreateMockTest = () => {
     if (!mockTestId) throw new Error('No test ID returned');
     navigate(`/admin/mock-test/questions-list/${mockTestId}`);
   } catch (error) {
-    console.error(error);
+    // // console.error(error);
     setErrors({ form: error.response?.data?.message || 'Failed to create mock test' });
   } finally {
     setIsSubmitting(false);
@@ -196,7 +196,8 @@ const CreateMockTest = () => {
               value={testDetails.description}
               config={config}
               tabIndex={1} // tabIndex of textarea
-              onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+              onBlur={newContent => { // console.log("new", newContent);
+               }} // preferred to use only this option to update the content for performance reasons
               onChange={newContent => { handleTestDetailChange('description',newContent) }}
             />
             {/* <TextInput
@@ -403,7 +404,7 @@ export default CreateMockTest;
 //         const response = await getSubjects();
 //         setSubjects(response.data);
 //       } catch (error) {
-//         console.error('Error fetching subjects', error);
+//         // console.error('Error fetching subjects', error);
 //       } finally {
 //         setIsLoadingSubjects(false);
 //       }
@@ -469,7 +470,7 @@ export default CreateMockTest;
 //         theme: "colored",
 //       });
 //     } catch (error) {
-//       console.error(error);
+//       // console.error(error);
 //       setErrors({ form: error.response?.data?.message || 'Failed to create mock test' });
 //     } finally {
 //       setIsSubmitting(false);
@@ -533,7 +534,7 @@ export default CreateMockTest;
 //               value={testDetails.description}
 //               config={config}
 //               tabIndex={1}
-//               onBlur={newContent => { console.log("new", newContent); }}
+//               onBlur={newContent => { // console.log("new", newContent); }}
 //               onChange={newContent => { handleTestDetailChange('description', newContent) }}
 //             />
 //             {errors.description && <ErrorText>{errors.description}</ErrorText>}

@@ -80,7 +80,7 @@ const EditAchievement = () => {
           setExistingImageUrl(response.image || '');
         }
       } catch (error) {
-        console.error("Error fetching achiever:", error);
+        // // console.error("Error fetching achiever:", error);
         notification.error({
           message: "Error",
           description: "Failed to fetch achiever details",
@@ -131,7 +131,7 @@ const EditAchievement = () => {
       
       // Upload new image if provided
       if (image) {
-        console.log("Uploading new image:", image);
+        // // console.log("Uploading new image:", image);
         const uploadResponse = await uploadFileToAzureStorage(image, "achievers");
         
         if (!uploadResponse?.blobUrl) {
@@ -149,9 +149,9 @@ const EditAchievement = () => {
         sequence: sequence
       };
       
-      console.log("Updating achiever data:", achieverData);
+      // // console.log("Updating achiever data:", achieverData);
       const updateResponse = await updateAchieverById(id, achieverData);
-      console.log("Update response:", updateResponse);
+      // // console.log("Update response:", updateResponse);
       if (!updateResponse) {
         throw new Error(updateResponse?.message || "Achiever update failed");
       }
@@ -167,13 +167,13 @@ const EditAchievement = () => {
     }, 1000);
 
     } catch (error) {
-      console.error("Detailed error:", error);
+      // // console.error("Detailed error:", error);
       toast.error("Failed to update. Please try again.");
       notification.error({
         message: "Error",
         description: error.response?.data?.message || 
                    error.message || 
-                   "Failed to update achiever. Please check console for details.",
+                   "Failed to update achiever. Please check // // console for details.",
       });
     } finally {
       setLoading(false);

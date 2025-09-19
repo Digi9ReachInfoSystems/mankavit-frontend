@@ -122,7 +122,7 @@
 //         setPages(initialPages);
 //         setLoading(false);
 //       } catch (error) {
-//         console.error("Failed to load questions", error);
+//         // // console.error("Failed to load questions", error);
 //         toast.error("Could not load existing questions");
 //         setLoading(false);
 //       }
@@ -159,7 +159,7 @@
 //         const questionId = pages[pageIndex].questions[index]._id;
 //         if (questionId) {
 //           await removemocktestquestions(questionId, mockTestId);
-//           console.log("Question removed successfully", questionId);
+//           // // console.log("Question removed successfully", questionId);
 //         }
 
 //         setPages((prev) => {
@@ -177,7 +177,7 @@
 //     } catch (error) {
 //       // alert('Failed to remove item');
 //       toast.error("Failed to remove item");
-//       console.error(error);
+//       // // console.error(error);
 //     } finally {
 //       setDeleteModal({
 //         isOpen: false,
@@ -256,7 +256,7 @@
 //         return copy;
 //       });
 //     } catch (error) {
-//       console.error("Failed to rearrange questions:", error);
+//       // // console.error("Failed to rearrange questions:", error);
 //       // alert("Failed to rearrange questions. Please try again.");
 //       toast.error("Failed to rearrange questions. Please try again.");
 //     }
@@ -396,17 +396,17 @@
 //       if (questionId) {
 //         // Update existing question
 //         res = await updatemocktestquestions(questionId, mockTestId, payload);
-//         console.log("Updated question:", res);
+//         // // console.log("Updated question:", res);
 //       } else {
 //         // Add new question
 //         res = await addmocktestquestions(mockTestId, payload);
-//         console.log("Added new question:", res);
+//         // // console.log("Added new question:", res);
 
 //         const newQuestion = res?.mockTest?.questions?.find((q) => !q.__isNew);
 //         if (!newQuestion) {
 //           // alert('Server did not return a valid question');
 //           toast.error("Server did not return a valid question");
-//           console.error("No question returned in response", res);
+//           // // console.error("No question returned in response", res);
 //           return;
 //         }
 
@@ -419,7 +419,7 @@
 
 //       setEditingRef(null);
 //     } catch (err) {
-//       console.error("Save question error:", err);
+//       // // console.error("Save question error:", err);
 //       // alert('Error saving question. Please try again.');
 //       toast.error("Error saving question. Please try again.");
 //     }
@@ -599,7 +599,7 @@
 //                             config={config}
 //                             tabIndex={1}
 //                             onBlur={(newContent) => {
-//                               console.log("new", newContent);
+//                               // // console.log("new", newContent);
 //                             }}
 //                             onChange={(newContent) => {
 //                               updateQuestionField(pi, qi, "text", newContent);
@@ -774,7 +774,7 @@
 //                             config={config}
 //                             tabIndex={1}
 //                             onBlur={(newContent) => {
-//                               console.log("new", newContent);
+//                               // // console.log("new", newContent);
 //                             }}
 //                             onChange={(newContent) =>
 //                               updateQuestionField(
@@ -938,7 +938,7 @@ const MockTestQuestionsList = () => {
 
         setQuestions(transformed);
       } catch (error) {
-        console.error("Failed to load questions", error);
+        // // console.error("Failed to load questions", error);
         toast.error("Could not load existing questions");
       } finally {
         setLoading(false);
@@ -969,7 +969,7 @@ const MockTestQuestionsList = () => {
         setEditingIndex((i) => i - 1);
       }
     } catch (error) {
-      console.error(error);
+      // // console.error(error);
       toast.error("Failed to remove question");
     } finally {
       setDeleteModal({ isOpen: false, index: null });
@@ -1020,7 +1020,7 @@ const MockTestQuestionsList = () => {
       if (editingIndex === qi) setEditingIndex(newIndex);
       else if (editingIndex === newIndex) setEditingIndex(qi);
     } catch (error) {
-      console.error("Failed to rearrange questions:", error);
+      // // console.error("Failed to rearrange questions:", error);
       toast.error("Failed to rearrange questions. Please try again.");
     }
   };
@@ -1137,7 +1137,7 @@ const MockTestQuestionsList = () => {
       }
       setEditingIndex(null);
     } catch (err) {
-      console.error("Save question error:", err);
+      // // console.error("Save question error:", err);
       toast.error("Error saving question. Please try again.");
     }
   };

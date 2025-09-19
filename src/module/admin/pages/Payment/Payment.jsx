@@ -104,7 +104,7 @@ useEffect(() => {
         getAllCourses(),
       ]);
       
-      console.log("All payments", paymentsRes);
+      // // // console.log("All payments", paymentsRes);
       
       // Build course map and track which courses have payments
       const map = {};
@@ -129,7 +129,7 @@ useEffect(() => {
         setError("No payment data received from server");
       }
     } catch (err) {
-      console.error("Error fetching payments or courses:", err);
+      // // console.error("Error fetching payments or courses:", err);
       setError(err.message || "Failed to fetch data");
     } finally {
       setLoading(false);
@@ -153,7 +153,7 @@ useEffect(() => {
           setFilteredPayments(res.payments);
         }
       } catch (err) {
-        console.error("Error fetching by course:", err);
+        // // console.error("Error fetching by course:", err);
         setError(err.message || "Failed to fetch by course");
       } finally {
         setLoading(false);
@@ -277,7 +277,7 @@ const getCourseName = (item) => {
   );
 
   const handleCouponDetailsClick = (item) => {
-    console.log(item);
+    // // console.log(item);
     setCouponDataToShow({
       couponName: item?.couponRef?.coupon_name,
       discountAmount: item?.couponDiscount,
@@ -363,7 +363,7 @@ const getCourseName = (item) => {
           <TableBody>
             {currentItems.map(item => {
               const color = getStatusColor(item.status);
-              // console.log("item", item);
+              // // // console.log("item", item);
               return (
                 <TableRow key={item._id}>
                   {/* <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell> */}

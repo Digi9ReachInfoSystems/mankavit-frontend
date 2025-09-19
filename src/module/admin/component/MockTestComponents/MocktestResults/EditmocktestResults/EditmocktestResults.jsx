@@ -69,7 +69,7 @@ export default function EditMockTestResult() {
       submissionDate: formatForDisplay(formData.submissionDate)
     };
 
-    console.log("updated data", formattedData);
+    // console.log("updated data", formattedData);
     toast.success("Updated successfully");
 
     navigate("/admin/results", { state: { updatedResult: formattedData } });
