@@ -2268,7 +2268,8 @@ const CoursesLiveclass = () => {
             active={activeTab === "Notes"}
             onClick={() => setActiveTab("Notes")}
           >
-            Notes ({course?.no_of_notes || 0})
+            Notes
+             {/* ({course?.no_of_notes || 0}) */}
           </ActionButton>
           <ActionButton
             active={activeTab === "MockTest"}

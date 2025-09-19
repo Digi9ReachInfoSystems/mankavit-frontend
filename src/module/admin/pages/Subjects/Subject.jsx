@@ -111,17 +111,55 @@ export default function Subjects() {
     };
     apiCaller();
   }, []);
+  useEffect(() => {
+    const appiCaller = async () => {
+      try {
+        const subjectResponse = await getSubjects();
+        // console.log("Jayanth respone", subjectResponse);
+        const subjectsData = subjectResponse.data.map((item) => ({
+          id: item._id,
+          subjectName: item.subjectDisplayName,
+          internalName: item.subjectName,
+          // mockTest: item.mockTests.map((mockTest) => ({title:mockTest.title, id:mockTest._id})),
+          mockTest: item.mockTests || [],
+          activeCourses: item.courses.map((course) => course.courseName),
+          dateandtime: item.updatedAt,
+        }));
+        // // console.log(subjectsData);
+        // // // console.log("subjectsData", subjectsData);
+        setData(subjectsData);
+        const filteredValue = subjectsData.filter((item) =>
+          item.subjectName.toLowerCase().includes(searchText.toLowerCase())
+        );
+        setFilteredData(filteredValue);
+        const TOTAL_ENTRIESValues = filteredValue.length;
+        setTotalEntries(TOTAL_ENTRIESValues);
+        const totalPagesValues = Math.ceil(
+          TOTAL_ENTRIESValues / ITEMS_PER_PAGE
+        );
+        setTotalPages(totalPagesValues);
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const currentValue = filteredValue.slice(startIndex, endIndex);
+        setCurrentItems(currentValue);
+      } catch (error) {
+        // // console.log("error", error);
+      }
+    };
+    appiCaller();
+  }, []);
 
   useEffect(() => {
     const appiCaller = async () => {
       try {
         const subjectResponse = await getSubjects();
-        // // // console.log("Jayanth respone", subjectResponse);
+        // console.log("Jayanth respone", subjectResponse);
         const subjectsData = subjectResponse.data.map((item) => ({
           id: item._id,
           subjectName: item.subjectDisplayName,
           internalName: item.subjectName,
-          mockTest: item.mockTests.map((mockTest) => ({title:mockTest.title, id:mockTest._id})),
+          // mockTest: item.mockTests.map((mockTest) => ({title:mockTest.title, id:mockTest._id})),
+          mockTest: item.mockTests || [],
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
         }));
@@ -165,7 +203,7 @@ export default function Subjects() {
           id: item._id,
           subjectName: item.subjectDisplayName,
           internalName: item.subjectName,
-          mockTest: item.mockTests?.map((mockTest) => mockTest.title) || [],
+          mockTest: item.mockTests || [],
           activeCourses: item.courses?.map((course) => course.courseName) || [],
           dateandtime: item.updatedAt,
         }));
@@ -277,6 +315,7 @@ export default function Subjects() {
   };
 
   const handleOpenModal = (type, data) => {
+    // console.log("type", " data", type, data);
     setModalType(type);
     setModalData(data);
     setModalOpen(true);
@@ -499,16 +538,21 @@ export default function Subjects() {
                       href="#view"
                       onClick={() => {
                         // console.log("Itemns", item);
-                        const mockTest = item.mockTest.map((mockTest) => {
-                          return { title: mockTest.title, _id: mockTest.id };
+                        // const mockTest = item.mockTest.map((mockTest) => {
+                        //   return { title: mockTest.title, _id: mockTest._id };
 
-                        });
+                        // });
                         // console.log("mockTestwew", mockTest);
-                        handleOpenModal("mockTests", mockTest);
+                        // if (!mockTest) {
+                        //   return;
+                        // }
+                        // console.log("item.mockTest", item.mockTest);
+                        //  setModalData(item.mockTest);
+                        handleOpenModal("mockTests", item.mockTest);
                       }}
                     >
-                      View
-                    </a>
+                      View 
+                    </a> 
                   </TableCell>
 
                   <TableCell>

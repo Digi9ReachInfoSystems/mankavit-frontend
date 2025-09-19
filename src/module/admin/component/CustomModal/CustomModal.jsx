@@ -17,7 +17,7 @@ import { getAuth } from "../../../../utils/authService";
 
 const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
   // // console.log(type);
-  // // console.log(data);
+  // console.log("data",data);
   const [subjectData, setSubjectData] = useState([]);
   const [courseData, setCourseData] = useState([]);
   const getEmptyMessage = () => {
@@ -62,6 +62,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
 
   const renderList = () => {
     // // console.log(data);
+    if(!data) return <MocktestItem>{getEmptyMessage()}</MocktestItem>;
     if (!Array.isArray(data) || data.length === 0) {
       return <MocktestItem>{getEmptyMessage()}</MocktestItem>;
     }
