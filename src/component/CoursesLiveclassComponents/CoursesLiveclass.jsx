@@ -1644,13 +1644,13 @@ const CoursesLiveclass = () => {
           courseId
         );
         // console.log(" progressResponse", progressResponse);
-        if (progressResponse.data?.completed) {
-          if (progressResponse.data?.viewedCertificate) {
-            navigate(`/user`);
-          } else {
-            navigate(`/courseComplte/${courseId}`);
-          }
-        }
+        // if (progressResponse.data?.completed) {
+        //   if (progressResponse.data?.viewedCertificate) {
+        //     navigate(`/user`);
+        //   } else {
+        //     navigate(`/courseComplte/${courseId}`);
+        //   }
+        // }
         let nextLecture = null;
         let nextSubject = null;
 
