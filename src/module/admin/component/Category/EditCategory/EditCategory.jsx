@@ -39,12 +39,12 @@ const EditCategory = () => {
   useEffect(() => {
     const apiCaller = async () => {
       try {
-        console.log("location.state.categoryId", location, params);
+        // // console.log("location.state.categoryId", location, params);
         const response = await getCategoryById(params.id);
-        console.log("Response:", response);
+        // // console.log("Response:", response);
         setCategoryTitle(response.data.title);
       } catch (error) {
-        console.error("Error creating category:", error); // 👈 Full error log
+        // console.error("Error creating category:", error); // 👈 Full error log
       }
     }
     apiCaller();
@@ -62,9 +62,9 @@ const EditCategory = () => {
     }
 
     try {
-      console.log("Sending data:", { title: categoryTitle }); // 👈 Log data
+      // console.log("Sending data:", { title: categoryTitle }); // 👈 Log data
       const response = await updateCategory(params.id, { title: categoryTitle });
-      console.log("Response:", response); // 👈 Log response
+      // console.log("Response:", response); // 👈 Log response
 
       notification.success({
         message: "Category Updated",
@@ -74,7 +74,7 @@ const EditCategory = () => {
       setCategoryTitle("");
       navigate("/admin/category-management");
     } catch (error) {
-      console.error("Error creating category:", error); // 👈 Full error log
+      // console.error("Error creating category:", error); // 👈 Full error log
       notification.error({
         message: "Failed to Add Category",
         description: error?.response?.data?.message || "Something went wrong",

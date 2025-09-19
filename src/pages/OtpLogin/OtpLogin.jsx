@@ -133,7 +133,7 @@ const OtpLogin = () => {
             setOtpDigits(Array(6).fill(''));
             // Send new OTP logic here (API call, etc.)
 
-            console.log('Resending new OTP...');
+            // // // console.log('Resending new OTP...');
             setResendingOtp(true);
             const userResponse = await resendLoginOtp({ email: location.state.email });
             if (userResponse.success === true) {

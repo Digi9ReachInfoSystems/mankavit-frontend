@@ -184,7 +184,7 @@ const Profile = () => {
 
         try {
           const kycResp = await getKYCbyUserId(userIdForKyc);
-          console.log("kycResp", kycResp);
+          // // console.log("kycResp", kycResp);
           // If exists, show values and set editability per status
           if (kycResp?.success && kycResp?.data) {
             const k = kycResp.data;
@@ -249,7 +249,7 @@ const Profile = () => {
           setIsKycReadOnly(false);
         }
       } catch (err) {
-        console.error(err);
+        // // console.error(err);
         setError(err.message || "Failed to load profile");
       } finally {
         setIsLoading(false);
@@ -438,7 +438,7 @@ const Profile = () => {
       setIsKycReadOnly(true);
       toast.success(resp.message || "KYC submitted successfully");
     } catch (err) {
-      console.error("KYC submit error:", err);
+      // // console.error("KYC submit error:", err);
       setError(err.message || "Failed to submit KYC. Please try again.");
       toast.error(err.message || "Failed to submit KYC");
     } finally {
@@ -498,7 +498,7 @@ const Profile = () => {
       setIsOtpSent(false);
       toast.success("Password has been updated successfully");
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       toast.error(
         err.response?.data?.data?.message || "Failed to update password"
       );

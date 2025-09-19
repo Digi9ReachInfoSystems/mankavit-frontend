@@ -11,20 +11,21 @@ export const generateSignature = async (data) => {
     }
 };
 
-export const getAllMeetings = async (courseId,from,to,hostEmail,isSuperAdmin) => {
+export const getAllMeetings = async (courseId,from,to,hostEmail,isSuperAdmin,hostId) => {
     try {
         let queryParams = '';
         const params = [];
-        
+        // console.log(hostId);
         if (courseId) params.push(`courseId=${courseId}`);
         if (from) params.push(`from=${from}`);
         if (to) params.push(`to=${to}`);
         if (hostEmail) params.push(`hostEmail=${hostEmail}`);
         if (isSuperAdmin) params.push(`isSuperAdmin=${isSuperAdmin}`);
-        
+        if(hostId) params.push(`hostId=${hostId}`)
         if (params.length > 0) {
             queryParams = `?${params.join('&')}`;
         }
+    //    console.log(queryParams);
         const response = await api.get(`/meeting/getAllMeetings${queryParams}`);
         return response.data;
     } catch (error) {

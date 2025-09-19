@@ -7,7 +7,7 @@ export const getCategories = async () => {
         return response.data.data; 
        
     } catch (error) {
-        console.error('Error fetching categories:', error);
+        // console.error('Error fetching categories:', error);
         throw error;
     }
 };
@@ -17,7 +17,7 @@ export const createCategory = async (data) => {
         const response = await api.post('/category/', data);
         return response.data;
     } catch (error) {
-        console.error('Error creating category:', error);
+        // console.error('Error creating category:', error);
         throw error;
     }
 };
@@ -27,7 +27,7 @@ export const deleteCategory = async (id) => {
         const response = await api.delete(`/category/${id}`);
         return response.data;
     } catch (error) {
-        console.error('Error deleting category:', error);
+        // console.error('Error deleting category:', error);
         throw error;
     }
 };
@@ -37,7 +37,7 @@ export const updateCategory = async (id, data) => {
         const response = await api.put(`/category/${id}`, data);
         return response.data;
     } catch (error) {
-        console.error('Error updating category:', error);
+        // console.error('Error updating category:', error);
         throw error;
     }
 };
@@ -47,7 +47,7 @@ export const getCategoryById = async (id) => {
         const response = await api.get(`/category/${id}`);
         return response.data;
     } catch (error) {
-        console.error('Error fetching category by ID:', error);
+        // console.error('Error fetching category by ID:', error);
         throw error;
     }
 };
@@ -61,3 +61,12 @@ export const bulkDeleteCategory = async (categoryIds) => {
         throw error;
     }
 };
+export const toggleFeaturedCategory = async (id) => {
+    try {
+        const response = await api.put(`/category/toggle/featured/${id}`);
+        return response.data;
+    } catch (error) {
+        // console.error('Error toggling featured category:', error);
+        throw error;
+    }
+}

@@ -77,7 +77,7 @@ const YouTube = () => {
       try {
         setLoading(true);
         const res = await getAllYoutube();
-        console.log("res", res);
+        // // console.log("res", res);
         let fetched = res.data || [];
 
         // merge new link (avoid duplicate)
@@ -99,7 +99,7 @@ const YouTube = () => {
 
         setData(fetched);
       } catch (err) {
-        console.error(err);
+        // // console.error(err);
         toast.error("Failed to load YouTube links");
       } finally {
         setLoading(false);
@@ -132,7 +132,7 @@ const YouTube = () => {
 
       toast.success("YouTube link deleted");
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       toast.error("Failed to delete");
     } finally {
       setDeleteModalOpen(false);

@@ -25,11 +25,11 @@ const Certificates = () => {
 
     const [certificates, setCertificates] = useState([]);
     useEffect(() => {
-        console.log("Certificates component mounted");
+        // // console.log("Certificates component mounted");
         const fetchCertificates = async () => {
             const cookieData = await getCookiesData();
             const certificatesData = await getAllCertificates(cookieData.userId);
-            // console.log("Certificates Data", certificatesData);
+            // // console.log("Certificates Data", certificatesData);
             const preparedData = certificatesData.data.map((cert) => {
                 return {
                     id: cert._id,
@@ -37,7 +37,7 @@ const Certificates = () => {
                     title: cert.course_ref.courseName
                 };
             });
-            console.log("Prepared Certificates Data", preparedData);
+            // console.log("Prepared Certificates Data", preparedData);
             setCertificates(preparedData);
 
         };

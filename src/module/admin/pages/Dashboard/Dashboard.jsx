@@ -56,7 +56,7 @@ const Dashboard = () => {
   const handleUpdateOtp = () => {
     if (otp.length === 6) {
       const updateResponse = updateMasterOtp({ otp });
-      console.log("Updating OTP to:", otp);
+      // console.log("Updating OTP to:", otp);
       toast.success("OTP updated successfully!");
       // alert(`OTP updated successfully: ${otp}`);
     } else {

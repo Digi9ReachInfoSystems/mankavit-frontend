@@ -18,14 +18,14 @@ import {
   ToggleSwitch
 } from "../AddMeeting/AddMeeting.styles";
 import { useNavigate } from "react-router-dom";
-import { DatePicker, Select } from "antd";
+import { DatePicker } from "antd";
 import { getAllCourses } from "../../../../api/courseApi";
 import { createMeeting } from "../../../../api/meetingApi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs";
 import { getMeetingHostAdmins } from "../../../../api/userApi";
-import { Radio } from "antd";
+import { getCookiesData } from "../../../../utils/cookiesService";
 
 export default function AddMeeting() {
   const navigate = useNavigate();
@@ -39,8 +39,9 @@ export default function AddMeeting() {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [meetingType, setMeetingType] = useState("me");
   const [hostId, setHostId] = useState("");
+  const [altHostEmail, setAltHostEmail] = useState("mankavit.classes11@gmail.com");
   const [autoRecord, setAutoRecord] = useState(false);
-
+  const [recordingLocation, setRecordingLocation] = useState("cloud");
   // Data lists
   const [coursesList, setCoursesList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,6 @@ export default function AddMeeting() {
       try {
         const coursesResponse = await getAllCourses();
         const meetingHostsResponse = await getMeetingHostAdmins();
-        console.log("Meeting Hosts:", meetingHostsResponse);
         setHostsList(meetingHostsResponse.hosts || []);
         setCoursesList(coursesResponse.data || []);
       } catch (error) {
@@ -80,12 +80,24 @@ export default function AddMeeting() {
     e.preventDefault();
     try {
       setLoading(true);
+      const cookieData = await getCookiesData();
       if (!meetingTitle) return toast.error("Please enter meeting title");
       if (!meetingDateTime) return toast.error("Please select meeting date and time");
       if (!meetingDuration) return toast.error("Please enter meeting duration");
       if (selectedCourses.length === 0) return toast.error("Please select at least one course");
       if (!meetingPassword) return toast.error("Please enter meeting password");
-      if (meetingType === "other_host" && !hostId) return toast.error("Please select host");
+
+      if (meetingType === "both") {
+        if (!hostId) return toast.error("Please select a host");
+        if (!altHostEmail) return toast.error("Please enter alternative host email");
+      }
+      let hostIds = [];
+      if (meetingType === "both") {
+        hostIds = [hostId]
+        hostIds.push(cookieData.userId);
+      } else if (meetingType === "me") {
+        hostIds.push(cookieData.userId);
+      }
 
       const meetingData = {
         topic: meetingTitle,
@@ -95,21 +107,13 @@ export default function AddMeeting() {
         password: meetingPassword,
         courseIds: selectedCourses,
         meeting_type: meetingType,
-        hostId: meetingType === "other_host" ? hostId : "me",
-        autoRecord: autoRecord,
-
+        hostId: meetingType === "both" ? "mankavit.classes11@gmail.com" : "me",
+        alternativeHost: meetingType === "both" ? altHostEmail : null,
+        autoRecord,
+        record_location: recordingLocation,
+        hostIds: hostIds  
       };
-      //       {
-      // "topic": "Physics Workshop - Quantum Mechanics",
-      //   "agenda": "Advanced quantum mechanics concepts discussion",
-      //   "password": "physics456",
-      //   "meeting_type": "other_host",
-      //   "courseIds": ["685ce3a364f059247600867d", "685cf7b7f811d08dd9739180"],
-      //   "startTime": "2025-09-09T10:00:00Z",
-      //   "duration": 60,
-      //    "hostId": "naven1897@gmail.com" // Zoom user ID or email of the alternate host
-      // }
-
+      console.log("meetingData", meetingData);
       const response = await createMeeting(meetingData);
       if (response) {
         toast.success("Meeting created successfully!");
@@ -150,17 +154,49 @@ export default function AddMeeting() {
             />
           </FieldWrapper>
         </FormRow>
+
+        {/* Auto Record */}
         <FormRow>
-          {/* <Column> */}
-          <FieldWrapper className="toggle-wrapper">
-            <Label>Auto Record</Label>
-            <ToggleSwitch
-              type="checkbox"
-              checked={autoRecord}
-              onChange={(e) => setAutoRecord(e.target.checked)}
-            />
-          </FieldWrapper>
-          {/* </Column> */}
+          <Column>
+            <FieldWrapper className="toggle-wrapper">
+              <Label>Auto Record</Label>
+              <ToggleSwitch
+                type="checkbox"
+                checked={autoRecord}
+                onChange={(e) => setAutoRecord(e.target.checked)}
+                disabled={loading}
+              />
+            </FieldWrapper>
+          </Column>
+          <Column>
+            {autoRecord && (
+              <FieldWrapper>
+                <Label>Recording Location</Label>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <label>
+                    <input
+                      type="radio"
+                      value="cloud"
+                      checked={recordingLocation === "cloud"}
+                      onChange={(e) => setRecordingLocation(e.target.value)}
+                      disabled={loading}
+                    />
+                    Cloud
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      value="local"
+                      checked={recordingLocation === "local"}
+                      onChange={(e) => setRecordingLocation(e.target.value)}
+                      disabled={loading}
+                    />
+                    Local
+                  </label>
+                </div>
+              </FieldWrapper>
+            )}
+          </Column>
         </FormRow>
 
         {/* Password + DateTime */}
@@ -259,19 +295,6 @@ export default function AddMeeting() {
         {/* Host Selection */}
         <FormRow>
           <Column>
-            {/* <FieldWrapper>
-              <Label>Meeting Host*</Label>
-              <Select
-                style={{ width: "100%" }}
-                value={meetingType}
-                onChange={setMeetingType}
-                options={[
-                  { value: "me", label: "Me" },
-                  { value: "other_host", label: "Other Host" },
-                ]}
-                disabled={loading}
-              />
-            </FieldWrapper> */}
             <FieldWrapper>
               <Label>Meeting Host*</Label>
               <div style={{ display: "flex", gap: "1rem" }}>
@@ -288,37 +311,46 @@ export default function AddMeeting() {
                 <label>
                   <input
                     type="radio"
-                    value="other_host"
-                    checked={meetingType === "other_host"}
+                    value="both"
+                    checked={meetingType === "both"}
                     onChange={(e) => setMeetingType(e.target.value)}
                     disabled={loading}
                   />
-                  Other Host
+                  Me + Alternative Host
                 </label>
               </div>
             </FieldWrapper>
-
           </Column>
-          {meetingType === "other_host" && (
+        </FormRow>
+        <FormRow>
+          {meetingType === "both" && (
             <Column>
               <FieldWrapper>
-                <Label htmlFor="hostId">Host*</Label>
-                <Select
-                  showSearch
-                  style={{ width: "100%" }}
+                <Label htmlFor="hostSelect">Select Teacher</Label>
+                <select
+                  id="hostSelect"
                   value={hostId}
-                  onChange={setHostId}
-                  options={hostsList.map((host) => ({
-                    value: host.email,
-                    label: host.displayName || host.email,
-                  }))}
-                  optionFilterProp="children"
-                  placeholder="Search & select host"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                  onChange={(e) => setHostId(e.target.value)}
+                  disabled={loading}
+                  style={{ width: "100%", padding: "8px" }}
+                >
+                  <option value="">-- Select a Teacher --</option>
+                  {hostsList.map((host) => (
+                    <option key={host.email} value={host._id}>
+                      {host.displayName || host.email}
+                    </option>
+                  ))}
+                </select>
+              </FieldWrapper>
+
+              <FieldWrapper>
+                <Label htmlFor="altHostEmail">Alternative Host Email</Label>
+                <Input
+                  id="altHostEmail"
+                  type="email"
+                  placeholder="Enter Zoom host email"
+                  value={altHostEmail}
+                  onChange={(e) => setAltHostEmail(e.target.value)}
                   disabled={loading}
                 />
               </FieldWrapper>

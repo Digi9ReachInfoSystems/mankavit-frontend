@@ -69,7 +69,7 @@ export default function AddLecturer() {
         // existing subjects logic...
       } catch (error) {
         toast.error("Failed to fetch data");
-        console.error("Error fetching data:", error);
+        // console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -96,7 +96,7 @@ export default function AddLecturer() {
 
       } catch (error) {
         toast.error("Failed to fetch data");
-        console.error("Error fetching data:", error);
+        // console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -174,7 +174,7 @@ const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
       };
 
       const response = await createLecture(submissionData);
-      console.log("API Response:", response.data);
+      // // console.log("API Response:", response.data);
 
       toast.success("Lecture created successfully");
       setTimeout(() => {
@@ -190,7 +190,7 @@ const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
       setSelectedSubjects([]);
     } catch (error) {
       toast.error("Failed to create lecture");
-      console.error("Error creating lecture:", error);
+      // // console.error("Error creating lecture:", error);
     } finally {
       setIsLoading(false);
     }
@@ -230,7 +230,8 @@ const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
                 value={description}
                 config={config}
                 tabIndex={1}
-                onBlur={newContent => { console.log("new", newContent); }}
+                onBlur={newContent => { // console.log("new", newContent); 
+                  }}
                 onChange={newContent => { setDescription(newContent); }}
               />
             </FieldWrapper>

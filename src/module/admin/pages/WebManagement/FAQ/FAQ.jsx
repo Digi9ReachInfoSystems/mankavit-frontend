@@ -66,7 +66,7 @@ const FAQ = () => {
       setLoading(true);
       try {
         const data = await getAllfaqs();
-        console.log("Fetched FAQ data:", data);
+        // // console.log("Fetched FAQ data:", data);
 
         // ✅ Use `data` directly instead of `data.body`
         if (Array.isArray(data)) {
@@ -77,14 +77,14 @@ const FAQ = () => {
           });
           setFaqs(sortedFaqs);
         } else {
-          console.error("Unexpected FAQ format:", data);
+          // // console.error("Unexpected FAQ format:", data);
           setFaqs([]);
           setError("Unexpected response format");
           toast.error("Unexpected response format from server");
         }
       }
       catch (err) {
-        console.error("Error fetching FAQs:", err);
+        // // console.error("Error fetching FAQs:", err);
         setError("Failed to load FAQs");
         toast.error("Failed to load FAQs");
       } finally {
@@ -167,7 +167,7 @@ const FAQ = () => {
                 ) : (
                   currentFaqs.map((faq) => (
                     <TableRow key={faq._id}>
-                      {console.log("FAQ item:", faq)}
+                      {/* { console.log("FAQ item:", faq)} */}
                       <TableCell>
                         {/* {faq.question || faq.questionText || "No Question"} */}
                         {/* i want to limit the question character to 30 then i have to put ..  */}

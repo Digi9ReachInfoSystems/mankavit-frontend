@@ -11,7 +11,7 @@ import { getUserByUserId } from '../../../../api/authApi';
 import { getCookiesData } from '../../../../utils/cookiesService';
 
 const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPrice, discountPrice, couponApplied, couponCode, couonDiscount }) => {
-  console.log("userId", userId, "amount", amount, "courseRef", courseRef);
+  // // console.log("userId", userId, "amount", amount, "courseRef", courseRef);
   const navigate = useNavigate();
   const [isPaying, setIsPaying] = React.useState(false);
   const handlePayment = async () => {
@@ -29,9 +29,9 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
         couponDiscount: couonDiscount
       });
       const userData = await getUserByUserId(userId);
-      console.log("userData", userData);
+      // // console.log("userData", userData);
       const order = orderResponse.data;
-      console.log("order", order);
+      // // console.log("order", order);
 
 
       const options = {
@@ -43,7 +43,7 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
         image: razorPayKeys.logo, // Optional: Logo image
         order_id: order.orderId,
         handler: async function (response) {
-          // console.log(response);
+          // // // console.log(response);
           //  for testing webhook localhost
           // try {
           //   // Step 3: Verify Payment on Backend
@@ -66,7 +66,7 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
 
           //     // razorpay_signature: generated_signature,
           //   });
-          //   console.log("verificationResponse", verificationResponse);
+          //   // // console.log("verificationResponse", verificationResponse);
 
           //   if (verificationResponse.data.status === 'ok') {
           //     alert('Payment Successful!');
@@ -76,11 +76,11 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
           //     alert('Payment Verification Failed!');
           //   }
           // } catch (error) {
-          //   console.error('Payment Verification Error:', error);
+          //   // // console.error('Payment Verification Error:', error);
           //   alert('Payment Verification Failed!');
           // }
 
-          // ////console.log(response);
+          // ////// // console.log(response);
           // calling webhook online
           try {
             // const verificationResponse = await axiosInstance.post('/api/payments/verify-payment', {
@@ -93,9 +93,9 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
             alert('Payment Successful!');
             // Optionally, redirect or update UI
             const cookieData = await getCookiesData();
-            console.log("cookieData", cookieData);
+            // // console.log("cookieData", cookieData);
             const user = await getUserByUserId(cookieData.userId);
-            console.log("user", user);
+            // // console.log("user", user);
             if (user.user.kyc_status == "not-applied") {
               navigate('/kyc');
             } else {
@@ -105,7 +105,7 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
             //   alert('Payment Verification Failed!');
             // }
           } catch (error) {
-            //console.error('Payment Verification Error:', error);
+            //// // console.error('Payment Verification Error:', error);
             alert('Payment Verification Failed!');
           }
         },
@@ -121,13 +121,13 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
           color: '#3399cc', // Customize the color as needed
         },
       };
-      // console.log("options", options);
+      // // // console.log("options", options);
       const rzp1 = new window.Razorpay(options);
       rzp1.open();
     } catch (error) {
-      //console.error('Error initiating payment:', error);
+      //// // console.error('Error initiating payment:', error);
       alert(`Could not initiate payment. Please try again. ${error}`);
-      console.log("error", error);
+      // console.log("error", error);
     } finally {
       setIsPaying(false);
     }

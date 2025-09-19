@@ -58,7 +58,7 @@ const AccountDeletionPage = () => {
     
     if (Object.keys(formErrors).length === 0) {
       // In a real application, you would send the data to your server here
-      console.log('Form submitted:', formData);
+      // console.log('Form submitted:', formData);
       setIsSubmitted(true);
     } else {
       setErrors(formErrors);

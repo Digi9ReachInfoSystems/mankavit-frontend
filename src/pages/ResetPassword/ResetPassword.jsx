@@ -63,7 +63,7 @@ const ResetPassword = () => {
                 setErrorMsg(response.message || "Failed to reset password");
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             setErrorMsg(error?.response?.data?.message || "Failed to reset password");
         } finally {
             setLoading(false);

@@ -137,7 +137,7 @@ export default function MockTestsTable() {
 
       setData(rows);
     } catch (err) {
-      console.error(err);
+      // // // console.error(err);
       setError(err.message || "Unknown error");
       toast.error(err.message || "Failed to load mock tests");
     } finally {
@@ -170,7 +170,7 @@ export default function MockTestsTable() {
         ]);
       }
     } catch (err) {
-      console.error("Failed to fetch subjects:", err);
+      // // // console.error("Failed to fetch subjects:", err);
     }
   };
 
@@ -259,13 +259,13 @@ export default function MockTestsTable() {
       setLoading(true);
       await bulkdeleteMocktest(selectedMockTests);
       
-      console.log("selectedMockTests", selectedMockTests);
+      // // // console.log("selectedMockTests", selectedMockTests);
       toast.success("Selected mock tests deleted successfully");
       setSelectedMockTests([]);
       setSelectAll(false);
       await fetchMockTests(selectedSubject);
     } catch (error) {
-      console.error("Bulk delete failed:", error);
+      // // // console.error("Bulk delete failed:", error);
       toast.error("Failed to delete selected mock tests");
     } finally {
       setBulkDeleteModalOpen(false);
@@ -506,7 +506,7 @@ export default function MockTestsTable() {
                         cursor: item.subjectId ? "pointer" : "not-allowed",
                       }}
                       onClick={() =>{
-                        console.log("item.subjectId", item);
+                        // // console.log("item.subjectId", item);
                         item.subjectId &&
                         navigate(
                           `/admin/mock-test/user-ranking/${item.id}/${item.subjectId}`

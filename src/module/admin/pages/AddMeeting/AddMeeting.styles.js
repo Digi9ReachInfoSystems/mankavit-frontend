@@ -154,7 +154,7 @@ export const CheckboxList = styled.div`
   flex-direction: column;
   gap: ${(props) => props.theme.spacing(1)};
   overflow-y: auto;
-  max-height: 80px;
+  max-height: 230px;
 `;
 
 /** A single checkbox + label line */

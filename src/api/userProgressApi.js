@@ -10,7 +10,7 @@ export const startCourse = async (user_id,course_id) => {
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -26,7 +26,7 @@ export const startSubject = async (user_id,course_id,subject_id) => {
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -43,7 +43,7 @@ export const startLecturer = async (user_id,course_id,subject_id,lecturer_id) =>
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -60,7 +60,7 @@ export const completeLecturer = async (user_id,course_id,subject_id,lecturer_id)
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -76,7 +76,7 @@ export const completeSubject = async (user_id,course_id,subject_id) => {
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -91,7 +91,7 @@ export const completeCourse = async (user_id,course_id) => {
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -106,7 +106,7 @@ export const getCourseByIdWithUSerProgress = async (user_id,course_id) => {
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -120,7 +120,7 @@ export const updateViewCertificate = async (user_id,course_id) => {
         );
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }

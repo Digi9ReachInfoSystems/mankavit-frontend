@@ -16,8 +16,8 @@ import { Link } from "react-router-dom";
 import { getAuth } from "../../../../utils/authService";
 
 const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
-  console.log(type);
-  console.log(data);
+  // // console.log(type);
+  // // console.log(data);
   const [subjectData, setSubjectData] = useState([]);
   const [courseData, setCourseData] = useState([]);
   const getEmptyMessage = () => {
@@ -36,7 +36,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           const res = await getSubjects();
           setSubjectData(res.data || []);
         } catch (error) {
-          console.error("Error fetching subjects:", error);
+          // // console.error("Error fetching subjects:", error);
         }
       }
     };
@@ -51,7 +51,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
           const res = await getAllCourses();
           setCourseData(res.data || []);
         } catch (error) {
-          console.error("Error fetching subjects:", error);
+          // // console.error("Error fetching subjects:", error);
         }
       }
     };
@@ -61,7 +61,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
 
 
   const renderList = () => {
-    console.log(data);
+    // // console.log(data);
     if (!Array.isArray(data) || data.length === 0) {
       return <MocktestItem>{getEmptyMessage()}</MocktestItem>;
     }
@@ -86,7 +86,7 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
 
     if (type === "activeCourses") {
 
-      console.log(data);
+      // // console.log(data);
       return data.map((course, index) => {
         const courseName = typeof course === 'string' ? course : course.courseName;
 
@@ -113,10 +113,10 @@ const CustomModal = ({ title, type, data = [], onClose, onConfirm }) => {
         );
       });
     }
-    console.log(type);
+    // // console.log(type);
 
     if (type === "courses") {
-      console.log(data);
+      // console.log(data);
       return data.map((course, index) => (
         <MocktestItem key={index}>
           <Link

@@ -16,38 +16,38 @@ export const loginUser = async (data) => {
         const response = await api.post("/user/login", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
 
 export const updateAccessToken = async () => {
-    console.log("updatedAccessToken");
+    // console.log("updatedAccessToken");
 
     try {
         const coookies = getCookiesData();
         if (!coookies) {
             window.location.href = '/login';
-            console.log("No cookies found, redirecting to login");
+            // console.log("No cookies found, redirecting to login");
             return;
         }
-        // console.log("coookies", coookies);
+        // // console.log("coookies", coookies);
         if (coookies?.refreshToken) {
             const response = await api.post('/user/refreshToken', { refreshToken: coookies.refreshToken });
-            // console.log("response refresh token", response.data);
+            // // console.log("response refresh token", response.data);
             if (response.status === 200) {
                 document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=604800;`;
             } else if (!response.data.success) {
-                // console.log("Refresh token expired or invalid, redirecting to login");
+                // // console.log("Refresh token expired or invalid, redirecting to login");
                 clearCookies();
 
                 window.location.href = '/';
             }
         }
     } catch (error) {
-        console.log("Error updating access token:", error);
+        // console.log("Error updating access token:", error);
         if (error.response && error.response.status === 405) {
-            console.log("Refresh token expired or invalid, redirecting to login");
+            // console.log("Refresh token expired or invalid, redirecting to login");
             clearCookies();
             // Clear all authentication cookies
             // document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -57,7 +57,7 @@ export const updateAccessToken = async () => {
             window.location.href = '/';
             return;
         }
-        console.error('Error updating access token:', error);
+        // console.error('Error updating access token:', error);
         // throw error;
     }
 };
@@ -67,7 +67,7 @@ export const loginWithOtp = async (data) => {
         const response = await api.post("/user/loginSendOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -76,7 +76,7 @@ export const verifyLoginOtp = async (data) => {
         const response = await api.post("/user/verifyLoginOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -85,7 +85,7 @@ export const resendLoginOtp = async (data) => {
         const response = await api.post("/user/resendLoginOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -97,7 +97,7 @@ export const logoutUser = async (data) => {
         }
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -108,7 +108,7 @@ export const getUserDetails = async (id) => {
         const response = await api.get(`/user/get/userById/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -117,7 +117,7 @@ export const verifySignupOtp = async (data) => {
         const response = await api.post("/user/verify-otp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -127,7 +127,7 @@ export const resendSignupOtp = async (data) => {
         const response = await api.post("/user/resend-otp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -137,7 +137,7 @@ export const getUserByUserId = async (id) => {
         const response = await api.get(`/user/get/userById/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -147,7 +147,7 @@ export const updateUserById = async (id, data) => {
         const response = await api.put(`/user/updateUser/${id}`, data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -157,7 +157,7 @@ export const getNoOfStudents = async () => {
         const response = await api.get('/student/total');
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -167,7 +167,7 @@ export const generatePhoneOtp = async (data) => {
         const response = await api.post("/user/sendPhoneOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -177,7 +177,7 @@ export const verifyPhoneOtp = async (data) => {
         const response = await api.post("/user/verifyPhoneOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -187,7 +187,7 @@ export const resendPhoneOtp = async (data) => {
         const response = await api.post("/user/resendPhoneOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -197,7 +197,7 @@ export const forceLogin = async (data) => {
         const response = await api.post("/user/forceLogin", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -207,7 +207,7 @@ export const changePasswordOtpSend = async (data) => {
         const response = await api.post("/user/sendChangePasswordOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -217,7 +217,7 @@ export const resendChangePasswordOtp = async (data) => {
         const response = await api.post("/user/resendChangePasswordOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -227,7 +227,7 @@ export const verifyChangePasswordOtp = async (data) => {
         const response = await api.post("/user/verifyChangePasswordOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -237,7 +237,7 @@ export const collectQuestionPaperDetails = async (data) => {
         const response = await api.post("/user/collectQuestionPaperDetails", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -247,7 +247,7 @@ export const createSubAdmin = async (data) => {
         const response = await api.post("/user/create/sub/Admin", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -257,7 +257,7 @@ export const updateSubAdmin = async (id,data) => {
         const response = await api.put(`/user/update/sub/Admin/${id}` ,data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -267,7 +267,7 @@ export const resetAdminPassword = async (id,data) => {
         const response = await api.put(`/user/reset/adminPassword/${id}`, data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }   
@@ -276,7 +276,7 @@ export const deleteSubAdmin = async (id) => {
         const response = await api.delete(`/user/delete/sub/Admin/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -286,7 +286,7 @@ export const getAllAdmins = async () => {
         const response = await api.get("/user/get/sub/Admins");
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -296,7 +296,7 @@ export const sendForgotPasswordOtp = async (data) => {
         const response = await api.post("/user/send/forgotPasswordOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -306,7 +306,7 @@ export const resendForgotPasswordOtp = async (data) => {
         const response = await api.post("/user/resend/forgotPasswordOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -316,7 +316,7 @@ export const verifyForgotPasswordOtp = async (data) => {
         const response = await api.post("/user/verify/forgotPasswordOtp", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -326,7 +326,7 @@ export const resetPassword = async (data) => {
         const response = await api.put("/user/reset/password", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
@@ -334,10 +334,10 @@ export const resetPassword = async (data) => {
 export const getBackendAssets = async (file) => {
     try {
         const response = await api.get(`/api/project/resource/pdf?fileKey=${file}`);
-        console.log("response", response.data);
+        // console.log("response", response.data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }

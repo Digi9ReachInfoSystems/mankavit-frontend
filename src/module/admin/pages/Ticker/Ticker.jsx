@@ -69,7 +69,7 @@ export default function Ticker() {
           setFormData({ id: _id, title });
         }
       } catch (err) {
-        console.error("Failed to load ticker", err);
+        // // console.error("Failed to load ticker", err);
         toast.error("Could not load existing ticker");
       }
     }
@@ -100,7 +100,7 @@ export default function Ticker() {
         toast.success("Ticker created successfully!");
       }
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Operation failed. Please try again.");
     } finally {
       setSaving(false);
@@ -124,7 +124,8 @@ export default function Ticker() {
             value={formData.title}
             config={config}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { console.log("new", newContent); }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { // console.log("new", newContent);
+             }} // preferred to use only this option to update the content for performance reasons
             onChange={newContent => { handleChange(newContent) }}
           />
           {/* <Input

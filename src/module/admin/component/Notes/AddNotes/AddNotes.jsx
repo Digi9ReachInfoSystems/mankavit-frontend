@@ -74,7 +74,7 @@ export default function AddNote() {
         setSubjectsCheckboxes(data);
         setSelectedSubjects(savedSelectedSubjects);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        // // console.error("Error fetching data:", error);
         toast.error("Failed to fetch data");
       }
     };
@@ -133,7 +133,7 @@ export default function AddNote() {
         error.message ||
         "Failed to rearrange subjects";
       toast.error(errorMsg);
-      console.error("Rearrangement error:", error);
+      // // console.error("Rearrangement error:", error);
     }
   };
 
@@ -165,7 +165,7 @@ export default function AddNote() {
         error.message ||
         "Failed to rearrange subjects";
       toast.error(errorMsg);
-      console.error("Rearrangement error:", error);
+      // // console.error("Rearrangement error:", error);
     }
   };
 
@@ -230,7 +230,7 @@ export default function AddNote() {
       // }
 
       const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
-      console.log("fileData", fileData);
+      // // console.log("fileData", fileData);
       const fileURL = fileData.blobUrl;
       const subjects = selectedSubjects.map((item) => item.id);
 
@@ -273,7 +273,7 @@ export default function AddNote() {
         });
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       toast.error("Notes creation failed.", {
         duration: 3000,
         position: "top-right",

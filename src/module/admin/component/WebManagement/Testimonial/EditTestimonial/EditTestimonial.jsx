@@ -69,7 +69,7 @@ const EditTestimonial = () => {
         });
         setPreviewUrl(t.testimonial_image || t.testimonial_video || '');
       } catch (err) {
-        console.error("Error loading testimonial:", err);
+        // // console.error("Error loading testimonial:", err);
         toast.error("Failed to load testimonial");
       } finally {
         setIsLoading(false);
@@ -106,7 +106,7 @@ const EditTestimonial = () => {
     setError('');
     setFormData(fd => ({ ...fd, imageFile: file }));
     const reader = new FileReader();
-    console.log(reader);
+    // // console.log(reader);
     reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
@@ -146,7 +146,7 @@ const EditTestimonial = () => {
       toast.success("Testimonial updated successfully");
       setTimeout(() => navigate("/admin/web-management/testinomial", { state: { success: true } }), 1000);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       toast.error(err.message || "Failed to update testimonial");
     } finally {
       setIsUploading(false);

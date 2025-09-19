@@ -85,7 +85,7 @@ const EditRecordedClass = () => {
       try {
         // If we don't have editingData in location state, fetch it
         const dataToEdit = editingData || (id ? (await getRecordedClassById(id)).data : null);
-        console.log("dataToEdit", dataToEdit);
+        // // console.log("dataToEdit", dataToEdit);
         if (dataToEdit) {
           setTitle(dataToEdit.title);
           setDescription(dataToEdit.description);
@@ -93,7 +93,7 @@ const EditRecordedClass = () => {
           setExistingVideoUrl(dataToEdit.videoUrl);
           // Normalize and set the course reference
           // const courseId = normalizeCourseId(dataToEdit.course_ref);
-          // console.log("courseIdasa",new Set(dataToEdit.course_ref));
+          // // // console.log("courseIdasa",new Set(dataToEdit.course_ref));
           // if (courseId) {
           //   setSelectedCourses(new Set([courseId]));
           // }
@@ -119,7 +119,7 @@ const EditRecordedClass = () => {
         const res = await getAllCourses();
         setCoursesList(res.data || []);
       } catch (err) {
-        console.error("Error fetching data", err);
+        // // console.error("Error fetching data", err);
         setError("Failed to load data");
       }
     };
@@ -225,7 +225,7 @@ const EditRecordedClass = () => {
         videoUrl,
         course_ref: Array.from(selectedCourses),  // Send the first (only) selected course
       };
-      console.log("pay;load", payload);
+      // // console.log("pay;load", payload);
 
       const updateRes = await updateRecordedClassById(editingData?._id || id, payload);
 
@@ -239,7 +239,7 @@ const EditRecordedClass = () => {
         setError(updateRes?.message || "Update failed.");
       }
     } catch (err) {
-      console.error("Error updating recorded class", err);
+      // // console.error("Error updating recorded class", err);
       setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
@@ -311,7 +311,8 @@ const EditRecordedClass = () => {
             value={description}
             config={configDis}
             tabIndex={1}
-            onBlur={newContent => { console.log("new", newContent); }}
+            onBlur={newContent => { // console.log("new", newContent);
+               }}
             onChange={newContent => { setDescription(newContent); }}
           />
 

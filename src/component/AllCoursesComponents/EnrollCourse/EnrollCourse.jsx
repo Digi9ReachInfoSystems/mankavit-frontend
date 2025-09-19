@@ -30,7 +30,7 @@ const EnrollCourse = () => {
         const response = await getAllWhy();
         setWhys(response);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       } finally {
         setLoading(false);
       }

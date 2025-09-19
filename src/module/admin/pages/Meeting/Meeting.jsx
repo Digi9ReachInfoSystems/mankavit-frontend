@@ -74,11 +74,17 @@ export default function Meeting() {
     useEffect(() => {
         const apiCaller = async () => {
             const response = await getAuth();
-            response.Permissions;
+            response.Permissions;  
+
             if (response.isSuperAdmin === true) {
                 setReadOnlyPermissions(false);
             } else {
-                setReadOnlyPermissions(response.Permissions["meetingManagement"].readOnly);
+                if (response.Permissions["meetingManagement"].access) {
+                    setReadOnlyPermissions(true);
+                }else{
+                    setReadOnlyPermissions(true);
+                }
+                // setReadOnlyPermissions(response.Permissions["meetingManagement"].readOnly);
             }
         }
         apiCaller();
@@ -88,22 +94,23 @@ export default function Meeting() {
         const apiCaller = async () => {
             const cookiesData = getCookiesData();
             const userData = await getUserByUserId(cookiesData.userId);
-            console.log("userData", userData);
+            // // console.log("userData", userData);
             if (userData.user.isSuperAdmin === true) {
                 setSuperAdmin(true);
             } else {
                 setSuperAdmin(false);
             }
-            fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null, userData.user.email, userData.user.isSuperAdmin);
+            // // console.log("userData", userData);
+            fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null, userData.user.email, userData.user.isSuperAdmin,userData.user._id);
 
         }
         apiCaller();
 
     }, [selectedCourseFilter, dateRange, loadData]);
-    const fetchMeetings = async (courseId = null, from = null, to = null, hostEmail, isSuperAdmin = false) => {
+    const fetchMeetings = async (courseId = null, from = null, to = null, hostEmail, isSuperAdmin = false,hostId) => {
         try {
-            const response = await getAllMeetings(courseId, from, to, hostEmail, isSuperAdmin);
-            console.log("Meetings response:", response);
+            const response = await getAllMeetings(courseId, from, to, hostEmail, isSuperAdmin,hostId);
+            // console.log("Meetings response:", response);
             const meetingData = response.map((item) => ({
                 id: item._id || '',
                 courses: item.course_Ref,
@@ -116,14 +123,15 @@ export default function Meeting() {
                 isHostMeeting: item.isHostMeeting,
                 isPastMeeting: item.isPastMeeting,
                 isEnded: item.isEnded,
-
+                host_email: item?.host_email ||null,
+                alternate_host_email: item?.alternate_host_email ||null,
             }))
             // Also fetch courses list for the dropdown
             const coursesResponse = await getAllCourses();
             setCoursesList(coursesResponse.data);
             setData(meetingData);
         } catch (err) {
-            console.error(err);
+            // // console.error(err);
         }
     }
 
@@ -147,7 +155,7 @@ export default function Meeting() {
 
             setData(courseData);
         } catch (error) {
-            console.log("Error fetching courses:", error);
+            // // console.log("Error fetching courses:", error);
             toast.error("Failed to fetch courses");
         } finally {
             setLoading(false);
@@ -198,7 +206,7 @@ export default function Meeting() {
             // Refresh the course list after deletion
             await fetchCourses();
         } catch (error) {
-            console.error("Error deleting course:", error);
+            // // console.error("Error deleting course:", error);
             toast.error("Failed to delete data. Please try again.");
         } finally {
             setDeleteModalOpen(false);
@@ -228,7 +236,7 @@ export default function Meeting() {
             };
             return new Intl.DateTimeFormat('en-IN', defaultOptions).format(date);
         } catch (error) {
-            console.error('Invalid date format:', isoString);
+            // // console.error('Invalid date format:', isoString);
             return 'Invalid date';
         }
     };
@@ -292,7 +300,7 @@ export default function Meeting() {
             setSelectAll(false);
 
         } catch (error) {
-            console.error("Bulk delete failed:", error);
+            // // console.error("Bulk delete failed:", error);
             toast.error("Failed to delete selected courses");
         } finally {
             setBulkDeleteModalOpen(false);
@@ -552,7 +560,7 @@ export default function Meeting() {
                                                                     onClick={async () => {
                                                                         const cookiesData = getCookiesData();
                                                                         const userData = await getUserByUserId(cookiesData.userId);
-                                                                        console.log("userData", userData);
+                                                                        // console.log("userData", userData,"item",item);
                                                                         navigate(`/admin/meeting-management/join`, {
                                                                             state: {
                                                                                 // meetingNumber: item?.meetingNumber,
@@ -562,9 +570,11 @@ export default function Meeting() {
                                                                                 meetingTitle: item?.meetingTitle,
                                                                                 role: 1,
                                                                                 userName: userData.user.displayName || "React",
-                                                                                userEmail: userData.user.email || "",
+                                                                                // userEmail: userData.user.email || "",
                                                                                 // userEmail: "mankavit.clatcoaching11@gmail.com",
+                                                                                userEmail: userData.user.isSuperAdmin ? item.host_email : item.alternate_host_email ||'',
                                                                                 leaveUrl: `/admin/meeting-management`,
+                                                                                superAdmin: userData.user.isSuperAdmin
                                                                             }
                                                                         })
                                                                         // navigate(`/admin/meeting-hosting`,{
@@ -574,7 +584,7 @@ export default function Meeting() {
                                                                         // }})
                                                                     }}
                                                                 >
-                                                                    Host Meeting
+                                                                   {superAdmin? "Host Meeting": "Join Meeting"}
                                                                 </button>) :
                                                             null
                                                     }

@@ -162,7 +162,7 @@
 //           <Document
 //             file={file}
 //             onLoadSuccess={onDocLoad}
-//             onLoadError={(err) => { console.error(err); setLoading(false); }}
+//             onLoadError={(err) => { // // // console.error(err); setLoading(false); }}
 //             loading={<PageWrap>Loading PDF…</PageWrap>}
 //             options={{ cMapUrl: `//unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`, cMapPacked: true }}
 //           >
@@ -445,7 +445,7 @@
 //             file={file}
 //             onLoadSuccess={onDocLoad}
 //             onLoadError={(err) => {
-//               console.error(err);
+//               // // // console.error(err);
 //               setLoading(false);
 //             }}
 //             loading={<PageWrap>Loading PDF…</PageWrap>}
@@ -612,7 +612,7 @@
 // `;
 
 // const PdfModal = ({ file, name, onClose, isDownloadable }) => {
-//   console.log("file", file);
+//   // // // console.log("file", file);
 //   const [numPages, setNumPages] = useState(null);
 //   const [page, setPage] = useState(1);
 //   const [scale, setScale] = useState(1.1);
@@ -624,10 +624,10 @@
 //       try {
 //         const data = await getBackendAssets(file);
 
-//         console.log("data", data);    // get { url: signedUrl }
+//         // // // console.log("data", data);    // get { url: signedUrl }
 //         setResolvedUrl(data.url);
 //       } catch (err) {
-//         console.error("Failed to fetch signed URL", err);
+//         // // // console.error("Failed to fetch signed URL", err);
 //       }
 //     };
 //     if (file) fetchSignedUrl();
@@ -786,7 +786,7 @@
 //           <Document
 //             file={resolvedUrl}
 //             onLoadSuccess={onDocLoad}
-//             onLoadError={(err) => { console.error(err); setLoading(false); }}
+//             onLoadError={(err) => { // // // console.error(err); setLoading(false); }}
 //             loading={<PageWrap>Loading PDF…</PageWrap>}
 //           >
 //             <PageWrap>
@@ -976,7 +976,7 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
         setResolvedUrl(data.url);
         detectFileType(file);
       } catch (err) {
-        console.error("Failed to fetch signed URL", err);
+        // // // console.error("Failed to fetch signed URL", err);
       }
     };
     if (file) fetchSignedUrl();
@@ -986,7 +986,7 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
   const detectFileType = (url) => {
     if (!url) return;
     const ext = url.split(".").pop().toLowerCase().split("?")[0];
-    console.log("ext", ext);
+    // // // console.log("ext", ext);
     if (ext === "pdf") setFileType("pdf");
     else if (["doc", "docx"].includes(ext)) setFileType("word");
     else if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) setFileType("image");
@@ -1043,7 +1043,7 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
         window.open(resolvedUrl, "_blank");
       }
       const response = await fetch(resolvedUrl);
-      console.log("response", response);
+      // // // console.log("response", response);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1054,7 +1054,7 @@ const PdfModal = ({ file, name, onClose, isDownloadable }) => {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Download failed", err);
+      // // console.error("Download failed", err);
     }
   };
 

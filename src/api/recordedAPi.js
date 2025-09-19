@@ -2,11 +2,11 @@ import api from "../config/axiosConfig";
 
 export const createRecordedClass = async (data) => {
    try{
-    console.log("Data api",data);
+    // console.log("Data api",data);
     const response = await api.post("/recordedSession", data);
     return response.data;
    }catch(error){
-    console.log("error api",error);
+    // console.log("error api",error);
     throw error;
    }
 };

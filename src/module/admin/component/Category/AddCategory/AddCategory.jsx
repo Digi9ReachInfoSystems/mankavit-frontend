@@ -31,15 +31,15 @@ const AddCategory = () => {
     }
   
     try {
-      console.log("Sending data:", { title: categoryTitle }); // 👈 Log data
+      // // console.log("Sending data:", { title: categoryTitle }); // 👈 Log data
       const response = await createCategory({ title: categoryTitle });
-      console.log("Response:", response); // 👈 Log response
+      // // console.log("Response:", response); // 👈 Log response
   
       // toast.success("Category Added");
       toast.success("The category was successfully created.");
       setTimeout(() => navigate("/admin/category-management"), 1000);
     } catch (err) {
-      console.error(err)
+      // console.error(err)
            if (err.status == 400 && err.response?.data?.message === "Category with this title already exists") {
              toast.error("Category with this title already exists")
            } else {

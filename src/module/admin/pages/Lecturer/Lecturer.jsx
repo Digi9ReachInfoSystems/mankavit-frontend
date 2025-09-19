@@ -74,7 +74,7 @@ export default function Lecturer() {
         });
         setSubjectsMap(map);
       } catch (error) {
-        console.error('Failed to fetch subjects:', error);
+        // // console.error('Failed to fetch subjects:', error);
       }
     };
 
@@ -84,10 +84,10 @@ export default function Lecturer() {
   const fetchLectures = async () => {
     try {
       const response = await getAllLectures();
-      console.log('Lectures API response:', response);
+      // // console.log('Lectures API response:', response);
       setData(response.data || []);
     } catch (error) {
-      console.error('Error fetching lectures:', error);
+      // // console.error('Error fetching lectures:', error);
       toast.error('Failed to fetch lectures');
     }
   };
@@ -165,7 +165,7 @@ export default function Lecturer() {
       toast.success('Lecturer deleted successfully');
       await fetchLectures();
     } catch (error) {
-      console.error('Error deleting lecturer:', error);
+      // // console.error('Error deleting lecturer:', error);
       toast.error('Failed to delete lecturer');
     } finally {
       setDeleteModalOpen(false);
@@ -220,7 +220,7 @@ export default function Lecturer() {
       setSelectAll(false);
       // await fetchCourses();
     } catch (error) {
-      console.error("Bulk delete failed:", error);
+      // console.error("Bulk delete failed:", error);
       toast.error("Failed to delete selected courses");
     } finally {
       // setLoading(false);

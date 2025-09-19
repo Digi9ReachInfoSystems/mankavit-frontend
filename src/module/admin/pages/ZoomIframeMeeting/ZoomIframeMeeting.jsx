@@ -20,9 +20,9 @@ const ZoomIframeMeeting = () => {
   const requestPermissions = async () => {
     try {
       await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      console.log('Permissions granted');
+      // // console.log('Permissions granted');
     } catch (err) {
-      console.error('Permission denied:', err);
+      // console.error('Permission denied:', err);
     }
   };
 

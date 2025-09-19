@@ -95,7 +95,7 @@
 
 //         // 2) Attempts
 //         const resAtts = await getMocktestAttempts(userId, testId);
-//         console.log("resAtts", resAtts);
+//         // // console.log("resAtts", resAtts);
 //         const arr = unwrap(resAtts) || [];
 //         const latestAttempt =
 //           arr.find((a) => a._id === attemptId) || arr[arr.length - 1] || {};
@@ -187,7 +187,7 @@
 
 //         setSummaryData(summary);
 //       } catch (err) {
-//         console.error(err);
+//         // // console.error(err);
 //         toast.error("Could not load results");
 //         navigate(-1);
 //       } finally {
@@ -620,7 +620,7 @@ export default function ResultScreen() {
 
         setSummaryData(summary);
       } catch (err) {
-        console.error(err);
+        // console.error(err);
         toast.error("Could not load results");
         navigate(-1);
       } finally {
