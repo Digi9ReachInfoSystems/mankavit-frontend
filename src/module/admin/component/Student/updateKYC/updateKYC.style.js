@@ -290,18 +290,18 @@ export const ModalOverlay = styled.div`
 export const Modal = styled.div`
   position: relative;
   max-width: min(900px, 92vw);
+   max-height: 95vh;
   border-radius: 14px;
   overflow: hidden;
   background: white;
   box-shadow: 0 24px 48px rgba(2, 6, 23, 0.35);
 
-  img {
+  img, embed {
     display: block;
-    width: 100%;
-    height: auto;
-    max-height: 86vh;
+    max-width: 100%;
+    height: 70vh;
     object-fit: contain;
-    background: #000000;
+    background: #000;
   }
 `;
 
