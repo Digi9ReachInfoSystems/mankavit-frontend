@@ -538,8 +538,17 @@ export default function Meeting() {
                                                     type="checkbox"
                                                     checked={item.isEnded}
                                                     onChange={async (e) => {
-                                                        await updateMeetingStatus(item.id);
-                                                        setLoadData(!loadData);
+                                                        try {
+                                                            await updateMeetingStatus(item.id);
+                                                            toast.success("Meeting status updated");
+                                                            setLoadData(!loadData);
+                                                            setLoading(true);
+                                                        } catch (error) {
+
+                                                        }finally{
+                                                            setLoading(false);
+                                                        }
+
                                                     }}
                                                 />
                                             </TableCell>
