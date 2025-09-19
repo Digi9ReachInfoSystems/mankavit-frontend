@@ -10,7 +10,7 @@ import {
   approveKYC,      // keep as-is (approve/reject flow unchanged)
   updateKycById,   // <-- used for updating KYC fields
 } from "../../../../../api/kycApi";
-import { getUserDetails } from "../../../../../api/authApi";
+import { getBackendAssets, getUserDetails } from "../../../../../api/authApi";
 import { getAuth } from "../../../../../utils/authService";
 
 import {
@@ -205,67 +205,67 @@ export default function UpdateKYC() {
   const sanitizeBaseName = (s) => (s || "document").replace(/[^\w\-]+/g, "_");
 
   // Always tries blob download; DOES NOT open a new tab.
-// Replace your current downloadFile with this
-const downloadFile = async (url, baseFilename = "document") => {
-  try {
-    // IMPORTANT: do NOT send credentials or Authorization headers to Azure Blob
-    const res = await fetch(url, {
-      method: "GET",
-      mode: "cors",
-      credentials: "omit",
-      // no custom headers here
-    });
+  // Replace your current downloadFile with this
+  const downloadFile = async (url, baseFilename = "document") => {
+    try {
+      // IMPORTANT: do NOT send credentials or Authorization headers to Azure Blob
+      const res = await fetch(url, {
+        method: "GET",
+        mode: "cors",
+        credentials: "omit",
+        // no custom headers here
+      });
 
-    if (!res.ok) throw new Error(`Download failed (${res.status})`);
+      if (!res.ok) throw new Error(`Download failed (${res.status})`);
 
-    // Try filename from headers, else fall back
-    const cd = res.headers.get("content-disposition");
-    const mime = res.headers.get("content-type") || "";
-    const getFilenameFromContentDisposition = (cd) => {
-      if (!cd) return null;
-      const star = cd.match(/filename\*\s*=\s*[^']*''([^;]+)/i);
-      if (star?.[1]) return decodeURIComponent(star[1]);
-      const plain = cd.match(/filename\s*=\s*"?([^"]+)"?/i);
-      return plain?.[1] || null;
-    };
-    const extFromMime = (type) => {
-      const map = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "application/pdf": "pdf",
+      // Try filename from headers, else fall back
+      const cd = res.headers.get("content-disposition");
+      const mime = res.headers.get("content-type") || "";
+      const getFilenameFromContentDisposition = (cd) => {
+        if (!cd) return null;
+        const star = cd.match(/filename\*\s*=\s*[^']*''([^;]+)/i);
+        if (star?.[1]) return decodeURIComponent(star[1]);
+        const plain = cd.match(/filename\s*=\s*"?([^"]+)"?/i);
+        return plain?.[1] || null;
       };
-      return map[type] || "";
-    };
-    const sanitize = (s) => (s || "document").replace(/[^\w\-]+/g, "_");
-    const ensureExt = (name, ext) => (/\.[a-z0-9]+$/i.test(name) ? name : `${name}.${ext}`);
+      const extFromMime = (type) => {
+        const map = {
+          "image/jpeg": "jpg",
+          "image/jpg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+          "application/pdf": "pdf",
+        };
+        return map[type] || "";
+      };
+      const sanitize = (s) => (s || "document").replace(/[^\w\-]+/g, "_");
+      const ensureExt = (name, ext) => (/\.[a-z0-9]+$/i.test(name) ? name : `${name}.${ext}`);
 
-    let finalName =
-      getFilenameFromContentDisposition(cd) ||
-      ensureExt(sanitize(baseFilename), extFromMime(mime)) ||
-      "document";
+      let finalName =
+        getFilenameFromContentDisposition(cd) ||
+        ensureExt(sanitize(baseFilename), extFromMime(mime)) ||
+        "document";
 
-    const blob = await res.blob();
-    if (!/\.[a-z0-9]+$/i.test(finalName)) {
-      const ext2 = extFromMime(blob.type);
-      if (ext2) finalName = `${finalName}.${ext2}`;
+      const blob = await res.blob();
+      if (!/\.[a-z0-9]+$/i.test(finalName)) {
+        const ext2 = extFromMime(blob.type);
+        if (ext2) finalName = `${finalName}.${ext2}`;
+      }
+
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = finalName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+      toast.success("Download started");
+    } catch (err) {
+      console.error("Download error:", err);
+      toast.error("Unable to download file");
     }
-
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = finalName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(objectUrl);
-    toast.success("Download started");
-  } catch (err) {
-    console.error("Download error:", err);
-    toast.error("Unable to download file");
-  }
-};
+  };
 
 
   const formatDate = (iso) => {
@@ -408,6 +408,30 @@ const downloadFile = async (url, baseFilename = "document") => {
   };
 
   const currentStatus = kycRecord ? kycRecord.status : user.kyc_status;
+  const handleDownload = async (file) => {
+    try {
+      const data = await getBackendAssets(file);
+      const resolvedUrl = data.url;
+      const ext = file.split(".").pop().toLowerCase().split("?")[0];
+
+      if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) {
+        window.open(resolvedUrl, "_blank");
+      }
+      const response = await fetch(resolvedUrl);
+      // // // console.log("response", response);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name || "document";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      // // console.error("Download failed", err);
+    }
+  };
 
   return (
     <Container>
@@ -450,22 +474,22 @@ const downloadFile = async (url, baseFilename = "document") => {
               <KycDot status={currentStatus} />
               <span>Current Status: {currentStatus}</span>
             </StatusRow>
-                  {!readOnlyPermissions && kycRecord && (
-            <ActionsRow>
-              <PrimaryButton
-                onClick={() => handleStatusUpdate("approved")}
-                disabled={isSubmitting || kycRecord.status === "approved"}
-              >
-                {isSubmitting ? "Processing..." : "Approve"}
-              </PrimaryButton>
-              <DangerButton
-                onClick={() => handleStatusUpdate("rejected")}
-                disabled={isSubmitting || kycRecord.status === "rejected"}
-              >
-                {isSubmitting ? "Processing..." : "Reject"}
-              </DangerButton>
-            </ActionsRow>
-          )}
+            {!readOnlyPermissions && kycRecord && (
+              <ActionsRow>
+                <PrimaryButton
+                  onClick={() => handleStatusUpdate("approved")}
+                  disabled={isSubmitting || kycRecord.status === "approved"}
+                >
+                  {isSubmitting ? "Processing..." : "Approve"}
+                </PrimaryButton>
+                <DangerButton
+                  onClick={() => handleStatusUpdate("rejected")}
+                  disabled={isSubmitting || kycRecord.status === "rejected"}
+                >
+                  {isSubmitting ? "Processing..." : "Reject"}
+                </DangerButton>
+              </ActionsRow>
+            )}
           </Card>
 
           {/* KYC Details card */}
@@ -595,7 +619,9 @@ const downloadFile = async (url, baseFilename = "document") => {
             ) : (
               <DocsGrid>
                 {kycRecord?.id_proof && (
-                  <DocCard onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`)}>
+                  <DocCard
+                  // onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`)}
+                  >
                     {isPdf(kycRecord.id_proof) ? (
                       <DocThumb
                         as="div"
@@ -614,25 +640,29 @@ const downloadFile = async (url, baseFilename = "document") => {
                     )}
                     <DocMeta>
                       <div className="name">ID Proof</div>
-                      <div className="actions">
+                      <div className="actions"
+                      >
                         <a
-                          href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
+                          // href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`}
+                          // target="_blank"
+                          // rel="noopener noreferrer"
+                          // onClick={(e) => e.stopPropagation()}
+                          onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.id_proof}`)}
                         >
                           Open
                         </a>
                         <button
                           className="download"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const safeName = (user.displayName || user.email || "user").replace(
-                              /\s+/g,
-                              "_"
-                            );
-                            downloadFile(kycRecord.id_proof, `${safeName}_id_proof`);
-                          }}
+                          // onClick={(e) => {
+                          //   e.stopPropagation();
+                          //   const safeName = (user.displayName || user.email || "user").replace(
+                          //     /\s+/g,
+                          //     "_"
+                          //   );
+                          //   downloadFile(kycRecord.id_proof, `${safeName}_id_proof`);
+                          // }}
+                          onClick={() => { handleDownload(kycRecord.id_proof) }}
+
                         >
                           Download
                         </button>
@@ -642,32 +672,37 @@ const downloadFile = async (url, baseFilename = "document") => {
                 )}
 
                 {kycRecord?.passport_photo && (
-                  <DocCard onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`)}>
+                  <DocCard
+                  // onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`)}
+                  >
                     <DocThumb src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`} alt="Passport Photo" />
                     <DocMeta>
                       <div className="name">Passport Photo</div>
                       <div className="actions">
                         <a
-                          href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
+                          // href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`}
+                          // target="_blank"
+                          // rel="noopener noreferrer"
+                          // onClick={(e) => e.stopPropagation()}
+                          onClick={() => handleDocClick(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${kycRecord.passport_photo}`)}
+
                         >
                           Open
                         </a>
                         <button
                           className="download"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const safeName = (user.displayName || user.email || "user").replace(
-                              /\s+/g,
-                              "_"
-                            );
-                            downloadFile(
-                              kycRecord.passport_photo,
-                              `${safeName}_passport_photo`
-                            );
-                          }}
+                        // onClick={(e) => {
+                        //   e.stopPropagation();
+                        //   const safeName = (user.displayName || user.email || "user").replace(
+                        //     /\s+/g,
+                        //     "_"
+                        //   );
+                        //   downloadFile(
+                        //     kycRecord.passport_photo,
+                        //     `${safeName}_passport_photo`
+                        //   );
+                        // }}
+                        onClick={()=>{handleDownload(kycRecord.passport_photo)}}
                         >
                           Download
                         </button>
@@ -680,7 +715,7 @@ const downloadFile = async (url, baseFilename = "document") => {
           </Card>
 
           {/* APPROVE/REJECT ACTIONS — unchanged */}
-    
+
         </Grid2>
       </Content>
 

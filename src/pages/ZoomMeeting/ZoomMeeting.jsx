@@ -22,23 +22,23 @@ const ZoomMeeting = () => {
 
     //         return () => clearInterval(interval);
     //     }, []);
-     useEffect(() => {
-        // Use an interval because Zoom might re-render UI elements
-        const interval = setInterval(() => {
-          const participantsBtn = document.querySelector(
-            'button.footer-button-base__button[aria-label^="open the manage participants list pane"]'
-          );
-          if (participantsBtn) {
-            participantsBtn.disabled = true;            // disable the button
-            participantsBtn.style.pointerEvents = "none"; // block clicks
-            participantsBtn.style.opacity = "0.5";       // visually dim
-            participantsBtn.style.display = "none";
-            clearInterval(interval); // stop checking once applied
-          }
-        }, 500);
-    
-        return () => clearInterval(interval);
-      }, []);
+   useEffect(() => {
+  const interval = setInterval(() => {
+    const participantsBtn = document.querySelector(
+      'button.footer-button-base__button[aria-label^="open the participants list pane"], button.footer-button-base__button[aria-label^="open the manage participants list pane"]'
+    );
+
+    if (participantsBtn) {
+      participantsBtn.disabled = true;               // disable
+      participantsBtn.style.pointerEvents = "none";  // block clicks
+      participantsBtn.style.opacity = "0.5";         // dim
+      participantsBtn.style.display = "none";        // hide
+      clearInterval(interval);
+    }
+  }, 500);
+
+  return () => clearInterval(interval);
+}, []);
     const authEndpoint = 'http://localhost:4000';
     const sdkKey = import.meta.env.VITE_APP_ZOOM_MEETING_SDK_KEY;
     //   const meetingNumber = '81264566859';
