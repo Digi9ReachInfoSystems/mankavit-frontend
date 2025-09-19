@@ -270,7 +270,9 @@ const truncateText = (html, maxLength = 100) => {
                     </LeftCol>
 
                     <RightCol>
-                      <Quote>{t.quote || "Great learning experience."}</Quote>
+                      {/* <Quote>{t.quote || "Great learning experience."}</Quote>
+                       */}
+                       <Quote dangerouslySetInnerHTML={t.quote ? { __html: t.quote } : { __html: "Great learning experience." }} />
                       <Name>{t.name || "Aspirant"}</Name>
                       {t.role && <Role>{t.role}</Role>}
                     </RightCol>
