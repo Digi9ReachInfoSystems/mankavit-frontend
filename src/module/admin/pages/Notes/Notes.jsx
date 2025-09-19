@@ -337,7 +337,7 @@ export default function NotesManagement() {
                     </a>
                   </TableCell>
                   <TableCell>
-                    <a href={item.fileURL} target="_blank" rel="noreferrer">View</a>
+                    <a href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${item.fileURL}`} target="_blank" rel="noreferrer">View</a>
                   </TableCell>
                   <TableCell>{formatToIST(item.lastActive)}</TableCell>
                 </TableRow>

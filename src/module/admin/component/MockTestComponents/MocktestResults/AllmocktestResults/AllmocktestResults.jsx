@@ -90,7 +90,7 @@ export default function AllmocktestResults() {
         ]);
         // // console.log("attemptsResponse", attemptsResponse);
 
-        // // console.log("Results response", attemptsResponse);
+        // console.log("Results response", attemptsResponse);
         const mapped = (attemptsResponse.data || []).map((item) => ({
           _id: item._id,
           testName: item.mockTestId?.title || "Untitled Test",
@@ -112,6 +112,7 @@ export default function AllmocktestResults() {
           userId: item.userId?._id,
           submittedAt: item.submittedAt,
           rank: item.ranking?.rank,
+          timeSpent:item?.timeSpent
         }));
 
         setData(mapped.sort((a, b) => ts(b) - ts(a)));
@@ -476,7 +477,10 @@ export default function AllmocktestResults() {
                       {item.marks}/{item.maxMarks} [ {item.marksPercentage} ]{" "}
                     </a>
                   </TableCell>
-                  <TableCell>{item.timeToComplete}</TableCell>
+                  <TableCell>
+                  {`${(item.timeSpent).split('.')[0]} minutes & ${(item.timeSpent).split('.')[1]} seconds`}
+                    {/* {item.timeToComplete} */}
+                    </TableCell>
                   <TableCell>{item.submissionDate}</TableCell>
                   <TableCell>
                     <ActionsContainer>
