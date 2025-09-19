@@ -537,20 +537,34 @@ export default function Meeting() {
                                                 <ToggleSwitch
                                                     type="checkbox"
                                                     checked={item.isEnded}
-                                                    onChange={async (e) => {
+                                                    onChange={async () => {
                                                         try {
+                                                            // Optimistic update
+                                                            setData((prevData) =>
+                                                                prevData.map((meeting) =>
+                                                                    meeting.id === item.id
+                                                                        ? { ...meeting, isEnded: !meeting.isEnded }
+                                                                        : meeting
+                                                                )
+                                                            );
+
                                                             await updateMeetingStatus(item.id);
                                                             toast.success("Meeting status updated");
-                                                            setLoadData(!loadData);
-                                                            setLoading(true);
                                                         } catch (error) {
+                                                            toast.error("Failed to update meeting");
 
-                                                        }finally{
-                                                            setLoading(false);
+                                                            // Rollback optimistic update if API fails
+                                                            setData((prevData) =>
+                                                                prevData.map((meeting) =>
+                                                                    meeting.id === item.id
+                                                                        ? { ...meeting, isEnded: item.isEnded }
+                                                                        : meeting
+                                                                )
+                                                            );
                                                         }
-
                                                     }}
                                                 />
+
                                             </TableCell>
                                             <TableCell>
                                                 <ActionsContainer>
