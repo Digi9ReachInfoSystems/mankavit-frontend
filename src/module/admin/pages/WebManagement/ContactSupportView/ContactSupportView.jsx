@@ -59,19 +59,19 @@ const ContactSupportView = () => {
     const fetchSupports = async () => {
       try {
         const response = await getAllSupport();
-        console.log("API Response:", response); // Debug log
+        // // // console.log("API Response:", response); // Debug log
 
         if (Array.isArray(response)) {
           setSupports(response);
           // toast.success("Support tickets loaded successfully");
         } else {
-          console.error("Unexpected response format:", response);
+          // // // console.error("Unexpected response format:", response);
           toast.error("Unexpected response format from server");
           setSupports([]);
         }
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching supports:", error);
+        // // // console.error("Error fetching supports:", error);
         toast.error("Failed to load support tickets");
         setLoading(false);
       }
@@ -102,7 +102,7 @@ const ContactSupportView = () => {
       toast.success("Support ticket deleted successfully");
       setDeleteModalOpen(false);
     } catch (error) {
-      console.error("Error deleting support:", error);
+      // // // console.error("Error deleting support:", error);
       toast.error("Failed to delete support ticket");
     }
   };
@@ -154,7 +154,7 @@ const ContactSupportView = () => {
       setModalOpen(false);
       setUpdateLoading(false);
     } catch (error) {
-      console.error("Error updating support status:", error);
+      // // console.error("Error updating support status:", error);
       toast.error("Failed to update support status");
       setUpdateLoading(false);
     }

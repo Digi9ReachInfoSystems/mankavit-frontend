@@ -51,7 +51,7 @@ export default function PurchaseModal({ onClose, course }) {
                 }));
                 setCoupons(preparedData);
             } catch (error) {
-                console.error("Error fetching coupons:", error);
+                // // console.error("Error fetching coupons:", error);
             }
         };
         apiCaller();
@@ -75,7 +75,7 @@ export default function PurchaseModal({ onClose, course }) {
                 toast.success("Coupon applied successfully!");
             }
         } catch (error) {
-            console.log(error);
+            // // console.log(error);
             if (error.response.status === 400) {
                 toast.error("Coupon code is not valid");
             } else if (error.response.status === 404) {

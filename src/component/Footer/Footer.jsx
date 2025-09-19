@@ -23,7 +23,7 @@ const Footer = () => {
     useEffect(() => {
         const apiCaller = async () => {
             const response = await getSocialMediaLinks();
-            console.log("social respons11e", response.data);
+            // console.log("social respons11e", response.data);
             setSocialLinks(response.data[0]);
         }
         apiCaller();

@@ -52,7 +52,7 @@ const StartTest = () => {
           setError("Failed to load test details");
         }
       } catch (err) {
-        console.error("Error fetching mock test:", err);
+        // // console.error("Error fetching mock test:", err);
         setError("Error loading test details");
       } finally {
         setLoading(false);
@@ -115,19 +115,19 @@ const StartTest = () => {
               }}
               onClick={async () => {
                 try {
-                  console.log("attemptId", attemptId);
+                  // // console.log("attemptId", attemptId);
                   const cookiesData = await getCookiesData();
 
                   const response = await submitMocktest({
                     user_id: cookiesData.userId,
                     attemptId: attemptId,
                   });
-                  console.log("response", response);
+                  // // console.log("response", response);
                   if (response.success) {
                     navigate(`/test-instructions/${testId}/${subjectId}`);
                   }
                 } catch (e) {
-                  console.log(e);
+                  // console.log(e);
                 }
               }}
             >

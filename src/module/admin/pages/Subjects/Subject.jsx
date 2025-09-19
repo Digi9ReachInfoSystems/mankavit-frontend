@@ -79,7 +79,7 @@ export default function Subjects() {
         }));
         setCourses([{ value: "all", label: "All Courses" }, ...courseOptions]);
       } catch (error) {
-        console.error("Error fetching courses:", error);
+        // // console.error("Error fetching courses:", error);
       }
     };
     fetchCourses();
@@ -116,7 +116,7 @@ export default function Subjects() {
     const appiCaller = async () => {
       try {
         const subjectResponse = await getSubjects();
-        // console.log("Jayanth respone", subjectResponse);
+        // // // console.log("Jayanth respone", subjectResponse);
         const subjectsData = subjectResponse.data.map((item) => ({
           id: item._id,
           subjectName: item.subjectDisplayName,
@@ -125,8 +125,8 @@ export default function Subjects() {
           activeCourses: item.courses.map((course) => course.courseName),
           dateandtime: item.updatedAt,
         }));
-        console.log(subjectsData);
-        // console.log("subjectsData", subjectsData);
+        // // console.log(subjectsData);
+        // // // console.log("subjectsData", subjectsData);
         setData(subjectsData);
         const filteredValue = subjectsData.filter((item) =>
           item.subjectName.toLowerCase().includes(searchText.toLowerCase())
@@ -143,7 +143,7 @@ export default function Subjects() {
         const currentValue = filteredValue.slice(startIndex, endIndex);
         setCurrentItems(currentValue);
       } catch (error) {
-        console.log("error", error);
+        // // console.log("error", error);
       }
     };
     appiCaller();
@@ -172,7 +172,7 @@ export default function Subjects() {
 
         setData(subjectsData);
       } catch (error) {
-        console.error("Error fetching subjects:", error);
+        // // console.error("Error fetching subjects:", error);
         toast.error("Failed to fetch subjects");
       } finally {
         setLoading(false);
@@ -236,7 +236,7 @@ export default function Subjects() {
 
       return new Intl.DateTimeFormat("en-IN", defaultOptions).format(date);
     } catch (error) {
-      console.error("Invalid date format:", isoString);
+      // // console.error("Invalid date format:", isoString);
       return "Invalid date";
     }
   };
@@ -260,7 +260,7 @@ export default function Subjects() {
       });
       toast.success("Data deleted successfully");
     } catch (error) {
-      console.error("Failed to delete subject:", error);
+      // // console.error("Failed to delete subject:", error);
       toast.error("Failed to delete data. Please try again.");
     } finally {
       setModal(false);
@@ -272,8 +272,8 @@ export default function Subjects() {
     navigate(`/admin/subject-management/view/${subject.id}`, {
       state: { subject },
     });
-    console.log("View subject with ID:", subject.id);
-    console.log("Subject data:", subject);
+    // // console.log("View subject with ID:", subject.id);
+    // // console.log("Subject data:", subject);
   };
 
   const handleOpenModal = (type, data) => {
@@ -288,8 +288,8 @@ export default function Subjects() {
       navigate(`/admin/subject-management/edit/${id}`, { state: { subject } });
     }
 
-    console.log("Edit subject with ID:", id);
-    console.log("Subject data:", subject);
+    // // console.log("Edit subject with ID:", id);
+    // // console.log("Subject data:", subject);
   };
   const handleDeleteClick = () => {
     setBulkDelete(true);
@@ -328,7 +328,7 @@ export default function Subjects() {
       // window.location.reload(); // Reload the page to reflect changes
       setBulkDelete(false);
     } catch (error) {
-      console.error("Bulk delete failed:", error);
+      // console.error("Bulk delete failed:", error);
       toast.error("Failed to delete selected courses");
     } finally {
       setLoading(false);
@@ -498,12 +498,12 @@ export default function Subjects() {
                     <a
                       href="#view"
                       onClick={() => {
-                        console.log("Itemns", item);
+                        // console.log("Itemns", item);
                         const mockTest = item.mockTest.map((mockTest) => {
                           return { title: mockTest.title, _id: mockTest.id };
 
                         });
-                        console.log("mockTestwew", mockTest);
+                        // console.log("mockTestwew", mockTest);
                         handleOpenModal("mockTests", mockTest);
                       }}
                     >

@@ -71,10 +71,10 @@ const Header = () => {
       try {
         // getAllTickers() returns an array, not { data: [...] }
         const list = await getAllTickers();
-        // console.log("Get all ticker response", list);
+        // // // console.log("Get all ticker response", list);
         setTickers(Array.isArray(list) ? list : []);
       } catch (error) {
-        console.error("Error fetching tickers:", error);
+        // // console.error("Error fetching tickers:", error);
       }
     };
     fetchTickers();
@@ -89,7 +89,7 @@ const Header = () => {
         const list = Array.isArray(data) ? data : [];
         setEntrances(list);
       } catch (e) {
-        console.error("Failed to load entrances", e);
+        // // console.error("Failed to load entrances", e);
         setEntrances([]);
       } finally {
         setEntrancesLoading(false);
@@ -129,7 +129,7 @@ const Header = () => {
           setSocialLinks(links);
         }
       } catch (err) {
-        console.error("Social link fetch failed", err);
+        // console.error("Social link fetch failed", err);
       }
     };
 

@@ -43,7 +43,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
       try {
         setLoading(true);
         const res = await getAllAchievers();
-        console.log('Fetched achievers:', res);
+        // console.log('Fetched achievers:', res);
         const list = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
 
         const sorted = list.slice().sort((a, b) => {
@@ -54,7 +54,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
 
         setAchievers(sorted);
       } catch (e) {
-        console.error('Error fetching achievers:', e);
+        // console.error('Error fetching achievers:', e);
         setError(e?.message || 'Failed to load achievers');
       } finally {
         setLoading(false);

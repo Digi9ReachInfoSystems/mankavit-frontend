@@ -138,14 +138,14 @@
 //         passport_photo: passportPhotoUrl.blobUrl, // Base64-encoded photo
 //         userref: cookieData.userId,
 //       }
-//       // console.log('Submission Data:', submissionData);
+//       // // // console.log('Submission Data:', submissionData);
 //       await createKycApi(submissionData);
 //        toast.success("KYC Form submitted successfully.");
 //       navigate('/user');
 //       setShowSuccessGif(true);
 //       setTimeout(() => setShowSuccessGif(false), 1000);
 //     } catch (error) {
-//       console.error('Update error:', error);
+//       // // console.error('Update error:', error);
 //       setError(error.message || 'Failed to update profile. Please try again.');
 //     } finally {
 //       setIsLoading(false);
@@ -478,7 +478,7 @@ const KYC = () => {
       toast.success("KYC submitted successfully.");
       navigate("/user");
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       const msg = err?.message || "Failed to submit KYC. Please try again.";
       setError(msg);
       toast.error(msg);

@@ -40,7 +40,7 @@ const EditBlog = () => {
       try {
         setLoading(true);
         const response = await getBlogById(id);
-        console.log("API Response:", response); // Debug log
+        // // console.log("API Response:", response); // Debug log
         
         if (response && response.success && response.blog) {
           setFormData({
@@ -53,7 +53,7 @@ const EditBlog = () => {
           toast.error(response?.message || 'Blog not found');
         }
       } catch (err) {
-        console.error('Error fetching blog:', err);
+        // // console.error('Error fetching blog:', err);
         setError('Failed to load blog. Please try again.');
         toast.error('Failed to load blog. Please try again.');
       } finally {
@@ -116,10 +116,10 @@ const EditBlog = () => {
         image: imageUrl
       };
 
-      console.log("Update payload:", payload); // Debug log
+      // // console.log("Update payload:", payload); // Debug log
       
       const updateResponse = await updateBlogById(id, payload);
-      console.log("Update response:", updateResponse); // Debug log
+      // // console.log("Update response:", updateResponse); // Debug log
       
       if (updateResponse?.success) {
         toast.success("Data updated successfully!");
@@ -129,7 +129,7 @@ const EditBlog = () => {
         throw new Error(updateResponse?.message || 'Update failed');
       }
     } catch (err) {
-      console.error('Error updating blog:', err);
+      // console.error('Error updating blog:', err);
       setError(err.message || 'Failed to update data. Please try again.');
       toast.error(err.message || 'Failed to update data. Please try again.');
     } finally {

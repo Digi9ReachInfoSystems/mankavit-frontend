@@ -41,10 +41,10 @@ const CourseCompletionPage = () => {
             try {
                 const cookieData = await getCookiesData();
                 const response = await getCertificate(cookieData.userId, params.courseId);
-                console.log("Certificate response", response);
+                // // console.log("Certificate response", response);
                 setCertificatePdfUrl(response.data[0].certificate_url);
             } catch (error) {
-                console.error('Error fetching certificate:', error);
+                // // console.error('Error fetching certificate:', error);
             }
         };
         fetchCertificate();
@@ -54,7 +54,7 @@ const CourseCompletionPage = () => {
         try {
             const cookieData = await getCookiesData();
             const userId = cookieData.userId;
-            console.log("userId", params.courseId);
+            // // console.log("userId", params.courseId);
             await createFeedApi({
                 rating,
                 review,
@@ -63,9 +63,9 @@ const CourseCompletionPage = () => {
                 title,
             });
             toast.success("Review submitted successfully!");
-            console.log("Review submitted");
+            // // console.log("Review submitted");
         } catch (error) {
-            console.error("Error submitting review:", error);
+            // console.error("Error submitting review:", error);
             toast.error("Failed to submit review. Please try again.");
         }
     };
@@ -122,7 +122,7 @@ const CourseCompletionPage = () => {
                         </PrimaryButton>
                         <SecondaryButton onClick={async () => {
                             const cookieData = await getCookiesData();
-                            console.log("cookieData", cookieData);
+                            // console.log("cookieData", cookieData);
                             const response = await updateViewCertificate(
                                 cookieData.userId,
                                 params.courseId

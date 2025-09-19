@@ -32,7 +32,7 @@ const PrevYearsQuestion = () => {
         }
 
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       }
     };
     apiCaller();

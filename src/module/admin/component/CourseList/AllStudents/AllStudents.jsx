@@ -16,7 +16,7 @@ const AllStudents = () => {
     const fetchStudentData = async () => {
       try {
         const response = await getAllStudents();
-        console.log("Fetched students data:", response);
+        // // console.log("Fetched students data:", response);
         
         // Correctly access the students array from the response
         const rawStudents = response?.data?.students || [];
@@ -51,7 +51,7 @@ const AllStudents = () => {
         
         setStudentData(students);
       } catch (error) {
-        console.error('Error fetching student data:', error);
+        // console.error('Error fetching student data:', error);
       }
     };
 

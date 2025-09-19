@@ -80,9 +80,9 @@ const VideoAndReviews = () => {
         const ytResponse = await getAllYoutube();
         const ytLinks = Array.isArray(ytResponse?.data) ? ytResponse.data : [];
 
-        console.log("All YouTube links:");
+        // console.log("All YouTube links:");
         ytLinks.forEach((v, i) => {
-          console.log(`[${i}] homepage: ${v.homepage}, embedURL: ${convertToEmbedURL(v.video_link)}`);
+          // console.log(`[${i}] homepage: ${v.homepage}, embedURL: ${convertToEmbedURL(v.video_link)}`);
         });
 
         // Step 1: Try to find homepage video with valid embed URL
@@ -105,7 +105,7 @@ const VideoAndReviews = () => {
           }
         }
       } catch (err) {
-        console.error("Error fetching testimonials:", err);
+        // console.error("Error fetching testimonials:", err);
       } finally {
         setLoading(false);
       }

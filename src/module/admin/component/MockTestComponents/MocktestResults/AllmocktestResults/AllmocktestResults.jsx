@@ -88,9 +88,9 @@ export default function AllmocktestResults() {
           getAllUserAttempts(),
           getAllMocktest(),
         ]);
-        console.log("attemptsResponse", attemptsResponse);
+        // // console.log("attemptsResponse", attemptsResponse);
 
-        console.log("Results response", attemptsResponse);
+        // // console.log("Results response", attemptsResponse);
         const mapped = (attemptsResponse.data || []).map((item) => ({
           _id: item._id,
           testName: item.mockTestId?.title || "Untitled Test",
@@ -118,7 +118,7 @@ export default function AllmocktestResults() {
         setAllMockTests(mockTestsResponse.data || []);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching data", err);
+        // // console.error("Error fetching data", err);
         setError("Failed to load mock test results");
         setLoading(false);
       }
@@ -279,7 +279,7 @@ export default function AllmocktestResults() {
         throw new Error(response.message || "Failed to delete attempts");
       }
     } catch (error) {
-      console.error("Bulk delete failed:", error);
+      // console.error("Bulk delete failed:", error);
       toast.error(error.message || "Failed to delete selected attempts");
     } finally {
       setBulkDeleteModalOpen(false);

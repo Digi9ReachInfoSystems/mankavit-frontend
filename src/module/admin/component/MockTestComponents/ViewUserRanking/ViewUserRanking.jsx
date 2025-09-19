@@ -78,7 +78,7 @@ export default function ViewUserRanking() {
  useEffect(() => {
   const loadMockName = async () => {
     if (!mockTestId || !/^[a-f\d]{24}$/i.test(mockTestId)) {
-      console.error("Invalid mockTestId");
+      // // console.error("Invalid mockTestId");
       return;
     }
     const res = await getMocktestById(mockTestId);
@@ -113,13 +113,13 @@ export default function ViewUserRanking() {
     const fetchUserAnswers = async () => {
       try {
         if (!mockTestId || !subjectId) {
-          console.error("Missing mockTestId or subjectId");
+          // // console.error("Missing mockTestId or subjectId");
           return;
         }
 
         // Validate ONLY mockTestId as ObjectId:
         if (!/^[a-f\d]{24}$/i.test(mockTestId)) {
-          console.error("Invalid mockTestId format");
+          // // console.error("Invalid mockTestId format");
           return;
         }
 
@@ -145,7 +145,7 @@ export default function ViewUserRanking() {
           throw new Error(response.message || "Failed to fetch user answers");
         }
       } catch (error) {
-        console.error("Error fetching mock tests:", error);
+        // // console.error("Error fetching mock tests:", error);
       }
     };
 
@@ -156,7 +156,7 @@ export default function ViewUserRanking() {
     const apiCaller = async () => {
       try {
         if (!mockTestId || !subjectId) {
-          console.error("Missing mockTestId or subjectId");
+          // // console.error("Missing mockTestId or subjectId");
           return;
         }
 
@@ -164,12 +164,12 @@ export default function ViewUserRanking() {
           mockTestId,
           subjectId
         );
-        // console.log("Fetching user answers for mockTestId:", response);
+        // // // console.log("Fetching user answers for mockTestId:", response);
 
-        // console.log("Fetching user answers for mockTestId:", response);
-        // console.log("subjectId", subjectId);
-        console.log("mockTestId", mockTestId);
-        console.log("View user answers response", response);
+        // // // console.log("Fetching user answers for mockTestId:", response);
+        // // // console.log("subjectId", subjectId);
+        // // console.log("mockTestId", mockTestId);
+        // // console.log("View user answers response", response);
         if (response.success) {
           if (sortBy === "Name") {
             setData(
@@ -190,7 +190,7 @@ export default function ViewUserRanking() {
           throw new Error(response.message || "Failed to fetch user answers");
         }
       } catch (error) {
-        console.error("Error fetching mock tests:", error);
+        // // console.error("Error fetching mock tests:", error);
         // You might want to set some error state here to show to the user
       }
     };
@@ -215,9 +215,9 @@ export default function ViewUserRanking() {
   };
 
   const handleView = (attempt) => {
-    console.log("attempt", attempt);
+    // console.log("attempt", attempt);
     navigate(`/admin/mock-test/user-result/view-result/${attempt}`);
-    // console.log("View attempt with ID:", attemptId);
+    // // console.log("View attempt with ID:", attemptId);
   };
 const exportPDF = () => {
   const doc = new jsPDF();

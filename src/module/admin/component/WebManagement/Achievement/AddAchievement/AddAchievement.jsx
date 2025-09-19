@@ -95,10 +95,10 @@ const AddAchievements = () => {
 
     try {
       // 1. Upload image to Azure
-      console.log("Uploading file:", image);
+      // // console.log("Uploading file:", image);
       const uploadResponse = await uploadFileToAzureStorage(image, "achievers");
 
-      console.log("Upload response:", uploadResponse);
+      // // console.log("Upload response:", uploadResponse);
 
       // Fix: Check for blobUrl instead of url
       if (!uploadResponse?.blobUrl) {
@@ -114,9 +114,9 @@ const AddAchievements = () => {
          sequence: parseFloat(sequence)
       };
 
-      console.log("Submitting achiever data:", achieverData);
+      // // console.log("Submitting achiever data:", achieverData);
       const creationResponse = await createAchiever(achieverData);
-      console.log("Creation response: gfgfhf", creationResponse);
+      // // console.log("Creation response: gfgfhf", creationResponse);
       if (!creationResponse) {
         throw new Error(creationResponse?.message || "Achiever creation failed");
       }
@@ -138,13 +138,13 @@ const AddAchievements = () => {
 
 
     } catch (error) {
-      console.error("Detailed error:", error);
+      // // console.error("Detailed error:", error);
       toast.error("Failed to add. Please try again")
       notification.error({
         message: "Error",
         description: error.response?.data?.message ||
           error.message ||
-          "Failed to create achiever. Please check console for details.",
+          "Failed to create achiever. Please check // console for details.",
       });
     } finally {
       setLoading(false);

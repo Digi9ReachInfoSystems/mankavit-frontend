@@ -98,7 +98,7 @@ export default function StudentManagement() {
         setData(students.sort((a, b) => ts(b) - ts(a)));
       } else {
         const studentsRes = await getAllStudents();
-        console.log("STudnet response", studentsRes);
+        // // // // console.log("STudnet response", studentsRes);
         const students = studentsRes.data?.students || [];
         setData(students.sort((a, b) => ts(b) - ts(a)));
       }
@@ -107,7 +107,7 @@ export default function StudentManagement() {
       (coursesRes.data || []).forEach(c => { map[c._id] = c.courseName; });
       setCoursesMap(map);
     } catch (err) {
-      console.error(err);
+      // // // // console.error(err);
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
@@ -178,7 +178,7 @@ export default function StudentManagement() {
       setSelectAll(false);
       await fetchStudentsAndCourses();
     } catch (err) {
-      console.error(err);
+      // // // // console.error(err);
       toast.error("Bulk delete failed");
     } finally {
       setBulkDeleteModalOpen(false);
@@ -195,7 +195,7 @@ export default function StudentManagement() {
       toast.success("Deleted student");
       await fetchStudentsAndCourses();
     } catch (err) {
-      console.error(err);
+      // // // console.error(err);
       toast.error("Delete failed");
     } finally {
       setDeleteModalOpen(false);

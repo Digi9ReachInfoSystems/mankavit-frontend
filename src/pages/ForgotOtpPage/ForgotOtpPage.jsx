@@ -80,7 +80,7 @@ const ForgotOtpPage = () => {
                 navigate('/reset-password', { state: { email: location.state.email } });
             }
         } catch (error) {
-            // console.log(error);
+            // // // // // console.log(error);
             setErrorMessage(`${error?.response?.data?.message}`);
         }
 
@@ -104,7 +104,7 @@ const ForgotOtpPage = () => {
             setErrorMessage('');
 
         } catch (error) {
-            console.log(error);
+            // // // // console.log(error);
             setErrorMessage(`${error?.response?.data?.message}`);
         }
 

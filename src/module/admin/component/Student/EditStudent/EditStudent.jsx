@@ -105,10 +105,10 @@ const handleCourseNavigate = (id) => {
   useEffect(() => {
     const apiCaller = async () => {
       const res = await getUserByUserId(userId);
-      console.log("Student data by id:", res);
+      // // console.log("Student data by id:", res);
       if (!res.success || !res.user) throw new Error("Student not found");
       const stu = res.user;
-      console.log("isBlocked", stu);
+      // // console.log("isBlocked", stu);
       setIsBlocked(stu.isBlocked);
       setMasterOtpEnabled(stu.isMasterOtpEnabled);
     };
@@ -120,7 +120,7 @@ const handleCourseNavigate = (id) => {
     try {
       setLoadingStudent(true);
       const res = await getUserByUserId(userId);
-      console.log("Student data: updatinmg", res);
+      // // console.log("Student data: updatinmg", res);
       if (!res.success || !res.user) throw new Error("Student not found");
 
       const stu = res.user;
@@ -155,7 +155,7 @@ const handleCourseNavigate = (id) => {
       });
       setHasBeenForcedLoggedOut(false);
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error(err.message || "Failed to load student");
       setTimeout(() => navigate("/admin/student-management"), 1000);
     } finally {
@@ -172,7 +172,7 @@ const handleCourseNavigate = (id) => {
         const list = res?.data || res || [];
         setCourses(Array.isArray(list) ? list : []);
       } catch (err) {
-        console.error(err);
+        // // console.error(err);
         toast.error("Failed to load courses");
       } finally {
         setLoadingCourses(false);
@@ -187,14 +187,14 @@ const handleCourseNavigate = (id) => {
         setLoadingAttempts(true);
         const res = await getAllUserAttemptByUserId(userId);
 
-        console.log("User's mocktest attempts and results:", res);
+        // // console.log("User's mocktest attempts and results:", res);
         if (res.success) {
           setAttempts(res.data ?? []);
         } else {
           toast.error("Failed to load mock-test attempts");
         }
       } catch (e) {
-        console.error(e);
+        // // console.error(e);
         toast.error("Failed to load mock-test attempts");
       } finally {
         setLoadingAttempts(false);
@@ -221,7 +221,7 @@ const handleCourseNavigate = (id) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   // const validate = () => {
-  //   console.log("form validation", form);
+  //   // // console.log("form validation", form);
   //   const errs = {};
   //   if (!form.displayName.trim()) errs.displayName = "Name required";
   //   if (!form.first_name.trim()) errs.first_name = "First name required";
@@ -291,7 +291,7 @@ const handleSave = async () => {
     toast.success("Student updated successfully");
     setTimeout(() => navigate("/admin/student-management"), 1000);
   } catch (err) {
-    console.error(err);
+    // // console.error(err);
     toast.error(err.response?.data?.message || "Update failed");
   } finally {
     setProcessing(false);
@@ -314,7 +314,7 @@ const handleSave = async () => {
         toast.error(response.message || "Failed to force logout");
       }
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error(err.response?.data?.message || "Failed to force logout");
     } finally {
       setProcessing(false);
@@ -332,7 +332,7 @@ const handleSave = async () => {
       toast.success("Student deleted");
       navigate("/admin/student-management");
     } catch (e) {
-      console.error(e);
+      // // console.error(e);
       toast.error(e.response?.data?.message || "Deletion failed");
     } finally {
       setProcessing(false);
@@ -362,7 +362,7 @@ const handleSave = async () => {
       }
       setProcessing(true);
       const response = await blockAndUnblockUser({ userId });
-      console.log("response", response.data);
+      // // console.log("response", response.data);
       if (response.data.success) {
         toast.success(response.data.message || "User Block Status Updated");
         setBlockedChange(!blockedChange);
@@ -371,7 +371,7 @@ const handleSave = async () => {
         toast.error(response.message || "Failed to Block or Unblock User");
       }
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error(err.response?.data?.message || "Failed to publish");
     } finally {
       setProcessing(false);
@@ -380,14 +380,14 @@ const handleSave = async () => {
 
   const handleMasterOtp = async (userId) => {
     try {
-      console.log("userId", userId, "readOnlyPermissions", readOnlyPermissions);
+      // // console.log("userId", userId, "readOnlyPermissions", readOnlyPermissions);
       if (readOnlyPermissions) {
         toast.error("You don't have permission to change master otp");
         return;
       }
       setProcessing(true);
       const response = await enableDisableMasterOTP({ userId });
-      console.log("response", response.data);
+      // // console.log("response", response.data);
       if (response.data.success) {
         toast.success(response.data.message || "User Block Status Updated");
         setBlockedChange(!blockedChange);
@@ -397,7 +397,7 @@ const handleSave = async () => {
         );
       }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       toast.error(
         err.response?.data?.message || "Failed to Change Master OTP Status"
       );

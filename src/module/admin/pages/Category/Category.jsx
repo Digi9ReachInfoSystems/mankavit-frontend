@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
 import { BiEditAlt } from 'react-icons/bi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { Switch } from "antd";
 
 import {
   ButtonContainer, CreateButton, Container, Title,
@@ -14,7 +15,7 @@ import {
 
 import Pagination from '../../component/Pagination/Pagination';
 import DeleteModal from '../../component/DeleteModal/DeleteModal';
-import { bulkDeleteCategory, deleteCategory, getCategories } from '../../../../api/categoryApi';
+import { bulkDeleteCategory, deleteCategory, getCategories, toggleFeaturedCategory } from '../../../../api/categoryApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { set } from 'date-fns';
@@ -55,7 +56,7 @@ const Category = () => {
         const categories = Array.isArray(res) ? res : res.categories || [];
         setData(categories);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        // // console.error('Error fetching categories:', error);
         toast.error('Failed to fetch categories');
 
       }
@@ -95,7 +96,7 @@ const Category = () => {
       toast.success("Category deleted successfully");
 
     } catch (error) {
-      console.error("Error deleting category:", error);
+      // // console.error("Error deleting category:", error);
       toast.error("Failed to delete category. Please try again");
     } finally {
       setDeleteModalOpen(false);
@@ -142,10 +143,27 @@ const Category = () => {
       // window.location.reload(); // Reload the page to reflect changes
       setBulkDelete(false);
     } catch (error) {
-      console.error("Bulk delete failed:", error);
+      // // console.error("Bulk delete failed:", error);
       toast.error("Failed to delete selected courses");
     } finally {
       setLoading(false);
+    }
+  };
+  const handleToggleFeatured = async (id, currentValue) => {
+    try {
+      const updated = !currentValue;
+      await toggleFeaturedCategory(id);
+
+      setData((prev) =>
+        prev.map((cat) =>
+          cat._id === id ? { ...cat, featured: updated } : cat
+        )
+      );
+
+      toast.success(`Category ${updated ? "featured" : "unfeatured"} successfully`);
+    } catch (error) {
+      console.error("Failed to toggle featured", error);
+      toast.error("Failed to update featured status");
     }
   };
 
@@ -204,6 +222,7 @@ const Category = () => {
                 }
 
                 <TableHeader>Category Name</TableHeader>
+                <TableHeader>Mobile Featured</TableHeader>
                 {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
@@ -226,7 +245,7 @@ const Category = () => {
                     <a
                       href="#"
                       onClick={() => {
-                        // console.log("Edit category with ID:", item._id);
+                        // // console.log("Edit category with ID:", item._id);
                         navigate(`/admin/category-management/edit/${item._id}`, { state: { categoryId: item._id } });
                       }
 
@@ -234,6 +253,14 @@ const Category = () => {
                     >
                       {item.title}
                     </a>
+                  </TableCell>
+                  <TableCell>
+                      <Switch
+                        checked={item.featured || false}
+                        onChange={() => handleToggleFeatured(item._id, item.featured)}
+                        disabled={readOnlyPermissions}
+                      />
+           
                   </TableCell>
                   {/* <TableCell>
                     <ActionsContainer>

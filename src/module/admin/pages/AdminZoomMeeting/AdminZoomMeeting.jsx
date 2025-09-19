@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ZoomMtg } from '@zoom/meetingsdk';
 // import './ZoomMeeting.css';
 import { generateAccessToken, generateSignature } from '../../../../api/meetingApi';
@@ -14,8 +14,40 @@ const AdminZoomMeeting = () => {
     let zakToken = '';
     //   const leaveUrl = 'http://localhost:5173';
     const location = useLocation()
-    const { meetingNumber, passWord, role, userName, userEmail, leaveUrl, meetingTitle } = location.state;
+    const { meetingNumber, passWord, role, userName, userEmail, leaveUrl, meetingTitle, superAdmin } = location.state;
     // console.log("meeting details", location.state);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         document.querySelectorAll(
+    //             "button.participants-section-container__buttom-button.btn.btn-default.btn-sm"
+    //         ).forEach((btn) => {
+    //             if (btn.innerText.trim() === "Invite") {
+    //                 btn.style.display = "none"; // or disable
+    //             }
+    //         });
+    //     }, 100);
+
+    //     return () => clearInterval(interval);
+    // }, []);
+
+//      useEffect(() => {
+//     // Use an interval because Zoom might re-render UI elements
+//     const interval = setInterval(() => {
+//       const participantsBtn = document.querySelector(
+//         'button.footer-button-base__button[aria-label^="open the manage participants list pane"]'
+//       );
+//       if (participantsBtn) {
+//         participantsBtn.disabled = true;            // disable the button
+//         participantsBtn.style.pointerEvents = "none"; // block clicks
+//         participantsBtn.style.opacity = "0.5";       // visually dim
+//         participantsBtn.style.display = "none";
+//         clearInterval(interval); // stop checking once applied
+//       }
+//     }, 500);
+
+//     return () => clearInterval(interval);
+//   }, []);
+
     const getSignature = async () => {
         try {
             //   const req = await fetch(authEndpoint, {
@@ -27,13 +59,13 @@ const AdminZoomMeeting = () => {
             if (role == 1) {
                 const zak = await generateAccessToken();
                 zakToken = zak.accessToken;
-                console.log("zak", zak);
+                // console.log("zak", zak);
             }
             const response = await generateSignature({ meetingNumber, role });
             // console.log("signature", response); // console.log('Generated Signature:', res,"\n", response,"\n",res==response,"\n role", role);
             startMeeting(response.signature);
         } catch (e) {
-            console.error('Error fetching signature:', e);
+            // console.error('Error fetching signature:', e);
         }
     };
 
@@ -44,7 +76,10 @@ const AdminZoomMeeting = () => {
             leaveUrl,
             patchJsMedia: true,
             isSupportAV: true,
+            disableInvite:true,
+            disableZoomLogo:true,
             success: () => {
+                // ZoomMtg.showInviteFunction({show:false})
                 ZoomMtg.join({
                     signature,
                     sdkKey,
@@ -54,7 +89,13 @@ const AdminZoomMeeting = () => {
                     userEmail,
                     // tk: zakToken,
                     // zak: role == 1 ? zakToken : "",
-                    success: (res) => console.log('Meeting joined', res),
+                    success: (res) => {
+
+                        console.log('Meeting joined', res)
+                        //  ZoomMtg.showInviteFunction({ show: false });
+                        // ZoomMtg.showMeetingHeader({ show: false }); 
+                        ZoomMtg.showRecordFunction({ show: false });
+                    },
                     error: (err) => console.error('Join Error', err),
                 });
             },
@@ -103,7 +144,7 @@ const AdminZoomMeeting = () => {
                         }
                     }}
                 >
-                    Host Meeting
+                    {superAdmin ? " Host Meeting" : "Join Meeting"}
                 </button>
             </div>
         </div>

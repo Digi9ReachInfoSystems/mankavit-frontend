@@ -95,7 +95,7 @@ const SignUp = () => {
       };
 
       const response = await registerUser(userData);
-      console.log("Signup response:", response);
+      // console.log("Signup response:", response);
 
       if (response.success) {
         navigate('/signupOtp', { state: { email } ,replace: true} );
@@ -104,7 +104,7 @@ const SignUp = () => {
         setErrorMessage(response.message || "Something went wrong, please try again.");
       }
     } catch (error) {
-      console.error("Signup error:", error);
+      // console.error("Signup error:", error);
       setShowError(true);
       setErrorMessage(error.message || "Something went wrong.");
     } finally {

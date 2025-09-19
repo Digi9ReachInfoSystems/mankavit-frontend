@@ -66,8 +66,10 @@ const CoursesLiveclassWithReactPlayer = (url) => {
         controls
         width="100%"
         height="100%"
-        onEnded={() => console.log("Video ended")}
-        onError={() => console.log("Video error")}
+        onEnded={() => {// console.log("Video ended")
+        }}
+        onError={() => {// console.log("Video error")
+        }}
       />
 
       {isFullscreen && (

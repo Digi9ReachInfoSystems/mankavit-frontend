@@ -20,14 +20,14 @@ const Blogcards = () => {
         const fetchExams = async () => {
             try {
                 const response = await getAllBlogs();
-                console.log("response of the blogs", response);
+                // // console.log("response of the blogs", response);
                 if (response.success && Array.isArray(response.blogs)) {
                     setExamData(response.blogs);
                 } else {
-                    console.warn("Unexpected blog response format:", response);
+                    // // console.warn("Unexpected blog response format:", response);
                 }
             } catch (error) {
-                console.error("Error fetching blogs:", error);
+                // console.error("Error fetching blogs:", error);
             }
         };
         fetchExams();

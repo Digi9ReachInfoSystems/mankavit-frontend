@@ -73,12 +73,12 @@ const Login = () => {
                 setErrorMessage('Please enter a valid email address.');
                 return;
             }
-            // console.log(email, password);
-            // console.log("deviceId", deviceId);
+            // // // console.log(email, password);
+            // // // console.log("deviceId", deviceId);
             const DeviceData = await getDeviceInfo();
-            console.log("DeviceData", DeviceData);
+            // // console.log("DeviceData", DeviceData);
             const userResponse = await loginUser({ email, password, device: DeviceData });
-            console.log("userResponse", userResponse);
+            // // console.log("userResponse", userResponse);
             if (userResponse.success === true) {
                 const accessToken = userResponse.accessToken;
                 const refreshToken = userResponse.refreshToken;
@@ -106,7 +106,7 @@ const Login = () => {
                 return;
             }
         } catch (error) {
-            // console.log(error);
+            // // console.log(error);
             if (error?.response?.data?.success == false) {
                 setShowError(true);
                 setErrorMessage(error.response.data.message);
@@ -150,7 +150,7 @@ const Login = () => {
             setShowDevicePopup(false);
             setLogin(true);
             if (!forceLoginData) {
-                console.error("No force login data available");
+                // console.error("No force login data available");
                 return;
             }
             const userResponse = await forceLogin({ forceLoginData: forceLoginData });
@@ -178,7 +178,7 @@ const Login = () => {
 
             }
         } catch (error) {
-            console.error("Error during force login:", error);
+            // console.error("Error during force login:", error);
         } finally {
             setLogin(false);
         }

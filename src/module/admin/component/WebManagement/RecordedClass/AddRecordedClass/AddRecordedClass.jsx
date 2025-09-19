@@ -112,25 +112,25 @@ const AddRecordedClass = ({ onSubmit }) => {
     setLoading(true);
 
     try {
-      console.log("Starting video upload...");
-      console.log("File details:", {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
+      // console.log("Starting video upload...");
+      // // console.log("File details:", {
+      //   name: file.name,
+      //   type: file.type,
+      //   size: file.size
+      // });
 
       // 1. Upload video to Azure
       const uploadRes = await uploadFileToAzureStorage(file, "recorded-class");
-      console.log("Upload response:", uploadRes);
+      // // console.log("Upload response:", uploadRes);
 
       if (!(uploadRes?.blobUrl)) {
         const errorMsg = uploadRes?.message || "Video upload failed";
-        console.error("Upload failed:", errorMsg);
+        // // console.error("Upload failed:", errorMsg);
         setError(errorMsg);
         return;
       }
 
-      console.log("Video uploaded successfully. URL:", uploadRes.blobUrl);
+      // // console.log("Video uploaded successfully. URL:", uploadRes.blobUrl);
 
       const data = {
         title,
@@ -146,12 +146,12 @@ const AddRecordedClass = ({ onSubmit }) => {
       }
 
 
-      console.log("Creating recorded class with data:", data);
+      // // console.log("Creating recorded class with data:", data);
       const createRes = await createRecordedClass(data);
       navigate('/admin/recorded-class')
-      console.log("Create response:", createRes);
+      // // console.log("Create response:", createRes);
       if (createRes?.success) {
-        console.log("Recorded class created successfully");
+        // // console.log("Recorded class created successfully");
         setTitle("");
         setDescription("");
         setDuration("");
@@ -161,11 +161,11 @@ const AddRecordedClass = ({ onSubmit }) => {
         message.success("Recorded class uploaded successfully!");
       } else {
         const errorMsg = createRes?.message || "Failed to create recorded class";
-        console.error("Creation failed:", errorMsg);
+        // // console.error("Creation failed:", errorMsg);
         setError(errorMsg);
       }
     } catch (err) {
-      console.error("Error in submit:", err);
+      // // console.error("Error in submit:", err);
       setError(err.message || "An error occurred. Try again.");
     } finally {
       setLoading(false);
@@ -216,7 +216,8 @@ const AddRecordedClass = ({ onSubmit }) => {
                 value={description}
                 config={config}
                 tabIndex={1}
-                onBlur={newContent => { console.log("new", newContent); }}
+                onBlur={newContent => { // console.log("new", newContent);
+                   }}
                 onChange={newContent => { setDescription(newContent); }}
               />
            

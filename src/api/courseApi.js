@@ -5,7 +5,7 @@ export const createCourse = async (data) => {
         const response = await api.post("/api/v1/course", data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -13,10 +13,10 @@ export const createCourse = async (data) => {
 export const getAllCourses = async () => {
     try {
         const response = await api.get("/api/v1/course");
-        console.log("response", response);
+        // console.log("response", response);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -25,11 +25,11 @@ export const getAllCourses = async () => {
 
 export const getCourseById = async (id) => {
     try {
-        console.log(id);
+        // console.log(id);
         const response = await api.get(`/api/v1/course/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -39,7 +39,7 @@ export const deleteCourseById = async (id) => {
         const response = await api.delete(`/api/v1/course/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -49,7 +49,7 @@ export const updateCourseById = async (id, data) => {
         const response = await api.put(`/api/v1/course/${id}`, data);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -60,7 +60,7 @@ export const getCourseByCategory = async (categoryName) => {
         const response = await api.get(`/api/v1/course/category/${categoryName}`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -70,7 +70,7 @@ export const getNoOfCourses = async () => {
         const response = await api.get("/api/v1/course/total");
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -78,20 +78,20 @@ export const getNoOfCourses = async () => {
 export const getAllUserCourses = async (userID) => {
     try {
         const response = await api.get(`/api/v1/course/getAllCourses/users/${userID}`);
-        console.log("response", response);
+        // console.log("response", response);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
 export const getAllUserCourseByCategory = async (userID, categoryName) => {
     try {
         const response = await api.get(`api/v1/course/getAllCourses/users/category/${userID}/${categoryName}`);
-        console.log("response", response);
+        // console.log("response", response);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -108,17 +108,17 @@ export const bulkDeleteCourse = async (courseIds) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 }
 export const getAllCourseAdmin = async () => {
     try {
         const response = await api.get("/api/v1/course/get/allCourses/admin");
-        console.log("response", response);
+        // console.log("response", response);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -126,10 +126,10 @@ export const getAllCourseAdmin = async () => {
 export const getAllCourseByCategoryName = async (categoryName) => {
     try {
         const response = await api.get(`/api/v1/course/category/${categoryName}`);
-        console.log("response", response);
+        // console.log("response", response);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -140,7 +140,7 @@ export const publishCourse = async (id) => {
         const response = await api.patch(`/api/v1/course/${id}/publish`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };

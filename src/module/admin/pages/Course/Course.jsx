@@ -134,7 +134,7 @@ export default function CoursesTable() {
       }));
       setData(courseData);
     } catch (error) {
-      console.error("Error fetching courses:", error);
+      // // console.error("Error fetching courses:", error);
       toast.error("Failed to fetch courses");
     } finally {
       setLoading(false);
@@ -183,7 +183,7 @@ export default function CoursesTable() {
       toast.success("Deleted successfully");
       await fetchCourses();
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Delete failed");
     } finally {
       setDeleteModalOpen(false);
@@ -205,15 +205,15 @@ export default function CoursesTable() {
     try {
       // Call the publish/unpublish API
       await publishCourse(id);
-      console.log(
-        `Course ${checked ? "published" : "unpublished"} successfully`,
-        id
-      );
+      // // console.log(
+      //   `Course ${checked ? "published" : "unpublished"} successfully`,
+      //   id
+      // );
       toast.success(
         `Course ${checked ? "published" : "unpublished"} successfully`
       );
     } catch (err) {
-      console.error(err);
+      // // console.error(err);
       toast.error("Failed to update publication status");
 
       // Rollback on error
@@ -284,7 +284,7 @@ export default function CoursesTable() {
       setSelectAll(false);
       await fetchCourses();
     } catch (error) {
-      console.error("Bulk delete failed:", error);
+      // console.error("Bulk delete failed:", error);
       toast.error("Failed to delete selected courses");
     } finally {
       setBulkDeleteModalOpen(false);

@@ -130,7 +130,7 @@ export const bulkDeleteSubAdmin = async (adminIds) => {
     });
     return response.data;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw error;
   }
 }

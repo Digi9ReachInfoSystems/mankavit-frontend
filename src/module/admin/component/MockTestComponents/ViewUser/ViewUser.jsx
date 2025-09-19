@@ -36,24 +36,24 @@ export default function             ViewUser() {
     const fetchUserAnswers = async () => {
       try {
         if (!mockTestId || !subjectId) {
-          console.error("Missing mockTestId or subjectId");
+          // // console.error("Missing mockTestId or subjectId");
           return;
         }
         const response = await getAttemptedUserListByMocktestId(
           mockTestId,
 
         );
-        console.log("Fetching user answers for mockTestId:", response);
-        console.log("subjectId", subjectId);
-        console.log("mockTestId", mockTestId);
-        console.log("View user answers response", response);
+        // // console.log("Fetching user answers for mockTestId:", response);
+        // // console.log("subjectId", subjectId);
+        // // console.log("mockTestId", mockTestId);
+        // // console.log("View user answers response", response);
         if (response.success) {
           setData(response.data);
         } else {
           throw new Error(response.message || "Failed to fetch user answers");
         }
       } catch (error) {
-        console.error("Error fetching mock tests:", error);
+        // // console.error("Error fetching mock tests:", error);
         // You might want to set some error state here to show to the user
       }
     };
@@ -76,9 +76,9 @@ export default function             ViewUser() {
 
 
   const handleView = (userId, mocktestId) => {
-    console.log("attempt", userId);
+    // // console.log("attempt", userId);
     navigate(`/admin/mock-test/user-attempts/${mocktestId}/${userId}`);
-    // console.log("View attempt with ID:", attemptId);
+    // // // console.log("View attempt with ID:", attemptId);
   };
 
   return (

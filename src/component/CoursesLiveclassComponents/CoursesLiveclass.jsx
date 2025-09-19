@@ -1436,6 +1436,7 @@ const CoursesLiveclass = () => {
               },
             ];
           } catch (e) {
+            // // // console.error("attempts fetch failed:", e);
             const meta = await computeAttemptMeta(l, []);
             return [
               l._id,
@@ -1477,32 +1478,36 @@ const CoursesLiveclass = () => {
 
   // Build mock data ONLY for the selected subject
   const buildMockData = async (courseObj) => {
-    const subject = (courseObj.subjects || []).find((s) => s._id === subjectid);
-    if (!subject) {
-      setMockData([]);
-      return;
-    }
+    const list = await Promise.all(
+      (courseObj.subjects || []).map(async (subject) => {
+        try {
+          const resp = await getMocktestBySubjectId(subject._id);
+          const tests = (resp?.data || []).map((t, idx) => ({
+            _id: t._id,
+            lectureName: t.title || `Mock Test ${idx + 1}`,
+            duration: `${t.number_of_questions || "N/A"} Questions | ${t.duration || "N/A"
+              } mins`,
+            maxAttempts: t.maxAttempts,
+          }));
+          return {
+            _id: subject._id,
+            name: subject.subjectDisplayName || "Subject",
+            lectures: tests,
+          };
+        } catch (e) {
+          console.error("mock tests fetch error:", e);
+          return {
+            _id: subject._id,
+            name: subject.subjectName || "Subject",
+            lectures: [],
+          };
+        }
+      })
+    );
 
-    try {
-      const resp = await getMocktestBySubjectId(subject._id);
-      const tests = (resp?.data || []).map((t, idx) => ({
-        _id: t._id,
-        lectureName: t.title || `Mock Test ${idx + 1}`,
-        duration: `${t.number_of_questions || "N/A"} Questions | ${
-          t.duration || "N/A"
-        } mins`,
-        maxAttempts: t.maxAttempts,
-      }));
-      const one = {
-        _id: subject._id,
-        name: subject.subjectDisplayName || "Subject",
-        lectures: tests,
-      };
-      setMockData(Array.isArray(one.lectures) && one.lectures.length ? [one] : []);
-    } catch (e) {
-      console.error("mock tests fetch error:", e);
-      setMockData([]);
-    }
+    setMockData(
+      list.filter((s) => Array.isArray(s.lectures) && s.lectures.length > 0)
+    );
   };
 
   // Fetch data (course, progress, lecture) + build mock data (subject-scoped)
@@ -1556,7 +1561,7 @@ const CoursesLiveclass = () => {
           await buildMockData(progressResponse.data);
         }
       } catch (error) {
-        console.error("Error fetching course with progress:", error);
+        // // console.error("Error fetching course with progress:", error);
 
         const response = await getCourseById(courseId);
         if (response?.success) {
@@ -1625,7 +1630,7 @@ const CoursesLiveclass = () => {
 
   const handleVideoError = () => {
     setVideoError(true);
-    console.error("Error loading video");
+    // // console.error("Error loading video");
   };
 
   const handleVideoEnd = async () => {
@@ -1696,7 +1701,7 @@ const CoursesLiveclass = () => {
           }
         }
       } catch (error) {
-        console.error("Error completing lecture:", error);
+        // // console.error("Error completing lecture:", error);
       }
     }
   };
@@ -1707,10 +1712,21 @@ const CoursesLiveclass = () => {
       try {
         await startSubject(userId, courseId, subId);
       } catch (error) {
-        console.error("Error starting subject:", error);
+        // // console.error("Error starting subject:", error);
       }
     }
   };
+
+  // const handleStartLecture = async (subId, lecId) => {
+  //   if (userId && courseId && subId && lecId) {
+  //     try {
+  //       await startLecturer(userId, courseId, subId, lecId);
+  //       navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
+  //     } catch (error) {
+  //       console.error("Error starting lecture:", error);
+  //     }
+  //   }
+  // };
 
   const handleStartLecture = async (subId, lecId) => {
     const lecObj =
@@ -1805,6 +1821,10 @@ const CoursesLiveclass = () => {
 
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
+                console.log(
+                  "meta", meta,
+                )
+                // showViewResults = attemptsCount > 0;
                 canStart = meta.canStart;
 
                 const maxText = isUnlimited
@@ -1927,7 +1947,7 @@ const CoursesLiveclass = () => {
           const res = await getBackendAssets(noteUrl);
           setSignedUrl(res.url);
         } catch (err) {
-          console.error("Failed to fetch signed URL", err);
+          // // console.error("Failed to fetch signed URL", err);
         }
       };
       if (noteUrl) fetchSignedUrl();
@@ -1939,26 +1959,27 @@ const CoursesLiveclass = () => {
           try {
             const ext = noteUrl.split(".").pop().toLowerCase().split("?")[0];
 
-            if (
-              ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)
-            ) {
-              window.open(signedUrl, "_blank");
-              return;
+              if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) {
+                window.open(signedUrl, "_blank");
+                return;
+              }
+              // // // console.log("signedUrl", signedUrl);
+              const response = await fetch(signedUrl);
+              // // // console.log("response inside", response);
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = noteName || "document";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+            } catch (err) {
+              // // console.error("Download failed", err);
             }
-            const response = await fetch(signedUrl);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = noteName || "document";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-          } catch (err) {
-            console.error("Download failed", err);
           }
-        }}
+        }
         style={{
           background: "#d4b200",
           color: "white",
@@ -2138,9 +2159,9 @@ const CoursesLiveclass = () => {
 
   const handleReviewSubmit = async ({ rating, review }) => {
     try {
-      console.log("Review submitted:");
+      // // console.log("Review submitted:");
     } catch (error) {
-      console.error("Error submitting review:", error);
+      // // console.error("Error submitting review:", error);
     }
   };
 

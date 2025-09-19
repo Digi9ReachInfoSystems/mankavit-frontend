@@ -21,7 +21,7 @@
 
 //     const createSignatureLocally = () => {
 //         // const data= await generateSignature({ meetingNumber, role: 0 });
-//         // console.log("data", data);
+//         // // console.log("data", data);
 //         const iat = Math.floor(Date.now() / 1000) - 30;
 //         const exp = iat + 60 * 60 * 2;
 
@@ -39,7 +39,7 @@
 //         const sPayload = JSON.stringify(oPayload);
 
 //         const signature = KJUR.jws.JWS.sign("HS256", sHeader, sPayload, sdkSecret);
-//         console.log("signature", signature);
+//         // console.log("signature", signature);
 //         // return signature;
 //         return 'eyJ0eXAiOiJKV1QiLCJzdiI6IjAwMDAwMiIsInptX3NrbSI6InptX28ybSIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJ3ZWIiLCJjbHQiOjAsIm1udW0iOiI4NzIxMTYzMTUyOSIsImF1ZCI6ImNsaWVudHNtIiwidWlkIjoic3FuUW9jRWxSNnFIb25aX1J0OTBNZyIsInppZCI6IjMwZWRjNzhhZjVjYzQ3MWM5MmFjY2MyYjFjMTdlNDYxIiwic2siOiI0MDk1MjI4Mzc0NDU0ODE2NDc3Iiwic3R5IjoxMDAsIndjZCI6InVzMDIiLCJleHAiOjE3NDc5MTg1OTcsImlhdCI6MTc0NzkxMTM5NywiYWlkIjoiU0lGWXBLSUJSeldRdmItS1BTSWxWdyIsImNpZCI6IiJ9.0b2CdOBVlg-8tnZKVbkVSAiZIyq0XBE3nYGAO0f9OKI'
 //     };
@@ -58,14 +58,14 @@
 //         });
 //         try {
 //             const data= await generateSignature({ meetingNumber, role: 0 });
-//             console.log("data", data);
+//             // console.log("data", data);
 //         } catch (error) {
-//             console.error("Error initializing Zoom Meeting SDK:", error);
+//             // console.error("Error initializing Zoom Meeting SDK:", error);
 //         }
 
 //         try {
 //             const signature = createSignatureLocally();
-//             console.log("Generated Signature:", signature, "payload",
+//             // console.log("Generated Signature:", signature, "payload",
 //                 {
 //                     sdkKey,
 //                     signature,
@@ -85,11 +85,11 @@
 //                 userEmail,
 //             });
 
-//             console.log("Join Meeting Response:", data);
+//             // console.log("Join Meeting Response:", data);
 
 //             setJoined(true);
 //         } catch (error) {
-//             console.error("Error joining Zoom meeting:", error);
+//             // console.error("Error joining Zoom meeting:", error);
 //         }
 //     };
 
