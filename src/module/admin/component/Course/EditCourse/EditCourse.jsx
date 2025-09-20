@@ -107,8 +107,8 @@ export default function EditCourse() {
         const subjectsArray = Array.isArray(subjectsResponse?.data)
           ? subjectsResponse.data
           : Array.isArray(subjectsResponse)
-          ? subjectsResponse
-          : [];
+            ? subjectsResponse
+            : [];
 
         const subjectsData = subjectsArray.map((item) => ({
           label: item.subjectName,
@@ -138,8 +138,8 @@ export default function EditCourse() {
         const categoryArray = Array.isArray(categoriesResponse?.data)
           ? categoriesResponse.data
           : Array.isArray(categoriesResponse)
-          ? categoriesResponse
-          : [];
+            ? categoriesResponse
+            : [];
 
         const formattedCategories = categoryArray.map((item) => ({
           label: item.title,
@@ -285,7 +285,7 @@ export default function EditCourse() {
     }
   };
   const handleSubjectClick = (id) => {
-    window.open(`/admin/subject-management/edit/${id}`,"_blank", "noopener,noreferrer");
+    window.open(`/admin/subject-management/edit/${id}`, "_blank", "noopener,noreferrer");
     // window.open(`/admin/subject-management/edit/${id}`, "_blank");
   };
 
@@ -367,9 +367,9 @@ export default function EditCourse() {
           : undefined,
         course_includes: formData.courseIncludes
           ? formData.courseIncludes
-              .split(",")
-              .map((i) => i.trim())
-              .filter((i) => i.length > 0)
+            .split(",")
+            .map((i) => i.trim())
+            .filter((i) => i.length > 0)
           : undefined,
         live_class: formData.liveClass,
         recorded_class: formData.recordedClass,
@@ -512,11 +512,12 @@ export default function EditCourse() {
               <PriceInput
                 id="discountedPrice"
                 value={formData.discountedPrice}
-                onChange={(e) =>
+                onChange={(e) => {
                   handleInputChange(
                     "discountedPrice",
                     sanitizeInput(e.target.value, "number")
                   )
+                }
                 }
                 placeholder="Enter Discounted Price in ₹ (eg: 2999)"
               />
@@ -597,14 +598,14 @@ export default function EditCourse() {
                 {selectedSubjects.length > 0 ? (
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
-                      <SubjectName 
-                         style={{
-                            cursor: "pointer",
-                            marginLeft: "8px",
-                            color: "blue",
-                            textDecoration: "none",
-                          }}
-                          onClick={() => handleSubjectClick(subject.id)}
+                      <SubjectName
+                        style={{
+                          cursor: "pointer",
+                          marginLeft: "8px",
+                          color: "blue",
+                          textDecoration: "none",
+                        }}
+                        onClick={() => handleSubjectClick(subject.id)}
                       >{subject.label}</SubjectName>
                       <div
                         style={{
@@ -616,7 +617,13 @@ export default function EditCourse() {
                         <MoveButton
                           style={{ backgroundColor: "green" }}
                           type="button"
-                          onClick={() => moveSubjectUp(index)}
+                          onClick={() => {
+                            if (readOnlyPermissions) {
+                              toast.error("You don't have permission for this action");
+                              return
+                            }
+                            moveSubjectUp(index)
+                          }}
                           disabled={index === 0}
                         >
                           <FaArrowUp />
@@ -624,7 +631,13 @@ export default function EditCourse() {
                         <MoveButton
                           style={{ backgroundColor: "red" }}
                           type="button"
-                          onClick={() => moveSubjectDown(index)}
+                          onClick={() => {
+                            if (readOnlyPermissions) {
+                              toast.error("You don't have permission for this action");
+                              return
+                            }
+                            moveSubjectDown(index)
+                          }}
                           disabled={index === selectedSubjects.length - 1}
                         >
                           <FaArrowDown />
@@ -633,8 +646,13 @@ export default function EditCourse() {
                         <MoveButton
                           style={{ backgroundColor: "gray" }}
                           type="button"
-                          onClick={() =>
+                          onClick={() => {
+                            if (readOnlyPermissions) {
+                              toast.error("You don't have permission to change Publish status");
+                              return
+                            }
                             handleRemoveSelectedSubject(subject.id)
+                          }
                           }
                         >
                           ❌
@@ -750,7 +768,13 @@ export default function EditCourse() {
               <ToggleSwitch
                 type="checkbox"
                 checked={formData.isKYCRequired}
-                onChange={() => handleToggleChange("isKYCRequired")}
+                onChange={() => {
+                  if (readOnlyPermissions) {
+                    toast.error("You don't have permission to change discounted status");
+                    return
+                  }
+                  handleToggleChange("isKYCRequired")
+                }}
               />
             </FieldWrapper>
 
@@ -765,7 +789,12 @@ export default function EditCourse() {
               <ToggleSwitch
                 type="checkbox"
                 checked={formData.isPublished}
-                onChange={() => handleToggleChange("isPublished")}
+                onChange={() => {
+                  if (readOnlyPermissions) {
+                    toast.error("You don't have permission to change Publish status");
+                    return
+                  } handleToggleChange("isPublished")
+                }}
               />
             </FieldWrapper>
           </Column>
