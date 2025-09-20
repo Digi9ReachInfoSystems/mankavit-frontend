@@ -9,7 +9,8 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_APP_PROD_BASE_URL, // Replace with your backend base URL
     // baseURL: import.meta.env.VITE_APP_DEV_BASE_URL,    
 
-    timeout: 30000, // Optional: Timeout after 10 seconds
+    // timeout: 30000, // Optional: Timeout after 10 seconds
+    timeout: 5 * 60 * 1000,
     headers: {
         "Content-Type": "application/json",
     },

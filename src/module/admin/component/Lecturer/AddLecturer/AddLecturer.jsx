@@ -35,6 +35,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import JoditEditor from 'jodit-react';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { sub } from "date-fns";
 
 export default function AddLecturer() {
   const [lectureName, setLectureName] = useState("");
@@ -61,11 +62,16 @@ export default function AddLecturer() {
           getAllCourses(),
           getFolders()   // 👈 your API for folders
         ]);
+        console.log("foldersResponse", foldersResponse);
 
         setSubjects(subjectsResponse.data || []);
         setCourses(coursesResponse.data || []);
-        setFolders(foldersResponse|| []);  // 👈 set folders here
-
+        // setFolders(foldersResponse || []);  // 👈 set folders here
+        setFolders(
+          (foldersResponse || []).map(folder =>
+            folder.endsWith("/") ? folder.slice(0, -1) : folder
+          )
+        );
         // existing subjects logic...
       } catch (error) {
         toast.error("Failed to fetch data");
@@ -142,6 +148,32 @@ export default function AddLecturer() {
 
     setSelectedSubjects(newSelectedSubjects);
   };
+  const getFileUrl = async (e) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      if (!lectureName || !description || !videoFile) {
+        toast.error("Please fill all required fields!");
+        return;
+      }
+      const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
+
+      // Upload video
+      const videoResponse = await uploadVideoToAzureStorage(videoFile, folderName);
+      console.log("Video Response:", videoResponse);
+      if (!videoResponse?.blobUrl) {
+        throw new Error("Video upload failed");
+      }
+      handleSubmit(videoResponse);
+    } catch (error) {
+      toast.error("Failed to upload video");
+      console.error("Error uploading video:", error);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,25 +184,28 @@ export default function AddLecturer() {
 
     try {
       setIsLoading(true);
-const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
-
-      // Upload video
-      const videoResponse = await uploadVideoToAzureStorage(videoFile, folderName);
-      if (!videoResponse?.blobUrl) {
-        throw new Error("Video upload failed");
-      }
+      const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
+      //  console.log("Folder Name:", folderName);
+      // // Upload video
+      // const videoResponse = await uploadVideoToAzureStorage(videoFile, folderName);
+      // console.log("Video Response:", videoResponse);
+      // if (!videoResponse?.blobUrl) {
+      //   throw new Error("Video upload failed");
+      // }
 
       // Rearrange subjects before submission
-      const subjectIds = selectedSubjects.map(subject => subject.id);
-      await rearrangeSubjects(subjectIds);
+      // const subjectIds = selectedSubjects.map(subject => subject.id);
+      // await rearrangeSubjects(subjectIds);
       // Build request payload
+      const subjectIds = selectedSubjects.map(subject => subject.id);
       const submissionData = {
         lectureName,
         description,
         // duration,
-        videoUrl: videoResponse.blobUrl,
+        // videoUrl: videoResponse.blobUrl,
+        videoUrl: videoFile,
         subjectRef: subjectIds,
-         folder: folderName, 
+        folder: folderName,
       };
 
       const response = await createLecture(submissionData);
@@ -190,7 +225,7 @@ const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
       setSelectedSubjects([]);
     } catch (error) {
       toast.error("Failed to create lecture");
-      // // console.error("Error creating lecture:", error);
+      console.error("Error creating lecture:", error);
     } finally {
       setIsLoading(false);
     }
@@ -231,7 +266,7 @@ const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
                 config={config}
                 tabIndex={1}
                 onBlur={newContent => { // console.log("new", newContent); 
-                  }}
+                }}
                 onChange={newContent => { setDescription(newContent); }}
               />
             </FieldWrapper>
@@ -248,7 +283,7 @@ const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
                 style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
               >
                 <option value="">-- Select a Folder --</option>
-                {folders.map((folder,index) => (
+                {folders.map((folder, index) => (
                   <option key={index} value={folder}>
                     {folder}
                   </option>

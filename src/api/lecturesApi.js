@@ -2,8 +2,21 @@ import api from "../config/axiosConfig";
 
 export const createLecture = async (data) => {
     try {
+        const formData = new FormData();
+        formData.append("videoUrl", data.videoUrl);
+        formData.append("lectureName", data.lectureName);
+        formData.append("description", data.description);
+        formData.append("subjectRef", data.subjectRef);
+        formData.append("folder", data.folder);
+        // formData.append("duration", data.duration);
         // console.log("Resposne data", data);
-        const response = await api.post("/lecture", data);
+        const response = await api.post("/lecture", formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            },
+        );
         // console.log("Darta", response.data);
         return response.data;
     } catch (error) {
@@ -34,7 +47,22 @@ export const getLectureById = async (id) => {
 
 export const updateLectureById = async (id, data) => {
     try {
-        const response = await api.put(`/lecture/${id}`, data);
+        const formData = new FormData();
+        if(data.videoUrl){
+            formData.append("videoUrl", data.videoUrl);
+        }
+        // formData.append("videoUrl", data.videoUrl);
+        formData.append("lectureName", data.lectureName);
+        formData.append("description", data.description);
+        formData.append("subjectRef", data.subjectRef);
+        formData.append("folder", data.folder);
+        const response = await api.put(`/lecture/${id}`, formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            },
+        );
         return response.data;
     } catch (error) {
         // console.log(error);
