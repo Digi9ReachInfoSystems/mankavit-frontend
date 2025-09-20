@@ -1095,7 +1095,7 @@
 
 //               <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
 //                 <VideoPlayer
-                  
+
 //                   ref={videoRef}
 //                   onError={handleVideoError}
 //                   onEnded={handleVideoEnd}
@@ -1369,7 +1369,7 @@ const CoursesLiveclass = () => {
         if (videoRef.current) {
           videoRef.current.pause();
           videoRef.current.load();
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         }
       });
     }
@@ -1472,7 +1472,7 @@ const CoursesLiveclass = () => {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.load();
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
     }
   }, [lectureId]);
 
@@ -1636,8 +1636,21 @@ const CoursesLiveclass = () => {
   const handleVideoEnd = async () => {
     if (userId && courseId && subjectId && lectureId) {
       try {
-        await completeLecturer(userId, courseId, subjectid, lectureId);
-
+        const response = await completeLecturer(userId, courseId, subjectid, lectureId);
+        // console.log(response);
+        const cookies = await getCookiesData();
+        const progressResponse = await getCourseByIdWithUSerProgress(
+          cookies.userId,
+          courseId
+        );
+        // console.log(" progressResponse", progressResponse);
+        // if (progressResponse.data?.completed) {
+        //   if (progressResponse.data?.viewedCertificate) {
+        //     navigate(`/user`);
+        //   } else {
+        //     navigate(`/courseComplte/${courseId}`);
+        //   }
+        // }
         let nextLecture = null;
         let nextSubject = null;
 
@@ -1742,7 +1755,7 @@ const CoursesLiveclass = () => {
     if (userId && courseId && subId && lecId) {
       try {
         await startLecturer(userId, courseId, subId, lecId);
-      } catch {}
+      } catch { }
     }
 
     navigate(`/course/liveclass/${courseId}/${subId}/${lecId}`);
@@ -1830,8 +1843,8 @@ const CoursesLiveclass = () => {
                 const maxText = isUnlimited
                   ? "Unlimited"
                   : Number.isFinite(max)
-                  ? max
-                  : lec.maxAttempts ?? "Unlimited";
+                    ? max
+                    : lec.maxAttempts ?? "Unlimited";
                 infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
 
                 if (!isUnlimited && Number.isFinite(remaining) && remaining > 0) {
@@ -1959,26 +1972,26 @@ const CoursesLiveclass = () => {
           try {
             const ext = noteUrl.split(".").pop().toLowerCase().split("?")[0];
 
-              if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) {
-                window.open(signedUrl, "_blank");
-                return;
-              }
-              // // // console.log("signedUrl", signedUrl);
-              const response = await fetch(signedUrl);
-              // // // console.log("response inside", response);
-              const blob = await response.blob();
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = noteName || "document";
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              window.URL.revokeObjectURL(url);
-            } catch (err) {
-              // // console.error("Download failed", err);
+            if (["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"].includes(ext)) {
+              window.open(signedUrl, "_blank");
+              return;
             }
+            // // // console.log("signedUrl", signedUrl);
+            const response = await fetch(signedUrl);
+            // // // console.log("response inside", response);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = noteName || "document";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          } catch (err) {
+            // // console.error("Download failed", err);
           }
+        }
         }
         style={{
           background: "#d4b200",
@@ -2197,9 +2210,8 @@ const CoursesLiveclass = () => {
                 >
                   {lecture?.videoUrl && !videoError ? (
                     <source
-                      src={`${
-                        import.meta.env.VITE_APP_IMAGE_ACCESS
-                      }/api/project/resource?fileKey=${lecture.videoUrl}`}
+                      src={`${import.meta.env.VITE_APP_IMAGE_ACCESS
+                        }/api/project/resource?fileKey=${lecture.videoUrl}`}
                     />
                   ) : (
                     <div className="video-error">
@@ -2268,7 +2280,8 @@ const CoursesLiveclass = () => {
             active={activeTab === "Notes"}
             onClick={() => setActiveTab("Notes")}
           >
-            Notes ({course?.no_of_notes || 0})
+            Notes
+            {/* ({course?.no_of_notes || 0}) */}
           </ActionButton>
           <ActionButton
             active={activeTab === "MockTest"}

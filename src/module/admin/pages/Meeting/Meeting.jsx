@@ -74,14 +74,14 @@ export default function Meeting() {
     useEffect(() => {
         const apiCaller = async () => {
             const response = await getAuth();
-            response.Permissions;  
+            response.Permissions;
 
             if (response.isSuperAdmin === true) {
                 setReadOnlyPermissions(false);
             } else {
                 if (response.Permissions["meetingManagement"].access) {
                     setReadOnlyPermissions(true);
-                }else{
+                } else {
                     setReadOnlyPermissions(true);
                 }
                 // setReadOnlyPermissions(response.Permissions["meetingManagement"].readOnly);
@@ -101,15 +101,15 @@ export default function Meeting() {
                 setSuperAdmin(false);
             }
             // // console.log("userData", userData);
-            fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null, userData.user.email, userData.user.isSuperAdmin,userData.user._id);
+            fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null, userData.user.email, userData.user.isSuperAdmin, userData.user._id);
 
         }
         apiCaller();
 
     }, [selectedCourseFilter, dateRange, loadData]);
-    const fetchMeetings = async (courseId = null, from = null, to = null, hostEmail, isSuperAdmin = false,hostId) => {
+    const fetchMeetings = async (courseId = null, from = null, to = null, hostEmail, isSuperAdmin = false, hostId) => {
         try {
-            const response = await getAllMeetings(courseId, from, to, hostEmail, isSuperAdmin,hostId);
+            const response = await getAllMeetings(courseId, from, to, hostEmail, isSuperAdmin, hostId);
             // console.log("Meetings response:", response);
             const meetingData = response.map((item) => ({
                 id: item._id || '',
@@ -123,8 +123,8 @@ export default function Meeting() {
                 isHostMeeting: item.isHostMeeting,
                 isPastMeeting: item.isPastMeeting,
                 isEnded: item.isEnded,
-                host_email: item?.host_email ||null,
-                alternate_host_email: item?.alternate_host_email ||null,
+                host_email: item?.host_email || null,
+                alternate_host_email: item?.alternate_host_email || null,
             }))
             // Also fetch courses list for the dropdown
             const coursesResponse = await getAllCourses();
@@ -272,10 +272,19 @@ export default function Meeting() {
     };
 
     // Add this function to clear filters
-    const handleClearFilters = () => {
+    const handleClearFilters = async () => {
         setSelectedCourseFilter(null);
         setDateRange(null);
-        fetchMeetings();
+        const cookiesData = getCookiesData();
+        const userData = await getUserByUserId(cookiesData.userId);
+        // // console.log("userData", userData);
+        if (userData.user.isSuperAdmin === true) {
+            setSuperAdmin(true);
+        } else {
+            setSuperAdmin(false);
+        }
+        // // console.log("userData", userData);
+        fetchMeetings(selectedCourseFilter, dateRange ? dateRange[0].format('YYYY-MM-DD') : null, dateRange ? dateRange[1].format('YYYY-MM-DD') : null, userData.user.email, userData.user.isSuperAdmin, userData.user._id);
     };
 
     const handleSelectAllChange = () => {
@@ -283,7 +292,7 @@ export default function Meeting() {
             setSelectedMeetings([]);
         } else {
             let courseIds = currentItems.map((c) => {
-                if(c.isEnded === false) return c.id
+                if (c.isEnded === false) return c.id
                 else return null
             });
             courseIds = courseIds.filter((id) => id !== null);
@@ -528,11 +537,34 @@ export default function Meeting() {
                                                 <ToggleSwitch
                                                     type="checkbox"
                                                     checked={item.isEnded}
-                                                    onChange={async (e) => {
-                                                        await updateMeetingStatus(item.id);
-                                                        setLoadData(!loadData);
+                                                    onChange={async () => {
+                                                        try {
+                                                            // Optimistic update
+                                                            setData((prevData) =>
+                                                                prevData.map((meeting) =>
+                                                                    meeting.id === item.id
+                                                                        ? { ...meeting, isEnded: !meeting.isEnded }
+                                                                        : meeting
+                                                                )
+                                                            );
+
+                                                            await updateMeetingStatus(item.id);
+                                                            toast.success("Meeting status updated");
+                                                        } catch (error) {
+                                                            toast.error("Failed to update meeting");
+
+                                                            // Rollback optimistic update if API fails
+                                                            setData((prevData) =>
+                                                                prevData.map((meeting) =>
+                                                                    meeting.id === item.id
+                                                                        ? { ...meeting, isEnded: item.isEnded }
+                                                                        : meeting
+                                                                )
+                                                            );
+                                                        }
                                                     }}
                                                 />
+
                                             </TableCell>
                                             <TableCell>
                                                 <ActionsContainer>
@@ -572,7 +604,7 @@ export default function Meeting() {
                                                                                 userName: userData.user.displayName || "React",
                                                                                 // userEmail: userData.user.email || "",
                                                                                 // userEmail: "mankavit.clatcoaching11@gmail.com",
-                                                                                userEmail: userData.user.isSuperAdmin ? item.host_email : item.alternate_host_email ||'',
+                                                                                userEmail: userData.user.isSuperAdmin ? item.host_email : item.alternate_host_email || '',
                                                                                 leaveUrl: `/admin/meeting-management`,
                                                                                 superAdmin: userData.user.isSuperAdmin
                                                                             }
@@ -584,7 +616,7 @@ export default function Meeting() {
                                                                         // }})
                                                                     }}
                                                                 >
-                                                                   {superAdmin? "Host Meeting": "Join Meeting"}
+                                                                    {superAdmin ? "Host Meeting" : "Join Meeting"}
                                                                 </button>) :
                                                             null
                                                     }
@@ -630,7 +662,7 @@ export default function Meeting() {
                     onDelete={handleConfirmDelete}
                 />
                 {modalOpen && (
-                   <CustomCourseModel
+                    <CustomCourseModel
                         title={
                             modalType === "subjects"
                                 ? "Subjects"
