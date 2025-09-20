@@ -33,7 +33,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { getAuth } from "../../../../../utils/authService";
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 10;
 
 const QuestionPaper = () => {
   const navigate = useNavigate();
@@ -43,7 +43,9 @@ const QuestionPaper = () => {
   const [modal, setModal] = useState(false);
   // const [deleteId, setDeleteId] = useState(null);
   const [deleteTitle, setDeleteTitle] = useState(null);
+  const [deleteYear, setDeleteYear] = useState(null); // <-- added
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -96,31 +98,43 @@ const QuestionPaper = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleDelete = (title) => {
-    setDeleteTitle(title);
-    setModal(true);
-  };
+// const [deleteTitle, setDeleteTitle] = useState(null);
+// const [deleteYear, setDeleteYear] = useState(null);
 
+const handleDelete = (title, year) => {
+  setDeleteTitle(title);
+  setDeleteYear(year);
+  setModal(true);
+};
 
-  const handleConfirmDelete = async () => {
-    try {
-      setLoading(true);
-   await deleteQuestionPaper(deleteTitle);
-      setData((prev) =>
-        prev
-       .filter((item) => item.title !== deleteTitle)
-       .sort((a, b) => ts(b) - ts(a))
+const handleConfirmDelete = async () => {
+  try {
+    setLoading(true);
+    await deleteQuestionPaper(deleteTitle, deleteYear); // <-- year required
+    setData((prev) =>
+      prev
+        .map((item) => {
+          if (item.title !== deleteTitle) return item;
+          return {
+            ...item,
+            papers: (item.papers || []).filter((p) => p.year !== Number(deleteYear)),
+          };
+        })
+        .filter((item) => (item.papers || []).length > 0)
+        .sort((a, b) => ts(b) - ts(a))
     );
-      toast.success("Data deleted successfully");
-    } catch (error) {
-      console.error("Error deleting question paper:", error);
-      toast.error("Failed to delete. Please try again");
-    } finally {
-      setModal(false);
-      setDeleteTitle(null);
-      setLoading(false);
-    }
-  };
+    toast.success("Data deleted successfully");
+  } catch (error) {
+    console.error("Error deleting question paper:", error);
+    toast.error("Failed to delete. Please try again");
+  } finally {
+    setModal(false);
+    setDeleteTitle(null);
+    setDeleteYear(null);
+    setLoading(false);
+  }
+};
+
 
   const handleViewClick = (row) => {
     navigate(`/admin/web-management/question-paper/view/${row._id}`);
@@ -163,7 +177,6 @@ const QuestionPaper = () => {
               <tr>
                 <TableHeader>Title</TableHeader>
                 {/* <TableHeader>Description</TableHeader> */}
-
                 <TableHeader>Year</TableHeader>
                 <TableHeader>View PDF</TableHeader>
                 <TableHeader>Actions</TableHeader>
@@ -188,7 +201,6 @@ const QuestionPaper = () => {
 
                     <TableCell>
                       <ActionsWrapper>
-                      
                         {!readOnlyPermissions && (
                           <>
                             {/* <BiEditAlt
@@ -204,13 +216,14 @@ const QuestionPaper = () => {
                                 )
                               }
                             /> */}
-                            <RiDeleteBin6Line
-                              title="Delete Title"
-                              size={20}
-                              color="#FB4F4F"
-                              style={{ cursor: "pointer" }}
-                          onClick={() => handleDelete(row.title)}
-                            />
+                      <RiDeleteBin6Line
+  title="Delete Paper"
+  size={20}
+  color="#FB4F4F"
+  style={{ cursor: "pointer" }}
+  onClick={() => handleDelete(row.title, paper.year)}
+/>
+
                           </>
                         )}
                       </ActionsWrapper>
