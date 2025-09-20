@@ -44,15 +44,27 @@ export const updateQuestionPaperById = async (id, data) => {
     }
 }
 
-export const deleteQuestionPaper = async (title) => {
-    try {
-        const response = await api.delete(`/question/deleteQuestionPaper/${title}`);
-        return response.data;
-    } catch (error) {
-        // console.log(error);
-        throw error;
-    }
-}
+// export const deleteQuestionPaper = async (title,year) => {
+//     try {
+//         const response = await api.delete(`/question/deleteQuestionPaper/${title}/papers/${year}`);
+//         return response.data;
+//     } catch (error) {
+//         // console.log(error);
+//         throw error;
+//     }
+// }
+export const deleteQuestionPaper = async (title, year) => {
+  const url = `/question/deleteQuestionPaper/${title}/papers/${year}`;
+  console.log("[deleteQuestionPaper] URL =>", url); // TEMP: verify the exact path
+  try {
+    const response = await api.delete(url);
+    return response.data;
+  } catch (error) {
+    console.error("[deleteQuestionPaper] failed:", error);
+    throw error;
+  }
+};
+
 
 export const removeQuestionpaper = async (title, year) => {
     try {
