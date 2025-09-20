@@ -56,6 +56,7 @@ export default function EditLecturer() {
   const videoInputRef = useRef(null);
   const editor = useRef(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const apiCaller = async () => {
@@ -181,35 +182,46 @@ export default function EditLecturer() {
       toast.error("Please fill all required fields!");
       return;
     }
+    setUpdating(true);
 
     try {
       // Rearrange subjects before submission
-      const subjectIds = selectedSubjects.map(subject => subject.id);
-      await rearrangeSubjects(subjectIds);
-      // Upload video
-      const videoResponse = await uploadVideoToAzureStorage(videoFile, formData.folder);
-      if (!videoResponse?.blobUrl) {
-        throw new Error("Video upload failed");
+      let subjectIds = [];
+      if (selectedSubjects.length > 0) {
+        subjectIds = selectedSubjects.map(subject => subject.id);
+        await rearrangeSubjects(subjectIds);
       }
-
-      const payload = {
+      // Upload video
+      // const videoResponse = await uploadVideoToAzureStorage(videoFile, formData.folder);
+      // if (!videoResponse?.blobUrl) {
+      //   throw new Error("Video upload failed");
+      // }
+      let payload = {
         lectureName,
         // duration,
         description,
         subjectRef: subjectIds,
-        videoUrl: videoResponse.blobUrl,
+        // videoUrl: videoResponse.blobUrl,
       };
+      console.log("payload", videoPreviewUrl);
+      if (videoPreviewUrl) {
+        payload.videoUrl = videoFile
+      }
+
+
 
       const response = await updateLectureById(id, payload);
       if (response.success) {
         toast.success("Lecture updated successfully!");
-        setTimeout(() => navigate("/admin/lecturer-management"), 1000);
+        // setTimeout(() => navigate("/admin/lecturer-management"), 1000);
       } else {
         throw new Error(response.message || "Failed to update lecture");
       }
     } catch (error) {
       // // console.error("Update failed:", error);
       toast.error("Failed to update lecture");
+    }finally{
+      setUpdating(false);
     }
   };
 
@@ -231,8 +243,8 @@ export default function EditLecturer() {
                 name="lectureName"
                 value={formData.lectureName}
                 onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-                  setFormData({ ...formData, lectureName: filteredData });
+                  // const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                  setFormData({ ...formData, lectureName: e.target.value });
                 }}
                 placeholder="Enter Video Name"
                 required
@@ -361,7 +373,7 @@ export default function EditLecturer() {
           !readOnlyPermissions && (
             <FormRow>
               <Column>
-                <SubmitButton type="submit">Update Lecture</SubmitButton>
+                <SubmitButton type="submit" disabled={updating}>{updating?"Updating... ":"Update Lecture"}</SubmitButton>
               </Column>
             </FormRow>
           )
