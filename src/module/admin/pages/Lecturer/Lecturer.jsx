@@ -46,6 +46,7 @@ export default function Lecturer() {
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   const [subjectsModalOpen, setSubjectsModalOpen] = useState(false);
   const [currentSubjects, setCurrentSubjects] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -201,20 +202,21 @@ export default function Lecturer() {
     if (selectAll) {
       setSelectedLectures([]);
     } else {
-      setSelectedLectures(currentItems.map((c) => c.id));
+      setSelectedLectures(currentItems.map((c) => c._id));
     }
     setSelectAll(!selectAll);
   };
   const handleBulkDelete = async () => {
     try {
-      // setLoading(true);
+      setLoading(true);
       await bulkDeleteLectures(selectedLectures);
       toast.success("Selected Lectures deleted successfully", {
         autoClose: 3000, // Ensure this matches your toast duration
-        // onClose: () => {
+        onClose: () => {
 
-        //   window.location.reload();
-        // }
+          window.location.reload();
+        }
+        //  onClose: () => window.location.reload(), 
       });
       setSelectedLectures([]);
       setSelectAll(false);
@@ -223,7 +225,7 @@ export default function Lecturer() {
       // console.error("Bulk delete failed:", error);
       toast.error("Failed to delete selected courses");
     } finally {
-      // setLoading(false);
+      setLoading(false);
       setBulkDeleteModalOpen(false);
     }
   };

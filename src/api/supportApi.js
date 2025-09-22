@@ -44,3 +44,22 @@ export const deleteSupportById = async (id) => {
         throw error;
     }
 };
+
+
+export const bulkcontactdeletion = async (ids) => {
+    try {
+        const response = await api.delete('/contactSupport/bulk/delete', {
+             data: {ids},
+   headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            }
+
+
+         });
+        return response.data;
+    } catch (error) {
+        // console.log(error);
+        throw error;
+    }
+}

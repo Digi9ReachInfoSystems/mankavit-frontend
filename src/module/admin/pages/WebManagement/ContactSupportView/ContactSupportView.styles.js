@@ -388,3 +388,55 @@ export const StatusBadge = styled.span`
   width: fit-content;
   background-color: ${props => props.color || '#9e9e9e'};
 `;
+
+
+// export const AddButton = styled.button`
+// //   display: flex;
+// //   align-items: center;
+// //   gap: 8px;
+// //   background: linear-gradient(to right, #0dcaf0, #007bff);
+// //   border: none;
+// //   color: white;
+// //   padding: 15px 40px;
+// //   border-radius: 6px;
+// //   font-size: 16px;
+// //   cursor: pointer;
+// //   transition: 0.3s ease;
+// //   width:15%;
+// // justify-content: center;
+
+//   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+//   background:linear-gradient(to right, #0dcaf0, #007bff);
+//   color: ${(props) => props.theme.colors.white};
+//   border: none;
+//   border-radius: 4px;
+//   font-family: ${(props) => props.theme.fonts.body};
+//   cursor: pointer;
+//   font-size: 1rem;
+//   transition: background-color 0.2s ease;
+//     width: 15%; 
+//     display: flex;
+//   justify-content: center;
+//   align-items: center;
+
+
+//   &:hover {
+//     background-color: #007ecc;
+//   }
+
+  
+//   @media (max-width: 1024px) {
+//     width: 25%;
+//   }
+//       @media (max-width: 768px) {
+//       margin-right: 20px;
+//       width: 40%;
+//   }
+
+//   @media (max-width: 480px) {
+//     padding: 15px 20px;
+//     font-size: 14px;
+//     width: 50%;
+
+//   }
+// `;

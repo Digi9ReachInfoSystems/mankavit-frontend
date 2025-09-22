@@ -53,3 +53,20 @@ export const getAllNotifications = async () => {
         throw error;
     }
 }
+
+
+// api/notificationApi.js
+export const bulknotificationdeletion = async (notificationIds) => {
+  const response = await api.delete(
+    '/notifications/bulk/deleteNotifications',
+    {
+      data: { notificationIds },          // <-- rename key
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      timeout: 300000,
+    }
+  );
+  return response.data;
+};

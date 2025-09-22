@@ -24,19 +24,33 @@ export const Title = styled.h2`
 `;
 
 export const AddButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(to right, #0dcaf0, #007bff);
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+//   background: linear-gradient(to right, #0dcaf0, #007bff);
+//   border: none;
+//   color: white;
+//   padding: 15px 40px;
+//   border-radius: 6px;
+//   font-size: 16px;
+//   cursor: pointer;
+//   transition: 0.3s ease;
+//   width:15%;
+// justify-content: center;
+
+  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+  background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.white};
   border: none;
-  color: white;
-  padding: 15px 40px;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 4px;
+  font-family: ${(props) => props.theme.fonts.body};
   cursor: pointer;
-  transition: 0.3s ease;
-  width:15%;
-justify-content: center;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+    width: 15%; 
+    display: flex;
+  justify-content: center;
+  align-items: center;
 
 
   &:hover {

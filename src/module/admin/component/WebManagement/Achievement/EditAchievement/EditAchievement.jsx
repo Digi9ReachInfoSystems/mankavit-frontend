@@ -209,7 +209,7 @@ const EditAchievement = () => {
     }}
       />
 
-      <Label>Write Rank</Label>
+      <Label>Rank</Label>
       <Input
         name="rank"
         placeholder="write here"
@@ -217,7 +217,7 @@ const EditAchievement = () => {
         onChange={handleChange}
       />
 
-      <Label>Exam details</Label>
+      <Label>Tag</Label>
       <TextArea
         name="examDetails" // Make sure this matches your state property
         placeholder="Write here"

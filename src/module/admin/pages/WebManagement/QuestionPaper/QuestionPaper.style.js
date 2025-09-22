@@ -182,26 +182,25 @@ export const ButtonContainer = styled.div`
   `;
 
 export const CreateButton = styled.button`
-  padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
-
-    background:linear-gradient(to right, #0dcaf0, #007bff);
-  color: ${(props) => props.theme.colors.secondary};
+padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
+  background:linear-gradient(to right, #0dcaf0, #007bff);
+  color: ${(props) => props.theme.colors.white};
   border: none;
   border-radius: 4px;
   font-family: ${(props) => props.theme.fonts.body};
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s ease;
-  width: 15%;
-  display: flex;
+    // width: 15%; 
+    display: flex;
   justify-content: center;
-
-  &:hover {
+  align-items: center;
+&:hover {
     background-color: #007ecc;
   }
 
   @media (max-width: 1024px) {
-    width: 25%;
+    width: 50%;
   }
       @media (max-width: 768px) {
       margin-right: 20px;
@@ -211,7 +210,7 @@ export const CreateButton = styled.button`
   @media (max-width: 480px) {
     padding: 15px 20px;
     font-size: 14px;
-    width: 50%;
+    width: 75%;
  
   }
   

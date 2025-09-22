@@ -180,7 +180,7 @@ const AddAchievements = () => {
         }}
       />
 
-      <Label>Write Rank</Label>
+      <Label>Rank</Label>
       <Input
         name="rank"
         placeholder="Enter rank"
@@ -199,10 +199,10 @@ const AddAchievements = () => {
   }}
 />
 
-      <Label>Exam details</Label>
+      <Label>Tag</Label>
       <TextArea
         name="examDetails"
-        placeholder="Enter exam details"
+        placeholder="Enter tag"
         value={formData.examDetails}
         onChange={handleChange}
       />

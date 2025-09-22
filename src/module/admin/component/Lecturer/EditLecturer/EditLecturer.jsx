@@ -58,6 +58,18 @@ export default function EditLecturer() {
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   const [updating, setUpdating] = useState(false);
 
+  // 🔎 New: search term for subjects
+  const [searchSubject, setSearchSubject] = useState("");
+
+  // 🔎 New: filter the visible subjects but keep source of truth in subjectCheckboxes
+  const filteredSubjects = useMemo(
+    () =>
+      subjectCheckboxes.filter((s) =>
+        s.label.toLowerCase().includes(searchSubject.toLowerCase())
+      ),
+    [subjectCheckboxes, searchSubject]
+  );
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -76,9 +88,8 @@ export default function EditLecturer() {
       try {
         const response = await getLectureById(id);
         const lecture = response.data;
-        // // console.log("lecture", lecture);
         setCurrentVideo(lecture.videoUrl);
-        setVideoPreviewUrl(lecture.videoUrl)
+        setVideoPreviewUrl(lecture.videoUrl);
         setFormData({
           lectureName: lecture.lectureName || "",
           duration: lecture.duration || "",
@@ -95,17 +106,13 @@ export default function EditLecturer() {
 
         setSubjectCheckboxes(subjectsData);
 
-        // Set selected subjects in the correct order
-        const orderedSelectedSubjects = lecture.subjectRef.map(subjectId => {
-          const subject = subjectsData.find(s => s.id === subjectId);
-          return subject ? { ...subject } : null;
-        }).filter(Boolean);
+        // maintain selected order from lecture.subjectRef
+        const orderedSelectedSubjects = lecture.subjectRef
+          .map(subjectId => subjectsData.find(s => s.id === subjectId) || null)
+          .filter(Boolean);
 
         setSelectedSubjects(orderedSelectedSubjects);
-
-        ;
       } catch (error) {
-        // // console.error("Failed to fetch lecture:", error);
         toast.error("Failed to fetch lecture");
       }
     };
@@ -115,29 +122,25 @@ export default function EditLecturer() {
 
   const handleVideoUploadClick = () => videoInputRef.current.click();
 
-  const handleCheckboxChange = (index) => {
+  const handleCheckboxChange = (originalIndex) => {
     const updatedCheckboxes = [...subjectCheckboxes];
-    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    updatedCheckboxes[originalIndex].checked = !updatedCheckboxes[originalIndex].checked;
     setSubjectCheckboxes(updatedCheckboxes);
 
-    // Update selected subjects
+    // Update selected subjects from updatedCheckboxes
     const selected = updatedCheckboxes.filter(item => item.checked);
 
-    // Maintain the order of already selected subjects
+    // Keep existing order where possible
+    const subjectToUpdate = updatedCheckboxes[originalIndex];
     const newSelectedSubjects = [...selectedSubjects];
-    const subjectToUpdate = updatedCheckboxes[index];
 
     if (subjectToUpdate.checked) {
-      // Add to selected if not already there
       if (!newSelectedSubjects.some(s => s.id === subjectToUpdate.id)) {
         newSelectedSubjects.push(subjectToUpdate);
       }
     } else {
-      // Remove from selected
       const removeIndex = newSelectedSubjects.findIndex(s => s.id === subjectToUpdate.id);
-      if (removeIndex !== -1) {
-        newSelectedSubjects.splice(removeIndex, 1);
-      }
+      if (removeIndex !== -1) newSelectedSubjects.splice(removeIndex, 1);
     }
 
     setSelectedSubjects(newSelectedSubjects);
@@ -145,23 +148,17 @@ export default function EditLecturer() {
 
   const moveSubjectUp = (index) => {
     if (index <= 0) return;
-
     const newSelectedSubjects = [...selectedSubjects];
-    // Swap positions
     [newSelectedSubjects[index], newSelectedSubjects[index - 1]] =
       [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
-
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const moveSubjectDown = (index) => {
     if (index >= selectedSubjects.length - 1) return;
-
     const newSelectedSubjects = [...selectedSubjects];
-    // Swap positions
     [newSelectedSubjects[index], newSelectedSubjects[index + 1]] =
       [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
-
     setSelectedSubjects(newSelectedSubjects);
   };
 
@@ -169,7 +166,6 @@ export default function EditLecturer() {
     const file = e.target.files[0];
     if (file) {
       setVideoFile(file);
-      // // // console.log("file URL changed", URL.createObjectURL(file));
       setVideoPreviewUrl(URL.createObjectURL(file));
     }
   };
@@ -191,36 +187,26 @@ export default function EditLecturer() {
         subjectIds = selectedSubjects.map(subject => subject.id);
         await rearrangeSubjects(subjectIds);
       }
-      // Upload video
-      // const videoResponse = await uploadVideoToAzureStorage(videoFile, formData.folder);
-      // if (!videoResponse?.blobUrl) {
-      //   throw new Error("Video upload failed");
-      // }
+
       let payload = {
         lectureName,
-        // duration,
         description,
         subjectRef: subjectIds,
-        // videoUrl: videoResponse.blobUrl,
       };
-      console.log("payload", videoPreviewUrl);
+
       if (videoPreviewUrl) {
-        payload.videoUrl = videoFile
+        payload.videoUrl = videoFile;
       }
-
-
 
       const response = await updateLectureById(id, payload);
       if (response.success) {
         toast.success("Lecture updated successfully!");
-        // setTimeout(() => navigate("/admin/lecturer-management"), 1000);
       } else {
         throw new Error(response.message || "Failed to update lecture");
       }
     } catch (error) {
-      // // console.error("Update failed:", error);
       toast.error("Failed to update lecture");
-    }finally{
+    } finally {
       setUpdating(false);
     }
   };
@@ -242,16 +228,14 @@ export default function EditLecturer() {
                 id="lectureName"
                 name="lectureName"
                 value={formData.lectureName}
-                onChange={(e) => {
-                  // const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-                  setFormData({ ...formData, lectureName: e.target.value });
-                }}
+                onChange={(e) => setFormData({ ...formData, lectureName: e.target.value })}
                 placeholder="Enter Video Name"
                 required
               />
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -261,13 +245,13 @@ export default function EditLecturer() {
                 value={formData.description}
                 config={configDis}
                 tabIndex={1}
-                onBlur={newContent => { // console.log("new", newContent);
-                }}
+                onBlur={() => {}}
                 onChange={newContent => { setFormData({ ...formData, description: newContent }) }}
               />
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -283,22 +267,50 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <SubjectsContainer>
               <CheckboxSection>
                 <CheckboxSectionTitle>Available Subjects</CheckboxSectionTitle>
+
+                {/* 🔎 New: simple search input */}
+                <div style={{ marginBottom: "12px" }}>
+                  <input
+                    type="text"
+                    placeholder="Search subjects..."
+                    value={searchSubject}
+                    onChange={(e) => setSearchSubject(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      borderRadius: "4px",
+                      border: "1px solid #ccc",
+                      outline: "none",
+                    }}
+                  />
+                </div>
+
+                {/* 🔎 Use filtered subjects for display, map back to original index on change */}
                 <CheckboxList>
-                  {subjectCheckboxes.map((item, index) => (
-                    <CheckboxLabel key={item.id || index}>
-                      <CheckboxInput
-                        type="checkbox"
-                        checked={item.checked}
-                        onChange={() => handleCheckboxChange(index)}
-                      />
-                      {item.label}
-                    </CheckboxLabel>
-                  ))}
+                  {filteredSubjects.length > 0 ? (
+                    filteredSubjects.map((item) => (
+                      <CheckboxLabel key={item.id}>
+                        <CheckboxInput
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={() =>
+                            handleCheckboxChange(
+                              subjectCheckboxes.findIndex((s) => s.id === item.id)
+                            )
+                          }
+                        />
+                        {item.label}
+                      </CheckboxLabel>
+                    ))
+                  ) : (
+                    <p style={{ padding: "6px 2px", color: "#666" }}>No subjects found</p>
+                  )}
                 </CheckboxList>
               </CheckboxSection>
 
@@ -308,11 +320,10 @@ export default function EditLecturer() {
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
-                      <div>
+                     
+                      {/* <div>
                         <MoveButton
-                          style={{
-                            backgroundColor: "green"
-                          }}
+                          style={{ backgroundColor: "green" }}
                           type="button"
                           onClick={() => moveSubjectUp(index)}
                           disabled={index === 0}
@@ -320,16 +331,17 @@ export default function EditLecturer() {
                           <FaArrowUp />
                         </MoveButton>
                         <MoveButton
-                          style={{
-                            backgroundColor: "red"
-                          }}
+                          style={{ backgroundColor: "red" }}
                           type="button"
                           onClick={() => moveSubjectDown(index)}
                           disabled={index === selectedSubjects.length - 1}
                         >
                           <FaArrowDown />
                         </MoveButton>
-                      </div>
+                      </div> */}
+
+
+                      
                     </SelectedSubjectItem>
                   ))
                 ) : (
@@ -348,7 +360,14 @@ export default function EditLecturer() {
                 {videoPreviewUrl ? (
                   <VideoContainer>
                     <VideoPlayer key={videoPreviewUrl} controls>
-                      <source src={videoPreviewUrl.startsWith("blob:") ? videoPreviewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`} type="video/mp4" />
+                      <source
+                        src={
+                          videoPreviewUrl.startsWith("blob:")
+                            ? videoPreviewUrl
+                            : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`
+                        }
+                        type="video/mp4"
+                      />
                       Your browser does not support the video tag.
                     </VideoPlayer>
                   </VideoContainer>
@@ -369,15 +388,16 @@ export default function EditLecturer() {
             </FieldWrapper>
           </Column>
         </FormRow>
-        {
-          !readOnlyPermissions && (
-            <FormRow>
-              <Column>
-                <SubmitButton type="submit" disabled={updating}>{updating?"Updating... ":"Update Lecture"}</SubmitButton>
-              </Column>
-            </FormRow>
-          )
-        }
+
+        {!readOnlyPermissions && (
+          <FormRow>
+            <Column>
+              <SubmitButton type="submit" disabled={updating}>
+                {updating ? "Updating... " : "Update Lecture"}
+              </SubmitButton>
+            </Column>
+          </FormRow>
+        )}
       </FormWrapper>
 
       <ToastContainer

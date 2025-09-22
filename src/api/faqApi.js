@@ -55,3 +55,23 @@ export const deleteFaqById = async (id) => {
         throw error;
     }
 };  
+
+
+
+export const bulkfaqdeletion = async (ids) => {
+    try {
+        const response = await api.delete('/faq/bulk/deleteFaqs', {
+             data: {ids},
+   headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            }
+
+
+         });
+        return response.data;
+    } catch (error) {
+        // console.log(error);
+        throw error;
+    }
+}

@@ -25,17 +25,24 @@ import {
   SubjectName,
   MoveButton,
   SubjectsContainer,
+  SearchWrapper,
+  SearchIcon,
+  SearchInput,
 } from "./AddLecturer.styles";
 import { useNavigate } from "react-router-dom";
 import { createLecture, getFolders } from "../../../../../api/lecturesApi";
 import { getAllCourses } from "../../../../../api/courseApi";
 import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
-import { uploadFileToAzureStorage, uploadVideoToAzureStorage } from "../../../../../utils/azureStorageService";
+import {
+  uploadFileToAzureStorage,
+  uploadVideoToAzureStorage,
+} from "../../../../../utils/azureStorageService";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import JoditEditor from 'jodit-react';
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import JoditEditor from "jodit-react";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { sub } from "date-fns";
+import { CiSearch } from "react-icons/ci";
 
 export default function AddLecturer() {
   const [lectureName, setLectureName] = useState("");
@@ -48,47 +55,59 @@ export default function AddLecturer() {
   const videoInputRef = useRef(null);
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [subjectsCheckboxes, setSubjectsCheckboxes] = useState([]);
+
+  const [searchSubject, setSearchSubject] = useState("");
   const navigate = useNavigate();
   const editor = useRef(null);
-  const [folders, setFolders] = useState([]);   // folder options from API
+  const [folders, setFolders] = useState([]); // folder options from API
   const [selectedFolder, setSelectedFolder] = useState("");
   const [customFolder, setCustomFolder] = useState("");
+
+  // 🔎 FIXED: filter from subjectCheckboxes (not subjectsCheckboxes)
+  const filteredSubjects = useMemo(
+    () =>
+      subjectCheckboxes.filter((subject) =>
+        subject.label.toLowerCase().includes(searchSubject.toLowerCase())
+      ),
+    [subjectCheckboxes, searchSubject]
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [subjectsResponse, coursesResponse, foldersResponse] = await Promise.all([
-          getSubjects(),
-          getAllCourses(),
-          getFolders()   // 👈 your API for folders
-        ]);
+        const [subjectsResponse, coursesResponse, foldersResponse] =
+          await Promise.all([
+            getSubjects(),
+            getAllCourses(),
+            getFolders(),
+          ]);
         console.log("foldersResponse", foldersResponse);
 
         setSubjects(subjectsResponse.data || []);
         setCourses(coursesResponse.data || []);
-        // setFolders(foldersResponse || []);  // 👈 set folders here
         setFolders(
-          (foldersResponse || []).map(folder =>
+          (foldersResponse || []).map((folder) =>
             folder.endsWith("/") ? folder.slice(0, -1) : folder
           )
         );
-        // existing subjects logic...
       } catch (error) {
         toast.error("Failed to fetch data");
-        // console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
   }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const [subjectsResponse, coursesResponse] = await Promise.all([
           getSubjects(),
-          getAllCourses()
+          getAllCourses(),
         ]);
         setSubjects(subjectsResponse.data || []);
         setCourses(coursesResponse.data || []);
@@ -99,10 +118,8 @@ export default function AddLecturer() {
           checked: false,
         }));
         setSubjectCheckboxes(subjectsData);
-
       } catch (error) {
         toast.error("Failed to fetch data");
-        // console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -123,7 +140,7 @@ export default function AddLecturer() {
     setSubjectCheckboxes(updatedCheckboxes);
 
     // Update selected subjects
-    const selected = updatedCheckboxes.filter(item => item.checked);
+    const selected = updatedCheckboxes.filter((item) => item.checked);
     setSelectedSubjects(selected);
   };
 
@@ -131,9 +148,10 @@ export default function AddLecturer() {
     if (index <= 0) return;
 
     const newSelectedSubjects = [...selectedSubjects];
-    // Swap positions
-    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] =
-      [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
+    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = [
+      newSelectedSubjects[index - 1],
+      newSelectedSubjects[index],
+    ];
 
     setSelectedSubjects(newSelectedSubjects);
   };
@@ -142,12 +160,14 @@ export default function AddLecturer() {
     if (index >= selectedSubjects.length - 1) return;
 
     const newSelectedSubjects = [...selectedSubjects];
-    // Swap positions
-    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] =
-      [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = [
+      newSelectedSubjects[index + 1],
+      newSelectedSubjects[index],
+    ];
 
     setSelectedSubjects(newSelectedSubjects);
   };
+
   const getFileUrl = async (e) => {
     e.preventDefault();
     try {
@@ -156,10 +176,13 @@ export default function AddLecturer() {
         toast.error("Please fill all required fields!");
         return;
       }
-      const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
+      const folderName =
+        selectedFolder === "other" ? customFolder : selectedFolder;
 
-      // Upload video
-      const videoResponse = await uploadVideoToAzureStorage(videoFile, folderName);
+      const videoResponse = await uploadVideoToAzureStorage(
+        videoFile,
+        folderName
+      );
       console.log("Video Response:", videoResponse);
       if (!videoResponse?.blobUrl) {
         throw new Error("Video upload failed");
@@ -172,8 +195,7 @@ export default function AddLecturer() {
     } finally {
       setIsLoading(false);
     }
-
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -184,32 +206,19 @@ export default function AddLecturer() {
 
     try {
       setIsLoading(true);
-      const folderName = selectedFolder === "other" ? customFolder : selectedFolder;
-      //  console.log("Folder Name:", folderName);
-      // // Upload video
-      // const videoResponse = await uploadVideoToAzureStorage(videoFile, folderName);
-      // console.log("Video Response:", videoResponse);
-      // if (!videoResponse?.blobUrl) {
-      //   throw new Error("Video upload failed");
-      // }
+      const folderName =
+        selectedFolder === "other" ? customFolder : selectedFolder;
 
-      // Rearrange subjects before submission
-      // const subjectIds = selectedSubjects.map(subject => subject.id);
-      // await rearrangeSubjects(subjectIds);
-      // Build request payload
-      const subjectIds = selectedSubjects.map(subject => subject.id);
+      const subjectIds = selectedSubjects.map((subject) => subject.id);
       const submissionData = {
         lectureName,
         description,
-        // duration,
-        // videoUrl: videoResponse.blobUrl,
         videoUrl: videoFile,
         subjectRef: subjectIds,
         folder: folderName,
       };
 
       const response = await createLecture(submissionData);
-      // // console.log("API Response:", response.data);
 
       toast.success("Lecture created successfully");
       setTimeout(() => {
@@ -221,7 +230,9 @@ export default function AddLecturer() {
       setDuration("");
       setDescription("");
       setVideoFile(null);
-      setSubjectCheckboxes(subjectCheckboxes.map((item) => ({ ...item, checked: false })));
+      setSubjectCheckboxes(
+        subjectCheckboxes.map((item) => ({ ...item, checked: false }))
+      );
       setSelectedSubjects([]);
     } catch (error) {
       toast.error("Failed to create lecture");
@@ -231,10 +242,13 @@ export default function AddLecturer() {
     }
   };
 
-  const config = useMemo(() => ({
-    readonly: false,
-    placeholder: description,
-  }), []);
+  const config = useMemo(
+    () => ({
+      readonly: false,
+      placeholder: description,
+    }),
+    []
+  );
 
   return (
     <Container>
@@ -248,7 +262,7 @@ export default function AddLecturer() {
                 id="lectureName"
                 value={lectureName}
                 onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
                   setLectureName(e.target.value);
                 }}
                 placeholder="Enter Video Title"
@@ -265,9 +279,10 @@ export default function AddLecturer() {
                 value={description}
                 config={config}
                 tabIndex={1}
-                onBlur={newContent => { // console.log("new", newContent); 
+                onBlur={(newContent) => {}}
+                onChange={(newContent) => {
+                  setDescription(newContent);
                 }}
-                onChange={newContent => { setDescription(newContent); }}
               />
             </FieldWrapper>
           </Column>
@@ -280,7 +295,11 @@ export default function AddLecturer() {
                 id="folderSelect"
                 value={selectedFolder}
                 onChange={(e) => setSelectedFolder(e.target.value)}
-                style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+                style={{
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ccc",
+                }}
               >
                 <option value="">-- Select a Folder --</option>
                 {folders.map((folder, index) => (
@@ -308,17 +327,43 @@ export default function AddLecturer() {
             <SubjectsContainer>
               <CheckboxSection>
                 <CheckboxSectionTitle>Available Subjects</CheckboxSectionTitle>
+
+                <SearchWrapper style={{ marginBottom: "15px" }}>
+                  <SearchIcon>
+                    <CiSearch size={18} />
+                  </SearchIcon>
+                  <SearchInput
+                    placeholder="Search subjects..."
+                    value={searchSubject}
+                    onChange={(e) => setSearchSubject(e.target.value)}
+                  />
+                </SearchWrapper>
+
+                {/* 🔎 Use filtered subjects here */}
                 <CheckboxList>
-                  {subjectCheckboxes.map((item, index) => (
-                    <CheckboxLabel key={item.id || index}>
-                      <CheckboxInput
-                        type="checkbox"
-                        checked={item.checked}
-                        onChange={() => handleCheckboxChange(index)}
-                      />
-                      {item.label}
-                    </CheckboxLabel>
-                  ))}
+                  {filteredSubjects.length > 0 ? (
+                    filteredSubjects.map((item) => (
+                      <CheckboxLabel key={item.id}>
+                        <CheckboxInput
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={() =>
+                            handleCheckboxChange(
+                              // map back to the original index
+                              subjectCheckboxes.findIndex(
+                                (subj) => subj.id === item.id
+                              )
+                            )
+                          }
+                        />
+                        {item.label}
+                      </CheckboxLabel>
+                    ))
+                  ) : (
+                    <p style={{ padding: "8px", color: "#666" }}>
+                      No subjects found
+                    </p>
+                  )}
                 </CheckboxList>
               </CheckboxSection>
 
@@ -328,27 +373,6 @@ export default function AddLecturer() {
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
-                      {/* <div>
-                        <MoveButton 
-                        style={
-                          {backgroundColor:"green"}
-                        }
-                          type="button" 
-                          onClick={() => moveSubjectUp(index)}
-                          disabled={index === 0}
-                        >
-                          <FaArrowUp />
-                        </MoveButton>
-                        <MoveButton 
-                        style={
-                          {backgroundColor:"red"}}
-                          type="button" 
-                          onClick={() => moveSubjectDown(index)}
-                          disabled={index === selectedSubjects.length - 1}
-                        >
-                          <FaArrowDown />
-                        </MoveButton>
-                      </div> */}
                     </SelectedSubjectItem>
                   ))
                 ) : (
@@ -367,15 +391,22 @@ export default function AddLecturer() {
                 {videoFile ? (
                   <>
                     <VideoControl controls>
-                      <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
+                      <source
+                        src={URL.createObjectURL(videoFile)}
+                        type="video/mp4"
+                      />
                     </VideoControl>
                     <p>{videoFile.name}</p>
                   </>
                 ) : (
                   <>
-                    <UploadPlaceholder><img src={upload} alt="Upload" /></UploadPlaceholder>
+                    <UploadPlaceholder>
+                      <img src={upload} alt="Upload" />
+                    </UploadPlaceholder>
                     <p>Drag and drop video here</p>
-                    <p>or <strong>Upload Video</strong></p>
+                    <p>
+                      or <strong>Upload Video</strong>
+                    </p>
                   </>
                 )}
                 <FileInput
@@ -406,7 +437,7 @@ export default function AddLecturer() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme='colored'
+        theme="colored"
       />
     </Container>
   );

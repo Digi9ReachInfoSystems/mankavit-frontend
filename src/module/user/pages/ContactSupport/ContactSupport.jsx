@@ -32,7 +32,7 @@ const ContactSupport = () => {
       const cookiesData= await getCookiesData();
       const userData= await getUserByUserId(cookiesData.userId);
       const response = await createSupport({name: userData.user.displayName, email: userData.user.email, description }); // Pass the message as an object
-      // // console.log(response);
+      // console.log(response);
   toast.success('Message sent successfully');
       setDescription(''); // Clear the message after successful submission
       setLoading(false);

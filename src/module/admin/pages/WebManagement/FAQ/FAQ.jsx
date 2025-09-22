@@ -12,8 +12,6 @@ import {
   TableHeader,
   TableBody,
   TableCell,
-  PaginationContainer,
-  PageButton,
   Title,
   HeaderRow,
   ActionsWrapper,
@@ -21,22 +19,33 @@ import {
 
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { Link, useNavigate } from "react-router-dom";
-import { getAllfaqs, deleteFaqById } from "../../../../../api/faqApi";
+import { useNavigate } from "react-router-dom";
+import {
+  getAllfaqs,
+  deleteFaqById,
+  bulkfaqdeletion,
+} from "../../../../../api/faqApi";
 import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import Pagination from "../../../component/Pagination/Pagination";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { getAuth } from "../../../../../utils/authService";
-
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // single delete
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [faqToDelete, setFaqToDelete] = useState(null);
+
+  // bulk delete
+  const [selectedIds, setSelectedIds] = useState([]); // array of faq._id
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -46,45 +55,49 @@ const FAQ = () => {
   const totalPages = Math.ceil(faqs.length / faqsPerPage);
   const startIndex = (currentPage - 1) * faqsPerPage;
   const currentFaqs = faqs.slice(startIndex, startIndex + faqsPerPage);
+
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
-      response.Permissions;
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
         setReadOnlyPermissions(response.Permissions["webManagement"].readOnly);
       }
-    }
+    };
     apiCaller();
   }, []);
-
 
   useEffect(() => {
     const fetchFaqs = async () => {
       setLoading(true);
       try {
         const data = await getAllfaqs();
-        // // console.log("Fetched FAQ data:", data);
 
-        // ✅ Use `data` directly instead of `data.body`
         if (Array.isArray(data)) {
           const sortedFaqs = data.sort((a, b) => {
-            const dateA = new Date(a.createdAt || parseInt(a._id?.substring(0, 8), 16) * 1000);
-            const dateB = new Date(b.createdAt || parseInt(b._id?.substring(0, 8), 16) * 1000);
-            return dateB - dateA; // Descending order: latest first
+            const dateA = new Date(
+              a.createdAt ||
+                (a._id && a._id.length >= 8
+                  ? parseInt(a._id.substring(0, 8), 16) * 1000
+                  : 0)
+            );
+            const dateB = new Date(
+              b.createdAt ||
+                (b._id && b._id.length >= 8
+                  ? parseInt(b._id.substring(0, 8), 16) * 1000
+                  : 0)
+            );
+            return dateB - dateA; // latest first
           });
           setFaqs(sortedFaqs);
         } else {
-          // // console.error("Unexpected FAQ format:", data);
           setFaqs([]);
           setError("Unexpected response format");
           toast.error("Unexpected response format from server");
         }
-      }
-      catch (err) {
-        // // console.error("Error fetching FAQs:", err);
+      } catch (err) {
         setError("Failed to load FAQs");
         toast.error("Failed to load FAQs");
       } finally {
@@ -95,7 +108,7 @@ const FAQ = () => {
     fetchFaqs();
   }, []);
 
-
+  // ===== single delete =====
   const handleEdit = (faq) => {
     navigate(`/admin/web-management/faq/edit/${faq._id}`);
   };
@@ -110,9 +123,9 @@ const FAQ = () => {
     try {
       await deleteFaqById(faqToDelete._id);
       setFaqs((prev) => prev.filter((f) => f._id !== faqToDelete._id));
+      setSelectedIds((prev) => prev.filter((id) => id !== faqToDelete._id)); // also unselect if selected
       toast.success("Data deleted successfully.");
     } catch {
-      // alert("Failed to delete FAQ");
       toast.error("Failed to delete data. Please try again.");
     } finally {
       setIsDeleteOpen(false);
@@ -120,22 +133,95 @@ const FAQ = () => {
     }
   };
 
+  // ===== bulk selection =====
+  const toggleRow = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      // unselect all items on this page
+      setSelectedIds((prev) =>
+        prev.filter((id) => !currentFaqs.some((f) => f._id === id))
+      );
+    } else {
+      // select all items on this page (merge)
+      setSelectedIds((prev) => {
+        const pageIds = currentFaqs.map((f) => f._id);
+        const add = pageIds.filter((id) => !prev.includes(id));
+        return [...prev, ...add];
+      });
+    }
+    setSelectAll(!selectAll);
+  };
+
+  // keep selectAll in sync with page/selection changes
+  useEffect(() => {
+    const allSelected =
+      currentFaqs.length > 0 &&
+      currentFaqs.every((f) => selectedIds.includes(f._id));
+    setSelectAll(allSelected);
+  }, [currentFaqs, selectedIds]);
+
+  const openBulkDelete = () => setBulkDeleteOpen(true);
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) {
+      setBulkDeleteOpen(false);
+      return;
+    }
+    try {
+      setBulkLoading(true);
+      await bulkfaqdeletion(selectedIds); // API expects { ids }
+
+      setFaqs((prev) => prev.filter((f) => !selectedIds.includes(f._id)));
+      setSelectedIds([]);
+      setSelectAll(false);
+      toast.success("Selected FAQs deleted successfully");
+      setBulkDeleteOpen(false);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Bulk delete failed:", error);
+      toast.error(
+        error?.response?.data?.error || "Failed to delete selected FAQs"
+      );
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   return (
     <FAQContainer>
       <ButtonContainer>
-        {
-          !readOnlyPermissions && (
-            <CreateButton onClick={() => navigate("/admin/web-management/faq/create")}>
-              Add FAQ
-            </CreateButton>
-          )
-        }
-
+        {!readOnlyPermissions && (
+          <CreateButton onClick={() => navigate("/admin/web-management/faq/create")}>
+            Add FAQ
+          </CreateButton>
+        )}
       </ButtonContainer>
 
       <Header>
         <HeaderRow>
-          <Title>FAQs</Title>
+          <Title>
+            FAQs{" "}
+            <span style={{ color: "#6d6e75", fontSize: 12, fontWeight: 400 }}>
+              ({currentFaqs.length}/{faqs.length})
+            </span>
+          </Title>
+
+          {/* Bulk Delete CTA when there are selections */}
+          {!readOnlyPermissions && selectedIds.length > 0 && (
+            <div>
+              <CreateButton
+                onClick={openBulkDelete}
+                style={{ backgroundColor: "red" }}
+              >
+                Delete Selected ({selectedIds.length})
+              </CreateButton>
+            </div>
+          )}
         </HeaderRow>
 
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -147,50 +233,69 @@ const FAQ = () => {
             <Table>
               <TableHead>
                 <tr>
+                  {!readOnlyPermissions && (
+                    <TableHeader style={{ width: 40 }}>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAllChange}
+                      />
+                    </TableHeader>
+                  )}
                   <TableHeader>Question</TableHeader>
                   <TableHeader>Answer</TableHeader>
                   <TableHeader>Uploaded Time</TableHeader>
-                  {
-                    !readOnlyPermissions && (
-                      <TableHeader>Actions</TableHeader>
-                    )
-                  }
+                  {!readOnlyPermissions && <TableHeader>Actions</TableHeader>}
                 </tr>
               </TableHead>
               <TableBody>
                 {currentFaqs.length === 0 ? (
                   <tr>
-                    <TableCell colSpan="4" style={{ textAlign: "center" }}>
+                    <TableCell colSpan={readOnlyPermissions ? 3 : 4} style={{ textAlign: "center" }}>
                       No FAQs found.
                     </TableCell>
                   </tr>
                 ) : (
                   currentFaqs.map((faq) => (
                     <TableRow key={faq._id}>
-                      {/* { console.log("FAQ item:", faq)} */}
-                      <TableCell>
-                        {/* {faq.question || faq.questionText || "No Question"} */}
-                        {/* i want to limit the question character to 30 then i have to put ..  */}
-                        {faq.question.length > 30 ? faq.question.substring(0, 30) + "..." : faq.question}
+                      {!readOnlyPermissions && (
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(faq._id)}
+                            onChange={() => toggleRow(faq._id)}
+                          />
+                        </TableCell>
+                      )}
 
-                      </TableCell>
-                      <TableCell>{faq.answer.length > 30 ? faq.answer.substring(0, 30) + "..." : faq.answer || faq.answerText || "No Answer"}</TableCell>
+                      <TableCell
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            faq.question.length > 60
+                              ? faq.question.substring(0, 60) + "..."
+                              : faq.question || faq.questionText || "No Question",
+                        }}
+                      />
+                      <TableCell
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            faq.answer.length > 60
+                              ? faq.answer.substring(0, 60) + "..."
+                              : faq.answer || faq.answerText || "No Answer",
+                        }}
+                      />
+
                       <TableCell>
                         {(() => {
                           let dateObj;
-
-                          // Try using createdAt first
                           if (faq.createdAt) {
                             dateObj = new Date(faq.createdAt);
-                          }
-                          // Otherwise extract timestamp from MongoDB ObjectId
-                          else if (faq._id && faq._id.length >= 8) {
-                            const timestamp = parseInt(faq._id.substring(0, 8), 16) * 1000;
-                            dateObj = new Date(timestamp);
+                          } else if (faq._id && faq._id.length >= 8) {
+                            const ts = parseInt(faq._id.substring(0, 8), 16) * 1000;
+                            dateObj = new Date(ts);
                           } else {
                             return "No Date";
                           }
-
                           return (
                             <>
                               {dateObj.toLocaleDateString()}{" "}
@@ -202,28 +307,25 @@ const FAQ = () => {
                           );
                         })()}
                       </TableCell>
-                      {
-                        !readOnlyPermissions && (
-                          <TableCell>
 
-                            <ActionsWrapper>
-                              <BiEditAlt
-                                size={20}
-                                color="#000"
-                                style={{ cursor: "pointer" }}
-                                onClick={() => handleEdit(faq)}
-                              />
-                              <RiDeleteBin6Line
-                                size={20}
-                                color="#FB4F4F"
-                                style={{ cursor: "pointer" }}
-                                onClick={() => confirmDelete(faq)}
-                              />
-                            </ActionsWrapper>
-                          </TableCell>
-                        )
-                      }
-
+                      {!readOnlyPermissions && (
+                        <TableCell>
+                          <ActionsWrapper>
+                            <BiEditAlt
+                              size={20}
+                              color="#000"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleEdit(faq)}
+                            />
+                            {/* <RiDeleteBin6Line
+                              size={20}
+                              color="#FB4F4F"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => confirmDelete(faq)}
+                            /> */}
+                          </ActionsWrapper>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
@@ -231,6 +333,7 @@ const FAQ = () => {
             </Table>
           )}
         </TableWrapper>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -240,12 +343,22 @@ const FAQ = () => {
         />
       </Header>
 
-      {/* Delete confirmation modal */}
+      {/* Single delete confirmation modal */}
       {isDeleteOpen && (
         <DeleteModal
           isOpen={isDeleteOpen}
           onClose={() => setIsDeleteOpen(false)}
           onDelete={handleDelete}
+        />
+      )}
+
+      {/* Bulk delete confirmation modal */}
+      {bulkDeleteOpen && (
+        <DeleteModal
+          isOpen={bulkDeleteOpen}
+          onClose={() => setBulkDeleteOpen(false)}
+          onDelete={handleBulkDelete}
+          loading={bulkLoading}
         />
       )}
 
