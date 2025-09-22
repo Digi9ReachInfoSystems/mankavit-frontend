@@ -100,7 +100,6 @@ const CreateAdmin = () => {
         e.preventDefault();
 
         if (!validateForm()) return;
-
         setIsLoading(true);
 
         const payload = {
@@ -109,15 +108,14 @@ const CreateAdmin = () => {
             displayName: form.displayName,
             phone: form.phone,
             isSuperAdmin: form.isSuperAdmin,
-            ...form.permissions
+            ...(form.isSuperAdmin ? {} : form.permissions) // send permissions only if not super admin
         };
 
         try {
-            // console.log("Submitting", payload);
             const response = await createSubAdmin(payload);
             toast.success("Admin created successfully");
+
             setForm({
-                ...form,
                 email: "",
                 password: "",
                 displayName: "",
@@ -133,9 +131,10 @@ const CreateAdmin = () => {
                     meetingManagement: { access: false, readOnly: false },
                 }
             });
-            navigate("/admin/subadmins-management")
+
+            navigate("/admin/subadmins-management");
         } catch (err) {
-            toast.error("Failed to create admin", err);
+            toast.error("Failed to create admin");
         } finally {
             setIsLoading(false);
         }
@@ -217,64 +216,84 @@ const CreateAdmin = () => {
                 </InputGroup>
             </FlexRow>
 
-            <CourseSelection>
-                <Label style={{
-                    backgroundColor: "lightgrey",
-                    padding: "5px",
-                    borderRadius: "5px",
-                }}>
-                    Admin Permissions
-                </Label>
+            {/* Super Admin Toggle */}
+            <FlexRow>
+                <InputGroup>
+                    <Label>
+                        <CourseCheckbox
+                            type="checkbox"
+                            checked={form.isSuperAdmin}
+                            onChange={() => setForm({
+                                ...form,
+                                isSuperAdmin: !form.isSuperAdmin,
+                                permissions: !form.isSuperAdmin
+                                    ? form.permissions
+                                    : { // reset permissions when switching to super admin
+                                        studentManagement: { access: false, readOnly: false },
+                                        courseManagement: { access: false, readOnly: false },
+                                        paymentManagement: { access: false, readOnly: false },
+                                        webManagement: { access: false, readOnly: false },
+                                        mockTestManagement: { access: false, readOnly: false },
+                                        staticPageManagement: { access: false, readOnly: false },
+                                        meetingManagement: { access: false, readOnly: false },
+                                    }
+                            })}
+                            disabled={isLoading}
+                        />
+                        Super Admin (Grants all permissions)
+                    </Label>
+                </InputGroup>
+            </FlexRow>
 
-                <SectionTitle>Module Access</SectionTitle>
+            {/* Permissions only if NOT Super Admin */}
+            {!form.isSuperAdmin && (
+                <CourseSelection>
+                    <Label style={{
+                        backgroundColor: "lightgrey",
+                        padding: "5px",
+                        borderRadius: "5px",
+                    }}>
+                        Admin Permissions
+                    </Label>
 
-                <CourseList>
-                    {Object.entries(form.permissions).map(([module, { access, readOnly }]) => (
-                        <CourseItem key={module}>
-                            <div style={{ marginBottom: '10px' }}>
-                                <CourseLabel>
-                                    {module.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                </CourseLabel>
-                            </div>
+                    <SectionTitle>Module Access</SectionTitle>
 
-                            <CheckboxGroup>
-                                <CheckboxLabel>
-                                    <CourseCheckbox
-                                        type="checkbox"
-                                        checked={access}
-                                        onChange={() => handleAccessChange(module)}
-                                        disabled={isLoading}
-                                    />
-                                    Access
-                                </CheckboxLabel>
+                    <CourseList>
+                        {Object.entries(form.permissions).map(([module, { access, readOnly }]) => (
+                            <CourseItem key={module}>
+                                <div style={{ marginBottom: '10px' }}>
+                                    <CourseLabel>
+                                        {module.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                    </CourseLabel>
+                                </div>
 
-                                <CheckboxLabel>
-                                    <CourseCheckbox
-                                        type="checkbox"
-                                        checked={readOnly}
-                                        onChange={() => handleReadOnlyChange(module)}
-                                        disabled={isLoading || !access}
-                                        style={{ opacity: access ? 1 : 0.5 }}
-                                    />
-                                    Read Only
-                                </CheckboxLabel>
-                            </CheckboxGroup>
-                        </CourseItem>
-                    ))}
-                </CourseList>
-            </CourseSelection>
+                                <CheckboxGroup>
+                                    <CheckboxLabel>
+                                        <CourseCheckbox
+                                            type="checkbox"
+                                            checked={access}
+                                            onChange={() => handleAccessChange(module)}
+                                            disabled={isLoading}
+                                        />
+                                        Access
+                                    </CheckboxLabel>
 
-            {/* <InputGroup>
-                <Label>
-                    <CourseCheckbox
-                        type="checkbox"
-                        checked={form.isSuperAdmin}
-                        onChange={() => setForm({ ...form, isSuperAdmin: !form.isSuperAdmin })}
-                        disabled={isLoading}
-                    />
-                    Super Admin (Grants all permissions)
-                </Label>
-            </InputGroup> */}
+                                    <CheckboxLabel>
+                                        <CourseCheckbox
+                                            type="checkbox"
+                                            checked={readOnly}
+                                            onChange={() => handleReadOnlyChange(module)}
+                                            disabled={isLoading || !access}
+                                            style={{ opacity: access ? 1 : 0.5 }}
+                                        />
+                                        Read Only
+                                    </CheckboxLabel>
+                                </CheckboxGroup>
+                            </CourseItem>
+                        ))}
+                    </CourseList>
+                </CourseSelection>
+            )}
 
             <SubmitButton type="submit" disabled={isLoading}>
                 {isLoading ? 'Creating Admin...' : 'Create Admin'}
