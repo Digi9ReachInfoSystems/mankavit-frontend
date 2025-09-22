@@ -393,7 +393,7 @@ export default function EditCourse() {
 
       await updateCourseById(id, payload);
       toast.success("Course updated successfully");
-      setTimeout(() => navigate("/admin/course-management"), 1000);
+      // setTimeout(() => navigate("/admin/course-management"), 1000);
     } catch (err) {
       // console.error(err);
       toast.error("Failed to update course. Please try again.");

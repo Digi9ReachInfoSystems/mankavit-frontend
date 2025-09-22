@@ -23,7 +23,7 @@ import {
   TextAreaField
 } from './AddStudent.styles';
 import { createStudent } from '../../../../../api/userApi';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import { toast, ToastContainer } from 'react-toastify';
@@ -539,22 +539,35 @@ const handleSubmit = async (e) => {
           <p>No courses available</p>
         ) : (
           <>
-            <CourseList>
-              {courses.map(course => (
-                <CourseItem key={course._id}>
-                  <CourseCheckbox
-                    type="checkbox"
-                    id={`course-${course._id}`}
-                    checked={studentData.courseIds.includes(course._id)}
-                    onChange={() => handleCourseSelection(course._id)}
-                    disabled={isLoading}
-                  />
-                  <CourseLabel htmlFor={`course-${course._id}`}>
-                    {course.courseDisplayName}
-                  </CourseLabel>
-                </CourseItem>
-              ))}
-            </CourseList>
+           <CourseList>
+  {courses.map(course => (
+    <CourseItem key={course._id}>
+      <CourseCheckbox
+        type="checkbox"
+        id={`course-${course._id}`}
+        checked={studentData.courseIds.includes(course._id)}
+        onChange={() => handleCourseSelection(course._id)}
+        disabled={isLoading}
+      />
+  
+      <CourseLabel htmlFor={`course-${course._id}`}>
+                <Link
+        to={`/admin/course-management/edit/${course._id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ marginLeft: "10px", fontSize: "0.9rem", color: "blue" }}
+      >
+        {course.courseDisplayName}
+          </Link>
+      </CourseLabel>
+      {/* Open in new tab */}
+  
+        {/* Edit */}
+    
+    </CourseItem>
+  ))}
+</CourseList>
+
             {formErrors.courseIds && <ErrorMessage>{formErrors.courseIds}</ErrorMessage>}
           </>
         )}
