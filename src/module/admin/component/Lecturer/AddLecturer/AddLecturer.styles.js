@@ -392,3 +392,26 @@ export const MoveButton = styled.button`
 `;
 
 
+
+
+export const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-bottom: 15px;
+`;
+
+export const SearchIcon = styled.span`
+  margin-right: 8px;
+  color: #666;
+`;
+
+export const SearchInput = styled.input`
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background: transparent;
+`;

@@ -240,7 +240,7 @@ export const CreateButton = styled.button`
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s ease;
-  width: 15%;
+  // width: 15%;
   display: flex;
   justify-content: center;
 
@@ -249,7 +249,7 @@ export const CreateButton = styled.button`
   }
 
   @media (max-width: 1024px) {
-    width: 25%;
+    width: 50%;
   }
       @media (max-width: 768px) {
       margin-right: 20px;
@@ -259,7 +259,7 @@ export const CreateButton = styled.button`
   @media (max-width: 480px) {
     padding: 15px 20px;
     font-size: 14px;
-    width: 50%;
+    width: 75%;
  
   }
   

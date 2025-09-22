@@ -49,3 +49,22 @@ export const deleteAchieverById = async (id) => {
         throw error;
     }
 }
+
+
+export const bulkachieversdeletion = async (ids) => {
+    try {
+        const response = await api.delete('/achiever/bulk/deleteAchievers', {
+             data: {ids},
+   headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // If using auth
+            }
+
+
+         });
+        return response.data;
+    } catch (error) {
+        // console.log(error);
+        throw error;
+    }
+}

@@ -98,3 +98,16 @@ export const getQuestionPaperByTitleAndYear = async (title, year) => {
         throw error;
     }
 }
+
+
+// api/questionPaperApi.js
+export const bulkquestionpaperdeletion = async (papperInfo) => {
+  const response = await api.delete('/question/bulk/deleteQuestionPapers', {
+    data: { papperInfo }, // 👈 match backend key exactly
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  });
+  return response.data;
+};

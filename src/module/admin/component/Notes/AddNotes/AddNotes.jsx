@@ -52,34 +52,25 @@ export default function AddNote() {
   const filteredSubjects = subjectsCheckboxes.filter((subject) =>
     subject.label.toLowerCase().includes(searchSubject.toLowerCase())
   );
-  useEffect(() => {
-    const apiCaller = async () => {
-      try {
-        const response = await getSubjects();
-        const savedSelectedSubjects =
-          JSON.parse(localStorage.getItem("selectedSubjects")) || [];
+useEffect(() => {
+  localStorage.removeItem("selectedSubjects"); // Reset on load
+  const apiCaller = async () => {
+    try {
+      const response = await getSubjects();
+      const data = response.data.map((item) => ({
+        label: item.subjectName,
+        id: item._id,
+        checked: false, // always fresh
+      }));
+      setSubjectsCheckboxes(data);
+      setSelectedSubjects([]);
+    } catch (error) {
+      toast.error("Failed to fetch data");
+    }
+  };
+  apiCaller();
+}, []);
 
-        // Create checkbox list and check if each subject is selected
-        const data = response.data.map((item) => {
-          const isSelected = savedSelectedSubjects.some(
-            (sub) => sub.id === item._id
-          );
-          return {
-            label: item.subjectName,
-            id: item._id,
-            checked: isSelected,
-          };
-        });
-
-        setSubjectsCheckboxes(data);
-        setSelectedSubjects(savedSelectedSubjects);
-      } catch (error) {
-        // // console.error("Error fetching data:", error);
-        toast.error("Failed to fetch data");
-      }
-    };
-    apiCaller();
-  }, []);
 
   const handleCheckboxChange = (index) => {
     const updatedCheckboxes = subjectsCheckboxes.map((item, i) =>

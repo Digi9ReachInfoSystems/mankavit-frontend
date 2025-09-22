@@ -187,14 +187,14 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
             value={mode}
             onChange={(e) => setMode(e.target.value)}
           >
-            <option value="new">Create new title</option>
-            <option value="existing">Add to existing title</option>
+            <option value="new">Add new exam</option>
+            <option value="existing">Add to existing exam</option>
           </Select>
         </FormGroup>
 
         {mode === "new" ? (
           <FormGroup>
-            <Label htmlFor="title">New Title</Label>
+            <Label htmlFor="title">New exam</Label>
             <TextInput
               id="title"
               placeholder="Enter title"
@@ -205,14 +205,14 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
           </FormGroup>
         ) : (
           <FormGroup>
-            <Label htmlFor="existingTitle">Existing Title</Label>
+            <Label htmlFor="existingTitle">Select exam</Label>
             <Select
               id="existingTitle"
               value={existingTitle}
               onChange={(e) => setExistingTitle(e.target.value)}
               required
             >
-              <option value="" disabled>Select a title</option>
+              <option value="" disabled>Select an exam</option>
               {existingTitles.map(t => (
                 <option key={t} value={t}>{t}</option>
               ))}
@@ -290,3 +290,4 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
 };
 
 export default AddQuestionPaper;
+
