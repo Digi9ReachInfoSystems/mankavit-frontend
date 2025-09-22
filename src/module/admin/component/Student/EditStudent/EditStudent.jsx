@@ -55,11 +55,11 @@ const EditStudent = () => {
   const [loadingStudent, setLoadingStudent] = useState(true);
   const [courses, setCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
-  const [form, setForm] = useState({ 
-    displayName: "", 
+  const [form, setForm] = useState({
+    displayName: "",
     first_name: "",
     last_name: "",
-    email: "", 
+    email: "",
     phone: "",
     fathers_name: "",
     fathers_occupation: "",
@@ -67,7 +67,7 @@ const EditStudent = () => {
     present_address: "",
     passing_year: "",
     college_name: "",
-    date_of_birth: ""
+    date_of_birth: "",
   });
   const [selected, setSelected] = useState([]);
   const [processing, setProcessing] = useState(false);
@@ -81,7 +81,7 @@ const EditStudent = () => {
   const [blockedChange, setBlockedChange] = useState(false);
   const [masterOtpEnabled, setMasterOtpEnabled] = useState(false);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-  
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -98,9 +98,13 @@ const EditStudent = () => {
   }, []);
 
   // Replace the existing handleCourseNavigate function with this:
-const handleCourseNavigate = (id) => {
-  window.open(`/admin/course-management/edit/${id}`, "_blank", "noopener,noreferrer");
-};
+  const handleCourseNavigate = (id) => {
+    window.open(
+      `/admin/course-management/edit/${id}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   useEffect(() => {
     const apiCaller = async () => {
@@ -115,54 +119,54 @@ const handleCourseNavigate = (id) => {
     apiCaller();
   }, [blockedChange]);
 
- useEffect(() => {
-  (async () => {
-    try {
-      setLoadingStudent(true);
-      const res = await getUserByUserId(userId);
-      // // console.log("Student data: updatinmg", res);
-      if (!res.success || !res.user) throw new Error("Student not found");
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingStudent(true);
+        const res = await getUserByUserId(userId);
+        // // console.log("Student data: updatinmg", res);
+        if (!res.success || !res.user) throw new Error("Student not found");
 
-      const stu = res.user;
-      const currentIds = stu.courseIds?.length
-        ? stu.courseIds
-        : (stu.subscription || []).map(
-            (s) => s.course_enrolled?._id || s.course_enrolled
-          );
+        const stu = res.user;
+        const currentIds = stu.courseIds?.length
+          ? stu.courseIds
+          : (stu.subscription || []).map(
+              (s) => s.course_enrolled?._id || s.course_enrolled
+            );
 
-      setStudent(stu);
-      setSelected(currentIds);
-      
-      // Format date_of_birth for the input field
-      const formattedDate = stu.date_of_birth 
-        ? new Date(stu.date_of_birth).toISOString().split('T')[0]
-        : '';
+        setStudent(stu);
+        setSelected(currentIds);
 
-      setForm({
-        displayName: stu.displayName || "",
-        first_name: stu.first_name || "",
-        last_name: stu.last_name || "",
-        email: stu.email || "",
-        phone: stu.phone || "",
-        masterOtp: stu.masterOtp,
-        fathers_name: stu.fathers_name || "",
-        fathers_occupation: stu.fathers_occupation || "",
-        current_occupation: stu.current_occupation || "",
-        present_address: stu.present_address || "",
-        passing_year: stu.passing_year || "",
-        college_name: stu.college_name || "",
-        date_of_birth: formattedDate
-      });
-      setHasBeenForcedLoggedOut(false);
-    } catch (err) {
-      // // console.error(err);
-      toast.error(err.message || "Failed to load student");
-      setTimeout(() => navigate("/admin/student-management"), 1000);
-    } finally {
-      setLoadingStudent(false);
-    }
-  })();
-}, [userId, navigate]);
+        // Format date_of_birth for the input field
+        const formattedDate = stu.date_of_birth
+          ? new Date(stu.date_of_birth).toISOString().split("T")[0]
+          : "";
+
+        setForm({
+          displayName: stu.displayName || "",
+          first_name: stu.first_name || "",
+          last_name: stu.last_name || "",
+          email: stu.email || "",
+          phone: stu.phone || "",
+          masterOtp: stu.masterOtp,
+          fathers_name: stu.fathers_name || "",
+          fathers_occupation: stu.fathers_occupation || "",
+          current_occupation: stu.current_occupation || "",
+          present_address: stu.present_address || "",
+          passing_year: stu.passing_year || "",
+          college_name: stu.college_name || "",
+          date_of_birth: formattedDate,
+        });
+        setHasBeenForcedLoggedOut(false);
+      } catch (err) {
+        // // console.error(err);
+        toast.error(err.message || "Failed to load student");
+        setTimeout(() => navigate("/admin/student-management"), 1000);
+      } finally {
+        setLoadingStudent(false);
+      }
+    })();
+  }, [userId, navigate]);
 
   useEffect(() => {
     (async () => {
@@ -239,65 +243,71 @@ const handleCourseNavigate = (id) => {
   // };
 
   const validate = () => {
-  const errs = {};
+    const errs = {};
 
-  // Required in your UI
-  if (!form.displayName.trim()) errs.displayName = "Name required";
-  if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
+    // Required in your UI
+    if (!form.displayName.trim()) errs.displayName = "Name required";
+    if (!EMAIL_RGX.test(form.email)) errs.email = "Invalid email";
 
-  // If you want to store E.164 or just 10 digits, pick one:
-  // A) allow +countrycode
-  if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
-  // B) or force 10 digits (India)
-  // if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) errs.phone = "Invalid phone (must be 10 digits)";
+    // If you want to store E.164 or just 10 digits, pick one:
+    // A) allow +countrycode
+    if (!PHONE_RGX.test(form.phone)) errs.phone = "Invalid phone";
+    // B) or force 10 digits (India)
+    // if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) errs.phone = "Invalid phone (must be 10 digits)";
 
-  // Only validate these if you actually show the inputs
-  if (form.masterOtp && (form.masterOtp.length !== 6 || isNaN(form.masterOtp))) {
-    errs.masterOtp = "OTP must be 6 digits";
-  }
+    // Only validate these if you actually show the inputs
+    if (
+      form.masterOtp &&
+      (form.masterOtp.length !== 6 || isNaN(form.masterOtp))
+    ) {
+      errs.masterOtp = "OTP must be 6 digits";
+    }
 
-  setFormErrors(errs);
-  return Object.keys(errs).length === 0;
-};
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
+  const handleSave = async () => {
+    if (!student || !validate()) return;
+    setProcessing(true);
+    try {
+      // 1️⃣ Update profile (SEND displayName)
+      await updateUserById(student._id, {
+        displayName: form.displayName.trim(), // <— put this back
+        // first_name: form.first_name.trim(),          // only if you bring inputs back
+        // last_name : form.last_name.trim(),           // only if you bring inputs back
+        email: form.email.trim(),
+        phone: form.phone.trim(), // or normalize to +91...
+        masterOtp: form.masterOtp,
+        fathers_name: form.fathers_name.trim(),
+        fathers_occupation: form.fathers_occupation.trim(),
+        current_occupation: form.current_occupation.trim(),
+        present_address: form.present_address.trim(),
+        passing_year: form.passing_year.trim(),
+        college_name: form.college_name.trim(),
+        date_of_birth: form.date_of_birth ? new Date(form.date_of_birth) : null,
+      });
 
-const handleSave = async () => {
-  if (!student || !validate()) return;
-  setProcessing(true);
-  try {
-    // 1️⃣ Update profile (SEND displayName)
-    await updateUserById(student._id, {
-      displayName: form.displayName.trim(),          // <— put this back
-      // first_name: form.first_name.trim(),          // only if you bring inputs back
-      // last_name : form.last_name.trim(),           // only if you bring inputs back
-      email: form.email.trim(),
-      phone: form.phone.trim(),                      // or normalize to +91...
-      masterOtp: form.masterOtp,
-      fathers_name: form.fathers_name.trim(),
-      fathers_occupation: form.fathers_occupation.trim(),
-      current_occupation: form.current_occupation.trim(),
-      present_address: form.present_address.trim(),
-      passing_year: form.passing_year.trim(),
-      college_name: form.college_name.trim(),
-      date_of_birth: form.date_of_birth ? new Date(form.date_of_birth) : null,
-    });
+      // 2️⃣ Sync course enrollments (unchanged)
+      const toAdd = selected.filter((id) => !currentIds.includes(id));
+      const toRemove = currentIds.filter((id) => !selected.includes(id));
+      if (toAdd.length)
+        await addCourseToStudent({ userId: student._id, courseIds: toAdd });
+      if (toRemove.length)
+        await removeCourseFromStudent({
+          userId: student._id,
+          courseIds: toRemove,
+        });
 
-    // 2️⃣ Sync course enrollments (unchanged)
-    const toAdd = selected.filter((id) => !currentIds.includes(id));
-    const toRemove = currentIds.filter((id) => !selected.includes(id));
-    if (toAdd.length) await addCourseToStudent({ userId: student._id, courseIds: toAdd });
-    if (toRemove.length) await removeCourseFromStudent({ userId: student._id, courseIds: toRemove });
-
-    toast.success("Student updated successfully");
-    setTimeout(() => navigate("/admin/student-management"), 1000);
-  } catch (err) {
-    // // console.error(err);
-    toast.error(err.response?.data?.message || "Update failed");
-  } finally {
-    setProcessing(false);
-  }
-};
-
+      toast.success("Student updated successfully");
+      // setTimeout(() => navigate("/admin/student-management"), 1000);
+    } catch (err) {
+      // // console.error(err);
+      toast.error(err.response?.data?.message || "Update failed");
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   const handleForceLogout = async () => {
     if (!student?.email) {
@@ -458,7 +468,7 @@ const handleSave = async () => {
         </FlexRow>
       )}
 
-      <InputGroup style={{width:"50%"}}>
+      <InputGroup style={{ width: "50%" }}>
         <Label>Name*</Label>
         <InputField
           name="displayName"
@@ -553,7 +563,7 @@ const handleSave = async () => {
         <InputGroup>
           <Label>Date of Birth</Label>
           <InputField
-           style={{ width: '50%' }}
+            style={{ width: "50%" }}
             type="date"
             name="date_of_birth"
             value={form.date_of_birth}
@@ -574,7 +584,7 @@ const handleSave = async () => {
           disabled={processing}
         />
       </InputGroup> */}
-{/* 
+      {/* 
       <FlexRow>
         <InputGroup>
           <Label>Passing Year</Label>
@@ -623,16 +633,18 @@ const handleSave = async () => {
                   onChange={() => toggleCourse(c._id)}
                   disabled={processing}
                 />
-      <CourseLabel htmlFor={`en-${c._id}`}>
-  <span
-    style={{ cursor: "pointer", textDecoration: "none", color: "blue" }}
-    onClick={() => handleCourseNavigate(c._id)}
-  >
-    {c.courseDisplayName || c.course_name}
-  </span>
-</CourseLabel>
-
-
+                <CourseLabel htmlFor={`en-${c._id}`}>
+                  <span
+                    style={{
+                      cursor: "pointer",
+                      textDecoration: "none",
+                      color: "blue",
+                    }}
+                    onClick={() => handleCourseNavigate(c._id)}
+                  >
+                    {c.courseDisplayName || c.course_name}
+                  </span>
+                </CourseLabel>
               </CourseItem>
             ))}
           </CourseList>
@@ -666,15 +678,18 @@ const handleSave = async () => {
                     onChange={() => toggleCourse(c._id)}
                     disabled={processing}
                   />
-               <CourseLabel htmlFor={`av-${c._id}`}>
-  <span
-    style={{ cursor: "pointer", textDecoration: "none", color: "blue" }}
-    onClick={() => handleCourseNavigate(c._id)}
-  >
-    {c.courseDisplayName || c.course_name}
-  </span>
-</CourseLabel>
-
+                  <CourseLabel htmlFor={`av-${c._id}`}>
+                    <span
+                      style={{
+                        cursor: "pointer",
+                        textDecoration: "none",
+                        color: "blue",
+                      }}
+                      onClick={() => handleCourseNavigate(c._id)}
+                    >
+                      {c.courseDisplayName || c.course_name}
+                    </span>
+                  </CourseLabel>
                 </CourseItem>
               ))}
             </CourseList>

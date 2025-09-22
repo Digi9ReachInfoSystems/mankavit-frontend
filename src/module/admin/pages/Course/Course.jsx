@@ -390,7 +390,7 @@ export default function CoursesTable() {
                     <TableHeader>Course Name</TableHeader>
                     <TableHeader>Internal Name</TableHeader>
                     <TableHeader>Subjects</TableHeader>
-                    <TableHeader>Mock Tests</TableHeader>
+                    {/* <TableHeader>Mock Tests</TableHeader> */}
                     <TableHeader>Enrolled</TableHeader>
                     <TableHeader>Date & Time (IST)</TableHeader>
                     <TableHeader>Published</TableHeader>
@@ -439,7 +439,9 @@ export default function CoursesTable() {
                           View
                         </a>
                       </TableCell>
-                      <TableCell>
+
+
+                      {/* <TableCell>
                         {returnMockTestCount(c.subjects)}{" "}
                         <a
                           href="#"
@@ -462,7 +464,11 @@ export default function CoursesTable() {
                         >
                           View
                         </a>
-                      </TableCell>
+                      </TableCell> */}
+
+
+
+
                       <TableCell>
                         {c.students.length}{" "}
                         <a

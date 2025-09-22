@@ -365,7 +365,7 @@ const handleNavigate = (type, id) => {
         image: imageUrl,
       });
       toast.success("Subject updated successfully");
-      setTimeout(() => navigate("/admin/subject-management"), 1000);
+      // setTimeout(() => navigate("/admin/subject-management"), 1000);
     } catch (err) {
       const msg = err.response?.data?.message || err.message;
       toast.error(msg || "Update failed");
@@ -528,7 +528,7 @@ const handleNavigate = (type, id) => {
           </Column>
         </FormRow>
 
-        <FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label>Short Description</Label>
@@ -541,7 +541,7 @@ const handleNavigate = (type, id) => {
               />
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
 
         {/* Notes Section */}
         <FormRow>

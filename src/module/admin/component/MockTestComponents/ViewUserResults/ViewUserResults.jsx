@@ -184,7 +184,8 @@ const ViewUserResults = () => {
         const question = attemptData.mockTestId.questions.find(q => q._id === a.questionId);
         return (
           <QuestionCard key={`mcq-${index}`}>
-            <QuestionText>{question.questionText}</QuestionText>
+            {/* <QuestionText>{question.questionText}</QuestionText> */}
+            <QuestionText dangerouslySetInnerHTML={{ __html: question.questionText }}></QuestionText>
             <AnswerText><strong>Your Answer:</strong> {a.answer}</AnswerText>
             <AnswerText><strong>Correct Answer:</strong> {question.correctAnswer}</AnswerText>
             <AnswerText><strong>Marks:</strong> {a.marksAwarded}</AnswerText>

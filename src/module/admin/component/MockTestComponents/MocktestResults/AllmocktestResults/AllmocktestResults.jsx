@@ -407,11 +407,11 @@ export default function AllmocktestResults() {
                 <TableHeader>Test Name</TableHeader>
                 <TableHeader>Student Name</TableHeader>
                 <TableHeader>Email</TableHeader>
-                <TableHeader>Rank</TableHeader>
+                {/* <TableHeader>Rank</TableHeader> */}
                 <TableHeader>Marks</TableHeader>
                 <TableHeader>Time to complete</TableHeader>
                 <TableHeader>Submission Date</TableHeader>
-                <TableHeader>Actions</TableHeader>
+                {/* <TableHeader>Actions</TableHeader> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -459,7 +459,7 @@ export default function AllmocktestResults() {
                     </span>
                   </TableCell>
                   <TableCell>{item.email}</TableCell>
-                  <TableCell>{item.rank}</TableCell>
+                  {/* <TableCell>{item.rank}</TableCell> */}
                   <TableCell>
                     <a
                       navigate
@@ -482,7 +482,7 @@ export default function AllmocktestResults() {
                     {/* {item.timeToComplete} */}
                     </TableCell>
                   <TableCell>{item.submissionDate}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <ActionsContainer>
                       {!readOnlyPermissions && (
                         <RiDeleteBin6Line
@@ -493,7 +493,7 @@ export default function AllmocktestResults() {
                         />
                       )}
                     </ActionsContainer>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

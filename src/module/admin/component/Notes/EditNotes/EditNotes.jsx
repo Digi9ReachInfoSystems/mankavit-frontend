@@ -235,9 +235,9 @@ const filteredSubjects = subjectsCheckboxes.filter(subject =>
           duration: 3000,
           position: 'top-right',
         });
-        setTimeout(() => {
-          navigate("/admin/notes-management");
-        }, 1000);
+        // setTimeout(() => {
+        //   navigate("/admin/notes-management");
+        // }, 1000);
       } else {
         toast.error('Note update failed.', {
           duration: 3000,

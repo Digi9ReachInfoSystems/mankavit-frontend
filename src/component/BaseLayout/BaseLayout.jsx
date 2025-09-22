@@ -13,7 +13,7 @@
         <ContentWrapper>
         <Header />
           <Outlet />
-          <Footer />
+          {/* <Footer /> */}
         </ContentWrapper>
       </PageWrapper>
     );

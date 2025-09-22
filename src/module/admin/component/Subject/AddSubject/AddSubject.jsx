@@ -323,7 +323,7 @@ export default function AddSubject() {
         </FormRow>
 
         {/* Description */}
-        <FormRow>
+        {/* <FormRow>
           <Column>
             <FieldWrapper>
               <Label>Short Description</Label>
@@ -335,7 +335,7 @@ export default function AddSubject() {
               />
             </FieldWrapper>
           </Column>
-        </FormRow>
+        </FormRow> */}
 
         {/* Notes Section */}
         <FormRow>
