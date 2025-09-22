@@ -47,6 +47,7 @@ import { blockAndUnblockUser, bulkDeleteSubAdmin } from "../../../../api/userApi
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
 import { set } from "date-fns";
+import { getCookiesData } from "../../../../utils/cookiesService";
 
 export default function AdminManagement() {
   const [searchText, setSearchText] = useState("");
@@ -63,13 +64,16 @@ export default function AdminManagement() {
   const [selectedAdmins, setSelectedAdmins] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [BulkDelete, setBulkDelete] = useState(false);
+  const [userId, setUserId] = useState(null);
   // Fetch admin data
   useEffect(() => {
     const fetchAdmins = async () => {
       setLoading(true);
       try {
         const response = await getAllAdmins();
-        console.log("API Response:", response);
+        const cookiesData = await getCookiesData();
+        setUserId(cookiesData.userId);
+        // console.log("API Response:", response);
         setAdminData(response.admins || []);
         setFilteredAdmins(response.admins || []);
       } catch (error) {
@@ -178,7 +182,13 @@ export default function AdminManagement() {
     if (selectAll) {
       setSelectedAdmins([]);
     } else {
-      setSelectedAdmins(filteredAdmins.map((c) => c._id));
+      let ids =filteredAdmins.map((c) => {
+        if(c.isSuperAdmin === false) return c._id
+        else return null
+      });
+      ids = ids.filter((id) => id !== null);
+      console.log(" ids", ids);
+      setSelectedAdmins(ids);
     }
     setSelectAll(!selectAll);
   };
@@ -211,7 +221,7 @@ export default function AdminManagement() {
         : [...prev, adminId]
     );
   };
-const handleDeleteClick = () => {
+  const handleDeleteClick = () => {
     setBulkDelete(true);
   };
   return (
@@ -280,7 +290,7 @@ const handleDeleteClick = () => {
                 <TableHeader>Email</TableHeader>
                 <TableHeader>Role</TableHeader>
                 <TableHeader>Created On</TableHeader>
-                <TableHeader>Status</TableHeader>
+                <TableHeader>Block Status</TableHeader>
                 <TableHeader>Delete</TableHeader>
                 <TableHeader>Password Reset</TableHeader>
               </TableRow>
@@ -290,13 +300,17 @@ const handleDeleteClick = () => {
                 filteredAdmins.map((admin) => (
                   <TableRow key={admin._id || admin.id}>
                     <TableCell>
-                      <input
-                        type="checkbox"
-                        checked={selectedAdmins.includes(admin._id)}
-                        onChange={() => {
-                          handleCheckboxChange(admin._id)
-                        }}
-                      />
+                      {
+                        admin.isSuperAdmin ? null :
+                          <input
+                            type="checkbox"
+                            checked={selectedAdmins.includes(admin._id)}
+                            onChange={() => {
+                              handleCheckboxChange(admin._id)
+                            }}
+                          />
+                      }
+
                     </TableCell>
                     <TableCell>
                       <a
@@ -333,7 +347,7 @@ const handleDeleteClick = () => {
                       </ToggleSwitch>
                     </TableCell>
                     <TableCell>
-                      <ActionsContainer>
+                      {admin.isSuperAdmin ? null : <ActionsContainer>
                         {/* <BiEditAlt
                                                     size={20}
                                                     title="Edit"
@@ -347,14 +361,22 @@ const handleDeleteClick = () => {
                           onClick={() => handleDelete(admin._id)}
                           style={{ cursor: "pointer" }}
                         />
-                      </ActionsContainer>
+                      </ActionsContainer>}
                     </TableCell>
                     <TableCell>
-                      <ResetPasswordButton
-                        onClick={() => handleResetPassword(admin._id)}
-                      >
-                        Reset Password
-                      </ResetPasswordButton>
+                      {
+                        admin.isSuperAdmin ? admin._id == userId ? <ResetPasswordButton
+                          onClick={() => handleResetPassword(admin._id)}
+                        >
+                          Reset Password
+                        </ResetPasswordButton> : null
+                          : <ResetPasswordButton
+                            onClick={() => handleResetPassword(admin._id)}
+                          >
+                            Reset Password
+                          </ResetPasswordButton>
+                      }
+
                     </TableCell>
                   </TableRow>
                 ))
