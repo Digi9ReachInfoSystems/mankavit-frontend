@@ -127,7 +127,7 @@ const AddYoutube = () => {
         }
       />
 
-      <HalfColumn>
+      {/* <HalfColumn>
         <Label>Thumbnail Image</Label>
         <DropZone hasImage={!!previewUrl}>
           <input
@@ -150,7 +150,7 @@ const AddYoutube = () => {
             )}
           </label>
         </DropZone>
-      </HalfColumn>
+      </HalfColumn> */}
 
       <UploadButton onClick={handleSubmit} disabled={loading}>
         {loading ? "Creating…" : "Create YouTube Link"}

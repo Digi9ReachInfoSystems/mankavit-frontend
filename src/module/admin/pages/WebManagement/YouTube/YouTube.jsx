@@ -203,7 +203,7 @@ const YouTube = () => {
           <Table>
             <TableHead>
               <tr>
-                <Th>Thumbnail</Th>
+                {/* <Th>Thumbnail</Th> */}
                 <Th>Link</Th>
                 {
                   !readOnlyPermissions && (
@@ -223,7 +223,7 @@ const YouTube = () => {
               ) : (
                 currentPageData.map((item) => (
                   <tr key={item._id}>
-                    <Td>
+                    {/* <Td>
                       <span
                         style={{
                           color: "#3b82f6",
@@ -234,7 +234,7 @@ const YouTube = () => {
                       >
                         View Thumbnail
                       </span>
-                    </Td>
+                    </Td> */}
                     <Td>
                       <a
                         href={item.video_link}

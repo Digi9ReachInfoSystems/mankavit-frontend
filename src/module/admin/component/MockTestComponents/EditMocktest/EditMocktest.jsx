@@ -18,7 +18,11 @@ import {
   SelectedSubjectsContainer,
   SelectedSubjectItem,
   SubjectName,
-  RemoveButton
+  RemoveButton,
+  ToggleWrapper,
+  ToggleInput,
+  Slider,
+
 } from './EditMocktest.style';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -68,6 +72,7 @@ const EditMockTest = () => {
     endDate: '',
     maxAttempts: 1,
     selectedSubjects: [],
+    isUnlimitedAttempts: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,6 +106,7 @@ const EditMockTest = () => {
           startDate: utcToLocalInput(data.startDate),
           endDate: utcToLocalInput(data.endDate),
           maxAttempts: data.maxAttempts ?? 1,
+          isUnlimitedAttempts: data.isUnlimitedAttempts ?? false,
           selectedSubjects: Array.isArray(data.subject)
             ? data.subject.map(s => (typeof s === 'object' ? s._id : s))
             : (typeof data.subject === 'object' && data.subject !== null)
@@ -149,7 +155,9 @@ const EditMockTest = () => {
     if (!testDetails.title) newErr.title = 'Test title is required';
     if (!testDetails.description) newErr.description = 'Description is required';
     if (!testDetails.duration) newErr.duration = 'Duration is required';
-    if (!testDetails.maxAttempts) newErr.maxAttempts = 'Max attempts is required';
+    if (!testDetails.isUnlimitedAttempts && !testDetails.maxAttempts) {
+      newErr.maxAttempts = 'Max attempts is required unless unlimited';
+    }
 
     if (Object.keys(newErr).length) {
       setErrors(newErr);
@@ -164,13 +172,15 @@ const EditMockTest = () => {
         description: testDetails.description,
         duration: testDetails.duration,
         maxAttempts: testDetails.maxAttempts,
+        isUnlimitedAttempts: testDetails.isUnlimitedAttempts,
       };
+      console.log(" payload", payload);
 
       if (testDetails.startDate) payload.startDate = localInputToUTC(testDetails.startDate);
       if (testDetails.endDate) payload.endDate = localInputToUTC(testDetails.endDate);
       if (testDetails.selectedSubjects?.length) {
         payload.subject = testDetails.selectedSubjects;
-      }else{
+      } else {
         payload.subject = [];
       }
 
@@ -188,7 +198,7 @@ const EditMockTest = () => {
 
   return (
     <Container>
-      <Title>{!readOnlyPermissions ? "Edit":"View"} Mock Test</Title>
+      <Title>{!readOnlyPermissions ? "Edit" : "View"} Mock Test</Title>
       {errors.form && <ErrorText>{errors.form}</ErrorText>}
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
@@ -196,7 +206,7 @@ const EditMockTest = () => {
           type="button"
           onClick={() => navigate(`/admin/mock-test/questions-list/${mockTestId}`)}
         >
-         {!readOnlyPermissions?" Edit Questions":"View questions"}
+          {!readOnlyPermissions ? " Edit Questions" : "View questions"}
         </Button>
       </div>
 
@@ -284,18 +294,38 @@ const EditMockTest = () => {
 
         <FormRow>
           <FormGroup>
-            <Label htmlFor="maxAttempts">Max Attempts:</Label>
-            <Input
-              id="maxAttempts"
-              type="number"
-              min="1"
-              value={testDetails.maxAttempts}
-              onChange={e => handleTestDetailChange('maxAttempts', e.target.value)}
-              placeholder="Enter max attempts"
-            />
-            {errors.maxAttempts && <ErrorText>{errors.maxAttempts}</ErrorText>}
+            <Label htmlFor="isUnlimitedAttempts">Unlimited Attempts:</Label>
+            <ToggleWrapper>
+              <ToggleInput
+                type="checkbox"
+                id="isUnlimitedAttempts"
+                checked={testDetails.isUnlimitedAttempts}
+                onChange={e =>
+                  setTestDetails(prev => ({ ...prev, isUnlimitedAttempts: e.target.checked }))
+                }
+              />
+              <Slider />
+            </ToggleWrapper>
           </FormGroup>
         </FormRow>
+
+        {!testDetails.isUnlimitedAttempts && (
+          <FormRow>
+            <FormGroup>
+              <Label htmlFor="maxAttempts">Max Attempts:</Label>
+              <Input
+                id="maxAttempts"
+                type="number"
+                min="1"
+                value={testDetails.maxAttempts}
+                onChange={e => handleTestDetailChange('maxAttempts', e.target.value)}
+                placeholder="Enter max attempts"
+              />
+              {errors.maxAttempts && <ErrorText>{errors.maxAttempts}</ErrorText>}
+            </FormGroup>
+          </FormRow>
+        )}
+
 
         <FormRow>
           <FormGroup>

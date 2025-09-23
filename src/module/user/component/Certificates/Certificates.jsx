@@ -48,7 +48,7 @@ const Certificates = () => {
             {displayedCertificates.map((certificate) => (
               <CertificateCard key={certificate.id}>
                 <CertificateDownload
-                  onClick={() => window.open(certificate.imgUrl, "_blank")}
+                  onClick={() => window.open(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}`, "_blank")}
                 >
                    <CertificateTitle>{certificate.title}</CertificateTitle><FiDownload fontSize={18} />
                 </CertificateDownload>
