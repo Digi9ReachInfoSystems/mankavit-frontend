@@ -15,7 +15,10 @@ import {
   CheckboxList,
   CheckboxLabel,
   CheckboxInput,
-  ErrorText
+  ErrorText,
+  ToggleWrapper,
+  ToggleInput,
+  Slider
 } from './CreateMockTest.styles';
 import { createMocktest } from '../../../../../api/mocktestApi';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +39,7 @@ const CreateMockTest = () => {
     endDate: '',
     maxAttempts: 1,
     selectedSubjects: [],
+    isUnlimitedAttempts: false, 
   });
 
   const [subjects, setSubjects] = useState([]);
@@ -109,6 +113,14 @@ const CreateMockTest = () => {
     fetchSubjects();
   }, []);
 
+  const handleToggleUnlimited = () => {
+  setTestDetails(prev => ({
+    ...prev,
+    isUnlimitedAttempts: !prev.isUnlimitedAttempts,
+    maxAttempts: !prev.isUnlimitedAttempts ? null : prev.maxAttempts, 
+  }));
+};
+
   const handleTestDetailChange = (field, value) => {
     setTestDetails(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: '' })); // clear field error on change
@@ -130,7 +142,9 @@ const CreateMockTest = () => {
   if (!testDetails.title) newErrors.title = 'Test title is required';
   if (!testDetails.description) newErrors.description = 'Description is required';
   if (!testDetails.duration) newErrors.duration = 'Duration is required';
-  if (!testDetails.maxAttempts) newErrors.maxAttempts = 'Max attempts is required';
+    if (!testDetails.isUnlimitedAttempts && !testDetails.maxAttempts) {
+    newErrors.maxAttempts = 'Max attempts is required unless unlimited';
+  }
   // if (!testDetails.selectedSubjects.length) newErrors.selectedSubjects = 'Select at least one subject';
 
   if (Object.keys(newErrors).length) {
@@ -146,6 +160,7 @@ const CreateMockTest = () => {
       duration: testDetails.duration,
       maxAttempts: testDetails.maxAttempts,
       subject: testDetails.selectedSubjects,
+       isUnlimitedAttempts: testDetails.isUnlimitedAttempts,
     };
     
     // Only include dates if they are provided
@@ -262,21 +277,41 @@ const CreateMockTest = () => {
             {errors.passingMarks && <ErrorText>{errors.passingMarks}</ErrorText>}
           </FormGroup> */}
         </FormRow>
+        
+ <FormRow>
+  <FormGroup>
+    <Label htmlFor="isUnlimitedAttempts">Unlimited Attempts</Label>
+    <ToggleWrapper>
+      <ToggleInput
+        type="checkbox"
+        id="isUnlimitedAttempts"
+        checked={testDetails.isUnlimitedAttempts}
+        onChange={e =>
+          setTestDetails(prev => ({ ...prev, isUnlimitedAttempts: e.target.checked }))
+        }
+      />
+      <Slider />
+    </ToggleWrapper>
+  </FormGroup>
+</FormRow>
 
-        <FormRow>
-          <FormGroup>
-            <Label htmlFor="maxAttempts">Max Attempts</Label>
-            <Input
-              id="maxAttempts"
-              type="number"
-              value={testDetails.maxAttempts}
-              onChange={e => handleTestDetailChange('maxAttempts', e.target.value)}
-              placeholder="Enter max attempts"
-              min="1"
-            />
-            {errors.maxAttempts && <ErrorText>{errors.maxAttempts}</ErrorText>}
-          </FormGroup>
-        </FormRow>
+
+        {!testDetails.isUnlimitedAttempts && (
+  <FormRow>
+    <FormGroup>
+      <Label htmlFor="maxAttempts">Max Attempts</Label>
+      <Input
+        id="maxAttempts"
+        type="number"
+        value={testDetails.maxAttempts}
+        onChange={e => handleTestDetailChange('maxAttempts', e.target.value)}
+        placeholder="Enter max attempts"
+        min="1"
+      />
+      {errors.maxAttempts && <ErrorText>{errors.maxAttempts}</ErrorText>}
+    </FormGroup>
+  </FormRow>
+)}
 
         <FormRow>
           <FormGroup>

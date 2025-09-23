@@ -1,94 +1,86 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
-// export const MainContainer = styled.div`
-//     // padding: 0rem 1rem;
-//     // display: flex;
-//     flex-direction: column;
-//     align-items: center;
-//     justify-content: center;
-//     // margin-left: 30px;
-//     margin-bottom: 3rem;
-//     width: 100%;
-  
-//     @media (max-width: 768px) {
-//       padding: 1rem;
-//     }
-//   `;
-
-  export const Wrapper = styled.div`
-    display: flex;
+export const Wrapper = styled.div`
+  display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 3rem;
-  // padding: 0 2rem;
+`;
 
-  @media (max-width: 480px) {
-    gap: 0;
-  }
-  `;
-
-  export const SectionTitle = styled.h2`
+export const SectionTitle = styled.h2`
   margin-bottom: 1rem;
-  font-size: 36px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 500;
   color: ${({ theme }) => theme.colors.jetBlack};
-
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-    margin: 1rem 0;
-  }
-
-  @media (max-width: 480px) {
-    margin: 0;
-  }
+  text-align: left;
 `;
 
 export const CertificatesWrapper = styled.div`
-  display: flex;
-  // gap: 2rem;
-  // flex-wrap: nowrap;
-  // width: 100%;
-  overflow-x: auto;
-  // whitespace: nowrap;
-`;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 
-export const CertificateDownload = styled.div`
- display: flex;
- font-size: 16px;
- font-weight: 500;
- margin-bottom: 1rem;
- justify-content: space-between;
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const CertificateCard = styled.div`
- padding: 10px;
- width: 100%;
-  // min-width: 300px; 
-  max-width: 650px; 
- overflow: hidden;
- flex-shrink: 0; 
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  text-align: center;
 
- @media (max-width: 768px) {
-    max-width: 300px;
-  }
-  @media (max-width: 480px) {
-    max-width: 250px;
-    padding: 10px 0;
+  iframe {
+    width: 100%;
+    height: 250px;
+    border-radius: 8px;
   }
 `;
 
-export const CertificateImage = styled.img`
-  width: 100%;
-  height: 300px;
-  border-radius: 8px;
+export const CertificateDownload = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  cursor: pointer;
+  color: #333;
+`;
 
-  @media (max-width: 1024px) {
-    height: 250px;
+export const ViewMoreButton = styled.button`
+  margin: 20px auto 0 auto;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #0056b3;
   }
-  @media (max-width: 768px) {
-    height: 200px;
-  }
-  @media (max-width: 480px) {
-    height: 150px;
-  }
+`;
+export const CertificateTitle = styled.div`
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-align: left;
+
+  /* clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;   /* number of lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px; /* keeps all cards same height */
 `;

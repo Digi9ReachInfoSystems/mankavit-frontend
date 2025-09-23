@@ -22,20 +22,20 @@ const PrevQuestionPaper = () => {
       try {
         const resp = await getAllQuestionPapers();
         const raw = Array.isArray(resp?.data) ? resp.data : resp;
-
+//  console.log("raw", raw);
         const flat = raw
           .flatMap(item => {
             if (Array.isArray(item?.papers)) {
               return item.papers.map(p => ({
                 title: item.title,
                 year: p.year,
-                url: p.question_url,
+                url:`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${p.question_url}`, // p.question_url,
               }));
             }
             return [{
               title: item.title,
               year: item.year,
-              url: item.question_url,
+              url: `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${item.question_url}`,
             }];
           })
           .filter(x => x.title && x.year && x.url);

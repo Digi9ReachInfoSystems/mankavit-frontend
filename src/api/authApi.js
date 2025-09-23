@@ -234,7 +234,7 @@ export const verifyChangePasswordOtp = async (data) => {
 
 export const collectQuestionPaperDetails = async (data) => {
     try {
-        const response = await api.post("/user/collectQuestionPaperDetails", data);
+        const response = await api.post("/user/send/paperDownloadMail", data);
         return response.data;
     } catch (error) {
         // console.log(error);
