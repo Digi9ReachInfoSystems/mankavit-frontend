@@ -39,7 +39,8 @@ const PrevYearsQuestion = () => {
 
   }, []);
 
-  const handleModalSubmit = () => {
+  const handleModalSubmit = async () => {
+
     setShowModal(false);
   };
 

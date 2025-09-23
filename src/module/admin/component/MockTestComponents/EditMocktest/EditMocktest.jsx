@@ -170,6 +170,8 @@ const EditMockTest = () => {
       if (testDetails.endDate) payload.endDate = localInputToUTC(testDetails.endDate);
       if (testDetails.selectedSubjects?.length) {
         payload.subject = testDetails.selectedSubjects;
+      }else{
+        payload.subject = [];
       }
 
       await updateMocktestById(mockTestId, payload);

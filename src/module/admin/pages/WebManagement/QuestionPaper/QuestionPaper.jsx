@@ -400,7 +400,7 @@ const handleBulkDelete = async () => {
 
                       <TableCell>
                         <PdfLink
-                          href={paper.question_url}
+                          href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${paper.question_url}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

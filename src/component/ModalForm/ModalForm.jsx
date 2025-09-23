@@ -30,7 +30,7 @@ const ModalForm = ({ onSubmit }) => {
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors);
             } else {
-                const response = await collectQuestionPaperDetails({name: formData.name, email: formData.email, phoneNumber: formData.phone});
+                const response = await collectQuestionPaperDetails({name: formData.name, email: formData.email, phone: formData.phone});
 
                 localStorage.setItem('isDownload', 'true');
                 onSubmit();
