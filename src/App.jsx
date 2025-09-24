@@ -177,6 +177,10 @@ import KYCRejected from "./module/user/pages/KYCRejected/KYCRejected";
 import TermsAndConditionsMobile from "./component/StaticPages/TermsAndConditionsMobile/TermsAndConditionsMobile";
 import PrivacyPolicyMobile from "./component/StaticPages/PrivacyPolicyMobile/PrivacyPolicyMobile";
 import AccountDeletionPage from "./component/StaticPages/AccountDeletionPage/AccountDeletionPage";
+import WhyOurCourse from "./module/admin/pages/WhyOurCourse/WhyOurCourse";
+import AddWhyOurCourse from "./module/admin/pages/AddWhyOurCourse/AddWhyOurCourse";
+import EditWhyOurCourse from "./module/admin/pages/EditWhyOurCourse/EditWhyOurCourse";
+import ViewWhyOurCourse from "./module/admin/pages/ViewWhyOurCourse/ViewWhyOurCourse";
 // import ScreenShot from './component/ScreenShot/ScreenShot'
 function App() {
   useEffect(() => {
@@ -321,11 +325,11 @@ function App() {
               </UserRoute>
             }
           />
-           <Route
+          <Route
             path="/termsandcondition/mobile"
             element={
               // <UserRoute>
-               <TermsAndConditionsMobile/>
+              <TermsAndConditionsMobile />
               // </UserRoute>
             }
           />
@@ -333,15 +337,15 @@ function App() {
             path="/privacypolicy/mobile"
             element={
               // <UserRoute>
-                <PrivacyPolicyMobile/>
+              <PrivacyPolicyMobile />
               // </UserRoute>
             }
           />
-           <Route
+          <Route
             path="/account-delete/mobile"
             element={
               // <UserRoute>
-                <AccountDeletionPage/>
+              <AccountDeletionPage />
               // </UserRoute>
             }
           />
@@ -568,7 +572,7 @@ function App() {
             <Route path="meeting-join" element={<ZoomIframeMeetingUser />} />
             {/* </Route> */}
           </Route>
-            <Route path="/admin/meeting-management/join" element={<AdminRoute Access={"meetingManagement"}><AdminZoomMeeting /></AdminRoute>} />
+          <Route path="/admin/meeting-management/join" element={<AdminRoute Access={"meetingManagement"}><AdminZoomMeeting /></AdminRoute>} />
 
           <Route
             path="/admin"
@@ -1216,6 +1220,7 @@ function App() {
                 </AdminRoute>
               }
             />
+
             <Route
               path="web-management/why-study-with-us/view/:id"
               element={
@@ -1225,6 +1230,39 @@ function App() {
               }
             />
 
+            <Route
+              path="web-management/why-our-course"
+              element={
+                <AdminRoute Access={"webManagement"}>
+                  <WhyOurCourse />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="web-management/why-our-course/create"
+              element={
+                <AdminRoute Access={"webManagement"}>
+                  <AddWhyOurCourse/>
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="web-management/why-our-course/edit/:id"
+              element={
+                <AdminRoute Access={"webManagement"}>
+                  <EditWhyOurCourse/>
+                </AdminRoute>
+              }
+            />
+             <Route
+              path="web-management/why-our-course/view/:id"
+              element={
+                <AdminRoute Access={"webManagement"}>
+                  <ViewWhyOurCourse/>
+                  {/* <ViewWhyStudyWithUs /> */}
+                </AdminRoute>
+              }
+            />
             <Route
               path="web-management/blog"
               element={
