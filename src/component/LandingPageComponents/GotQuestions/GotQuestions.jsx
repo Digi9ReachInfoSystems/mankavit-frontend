@@ -26,7 +26,10 @@ import {
   ErrorMessage,
   NoFaqMessage,
   Skeleton,
-  SkeletonRow
+  SkeletonRow,
+  Title,
+  Highlight,
+  Underline
 } from "./GotQuestions.styles";
 import { getAllfaqs } from "../../../api/faqApi";
 import ladyJustice from "../../../assets/Study2.png";
@@ -109,7 +112,11 @@ const GotQuestion = () => {
         {/* <LeftImage src={ladyJustice} alt="Justice illustration" /> */}
 
         <RightSection>
-          <Heading>Got questions?</Heading>
+           <Title>
+                  Got <Highlight>Questions?</Highlight> 
+                  <Underline />
+                </Title>
+          
           <SubHeading>
             Quickly find answers to common queries. Use search, then expand any question to view details.
           </SubHeading>

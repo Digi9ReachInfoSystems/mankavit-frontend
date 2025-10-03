@@ -1,80 +1,100 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important;
   padding: 20px;
   display: flex;
+  overflow-x: hidden;
+  overflow-y: auto;            /* allow page scrolling */
+  min-height: 100svh;
 
-  // height: 100vh;
   @media (max-width: 900px) {
-    flex-direction: column; /* stack: Content → Sidebar */
-    align-items: stretch; /* full width children */
+    flex-direction: column;
+    align-items: stretch;
     padding: 12px;
     gap: 12px;
+  }
+`;
+export const MobileBottomSpacer = styled.div`
+  display: none;
+  @media (max-width: 900px) {
+    display: block;
+    /* Reserve safe space for the fixed action bar */
+    height: calc(140px + env(safe-area-inset-bottom, 0px)); 
+    width: 100%;
+    flex: 0 0 auto;
   }
 `;
 
 export const Content = styled.div`
   position: relative;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* make this the scroll area */
-  overflow-y: auto; /* enable scrolling here */
+  height: 95vh;
   width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
-  padding-right: 20px;
   order: 1;
-  @media (max-width: 1360px) {
-    width: ${(p) => (p.$sidebarOpen ? "75%" : "100%")};
-  }
+
   @media (max-width: 900px) {
     width: 100%;
     padding-right: 0;
-    height: auto; /* let page scroll, not Content */
-    overflow-y: visible; /* remove inner scroll */
+    height: auto;        /* let page scroll, not inner panel */
+    overflow-y: visible;
+    // padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   }
 `;
 
 export const ToggleSidebarBtn = styled.button`
-  position: absolute;
+  position: fixed;              /* fixed so it doesn't scroll */
   top: 50%;
-  right: -14px;
+  right: 12px;
+  // right:15%;
   transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   border-radius: 999px;
   border: 2px solid #135ac4ff;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-weight: 700;
   line-height: 1;
-  z-index: 5;
+  z-index: 110; /* above sidebar */
 
-  &:hover {
-    background: #f7f7f7;
-  }
+  &:hover { background: #f7f7f7; }
+
   @media (max-width: 576px) {
-    right: 6px;
+    width: 42px;
+    height: 42px;
+    right: 10px;
   }
 `;
 
 export const Header = styled.div`
   position: sticky;
   top: 0;
-  z-index: 20; /* stay above content */
-  background: #ffffff; /* avoid transparent bleed-through */
+  z-index: 20;
+  background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  /* optional: subtle frosted look like your footer */
   backdrop-filter: saturate(120%) blur(6px);
 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0; /* give the sticky area some height */
+  padding: 10px 0;
   margin-bottom: 12px;
+
+  @media (max-width: 768px) {
+    position: static;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
 `;
 
 export const HeaderLeft = styled.div`
@@ -100,10 +120,11 @@ export const PageTitle = styled.h4`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: clamp(180px, 40vw, 520px);
+  // max-width: clamp(180px, 40vw, 520px);
 
   @media (max-width: 576px) {
-    max-width: 48vw;
+    // max-width: 48vw;
+    font-size: 16px;
   }
 `;
 
@@ -144,6 +165,7 @@ export const PassageBox = styled.div`
   @media (max-width: 990px) {
     height: unset;
     overflow-y: unset;
+   
   }
 `;
 
@@ -155,6 +177,7 @@ export const QuestionBox = styled.div`
   font-size: 16px;
   overflow-y: auto;
   user-select: none;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
   .textarea {
     width: 100%;
     height: 550px;
@@ -186,8 +209,9 @@ export const HorizontalLine = styled.div`
 export const QuestionText = styled.p`
   font-size: 16px;
   font-weight: 500;
-margin: 0 0 20px 0;
+  margin: 0 0 20px 0;
   font-size: 16px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
 
   @media (max-width: 1360px) {
     font-size: 18px;
@@ -222,29 +246,80 @@ export const OptionLabel = styled.label`
 `;
 
 /* ===== NEW: Sticky action bar ===== */
+
+export const SubmitButton = styled.button`
+  background: #111827;
+  color: #fff;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+`;
+
 export const StickyActionBar = styled.div`
   position: sticky;
   bottom: 0;
-  // margin-top:auto;
   z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
   margin-top: 12px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: saturate(120%) blur(6px);
+
+
+
+
+  @media (max-width: 900px) {
+ position: fixed;                /* fixed at bottom on mobile */
+  left: 0;
+   right: 0;
+   bottom: 0;
+   z-index: 150;                   /* above the slide-in sidebar (z 120) */
+   padding: 8px 12px env(safe-area-inset-bottom, 0px);
   border-top: 1px solid #e5e7eb;
-   @media (max-width: 900px) {
-    position: static;  /* sits right below Q/A */
- }
+   box-shadow: 0 -6px 18px rgba(0,0,0,0.06);
+   flex-direction: column;         /* keep your two rows layout */
+   align-items: stretch;
+   gap: 6px;
+  }
 `;
 
 export const LeftButtonsWrap = styled.div`
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  
+
+/* utility visibility classes */
+.mobileOnly { display: none; text-align: center !important; }
+.desktopOnly { display: inline-flex; }
+
+@media (max-width: 900px) {
+  .mobileOnly { display: inline-flex; 
+    text-align: center !important;
+    }   /* show on mobile */
+  .desktopOnly { display: none; }         /* hide on mobile */
+}
+  @media (max-width: 900px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 900px) {
+    .clear { display: none; } /* HIDE Clear Response on mobile */
+    .review,
+    .save,
+    button,
+    ${SubmitButton} {
+    text-align: center !important;
+      flex: 1 1 0;
+      font-size: 12px;
+      padding: 10px 12px;
+    }
+  }
 
   .review {
     background-color: #0881e4;
@@ -271,20 +346,10 @@ export const LeftButtonsWrap = styled.div`
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    text-align: center !important;
     font-weight: 600;
   }
 `;
-
-export const SubmitButton = styled.button`
-  background: #111827;
-  color: #fff;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-`;
-
 /* ================================== */
 
 export const LeftIcon = styled.div`
@@ -313,28 +378,38 @@ export const LeftDiv = styled.div`
   align-items: center;
   gap: 6px; /* tighter gap between back & title */
 `;
-
 export const SidebarContainer = styled.div`
+position:relative;
+overflow:visible;
   width: ${(p) => (p.$open ? "20%" : "0")};
   background-color: #f3f6fd;
   padding: ${(p) => (p.$open ? "1rem" : "0")};
   display: ${(p) => (p.$open ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  font-family: "Segoe UI", sans-serif;
-order: 2;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+  order: 2;
 
   @media (max-width: 1360px) {
     width: 25%;
   }
- @media (max-width: 900px) {
-   order: 3;                      /* after Content + Buttons */
-   width: 100%;
-   padding: ${(p) => (p.$open ? "0.75rem" : "0")};
-   display: ${(p) => (p.$open ? "flex" : "none")}; /* still toggle-able */
- }
-`;
 
+   @media (max-width: 900px) {
+    position: fixed;         /* slide-in panel */
+    top: 0;
+    right: 0;
+    height: 100svh;
+    width: 84vw;             /* tweak as you like */
+    max-width: 360px;
+    background: #f3f6fd;
+    padding: 0.75rem;
+    display: ${p => (p.$open ? "flex" : "none")};
+    flex-direction: column;
+    z-index: 200;            /* above page */
+    overflow: visible;       /* keep btn outside nav from scrolling */
+    box-shadow: -6px 0 18px rgba(0,0,0,.12);
+  }
+`;
 export const Divider = styled.hr`
   width: 100%;
   margin: 0.5rem 0 0.75rem;
@@ -416,15 +491,13 @@ export const OptionLabelList = styled.div`
 `;
 
 export const QuestionNav = styled.div`
-  width: 100%;
-  /* Scrollable map */
-  max-height: calc(100vh - 260px); /* leaves room for legend/header */
-  overflow-y: auto;
+ width: 100%;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;          /* this is the only scroller */
   padding-right: 4px;
-
   @media (max-width: 900px) {
-    max-height: none;
-    overflow-y: visible;
+   padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+   max-height: calc(100svh - 200px);
   }
 `;
 
@@ -433,15 +506,9 @@ export const Grid = styled.div`
   grid-template-columns: repeat(5, 1fr);
   gap: 0.5rem;
 
-  @media (max-width: 1360px) {
-    grid-template-columns: repeat(5, 1fr);
-  }
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  @media (max-width: 576px) {
-    grid-template-columns: repeat(6, 1fr);
-  }
+  @media (max-width: 1360px) { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 1024px) { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 576px) { grid-template-columns: repeat(6, 1fr); }
 `;
 
 export const GridButton = styled.button`
@@ -487,7 +554,15 @@ export const GridButton = styled.button`
     border-radius: 50%;
     color: white;
   }
+
+  @media (max-width: 576px) {
+    width: 34px;
+    height: 34px;
+    font-size: 12px;
+    padding: 0.25rem;
+  }
 `;
+
 
 export const Text = styled.p`
   font-size: 14px;
@@ -562,5 +637,33 @@ export const ModalButton = styled.button`
 
   &:hover {
     background-color: ${(props) => (props.primary ? "#40a9ff" : "#e6e6e6")};
+  }
+`;
+
+export const CloseSidebarBtn = styled.button`
+  position: absolute;          /* anchored to the sidebar itself */
+  top: 50%;
+  left: -23px;                 /* sit outside on the left edge */
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 2px solid #135ac4ff;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 210;
+
+  &:hover { background: #f7f7f7; }
+
+  @media (max-width: 576px) {
+    width: 42px;
+    height: 42px;
+    left: -1px;
   }
 `;

@@ -116,28 +116,28 @@ export  const SecCircle = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 60px;
+  font-size: 50px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 1rem;
   font-family: DM Serif Text;
 
    @media (max-width: 1428px){
-      font-size: 60px;
+      font-size: 50px;
   }
 
   @media (max-width: 1246px) {
-    font-size : 45px;
+    font-size : 40px;
   }
 
     @media (max-width: 837px) {
-    font-size : 35px;
+    font-size : 30px;
   }
   
 `;
 
 export const SubTitle = styled.p`
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 400; 
   color: #252525;
   margin-bottom: 6rem;
@@ -285,12 +285,12 @@ export const StatTitle = styled.h2`
   margin: 0;
 
     @media (max-width: 768px){
-      font-size: 30px;
+      font-size: 24px;
   }
 `;
 
 export const StatsDescription = styled.p`
-  font-size: 20px;
+  font-size: 18px;
   color: #203643;
   margin: 0;
   margin-top: 10px;

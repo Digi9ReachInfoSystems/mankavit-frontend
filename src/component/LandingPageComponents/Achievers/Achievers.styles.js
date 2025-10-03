@@ -12,21 +12,24 @@ export const SectionHeader = styled.div`
 `;
 
 export const Title = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 600;
+  font-size: 50px;
+  font-weight: 500;
   margin-bottom: 1rem;
   color: #333;
 
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 36px;
   }
 `;
-
-export const Highlight = styled.span`
-  color: #2d79f3;
-  font-weight: 700;
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
 `;
 
+export const Highlight = styled.span` color: #2d79f3; `;
 export const FilterLabel = styled.p`
   font-size: 1rem;
   color: #666;
@@ -39,6 +42,14 @@ export const TopBar = styled.div`
   gap: 0.75rem;
   justify-content: center;
   margin-bottom: 2.5rem;
+
+  /* Mobile: 4 chips per row */
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* ← 4 columns */
+    gap: 8px;
+    justify-items: stretch;
+  }
 `;
 
 export const Chip = styled.button`
@@ -58,6 +69,16 @@ export const Chip = styled.button`
     border-color: #2d79f3;
     background: ${({ $active }) => ($active ? '#2d79f3' : '#f0f6ff')};
   }
+    @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+    padding: 0.4rem 0.5rem;   /* tighter to fit 4 per row */
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 `;
 
 export const ChipCount = styled.span`
@@ -67,6 +88,11 @@ export const ChipCount = styled.span`
   border-radius: 1rem;
   font-size: 0.8rem;
   font-weight: 600;
+
+  @media (max-width: 768px) {
+
+  font-size: 0.75rem;
+
 `;
 
 export const Grid = styled.div`
@@ -76,8 +102,9 @@ export const Grid = styled.div`
   margin-bottom: 3rem;
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1.5rem;
+  
+  grid-template-columns: repeat(2, 1fr); /* exactly 2 cards per row */
+   gap: 16px; 
   }
 `;
 
@@ -159,18 +186,15 @@ export const ViewAllButton = styled.button`
   display: block;
   margin: 0 auto;
   padding: 0.9rem 2rem;
-  background: #2d79f3;
-  color: #fff;
+  background: #fff;
+  color: #2d79f3;
   border: none;
   border-radius: 8px;
+  border: 1px solid #2d79f3;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #1c6de9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(45, 121, 243, 0.3);
-  }
+ 
 `;

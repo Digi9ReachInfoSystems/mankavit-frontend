@@ -38,12 +38,15 @@ export const RightSection = styled.div`
 `;
 
 export const Heading = styled.h2`
-  font-size: clamp(28px, 2.8vw, 46px);
-  font-weight: 600;
+  font-size: 50px;
+  font-weight: 500;
   line-height: 1.1;
   margin: 0 0 18px;
   color: #0f172a;
   letter-spacing: -0.02em;
+  @media (max-width: 900px) {
+    font-size: 36px;
+  }
 `;
 
 export const SubHeading = styled.p`
@@ -268,4 +271,31 @@ export const SkeletonRow = styled.div`
   &:last-child { border-bottom: none; }
   display: grid;
   gap: 10px;
+`;
+
+export const Title = styled.h2`
+  font-size: 50px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: .2px;
+
+  @media (max-width: 1360px) { font-size: 38px; }
+ @media (max-width: 900px) {
+    font-size: 36px;
+  }
+  @media (max-width: 480px)  { text-align: center; }
+`;
+
+export const Highlight = styled.span`
+  color: #2d79f3;
+`;
+
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+  margin-top: 8px;
 `;

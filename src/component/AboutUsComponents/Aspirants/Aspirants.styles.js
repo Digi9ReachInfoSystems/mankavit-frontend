@@ -14,7 +14,7 @@ export const Container = styled.section`
 /* Heading */
 export const Title = styled.h2`
   margin: 0;
-  font-size: 55px;
+  font-size: 50px;
   font-weight: 500;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -179,14 +179,14 @@ export const Quote = styled.blockquote`
 
 export const Name = styled.h4`
   margin: 8px 0 2px;
-  font-size: clamp(18px, 1.8vw, 22px);
+  font-size: clamp(20px, 1.8vw, 22px);
   font-weight: 700;
   color: #0f172a;
 `;
 
 export const Role = styled.p`
   margin: 0;
-  font-size: clamp(13px, 1.4vw, 14px);
+  font-size: clamp(16px, 1.4vw, 14px);
   color: #475569;
   font-weight: 500;
 `;
@@ -194,84 +194,101 @@ export const Role = styled.p`
 /* Controls */
 export const ControlsBar = styled.div`
   display: grid;
-  grid-template-columns: 48px 1fr 48px;
+  grid-template-columns: 64px 1fr 64px;  /* wider for bigger arrows */
   align-items: center;
-  gap: 8px;
-  margin-top: 14px;
+  gap: 12px;
+  margin-top: 16px;
 `;
 
 export const ArrowBtn = styled.button`
-  height: 44px;
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #0f172a;
-  font-size: 18px;
+  height: 64px;
+  border-radius: 14px;
+  border: 0;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, transform 80ms ease, box-shadow 160ms ease;
+  font-size: 28px;                 /* bigger icon */
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  box-shadow: 0 10px 22px rgba(0, 114, 255, 0.35);
+  transition: transform 80ms ease, box-shadow 160ms ease, filter 160ms ease;
 
-  &:hover { background: #f8fafc; border-color: #dbe2ea; box-shadow: 0 6px 16px rgba(2,6,23,0.08); }
-  &:active { transform: translateY(1px); }
+  &:hover { 
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(0, 114, 255, 0.45);
+    filter: saturate(1.1);
+  }
+  &:active { transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    height: 56px;
+    font-size: 24px;
+  }
+     @media (max-width: 1024px) {
+    display: none;
+  }
 `;
 
 export const DotBar = styled.div`
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 8px 4px;
+  @media (max-width: 1024px) {
+    display: none;
+  }
 `;
 
 export const Dot = styled.button`
-  width: 10px; height: 10px;
+  width: 12px; height: 12px;
   border-radius: 50%;
   border: 0;
   cursor: pointer;
   background: ${({ $active }) => ($active ? "#0494FA" : "#e2e8f0")};
-  box-shadow: ${({ $active }) => ($active ? "0 0 0 6px rgba(92, 88, 85, 0.18)" : "none")};
+  box-shadow: ${({ $active }) => ($active ? "0 0 0 8px rgba(4, 148, 250, 0.18)" : "none")};
   transition: background 160ms ease, box-shadow 160ms ease, transform 80ms ease;
 
-  &:hover { transform: scale(1.05); }
+  &:hover { transform: scale(1.08); }
 `;
-
-export const MobileScrollContainer = styled.div`
+export const ScrollContainer = styled.div`
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   width: 100%;
   gap: 16px;
   padding: 8px 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+  overscroll-behavior-x: contain; /* nicer touchpad behavior */
 
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
-  }
+  &::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
   ${Slide} {
-    flex: 0 0 calc(100% - 32px);
+    flex: 0 0 100%;               /* each slide is viewport width */
     scroll-snap-align: start;
-    margin: 0 16px;
+    margin: 0;                    /* zero side margins so arrows scroll exactly one page */
   }
 
   ${Card} {
     min-height: 320px;
-    grid-template-columns: 1fr;
-    text-align: center;
   }
 
-  ${LeftCol} {
-    margin-bottom: 16px;
-  }
-
-  ${MediaBlob} {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
+  @media (max-width: 900px) {
+    ${Card} {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    ${LeftCol} {
+      margin-bottom: 16px;
+    }
+    ${MediaBlob} {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+    }
   }
 `;
+
 
 export const ViewMoreButton = styled.button`
   background: none;
@@ -287,4 +304,61 @@ export const ViewMoreButton = styled.button`
   &:hover {
     color: #0378d4;
   }
+`;
+
+// Aspirants.styles.js (append near the bottom)
+
+export const VideoOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 16px;
+`;
+
+export const VideoModal = styled.div`
+  position: relative;
+  width: min(900px, 92vw);
+  max-height: 90vh;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+`;
+
+export const CloseBtn = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: 0;
+  width: 36px;
+  height: 36px;
+  font-size: 24px;
+  line-height: 1;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover { background: rgba(0,0,0,0.75); }
+`;
+
+export const VideoPlayer = styled.video`
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 90vh;
+  outline: none;
+  background: #000;
+`;
+
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
 `;

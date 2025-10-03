@@ -260,7 +260,7 @@ export const Input = styled.input`
 //   width: 100%;
   width: 50px;
 height: 46px;
-  padding: 10px;
+  // padding: 10px;
   margin: 20px 0;
  border-radius: 8px;
 border: 1px solid  #C5C6C7;
@@ -274,7 +274,7 @@ background: #F1F5FF;
     margin: 30px 5px;
   }
     @media (max-width: 400px) {
-       width: 25px!important;
+       width: 30px!important;
        height: 30px!important;
     }
        @media (max-width: 480px) {

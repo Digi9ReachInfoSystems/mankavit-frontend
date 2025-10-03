@@ -22,14 +22,14 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 50px;
+  font-weight: 500;
   text-align: center;
   margin-bottom: 1rem;
   color: #2d3748;
   
-  @media (max-width: 768px) {
-    font-size: 2rem;
+  @media (max-width: 900px) {
+    font-size: 36px;
   }
 `;
 
@@ -102,7 +102,7 @@ export const FeatureImage = styled.img`
 
 export const FeatureTitle = styled.h3`
   margin-top: 1rem;
-  font-size: 1.25rem;
+  font-size: 18px;
   font-weight: 600;
   color: #2d3748;
 `;

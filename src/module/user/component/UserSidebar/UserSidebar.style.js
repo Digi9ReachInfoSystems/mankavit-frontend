@@ -28,7 +28,7 @@ export const ToggleButton = styled.button`
   }
 
   @media (max-width: 480px) {
-    top: 45px;
+    top: 90px;
   }
 `;
 
@@ -166,6 +166,7 @@ export const MenuLink = styled(RouterNavLink).attrs(() => ({
 
   @media (max-width: 576px) {
     font-size: 12px;
+    padding: 10px;
   }
 `;
 

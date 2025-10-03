@@ -12,7 +12,7 @@ const CourseDetails = () => {
       <IndividualCourses />
       {/* <CourseFeatures /> */}
       {/* <VideoAndReviews />  */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }

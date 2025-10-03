@@ -42,9 +42,10 @@ export const Paragraph = styled.p`
 export const List = styled.ul`
   list-style-type: disc;
   padding-left: 20px;
+  // font-size: 1px;
 `;
 
 export const ListItem = styled.li`
-  margin-bottom: 14px;
+  margin-bottom: 18px;
   font-size: 16px;
 `;

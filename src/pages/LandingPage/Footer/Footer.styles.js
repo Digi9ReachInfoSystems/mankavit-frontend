@@ -58,6 +58,7 @@ export const LeftContainer = styled.div`
   width: 50%;
   @media (max-width: 768px) {
     width: 100%;
+    
   }
 
   @media (max-width: 480px) {
@@ -85,11 +86,12 @@ export const RightContainer = styled.div`
   `;
 
 export const FooterSection = styled.div`
-  flex: 1 1 100px;
+  flex: 1 1 200px;
   margin: 10px;
-//   min-width: 150px;
+  // min-width: 220px;
   padding: 10px;
   line-height: 1.8;
+ 
 
   @media (max-width: 1360px) {
     margin: 8px;
@@ -97,10 +99,18 @@ export const FooterSection = styled.div`
     line-height: 1.6;
   }
 
+  @media (max-width: 900px) {
+    margin: 7px;
+    padding: 7px;
+    line-height: 1.5;
+    min-width: 220px;
+
+  }
   @media (max-width: 768px) {
     margin: 5px;
     padding: 5px;
     line-height: 1.4;
+    min-width: 180px;
   }
 
   @media (max-width: 540px) {
@@ -248,19 +258,19 @@ export const LinkList = styled.ul`
   }
 
   @media (max-width: 1360px) {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   @media (max-width: 768px) {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   @media (max-width: 540px) {
-    font-size: 11px;
+    font-size: 16px;
   }
 
   @media (max-width: 480px) {
-    font-size: 12px;
+    font-size: 14px;
   }
 `;
 

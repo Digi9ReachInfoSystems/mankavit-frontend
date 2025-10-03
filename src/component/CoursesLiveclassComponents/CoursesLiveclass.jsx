@@ -1196,6 +1196,13 @@
 
 // export default CoursesLiveclass;
 
+
+
+
+
+
+
+
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -1216,6 +1223,15 @@ import {
   VideoPlayerContainer,
   FullscreenButton,
   MainContainer,
+  BackwardButton,
+  ForwardButton,
+  ControlsRow,
+  ControlsLeft,
+  ControlsRight,
+  ExitFullscreenButton
+  // VideoControls,
+  // ControlButton,
+  // OverlayPlayButton
 } from "./CoursesLiveclass.styles";
 import {
   FaUser,
@@ -1482,6 +1498,7 @@ const CoursesLiveclass = () => {
       (courseObj.subjects || []).map(async (subject) => {
         try {
           const resp = await getMocktestBySubjectId(subject._id);
+          console.log("Mock tests for subject", subject.subjectName, resp);
           const tests = (resp?.data || []).map((t, idx) => ({
             _id: t._id,
             lectureName: t.title || `Mock Test ${idx + 1}`,
@@ -1564,6 +1581,7 @@ const CoursesLiveclass = () => {
         // // console.error("Error fetching course with progress:", error);
 
         const response = await getCourseById(courseId);
+        console.log("Course fetch response:", response);
         if (response?.success) {
           const courseData = response.data;
           setCourse(courseData);
@@ -1633,91 +1651,209 @@ const CoursesLiveclass = () => {
     // // console.error("Error loading video");
   };
 
-  const handleVideoEnd = async () => {
-    if (userId && courseId && subjectId && lectureId) {
-      try {
-        const response = await completeLecturer(userId, courseId, subjectid, lectureId);
-        // console.log(response);
-        const cookies = await getCookiesData();
-        const progressResponse = await getCourseByIdWithUSerProgress(
-          cookies.userId,
-          courseId
-        );
-        // console.log(" progressResponse", progressResponse);
-        // if (progressResponse.data?.completed) {
-        //   if (progressResponse.data?.viewedCertificate) {
-        //     navigate(`/user`);
-        //   } else {
-        //     navigate(`/courseComplte/${courseId}`);
-        //   }
-        // }
-        let nextLecture = null;
-        let nextSubject = null;
+  // const handleVideoEnd = async () => {
+  //   if (userId && courseId && subjectId && lectureId) {
+  //     try {
+  //       const response = await completeLecturer(userId, courseId, subjectid, lectureId);
+  //       // console.log(response);
+  //       const cookies = await getCookiesData();
+  //       const progressResponse = await getCourseByIdWithUSerProgress(
+  //         cookies.userId,
+  //         courseId
+  //       );
+  //       // console.log(" progressResponse", progressResponse);
+  //       // if (progressResponse.data?.completed) {
+  //       //   if (progressResponse.data?.viewedCertificate) {
+  //       //     navigate(`/user`);
+  //       //   } else {
+  //       //     navigate(`/courseComplte/${courseId}`);
+  //       //   }
+  //       // }
+  //       let nextLecture = null;
+  //       let nextSubject = null;
 
-        for (const subject of course.subjects) {
-          if (subject._id === subjectid) {
-            const currentIndex = subject.lectures.findIndex(
-              (lec) => lec._id === lectureId
-            );
+  //       for (const subject of course.subjects) {
+  //         if (subject._id === subjectid) {
+  //           const currentIndex = subject.lectures.findIndex(
+  //             (lec) => lec._id === lectureId
+  //           );
 
-            if (currentIndex !== -1) {
-              if (currentIndex < subject.lectures.length - 1) {
-                nextLecture = subject.lectures[currentIndex + 1];
-                nextSubject = subject._id;
-                setLecture(nextLecture);
-              } else {
-                const currentSubjectIndex = course.subjects.findIndex(
-                  (sub) => sub._id === subjectId
-                );
-                for (
-                  let i = currentSubjectIndex + 1;
-                  i < course.subjects.length;
-                  i++
-                ) {
-                  if (course.subjects[i].lectures.length > 0) {
-                    setSubjectId(course.subjects[i]._id);
-                    setLecture(course.subjects[i].lectures[0]);
-                    await handleStartSubject(course.subjects[i]._id);
-                    nextSubject = course.subjects[i]._id;
-                    nextLecture = course.subjects[i].lectures[0];
-                    break;
-                  }
-                }
-              }
-            }
-            break;
-          }
+  //           if (currentIndex !== -1) {
+  //             if (currentIndex < subject.lectures.length - 1) {
+  //               nextLecture = subject.lectures[currentIndex + 1];
+  //               nextSubject = subject._id;
+  //               setLecture(nextLecture);
+  //             } else {
+  //               const currentSubjectIndex = course.subjects.findIndex(
+  //                 (sub) => sub._id === subjectId
+  //               );
+  //               for (
+  //                 let i = currentSubjectIndex + 1;
+  //                 i < course.subjects.length;
+  //                 i++
+  //               ) {
+  //                 if (course.subjects[i].lectures.length > 0) {
+  //                   setSubjectId(course.subjects[i]._id);
+  //                   setLecture(course.subjects[i].lectures[0]);
+  //                   await handleStartSubject(course.subjects[i]._id);
+  //                   nextSubject = course.subjects[i]._id;
+  //                   nextLecture = course.subjects[i].lectures[0];
+  //                   break;
+  //                 }
+  //               }
+  //             }
+  //           }
+  //           break;
+  //         }
+  //       }
+
+  //       if (nextLecture) {
+  //         await handleStartSubject(nextSubject);
+  //         await handleStartLecture(nextSubject, nextLecture._id);
+  //         navigate(
+  //           `/course/liveclass/${courseId}/${nextSubject}/${nextLecture._id}`
+  //         );
+  //         setLecture(nextLecture);
+  //         return nextLecture._id;
+  //       } else if (nextLecture == null && nextSubject == null) {
+  //         const cookies = await getCookiesData();
+  //         const progressResponse = await getCourseByIdWithUSerProgress(
+  //           cookies.userId,
+  //           courseId
+  //         );
+  //         if (progressResponse.data?.completed) {
+  //           if (progressResponse.data?.viewedCertificate) {
+  //             navigate(`/user`);
+  //           } else {
+  //             navigate(`/courseComplte/${courseId}`);
+  //           }
+  //         } else {
+  //           navigate(`/continueCourse/${courseId}`);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       // // console.error("Error completing lecture:", error);
+  //     }
+  //   }
+  // };
+
+
+  // const handleVideoEnd = async () => {
+  //   // Just mark lecture complete; do NOT auto-navigate
+  //   if (!userId || !courseId || !subjectId || !lectureId) return;
+  //   try {
+  //     await completeLecturer(userId, courseId, subjectid, lectureId);
+  //     // Optional: refresh course/lecture so UI shows the green tick
+  //     const cookies = await getCookiesData();
+  //     const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
+  //     if (progress?.success) {
+  //       setCourse(progress.data);
+  //      const curr = progress.data.subjects
+  //         ?.find((s) => s._id === subjectid)?.lectures
+  //         ?.find((l) => l._id === lectureId);
+  //       if (curr) setLecture(curr);
+  //     }
+  //   } catch (e) {
+  //     // swallow; we just don't move anywhere
+  //   }
+  // };
+
+//   const handleVideoEnd = async () => {
+//   // Only mark this lecture complete; do NOT auto-navigate anywhere.
+//   if (!userId || !courseId || !subjectId || !lectureId) return;
+
+//   try {
+//     await completeLecturer(userId, courseId, subjectid, lectureId);
+
+//     // (Optional) Refresh progress so the UI shows the checkmark on this lecture.
+//     const cookies = await getCookiesData();
+//     const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
+//     if (progress?.success) {
+//       setCourse(progress.data);
+//       const updatedLecture = progress.data.subjects
+//         ?.find((s) => s._id === subjectid)?.lectures
+//         ?.find((l) => l._id === lectureId);
+//       if (updatedLecture) setLecture(updatedLecture);
+//     }
+//   } catch (e) {
+//     // ignore errors; just don't navigate
+//   }
+// };
+
+// useEffect(() => {
+//   const onChange = () => {
+//     setIsFullscreen(!!document.fullscreenElement);
+//   };
+//   document.addEventListener("fullscreenchange", onChange);
+//   return () => document.removeEventListener("fullscreenchange", onChange);
+// }, []);
+
+
+const handleVideoEnd = async () => {
+  if (!userId || !courseId || !subjectId || !lectureId) return;
+
+  try {
+    // Mark current lecture complete
+    await completeLecturer(userId, courseId, subjectid, lectureId);
+
+    // Refresh progress
+    const cookies = await getCookiesData();
+    const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
+    if (!progress?.success) return;
+
+    const data = progress.data;
+    setCourse(data);
+
+    // Find the active subject (the one in the URL)
+    const currSubject = (data.subjects || []).find(s => s._id === subjectid);
+    if (!currSubject) return;
+
+    // Find current lecture index within THIS subject
+    const idx = (currSubject.lectures || []).findIndex(l => l._id === lectureId);
+    const lastIdx = (currSubject.lectures || []).length - 1;
+
+    // 1) If there is a next lecture in the same subject, go there
+    if (idx > -1 && idx < lastIdx) {
+      const nextLecture = currSubject.lectures[idx + 1];
+      // keep internal state in sync and start lecture
+      setLecture(nextLecture);
+      await startLecturer(userId, courseId, currSubject._id, nextLecture._id);
+
+      // update URL but DO NOT change subject
+      navigate(
+        `/course/liveclass/${courseId}/${currSubject._id}/${nextLecture._id}`,
+        { replace: true }
+      );
+      return;
+    }
+
+    // 2) We are at the LAST lecture of this subject — do NOT auto-jump to the next subject
+
+    // If the whole course is completed, keep your existing certificate flow
+    const allDone = (data.subjects || []).every(s =>
+      (s.lectures || []).every(l => l.completed)
+    );
+
+    if (allDone) {
+      if (data?.completed) {
+        if (data?.viewedCertificate) {
+          navigate(`/user`);
+        } else {
+          navigate(`/courseComplte/${courseId}`);
         }
-
-        if (nextLecture) {
-          await handleStartSubject(nextSubject);
-          await handleStartLecture(nextSubject, nextLecture._id);
-          navigate(
-            `/course/liveclass/${courseId}/${nextSubject}/${nextLecture._id}`
-          );
-          setLecture(nextLecture);
-          return nextLecture._id;
-        } else if (nextLecture == null && nextSubject == null) {
-          const cookies = await getCookiesData();
-          const progressResponse = await getCourseByIdWithUSerProgress(
-            cookies.userId,
-            courseId
-          );
-          if (progressResponse.data?.completed) {
-            if (progressResponse.data?.viewedCertificate) {
-              navigate(`/user`);
-            } else {
-              navigate(`/courseComplte/${courseId}`);
-            }
-          } else {
-            navigate(`/continueCourse/${courseId}`);
-          }
-        }
-      } catch (error) {
-        // // console.error("Error completing lecture:", error);
+      } else {
+        // fallback if completed flag lags
+        navigate(`/continueCourse/${courseId}`);
       }
     }
-  };
+
+    // Else: stay on the same screen (no navigation). You might show a small toast if you want.
+
+  } catch {
+    // ignore
+  }
+};
+
 
   const handleStartSubject = async (subId) => {
     setSubjectId(subId);
@@ -1958,6 +2094,7 @@ const CoursesLiveclass = () => {
       const fetchSignedUrl = async () => {
         try {
           const res = await getBackendAssets(noteUrl);
+          console.log("Signed URL fetched:", res);
           setSignedUrl(res.url);
         } catch (err) {
           // // console.error("Failed to fetch signed URL", err);
@@ -1984,6 +2121,7 @@ const CoursesLiveclass = () => {
             const a = document.createElement("a");
             a.href = url;
             a.download = noteName || "document";
+            
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2007,8 +2145,8 @@ const CoursesLiveclass = () => {
   };
 
   const renderTabContent = () => {
-    if (loading) return <ContentText>Loading...</ContentText>;
-    if (!course) return <ContentText>Course not found.</ContentText>;
+    // if (loading) return <ContentText>Loading...</ContentText>;
+    if (!course) return <ContentText>Loading lectures...</ContentText>;
 
     // NOTES TAB — only selected subject's notes
     if (activeTab === "Notes") {
@@ -2039,7 +2177,8 @@ const CoursesLiveclass = () => {
                       onClick={() =>
                         setCurrentNote({
                           file: noteUrl,
-                          name: note.noteName,
+                          // name: note.noteName,
+                          name: note.noteDisplayName || note.noteName,
                           isDownloadable: note.isDownload,
                         })
                       }
@@ -2168,7 +2307,7 @@ const CoursesLiveclass = () => {
       : 0;
   };
 
-  if (loading) return <Container>Loading...</Container>;
+  // if (loading) return <Container>Loading...</Container>;
 
   const handleReviewSubmit = async ({ rating, review }) => {
     try {
@@ -2178,24 +2317,48 @@ const CoursesLiveclass = () => {
     }
   };
 
-  const handleFullscreen = () => {
-    const el = videoContainerRef.current;
-    if (!el) return;
+const skipTime = (seconds) => {
+  if (videoRef.current) {
+    videoRef.current.currentTime += seconds;
+  }
+};
 
-    if (document.fullscreenElement) {
-      if (document.exitFullscreen) document.exitFullscreen();
-      return;
-    }
+const handleFullscreen = () => {
+  if (!document.fullscreenElement) {
+    videoContainerRef.current.requestFullscreen?.();
+    setIsFullscreen(true);
+  } else {
+    document.exitFullscreen?.();
+    setIsFullscreen(false);
+  }
+};
 
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (el.msRequestFullscreen) el.msRequestFullscreen();
-    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
-  };
+useEffect(() => {
+  const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+  document.addEventListener("fullscreenchange", onChange);
+  return () => document.removeEventListener("fullscreenchange", onChange);
+}, []);
+
+
+
+  // const handleFullscreen = () => {
+  //   const el = videoContainerRef.current;
+  //   if (!el) return;
+
+  //   if (document.fullscreenElement) {
+  //     if (document.exitFullscreen) document.exitFullscreen();
+  //     return;
+  //   }
+
+  //   if (el.requestFullscreen) el.requestFullscreen();
+  //   else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  //   else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  //   else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+  // };
 
   return (
     <MainContainer>
-      <VideoContainer>
+      {/* <VideoContainer>
         <StyledVideo ref={videoContainerRef}>
           {lecture && (
             <>
@@ -2250,23 +2413,79 @@ const CoursesLiveclass = () => {
           >
             <FullscreenButton
               onClick={handleFullscreen}
-              aria-label={isFullscreen ? "[  ]" : "[  ]"}
+              aria-label={isFullscreen ? " ][ " : "[  ]"}
             >
-              {isFullscreen ? "[  ]" : "[  ]"}
+              {isFullscreen ? "  ][" : "[  ]"}
             </FullscreenButton>
           </div>
 
-          <TopBar>
-            <OverlayText>
-              <h4>{lecture?.lectureName || "Lecture"}</h4>
-            </OverlayText>
-          </TopBar>
-          <BottomTitle>
-            Course: {course?.courseDisplayName || "Course"} | Progress:{" "}
-            {course?.completedPercentage || 0}%
-          </BottomTitle>
+        
         </StyledVideo>
-      </VideoContainer>
+      </VideoContainer> */}
+<VideoContainer ref={videoContainerRef}>
+  <StyledVideo>
+    {lecture && (
+      <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
+        <VideoPlayer
+          ref={videoRef}
+          onError={handleVideoError}
+          onEnded={handleVideoEnd}
+          controls
+          controlsList="nodownload nofullscreen noremoteplayback"
+          disablePictureInPicture
+        >
+          {lecture?.videoUrl && !videoError ? (
+            <source
+              src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture.videoUrl}`}
+            />
+          ) : (
+            <div className="video-error">
+              {videoError
+                ? "Error loading video"
+                : "Your browser does not support the video tag"}
+            </div>
+          )}
+        </VideoPlayer>
+
+        {userId && (
+          <MovingOverlay
+            style={{
+              top: `${overlayPosition.top}%`,
+              left: `${overlayPosition.left}%`,
+            }}
+          >
+            {userPhoneNumber || userId}
+          </MovingOverlay>
+        )}
+      </VideoPlayerContainer>
+    )}
+
+    {/* Bottom-left controls */}
+    <ControlsRow>
+      <ControlsLeft>
+        <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
+        <ForwardButton onClick={() => skipTime(20)}>20s ⏩</ForwardButton>
+      </ControlsLeft>
+
+      {/* Bottom-right fullscreen button */}
+      {!isFullscreen && (
+        <ControlsRight>
+          <FullscreenButton onClick={handleFullscreen}>⛶</FullscreenButton>
+        </ControlsRight>
+      )}
+    </ControlsRow>
+
+    {/* Exit fullscreen button at top-right */}
+    {isFullscreen && (
+      <ExitFullscreenButton onClick={handleFullscreen}>✕</ExitFullscreenButton>
+    )}
+  </StyledVideo>
+</VideoContainer>
+
+
+
+
+
 
       <TabContentWrapper ref={tabContentRef}>
         <ButtonGroup>

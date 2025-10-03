@@ -124,7 +124,7 @@ export default function Footer() {
                     style={{ textDecoration: "none" }}
                     onClick={handleLinkClick}
                   >
-                    FAQ
+                    FAQs
                   </Link>
                 </li>
               </LinkList>

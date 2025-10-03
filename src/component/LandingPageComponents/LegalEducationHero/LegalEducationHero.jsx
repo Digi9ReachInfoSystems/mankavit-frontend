@@ -114,7 +114,7 @@ const LegalEducationHero = () => {
       <Contactmodale>
         <ContactInner>
           <DescriptionText>
-            At Mankavit, we are more than just an academy – we are a community of
+            At Mankavit Law Academy, we are more than just an academy – we are a community of
             learners committed to success. Join us and take the first step toward
             your legal career.
           </DescriptionText>
@@ -337,7 +337,7 @@ const DescriptionText = styled.p`
   margin: 0 auto 1.25rem;
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 18px;
   }
 `;
 

@@ -80,6 +80,64 @@ export const VideoPlayer = styled.video`
   z-index: 0;
 `;
 
+export const ControlsRow = styled.div`
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between; /* left + right */
+  padding: 0 16px;
+  z-index: 5;
+`;
+
+export const ControlsLeft = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+export const ControlsRight = styled.div`
+  display: flex;
+`;
+
+export const ForwardButton = styled.button`
+  background: rgba(34, 34, 34, 0.7);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  &:hover {
+    background: rgba(68, 68, 68, 0.9);
+  }
+`;
+
+export const BackwardButton = styled(ForwardButton)``;
+
+// export const FullscreenButton = styled(ForwardButton)`
+//   font-size: 18px;
+// `;
+
+export const ExitFullscreenButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(34, 34, 34, 0.7);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  z-index: 10;
+  &:hover {
+    background: rgba(68, 68, 68, 0.9);
+  }
+`;
+
+
+
 export const TopBar = styled.div`
   position: absolute;
   top: 16px;
@@ -257,10 +315,10 @@ export const CompletedBadge = styled.div`
 export const MovingOverlay = styled.div`
   position: absolute;
   z-index: 10;
-  color: #e2e618ff;
+  color: #c90b0bff;
   padding: 4px 10px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 18px;
   pointer-events: none;
   transition: top 1s ease, left 1s ease;
 
@@ -300,16 +358,16 @@ export const FullscreenButton = styled.button`
   position: absolute;
   /* move from top-right to bottom-right */
   top: auto;            /* <-- reset top */
-  bottom: 40px;         /* <-- anchor to bottom */
-  right: 45px;
+  bottom: 20px;         /* <-- anchor to bottom */
+  right: 25px;
 
   z-index: 50;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(0,0,0,0.55);
+  // background: rgba(0,0,0,0.55);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.35);
-  backdrop-filter: blur(2px);
+  // border: 1px solid rgba(255,255,255,0.35);
+  // backdrop-filter: blur(2px);
   cursor: pointer;
   font-weight: 600;
   line-height: 1;

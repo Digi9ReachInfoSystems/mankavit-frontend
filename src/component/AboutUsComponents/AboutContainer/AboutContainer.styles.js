@@ -26,20 +26,37 @@ width: 80%;
 `;
 
 export const AboutTitleWrap = styled.header`
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  // display: inline-flex;
   align-items: center;
   gap: 12px;
   margin: 8px 0 18px;
 `;
 
-export const AboutTitle = styled.h2`
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  color: ${({ theme }) => theme?.colors?.blueishblack || "#0d1321"};
-  font-size: ${clamp("22px", "3.6vw", "34px")};
-  line-height: 1.15;
+export const Title = styled.h2`
+  font-size: 50px;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: #333;
+
+  @media (max-width: 768px) {
+    font-size: 36px;
+  }
 `;
+
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+`;
+
+
+export const Highlight = styled.span` color: #2d79f3; `;
 
 export const TitleAccent = styled.span`
   width: 56px;
@@ -93,7 +110,7 @@ export const ContentCard = styled.article`
   }
 
   h3 { font-size: ${clamp("18px", "2.6vw", "22px")}; font-weight: 700; }
-  p  { margin: 8px 0; color: rgba(0,0,0,0.78); font-weight: 300; line-height: 1.65; font-size: ${clamp("14px", "1.8vw", "24px")}; }
+  p  { margin: 8px 0; color: rgba(0,0,0,0.78); font-weight: 300; line-height: 1.65; font-size: ${clamp("18px", "1.8vw", "24px")}; }
 
   ul, ol {
     margin: 10px 0 10px 20px;
@@ -166,4 +183,16 @@ export const ErrorBanner = styled.div`
   background: rgba(220, 38, 38, 0.06);
   color: #7f1d1d;
   font-weight: 500;
+`;
+
+export const DescriptionCard = styled.div`
+  // margin-top: 8px;
+  // color: rgba(0,0,0,0.78);
+  // font-weight: 300;
+  // line-height: 1.65;
+  font-size: 24px;
+
+  @media (max-width: 900px) {
+    font-size: 18px;
+  }
 `;

@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import {
   AboutmainContainer,
   AboutTitleWrap,
-  AboutTitle,
-  TitleAccent,
+  // AboutTitle,
+  // TitleAccent,
   AboutContent,
   ContentCard,
   SkeletonCard,
   ErrorBanner,
+  DescriptionCard,
+  Underline,
+  Title,
+  Highlight
 } from "./AboutContainer.styles";
 import { getAllAboutUs } from "../../../api/aboutUsApi";
 
@@ -38,7 +42,10 @@ const AboutContainer = () => {
   return (
     <AboutmainContainer aria-busy={loading}>
       <AboutTitleWrap>
-        <AboutTitle>About Us</AboutTitle>
+      <Title>
+                About <Highlight>Us</Highlight>
+               </Title>
+           <Underline />
         {/* <TitleAccent aria-hidden /> */}
       </AboutTitleWrap>
 
@@ -58,9 +65,10 @@ const AboutContainer = () => {
             >
               {item?.title && <h3>{item.title}</h3>}
               {/* We preserve your HTML rendering */}
-              <div
+              <DescriptionCard
+             
                 dangerouslySetInnerHTML={{ __html: item?.description || "" }}
-              />
+              ></DescriptionCard>
             </ContentCard>
           ))}
       </AboutContent>

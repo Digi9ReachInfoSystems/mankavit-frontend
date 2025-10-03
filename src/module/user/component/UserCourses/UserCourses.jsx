@@ -189,11 +189,11 @@ const UserCourses = () => {
         </FilterButton>
       </FilterBar>
 
-      {loading && (
+      {/* {loading && (
         <div style={{ padding: "2rem", textAlign: "center" }}>
           Loading courses...
         </div>
-      )}
+      )} */}
       {error && (
         <div style={{ padding: "2rem", color: "red", textAlign: "center" }}>
           {error}

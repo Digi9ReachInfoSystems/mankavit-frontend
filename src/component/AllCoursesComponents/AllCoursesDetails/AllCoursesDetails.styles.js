@@ -6,7 +6,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0 auto;
- 
+ scroll-margin-top: 80px;
   @media (max-width: 1360px) {
     width: 90%;
   }
@@ -17,14 +17,14 @@ export const Container = styled.div`
 `;
  
 export const Title = styled.h1`
-  font-size: 2.2rem;
+  font-size: 50px;
   font-weight: 500;
   span {
     color: #007bff;
   }
  
   @media (max-width: 768px) {
-    font-size: 1.8rem;
+    font-size: 36px;
     margin: 1rem 0;
   }
 `;
@@ -35,26 +35,44 @@ export const FilterBar = styled.div`
   margin: 1.5rem 0;
   gap: 1rem;
   flex-wrap: wrap;
- 
+
   @media (max-width: 768px) {
-    gap: 0.5rem;
+
+   display: grid;
+    gap: 8px;
     margin: 0 0 1rem 0;
+    grid-template-columns: repeat(3, 1fr);   /* default: 3 per row on small phones */
+  }
+
+  @media (min-width: 480px) and (max-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
   }
 `;
+
  
 export const FilterButton = styled.button`
   background: ${({ active }) =>
     active
       ? 'linear-gradient(to right, #0DCAF0, #007BFF)'
       : '#D3D3D3'};
-  color: ${({ theme }) => theme.colors.white};
+  color: ${({ theme }) => theme.colors.blueishblack};
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+
+ @media (max-width: 768px) {
+   width: 100%;              /* fill its grid cell */
+   padding: 8px 10px;        /* tighter */
+   font-size: 12px;          /* smaller text */
+   border-radius: 999px;     /* pill look */
+ }
 `;
- 
+
 export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -325,6 +343,13 @@ export const NewPrice = styled.span`
   font-weight: 900;
   letter-spacing: -0.02em;
   font-size: 14px;
+`;
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
 `;
 
 export const DiscountBadge = styled.span`

@@ -27,6 +27,9 @@ export const Title = styled.h1`
   margin: 0.25rem 0 0.25rem 0;
   color: ${({ theme }) => theme.colors.jetBlack};
   letter-spacing: -0.02em;
+   @media (max-width: 780px) {
+    font-size: 36px;
+  }
 `;
 
 /* ✅ Switch to a 4-per-row grid, responsive down to 1 */

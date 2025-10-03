@@ -20,6 +20,9 @@ import {
   Brand,
   BrandLogo,
 } from "./LandingHeader.styles";
+
+import { getCookiesData } from "../../../utils/cookiesService";
+import { getUserByUserId } from "../../../api/authApi";
 // import { IoNotificationsOutline } from "react-icons/io5";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { BsChevronCompactDown } from "react-icons/bs";
@@ -35,8 +38,8 @@ import Whatsapp from "../../../assets/whatsapp.svg";
 import Linkedin from "../../../assets/linkedIn.svg";
 import Telegram from "../../../assets/telegram.svg";
 import { getSocialMediaLinks } from "../../../api/youtuubeApi";
-import { getCookiesData } from "../../../utils/cookiesService";
-import { getUserByUserId } from "../../../api/authApi";
+// import { getCookiesData } from "../../../utils/cookiesService";
+// import { getUserByUserId } from "../../../api/authApi";
 import { getAllEntrances } from "../../../api/entranceApi";
 
 const iconMap = {
@@ -147,7 +150,7 @@ const Header = () => {
       return;
     }
     const routeMap = {
-        Home: "/",
+      Home: "/",
       Courses: "/ourcoursedetails",
       Blog: "/userblog",
       About: "/aboutus",
@@ -205,29 +208,42 @@ const Header = () => {
     <Container>
       <TopBar>
         <Brand>
-     <Link to="/">
-         <BrandLogo src={Mankavitlogo} alt="Mankavit" />
+          <Link to="/">
+            <BrandLogo src={Mankavitlogo} alt="Mankavit" />
           </Link>
-       </Brand>
+        </Brand>
         <ToolbarContainer>
-          <Headline
-            style={{
-              fontSize: "20px",
-              marginLeft: "10px",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-            }}
-          >
-            <div className="marquee" style={{ flex: 1 }}>
-              {tickers.map((t) => (
-                <span
-                  key={t._id}
-                  dangerouslySetInnerHTML={{ __html: t.title }}
-                />
-              ))}
-            </div>
-          </Headline>
+         <Headline
+  style={{
+    fontSize: "20px",
+    marginLeft: "10px",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  }}
+>
+  {!isLoggedIn && (
+    <div className="marquee" style={{ flex: 1 }}>
+      <div className="track">
+        {/* original set */}
+        {tickers.map((t) => (
+          <span
+            key={`a-${t._id}`}
+            dangerouslySetInnerHTML={{ __html: t.title }}
+          />
+        ))}
+        {/* duplicate set for seamless loop */}
+        {tickers.map((t) => (
+          <span
+            key={`b-${t._id}`}
+            dangerouslySetInnerHTML={{ __html: t.title }}
+          />
+        ))}
+      </div>
+    </div>
+  )}
+</Headline>
+
 
           <SocialIcons>
             {socialLinks.map(({ platform, url }) => {
@@ -270,9 +286,7 @@ const Header = () => {
                 // </Link>
               ].map((item) => {
                 const key = typeof item === "string" ? item : "notif";
-
-                // Special rendering for Entrances (so clicks on items don't bubble)
-                if (item === "Entrances") {
+    if (item === "Entrances") {
                   return (
                     <NavLinkItem
                       key={key}
@@ -323,7 +337,6 @@ const Header = () => {
                   );
                 }
 
-                // Default items
                 return (
                   <NavLinkItem
                     key={key}
@@ -345,7 +358,9 @@ const Header = () => {
                 <DashboardButton onClick={handleLogout}>
                   Dashboard
                   <img
-                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${userDetails?.photo_url}`}
+                    src={`${
+                      import.meta.env.VITE_APP_IMAGE_ACCESS
+                    }/api/project/resource?fileKey=${userDetails?.photo_url}`}
                     alt="Profile"
                     className="profile-icon"
                   />

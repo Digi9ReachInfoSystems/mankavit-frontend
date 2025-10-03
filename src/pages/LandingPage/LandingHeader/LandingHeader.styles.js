@@ -29,8 +29,11 @@ export const TopBar = styled.div`
    padding: 20px 40px; 
   color: var(--muted);
 
-  @media (max-width: 576px) {
+  @media (max-width: 768px) {
     padding: 12px 20px; /* Adjusted mobile padding */
+    justify-content:  flex-end;
+    gap: 80px;
+    font-size: 26px;
   }
 `;
 
@@ -63,8 +66,9 @@ export const ToolbarContainer = styled.div`
 /* ============ Headline / Marquee ============ */
 
 const marquee = keyframes`
-  0%   { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0%   { transform: translateX(0); }       /* ✅ visible immediately */
+  100% { transform: translateX(-50%); }    /* scroll one full set width */
+  
 `;
 
 export const Headline = styled.div`
@@ -78,22 +82,44 @@ export const Headline = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.1em;
 
+   @media (max-width: 768px) {
+    display: none !important;
+  }
+
   .marquee {
-    display: inline-block;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .track {
+    display: inline-flex;
+    align-items: center;
+    gap: 2rem;                /* space between items */
+    min-width: 200%;          /* two sets side-by-side */
     animation: ${marquee} 20s linear infinite;
-    animation-play-state: running;
     will-change: transform;
   }
 
-  .marquee:hover {
+  .track:hover {
     animation-play-state: paused;
   }
 
   span {
     display: inline-block;
-    padding: 0 2rem;
+    padding: 0 0;            /* we already use gap */
+  }
+
+  @media ( max-width: 780px)
+  {
+  display: none;}
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .track { animation: none; transform: translateX(0); 
+    }
   }
 `;
+
 
 /* ============ Social Icons ============ */
 
@@ -107,7 +133,7 @@ export const SocialIcons = styled.div`
   }
 
   @media (max-width: 576px) {
-    gap: 8px;
+    // gap: 8px;
   }
 `;
 
@@ -211,18 +237,11 @@ export const Logo = styled.div`
 
 export const NavLinks = styled.div`
   display: flex;
-  gap: 4pc;
+  gap: 4px;
   align-items: center;
 
-  @media (max-width: 1757px) {
-    gap: 3pc;
-  }
+  /* …existing breakpoints… */
 
-  @media (max-width: 1636px) {
-    gap: 2pc;
-  }
-
-  /* Mobile menu */
   @media (max-width: 768px) {
     display: none;
     flex-direction: column;
@@ -234,23 +253,20 @@ export const NavLinks = styled.div`
     right: 0;
     z-index: 999;
     box-shadow: var(--shadow-md);
-    width: 30%;
+    width: 40%;
     height: 100%;
     align-items: flex-start;
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
+    overflow-y: auto;          /* ✅ scroll panel if content grows */
 
     &.open {
       display: flex;
       animation: slidePanel 0.25s ease forwards;
     }
-
-    @keyframes slidePanel {
-      from { transform: translateX(10px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
   }
 `;
+
 
 /* Fancy underline effect reused for hover/active */
 const underline = css`
@@ -292,50 +308,48 @@ export const NavLinkItem = styled.div`
   cursor: pointer;
   font-size: 20px;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: color 0.25s ease, transform 0.2s ease;
+  padding-right: 12px;
+  line-height: 1.3;
   text-transform: uppercase;
+  transition: color 0.25s ease, transform 0.2s ease;
 
   ${underline}
 
-  &:hover {
-    color: var(--primary);
-    transform: translateY(-2px);
-  }
+  &:hover { color: var(--primary); transform: translateY(-2px); }
+  &:hover::after { width: 100%; }
+  &:active { color: var(--primary); transform: translateY(0); }
+  &.active { color: var(--primary); font-weight: 600; &::after { width: 100%; } }
+  &:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 6px; }
 
-  &:hover::after {
-    width: 100%;
-  }
+  @media (max-width: 1636px) { font-size: 16px; }
+  @media (max-width: 1320px) { font-size: 14px; }
 
-  &:active {
-    color: var(--primary);
-    transform: translateY(0);
-  }
-
-  &.active {
-    color: var(--primary);
-    font-weight: 600;
-
-    &::after {
-      width: 100%;
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 3px;
-    border-radius: 6px;
-  }
-
-  @media (max-width: 1636px) {
-    font-size: 16px;
-  }
-
-  @media (max-width: 1320px) {
-    font-size: 14px;
+  /* ✅ On mobile, stack label + dropdown vertically and make the item full-width */
+  @media (max-width: 768px) {
+    // flex-direction: column;
+    // align-items: stretch;
+    // width: 100%;
+    // gap: 8px;               
+    // padding: 10px 0;   
+    //    position: static;          /* let children (dropdown) flow under it */
+    // display: inline-flex;
+    // align-items: stretch;
+    // gap: 6px;
+    // white-space: nowrap;       /* caret stays adjacent */
+    // flex-wrap: nowrap;
+    // // width: 100%;  
+    position: static;          /* parent is not positioned */
+   display: flex;
+   flex-direction: column;    /* label on top, dropdown below */
+   align-items: flex-start;
+   width: 100%;
+   gap: 8px;
+   padding: 10px 0;  
+  
   }
 `;
 
@@ -358,12 +372,41 @@ export const Dropdown = styled.div`
   overflow: hidden;
   animation: ${dropdownIn} 0.22s ease forwards;
   transform-origin: top left;
-  min-width: 200px;                /* a bit wider */
-  padding: 6px 0;                  /* more breathing room */
+  min-width: 200px;
+  padding: 6px 0;
+
+  /* ✅ Mobile: render inline right under "Entrances" */
+  @media (max-width: 768px) {
+    //   // position: static;          /* take it out of absolute positioning */
+    // top: 30px;
+    // left: auto;
+    // width: 100%;               /* match the menu panel width */
+    // min-width: 0;
+    // margin-top: 8px;           /* small gap under “Entrances” */
+    // box-shadow: none;          /* flatter look inside the side panel */
+    // border-radius: 8px;
+    // max-height: 55vh;          /* scroll if long */
+    // overflow-y: auto;
+    // z-index: auto;   
+       position: static;          /* ⬅️ critical: no absolute on mobile */
+   top: auto;
+   left: auto;
+   width: 100%;
+   min-width: 0;
+   margin-top: 4px;           /* small gap under “Entrances” */
+   box-shadow: none;
+   border-radius: 8px;
+   max-height: 55vh;
+   overflow-y: auto;
+   z-index: auto;          
+  }
 `;
+
+
+
 export const DropdownItem = styled.div`
   padding: 12px 18px;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   color: var(--text);
@@ -532,13 +575,14 @@ export const DashboardButton = styled.button`
 `;
 
 export const Caret = styled(BsChevronCompactDown)`
+  margin-left: 4px;
   transition: transform 160ms ease, opacity 160ms ease;
   transform: rotate(${(p) => (p.$open ? "180deg" : "0deg")});
   opacity: ${(p) => (p.$open ? 1 : 0.85)};
   flex-shrink: 0;
 `;
 
-/* ============ Hamburger ============ */
+
 
 export const Hamburger = styled.div`
   display: none;

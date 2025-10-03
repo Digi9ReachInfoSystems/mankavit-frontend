@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Container, PaperSection, PaperCard, PaperTitle, 
-  YearButtons, YearButton, CustomAntdSelect
+  YearButtons, YearButton, CustomAntdSelect,Title, Highlight, Underline
 } from './PrevQuestionPaper.styles';
 import study1 from "../../../assets/Study1.png";
 import { getAllQuestionPapers } from '../../../api/questionPaperApi';
@@ -63,8 +63,11 @@ const PrevQuestionPaper = () => {
 
   return (
     <Container>
-      <h2>Previous Question Paper</h2>
-
+  <Title>
+        Previous <Highlight>Question</Highlight> Paper
+      
+      </Title>
+  <Underline />
       {/* WhatsApp & Telegram icons row (using your direct links) */}
       <div
         style={{
@@ -74,7 +77,7 @@ const PrevQuestionPaper = () => {
           margin: "6px 0 18px",
         }}
       >
-        <span style={{ fontSize: 14, opacity: 0.8 }}>Join us:</span>
+        <span style={{ fontSize: 20, opacity: 0.8 }}>Join us:</span>
         <a
           href={WHATSAPP_LINK}
           target="_blank"
@@ -85,7 +88,7 @@ const PrevQuestionPaper = () => {
           <img
             src={Whatsapp}
             alt="WhatsApp"
-            style={{ width: 42, height: 42, objectFit: "contain", display: "block" }}
+            style={{ width: 52, height: 52, objectFit: "contain", display: "block" }}
           />
         </a>
         <a
@@ -112,7 +115,7 @@ const PrevQuestionPaper = () => {
             <PaperCard key={title}>
               <img className="image-placeholder" alt="Paper Thumbnail" src={study1} />
               <div className="content">
-                <PaperTitle>{title} Question paper</PaperTitle>
+                <PaperTitle>{title}</PaperTitle>
 
                 <YearButtons>
                   {visible.map(({ year, url }, idx) => (

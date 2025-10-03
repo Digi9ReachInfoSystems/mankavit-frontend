@@ -104,9 +104,9 @@ const SignUp = () => {
         setErrorMessage(response.message || "Something went wrong, please try again.");
       }
     } catch (error) {
-      // console.error("Signup error:", error);
+      console.error("Signup error:", error);
       setShowError(true);
-      setErrorMessage(error.message || "Something went wrong.");
+      setErrorMessage(error.response.data.message || "Something went wrong.");
     } finally {
       setSigningUp(false);
     }

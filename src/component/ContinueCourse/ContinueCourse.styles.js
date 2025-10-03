@@ -548,3 +548,8 @@ export const NoteItem = styled.div`
                   
 //                 </span>
 //               </PlayButton>
+
+export const LiveClassButton = styled.button`
+ fontSize: "24px",
+  marginTop: "14px"   
+`;

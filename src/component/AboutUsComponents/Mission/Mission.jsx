@@ -12,7 +12,8 @@ import {
   DescriptionText,
   ScrollButtons,
   ScrollButton,
-  LoadingSpinner
+  LoadingSpinner,
+  Highlight
 } from "./Mission.styles";
 import { getMissions } from "../../../api/missionApi";
 
@@ -72,7 +73,9 @@ const Mission = () => {
 
   return (
     <MissionSection>
-      <Title>Our Mission</Title>
+    <Title>
+           Our <Highlight>Mission</Highlight>
+          </Title>
       <Underline />
 
       <CardandDescription>

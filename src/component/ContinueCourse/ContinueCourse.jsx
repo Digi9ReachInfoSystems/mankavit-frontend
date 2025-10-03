@@ -637,26 +637,24 @@ import {
   TVIcon,
   LiveClass,
   Statdesc,
+  LiveClassButton
 } from "./ContinueCourse.styles";
 
 import { FaFilePdf, FaDownload } from "react-icons/fa";
 import {
   FaArrowLeft,
-  FaPlay,
-  FaChevronDown,
-  FaChevronUp,
   FaCheckCircle,
 } from "react-icons/fa";
 import { MdLiveTv } from "react-icons/md";
 
 import { getCourseById } from "../../api/courseApi";
-import {
-  getMocktestBySubjectId,
-  getAllUserAttemptByUserId,
-  checkMockTestAttempted,
-  viewUserMocktestAttemptResult,
-  getMockTestStats,
-} from "../../api/mocktestApi";
+// import {
+//   getMocktestBySubjectId,
+//   getAllUserAttemptByUserId,
+//   checkMockTestAttempted,
+//   viewUserMocktestAttemptResult,
+//   getMockTestStats,
+// } from "../../api/mocktestApi";
 import {
   getCourseByIdWithUSerProgress,
   startSubject,
@@ -687,7 +685,7 @@ const AccordionList = ({
   if (!Array.isArray(data) || data.length === 0) {
     return (
       <VideoList>
-        <p style={{ padding: 24 }}>No subjects found.</p>
+        <p style={{ padding: 24 }}>Loading subjects...</p>
       </VideoList>
     );
   }
@@ -1099,9 +1097,9 @@ const ContinueCourse = () => {
                     justifyContent: "center",
                   }}
                 >
-                  <p style={{ fontSize: "24px", marginTop: "14px" }}>
+                  <LiveClassButton >
                     Join Live Class Now
-                  </p>
+                  </LiveClassButton>
                   <BlinkingIcon>
                     <MdLiveTv color="#ff4757" size={28} />
                   </BlinkingIcon>
@@ -1113,14 +1111,14 @@ const ContinueCourse = () => {
         </HeaderSection>
       </CourseInfo>
 
-      {course?.live_class && (
+      {/* {course?.live_class && (
         <LiveClass>
           Live Class{" "}
           <TVIcon>
             <MdLiveTv />
           </TVIcon>
         </LiveClass>
-      )}
+      )} */}
 
       {notes.length > 0 && (
         <NotesSection>
@@ -1165,7 +1163,7 @@ const ContinueCourse = () => {
             setActiveAccordion(null);
           }}
         >
-          Subject
+          Subjects
         </button>
         {/* <button
           className={activeTab === "Mock Test" ? "active" : ""}

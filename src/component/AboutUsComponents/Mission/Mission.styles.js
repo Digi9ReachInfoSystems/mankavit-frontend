@@ -31,16 +31,21 @@ export const MissionSection = styled.section`
 `;
 
 export const Title = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 700;
-  text-align: center;
+  font-size: 50px;
+  font-weight: 500;
   margin-bottom: 1rem;
-  color: #2d3748;
-  font-family: 'Merriweather', serif;
-  
+  color: #333;
+
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 36px;
   }
+`;
+
+export const Highlight = styled.span` color: #2d79f3; `;
+export const FilterLabel = styled.p`
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
 `;
 
 export const Underline = styled.div`
@@ -109,19 +114,19 @@ export const CardImage = styled.img`
 `;
 
 export const CardTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 20px;
   margin-bottom: 0.75rem;
   color: #2d3748;
   font-weight: 600;
 `;
 
 export const CardDescription = styled.p`
-  font-size: 1rem;
-  color: #718096;
+  font-size: 18px;
+  color: #5e646dff;
   line-height: 1.5;
   
   @media (max-width: 1024px) {
-    font-size: 0.95rem;
+    font-size: 18px;
   }
 `;
 
@@ -171,36 +176,78 @@ export const CTAButton = styled.button`
     padding: 0.875rem 2rem;
   }
 `;
+// ⬇️ replace your existing ScrollButtons & ScrollButton in Mission.styles with this
 
 export const ScrollButtons = styled.div`
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
+
+  /* center on small screens, keep them together nicely */
+  justify-content: center;
+
+  @media (min-width: 768px) {
+    gap: 1.25rem;
+  }
 `;
 
 export const ScrollButton = styled.button`
-  background: white;
-  border: 2px solid #e2e8f0;
+  --ring: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  --shadow: 0 8px 20px rgba(0, 123, 255, 0.18);
+
+  display: grid;
+  place-items: center;
+
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 0;
+
+  font-size: 28px;           /* ⬆️ bigger arrow */
+  line-height: 1;
+  font-weight: 700;          /* ⬆️ bolder symbol */
+  color: #ffffff;
+
+  background: linear-gradient(135deg, #0dcaf0, #007bff);
+  box-shadow: var(--shadow);
+
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1.2rem;
-  color: #007bff;
-  
+  transition: transform 140ms ease, box-shadow 180ms ease, opacity 160ms ease, filter 160ms ease;
+
   &:hover:not(:disabled) {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 10px 26px rgba(0, 123, 255, 0.28);
+    filter: saturate(1.05);
   }
-  
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow), var(--ring);
+  }
+
   &:disabled {
-    opacity: 0.5;
+    background: #e9eef7;
+    color: #9aa7bd;
     cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+  }
+
+  /* Responsive tweak for smaller devices */
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
   }
 `;
 
