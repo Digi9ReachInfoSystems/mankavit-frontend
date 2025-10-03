@@ -4,7 +4,7 @@ export const Container = styled.div`
   padding: 20px;
   font-family: 'Segoe UI', sans-serif;
   color: #333;
-  width:80%;
+  width:100%;
   margin: 0 auto;
   
 
@@ -81,9 +81,18 @@ export const CourseIncludes = styled.h3`
 
 export const CourseImage = styled.img`
   width: 100%;
-  // height: 600px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+ height: auto;
+ max-width: 520px;
+ border-radius: 10px;
+ margin: 0 auto 10px;           /* center the image */
+ display: block;
+`;
+
+export const RightCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;                 /* prevent overflow in grid */
 `;
 
 export const TitleRatingRow = styled.div`
@@ -148,13 +157,11 @@ export const Description = styled.div`
   padding-left: 20px;
   margin: 10px 0 10px 20px;
 `;
-
 export const EnrollButton = styled.button`
   background: linear-gradient(to right, #0dcaf0, #007bff);
   color: white;
   font-size: 24px;
-  // padding: 30px 22px;
-  padding:15px 30px;
+  padding: 15px 30px;
   border: none;
   border-bottom-left-radius: 12px;
   cursor: pointer;
@@ -162,21 +169,43 @@ export const EnrollButton = styled.button`
   transition: background 0.3s ease;
   width: 100%;
   margin: 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;                /* spacing between text and price */
 
-  &:hover {
-    background-color: #0056b3;
+  .price {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-left: 6px;
+    background: #ffffff22;
+    padding: 4px 8px;
+    border-radius: 8px;
   }
+  .mrp {
+    text-decoration: line-through;
+    opacity: 0.9;
+    font-weight: 500;
+    font-size: 16px;
+  }
+  .sale {
+    font-weight: 800;
+  }
+
+  &:hover { background-color: #0056b3; }
 
   @media (max-width: 1024px) {
     font-size: 20px; 
     padding: 25px 28px;
   }
-
   @media (max-width: 768px) {
     border-bottom-left-radius: 0px;
     padding: 16px 24px;
+    .mrp { font-size: 14px; }
   }
 `;
+
 
 export const CourseButton = styled.div`
   display: flex;
@@ -498,8 +527,8 @@ export const RightColumn = styled.div`
 `;
 
 export const Hello = styled.div`
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) 2fr;
+ display: grid;
+  grid-template-columns: minmax(300px, 360px) 1fr;
   gap: 24px;
   align-items: stretch;
   
@@ -509,31 +538,15 @@ export const Hello = styled.div`
 `;
 
 
-//  <FeaturesContainer>
-//               <FeatureColumn>
-//                 <p style={{ fontWeight: "bold", fontSize: "24px" }}>Subjects included:</p>
-//                 {course.subjects.map((subj, idx) => (
-//                   <div
-//                     key={idx}
-//                     style={{
-//                       display: "flex",
-//                       // alignItems: "center",
-//                       // margin: "4px 0",
-//                     }}
-//                   >
-//                     <Bullet>•</Bullet>
-//                     <Feature>{subj.subjectName}</Feature>
-//                   </div>
-//                 ))}
-//               </FeatureColumn>
-//             </FeaturesContainer>
 
 export const LeftCol = styled.div`
   background: linear-gradient(to right, #D4D7EA, #D4D7EA);         /* full-column red */
   border-radius: 10px;
   padding: 12px;
-  align-self: stretch;     /* make this grid item fill the row height */
-
+ align-self: stretch;           /* let it grow to match the tallest column */
+ display: flex;                 /* center sticky block horizontally */
+ align-items: center;
+ justify-content: center;
 
 `;
 
@@ -543,4 +556,9 @@ export const LeftSticky = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  align-items: center;           /* center contents */
+ justify-content: center;
+ width: 100%;
+ max-width: 520px;              /* nice max width for image/button */
+ text-align: center;
 `;

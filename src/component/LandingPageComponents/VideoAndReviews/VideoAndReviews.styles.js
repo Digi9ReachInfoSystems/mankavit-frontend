@@ -8,6 +8,10 @@ export const Container = styled.div`
 //   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 0.1rem;
+
 `;
 
 export const Title = styled.h2`

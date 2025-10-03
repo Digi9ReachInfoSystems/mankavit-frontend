@@ -12,6 +12,7 @@ import {
   Feature,
   LeftCol,
   LeftSticky,
+  RightCol,
 } from "./IndivitualCourse.styles";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -159,8 +160,7 @@ const IndividualCourses = () => {
         </LeftCol>
 
         {/* RIGHT Content Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <CourseSubject style={{ marginLeft: 0 }}>
+        <RightCol>  <CourseSubject style={{ marginLeft: 0 }}>
             {course?.courseDisplayName || "Course Title"}
           </CourseSubject>
 
@@ -170,31 +170,16 @@ const IndividualCourses = () => {
             }}
           />
 
-          {/* Optional: keep subjects list under description */}
-          {/* {Array.isArray(course?.subjects) && course.subjects.length > 0 && (
-            <FeaturesContainer>
-              <FeatureColumn>
-                <p style={{ fontWeight: "bold", fontSize: 24 }}>
-                  Subjects included:
-                </p>
-                {course.subjects.map((subj, idx) => (
-                  <div key={idx} style={{ display: "flex" }}>
-                    <Bullet>•</Bullet>
-                    <Feature>{subj.subjectName}</Feature>
-                  </div>
-                ))}
-              </FeatureColumn>
-            </FeaturesContainer>
-          )} */}
-        </div>
+        
+        </RightCol>
       </Hello>
 
       {showModal && (
         <PurchaseModal course={course} onClose={() => setShowModal(false)} />
       )}
     </Container>
-    <Aspirants />
-   <Achievers/>
+    {/* <Aspirants /> */}
+   {/* <Achievers/> */}
     </>
   );
 };

@@ -1,103 +1,97 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Container,
-  Title,
-  FilterBar,
-  FilterButton,
-  SearchWrapper,
-  SearchIcon,
-  SearchInput,
-  SliderIcon,
-  CardGrid,
-  CourseCard,
-  ImageWrapper,
-  CourseContent,
-  CourseMain,
-  CourseHead,
-  CourseTitle,
-  CourseMinititle,
-  CourseDesc,
-  Details,
-  DetailItem,
-  PriceActions,
-  Price,
-  ViewButton,
-  RatingWrapper,
-  EnrolledTag,
-  Ribbon,
-  VerticalTag,
-  OldPrice,
-  NewPrice,
-  DiscountBadge
+  Container, Title, FilterBar, FilterButton, SearchWrapper, SearchIcon,
+  SearchInput, SliderIcon, CardGrid, CourseCard, ImageWrapper, CourseContent,
+  CourseMain, CourseHead, CourseTitle, CourseMinititle, CourseDesc, PriceActions,
+  Price, ViewButton, RatingWrapper, EnrolledTag, OldPrice, NewPrice,Underline
 } from './AllCoursesDetails.styles';
-
 import { CiSearch } from 'react-icons/ci';
 import { BiSliderAlt } from 'react-icons/bi';
-import { FcCalendar } from 'react-icons/fc';
 import { FaStar } from 'react-icons/fa';
-import lawimg from '../../../assets/lawentrance.png';
-
-import { getAllCourses, getAllUserCourseByCategory, getAllUserCourses, getCourseByCategory } from '../../../api/courseApi';
+import {
+  getAllCourses,
+  getAllUserCourseByCategory,
+  getAllUserCourses,
+  getCourseByCategory
+} from '../../../api/courseApi';
 import { getCategories } from '../../../api/categoryApi';
 import { useNavigate } from 'react-router-dom';
 import { getCookiesData } from '../../../utils/cookiesService';
-import LawAcademy from '../LawAcademy/LawAcademy';
-import EnrollCourse from '../EnrollCourse/EnrollCourse';
-import Aspirants from '../../AboutUsComponents/Aspirants/Aspirants';
-import Footer from '../../../pages/LandingPage/Footer/Footer';
 
 const AllCoursesDetails = () => {
   const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  // Fetch category list on mount
+  // toggle full list
+  const [showAll, setShowAll] = useState(false);
+
+  // responsive: treat <=768px as mobile
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 768px)').matches
+      : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => setIsMobile(e.matches);
+
+    // modern + Safari fallback
+    mq.addEventListener?.('change', onChange);
+    mq.addListener?.(onChange);
+
+    return () => {
+      mq.removeEventListener?.('change', onChange);
+      mq.removeListener?.(onChange);
+    };
+  }, []);
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        // // // console.log("data", data);
-        // Map to titles
-        const titles = data.map(cat => cat.title);
-        // Ensure "All" is present at the front
+        const titles = data.map((cat) => cat.title);
         const uniqueTitles = Array.from(new Set([...titles]));
         setCategories(uniqueTitles);
-      } catch (err) {
-        // // console.error('Error fetching categories:', err);
-      }
+      } catch {/* ignore */}
     };
     fetchCategories();
   }, []);
 
-  
-const formatINR = (n) =>
-  typeof n === "number"
-    ? n.toLocaleString("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 })
-    : n;
+  const formatINR = (n) =>
+    typeof n === 'number'
+      ? n.toLocaleString('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          maximumFractionDigits: 0
+        })
+      : n;
 
-  
+  // reset collapsed view when tab/search changes
+  useEffect(() => {
+    setShowAll(false);
+  }, [activeTab, searchTerm]);
 
-  // Fetch courses when activeTab changes
   useEffect(() => {
     const fetchCourses = async () => {
       const cookiesData = getCookiesData();
-      // // console.log("cookiesData", cookiesData, "activeTab", activeTab);
-      setLoading(true);
+      // setLoading(true);
       try {
-        // // console.log("Fetching courses for user:", cookiesData?.userId || 'Guest', "Category:", activeTab);
-        // Fetch courses based on user and active tab
         let data = [];
         if (cookiesData && cookiesData.userId) {
           if (activeTab === 'All') {
             const resp = await getAllUserCourses(cookiesData.userId);
-            // // // console.log("resp", resp);
             data = resp.data;
           } else {
-            const resp = await getAllUserCourseByCategory(cookiesData.userId, activeTab);
-            // // console.log("resp", resp);
+            const resp = await getAllUserCourseByCategory(
+              cookiesData.userId,
+              activeTab
+            );
             data = resp.data;
           }
         } else {
@@ -109,53 +103,51 @@ const formatINR = (n) =>
             data = resp.data;
           }
         }
-        // // console.log("data", data);
-const transformed = data.map(course => {
-  const mrp = Number(course.price ?? 0);
-  const sale =
-    course.discountPrice != null
-      ? Number(course.discountPrice)
-      : course.offerPrice != null
-        ? Number(course.offerPrice)
-        : mrp;
 
-  const discountPct =
-    mrp > 0 && sale >= 0 && sale < mrp
-      ? Math.round(((mrp - sale) / mrp) * 100)
-      : 0;
+        const transformed = data.map((course) => {
+          const mrp = Number(course.price ?? 0);
+          const sale =
+            course.discountPrice != null
+              ? Number(course.discountPrice)
+              : course.offerPrice != null
+              ? Number(course.offerPrice)
+              : mrp;
 
-  return {
-    id: course._id,
-    title: course.courseDisplayName || 'Untitled Course',
-    minititle: course.courseName || '',
-    desc: course.description || 'No description available',
-    duration: course.duration || 'Not specified',
-    success: course.successRate || 'N/A',
-    rating: course.rating || 0,
-    category: course.category || 'All',
-    image: course.image || lawimg,
-    isEnrolled: course.isEnrolled || false,
+        const discountPct =
+            mrp > 0 && sale >= 0 && sale < mrp
+              ? Math.round(((mrp - sale) / mrp) * 100)
+              : 0;
 
-    // pricing fields used below
-    mrp,
-    sale,
-    discountPct,
-    isFree: sale === 0
-  };
-});
+          return {
+            id: course._id,
+            title: course.courseDisplayName || 'Untitled Course',
+            minititle: course.courseName || '',
+            shortDescription: course.shortDescription || '',
+            desc: course.description || 'No description available',
+            duration: course.duration || 'Not specified',
+            success: course.successRate || 'N/A',
+            rating: course.rating || 0,
+            category: course.category || 'All',
+            image: course.image,
+            isEnrolled: !!course.isEnrolled,
+            mrp,
+            sale,
+            discountPct,
+            isFree: sale === 0
+          };
+        });
 
-        // // console.log("transformed", transformed);
         setCourses(transformed);
-      } catch (err) {
-        // // console.error('Error fetching courses:', err);
+      } catch {
+        // ignore
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
     fetchCourses();
   }, [activeTab]);
 
-  const filteredCourses = courses.filter(course => {
+  const filteredCourses = courses.filter((course) => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
@@ -164,112 +156,210 @@ const transformed = data.map(course => {
     );
   });
 
+  // initial counts: 15 on mobile, 4 on desktop
+  const INITIAL_COUNT = isMobile ? 15 : 4;
+  const visibleCourses = showAll
+    ? filteredCourses
+    : filteredCourses.slice(0, INITIAL_COUNT);
+
   const handleViewDetails = (id, isEnrolled) => {
-    // // console.log("id", id, "isEnrolled", isEnrolled);
-    navigate(`/coursedetails/${id}`, { state: { isEnrolled } })
+    navigate(`/coursedetails/${id}`, { state: { isEnrolled } });
   };
 
-  if (loading) return <div>Loading courses...</div>;
+  const handleToggleShowAll = (next) => {
+    setShowAll(next);
+    // if collapsing, scroll to the very top
+    if (!next) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 0);
+    }
+  };
+
+  // if (loading) return <div>Loading courses...</div>;
 
   return (
     <>
-    <Container>
-      <Title>
-        Our <span>Courses</span>
-      </Title>
-
-      <FilterBar>
-        <FilterButton
-          key={"All"}
-          active={activeTab === 'All'}
-          onClick={() => setActiveTab("All")}
-        >
-          All
-        </FilterButton>
-        {categories.map(cat => (
+      <Container>
+        <Title>
+          Our <span>Courses</span>
+        </Title>
+  {/* <Underline /> */}
+        <FilterBar>
           <FilterButton
-            key={cat}
-            active={activeTab === cat}
-            onClick={() => setActiveTab(cat)}
+            key={'All'}
+            active={activeTab === 'All'}
+            onClick={() => setActiveTab('All')}
           >
-            {cat}
+            All
           </FilterButton>
-        ))}
-      </FilterBar>
+          {categories.map((cat) => (
+            <FilterButton
+              key={cat}
+              active={activeTab === cat}
+              onClick={() => setActiveTab(cat)}
+            >
+              {cat}
+            </FilterButton>
+          ))}
+        </FilterBar>
 
-      <SearchWrapper>
-        <SearchIcon><CiSearch size={24} /></SearchIcon>
-        <SearchInput
-          placeholder="Search"
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-        />
-        <SliderIcon><BiSliderAlt size={24} /></SliderIcon>
-      </SearchWrapper>
+        <SearchWrapper>
+          <SearchIcon>
+            <CiSearch size={24} />
+          </SearchIcon>
+          <SearchInput
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <SliderIcon>
+            <BiSliderAlt size={24} />
+          </SliderIcon>
+        </SearchWrapper>
 
-      <CardGrid>
-        {filteredCourses.map(course =>{
-          // // console.log("course skjdb", course);
-         return(
-          <CourseCard key={course.id}>
-            {course.isEnrolled && <EnrolledTag>Enrolled</EnrolledTag>}
-            {/* {course.isEnrolled &&   <Ribbon className="enrolled">✓ Enrolled</Ribbon>} */}
-            {/* {course.isEnrolled && <VerticalTag>✓ Enrolled</VerticalTag>} */}
-            <ImageWrapper>
-              <img src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}`} alt={course.title} />
-            </ImageWrapper>
-            <CourseContent>
-              <CourseMain>
-                <RatingWrapper>
-                  {course.rating} <FaStar style={{ marginLeft: '5px' }} />
-                </RatingWrapper>
-                <CourseHead>
-                  <CourseTitle>{course.title}</CourseTitle>
-                  <CourseMinititle>{course.minititle}</CourseMinititle>
-                </CourseHead>
-                <CourseDesc dangerouslySetInnerHTML={{ __html: course.desc.slice(0, 100) + "..."  }} />
-              </CourseMain>
-              {/* <Details>
-                <DetailItem><FcCalendar /> Duration: {course.duration}</DetailItem>
-                <DetailItem>🏆 Success Rate: {course.success}</DetailItem>
-              </Details> */}
-            </CourseContent>
-       {course.isEnrolled ? (
-  <PriceActions>
-    <Price style={{ width: "200%" }} onClick={() => { navigate("/user"); }}>
-      Continue Learning
-    </Price>
-  </PriceActions>
-) : (
-  <PriceActions>
-    <Price onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
-      {course.isFree ? (
-        <NewPrice>Free</NewPrice>
-      ) : course.discountPct > 0 ? (
-        <>
-          <OldPrice>{formatINR(course.mrp)}</OldPrice>
-          <NewPrice>{formatINR(course.sale)}</NewPrice>
-          {/* <DiscountBadge>{course.discountPct}% OFF</DiscountBadge> */}
-        </>
-      ) : (
-        <NewPrice>{formatINR(course.mrp)}</NewPrice>
-      )}
-    </Price>
+        <CardGrid>
+          {(isMobile && !showAll
+            ? filteredCourses.slice(
+                0,
+                Math.min(INITIAL_COUNT, filteredCourses.length)
+              )
+            : visibleCourses
+          ).map((course, idx) => (
+            <React.Fragment key={course.id}>
+              <CourseCard>
+                {course.isEnrolled && <EnrolledTag>Enrolled</EnrolledTag>}
 
-    <ViewButton onClick={() => handleViewDetails(course.id, course.isEnrolled)}>
-      View details
-    </ViewButton>
-  </PriceActions>
-)}
+                <ImageWrapper>
+                  <img
+                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}`}
+                    alt={course.title}
+                  />
+                </ImageWrapper>
 
+                <CourseContent>
+                  <CourseMain>
+                    <RatingWrapper>
+                      {course.rating} <FaStar style={{ marginLeft: '5px' }} />
+                    </RatingWrapper>
 
+                    <CourseHead>
+                      <CourseTitle>{course.title}</CourseTitle>
+                      <CourseMinititle
+                        dangerouslySetInnerHTML={{
+                          __html: course.shortDescription
+                        }}
+                      />
+                    </CourseHead>
 
-          </CourseCard>
-        )
-        })}
-      </CardGrid>
-    </Container>
-     
+                    <CourseDesc
+                      dangerouslySetInnerHTML={{
+                        __html: (course.desc || '').slice(0, 100) + '...'
+                      }}
+                    />
+                  </CourseMain>
+                </CourseContent>
+
+                {course.isEnrolled ? (
+                  <PriceActions>
+                    <Price
+                      style={{ width: '200%' }}
+                      // onClick={() => navigate(`/continueCourse/${course.id}`)}
+                      onClick={() =>navigate('/user')}
+                    >
+                      Continue Learning
+                    </Price>
+                  </PriceActions>
+                ) : (
+                  <PriceActions>
+                    <Price
+                      onClick={() =>
+                        handleViewDetails(course.id, course.isEnrolled)
+                      }
+                    >
+                      {course.isFree ? (
+                        <NewPrice>Free</NewPrice>
+                      ) : course.discountPct > 0 ? (
+                        <>
+                          <OldPrice>{formatINR(course.mrp)}</OldPrice>
+                          <NewPrice>{formatINR(course.sale)}</NewPrice>
+                        </>
+                      ) : (
+                        <NewPrice>{formatINR(course.mrp)}</NewPrice>
+                      )}
+                    </Price>
+
+                    <ViewButton
+                      onClick={() =>
+                        handleViewDetails(course.id, course.isEnrolled)
+                      }
+                    >
+                      View details
+                    </ViewButton>
+                  </PriceActions>
+                )}
+              </CourseCard>
+
+              {/* Inline "View all" button right after the 15th card on mobile */}
+              {isMobile &&
+                !showAll &&
+                filteredCourses.length > INITIAL_COUNT &&
+                idx === INITIAL_COUNT - 1 && (
+                  <div
+                    style={{
+                      gridColumn: '1 / -1',
+                      display: 'flex',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <button
+                      onClick={() => handleToggleShowAll(true)}
+                      style={{
+                        border: '1px solid #007BFF',
+                        color: '#007BFF',
+                        background: '#fff',
+                        borderRadius: 8,
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        fontWeight: 600
+                      }}
+                    >
+                      View all
+                    </button>
+                  </div>
+                )}
+            </React.Fragment>
+          ))}
+        </CardGrid>
+
+        {/* Bottom button for desktop only */}
+        {!isMobile && filteredCourses.length > INITIAL_COUNT && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              margin: '8px 0 12px'
+            }}
+          >
+            <button
+              onClick={() => handleToggleShowAll(!showAll)}
+              style={{
+                border: '1px solid #007BFF',
+                color: '#007BFF',
+                background: '#fff',
+                borderRadius: 8,
+                padding: '8px 12px',
+                cursor: 'pointer',
+                fontWeight: 500,
+                margin: 'auto',
+                marginTop: '20px'
+              }}
+            >
+              {showAll ? 'Show less' : 'View all'}
+            </button>
+          </div>
+        )}
+      </Container>
     </>
   );
 };

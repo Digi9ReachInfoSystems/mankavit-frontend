@@ -3,3 +3,17 @@
   opacity: 0.5 !important;
   cursor: not-allowed !important;
 } */
+
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+
+}
+
+video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+video::-moz-fullscreen-button {
+  display: none !important;
+}

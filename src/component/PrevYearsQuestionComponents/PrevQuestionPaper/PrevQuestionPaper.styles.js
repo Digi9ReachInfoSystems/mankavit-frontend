@@ -221,3 +221,43 @@ export const CustomAntdSelect = styled(AntdSelectBase)`
     width: 100% !important;
   }
 `;
+
+// export const Title = styled.h2`
+//   font-size: 50px;
+//   font-weight: 700;
+//   text-align: left;
+//   margin-bottom: 1rem;
+//   color: #2d3748;
+//   // font-family: 'Merriweather', serif;
+  
+//   @media (max-width: 768px) {
+//     font-size: 36px;
+//   }
+// `;
+
+
+export const Title = styled.h2`
+  font-size: 50px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: .2px;
+
+  @media (max-width: 1360px) { font-size: 38px; }
+ @media (max-width: 900px) {
+    font-size: 36px;
+  }
+  @media (max-width: 480px)  { text-align: center; }
+`;
+
+export const Highlight = styled.span`
+  color: #2d79f3;
+`;
+
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+`;

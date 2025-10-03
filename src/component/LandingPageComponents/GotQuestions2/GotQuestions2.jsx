@@ -68,18 +68,45 @@ const RightSection = styled.div`
   display: flex;
   flex-direction: column;
 `;
+const Title = styled.h2`
+  font-size: 50px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: .2px;
+
+  @media (max-width: 1360px) { font-size: 38px; }
+ @media (max-width: 900px) {
+    font-size: 36px;
+  }
+  @media (max-width: 480px)  { text-align: center; }
+`;
+
+const Highlight = styled.span`
+  color: #2d79f3;
+`;
+
+const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+  // margin-top: 8px;
+`;
+
 
 const Heading = styled.h2`
-  font-size: 48px;
-  font-weight: 700;
+  font-size: 50px;
+  font-weight: 500;
   margin: 0 0 40px 0;
   background: linear-gradient(135deg, #007BFF 0%, #0DCAF0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   
-  @media (max-width: 1024px) {
-    font-size: 42px;
+   @media (max-width: 900px) {
+    font-size: 36px;
   }
 
   @media (max-width: 768px) {
@@ -267,11 +294,12 @@ const GotQuestions2 = () => {
         {/* <LeftImage src={ladyJustice} alt="Lady Justice" /> */}
 
         <RightSection>
-          <Heading>Got Questions?</Heading>
+          <Title>Got <Highlight>Questions?</Highlight></Title>
+          <Underline />
           
-          {!loading && !error && faqs.length > 0 && (
+          {/* {!loading && !error && faqs.length > 0 && (
             <FaqCount>{faqs.length} frequently asked questions</FaqCount>
-          )}
+          )} */}
 
           {loading && <LoadingMessage>Loading FAQs…</LoadingMessage>}
           {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -1,6 +1,6 @@
 // import React, { useEffect, useState } from "react";
 // import { useParams, useNavigate } from "react-router-dom";
-// import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
+// import { FaAngleLeft } from "react-icons/fa6";
 // import { toast } from "react-toastify";
 // import styled from "styled-components";
 // import {
@@ -10,25 +10,17 @@
 //   LeftDiv,
 //   LeftIcon,
 //   HeaderLeft,
-//   Language,
-//   RightIcon,
 //   QuestionType,
-//   Timer,
-//   Text,
-//   Complier,
-//   QuestionNumber,
-//   QuestionTitle,
+//   SummaryContainer,
+//   SummaryItem,
+//   SummaryLabel,
+//   SummaryValue,
 //   Section,
 //   PassageBox,
 //   HorizontalLine,
 //   QuestionBox,
 //   OptionsList,
 //   OptionLabel,
-//   ButtonGroup,
-//   LeftButton,
-//   ClearButton,
-//   RightButton,
-//   NextButton,
 //   SidebarContainer,
 //   Divider,
 //   Legend,
@@ -38,32 +30,33 @@
 //   QuestionNav,
 //   Grid,
 //   GridButton,
-//   FooterButtons,
-//   SummaryContainer,
-//   SummaryItem,
-//   SummaryLabel,
-//   SummaryValue,
 //   ToggleSidebarBtn,
+//   QuestionNumber,
+//   QuestionTitle,
+//   // NEW (same design bits as Test screen)
+//   PageTitle,
+//   StickyActionBar,
+//   LeftButtonsWrap,
+//   RightStickyButton,
+//   PassageContainer
 // } from "./ResultScreen.styles";
 // import {
 //   getMocktestById,
 //   getMocktestAttempts,
 // } from "../../../../api/mocktestApi";
 // import { getCookiesData } from "../../../../utils/cookiesService";
+// // import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+// import { RxDoubleArrowRight } from "react-icons/rx";
+// import { RxDoubleArrowLeft } from "react-icons/rx";
 
-// import { FaAngleDoubleLeft } from "react-icons/fa";
-// import { FaAngleDoubleRight } from "react-icons/fa";
 // // --- small helpers for layout inside this file only ---
-// const PassageContainer = styled.div`
-//   display: flex;
-//   gap: 20px;
-//   width: 100%;
-// `;
+
 // const PassageSection = styled.div`
 //   flex: 1;
 // `;
 // const QuestionSection = styled.div`
 //   flex: 1;
+ 
 // `;
 // const QuestionText = styled.div`
 //   font-size: 18px;
@@ -95,7 +88,6 @@
 
 //         // 2) Attempts
 //         const resAtts = await getMocktestAttempts(userId, testId);
-//         // // console.log("resAtts", resAtts);
 //         const arr = unwrap(resAtts) || [];
 //         const latestAttempt =
 //           arr.find((a) => a._id === attemptId) || arr[arr.length - 1] || {};
@@ -111,7 +103,6 @@
 //               status = ans.isCorrect ? "correct" : "incorrect";
 //             }
 //           } else {
-//             // subjective:
 //             const hasText =
 //               typeof ans.answer === "string" && ans.answer.trim() !== "";
 //             if (hasText) {
@@ -120,8 +111,7 @@
 //               } else if (typeof ans.marksAwarded === "number") {
 //                 status = ans.marksAwarded > 0 ? "correct" : "incorrect";
 //               } else {
-//                 // not evaluated yet -> keep as not-answered to avoid misleading
-//                 status = "not-answered";
+//                 status = "not-answered"; // not evaluated yet
 //               }
 //             }
 //           }
@@ -146,7 +136,7 @@
 
 //         setQuestions(processed);
 
-//         // 4) Build summary conditionally
+//         // 4) Build summary
 //         const totalQuestions = testData?.questions?.length || processed.length;
 //         const attempted = processed.filter(
 //           (q) => q.status !== "not-answered"
@@ -168,17 +158,14 @@
 //         ];
 
 //         if (hasMCQ && !hasSubjective) {
-//           // Only Objective
 //           summary.push({ label: "MCQ Marks Obtained", value: mcqScore });
 //         } else if (hasMCQ && hasSubjective) {
-//           // Both Objective & Subjective
 //           summary.push(
 //             { label: "MCQ Marks Obtained", value: mcqScore },
 //             { label: "Subjective Marks Obtained", value: subjectiveScore },
 //             { label: "Total Marks Obtained", value: totalMarks }
 //           );
 //         } else if (!hasMCQ && hasSubjective) {
-//           // Only Subjective (graceful handling)
 //           summary.push(
 //             { label: "Subjective Marks Obtained", value: subjectiveScore },
 //             { label: "Total Marks Obtained", value: totalMarks }
@@ -187,7 +174,7 @@
 
 //         setSummaryData(summary);
 //       } catch (err) {
-//         // // console.error(err);
+//         // console.error(err);
 //         toast.error("Could not load results");
 //         navigate(-1);
 //       } finally {
@@ -196,7 +183,7 @@
 //     })();
 //   }, [testId, attemptId, userId, navigate]);
 
-//   if (loading) return <div>Loading results…</div>;
+//   // if (loading) return <div>Loading results…</div>;
 //   if (!test) return <div>Unable to load your attempt.</div>;
 
 //   const current = questions[currentIndex] || {};
@@ -220,13 +207,12 @@
 //     setCurrentIndex((i) => (i + 1) % questions.length);
 //   };
 
-//   // 2) Add this tiny renderer near your other small helpers
 //   const ExpectedAnswer = ({ html }) => {
 //     if (!html) return null;
 //     return (
 //       <div style={{ marginTop: 16 }}>
 //         <p>
-//           <strong>Expected Answer:</strong>
+//           <strong>Explanation:</strong>
 //         </p>
 //         <div dangerouslySetInnerHTML={{ __html: html }} />
 //       </div>
@@ -241,28 +227,24 @@
 //           aria-label="Toggle question navigator"
 //           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
 //         >
-//           {sidebarOpen ? <FaAngleDoubleRight /> : <FaAngleDoubleLeft />}
+//           {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
 //         </ToggleSidebarBtn>
-        
+
+//         {/* HEADER — Back + Title tight */}
 //         <Header>
 //           <LeftDiv>
-//             <LeftIcon onClick={() => navigate(-1)}>
+//             <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
 //               <FaAngleLeft />
 //             </LeftIcon>
-//             <HeaderLeft>
-//               <Language>Back</Language>
-//             </HeaderLeft>
+//             <HeaderLeft />
+//             <PageTitle title={test?.title || "Mock Test"}>
+//               {test?.title || "Mock Test"}
+//             </PageTitle>
 //           </LeftDiv>
 
-//           {/* <RightIcon><FaAngleRight /></RightIcon> */}
+//           <QuestionType>{isPassage ? "Passage" : isMCQ ? "MCQ" : "Subjective"}</QuestionType>
 //         </Header>
 
-//         <div style={{ flex: 1, textAlign: "left" }}>
-//           <h4 style={{ margin: 0 }}>{test?.title || "Mock Test"}</h4>
-//         </div>
-//         <QuestionType>
-//           {isPassage ? "Passage" : isMCQ ? "MCQ" : "Subjective"}
-//         </QuestionType>
 //         <SummaryContainer>
 //           {summaryData.map((s, i) => (
 //             <SummaryItem key={i}>
@@ -272,73 +254,24 @@
 //           ))}
 //         </SummaryContainer>
 
-//         <Complier>
-//           <QuestionNumber>
-//             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
-//           </QuestionNumber>
+//         <QuestionNumber>
+//           <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
+//         </QuestionNumber>
 
-//           <Section>
-//             {current.isPassage ? (
-//               <PassageContainer>
-//                 <PassageSection>
-//                   <PassageBox
-//                     dangerouslySetInnerHTML={{ __html: current.passageText }}
-//                   />
-//                 </PassageSection>
-
-//                 <QuestionSection>
-//                   <QuestionBox>
-//                     <QuestionText
-//                       dangerouslySetInnerHTML={{ __html: current.text }}
-//                     />
-//                     {isMCQ ? (
-//                       <OptionsList>
-//                         {current.options.map((opt, idx) => {
-//                           const isSel = idx === current.selectedOption;
-//                           const isCor = idx === current.correctAnswer;
-//                           let cls = "plain";
-//                           if (isSel && current.status === "correct")
-//                             cls = "correct-attempted";
-//                           if (isSel && current.status === "incorrect")
-//                             cls = "incorrect-attempted";
-//                           if (!isSel && isCor) cls = "correct-unattempted";
-
-//                           return (
-//                             <OptionLabel key={idx} status={cls}>
-//                               <input type="radio" checked={isSel} readOnly />
-//                               {opt.text || opt}
-//                               {isCor && (
-//                                 <span
-//                                   style={{ marginLeft: 10, color: "green" }}
-//                                 >
-//                                   (Correct)
-//                                 </span>
-//                               )}
-//                             </OptionLabel>
-//                           );
-//                         })}
-//                       </OptionsList>
-//                     ) : (
-//                       <div>
-//                         <p>
-//                           <strong>Your Answer:</strong>
-//                         </p>
-//                         <p>{current.answer || <em>Not Answered</em>}</p>
-//                         {/* <p>Expected answer is: {current.expectedAnswer}</p> */}
-//                       </div>
-//                     )}
-//                     <ExpectedAnswer html={current.expectedAnswer} />{" "}
-//                     {/* ⬅️ ADD THIS */}
-//                   </QuestionBox>
-//                 </QuestionSection>
-//               </PassageContainer>
-//             ) : (
-//               <>
+//         <Section>
+//           {current.isPassage ? (
+//             <PassageContainer>
+//               <PassageSection>
 //                 <PassageBox
-//                   dangerouslySetInnerHTML={{ __html: current.text }}
+//                   dangerouslySetInnerHTML={{ __html: current.passageText }}
 //                 />
-//                 <HorizontalLine />
+//               </PassageSection>
+
+//               <QuestionSection>
 //                 <QuestionBox>
+//                   <QuestionText
+//                     dangerouslySetInnerHTML={{ __html: current.text }}
+//                   />
 //                   {isMCQ ? (
 //                     <OptionsList>
 //                       {current.options.map((opt, idx) => {
@@ -370,27 +303,70 @@
 //                         <strong>Your Answer:</strong>
 //                       </p>
 //                       <p>{current.answer || <em>Not Answered</em>}</p>
-//                       {/* <p>Expected answer is: {current.expectedAnswer}</p> */}
 //                     </div>
 //                   )}
 //                   <ExpectedAnswer html={current.expectedAnswer} />
 //                 </QuestionBox>
-//               </>
-//             )}
-//           </Section>
+//               </QuestionSection>
+//             </PassageContainer>
+//           ) : (
+//             <>
+//               <PassageBox dangerouslySetInnerHTML={{ __html: current.text }} />
+//               <HorizontalLine />
+//               <QuestionBox>
+//                 {isMCQ ? (
+//                   <OptionsList>
+//                     {current.options.map((opt, idx) => {
+//                       const isSel = idx === current.selectedOption;
+//                       const isCor = idx === current.correctAnswer;
+//                       let cls = "plain";
+//                       if (isSel && current.status === "correct")
+//                         cls = "correct-attempted";
+//                       if (isSel && current.status === "incorrect")
+//                         cls = "incorrect-attempted";
+//                       if (!isSel && isCor) cls = "correct-unattempted";
 
-//           <ButtonGroup>
-//             <LeftButton>
-//               <ClearButton onClick={goPrev}>Previous</ClearButton>
-//             </LeftButton>
-//             <RightButton>
-//               <NextButton onClick={goNext}>Next</NextButton>
-//             </RightButton>
-//           </ButtonGroup>
-//         </Complier>
+//                       return (
+//                         <OptionLabel key={idx} status={cls}>
+//                           <input type="radio" checked={isSel} readOnly />
+//                           {opt.text || opt}
+//                           {isCor && (
+//                             <span style={{ marginLeft: 10, color: "green" }}>
+//                               (Correct)
+//                             </span>
+//                           )}
+//                         </OptionLabel>
+//                       );
+//                     })}
+//                   </OptionsList>
+//                 ) : (
+//                   <div>
+//                     <p>
+//                       <strong>Your Answer:</strong>
+//                     </p>
+//                     <p>{current.answer || <em>Not Answered</em>}</p>
+//                   </div>
+//                 )}
+//                 <ExpectedAnswer html={current.expectedAnswer} />
+//               </QuestionBox>
+//             </>
+//           )}
+//         </Section>
+
+//         {/* STICKY ACTION BAR — parity with Test screen */}
+//         <StickyActionBar>
+//           <LeftButtonsWrap>
+//             <button className="prev" onClick={goPrev}>Previous</button>
+//             <button className="next" onClick={goNext}>Next</button>
+//           </LeftButtonsWrap>
+
+//           <RightStickyButton onClick={() => navigate("/user")}>
+//             Back to Dashboard
+//           </RightStickyButton>
+//         </StickyActionBar>
 //       </Content>
 
-//       {/* Sidebar with just 3 indicators */}
+//       {/* Sidebar with 3 indicators, scrollable question map */}
 //       <SidebarContainer $open={sidebarOpen}>
 //         <Divider />
 //         <Legend>
@@ -428,25 +404,16 @@
 //             ))}
 //           </Grid>
 //         </QuestionNav>
-
-//         <FooterButtons>
-//           <NextButton onClick={() => navigate("/user")}>
-//             Back to Dashboard
-//           </NextButton>
-//         </FooterButtons>
 //       </SidebarContainer>
 //     </Container>
 //   );
 // }
 
 
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaAngleLeft } from "react-icons/fa6";
 import { toast } from "react-toastify";
-import styled from "styled-components";
 import {
   Container,
   Content,
@@ -477,38 +444,22 @@ import {
   ToggleSidebarBtn,
   QuestionNumber,
   QuestionTitle,
-  // NEW (same design bits as Test screen)
   PageTitle,
   StickyActionBar,
   LeftButtonsWrap,
   RightStickyButton,
+  PassageContainer,
 } from "./ResultScreen.styles";
 import {
   getMocktestById,
   getMocktestAttempts,
 } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
-// import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
-import { RxDoubleArrowRight } from "react-icons/rx";
-import { RxDoubleArrowLeft } from "react-icons/rx";
+import { RxDoubleArrowRight, RxDoubleArrowLeft } from "react-icons/rx";
 
-// --- small helpers for layout inside this file only ---
-const PassageContainer = styled.div`
-  display: flex;
-  gap: 20px;
-  width: 100%;
-`;
-const PassageSection = styled.div`
-  flex: 1;
-`;
-const QuestionSection = styled.div`
-  flex: 1;
-`;
-const QuestionText = styled.div`
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-`;
+// Local helpers for this file only
+const PassageSection = ({ children }) => <div style={{ flex: 1 }}>{children}</div>;
+const QuestionSection = ({ children }) => <div style={{ flex: 1 }}>{children}</div>;
 
 export default function ResultScreen() {
   const { testId, subjectId, attemptId } = useParams();
@@ -520,44 +471,49 @@ export default function ResultScreen() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [summaryData, setSummaryData] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [passageExpanded, setPassageExpanded] = useState(false);
 
   const unwrap = (r) => r?.data?.body?.data ?? r?.data;
+
+  // reset passage expand on question change
+  useEffect(() => {
+    setPassageExpanded(false);
+  }, [currentIndex]);
 
   useEffect(() => {
     (async () => {
       try {
-        // 1) Test meta
         const resTest = await getMocktestById(testId);
         const testData = unwrap(resTest);
         setTest(testData);
 
-        // 2) Attempts
         const resAtts = await getMocktestAttempts(userId, testId);
         const arr = unwrap(resAtts) || [];
         const latestAttempt =
           arr.find((a) => a._id === attemptId) || arr[arr.length - 1] || {};
 
-        // 3) Normalize to EXACTLY 3 statuses: correct | incorrect | not-answered
+        // Normalize to 3 statuses
         const processed = (latestAttempt.answers || []).map((ans) => {
           const details = ans.questionDetails || {};
           const type = details.type || "mcq";
-
+// console.log("answer",ans);
           let status = "not-answered";
           if (type === "mcq") {
             if (ans.answerIndex != null) {
-              status = ans.isCorrect ? "correct" : "incorrect";
+              // status = ans.isCorrect ? "correct" : "incorrect";
+              status = ans.answerIndex==ans.questionDetails.correctAnswer ? "correct" : "incorrect";
             }
           } else {
-            const hasText =
-              typeof ans.answer === "string" && ans.answer.trim() !== "";
+            const hasText = typeof ans.answer === "string" && ans.answer.trim() !== "";
             if (hasText) {
               if (typeof ans.isCorrect === "boolean") {
+                
                 status = ans.isCorrect ? "correct" : "incorrect";
               } else if (typeof ans.marksAwarded === "number") {
                 status = ans.marksAwarded > 0 ? "correct" : "incorrect";
               } else {
-                status = "not-answered"; // not evaluated yet
+                status = "not-answered";
               }
             }
           }
@@ -582,17 +538,14 @@ export default function ResultScreen() {
 
         setQuestions(processed);
 
-        // 4) Build summary
+        // Build summary (compact for mobile via styles)
         const totalQuestions = testData?.questions?.length || processed.length;
-        const attempted = processed.filter(
-          (q) => q.status !== "not-answered"
-        ).length;
+        const attempted = processed.filter((q) => q.status !== "not-answered").length;
         const correct = processed.filter((q) => q.status === "correct").length;
 
         const mcqScore = latestAttempt.mcqScore || 0;
         const subjectiveScore = latestAttempt.subjectiveScore || 0;
-        const totalMarks =
-          latestAttempt.totalMarks ?? mcqScore + subjectiveScore;
+        const totalMarks = latestAttempt.totalMarks ?? mcqScore + subjectiveScore;
 
         const hasMCQ = processed.some((q) => q.type === "mcq");
         const hasSubjective = processed.some((q) => q.type !== "mcq");
@@ -620,7 +573,6 @@ export default function ResultScreen() {
 
         setSummaryData(summary);
       } catch (err) {
-        // console.error(err);
         toast.error("Could not load results");
         navigate(-1);
       } finally {
@@ -629,21 +581,19 @@ export default function ResultScreen() {
     })();
   }, [testId, attemptId, userId, navigate]);
 
-  if (loading) return <div>Loading results…</div>;
   if (!test) return <div>Unable to load your attempt.</div>;
 
   const current = questions[currentIndex] || {};
   const isMCQ = current.type === "mcq";
   const isPassage = current.isPassage;
 
-  // counts for the 3 indicators
+  // counts for legend pills
   const counts = questions.reduce((acc, q) => {
     acc[q.status] = (acc[q.status] || 0) + 1;
     return acc;
   }, {});
   const getCount = (st) => counts[st] || 0;
 
-  // circular nav
   const goPrev = () => {
     if (!questions.length) return;
     setCurrentIndex((i) => (i - 1 + questions.length) % questions.length);
@@ -653,30 +603,55 @@ export default function ResultScreen() {
     setCurrentIndex((i) => (i + 1) % questions.length);
   };
 
+  const onPickQuestion = (i) => {
+    setCurrentIndex(i);
+    if (window.innerWidth <= 768) setSidebarOpen(false); // auto-close on mobile
+  };
+
   const ExpectedAnswer = ({ html }) => {
     if (!html) return null;
     return (
       <div style={{ marginTop: 16 }}>
-        <p>
-          <strong>Explanation:</strong>
-        </p>
+        <p><strong>Explanation:</strong></p>
         <div dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
+    );
+  };
+
+  // Mobile clamp (read more/less) — 6 lines default
+  const renderPassage = (html) => {
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    if (!isMobile) {
+      return <div dangerouslySetInnerHTML={{ __html: html }} />;
+    }
+    return (
+      <div>
+        <div
+          className={passageExpanded ? "passage-full" : "passage-clamped"}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+        <button
+          className="read-toggle"
+          onClick={() => setPassageExpanded((v) => !v)}
+        >
+          {passageExpanded ? "Read less" : "Read more"}
+        </button>
       </div>
     );
   };
 
   return (
     <Container>
-      <Content $sidebarOpen={sidebarOpen}>
-        <ToggleSidebarBtn
-          onClick={() => setSidebarOpen((s) => !s)}
-          aria-label="Toggle question navigator"
-          title={sidebarOpen ? "Hide navigator" : "Show navigator"}
-        >
-          {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
-        </ToggleSidebarBtn>
+      {/* Fixed mobile toggle button (right middle) */}
+      <ToggleSidebarBtn
+        onClick={() => setSidebarOpen((s) => !s)}
+        aria-label="Toggle question navigator"
+        title={sidebarOpen ? "Hide navigator" : "Show navigator"}
+      >
+        {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
+      </ToggleSidebarBtn>
 
-        {/* HEADER — Back + Title tight */}
+      <Content $sidebarOpen={sidebarOpen}>
         <Header>
           <LeftDiv>
             <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
@@ -688,9 +663,12 @@ export default function ResultScreen() {
             </PageTitle>
           </LeftDiv>
 
-          <QuestionType>{isPassage ? "Passage" : isMCQ ? "MCQ" : "Subjective"}</QuestionType>
+          <QuestionType>
+            {isPassage ? "Passage" : isMCQ ? "MCQ" : "Subjective"}
+          </QuestionType>
         </Header>
 
+        {/* Compact summary */}
         <SummaryContainer>
           {summaryData.map((s, i) => (
             <SummaryItem key={i}>
@@ -708,14 +686,15 @@ export default function ResultScreen() {
           {current.isPassage ? (
             <PassageContainer>
               <PassageSection>
-                <PassageBox
-                  dangerouslySetInnerHTML={{ __html: current.passageText }}
-                />
+                <PassageBox>
+                  {renderPassage(current.passageText)}
+                </PassageBox>
               </PassageSection>
 
               <QuestionSection>
                 <QuestionBox>
-                  <QuestionText
+                  <div
+                    style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}
                     dangerouslySetInnerHTML={{ __html: current.text }}
                   />
                   {isMCQ ? (
@@ -724,10 +703,8 @@ export default function ResultScreen() {
                         const isSel = idx === current.selectedOption;
                         const isCor = idx === current.correctAnswer;
                         let cls = "plain";
-                        if (isSel && current.status === "correct")
-                          cls = "correct-attempted";
-                        if (isSel && current.status === "incorrect")
-                          cls = "incorrect-attempted";
+                        if (isSel && current.status === "correct") cls = "correct-attempted";
+                        if (isSel && current.status === "incorrect") cls = "incorrect-attempted";
                         if (!isSel && isCor) cls = "correct-unattempted";
 
                         return (
@@ -745,9 +722,7 @@ export default function ResultScreen() {
                     </OptionsList>
                   ) : (
                     <div>
-                      <p>
-                        <strong>Your Answer:</strong>
-                      </p>
+                      <p><strong>Your Answer:</strong></p>
                       <p>{current.answer || <em>Not Answered</em>}</p>
                     </div>
                   )}
@@ -766,10 +741,8 @@ export default function ResultScreen() {
                       const isSel = idx === current.selectedOption;
                       const isCor = idx === current.correctAnswer;
                       let cls = "plain";
-                      if (isSel && current.status === "correct")
-                        cls = "correct-attempted";
-                      if (isSel && current.status === "incorrect")
-                        cls = "incorrect-attempted";
+                      if (isSel && current.status === "correct") cls = "correct-attempted";
+                      if (isSel && current.status === "incorrect") cls = "incorrect-attempted";
                       if (!isSel && isCor) cls = "correct-unattempted";
 
                       return (
@@ -787,9 +760,7 @@ export default function ResultScreen() {
                   </OptionsList>
                 ) : (
                   <div>
-                    <p>
-                      <strong>Your Answer:</strong>
-                    </p>
+                    <p><strong>Your Answer:</strong></p>
                     <p>{current.answer || <em>Not Answered</em>}</p>
                   </div>
                 )}
@@ -799,7 +770,6 @@ export default function ResultScreen() {
           )}
         </Section>
 
-        {/* STICKY ACTION BAR — parity with Test screen */}
         <StickyActionBar>
           <LeftButtonsWrap>
             <button className="prev" onClick={goPrev}>Previous</button>
@@ -812,7 +782,7 @@ export default function ResultScreen() {
         </StickyActionBar>
       </Content>
 
-      {/* Sidebar with 3 indicators, scrollable question map */}
+      {/* Slide-in Sidebar (Question Map) */}
       <SidebarContainer $open={sidebarOpen}>
         <Divider />
         <Legend>
@@ -822,16 +792,12 @@ export default function ResultScreen() {
           </OptionLabelList>
 
           <OptionLabelList>
-            <LegendItem className="incorrect">
-              {getCount("incorrect")}
-            </LegendItem>
+            <LegendItem className="incorrect">{getCount("incorrect")}</LegendItem>
             <LegendText>Incorrect</LegendText>
           </OptionLabelList>
 
           <OptionLabelList>
-            <LegendItem className="not-answered">
-              {getCount("not-answered")}
-            </LegendItem>
+            <LegendItem className="not-answered">{getCount("not-answered")}</LegendItem>
             <LegendText>Not Answered</LegendText>
           </OptionLabelList>
         </Legend>
@@ -841,9 +807,9 @@ export default function ResultScreen() {
             {questions.map((_, i) => (
               <GridButton
                 key={i}
-                className={questions[i].status} // correct | incorrect | not-answered
+                className={questions[i].status}
                 active={i === currentIndex}
-                onClick={() => setCurrentIndex(i)}
+                onClick={() => onPickQuestion(i)}
               >
                 {i + 1}
               </GridButton>

@@ -26,6 +26,9 @@ export const Title = styled.h1`
   margin: 0.25rem 0 0.25rem 0;
   color: ${({ theme }) => theme.colors.jetBlack};
   letter-spacing: -0.02em;
+  @media (max-width: 780px) {
+    font-size: 36px;
+  }
 `;
 export const CardGrid = styled.div`
   display: grid;
@@ -65,6 +68,10 @@ export const CourseCard = styled.div`
     transform: translateY(-6px);
     box-shadow: 0 16px 38px rgba(16, 24, 40, 0.16), 0 6px 12px rgba(16, 24, 40, 0.08);
     border-color: rgba(0, 123, 255, 0.18);
+  }
+
+  @media (max-width: 520px) {
+    min-height: 400px;
   }
 `;
 

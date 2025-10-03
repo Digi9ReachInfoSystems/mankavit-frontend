@@ -360,16 +360,16 @@ const Courses = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <CourseWrapper>
-        <Title>My Courses</Title>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          Loading your courses...
-        </div>
-      </CourseWrapper>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <CourseWrapper>
+  //       <Title>My Courses</Title>
+  //       <div style={{ textAlign: 'center', padding: '2rem' }}>
+  //         Loading your courses...
+  //       </div>
+  //     </CourseWrapper>
+  //   );
+  // }
 
   if (error) {
     return (

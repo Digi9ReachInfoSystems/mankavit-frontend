@@ -1,10 +1,9 @@
+// Aspirants.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Container,
   Title,
   Highlight,
-  SliderShell,
-  SlidesTrack,
   Slide,
   Card,
   TitleDiv,
@@ -20,63 +19,59 @@ import {
   ArrowBtn,
   DotBar,
   Dot,
-  MediaOverlay,
-  PlayPauseBtn,
-  MobileScrollContainer,
+  ScrollContainer,      // 👈 NEW unified scroller (desktop + mobile)
   ViewMoreButton,
+  VideoOverlay,
+  VideoModal,
+  CloseBtn,
+  VideoPlayer,
+  Underline
 } from "./Aspirants.styles";
 import { getAlltestimonials } from "../../../api/testimonialApi";
-import placeholder from "../../../assets/aspi1.png"; // fallback avatar
+import placeholder from "../../../assets/aspi1.png";
 
-const CircleMedia = ({ image, video, name, active }) => {
-  const vidRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-
-  // Pause whenever this slide is not active
-  useEffect(() => {
-    if (!active && vidRef.current && !vidRef.current.paused) {
-      vidRef.current.pause();
-      setPlaying(false);
-    }
-  }, [active]);
-
-  const toggle = () => {
-    if (!video) return;
-    const v = vidRef.current;
-    if (!v) return;
-    if (v.paused) {
-      v.play();
-      setPlaying(true);
-    } else {
-      v.pause();
-      setPlaying(false);
-    }
-  };
-
-  return (
-    <MediaBlob>
-      {image ? (
+// --- CircleMedia: click-to-open modal for video ---
+const CircleMedia = ({ image, video, name, onOpenVideo }) => {
+  if (image) {
+    return (
+      <MediaBlob>
         <Avatar
           src={image}
           alt={name || "Aspirant"}
           onError={(e) => (e.currentTarget.src = placeholder)}
         />
-      ) : video ? (
-        <>
-          <Media ref={vidRef} playsInline preload="metadata" controls={false}>
-            <source src={video} type="video/mp4" />
-            Your browser doesn't support embedded videos.
-          </Media>
-          <MediaOverlay
-            onClick={toggle}
-            aria-label={playing ? "Pause" : "Play"}
-          >
-            <PlayPauseBtn>{playing ? "⏸" : "▶"}</PlayPauseBtn>
-          </MediaOverlay>
-        </>
-      ) : (
-        <Avatar src={placeholder} alt="placeholder" />
-      )}
+      </MediaBlob>
+    );
+  }
+
+  if (video) {
+    return (
+      <MediaBlob onClick={() => onOpenVideo?.(video)} role="button" aria-label={`Play ${name || "video"}`}>
+        {/* Light preview so users know it’s a video */}
+        <Media as="video" muted playsInline preload="metadata" controls={false}>
+          <source src={video} type="video/mp4" />
+        </Media>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            background: "linear-gradient(transparent, rgba(0,0,0,0.35))",
+            pointerEvents: "none",
+          }}
+        >
+          <span style={{ fontSize: 26, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "8px 12px", borderRadius: 999 }}>
+            ▶
+          </span>
+        </div>
+      </MediaBlob>
+    );
+  }
+
+  return (
+    <MediaBlob>
+      <Avatar src={placeholder} alt="placeholder" />
     </MediaBlob>
   );
 };
@@ -86,37 +81,32 @@ const Aspirants = () => {
   const [loading, setLoading] = useState(true);
   const [idx, setIdx] = useState(0);
   const [expandedQuotes, setExpandedQuotes] = useState({});
-  const [isMobile, setIsMobile] = useState(false);
-  const trackRef = useRef(null);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [videoSrc, setVideoSrc] = useState("");
 
-  // Check if mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+  const scrollRef = useRef(null);
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
+  // Fetch + normalize + sort newest first
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
         const raw = await getAlltestimonials();
-        const arr = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.data)
-          ? raw.data
-          : [];
-        const data = arr.map((t, i) => ({
-          id: t._id || t.id || String(i),
-          name: t.name || "Anonymous",
-          role: t.rank || t.role || "",
-          quote: t.description || "",
-          image: t.testimonial_image || "",
-          video: t.testimonial_video || "",
-        }));
+        const arr = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+        const data = arr
+          .map((t, i) => ({
+            id: t._id || t.id || String(i),
+            name: t.name || "Anonymous",
+            role: t.rank || t.role || "",
+            quote: t.description || "",
+            createdAt: t.createdAt ? new Date(t.createdAt) : new Date(0),
+            image: t.testimonial_image
+              ? `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${t.testimonial_image}`
+              : "",
+            video: t.testimonial_video
+              ? `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${t.testimonial_video}`
+              : "",
+          }))
+          .sort((a, b) => (b.createdAt - a.createdAt));   // 👈 NEWEST FIRST
         setTestimonials(data);
       } catch (err) {
         console.error("Error fetching testimonials:", err);
@@ -129,46 +119,49 @@ const Aspirants = () => {
 
   const total = testimonials.length;
 
-  const goPrev = () => setIdx((p) => (p - 1 + total) % total);
-  const goNext = () => setIdx((p) => (p + 1) % total);
-  const goTo = (i) => setIdx(i);
+  // dots/idx sync by scroll position
+  const syncIndexFromScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const slideW = el.clientWidth;                 // each slide is full viewport width
+    const newIdx = Math.round(el.scrollLeft / slideW);
+    if (newIdx !== idx) setIdx(newIdx);
+  };
 
-  const trackStyle = useMemo(
-    () => ({ transform: `translateX(-${idx * 100}%)` }),
-    [idx]
-  );
+  const onScroll = () => syncIndexFromScroll();
+
+  // Arrow handlers: scroll by one viewport width each click
+  const scrollBySlides = (dir = 1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const slideW = el.clientWidth;
+    el.scrollBy({ left: dir * slideW, behavior: "smooth" });
+  };
+  const goPrev = () => scrollBySlides(-1);
+  const goNext = () => scrollBySlides(1);
+
+  const goTo = (i) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const slideW = el.clientWidth;
+    el.scrollTo({ left: i * slideW, behavior: "smooth" });
+  };
 
   const toggleQuoteExpansion = (id) => {
-    setExpandedQuotes((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setExpandedQuotes((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-const truncateText = (html, maxLength = 100) => {
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  const text = div.textContent || div.innerText || "";
-  if (text.length <= maxLength) return html;
-  return text.substring(0, maxLength) + "...";
-};
-
-
-  // Handle horizontal scroll for mobile
-  const handleScroll = (e) => {
-    if (!isMobile) return;
-
-    const track = trackRef.current;
-    if (!track) return;
-
-    const scrollLeft = track.scrollLeft;
-    const slideWidth = track.clientWidth;
-    const newIndex = Math.round(scrollLeft / slideWidth);
-
-    if (newIndex !== idx) {
-      setIdx(newIndex);
-    }
+  const truncateText = (html, maxLength = 100) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    const text = div.textContent || div.innerText || "";
+    if (text.length <= maxLength) return html;
+    return text.substring(0, maxLength) + "...";
   };
+
+  // Video modal
+  const openVideo = (src) => { setVideoSrc(src); setVideoOpen(true); };
+  const closeVideo = () => { setVideoOpen(false); setVideoSrc(""); };
 
   if (loading) {
     return (
@@ -198,113 +191,84 @@ const truncateText = (html, maxLength = 100) => {
         <Title>
           What Our <Highlight>Aspirants</Highlight> Say
         </Title>
+        <Underline />
       </TitleDiv>
 
       <Container>
-        {isMobile ? (
-          <MobileScrollContainer ref={trackRef} onScroll={handleScroll}>
-            {testimonials.map((t, i) => (
-              <Slide key={t.id}>
-                <Card>
-                  <LeftCol>
-                    <CircleMedia
-                      image={`${
-                        import.meta.env.VITE_APP_IMAGE_ACCESS
-                      }/api/project/resource?fileKey=${t.image}`}
-                      video={`${
-                        import.meta.env.VITE_APP_IMAGE_ACCESS
-                      }/api/project/resource?fileKey=${t.video}`}
-                      name={t.name}
-                      active={i === idx}
-                    />
-                  </LeftCol>
+        {/* One scroll container for BOTH desktop & mobile */}
+        <ScrollContainer ref={scrollRef} onScroll={onScroll}>
+          {testimonials.map((t) => (
+            <Slide key={t.id}>
+              <Card>
+                <LeftCol>
+                  <CircleMedia
+                    image={t.image}
+                    video={t.video}
+                    name={t.name}
+                    onOpenVideo={openVideo}
+                  />
+                </LeftCol>
 
-                  <RightCol>
-                     <Name>{t.name || "Aspirant"}</Name>
-                    {t.role && <Role>{t.role}</Role>}
-                    <Quote
-                      dangerouslySetInnerHTML={{
-                        __html: expandedQuotes[t.id]
-                          ? t.quote || "Great learning experience."
-                          : truncateText(
-                              t.quote || "Great learning experience."
-                            ),
-                      }}
-                    />
+                <RightCol>
+                  {/* Desktop: show full quote; Mobile: collapsed with View More */}
+                  <Quote
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        (window.innerWidth <= 768 && !expandedQuotes[t.id])
+                          ? truncateText(t.quote || "Great learning experience.")
+                          : (t.quote || "Great learning experience."),
+                    }}
+                  />
+                  {window.innerWidth <= 768 && (t.quote || "").length > 100 && (
+                    <ViewMoreButton onClick={() => toggleQuoteExpansion(t.id)}>
+                      {expandedQuotes[t.id] ? "View Less" : "View More"}
+                    </ViewMoreButton>
+                  )}
+                  <Name>{t.name || "Aspirant"}</Name>
+                  {t.role && <Role>{t.role}</Role>}
+                </RightCol>
+              </Card>
+            </Slide>
+          ))}
+        </ScrollContainer>
 
-                    {(t.quote || "").length > 100 && isMobile && (
-                      <ViewMoreButton
-                        onClick={() => toggleQuoteExpansion(t.id)}
-                      >
-                        {expandedQuotes[t.id] ? "View Less" : "View More"}
-                      </ViewMoreButton>
-                    )}
+        {/* Controls (Desktop-visible; also work on mobile if you keep them) */}
+        <ControlsBar>
+          <ArrowBtn aria-label="Previous" onClick={goPrev}>
+            ←
+          </ArrowBtn>
 
-                   
-                  </RightCol>
-                </Card>
-              </Slide>
+          <DotBar>
+            {testimonials.map((_, i) => (
+              <Dot
+                key={i}
+                $active={i === idx}
+                aria-label={`Go to slide ${i + 1}`}
+                onClick={() => goTo(i)}
+              />
             ))}
-          </MobileScrollContainer>
-        ) : (
-          <SliderShell aria-roledescription="carousel">
-            <SlidesTrack style={trackStyle}>
-              {testimonials.map((t, i) => (
-                <Slide
-                  key={t.id}
-                  role="group"
-                  aria-label={`${idx + 1} of ${total}`}
-                >
-                  <Card>
-                    <LeftCol>
-                      <CircleMedia
-                        image={`${
-                          import.meta.env.VITE_APP_IMAGE_ACCESS
-                        }/api/project/resource?fileKey=${t.image}`}
-                        video={`${
-                          import.meta.env.VITE_APP_IMAGE_ACCESS
-                        }/api/project/resource?fileKey=${t.video}`}
-                        name={t.name}
-                        active={i === idx}
-                      />
-                    </LeftCol>
+          </DotBar>
 
-                    <RightCol>
-                      {/* <Quote>{t.quote || "Great learning experience."}</Quote>
-                       */}
-                       <Quote dangerouslySetInnerHTML={t.quote ? { __html: t.quote } : { __html: "Great learning experience." }} />
-                      <Name>{t.name || "Aspirant"}</Name>
-                      {t.role && <Role>{t.role}</Role>}
-                    </RightCol>
-                  </Card>
-                </Slide>
-              ))}
-            </SlidesTrack>
-          </SliderShell>
-        )}
-
-        {/* Controls - Only show arrows and dots for desktop */}
-        {!isMobile && (
-          <ControlsBar>
-            <ArrowBtn aria-label="Previous" onClick={goPrev}>
-              &larr;
-            </ArrowBtn>
-            <DotBar>
-              {testimonials.map((_, i) => (
-                <Dot
-                  key={i}
-                  $active={i === idx}
-                  aria-label={`Go to slide ${i + 1}`}
-                  onClick={() => goTo(i)}
-                />
-              ))}
-            </DotBar>
-            <ArrowBtn aria-label="Next" onClick={goNext}>
-              &rarr;
-            </ArrowBtn>
-          </ControlsBar>
-        )}
+          <ArrowBtn aria-label="Next" onClick={goNext}>
+            →
+          </ArrowBtn>
+        </ControlsBar>
       </Container>
+
+      {/* Video Modal */}
+      {videoOpen && (
+        <VideoOverlay onClick={closeVideo}>
+          <VideoModal onClick={(e) => e.stopPropagation()}>
+            <CloseBtn onClick={closeVideo} aria-label="Close video">
+              &times;
+            </CloseBtn>
+            <VideoPlayer controls autoPlay playsInline>
+              <source src={videoSrc} type="video/mp4" />
+              Your browser does not support the video tag.
+            </VideoPlayer>
+          </VideoModal>
+        </VideoOverlay>
+      )}
     </>
   );
 };

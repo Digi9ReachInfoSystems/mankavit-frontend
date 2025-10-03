@@ -18,6 +18,7 @@ import {
   SectionHeader,
   FilterLabel,
   AchievementText,
+  Underline
 } from './Achievers.styles';
 import { getAllAchievers } from '../../../api/achieverApi';
 
@@ -108,6 +109,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
         <Title>
           Meet Our <Highlight>Achievers</Highlight>
         </Title>
+        <Underline/>
         {/* <FilterLabel>Filter by exam:</FilterLabel> */}
       </SectionHeader>
 
@@ -146,7 +148,7 @@ const Achievers = ({ navigateOnViewAll = false, viewAllPath = '/achievers' }) =>
               <AchievementText>
                 {/* {achiever.exam_name}
                 {achiever.exam_name ? ' - ' : ''} */}
-                AIR {achiever.rank}
+              {achiever.rank}
               </AchievementText>
             </Achievement>
           </Card>

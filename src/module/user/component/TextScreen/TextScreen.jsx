@@ -42,7 +42,9 @@ import {
   StickyActionBar,
   LeftButtonsWrap,
   SubmitButton,
+  CloseSidebarBtn,
   PageTitle,
+  MobileBottomSpacer
 } from "./TextScreen.styles";
 import { FaAngleLeft } from "react-icons/fa6";
 import {
@@ -81,12 +83,45 @@ const PassageContainer = styled.div`
 const PassageContent = styled.div`
   flex: 1;
   padding: 15px;
+  font-size: 16px;
   border-right: ${(props) => (props.hasPassage ? "1px solid #ddd" : "none")};
 `;
 
 const QuestionContent = styled.div`
   flex: 1;
   padding: 15px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+`;
+
+const PassageClamp = styled.div`
+  /* Desktop/tablet: no clamp */
+  @media (max-width: 900px) {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: ${(p) =>
+      p.$expanded ? "unset" : "6"}; /* ~5–7 lines */
+  }
+`;
+const ReadMoreBtn = styled.button`
+  @media (max-width: 900px) {
+    margin-top: 8px;
+    border: none;
+    background: transparent;
+    color: #0ea5e9;
+    font-weight: 600;
+    padding: 4px 0;
+    cursor: pointer;
+  }
+  @media (min-width: 901px) {
+    display: none;
+  }
+`;
+const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
+const MobileOnly = styled.div`
+  @media (min-width: 901px) {
+    display: none;
+  }
 `;
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, message }) => {
@@ -132,10 +167,13 @@ export default function TextScreen() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const [isSaving, setIsSaving] = useState(false);
+  const [passageExpanded, setPassageExpanded] = useState(false);
 
   const answerRef = useRef(null);
   useBlockClipboard(answerRef);
-
+  useEffect(() => {
+    setPassageExpanded(false);
+  }, [currentIndex]);
   function useBlockClipboard(ref) {
     useEffect(() => {
       const el = ref.current;
@@ -414,7 +452,7 @@ export default function TextScreen() {
     };
   }, [loading, initialTime, testId, urlAttemptId, timeLeft.m, timeLeft.s]);
 
-  if (loading) return <div>Loading…</div>;
+  if (loading) return <div style={{ textAlign: "center" }}>Loading…</div>;
   if (!mockTest) return <div>No test data</div>;
 
   const currentQ = questions[currentIndex];
@@ -678,6 +716,7 @@ export default function TextScreen() {
     }
 
     setCurrentIndex(i);
+    if (isMobile()) setSidebarOpen(false);
   };
 
   const handleClear = async () => {
@@ -919,18 +958,316 @@ export default function TextScreen() {
     }
   };
 
+  //   return (
+  //     <Container>
+  //       <Content $sidebarOpen={sidebarOpen}>
+  //         <ToggleSidebarBtn
+  //           onClick={() => setSidebarOpen((s) => !s)}
+  //           aria-label="Toggle question navigator"
+  //           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
+  //         >
+  //           {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
+  //         </ToggleSidebarBtn>
+
+  //         {/* HEADER — Back + Title tight */}
+  //         <Header>
+  //           <LeftDiv>
+  //             <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
+  //               <FaAngleLeft />
+  //             </LeftIcon>
+  //             <HeaderLeft />
+  //             <PageTitle title={mockTest?.title || "Mock Test"}>
+  //               {mockTest?.title || "Mock Test"}
+  //             </PageTitle>
+  //           </LeftDiv>
+
+  //           <Timer>
+  //             <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
+  //             <Text>Time Left:</Text>
+  //             <TimeSlot>
+  //               {String(timeLeft.m).padStart(2, "0")}:
+  //               {String(timeLeft.s).padStart(2, "0")}
+  //             </TimeSlot>
+  //           </Timer>
+  //         </Header>
+
+  //         <Complier>
+  //           <QuestionNumber>
+  //             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
+  //           </QuestionNumber>
+  //           <SectionQuestion>
+  //             {hasPassage ? (
+  //               <PassageContainer>
+  //                 <PassageContent hasPassage={hasPassage}>
+  //                   <PassageBox
+  //                     dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
+  //                   />
+  //                 </PassageContent>
+  //                 <QuestionContent style={{
+  //                   fontFamily:"Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important"
+  //                 }}>
+  //                   <QuestionBox>
+  //                     <QuestionText
+  //                       dangerouslySetInnerHTML={{
+  //                         __html: currentQ.questionText,
+  //                       }}
+  //                     />
+  //                     {isMCQ ? (
+  //                       <OptionsList>
+  //                         {currentQ.options.map((opt, idx) => {
+  //                           const label =
+  //                             typeof opt === "object" ? opt.text : opt;
+  //                           return (
+  //                             <OptionLabel key={idx}>
+  //                               <input
+  //                                 type="radio"
+  //                                 checked={currAns.answerIndex === idx}
+  //                                 onClick={() => handleOptionClick(idx)} // ← toggles off if same option
+  //                                 onChange={() => handleOptionSelect(idx)} // ← normal select
+  //                               />
+
+  //                               {label}
+  //                             </OptionLabel>
+  //                           );
+  //                         })}
+  //                       </OptionsList>
+  //                     ) : (
+  //                       <textarea
+  //                         ref={answerRef}
+  //                         className="textarea"
+  //                         value={currAns.answer}
+  //                         onChange={handleTextChange}
+  //                         placeholder="Type your answer…"
+  //                         // extra inline guards (belt & suspenders)
+  //                         onCopy={(e) => {
+  //                           e.preventDefault();
+  //                           e.stopPropagation();
+  //                           toast.info(
+  //                             "Copy,Cut,Paste actions are PROHIBITED !.."
+  //                           );
+  //                         }}
+  //                         onCut={(e) => {
+  //                           e.preventDefault();
+  //                           e.stopPropagation();
+  //                           toast.info(
+  //                             "Copy,Cut,Paste actions are PROHIBITED !.."
+  //                           );
+  //                         }}
+  //                         onPaste={(e) => {
+  //                           e.preventDefault();
+  //                           e.stopPropagation();
+  //                           toast.info(
+  //                             "Copy,Cut,Paste actions are PROHIBITED !.."
+  //                           );
+  //                         }}
+  //                         onDrop={(e) => {
+  //                           e.preventDefault();
+  //                           e.stopPropagation();
+  //                         }}
+  //                         onContextMenu={(e) => {
+  //                           e.preventDefault();
+  //                           e.stopPropagation();
+  //                         }}
+  //                         spellCheck={false}
+  //                         autoCorrect="off"
+  //                         autoCapitalize="off"
+  //                         style={{
+  //                           userSelect: "none",
+  //                         }}
+  //                       />
+  //                     )}
+  //                   </QuestionBox>
+  //                 </QuestionContent>
+  //               </PassageContainer>
+  //             ) : (
+  //               <>
+  //                 <PassageBox
+  //                   dangerouslySetInnerHTML={{ __html: currentQ.questionText }}
+  //                 />
+  //                 <HorizontalLine />
+  //                 <QuestionBox>
+  //                   {isMCQ ? (
+  //                     <OptionsList>
+  //                       {currentQ.options.map((opt, idx) => {
+  //                         const label = typeof opt === "object" ? opt.text : opt;
+  //                         return (
+  //                           <OptionLabel key={idx}>
+  //                             <input
+  //                               type="radio"
+  //                               checked={currAns.answerIndex === idx}
+  //                               onClick={() => handleOptionClick(idx)} // ← toggles off if same option
+  //                               onChange={() => handleOptionSelect(idx)} // ← normal select
+  //                             />
+
+  //                             {label}
+  //                           </OptionLabel>
+  //                         );
+  //                       })}
+  //                     </OptionsList>
+  //                   ) : (
+  //                     <textarea
+  //                       ref={answerRef}
+  //                       className="textarea"
+  //                       value={currAns.answer}
+  //                       onChange={handleTextChange}
+  //                       placeholder="Type your answer…"
+  //                       // extra inline guards (belt & suspenders)
+  //                       onCopy={(e) => {
+  //                         e.preventDefault();
+  //                         e.stopPropagation();
+  //                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+  //                       }}
+  //                       onCut={(e) => {
+  //                         e.preventDefault();
+  //                         e.stopPropagation();
+  //                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+  //                       }}
+  //                       onPaste={(e) => {
+  //                         e.preventDefault();
+  //                         e.stopPropagation();
+  //                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+  //                       }}
+  //                       onDrop={(e) => {
+  //                         e.preventDefault();
+  //                         e.stopPropagation();
+  //                       }}
+  //                       onContextMenu={(e) => {
+  //                         e.preventDefault();
+  //                         e.stopPropagation();
+  //                       }}
+  //                       spellCheck={false}
+  //                       autoCorrect="off"
+  //                       autoCapitalize="off"
+  //                       style={{
+  //                         userSelect: "none",
+  //                       }}
+  //                     />
+  //                   )}
+  //                 </QuestionBox>
+  //               </>
+  //             )}
+  //           </SectionQuestion>
+  //         </Complier>
+
+  //         {/* STICKY ACTION BAR — always visible, one line */}
+  //         <StickyActionBar>
+  //           <LeftButtonsWrap>
+  //             <button
+  //               className="review"
+  //               onClick={handleMarkAndNext}
+  //               disabled={isSaving}
+  //             >
+  //               {isSaving ? "Marking..." : "Mark & Next"}
+  //             </button>
+  //             <button className="clear" onClick={handleClear}>
+  //               Clear Response
+  //             </button>
+  //           </LeftButtonsWrap>
+
+  //           <LeftButtonsWrap>
+  //             {" "}
+  //             <button className="save" onClick={saveAndNext}>
+  //               Save & Next
+  //             </button>
+  //             <SubmitButton onClick={handleSaveForLaterClick}>
+  //               Save Test
+  //             </SubmitButton>
+  //             <SubmitButton onClick={handleSubmitClick}>Submit Test</SubmitButton>
+  //           </LeftButtonsWrap>
+  //         </StickyActionBar>
+  //       </Content>
+
+  //       <SidebarContainer $open={sidebarOpen}>
+  //         <Divider />
+
+  //         <Legend>
+  //           {Object.entries(getStatusCounts()).map(([key, count]) => {
+  //             let className;
+  //             switch (key) {
+  //               case "answered":
+  //                 className = "answered";
+  //                 break;
+  //               case "notAnswered":
+  //                 className = "not-answered";
+  //                 break;
+  //               case "notAnsweredMarked":
+  //                 className = "not-answered-marked";
+  //                 break;
+  //               case "unattempted":
+  //                 className = "unattempted";
+  //                 break;
+  //               case "answeredMarked":
+  //                 className = "answered-marked";
+  //                 break;
+  //               default:
+  //                 return null;
+  //             }
+  //             return (
+  //               <OptionLabelList key={key}>
+  //                 <LegendItem className={className}>{count}</LegendItem>
+  //                 <LegendText>
+  //                   {key === "answeredMarked"
+  //                     ? "Answered & Marked"
+  //                     : key === "notAnsweredMarked"
+  //                     ? "Marked"
+  //                     : key === "notAnswered"
+  //                     ? "Not Answered"
+  //                     : key === "unattempted"
+  //                     ? "Not Visited"
+  //                     : key.charAt(0).toUpperCase() + key.slice(1)}
+  //                 </LegendText>
+  //               </OptionLabelList>
+  //             );
+  //           })}
+  //         </Legend>
+
+  //         {/* SCROLLABLE QUESTION MAP */}
+  //         <QuestionNav>
+  //           <Grid>
+  //             {questions.map((_, i) => (
+  //               <GridButton
+  //                 key={i}
+  //                 className={getStatus(i + 1)}
+  //                 onClick={() => goToQuestion(i)}
+  //                 active={currentIndex === i}
+  //               >
+  //                 {i + 1}
+  //               </GridButton>
+  //             ))}
+  //           </Grid>
+  //         </QuestionNav>
+  //       </SidebarContainer>
+
+  //       <ConfirmationModal
+  //         isOpen={showConfirmation}
+  //         onClose={handleCancelSubmit}
+  //         message={"Do you want to submit the test?"}
+  //         onConfirm={handleSubmit}
+  //       />
+  //       <ConfirmationModal
+  //         isOpen={showSaveForLater}
+  //         message={"Do you want to save the test for later?"}
+  //         onClose={handleCancelSaveForLater}
+  //         onConfirm={handleSaveForLater}
+  //       />
+  //     </Container>
+  //   );
+  // }
+
   return (
     <Container>
       <Content $sidebarOpen={sidebarOpen}>
-        <ToggleSidebarBtn
-          onClick={() => setSidebarOpen((s) => !s)}
-          aria-label="Toggle question navigator"
-          title={sidebarOpen ? "Hide navigator" : "Show navigator"}
-        >
-          {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
-        </ToggleSidebarBtn>
+          {!sidebarOpen && (
+    <ToggleSidebarBtn
+      onClick={() => setSidebarOpen(true)}
+      aria-label="Open question navigator"
+      title="Open navigator"
+    >
+      <RxDoubleArrowLeft />
+    </ToggleSidebarBtn>
+  )}
 
-        {/* HEADER — Back + Title tight */}
+        {/* HEADER unchanged */}
         <Header>
           <LeftDiv>
             <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
@@ -944,7 +1281,7 @@ export default function TextScreen() {
 
           <Timer>
             <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
-            <Text>— Time Left:</Text>
+            <Text>Time Left:</Text>
             <TimeSlot>
               {String(timeLeft.m).padStart(2, "0")}:
               {String(timeLeft.s).padStart(2, "0")}
@@ -956,21 +1293,38 @@ export default function TextScreen() {
           <QuestionNumber>
             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
           </QuestionNumber>
+
           <SectionQuestion>
             {hasPassage ? (
               <PassageContainer>
                 <PassageContent hasPassage={hasPassage}>
-                  <PassageBox
-                    dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
-                  />
+                  {/* READ MORE/LESS (mobile only) */}
+                  <PassageClamp $expanded={passageExpanded}>
+                    <PassageBox
+                      dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
+                    />
+                  </PassageClamp>
+                  <ReadMoreBtn
+                    type="button"
+                    onClick={() => setPassageExpanded((v) => !v)}
+                  >
+                    {passageExpanded ? "Read less" : "Read more"}
+                  </ReadMoreBtn>
                 </PassageContent>
-                <QuestionContent>
+
+                <QuestionContent
+                  style={{
+                    fontFamily:
+                      "Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important",
+                  }}
+                >
                   <QuestionBox>
                     <QuestionText
                       dangerouslySetInnerHTML={{
                         __html: currentQ.questionText,
                       }}
                     />
+
                     {isMCQ ? (
                       <OptionsList>
                         {currentQ.options.map((opt, idx) => {
@@ -981,10 +1335,9 @@ export default function TextScreen() {
                               <input
                                 type="radio"
                                 checked={currAns.answerIndex === idx}
-                                onClick={() => handleOptionClick(idx)} // ← toggles off if same option
-                                onChange={() => handleOptionSelect(idx)} // ← normal select
+                                onClick={() => handleOptionClick(idx)}
+                                onChange={() => handleOptionSelect(idx)}
                               />
-
                               {label}
                             </OptionLabel>
                           );
@@ -997,7 +1350,6 @@ export default function TextScreen() {
                         value={currAns.answer}
                         onChange={handleTextChange}
                         placeholder="Type your answer…"
-                        // extra inline guards (belt & suspenders)
                         onCopy={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -1030,9 +1382,7 @@ export default function TextScreen() {
                         spellCheck={false}
                         autoCorrect="off"
                         autoCapitalize="off"
-                        style={{
-                          userSelect: "none",
-                        }}
+                        style={{ userSelect: "none" }}
                       />
                     )}
                   </QuestionBox>
@@ -1054,10 +1404,9 @@ export default function TextScreen() {
                             <input
                               type="radio"
                               checked={currAns.answerIndex === idx}
-                              onClick={() => handleOptionClick(idx)} // ← toggles off if same option
-                              onChange={() => handleOptionSelect(idx)} // ← normal select
+                              onClick={() => handleOptionClick(idx)}
+                              onChange={() => handleOptionSelect(idx)}
                             />
-
                             {label}
                           </OptionLabel>
                         );
@@ -1070,7 +1419,6 @@ export default function TextScreen() {
                       value={currAns.answer}
                       onChange={handleTextChange}
                       placeholder="Type your answer…"
-                      // extra inline guards (belt & suspenders)
                       onCopy={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -1097,9 +1445,7 @@ export default function TextScreen() {
                       spellCheck={false}
                       autoCorrect="off"
                       autoCapitalize="off"
-                      style={{
-                        userSelect: "none",
-                      }}
+                      style={{ userSelect: "none" }}
                     />
                   )}
                 </QuestionBox>
@@ -1108,37 +1454,60 @@ export default function TextScreen() {
           </SectionQuestion>
         </Complier>
 
-        {/* STICKY ACTION BAR — always visible, one line */}
-        <StickyActionBar>
-          <LeftButtonsWrap>
-            <button
-              className="review"
-              onClick={handleMarkAndNext}
-              disabled={isSaving}
-            >
-              {isSaving ? "Marking..." : "Mark & Next"}
-            </button>
-            <button className="clear" onClick={handleClear}>
-              Clear Response
-            </button>
-          </LeftButtonsWrap>
+        {/* STICKY ACTION BAR */}
+        {/* STICKY ACTION BAR */}
+<StickyActionBar>
+  {/* Row 1 on mobile */}
+  <LeftButtonsWrap>
+    <button
+      className="review"
+      onClick={handleMarkAndNext}
+      disabled={isSaving}
+    >
+      {isSaving ? "Marking..." : "Mark & Next"}
+    </button>
 
-          <LeftButtonsWrap>
-            {" "}
-            <button className="save" onClick={saveAndNext}>
-              Save & Next
-            </button>
-            <SubmitButton onClick={handleSaveForLaterClick}>
-              Save Test
-            </SubmitButton>
-            <SubmitButton onClick={handleSubmitClick}>Submit Test</SubmitButton>
-          </LeftButtonsWrap>
-        </StickyActionBar>
+    {/* mobile-only Save & Next (so row 1 = Mark & Next + Save & Next) */}
+    <button className="save mobileOnly" onClick={saveAndNext}>
+      Save & Next
+    </button>
+
+    {/* desktop-only Clear Response stays here, desktop layout unchanged */}
+    <button className="clear desktopOnly" onClick={handleClear}>
+      Clear Response
+    </button>
+  </LeftButtonsWrap>
+
+  {/* Row 2 on mobile */}
+  <LeftButtonsWrap>
+    {/* desktop-only Save & Next keeps your desktop layout unchanged */}
+    <button className="save desktopOnly" onClick={saveAndNext}>
+      Save & Next
+    </button>
+
+    <SubmitButton onClick={handleSaveForLaterClick}>
+      Save Test
+    </SubmitButton>
+    <SubmitButton onClick={handleSubmitClick}>
+      Submit Test
+    </SubmitButton>
+  </LeftButtonsWrap>
+</StickyActionBar>
+
+        <MobileBottomSpacer />
+        
       </Content>
 
+      {/* MOBILE SIDEBAR becomes fixed slide-in panel */}
       <SidebarContainer $open={sidebarOpen}>
+        <CloseSidebarBtn
+          aria-label="Close navigator"
+          title="Close navigator"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <RxDoubleArrowRight />
+        </CloseSidebarBtn>
         <Divider />
-
         <Legend>
           {Object.entries(getStatusCounts()).map(([key, count]) => {
             let className;
@@ -1180,7 +1549,6 @@ export default function TextScreen() {
           })}
         </Legend>
 
-        {/* SCROLLABLE QUESTION MAP */}
         <QuestionNav>
           <Grid>
             {questions.map((_, i) => (
@@ -1197,6 +1565,7 @@ export default function TextScreen() {
         </QuestionNav>
       </SidebarContainer>
 
+      {/* Modals unchanged */}
       <ConfirmationModal
         isOpen={showConfirmation}
         onClose={handleCancelSubmit}

@@ -1,99 +1,113 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Section,
-  Title,
-  Highlight,
-  CardsWrapper,
-  CourseCard,
-  CardHeader,
-  CardBody,
-  CourseTitle,
-  Description,
-  InfoList,
-  InfoItem,
-  PriceButton,
-  ViewButton,
-  ViewMoreWrapper,
-  ViewMoreButton,
-  Buttons,
-  Image
+  Section, Title, Highlight, CardsWrapper, CourseCard, CardHeader, CardBody,
+  CourseTitle, Description, PriceButton, ViewButton, ViewMoreWrapper,
+  ViewMoreButton, Buttons, Image,Underline
 } from './WantToLearn.styles';
 import { useNavigate } from 'react-router-dom';
-import lawBanner from '../../../assets/Study1.png'; // your header banner image
-
-
 import { getAllCourses } from '../../../api/courseApi';
-import { Link } from 'react-router-dom';
 
 const WantToLearn = () => {
-  const [courses, setCourses] = React.useState([]);
-const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await getAllCourses();
-        setCourses(response.data);
+        const res = await getAllCourses();
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        setCourses(list);
       } catch (error) {
         console.error('Error fetching courses:', error);
       }
     };
+    fetchCourses();
+  }, []);
 
-    fetchCourses(); 
-    }
-  , []);
-  
+  // Turn HTML to plain text safely, then truncate
+  const toPlainText = (html = '', max = 80) => {
+    const el = document.createElement('div');
+    el.innerHTML = html;
+    const text = (el.textContent || el.innerText || '').trim();
+    return text.length > max ? text.slice(0, max) + '…' : text;
+  };
+
   return (
     <Section>
       <Title>
-        What <Highlight>Do You Want</Highlight> To Learn?
+        Our <Highlight>Ongoing</Highlight> Courses
+      
       </Title>
-
+  <Underline />
       <CardsWrapper>
-        {courses?.map((course, index) => (
-          <CourseCard key={index}>
-            {/* <CardHeader>
-              <Image src={lawBanner} alt="Law Banner" />
-            </CardHeader> */}
-            <CardHeader>
-              <Image src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}`} alt="Law Banner" />
-            </CardHeader>
+        {(courses || []).slice(0, 8).map((course) => {
+          const title =
+            course.courseDisplayName ||
+          
+            'Course';
 
-            <CardBody>
-              <span>{course.rating}⭐</span>
-              <CourseTitle>
-                {course.title} <span style={{ fontSize: '14px' }}>Preparation</span>
-              </CourseTitle>
-              {/* <Description >{course.description}</Description> */}
-              {/* <Description dangerouslySetInnerHTML={{ __html: course.description }} /> */}
+          const rating = course.rating ?? course.course_rating ?? 0;
+const description = course.shortDescription || '';
+          const descText = toPlainText(
+            course.shortDescription ||  ''
+          );
 
-              {/* i wnat to limit for 40 characters  */}
-              {/* <Description>{course.description.substring(0, 40)}...</Description> */}
-              <Description dangerouslySetInnerHTML={{ __html: course.description.substring(0, 80) + '...' }} />
-              {/* <InfoList>
-                <InfoItem>📆 Duration: {course.duration}</InfoItem>
-                <InfoItem>✅ Success Rate: {course.successRate}</InfoItem>
-              </InfoList> */}
-            </CardBody>
+          const price = Number(course.price) || 0;
+          const showDiscount = !!course.discountActive && course.discountPrice != null;
+          const finalPrice = showDiscount ? course.discountPrice : price;
 
-            <Buttons>
-              <PriceButton>₹{course.price}</PriceButton>
-         
-              <ViewButton 
-              onClick={() => navigate(`/coursedetails/${course._id}`)}
-              >View Course</ViewButton>
- 
-            </Buttons>
-          </CourseCard>
-        ))}
+          return (
+            <CourseCard key={course._id || course.id}>
+              <CardHeader>
+                <Image
+                  src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course.image}`}
+                  alt={title}
+                />
+              </CardHeader>
+
+              <CardBody>
+                <span>{rating}⭐</span>
+                <CourseTitle>{title}</CourseTitle>
+                <Description
+                  dangerouslySetInnerHTML={{ __html: descText }}
+                />
+                 {/* <Description
+               dangerouslySetInnerHTML={{ __html: (course.description || '').slice(0, 100) + '...' }}
+               
+                /> */}
+              </CardBody>
+
+              <Buttons>
+                <PriceButton title={showDiscount ? `Original ₹${price}` : undefined}>
+                  ₹{finalPrice}
+                  {showDiscount && (
+                    <span style={{
+                      marginLeft: 8,
+                      textDecoration: 'line-through',
+                      opacity: 0.7,
+                      fontSize: 12
+                    }}>
+                      ₹{price}
+                    </span>
+                  )}
+                </PriceButton>
+
+                <ViewButton onClick={() => navigate(`/coursedetails/${course._id}`)}>
+                  View Course
+                </ViewButton>
+              </Buttons>
+            </CourseCard>
+          );
+        })}
       </CardsWrapper>
 
-      <ViewMoreWrapper>
-         {/* <Link to={`/ourcoursedetails`}> */}
- <ViewMoreButton 
- onClick={() => navigate('/ourcoursedetails')}
- >View More</ViewMoreButton>     
-     {/* </Link> */}
-      </ViewMoreWrapper>
+      {(courses?.length || 0) > 8 && (
+        <ViewMoreWrapper>
+          <ViewMoreButton onClick={() => navigate('/ourcoursedetails')}>
+            View More
+          </ViewMoreButton>
+        </ViewMoreWrapper>
+      )}
     </Section>
   );
 };

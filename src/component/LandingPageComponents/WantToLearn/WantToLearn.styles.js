@@ -15,14 +15,16 @@ export const Section = styled.section`
 `;
 
 export const Title = styled.h2`
-  font-size: 40px;
-  font-weight: 700;
+  font-size: 50px;
+  font-weight: 500;
   margin-bottom: 32px;
-  text-align: left;
+  text-align: center;
   letter-spacing: .2px;
 
-  @media (max-width: 1360px) { font-size: 36px; }
-  @media (max-width: 1024px) { font-size: 32px; }
+  @media (max-width: 1360px) { font-size: 38px; }
+ @media (max-width: 900px) {
+    font-size: 36px;
+  }
   @media (max-width: 480px)  { text-align: center; }
 `;
 
@@ -204,4 +206,13 @@ export const ViewMoreButton = styled.button`
     color: #fff;
     box-shadow: 0 10px 24px rgba(45,121,243,.22);
   }
+`;
+
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+  // margin-top: 8px;
 `;
