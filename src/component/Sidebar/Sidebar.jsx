@@ -73,6 +73,7 @@ const Sidebar = () => {
     { path: "/admin/web-management/ticker", label: "Ticker" },
     { path: "/admin/web-management/coupon", label: "Coupons" },
     { path:"/admin/web-management/entrance",label:"Entrance"},
+    { path:"/admin/web-management/why-our-course",label:"Why Our Course"},
    
   ];
   const meetingsItems = [

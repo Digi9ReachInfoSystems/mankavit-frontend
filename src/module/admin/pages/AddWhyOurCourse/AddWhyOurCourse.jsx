@@ -13,15 +13,16 @@ import {
   UploadButton,
   ErrorMessage,
   EditorWrapper
-} from './AddWhyStudyWithUs.styles';
-import uploadIcon from '../../../../../../assets/upload.png';
-import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
-import { createWhy } from '../../../../../../api/whyApi';
+} from './AddWhyOurCourse.styles';
+import uploadIcon from '../../../../assets/upload.png';
+import { uploadFileToAzureStorage } from '../../../../utils/azureStorageService';
+// import { createWhy } from '../../../../../../api/whyApi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getAuth } from '../../../../../../utils/authService';
+import { getAuth } from '../../../../utils/authService';
+import { createWhyOurCourse } from '../../../../api/whyOurCourseApi';
 
-const AddWhyStudyWithUs = () => {
+const AddWhyOurCourse = () => {
   const navigate = useNavigate();
   const editor = useRef(null);
   const [formData, setFormData] = useState({
@@ -132,7 +133,7 @@ const AddWhyStudyWithUs = () => {
     try {
       const uploadResult = await uploadFileToAzureStorage(
         formData.image,
-        'why'
+        'whyOurCourse'
       );
 
       const imageUrl =
@@ -150,7 +151,7 @@ const AddWhyStudyWithUs = () => {
         );
       }
 
-      await createWhy({
+      await createWhyOurCourse({
         title: formData.title,
         description: formData.description,
         image: imageUrl
@@ -158,7 +159,7 @@ const AddWhyStudyWithUs = () => {
 
       toast.success('Data created successfully!');
       setTimeout(() => {
-        navigate('/admin/web-management/why-study-with-us');
+        navigate('/admin/web-management/why-our-course');
       }, 1500);
     } catch (err) {
       console.error(err);
@@ -175,10 +176,10 @@ const AddWhyStudyWithUs = () => {
 
   return (
     <Container>
-      <Title>Add Why Study With Us</Title>
+      <Title>Add Why Our Course</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      <Label>Why Study With Us Title *</Label>
+      <Label>Why Our Course Title *</Label>
       <Input
         name="title"
         value={formData.title}
@@ -190,7 +191,7 @@ const AddWhyStudyWithUs = () => {
         disabled={readOnlyPermissions}
       />
 
-      <Label>Why Study With Us Description *</Label>
+      <Label>Why Our Course Description *</Label>
       <EditorWrapper>
         <JoditEditor
           ref={editor}
@@ -248,4 +249,4 @@ const AddWhyStudyWithUs = () => {
   );
 };
 
-export default AddWhyStudyWithUs;
+export default AddWhyOurCourse;

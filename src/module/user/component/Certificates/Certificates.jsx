@@ -1,89 +1,83 @@
-import React, { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
-    Wrapper,
-    SectionTitle,
-    CertificatesWrapper,
-    CertificateDownload,
-    CertificateCard,
-    CertificateImage,
+  Wrapper,
+  SectionTitle,
+  CertificatesWrapper,
+  CertificateDownload,
+  CertificateCard,
+  ViewMoreButton,
+  CertificateTitle
 } from './Certificates.styles';
-import certificate from "../../../../assets/certificate.png";
 import { FiDownload } from "react-icons/fi";
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { getAllCertificates } from '../../../../api/certificateApi';
 
-
-// const certificates = [
-//     { id: 1, imgUrl: certificate, title: 'CLAT Coaching (22 Nov 2024 - 23 Jan 2025)' },
-//     { id: 2, imgUrl: certificate, title: 'CLAT Coaching (1 Feb 2025 - 31 May 2025)' },
-//     { id: 3, imgUrl: certificate, title: 'CLAT Coaching (22 Nov 2024 - 23 Jan 2025)' },
-//     { id: 4, imgUrl: certificate, title: 'CLAT Coaching(1 Feb 2025 - 31 May 2025)' },
-//     { id: 5, imgUrl: certificate, title: 'CLAT Coaching (22 Nov 2024 - 23 Jan 2025)' },
-//     { id: 6, imgUrl: certificate, title: 'CLAT Coaching (1 Feb 2025 - 31 May 2025)' },
-// ];
 const Certificates = () => {
+  const [certificates, setCertificates] = useState([]);
+  const [showAll, setShowAll] = useState(false);
 
-    const [certificates, setCertificates] = useState([]);
-    useEffect(() => {
-        // // console.log("Certificates component mounted");
-        const fetchCertificates = async () => {
-            const cookieData = await getCookiesData();
-            const certificatesData = await getAllCertificates(cookieData.userId);
-            // // console.log("Certificates Data", certificatesData);
-            const preparedData = certificatesData.data.map((cert) => {
-                return {
-                    id: cert._id,
-                    imgUrl: cert.certificate_url,
-                    title: cert.course_ref.courseName
-                };
-            });
-            // console.log("Prepared Certificates Data", preparedData);
-            setCertificates(preparedData);
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      const cookieData = await getCookiesData();
+      const certificatesData = await getAllCertificates(cookieData.userId);
 
-        };
+      const preparedData = certificatesData.data.map((cert) => ({
+        id: cert._id,
+        imgUrl: cert.certificate_url,
+        title: cert.course_ref.courseName,
+      }));
 
-        fetchCertificates();
-    }, []);
+      setCertificates(preparedData);
+    };
 
-    return (
+    fetchCertificates();
+  }, []);
 
-        <Wrapper>
-            <SectionTitle>My Certificates</SectionTitle>
-            {certificates.length === 0 ? <p>No certificates available</p> :
-                <CertificatesWrapper>
-                    {certificates.map((certificate) => (
+  // Show only first 4 certificates unless View More clicked
+  const displayedCertificates = showAll ? certificates : certificates.slice(0, 4);
 
-                        <CertificateCard key={certificate.id}>
-                            <CertificateDownload
-                            onClick={() => {
-                            if (certificate.imgUrl) {
-                                // Open in new tab
-                                window.open(certificate.imgUrl, "_blank");
-                            }
-                        }}
-                            >
-                                {certificate.title} <FiDownload fontSize={20} />
-                            </CertificateDownload>
+  return (
+    <Wrapper>
+      <SectionTitle>My Certificates</SectionTitle>
 
-                            {/* <CertificateImage src={certificate.imgUrl} alt="Certificate" /> */}
-                            <iframe
-                            src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                            width="600"
-                            height="415px"
-                            style={{
-                                border: "none",
-                                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                                borderRadius: "10px"
-                            }}
-                            title="Certificate Preview"
-                        />
-                        </CertificateCard>
-                    ))}
-                </CertificatesWrapper>}
-        </Wrapper>
+      {certificates.length === 0 ? (
+        <p>No certificates available</p>
+      ) : (
+        <>
+          <CertificatesWrapper>
+            {displayedCertificates.map((certificate) => (
+              <CertificateCard key={certificate.id}>
+                <CertificateDownload
+                  onClick={() => window.open(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}`, "_blank")}
+                >
+                   <CertificateTitle>{certificate.title}</CertificateTitle><FiDownload fontSize={18} />
+                </CertificateDownload>
 
+                <iframe
+                  src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}#toolbar=0&view=FitH&navpanes=0&scrollbar=0&zoom=page-width`}
+                  style={{
+                    width: "100%",
+                    height: "270px",
+                    border: "none",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  }}
+                  title="Certificate Preview"
+                />
+              </CertificateCard>
+            ))}
+          </CertificatesWrapper>
 
-    )
-}
+          {/* Show button only if > 4 certificates */}
+          {certificates.length > 4 && (
+            <ViewMoreButton onClick={() => setShowAll(!showAll)}>
+              {showAll ? "Show Less" : "View More"}
+            </ViewMoreButton>
+          )}
+        </>
+      )}
+    </Wrapper>
+  );
+};
 
-export default Certificates
+export default Certificates;

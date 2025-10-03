@@ -63,18 +63,18 @@ const AddTestimonial = () => {
   const config = useMemo(() => ({
     readonly: false,
     placeholder: 'Enter testimonial details here...',
-    buttons: [
-      'bold', 'italic', 'underline', 'strikethrough', '|',
-      'ul', 'ol', '|', 'font', 'fontsize', '|',
-      'align', 'outdent', 'indent', '|', 'link', 'image'
-    ],
-    uploader: {
-      insertImageAsBase64URI: true
-    },
-    style: {
-      background: '#f5f5f5',
-      color: '#333'
-    }
+    // buttons: [
+    //   'bold', 'italic', 'underline', 'strikethrough', '|',
+    //   'ul', 'ol', '|', 'font', 'fontsize', '|',
+    //   'align', 'outdent', 'indent', '|', 'link', 'image'
+    // ],
+    // uploader: {
+    //   insertImageAsBase64URI: true
+    // },
+    // style: {
+    //   background: '#f5f5f5',
+    //   color: '#333'
+    // }
   }), []);
 
   const handleInputChange = e => {

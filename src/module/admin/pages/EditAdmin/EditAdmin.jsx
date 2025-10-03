@@ -149,7 +149,10 @@ const EditAdmin = () => {
             await updateSubAdmin(id, payload);
             toast.success("Admin updated successfully", {
                 autoClose: 3000,
-                onClose: () => navigate("/admin/admin-management")
+                onClose: () =>{ 
+                    window.location.reload();
+                    // navigate("/admin/admin-management")
+                }
             });
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to update admin");

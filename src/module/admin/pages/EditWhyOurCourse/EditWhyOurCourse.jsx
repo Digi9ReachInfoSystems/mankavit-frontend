@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import JoditEditor from 'jodit-react';
 import {
   Container,
@@ -13,21 +13,23 @@ import {
   UploadButton,
   ErrorMessage,
   EditorWrapper
-} from './AddWhyStudyWithUs.styles';
-import uploadIcon from '../../../../../../assets/upload.png';
-import { uploadFileToAzureStorage } from '../../../../../../utils/azureStorageService';
-import { createWhy } from '../../../../../../api/whyApi';
+} from './EditWhyOurCourse.styles';
+import uploadIcon from '../../../../assets/upload.png';
+// import { getWhyById, updateWhyById } from '../../../../../../api/whyApi';
+import { uploadFileToAzureStorage } from '../../../../utils/azureStorageService';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getAuth } from '../../../../../../utils/authService';
+import { getAuth } from '../../../../utils/authService';
+import { getWhyOurCourseById, updateWhyOurCourseById } from '../../../../api/whyOurCourseApi';
 
-const AddWhyStudyWithUs = () => {
+const EditWhyOurCourse = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const editor = useRef(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    image: null
+    imageFile: null,
   });
   const [previewUrl, setPreviewUrl] = useState('');
   const [error, setError] = useState('');
@@ -36,19 +38,19 @@ const AddWhyStudyWithUs = () => {
 
   const config = useMemo(() => ({
     readonly: false,
-    placeholder: 'Enter description here...',
-    // buttons: [
-    //   'bold', 'italic', 'underline', 'strikethrough', '|',
-    //   'ul', 'ol', '|', 'font', 'fontsize', '|',
-    //   'align', 'outdent', 'indent', '|', 'link', 'image'
-    // ],
-    // uploader: {
-    //   insertImageAsBase64URI: true
-    // },
-    // style: {
-    //   background: '#f5f5f5',
-    //   color: '#333'
-    // }
+    // placeholder: 'Enter description here...',
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|', 'font', 'fontsize', '|',
+      'align', 'outdent', 'indent', '|', 'link', 'image'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true
+    },
+    style: {
+      background: '#f5f5f5',
+      color: '#333'
+    }
   }), []);
 
   useEffect(() => {
@@ -58,33 +60,41 @@ const AddWhyStudyWithUs = () => {
         setReadOnlyPermissions(false);
       } else {
         setReadOnlyPermissions(response.Permissions["webManagement"]?.readOnly || false);
-        if (response.Permissions["webManagement"]?.readOnly) {
-          toast.error('You do not have permission to add why study with us.', {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            onClose: () => {
-              navigate('/admin/');
-            }
-          });
-        }
       }
     };
     apiCaller();
   }, []);
 
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchWhy = async () => {
+      try {
+        const resp = await getWhyOurCourseById(id);
+        const doc = resp.data ?? resp;
+        setFormData({
+          title: doc.title || '',
+          description: doc.description || '',
+          imageFile: null,
+        });
+        setPreviewUrl(doc.image || '');
+      } catch (err) {
+        console.error('Error loading item:', err);
+        setError('Failed to load the item.');
+        toast.error('Failed to load the item.');
+      }
+    };
+
+    fetchWhy();
+  }, [id]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleEditorChange = (newContent) => {
-    setFormData((prev) => ({ ...prev, description: newContent }));
+    setFormData(prev => ({ ...prev, description: newContent }));
   };
 
   const handleImageUpload = (e) => {
@@ -92,18 +102,20 @@ const AddWhyStudyWithUs = () => {
     if (!file) return;
 
     if (!file.type.match('image.*')) {
-      setError('Please upload a valid image file.');
-      toast.warn('Please upload a valid image file.');
+      const msg = 'Please upload a valid image file.';
+      setError(msg);
+      toast.warning(msg);
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB.');
-      toast.warn('Image size should be less than 5MB.');
+      const msg = 'Image size should be less than 5MB.';
+      setError(msg);
+      toast.warning(msg);
       return;
     }
 
     setError('');
-    setFormData((prev) => ({ ...prev, image: file }));
+    setFormData(prev => ({ ...prev, imageFile: file }));
 
     const reader = new FileReader();
     reader.onloadend = () => setPreviewUrl(reader.result);
@@ -112,62 +124,57 @@ const AddWhyStudyWithUs = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     if (!formData.title.trim() || !formData.description.trim()) {
       const msg = 'Title and Description are required.';
       setError(msg);
-      toast.warn(msg);
-      return;
-    }
-    if (!formData.image) {
-      const msg = 'Please select an image.';
-      setError(msg);
-      toast.warn(msg);
+      toast.warning(msg);
       return;
     }
 
-    setError('');
     setLoading(true);
-
     try {
-      const uploadResult = await uploadFileToAzureStorage(
-        formData.image,
-        'why'
-      );
+      let imageUrl = previewUrl;
 
-      const imageUrl =
-        uploadResult?.url ??
-        uploadResult?.fileUrl ??
-        uploadResult?.filePath ??
-        uploadResult?.blobUrl ??
-        (typeof uploadResult === 'string' ? uploadResult : null);
-
-      if (!imageUrl) {
-        throw new Error(
-          `Unexpected upload response format: ${JSON.stringify(
-            uploadResult
-          )}`
+      if (formData.imageFile) {
+        const uploadResult = await uploadFileToAzureStorage(
+          formData.imageFile,
+          'whyOurCourse'
         );
+
+        imageUrl =
+          uploadResult?.url ??
+          uploadResult?.fileUrl ??
+          uploadResult?.filePath ??
+          uploadResult?.blobUrl ??
+          (typeof uploadResult === 'string' ? uploadResult : null);
+
+        if (!imageUrl) {
+          throw new Error(
+            `Unexpected upload response format: ${JSON.stringify(
+              uploadResult
+            )}`
+          );
+        }
       }
 
-      await createWhy({
+      await updateWhyOurCourseById(id, {
         title: formData.title,
         description: formData.description,
-        image: imageUrl
+        image: imageUrl,
       });
 
-      toast.success('Data created successfully!');
-      setTimeout(() => {
-        navigate('/admin/web-management/why-study-with-us');
-      }, 1500);
+      toast.success('Updated successfully!');
+      setTimeout(() => navigate('/admin/web-management/why-our-course'), 1000);
     } catch (err) {
       console.error(err);
-      const errMsg =
+      const msg =
         err.response?.data?.message ||
         err.message ||
-        'Failed to create data, please try again.';
-      setError(errMsg);
-      toast.error(errMsg);
+        'Something went wrong, please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -175,10 +182,22 @@ const AddWhyStudyWithUs = () => {
 
   return (
     <Container>
-      <Title>Add Why Study With Us</Title>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
+      <Title>Edit Why Our Course</Title>
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      <Label>Why Study With Us Title *</Label>
+      <Label>Title *</Label>
       <Input
         name="title"
         value={formData.title}
@@ -190,7 +209,7 @@ const AddWhyStudyWithUs = () => {
         disabled={readOnlyPermissions}
       />
 
-      <Label>Why Study With Us Description *</Label>
+      <Label>Description *</Label>
       <EditorWrapper>
         <JoditEditor
           ref={editor}
@@ -201,7 +220,7 @@ const AddWhyStudyWithUs = () => {
         />
       </EditorWrapper>
 
-      <Label>Upload Image *</Label>
+      <Label>Image *</Label>
       <DropZone hasImage={!!previewUrl}>
         <input
           type="file"
@@ -213,7 +232,7 @@ const AddWhyStudyWithUs = () => {
         />
         <label htmlFor="upload-image" style={{ cursor: readOnlyPermissions ? 'not-allowed' : 'pointer' }}>
           {previewUrl ? (
-            <PreviewImage src={previewUrl} alt="Preview" />
+            <PreviewImage src={previewUrl.startsWith("data:")? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`} alt="Preview" />
           ) : (
             <>
               <ImageIcon>
@@ -229,23 +248,11 @@ const AddWhyStudyWithUs = () => {
 
       {!readOnlyPermissions && (
         <UploadButton onClick={handleSubmit} disabled={loading}>
-          {loading ? 'Creating…' : 'Create'}
+          {loading ? 'Updating…' : 'Update'}
         </UploadButton>
       )}
-
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </Container>
   );
 };
 
-export default AddWhyStudyWithUs;
+export default EditWhyOurCourse;

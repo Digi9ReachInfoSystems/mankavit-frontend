@@ -222,8 +222,15 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
 
         <FormItem>
           <FormGroup>
-            <Label htmlFor="year">Select Year</Label>
-            <Select
+            <Label htmlFor="year">Enter Year</Label>
+             <TextInput
+              id="year"
+              placeholder="Enter Year"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              required
+            />
+            {/* <Select
               id="year"
               value={year}
               onChange={(e) => setYear(e.target.value)}
@@ -234,7 +241,7 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
                   {y}
                 </option>
               ))}
-            </Select>
+            </Select> */}
           </FormGroup>
         </FormItem>
 
