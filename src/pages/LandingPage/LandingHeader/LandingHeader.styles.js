@@ -14,6 +14,7 @@ export const Container = styled.div`
   --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.12);
   color: var(--text);
+  /* ✅ No position, no z-index — leave untouched */
 `;
 
 /* ============ Top Bar ============ */
@@ -367,7 +368,6 @@ export const Dropdown = styled.div`
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(0, 114, 255, 0.12);
   backdrop-filter: saturate(1.2) blur(2px);
-  z-index: 100;
   border-radius: 10px;
   overflow: hidden;
   animation: ${dropdownIn} 0.22s ease forwards;
@@ -375,33 +375,24 @@ export const Dropdown = styled.div`
   min-width: 200px;
   padding: 6px 0;
 
-  /* ✅ Mobile: render inline right under "Entrances" */
+  /* ✅ Only on desktop: give high z-index */
+  @media (min-width: 769px) {
+    z-index: 1100; /* High enough to appear over page content */
+  }
+
+  /* Mobile: render in-flow, no z-index needed */
   @media (max-width: 768px) {
-    //   // position: static;          /* take it out of absolute positioning */
-    // top: 30px;
-    // left: auto;
-    // width: 100%;               /* match the menu panel width */
-    // min-width: 0;
-    // margin-top: 8px;           /* small gap under “Entrances” */
-    // box-shadow: none;          /* flatter look inside the side panel */
-    // border-radius: 8px;
-    // max-height: 55vh;          /* scroll if long */
-    // overflow-y: auto;
-    // z-index: auto;   
-       position: static;          /* ⬅️ critical: no absolute on mobile */
-   top: auto;
-   left: auto;
-   width: 100%;
-   min-width: 0;
-   margin-top: 4px;           /* small gap under “Entrances” */
-   box-shadow: none;
-   border-radius: 8px;
-   max-height: 55vh;
-   overflow-y: auto;
-   z-index: auto;          
+    position: static;
+    width: 100%;
+    min-width: 0;
+    margin-top: 4px;
+    box-shadow: none;
+    border-radius: 8px;
+    max-height: 55vh;
+    overflow-y: auto;
+    /* Do NOT set z-index here — it's part of normal flow */
   }
 `;
-
 
 
 export const DropdownItem = styled.div`

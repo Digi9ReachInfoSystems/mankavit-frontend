@@ -10,6 +10,7 @@ import LegalEducationHero from "../../component/LandingPageComponents/LegalEduca
 import GotQuestions2 from "../../component/LandingPageComponents/GotQuestions2/GotQuestions2";
 import Aspirants from "../../component/AboutUsComponents/Aspirants/Aspirants";
 
+
 const LandingPage = () => {
     return <>
     <Header />

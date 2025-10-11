@@ -1,20 +1,82 @@
+/* 1) Container: keep a single row on desktop */
 import styled from "styled-components";
-
 export const Container = styled.div`
-  font-family: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   display: flex;
+  flex-wrap: nowrap;          /* ← don't wrap to a new line */
+  align-items: stretch;       /* ← stretch children to same height */
   overflow-x: hidden;
-  overflow-y: auto;            /* allow page scrolling */
+  overflow-y: auto;
   min-height: 100svh;
 
   @media (max-width: 900px) {
-    flex-direction: column;
+    flex-direction: column;   /* mobile stacks */
     align-items: stretch;
     padding: 12px;
     gap: 12px;
   }
 `;
+
+/* 2) Content: let it take remaining width, prevent it from forcing a wrap */
+export const Content = styled.main`
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;             /* ← flexible main area */
+  min-width: 0;               /* ← prevents overflow/line-wrap */
+  height: 95vh;
+
+  /* When sidebar is open on desktop we no longer need hard widths */
+  width: 100%;
+
+  @media (max-width: 900px) {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+`;
+
+/* 3) Sidebar: fixed width at right on desktop; slide-in on mobile */
+export const SidebarContainer = styled.aside`
+  /* Desktop / tablet */
+  display: ${p => (p.$open ? "flex" : "none")};
+  flex-direction: column;
+  align-items: center;
+  background-color: #f3f6fd;
+
+  flex: 0 0 320px;                  /* ← fixed right-side width */
+  width: 320px;
+  align-self: stretch;              /* ← same height as Content */
+  padding: 1rem;
+  order: 2;                         /* Content first, Sidebar second */
+
+  @media (max-width: 1360px) {
+    flex-basis: 280px;
+    width: 280px;
+  }
+
+  /* Mobile: slide-in panel */
+  @media (max-width: 900px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100svh;
+    width: 84vw;
+    max-width: 360px;
+    padding: 0.75rem;
+    display: flex;
+    box-shadow: -6px 0 18px rgba(0,0,0,.12);
+    background: #f3f6fd;
+    z-index: 200;
+
+    /* Use transform for slide in/out */
+    transform: translateX(${p => (p.$open ? "0%" : "100%")});
+    transition: transform 0.25s ease-in-out;
+  }
+`;
+
 export const MobileBottomSpacer = styled.div`
   display: none;
   @media (max-width: 900px) {
@@ -26,25 +88,25 @@ export const MobileBottomSpacer = styled.div`
   }
 `;
 
-export const Content = styled.div`
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  height: 95vh;
-  width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
-  order: 1;
+// export const Content = styled.div`
+//   position: relative;
+//   overflow-x: hidden;
+//   overflow-y: hidden;
+//   box-sizing: border-box;
+//   display: flex;
+//   flex-direction: column;
+//   height: 95vh;
+//   width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
+//   order: 1;
 
-  @media (max-width: 900px) {
-    width: 100%;
-    padding-right: 0;
-    height: auto;        /* let page scroll, not inner panel */
-    overflow-y: visible;
-    // padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
-  }
-`;
+//   @media (max-width: 900px) {
+//     width: 100%;
+//     padding-right: 0;
+//     height: auto;        /* let page scroll, not inner panel */
+//     overflow-y: visible;
+//     // padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+//   }
+// `;
 
 export const ToggleSidebarBtn = styled.button`
   position: fixed;              /* fixed so it doesn't scroll */
@@ -378,38 +440,38 @@ export const LeftDiv = styled.div`
   align-items: center;
   gap: 6px; /* tighter gap between back & title */
 `;
-export const SidebarContainer = styled.div`
-position:relative;
-overflow:visible;
-  width: ${(p) => (p.$open ? "20%" : "0")};
-  background-color: #f3f6fd;
-  padding: ${(p) => (p.$open ? "1rem" : "0")};
-  display: ${(p) => (p.$open ? "flex" : "none")};
-  flex-direction: column;
-  align-items: center;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
-  order: 2;
+// export const SidebarContainer = styled.div`
+// position:relative;
+// overflow:visible;
+//   width: ${(p) => (p.$open ? "20%" : "0")};
+//   background-color: #f3f6fd;
+//   padding: ${(p) => (p.$open ? "1rem" : "0")};
+//   display: ${(p) => (p.$open ? "flex" : "none")};
+//   flex-direction: column;
+//   align-items: center;
+//   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+//   order: 2;
 
-  @media (max-width: 1360px) {
-    width: 25%;
-  }
+//   @media (max-width: 1360px) {
+//     width: 25%;
+//   }
 
-   @media (max-width: 900px) {
-    position: fixed;         /* slide-in panel */
-    top: 0;
-    right: 0;
-    height: 100svh;
-    width: 84vw;             /* tweak as you like */
-    max-width: 360px;
-    background: #f3f6fd;
-    padding: 0.75rem;
-    display: ${p => (p.$open ? "flex" : "none")};
-    flex-direction: column;
-    z-index: 200;            /* above page */
-    overflow: visible;       /* keep btn outside nav from scrolling */
-    box-shadow: -6px 0 18px rgba(0,0,0,.12);
-  }
-`;
+//    @media (max-width: 900px) {
+//     position: fixed;         /* slide-in panel */
+//     top: 0;
+//     right: 0;
+//     height: 100svh;
+//     width: 84vw;             /* tweak as you like */
+//     max-width: 360px;
+//     background: #f3f6fd;
+//     padding: 0.75rem;
+//     display: ${p => (p.$open ? "flex" : "none")};
+//     flex-direction: column;
+//     z-index: 200;            /* above page */
+//     overflow: visible;       /* keep btn outside nav from scrolling */
+//     box-shadow: -6px 0 18px rgba(0,0,0,.12);
+//   }
+// `;
 export const Divider = styled.hr`
   width: 100%;
   margin: 0.5rem 0 0.75rem;
@@ -660,6 +722,10 @@ export const CloseSidebarBtn = styled.button`
   z-index: 210;
 
   &:hover { background: #f7f7f7; }
+
+  @media (max-width: 900px) {
+  left: -1px;
+  }
 
   @media (max-width: 576px) {
     width: 42px;

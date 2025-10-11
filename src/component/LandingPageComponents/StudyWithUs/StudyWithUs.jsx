@@ -114,9 +114,10 @@ const StudyWithUs = () => {
                 <CardBody>
                   <CardTitle title={item.title}>{item.title}</CardTitle>
                  
-                  <Subtitle title={stripHtml(item.description)}>
+                  {/* <Subtitle title={stripHtml(item.description)}>
                     {stripHtml(item.description)}
-                  </Subtitle>
+                  </Subtitle> */}
+<Subtitle dangerouslySetInnerHTML={{ __html: stripHtml(item.description) }} />
                 </CardBody>
               </Slide>
             ))}
