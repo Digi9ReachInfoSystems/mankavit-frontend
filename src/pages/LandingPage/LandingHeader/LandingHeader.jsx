@@ -213,37 +213,36 @@ const Header = () => {
           </Link>
         </Brand>
         <ToolbarContainer>
-         <Headline
-  style={{
-    fontSize: "20px",
-    marginLeft: "10px",
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  }}
->
-  {!isLoggedIn && (
-    <div className="marquee" style={{ flex: 1 }}>
-      <div className="track">
-        {/* original set */}
-        {tickers.map((t) => (
-          <span
-            key={`a-${t._id}`}
-            dangerouslySetInnerHTML={{ __html: t.title }}
-          />
-        ))}
-        {/* duplicate set for seamless loop */}
-        {tickers.map((t) => (
-          <span
-            key={`b-${t._id}`}
-            dangerouslySetInnerHTML={{ __html: t.title }}
-          />
-        ))}
-      </div>
-    </div>
-  )}
-</Headline>
-
+          <Headline
+            style={{
+              fontSize: "20px",
+              marginLeft: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            {!isLoggedIn && (
+              <div className="marquee" style={{ flex: 1 }}>
+                <div className="track">
+                  {/* original set */}
+                  {tickers.map((t) => (
+                    <span
+                      key={`a-${t._id}`}
+                      dangerouslySetInnerHTML={{ __html: t.title }}
+                    />
+                  ))}
+                  {/* duplicate set for seamless loop */}
+                  {tickers.map((t) => (
+                    <span
+                      key={`b-${t._id}`}
+                      dangerouslySetInnerHTML={{ __html: t.title }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </Headline>
 
           <SocialIcons>
             {socialLinks.map(({ platform, url }) => {
@@ -286,7 +285,7 @@ const Header = () => {
                 // </Link>
               ].map((item) => {
                 const key = typeof item === "string" ? item : "notif";
-    if (item === "Entrances") {
+                if (item === "Entrances") {
                   return (
                     <NavLinkItem
                       key={key}

@@ -100,11 +100,32 @@ export const CardBody = styled.div`
   padding: 14px 14px 16px;
 `;
 export const CardTitle = styled.h3`
-  font-size: 22px; font-weight: 700; color: #1b1b1b;
-  margin: 0 0 6px; line-height: 1.25;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1b1b1b;
+  margin: 0 0 6px;
+  line-height: 1.25;
   text-align: center;
+
+  /* allow wrapping */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+
+  /* handle very long words/URLs */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  @media (max-width: 900px) {
+    font-size: 20px;
+    line-height: 1.3;
+  }
+  @media (max-width: 560px) {
+    font-size: 18px;
+    line-height: 1.35;
+  }
 `;
+
 export const MetaRow = styled.div` display: flex; align-items: center; gap: 8px; margin-bottom: 6px; `;
 export const Stars = styled.div` display: inline-flex; gap: 3px; color: #ffb400;
 text-align: center; `;

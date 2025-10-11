@@ -210,6 +210,8 @@ const Aspirants = () => {
                 </LeftCol>
 
                 <RightCol>
+                    <Name>{t.name || "Aspirant"}</Name>
+                  {t.role && <Role>{t.role}</Role>}
                   {/* Desktop: show full quote; Mobile: collapsed with View More */}
                   <Quote
                     dangerouslySetInnerHTML={{
@@ -224,8 +226,7 @@ const Aspirants = () => {
                       {expandedQuotes[t.id] ? "View Less" : "View More"}
                     </ViewMoreButton>
                   )}
-                  <Name>{t.name || "Aspirant"}</Name>
-                  {t.role && <Role>{t.role}</Role>}
+                
                 </RightCol>
               </Card>
             </Slide>
