@@ -1,34 +1,34 @@
-/* 1) Container: keep a single row on desktop */
 import styled from "styled-components";
 export const Container = styled.div`
+  --sbw: 320px;                /* sidebar width (desktop) */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   display: flex;
-  flex-wrap: nowrap;          /* ← don't wrap to a new line */
-  align-items: stretch;       /* ← stretch children to same height */
+  flex-wrap: nowrap;
+  align-items: stretch;
   overflow-x: hidden;
   overflow-y: auto;
   min-height: 100svh;
+  position: relative;          /* ← so the toggle can be absolutely placed */
 
+  @media (max-width: 1360px) { --sbw: 280px; }  /* narrower sidebar on md+ */
   @media (max-width: 900px) {
-    flex-direction: column;   /* mobile stacks */
+    flex-direction: column;
     align-items: stretch;
     padding: 12px;
     gap: 12px;
   }
 `;
 
-/* 2) Content: let it take remaining width, prevent it from forcing a wrap */
+/* Content: flexible main area (no hard width) */
 export const Content = styled.main`
   position: relative;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;             /* ← flexible main area */
-  min-width: 0;               /* ← prevents overflow/line-wrap */
+  flex: 1 1 auto;
+  min-width: 0;
   height: 95vh;
-
-  /* When sidebar is open on desktop we no longer need hard widths */
   width: 100%;
 
   @media (max-width: 900px) {
@@ -38,24 +38,18 @@ export const Content = styled.main`
   }
 `;
 
-/* 3) Sidebar: fixed width at right on desktop; slide-in on mobile */
+/* Sidebar: fixed width on right (desktop) + slide-in on mobile */
 export const SidebarContainer = styled.aside`
-  /* Desktop / tablet */
   display: ${p => (p.$open ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
   background-color: #f3f6fd;
 
-  flex: 0 0 320px;                  /* ← fixed right-side width */
-  width: 320px;
-  align-self: stretch;              /* ← same height as Content */
+  flex: 0 0 var(--sbw);
+  width: var(--sbw);
+  align-self: stretch;
   padding: 1rem;
-  order: 2;                         /* Content first, Sidebar second */
-
-  @media (max-width: 1360px) {
-    flex-basis: 280px;
-    width: 280px;
-  }
+  order: 2;
 
   /* Mobile: slide-in panel */
   @media (max-width: 900px) {
@@ -70,12 +64,71 @@ export const SidebarContainer = styled.aside`
     box-shadow: -6px 0 18px rgba(0,0,0,.12);
     background: #f3f6fd;
     z-index: 200;
-
-    /* Use transform for slide in/out */
     transform: translateX(${p => (p.$open ? "0%" : "100%")});
     transition: transform 0.25s ease-in-out;
   }
 `;
+
+/* Toggle between panes on desktop; fixed floating on mobile */
+export const ToggleSidebarBtn = styled.button`
+  /* Desktop: sit between Content and Sidebar */
+  position: absolute;
+  top: 50%;
+  right: ${p => (p.$open ? "calc(var(--sbw) - 14px)" : "-14px")};
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 2px solid #135ac4;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 150;
+
+  &:hover { background: #f7f7f7; }
+
+  /* Mobile: float on the right edge */
+  @media (max-width: 900px) {
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 220; /* above slide-in sidebar */
+  }
+`;
+
+/* Show the close “pill” only on mobile (keep desktop clean) */
+export const CloseSidebarBtn = styled.button`
+  display: none;
+
+  @media (max-width: 900px) {
+    position: absolute;
+    display: flex;
+    top: 50%;
+    left: -1px;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 2px solid #135ac4ff;
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 700;
+    line-height: 1;
+    z-index: 210;
+
+    &:hover { background: #f7f7f7; }
+  }
+`;
+
 
 export const MobileBottomSpacer = styled.div`
   display: none;
@@ -108,34 +161,34 @@ export const MobileBottomSpacer = styled.div`
 //   }
 // `;
 
-export const ToggleSidebarBtn = styled.button`
-  position: fixed;              /* fixed so it doesn't scroll */
-  top: 50%;
-  right: 12px;
-  // right:15%;
-  transform: translateY(-50%);
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  border: 2px solid #135ac4ff;
-  background: #fff;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: 700;
-  line-height: 1;
-  z-index: 110; /* above sidebar */
+// export const ToggleSidebarBtn = styled.button`
+//   position: fixed;              /* fixed so it doesn't scroll */
+//   top: 50%;
+//   right: 12px;
+//   // right:15%;
+//   transform: translateY(-50%);
+//   width: 46px;
+//   height: 46px;
+//   border-radius: 999px;
+//   border: 2px solid #135ac4ff;
+//   background: #fff;
+//   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   font-weight: 700;
+//   line-height: 1;
+//   z-index: 110; /* above sidebar */
 
-  &:hover { background: #f7f7f7; }
+//   &:hover { background: #f7f7f7; }
 
-  @media (max-width: 576px) {
-    width: 42px;
-    height: 42px;
-    right: 10px;
-  }
-`;
+//   @media (max-width: 576px) {
+//     width: 42px;
+//     height: 42px;
+//     right: 10px;
+//   }
+// `;
 
 export const Header = styled.div`
   position: sticky;
@@ -702,34 +755,34 @@ export const ModalButton = styled.button`
   }
 `;
 
-export const CloseSidebarBtn = styled.button`
-  position: absolute;          /* anchored to the sidebar itself */
-  top: 50%;
-  left: -23px;                 /* sit outside on the left edge */
-  transform: translateY(-50%);
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  border: 2px solid #135ac4ff;
-  background: #fff;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: 700;
-  line-height: 1;
-  z-index: 210;
+// export const CloseSidebarBtn = styled.button`
+//   position: absolute;          /* anchored to the sidebar itself */
+//   top: 50%;
+//   left: -23px;                 /* sit outside on the left edge */
+//   transform: translateY(-50%);
+//   width: 46px;
+//   height: 46px;
+//   border-radius: 999px;
+//   border: 2px solid #135ac4ff;
+//   background: #fff;
+//   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   font-weight: 700;
+//   line-height: 1;
+//   z-index: 210;
 
-  &:hover { background: #f7f7f7; }
+//   &:hover { background: #f7f7f7; }
 
-  @media (max-width: 900px) {
-  left: -1px;
-  }
+//   @media (max-width: 900px) {
+//   left: -1px;
+//   }
 
-  @media (max-width: 576px) {
-    width: 42px;
-    height: 42px;
-    left: -1px;
-  }
-`;
+//   @media (max-width: 576px) {
+//     width: 42px;
+//     height: 42px;
+//     left: -1px;
+//   }
+// `;
