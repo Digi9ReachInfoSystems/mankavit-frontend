@@ -75,7 +75,7 @@ export default function TestInstructions() {
  
       const attempt = res.data;
       navigate(`/test-question/${testId}/${subjectId}/${attempt._id}`,{
-        state: { remainingTime: res.remainingTime }
+        state: { remainingTime: res.remainingTime } ,replace: true
       });
     } catch (err) {
       console.error("startMocktest failed", err);

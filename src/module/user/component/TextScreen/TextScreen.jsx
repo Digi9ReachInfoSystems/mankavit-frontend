@@ -830,7 +830,7 @@ export default function TextScreen() {
       if (data) {
         localStorage.removeItem(timeKey);
         toast.success("Test submitted successfully");
-        navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
+        navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`,{replace: true});
       }
     } catch (err) {
       // // console.error(err);

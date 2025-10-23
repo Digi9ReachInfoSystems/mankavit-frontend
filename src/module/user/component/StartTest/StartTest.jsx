@@ -111,7 +111,7 @@ const StartTest = () => {
             <StartButton
               style={{ width: "200px" }}
               onClick={() => {
-                navigate(`/test-instructions/${testId}/${subjectId}`);
+                navigate(`/test-instructions/${testId}/${subjectId}`,{replace: true});
               }}
             >
               Resume Test
@@ -176,7 +176,7 @@ const StartTest = () => {
         </DetailsList>
       </Card>
       <StartButton
-        onClick={() => navigate(`/test-instructions/${testId}/${subjectId}`)}
+        onClick={() => navigate(`/test-instructions/${testId}/${subjectId}`,{replace: true})}
       >
         Start Test
       </StartButton>
