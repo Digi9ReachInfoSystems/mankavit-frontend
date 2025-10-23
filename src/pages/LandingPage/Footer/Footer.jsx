@@ -14,6 +14,7 @@ import {
   BottomBar,
   BottomLinks,
   Copyright,
+  AppDownloadSection,
 } from "./Footer.styles";
 import { MdPhone } from "react-icons/md";
 import { FaArrowRightLong } from "react-icons/fa6";
@@ -131,6 +132,35 @@ export default function Footer() {
             </FooterSection>
           </RightContainer>
         </div>
+        <AppDownloadSection>
+          <SectionTitle>Download Our App</SectionTitle>
+          <div className="store-buttons">
+            <a
+              href="https://play.google.com/store/apps/details?id=com.mankavit.app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/300/300218.png"
+                alt="Get it on Google Play"
+                className="store-badge"
+              />
+            </a>
+
+            <a
+              href="https://apps.apple.com/in/app/apple-store/id375380948"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg"
+                alt="Download on the App Store"
+                className="store-badge"
+              />
+            </a>
+          </div>
+        </AppDownloadSection>
+
 
         <BottomBar>
           <Copyright>Copyright © 2024 Mankavit, All rights reserved.</Copyright>
@@ -166,6 +196,7 @@ export default function Footer() {
             </span>
           </BottomLinks>
         </BottomBar>
+
       </FooterContainer>
     </>
   );

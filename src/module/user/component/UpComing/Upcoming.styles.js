@@ -92,6 +92,9 @@ export const Testdetails = styled.div`
     width: 1px;
     background-color: ${({ theme }) => theme.colors.graniteGray};
     margin: 0 5px;
+    @media (max-width: 820px) {
+      display: none;
+    }
   }
 `;
 

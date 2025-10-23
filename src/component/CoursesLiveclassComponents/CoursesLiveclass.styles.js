@@ -83,7 +83,18 @@ export const VideoPlayer = styled.video`
 export const ControlsRow = styled.div`
   position: absolute;
   bottom: 10px;
-  left: 0;
+  left: 20%;
+  right: 0;
+  display: flex;
+  justify-content: space-between; /* left + right */
+  padding: 0 16px;
+  z-index: 5;ForwardButton
+`;
+
+export const PlayControls = styled.div`
+  position: absolute;
+  top: 48%;
+  left: 15%;
   right: 0;
   display: flex;
   justify-content: space-between; /* left + right */
@@ -93,9 +104,14 @@ export const ControlsRow = styled.div`
 
 export const ControlsLeft = styled.div`
   display: flex;
-  gap: 10px;
+  gap:100%;
 `;
-
+export const ControlsLeft1 = styled.div`
+ position: absolute;
+  display: flex;
+  gap:100%;
+  right:15%
+`;
 export const ControlsRight = styled.div`
   display: flex;
 `;
