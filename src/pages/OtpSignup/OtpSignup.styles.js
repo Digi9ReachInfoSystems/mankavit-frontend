@@ -119,6 +119,7 @@ export const FormContent = styled.div`
      margin:130px 0px 60px 0px ; 
   }
      @media (max-width: 480px) {
+     align-items: center;
         margin :20px 30px 60px 30px!important;
     }
     @media (min-width: 800px) and (max-width: 1000px) {
@@ -148,6 +149,7 @@ export const LoginSubTitle = styled.p`
   font-size: 0.875rem;
   margin-bottom: 20px;
   font-family: ${theme.fonts.body};
+  // text-align: left;
 `;
 export const Label = styled.label`
   display: block;
@@ -274,8 +276,8 @@ background: #F1F5FF;
        height: 30px!important;
     }
        @media (max-width: 480px) {
-       width: 30px;
-       height: 30px;
+       width: 40px;
+       height: 40px;
     }
 `;
 

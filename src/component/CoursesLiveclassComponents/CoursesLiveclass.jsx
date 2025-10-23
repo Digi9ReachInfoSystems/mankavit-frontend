@@ -1228,7 +1228,9 @@ import {
   ControlsRow,
   ControlsLeft,
   ControlsRight,
-  ExitFullscreenButton
+  ExitFullscreenButton,
+  PlayControls,
+  ControlsLeft1
   // VideoControls,
   // ControlButton,
   // OverlayPlayButton
@@ -1298,6 +1300,7 @@ const CoursesLiveclass = () => {
   const [viewResults, setViewResults] = useState({});
   const [isPdfFullscreen, setIsPdfFullscreen] = useState(false);
   const pdfContainerRef = useRef(null);
+  const [showControls, setShowControls] = useState(false);
 
   const handlePdfFullscreen = () => {
     const el = pdfContainerRef.current;
@@ -1762,101 +1765,101 @@ const CoursesLiveclass = () => {
   //   }
   // };
 
-//   const handleVideoEnd = async () => {
-//   // Only mark this lecture complete; do NOT auto-navigate anywhere.
-//   if (!userId || !courseId || !subjectId || !lectureId) return;
+  //   const handleVideoEnd = async () => {
+  //   // Only mark this lecture complete; do NOT auto-navigate anywhere.
+  //   if (!userId || !courseId || !subjectId || !lectureId) return;
 
-//   try {
-//     await completeLecturer(userId, courseId, subjectid, lectureId);
+  //   try {
+  //     await completeLecturer(userId, courseId, subjectid, lectureId);
 
-//     // (Optional) Refresh progress so the UI shows the checkmark on this lecture.
-//     const cookies = await getCookiesData();
-//     const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
-//     if (progress?.success) {
-//       setCourse(progress.data);
-//       const updatedLecture = progress.data.subjects
-//         ?.find((s) => s._id === subjectid)?.lectures
-//         ?.find((l) => l._id === lectureId);
-//       if (updatedLecture) setLecture(updatedLecture);
-//     }
-//   } catch (e) {
-//     // ignore errors; just don't navigate
-//   }
-// };
+  //     // (Optional) Refresh progress so the UI shows the checkmark on this lecture.
+  //     const cookies = await getCookiesData();
+  //     const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
+  //     if (progress?.success) {
+  //       setCourse(progress.data);
+  //       const updatedLecture = progress.data.subjects
+  //         ?.find((s) => s._id === subjectid)?.lectures
+  //         ?.find((l) => l._id === lectureId);
+  //       if (updatedLecture) setLecture(updatedLecture);
+  //     }
+  //   } catch (e) {
+  //     // ignore errors; just don't navigate
+  //   }
+  // };
 
-// useEffect(() => {
-//   const onChange = () => {
-//     setIsFullscreen(!!document.fullscreenElement);
-//   };
-//   document.addEventListener("fullscreenchange", onChange);
-//   return () => document.removeEventListener("fullscreenchange", onChange);
-// }, []);
+  // useEffect(() => {
+  //   const onChange = () => {
+  //     setIsFullscreen(!!document.fullscreenElement);
+  //   };
+  //   document.addEventListener("fullscreenchange", onChange);
+  //   return () => document.removeEventListener("fullscreenchange", onChange);
+  // }, []);
 
 
-const handleVideoEnd = async () => {
-  if (!userId || !courseId || !subjectId || !lectureId) return;
+  const handleVideoEnd = async () => {
+    if (!userId || !courseId || !subjectId || !lectureId) return;
 
-  try {
-    // Mark current lecture complete
-    await completeLecturer(userId, courseId, subjectid, lectureId);
+    try {
+      // Mark current lecture complete
+      await completeLecturer(userId, courseId, subjectid, lectureId);
 
-    // Refresh progress
-    const cookies = await getCookiesData();
-    const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
-    if (!progress?.success) return;
+      // Refresh progress
+      const cookies = await getCookiesData();
+      const progress = await getCourseByIdWithUSerProgress(cookies.userId, courseId);
+      if (!progress?.success) return;
 
-    const data = progress.data;
-    setCourse(data);
+      const data = progress.data;
+      setCourse(data);
 
-    // Find the active subject (the one in the URL)
-    const currSubject = (data.subjects || []).find(s => s._id === subjectid);
-    if (!currSubject) return;
+      // Find the active subject (the one in the URL)
+      const currSubject = (data.subjects || []).find(s => s._id === subjectid);
+      if (!currSubject) return;
 
-    // Find current lecture index within THIS subject
-    const idx = (currSubject.lectures || []).findIndex(l => l._id === lectureId);
-    const lastIdx = (currSubject.lectures || []).length - 1;
+      // Find current lecture index within THIS subject
+      const idx = (currSubject.lectures || []).findIndex(l => l._id === lectureId);
+      const lastIdx = (currSubject.lectures || []).length - 1;
 
-    // 1) If there is a next lecture in the same subject, go there
-    if (idx > -1 && idx < lastIdx) {
-      const nextLecture = currSubject.lectures[idx + 1];
-      // keep internal state in sync and start lecture
-      setLecture(nextLecture);
-      await startLecturer(userId, courseId, currSubject._id, nextLecture._id);
+      // 1) If there is a next lecture in the same subject, go there
+      if (idx > -1 && idx < lastIdx) {
+        const nextLecture = currSubject.lectures[idx + 1];
+        // keep internal state in sync and start lecture
+        setLecture(nextLecture);
+        await startLecturer(userId, courseId, currSubject._id, nextLecture._id);
 
-      // update URL but DO NOT change subject
-      navigate(
-        `/course/liveclass/${courseId}/${currSubject._id}/${nextLecture._id}`,
-        { replace: true }
-      );
-      return;
-    }
-
-    // 2) We are at the LAST lecture of this subject — do NOT auto-jump to the next subject
-
-    // If the whole course is completed, keep your existing certificate flow
-    const allDone = (data.subjects || []).every(s =>
-      (s.lectures || []).every(l => l.completed)
-    );
-
-    if (allDone) {
-      if (data?.completed) {
-        if (data?.viewedCertificate) {
-          navigate(`/user`);
-        } else {
-          navigate(`/courseComplte/${courseId}`);
-        }
-      } else {
-        // fallback if completed flag lags
-        navigate(`/continueCourse/${courseId}`);
+        // update URL but DO NOT change subject
+        navigate(
+          `/course/liveclass/${courseId}/${currSubject._id}/${nextLecture._id}`,
+          { replace: true }
+        );
+        return;
       }
+
+      // 2) We are at the LAST lecture of this subject — do NOT auto-jump to the next subject
+
+      // If the whole course is completed, keep your existing certificate flow
+      const allDone = (data.subjects || []).every(s =>
+        (s.lectures || []).every(l => l.completed)
+      );
+
+      if (allDone) {
+        if (data?.completed) {
+          if (data?.viewedCertificate) {
+            navigate(`/user`);
+          } else {
+            navigate(`/courseComplte/${courseId}`);
+          }
+        } else {
+          // fallback if completed flag lags
+          navigate(`/continueCourse/${courseId}`);
+        }
+      }
+
+      // Else: stay on the same screen (no navigation). You might show a small toast if you want.
+
+    } catch {
+      // ignore
     }
-
-    // Else: stay on the same screen (no navigation). You might show a small toast if you want.
-
-  } catch {
-    // ignore
-  }
-};
+  };
 
 
   const handleStartSubject = async (subId) => {
@@ -1987,7 +1990,7 @@ const handleVideoEnd = async () => {
                     : lec.maxAttempts ?? "Unlimited";
                 infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
 
-                if (!isUnlimited ) {
+                if (!isUnlimited) {
                   showRemaining = true;
                   remainingText = ` | Remaining: ${remaining}`;
                 }
@@ -2125,7 +2128,7 @@ const handleVideoEnd = async () => {
             const a = document.createElement("a");
             a.href = url;
             a.download = noteName || "document";
-            
+
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2321,29 +2324,40 @@ const handleVideoEnd = async () => {
     }
   };
 
-const skipTime = (seconds) => {
-  if (videoRef.current) {
-    videoRef.current.currentTime += seconds;
-  }
-};
+  const skipTime = (seconds) => {
+    if (videoRef.current) {
+      // console.log(" skipTime", seconds  ,"videoRef.current.currentTime", videoRef.current.currentTime);
+      videoRef.current.currentTime += seconds;
+    }
+  };
 
-const handleFullscreen = () => {
-  if (!document.fullscreenElement) {
-    videoContainerRef.current.requestFullscreen?.();
-    setIsFullscreen(true);
-  } else {
-    document.exitFullscreen?.();
-    setIsFullscreen(false);
-  }
-};
+  const handleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      videoContainerRef.current.requestFullscreen?.();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.();
+      setIsFullscreen(false);
+    }
+  };
 
-useEffect(() => {
-  const onChange = () => setIsFullscreen(!!document.fullscreenElement);
-  document.addEventListener("fullscreenchange", onChange);
-  return () => document.removeEventListener("fullscreenchange", onChange);
-}, []);
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
 
 
+  const hideTimeout = useRef(null);
+
+  const handleMouseLeave = () => {
+    hideTimeout.current = setTimeout(() => setShowControls(false), 1000);
+  };
+
+  const handleMouseEnter = () => {
+    clearTimeout(hideTimeout.current);
+    setShowControls(true);
+  };
 
   // const handleFullscreen = () => {
   //   const el = videoContainerRef.current;
@@ -2426,65 +2440,93 @@ useEffect(() => {
         
         </StyledVideo>
       </VideoContainer> */}
-<VideoContainer ref={videoContainerRef}>
-  <StyledVideo>
-    {lecture && (
-      <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
-        <VideoPlayer
-          ref={videoRef}
-          onError={handleVideoError}
-          onEnded={handleVideoEnd}
-          controls
-          controlsList="nodownload nofullscreen noremoteplayback"
-          disablePictureInPicture
-        >
-          {lecture?.videoUrl && !videoError ? (
-            <source
-              src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture.videoUrl}`}
-            />
-          ) : (
-            <div className="video-error">
-              {videoError
-                ? "Error loading video"
-                : "Your browser does not support the video tag"}
-            </div>
+      <VideoContainer ref={videoContainerRef}
+
+      >
+        <StyledVideo>
+          {lecture && (
+            <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
+              <VideoPlayer
+                ref={videoRef}
+                onError={handleVideoError}
+                onEnded={handleVideoEnd}
+                controls
+                controlsList="nodownload nofullscreen noremoteplayback"
+                disablePictureInPicture
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                {lecture?.videoUrl && !videoError ? (
+                  <source
+                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture.videoUrl}`}
+                  />
+                ) : (
+                  <div className="video-error">
+                    {videoError
+                      ? "Error loading video"
+                      : "Your browser does not support the video tag"}
+                  </div>
+                )}
+              </VideoPlayer>
+
+              {userId && (
+                <MovingOverlay
+                  style={{
+                    top: `${overlayPosition.top}%`,
+                    left: `${overlayPosition.left}%`,
+                  }}
+                >
+                  {userPhoneNumber || userId}
+                </MovingOverlay>
+              )}
+            </VideoPlayerContainer>
           )}
-        </VideoPlayer>
+          <PlayControls>
+            {
+              showControls && (
+                <ControlsLeft>
+                  <BackwardButton onClick={() => skipTime(-30)}>⏪ 30s</BackwardButton>
+                </ControlsLeft>
+              )
+            }
+            {
+              showControls && (
+                <ControlsLeft1>
+                  <ForwardButton onClick={() => skipTime(30)}>30s ⏩</ForwardButton>
+                </ControlsLeft1>
+              )
+            }
+          </PlayControls>
 
-        {userId && (
-          <MovingOverlay
-            style={{
-              top: `${overlayPosition.top}%`,
-              left: `${overlayPosition.left}%`,
-            }}
-          >
-            {userPhoneNumber || userId}
-          </MovingOverlay>
-        )}
-      </VideoPlayerContainer>
-    )}
-
-    {/* Bottom-left controls */}
-    <ControlsRow>
-      <ControlsLeft>
+          {/* Bottom-left controls */}
+          <ControlsRow>
+            {/* {
+              // showControls && (
+                <ControlsLeft>
+                  <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
+                  <ForwardButton onClick={() => skipTime(20)}>20s ⏩</ForwardButton>
+                </ControlsLeft>
+              // )
+            } */}
+            {/* <ControlsLeft>
         <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
         <ForwardButton onClick={() => skipTime(20)}>20s ⏩</ForwardButton>
-      </ControlsLeft>
+      </ControlsLeft> */}
 
-      {/* Bottom-right fullscreen button */}
-      {!isFullscreen && (
-        <ControlsRight>
-          <FullscreenButton onClick={handleFullscreen}>⛶</FullscreenButton>
-        </ControlsRight>
-      )}
-    </ControlsRow>
+            {/* Bottom-right fullscreen button */}
+            {!isFullscreen && (
+              <ControlsRight>
+                <FullscreenButton onClick={handleFullscreen}>⛶</FullscreenButton>
+              </ControlsRight>
+            )}
+          </ControlsRow>
 
-    {/* Exit fullscreen button at top-right */}
-    {isFullscreen && (
-      <ExitFullscreenButton onClick={handleFullscreen}>✕</ExitFullscreenButton>
-    )}
-  </StyledVideo>
-</VideoContainer>
+          {/* Exit fullscreen button at top-right */}
+          {isFullscreen && (
+            <ExitFullscreenButton onClick={handleFullscreen}>✕</ExitFullscreenButton>
+          )}
+        </StyledVideo>
+      </VideoContainer>
 
 
 

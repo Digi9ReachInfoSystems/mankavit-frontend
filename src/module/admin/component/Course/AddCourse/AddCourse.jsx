@@ -52,6 +52,7 @@ export default function AddCourse() {
   const [isKYCRequired, setIsKYCRequired] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [description, setDescription] = useState("");
+  const [course_order, setCourseOrder] = useState(1);
 
   // New state fields
   const [duration, setDuration] = useState(null);
@@ -232,6 +233,7 @@ const handleSubmit = async (e) => {
       duration: duration || null,
       discountActive: isKYCRequired,
       isPublished: isPublished,
+      course_order: course_order,
       courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
     };
 
@@ -281,7 +283,7 @@ const handleSubmit = async (e) => {
       setTimeout(() => navigate("/admin/course-management"), 1000);
     }
   } catch (err) {
-    // // console.error("Error details:", err.response?.data || err.message);
+    // console.error("Error details:", err);
     toast.error(
       err.response?.data?.message ||
         "Failed to create course. Please try again."
@@ -328,6 +330,19 @@ const handleSubmit = async (e) => {
                 onChange={(e) => setInternalTitle(e.target.value)}
                 placeholder="Enter Internal Title"
                 required
+              />
+            </FieldWrapper>
+          </Column>
+        </FormRow>
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="courseOrder">Course Order</Label>
+             <Input 
+                id="courseOrder"
+                value={course_order}
+                onChange={(e) => setCourseOrder(e.target.value)}
+                placeholder="Enter Course Order"
               />
             </FieldWrapper>
           </Column>

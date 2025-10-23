@@ -481,3 +481,48 @@ export const BottomLinks = styled.div`
 export const Copyright = styled.div`
   margin-bottom: 10px;
 `;
+
+export const AppDownloadSection = styled.div`
+  text-align: left;
+  margin: 20px;
+  margin-left: 8%;
+ 
+  color: ${props => props.theme.colors.lightwhite};
+
+  .store-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    //  margin-left: 30px;
+    align-items: center;
+  }
+
+  .store-badge {
+    height: 50px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+
+  .store-badge:hover {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 768px) {
+    text-align: center;
+
+    .store-badge {
+      height: 40px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .store-buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .store-badge {
+      height: 35px;
+    }
+  }
+`;

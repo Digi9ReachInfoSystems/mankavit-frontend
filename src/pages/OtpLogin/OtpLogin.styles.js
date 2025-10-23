@@ -278,8 +278,8 @@ background: #F1F5FF;
        height: 30px!important;
     }
        @media (max-width: 480px) {
-       width: 30px;
-       height: 30px;
+       width: 35px;
+       height: 35px;
     }
 `;
  

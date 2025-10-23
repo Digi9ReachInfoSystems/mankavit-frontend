@@ -70,6 +70,7 @@ export default function EditCourse() {
     thumbnailFile: null,
     courseExpiry: "",
     ratting: 0,
+    course_order: 1,
   });
 
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
@@ -171,6 +172,7 @@ export default function EditCourse() {
           previewUrl: data.image || null,
           thumbnailFile: null,
           ratting: data.course_rating || 0,
+          course_order: data.course_order || 0,
           courseExpiry: data.courseExpiry
             ? new Date(data.courseExpiry).toISOString().split("T")[0]
             : null,
@@ -375,6 +377,7 @@ export default function EditCourse() {
         recorded_class: formData.recordedClass,
         isPublished: formData.isPublished,
         status: formData.status,
+        course_order:formData.course_order,
         course_rating: formData.ratting ? Number(formData.ratting) : undefined,
         courseExpiry: formData.courseExpiry
           ? new Date(formData.courseExpiry)
@@ -470,7 +473,18 @@ export default function EditCourse() {
             </FieldWrapper>
           </Column>
         </FormRow>
-
+        <FormRow>
+          <Column>
+            <FieldWrapper>
+              <Label htmlFor="courseOrder">Course Order</Label>
+              <PriceInput
+                id="courseOrder"
+                value={formData.course_order}
+                onChange={(e) => handleInputChange("course_order", e.target.value)}
+              />
+            </FieldWrapper>
+          </Column>
+        </FormRow>
         <FormRow>
           <Column>
             <FieldWrapper>
