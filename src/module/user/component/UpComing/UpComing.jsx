@@ -36,7 +36,7 @@ const UpComing = () => {
         const cookieData = getCookiesData();
         const response = await getUpComingMeetings(cookieData.userId);
         const upcomingTestsResp = await getAllUpcomingMocktest(cookieData.userId);
-
+      //  console.log("  upcomingTestsResp", upcomingTestsResp);  
         const transformedTests =
           upcomingTestsResp.data?.map((test) => ({
             id: test._id,
@@ -96,7 +96,7 @@ const UpComing = () => {
                     <ListTime>
                       <Testdate>{test.date}</Testdate>
                       <Testmonth>{test.month}</Testmonth>
-                      <Testtime>{test.time}</Testtime>
+                      {/* <Testtime>{test.time}</Testtime> */}
                     </ListTime>
                     <ListContent>
                       <div style={{ display: "flex", flexDirection: "row" }}>

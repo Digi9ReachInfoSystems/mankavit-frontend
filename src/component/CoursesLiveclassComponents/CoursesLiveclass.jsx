@@ -1417,6 +1417,7 @@ const CoursesLiveclass = () => {
     const uid = cookiesData.userId;
 
     const response = await getMockTestStats(uid, lec._id);
+    // console.log("meta 1111 ", response);  
     return response;
   };
 
@@ -1437,7 +1438,9 @@ const CoursesLiveclass = () => {
         toFetch.map(async (l) => {
           try {
             const res = await getAllUserAttemptByUserId(uid, l._id);
+            // console.log(" res bjhb", res);
             const meta = await computeAttemptMeta(l, res?.data || []);
+            // console.log("meta 11 ", meta);
             return [
               l._id,
               {
@@ -1454,6 +1457,7 @@ const CoursesLiveclass = () => {
           } catch (e) {
             // // // console.error("attempts fetch failed:", e);
             const meta = await computeAttemptMeta(l, []);
+            // console.log("meta 22", meta);
             return [
               l._id,
               {
@@ -1970,9 +1974,9 @@ const handleVideoEnd = async () => {
 
               if (!isLoading && meta) {
                 const { attemptsCount, isUnlimited, max, remaining } = meta;
-                console.log(
-                  "meta", meta,
-                )
+                // console.log(
+                //   "meta", meta,
+                // )
                 // showViewResults = attemptsCount > 0;
                 canStart = meta.canStart;
 
@@ -1983,14 +1987,14 @@ const handleVideoEnd = async () => {
                     : lec.maxAttempts ?? "Unlimited";
                 infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
 
-                if (!isUnlimited && Number.isFinite(remaining) && remaining > 0) {
+                if (!isUnlimited ) {
                   showRemaining = true;
                   remainingText = ` | Remaining: ${remaining}`;
                 }
               } else if (!meta) {
                 const maxText =
                   lec.maxAttempts == null ? "Unlimited" : lec.maxAttempts;
-                infoLine = `${lec.duration} | Max Attempts: ${maxText}`;
+                infoLine = `${lec.duration} | Max Attempts : ${maxText}`;
               }
 
               return (

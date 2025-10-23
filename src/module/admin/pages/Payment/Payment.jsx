@@ -34,7 +34,6 @@ import styled from "styled-components";
 import { SearchWrapper } from "../StudentManagement/StudentManagement.style";
 import { CiSearch } from "react-icons/ci";
 import { getAuth } from "../../../../utils/authService";
-
 const ITEMS_PER_PAGE = 10;
 
 // Status color mapping
@@ -265,7 +264,7 @@ export default function Payment() {
 
       getNestedValue(item, 'userRef.displayName'),
       item.transactionId || item.razorpay_payment_id || "N/A",
-      `₹${item.amountPaid ?? "N/A"}`,
+      `Rs. ${item.amountPaid ?? "N/A"}`,
       formatDate(item.createdAt),
       item.paymentType || "N/A",
       item.status,
