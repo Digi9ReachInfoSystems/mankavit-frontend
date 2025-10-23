@@ -64,8 +64,8 @@ export default function Footer() {
               <SectionTitle>Quick Link</SectionTitle>
               <LinkList>
                 <li>
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     style={{ textDecoration: "none" }}
                     onClick={handleLinkClick}
                   >
@@ -73,8 +73,8 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/ourcoursedetails" 
+                  <Link
+                    to="/ourcoursedetails"
                     style={{ textDecoration: "none" }}
                     onClick={handleLinkClick}
                   >
@@ -82,8 +82,8 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/aboutus" 
+                  <Link
+                    to="/aboutus"
                     style={{ textDecoration: "none" }}
                     onClick={handleLinkClick}
                   >
@@ -110,8 +110,8 @@ export default function Footer() {
               <SectionTitle>Studying with Us</SectionTitle>
               <LinkList>
                 <li>
-                  <Link 
-                    to="/ourcoursedetails" 
+                  <Link
+                    to="/ourcoursedetails"
                     style={{ textDecoration: "none" }}
                     onClick={handleLinkClick}
                   >
@@ -119,8 +119,8 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/faqs" 
+                  <Link
+                    to="/faqs"
                     style={{ textDecoration: "none" }}
                     onClick={handleLinkClick}
                   >
@@ -135,27 +135,35 @@ export default function Footer() {
         <BottomBar>
           <Copyright>Copyright © 2024 Mankavit, All rights reserved.</Copyright>
           <BottomLinks>
-            <Link 
-              to="/termsandcondition" 
-              style={{ textDecoration: "none" }}
-              onClick={handleLinkClick}
-            >
-              Terms and Conditions
-            </Link>
-            <Link 
-              to="/privacypolicy" 
-              style={{ textDecoration: "none" }}
-              onClick={handleLinkClick}
-            >
-              Privacy policy
-            </Link>
-            <Link 
-              to="/refundpolicy" 
-              style={{ textDecoration: "none" }}
-              onClick={handleLinkClick}
-            >
-              Refund policy
-            </Link>
+            <span className="termsandcondition">
+              <Link
+                to="/termsandcondition"
+                style={{ textDecoration: "none" }}
+                onClick={handleLinkClick}
+              >
+                Terms and Conditions
+              </Link>
+            </span>
+            <span className="privacypolicy">
+
+              <Link
+                to="/privacypolicy"
+                style={{ textDecoration: "none" }}
+                onClick={handleLinkClick}
+              >
+                Privacy policy
+              </Link>
+
+            </span>
+            <span className="refundpolicy">
+              <Link
+                to="/refundpolicy"
+                style={{ textDecoration: "none" }}
+                onClick={handleLinkClick}
+              >
+                Refund policy
+              </Link>
+            </span>
           </BottomLinks>
         </BottomBar>
       </FooterContainer>

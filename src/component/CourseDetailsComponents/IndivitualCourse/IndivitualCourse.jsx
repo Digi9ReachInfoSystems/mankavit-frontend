@@ -98,88 +98,96 @@ const IndividualCourses = () => {
 
   return (
     <>
-    <Container>
-      {/* Two-column layout:
+      <Container>
+        {/* Two-column layout:
           LEFT (sticky): image + enroll button
           RIGHT (scrolls): name + description (+ subjects) */}
-      <Hello>
-        <LeftCol>
-          <LeftSticky>
-            <CourseImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course?.image}`} alt="Course" />
-            {userLoggedIn ? (
-              <>
-                {isEnrolled ? (
-                  <EnrollButton onClick={() => navigate("/user")}>
-                    Continue Learning
-                  </EnrollButton>
-                ) : course.price > 0 ? (
-                  <EnrollButton onClick={() => setShowModal(true)}>
-                    Enroll Now ₹
-                    {course.discountActive
-                      ? course.discountPrice
-                      : course.price}
-                    /-
-                  </EnrollButton>
-                ) : (
-                  <EnrollButton
-                    onClick={() => handleEnrollFreeCourse(course._id)}
-                  >
-                    Enroll Now
-                  </EnrollButton>
-                )}
-              </>
-            ) : (
-              <EnrollButton onClick={() => navigate(`/login`)}>
-                Enroll Now ₹
-                {course.discountActive ? course.discountPrice : course.price}/-
-                {course.discountActive && (
-                  <span
-                    style={{
-                      textDecoration: "line-through",
-                      marginLeft: 8,
-                      color: "#999",
-                    }}
-                  >
-                    ₹{course.price}
-                  </span>
-                )}
-              </EnrollButton>
-            )}
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-            />
-          </LeftSticky>
-        </LeftCol>
+        <Hello>
+          <LeftCol>
+            <LeftSticky>
+              <CourseImage src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${course?.image}`} alt="Course" />
+              {userLoggedIn ? (
+                <>
+                  {isEnrolled ? (
+                    <EnrollButton onClick={() => navigate("/user")}>
+                      Continue Learning
+                    </EnrollButton>
+                  ) : course.price > 0 ? (
+                    <EnrollButton onClick={() => setShowModal(true)}>
+                      Enroll Now ₹
+                      {course.discountActive ? course.discountPrice : course.price}/-
+                      {course.discountActive && (
+                        <span
+                          style={{
+                            textDecoration: "line-through",
+                            marginLeft: 8,
+                            color: "#999",
+                          }}
+                        >
+                          ₹{course.price}
+                        </span>
+                      )}
+                    </EnrollButton>
+                  ) : (
+                    <EnrollButton
+                      onClick={() => handleEnrollFreeCourse(course._id)}
+                    >
+                      Enroll Now
+                    </EnrollButton>
+                  )}
+                </>
+              ) : (
+                <EnrollButton onClick={() => navigate(`/login`)}>
+                  Enroll Now  ₹
+                  {course.discountActive ? course.discountPrice : course.price}/-
+                  {course.discountActive && (
+                    <span
+                      style={{
+                        textDecoration: "line-through",
+                        marginLeft: 8,
+                        color: "#999",
+                      }}
+                    >
+                      ₹{course.price}
+                    </span>
+                  )}
+                </EnrollButton>
+              )}
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+              />
+            </LeftSticky>
+          </LeftCol>
 
-        {/* RIGHT Content Column */}
-        <RightCol>  <CourseSubject style={{ marginLeft: 0 }}>
+          {/* RIGHT Content Column */}
+          <RightCol>  <CourseSubject style={{ marginLeft: 0 }}>
             {course?.courseDisplayName || "Course Title"}
           </CourseSubject>
 
-          <Statdesc
-            dangerouslySetInnerHTML={{
-              __html: course?.description || "N/A",
-            }}
-          />
+            <Statdesc
+              dangerouslySetInnerHTML={{
+                __html: course?.description || "N/A",
+              }}
+            />
 
-        
-        </RightCol>
-      </Hello>
 
-      {showModal && (
-        <PurchaseModal course={course} onClose={() => setShowModal(false)} />
-      )}
-    </Container>
-    {/* <Aspirants /> */}
-   {/* <Achievers/> */}
+          </RightCol>
+        </Hello>
+
+        {showModal && (
+          <PurchaseModal course={course} onClose={() => setShowModal(false)} />
+        )}
+      </Container>
+      {/* <Aspirants /> */}
+      {/* <Achievers/> */}
     </>
   );
 };

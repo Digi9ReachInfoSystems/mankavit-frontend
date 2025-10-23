@@ -149,7 +149,8 @@ const VideoAndReviews = () => {
             allowFullScreen
           ></iframe>
         ) : (
-          <p>No homepage video set or video link is not embeddable.</p>
+          // <p>No homepage video set or video link is not embeddable.</p>
+          null
         )}
       </VideoWrapper>
 {/* 

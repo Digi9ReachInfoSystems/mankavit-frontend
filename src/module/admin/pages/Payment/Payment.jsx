@@ -51,7 +51,26 @@ const SearchInput = styled.input`
   padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 400px;
   font-size: 14px;
+   @media (max-width: 1024px) {
+   width: 100%;
+ }
+
+ @media (max-width: 768px) {
+   width: 80%;
+  //  margin: 10px auto;
+ }
+
+ @media(min-width: 800px) and (max-width: 1080px) {
+   width: 80%;
+  //  margin: 10px auto;
+ }
+
+ @media (max-width: 576px) {
+   width: 80%;
+  //  margin: 10px auto;
+ }
 `;
 
 // Styled export button
@@ -92,51 +111,51 @@ export default function Payment() {
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [couponDataToShow, setCouponDataToShow] = useState(null);
 
- const [coursesWithPayments, setCoursesWithPayments] = useState(new Set());
+  const [coursesWithPayments, setCoursesWithPayments] = useState(new Set());
 
-// Modify your initial data fetch useEffect to track courses with payments
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [paymentsRes, coursesRes] = await Promise.all([
-        getAllPayments(),
-        getAllCourses(),
-      ]);
-      
-      // // // console.log("All payments", paymentsRes);
-      
-      // Build course map and track which courses have payments
-      const map = {};
-      const paymentCourseIds = new Set();
-      
-      (coursesRes.data || []).forEach(c => {
-        map[c._id] = c.courseName;
-      });
-      
-      (paymentsRes.payments || []).forEach(payment => {
-        const courseId = payment.courseRef?._id || payment.courseRef;
-        if (courseId) paymentCourseIds.add(courseId);
-      });
-      
-      setCoursesMap(map);
-      setCoursesWithPayments(paymentCourseIds);
+  // Modify your initial data fetch useEffect to track courses with payments
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [paymentsRes, coursesRes] = await Promise.all([
+          getAllPayments(),
+          getAllCourses(),
+        ]);
 
-      if (paymentsRes?.success && paymentsRes.payments) {
-        setPayments(paymentsRes.payments);
-        setFilteredPayments(paymentsRes.payments);
-      } else {
-        setError("No payment data received from server");
+        // // // console.log("All payments", paymentsRes);
+
+        // Build course map and track which courses have payments
+        const map = {};
+        const paymentCourseIds = new Set();
+
+        (coursesRes.data || []).forEach(c => {
+          map[c._id] = c.courseName;
+        });
+
+        (paymentsRes.payments || []).forEach(payment => {
+          const courseId = payment.courseRef?._id || payment.courseRef;
+          if (courseId) paymentCourseIds.add(courseId);
+        });
+
+        setCoursesMap(map);
+        setCoursesWithPayments(paymentCourseIds);
+
+        if (paymentsRes?.success && paymentsRes.payments) {
+          setPayments(paymentsRes.payments);
+          setFilteredPayments(paymentsRes.payments);
+        } else {
+          setError("No payment data received from server");
+        }
+      } catch (err) {
+        // // console.error("Error fetching payments or courses:", err);
+        setError(err.message || "Failed to fetch data");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      // // console.error("Error fetching payments or courses:", err);
-      setError(err.message || "Failed to fetch data");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchData();
-}, []);
+    };
+    fetchData();
+  }, []);
 
   // Refetch when course filter changes
   useEffect(() => {
@@ -166,14 +185,14 @@ useEffect(() => {
   useEffect(() => {
     let data = [...payments];
 
-   if (searchQuery) {
-  const q = searchQuery.toLowerCase();
-  data = data.filter((item) => {
-    const student = (getNestedValue(item, "userRef.displayName", "") || "").toLowerCase();
-    const course  = (getCourseName(item) || "").toLowerCase();
-    return student.includes(q) || course.includes(q);
-  });
-}
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      data = data.filter((item) => {
+        const student = (getNestedValue(item, "userRef.displayName", "") || "").toLowerCase();
+        const course = (getCourseName(item) || "").toLowerCase();
+        return student.includes(q) || course.includes(q);
+      });
+    }
 
 
     switch (sortBy) {
@@ -196,23 +215,23 @@ useEffect(() => {
     setFilteredPayments(data);
     setCurrentPage(1);
   }, [searchQuery, sortBy, payments]);
-// Resolve course name whether courseRef is an id or populated object (or 'course' field)
-const getCourseName = (item) => {
-  const cr = item?.courseRef ?? item?.course;
-  if (!cr) return "N/A";
+  // Resolve course name whether courseRef is an id or populated object (or 'course' field)
+  const getCourseName = (item) => {
+    const cr = item?.courseRef ?? item?.course;
+    if (!cr) return "N/A";
 
-  // If it's just an ObjectId string, map it
-  if (typeof cr === "string") {
-    return coursesMap[cr] || "N/A";
-  }
+    // If it's just an ObjectId string, map it
+    if (typeof cr === "string") {
+      return coursesMap[cr] || "N/A";
+    }
 
-  // If it's an object, try known fields or map by _id
-  if (typeof cr === "object") {
-    return cr.courseName || cr.courseDisplayName || coursesMap[cr._id] || "N/A";
-  }
+    // If it's an object, try known fields or map by _id
+    if (typeof cr === "object") {
+      return cr.courseName || cr.courseDisplayName || coursesMap[cr._id] || "N/A";
+    }
 
-  return "N/A";
-};
+    return "N/A";
+  };
 
   // Helpers
   const formatDate = iso => {
@@ -282,7 +301,7 @@ const getCourseName = (item) => {
       couponName: item?.couponRef?.coupon_name,
       discountAmount: item?.couponDiscount,
       actualPrice: item?.amountPaid,
-      coursePrice:item.courseRef.discountActive? item.courseRef.price:item.courseRef.discountPrice
+      coursePrice: item.courseRef.discountActive ? item.courseRef.price : item.courseRef.discountPrice
 
     });
     setShowCouponModal(true);
@@ -290,47 +309,48 @@ const getCourseName = (item) => {
 
   return (
     <Container>
-      <HeaderRow style={{ justifyContent: "space-between", alignItems: "center" }}>
+      <HeaderRow >
         <Title>
           All Payments{" "}
           <span style={{ color: "#6d6e75", fontSize: 12, fontWeight: 400 }}>
             ({currentItems.length}/{TOTAL_ENTRIES})
           </span>
         </Title>
+        <div style={{display:"flex" , justifyContent:"start"}}> 
+          <div style={{ display: "flex", }} className="filter-items">
+            <SortByContainer>
+              <SortLabel>Filter by Course:</SortLabel>
+              <SortSelect
+                value={selectedCourseId}
+                onChange={e => setSelectedCourseId(e.target.value)}
+              >
+                <option value="all">All</option>
+                {Object.entries(coursesMap)
+                  .filter(([id]) => coursesWithPayments.has(id))
+                  .map(([id, name]) => (
+                    <option key={id} value={id}>{name}</option>
+                  ))}
+              </SortSelect>
+            </SortByContainer>
 
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <SortByContainer>
-            <SortLabel>Filter by Course:</SortLabel>
-            <SortSelect
-  value={selectedCourseId}
-  onChange={e => setSelectedCourseId(e.target.value)}
->
-  <option value="all">All</option>
-  {Object.entries(coursesMap)
-    .filter(([id]) => coursesWithPayments.has(id))
-    .map(([id, name]) => (
-      <option key={id} value={id}>{name}</option>
-    ))}
-</SortSelect>
-          </SortByContainer>
+            <SortByContainer style={{ marginLeft: 16 }}>
+              <SortLabel>Sort by:</SortLabel>
+              <SortSelect value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value="Time">Time (Latest)</option>
+                <option value="Student">Student Name</option>
+                <option value="AmountLow">Amount (Low → High)</option>
+                <option value="AmountHigh">Amount (High → Low)</option>
+              </SortSelect>
+            </SortByContainer>
+            {
+              !readOnlyPermissions && (
+                <ExportButton onClick={exportPDF}>
+                  Export PDF
+                </ExportButton>
+              )
+            }
 
-          <SortByContainer style={{ marginLeft: 16 }}>
-            <SortLabel>Sort by:</SortLabel>
-            <SortSelect value={sortBy} onChange={e => setSortBy(e.target.value)}>
-              <option value="Time">Time (Latest)</option>
-              <option value="Student">Student Name</option>
-              <option value="AmountLow">Amount (Low → High)</option>
-              <option value="AmountHigh">Amount (High → Low)</option>
-            </SortSelect>
-          </SortByContainer>
-          {
-            !readOnlyPermissions && (
-              <ExportButton onClick={exportPDF}>
-                Export PDF
-              </ExportButton>
-            )
-          }
-
+          </div>
         </div>
       </HeaderRow>
 
@@ -341,7 +361,7 @@ const getCourseName = (item) => {
           placeholder="Search by student or course"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          style={{ width: "20%" }}
+          // style={{ width: "20%" }}
         />
       </SearchWrapper>
 
@@ -367,7 +387,7 @@ const getCourseName = (item) => {
               return (
                 <TableRow key={item._id}>
                   {/* <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell> */}
-              <TableCell>{getCourseName(item)}</TableCell>
+                  <TableCell>{getCourseName(item)}</TableCell>
 
                   <TableCell>{getNestedValue(item, 'userRef.displayName')}</TableCell>
                   <TableCell>{item.transactionId || item.razorpay_payment_id || "N/A"}</TableCell>
@@ -380,9 +400,9 @@ const getCourseName = (item) => {
                       {item.status}
                     </StatusWrapper>
                   </StatusCell>
-                  <TableCell>{item.couponApplied ? (<button 
-                  style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}
-                  onClick={() => handleCouponDetailsClick(item)}>View</button>) : "Not Applied"}</TableCell>
+                  <TableCell>{item.couponApplied ? (<button
+                    style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}
+                    onClick={() => handleCouponDetailsClick(item)}>View</button>) : "Not Applied"}</TableCell>
                 </TableRow>
               );
             })}
@@ -408,7 +428,7 @@ const getCourseName = (item) => {
               <CloseBtn onClick={() => setShowCouponModal(false)}>×</CloseBtn>
               <Title>Coupon Details</Title>
               <Detail><strong>Name:</strong> {couponDataToShow?.couponName || "N/A"}</Detail>
-                <Detail><strong>Course Amount:</strong> ₹{couponDataToShow?.coursePrice || 0}</Detail>
+              <Detail><strong>Course Amount:</strong> ₹{couponDataToShow?.coursePrice || 0}</Detail>
               <Detail><strong>Discount Amount:</strong> ₹{couponDataToShow?.discountAmount || 0}</Detail>
               <Detail><strong>Amount Paid:</strong> ₹{couponDataToShow?.actualPrice || "N/A"}</Detail>
             </Modal>

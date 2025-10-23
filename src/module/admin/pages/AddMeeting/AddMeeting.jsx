@@ -55,6 +55,7 @@ export default function AddMeeting() {
       setLoading(true);
       try {
         const coursesResponse = await getAllCourses();
+        console.log("coursesResponse", coursesResponse.data);
         const meetingHostsResponse = await getMeetingHostAdmins();
         setHostsList(meetingHostsResponse.hosts || []);
         setCoursesList(coursesResponse.data || []);
@@ -86,6 +87,7 @@ export default function AddMeeting() {
       if (!meetingDuration) return toast.error("Please enter meeting duration");
       if (selectedCourses.length === 0) return toast.error("Please select at least one course");
       if (!meetingPassword) return toast.error("Please enter meeting password");
+      if(!meetingAgenda) return toast.error("Please enter meeting agenda");
 
       if (meetingType === "both") {
         if (!hostId) return toast.error("Please select a host");
@@ -267,7 +269,7 @@ export default function AddMeeting() {
                       onChange={() => handleCourseToggle(course._id)}
                       disabled={loading}
                     />
-                    {course.title || course.courseName}
+                    { course.courseDisplayName ||course.courseName }
                   </CheckboxLabel>
                 ))}
               </CheckboxList>

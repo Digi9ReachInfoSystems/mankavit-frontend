@@ -58,6 +58,31 @@ export const SearchWrapper = styled.div`
   position: relative;
   width: 30%;
   margin-bottom: 20px;
+
+  width: 35%;
+ min-width: 250px;
+ margin-bottom: 20px;
+ display: flex;
+ align-items: left;
+
+ @media (max-width: 1024px) {
+   width: 45%;
+ }
+
+ @media (max-width: 768px) {
+   width: 60%;
+   margin: 10px auto;
+ }
+
+ @media(min-width: 800px) and (max-width: 1080px) {
+   width: 70%;
+   margin: 10px auto;
+ }
+
+ @media (max-width: 576px) {
+   width: 90%;
+   margin: 10px auto;
+ }
 `;
 
 export const SearchIcon = styled.div`

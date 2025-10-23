@@ -17,6 +17,7 @@ import {
 import { getAllWhy } from "../../../api/whyApi";
 import { getCookiesData } from "../../../utils/cookiesService";
 import { useNavigate } from "react-router-dom";
+import { getAllWhyOurCourse } from "../../../api/whyOurCourseApi";
 
 const EnrollCourse = () => {
   const [whys, setWhys] = useState([]);
@@ -27,8 +28,9 @@ const EnrollCourse = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getAllWhy();
-        setWhys(response);
+        // const response = await getAllWhy();
+        const response= await getAllWhyOurCourse();
+        setWhys(response.data);
       } catch (error) {
         // console.log(error);
       } finally {

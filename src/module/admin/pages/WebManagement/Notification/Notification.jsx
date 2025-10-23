@@ -43,8 +43,13 @@ const Notification = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (readOnlyPermissions) {
       toast.error("You don't have permission to schedule notifications.");
+      return;
+    }
+    if (new Date(scheduleTime) < new Date()) {
+      toast.error("Please select a future date and time.");
       return;
     }
     try {

@@ -310,13 +310,16 @@ const GotQuestions2 = () => {
                 faqs.slice(0, 5).map((faq, idx) => (
                   <QuestionItem key={faq._id || idx}>
                     <QuestionHeader onClick={() => toggleQuestion(idx)}>
-                      <QuestionText>{faq.question}</QuestionText>
+                      <QuestionText dangerouslySetInnerHTML={faq.question?{__html:faq.question}:{__html:'No Question Text'}}>
+                        </QuestionText>
                       <ArrowIcon isOpen={openIndex === idx}>
                         {openIndex === idx ? <IoIosArrowDropup /> : <IoIosArrowDown />}
                       </ArrowIcon>
                     </QuestionHeader>
                     <Answer isOpen={openIndex === idx}>
-                      {faq.answer || "No answer available"}
+                      {/* {faq.answer || "No answer available"} */}
+                      <div
+                       dangerouslySetInnerHTML={faq.answer ? { __html: faq.answer } : { __html: "No answer available" }}></div>
                     </Answer>
                   </QuestionItem>
                 ))

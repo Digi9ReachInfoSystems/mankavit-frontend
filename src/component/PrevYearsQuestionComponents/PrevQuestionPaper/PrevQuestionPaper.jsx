@@ -83,12 +83,13 @@ const PrevQuestionPaper = () => {
           target="_blank"
           rel="noopener noreferrer"
           title="Open WhatsApp"
+           className="icon-link"
           aria-label="Open WhatsApp"
         >
           <img
             src={Whatsapp}
             alt="WhatsApp"
-            style={{ width: 52, height: 52, objectFit: "contain", display: "block" }}
+            // style={{ width: 52, height: 52, objectFit: "contain", display: "block" }}
           />
         </a>
         <a
@@ -96,12 +97,13 @@ const PrevQuestionPaper = () => {
           target="_blank"
           rel="noopener noreferrer"
           title="Open Telegram"
+           className="icon-link"
           aria-label="Open Telegram"
         >
           <img
             src={Telegram}
             alt="Telegram"
-            style={{ width: 42, height: 42, objectFit: "contain", display: "block" }}
+            // style={{ width: 42, height: 42, objectFit: "contain", display: "block" }}
           />
         </a>
       </div>

@@ -197,7 +197,7 @@ const SignUp = () => {
                 cursor: 'pointer',
               }}
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
 
@@ -223,7 +223,7 @@ const SignUp = () => {
                 cursor: 'pointer',
               }}
             >
-              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
 

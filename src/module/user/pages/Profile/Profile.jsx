@@ -954,12 +954,12 @@ const Profile = () => {
                   as="button"
                   type="submit"
                   onClick={handleSubmitKyc}
-                disabled={
-  isLoading
-  || (isKycReadOnly && kycStatus !== "rejected")
-  || !acceptedTerms
-  || !!validateKyc()
-}
+                  disabled={
+                    isLoading
+                    || (isKycReadOnly && kycStatus !== "rejected")
+                    || !acceptedTerms
+                    || !!validateKyc()
+                  }
 
                 >
                   {isLoading
@@ -1090,7 +1090,7 @@ const Profile = () => {
                     color: "#999",
                   }}
                 >
-                  {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showCurrentPassword ? <FaEye /> : <FaEyeSlash />}
                 </span>
               </div>
             </InputGroup>
@@ -1116,7 +1116,7 @@ const Profile = () => {
                     color: "#999",
                   }}
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showPassword ? <FaEye /> : <FaEyeSlash />}
                 </span>
               </div>
             </InputGroup>
@@ -1142,7 +1142,7 @@ const Profile = () => {
                     color: "#999",
                   }}
                 >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
                 </span>
               </div>
             </InputGroup>

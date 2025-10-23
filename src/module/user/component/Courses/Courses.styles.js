@@ -71,7 +71,7 @@ export const CourseCard = styled.div`
   }
 
   @media (max-width: 520px) {
-    min-height: 400px;
+    min-height: 430px;
   }
 `;
 

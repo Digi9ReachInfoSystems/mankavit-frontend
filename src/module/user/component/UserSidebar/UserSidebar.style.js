@@ -154,6 +154,9 @@ export const MenuLink = styled(RouterNavLink).attrs(() => ({
   &:hover {
     background: ${theme.colors.lightwhite};
     color: ${theme.colors.primary};
+     svg {
+      color:  ${theme.colors.primary};
+    }
   }
 
   .sidebar-icon {

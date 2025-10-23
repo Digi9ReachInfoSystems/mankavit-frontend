@@ -31,9 +31,30 @@ margin-top: 20px;
 
 export const HeaderRow = styled.div`
   display: flex;
-  align-items: center;
+  // align-items: left;
   justify-content: space-between;
+  flex-direction: column;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  // @media (min-width: 768px) and (max-width: 1024px) {
+  //   flex-direction: column;
+  //   margin-bottom: ${(props) => props.theme.spacing(1)};
+  // }
+
+  .filter-items{
+ display: flex;
+ width: 100%;
+ justify-content: start;
+
+ @media (min-width: 300px) and (max-width: 1024px) {
+ width: 30%;
+  flex-direction: column;
+  
+  gap: 20px;
+ }
+  }
+
+  
 `;
 
 export const Title = styled.h3`
@@ -57,6 +78,7 @@ export const SortByContainer = styled.div`
 
 export const SortLabel = styled.span`
   margin-right: 4px;
+  width: 200px;
 `;
 
 export const SortSelect = styled.select`
@@ -68,6 +90,7 @@ export const SortSelect = styled.select`
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
   border-radius: 8px;
+  // max-width: 200px;
 
   &:focus {
     outline: none;
@@ -220,6 +243,29 @@ export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
   margin-bottom: 16px;
+ min-width: 2050px;
+ margin-bottom: 20px;
+ display: flex;
+ align-items: left;
+
+ @media (max-width: 1024px) {
+   width: 100%;
+ }
+
+ @media (max-width: 768px) {
+   width: 100%;
+  //  margin: 10px auto;
+ }
+
+ @media(min-width: 800px) and (max-width: 1080px) {
+   width: 100%;
+  //  margin: 10px auto;
+ }
+
+ @media (max-width: 576px) {
+   width: 100%;
+  //  margin: 10px auto;
+ }
 `;
 
 export const Backdrop = styled.div`
