@@ -304,8 +304,10 @@ const Header = () => {
                         setDropdownOpen(false)
                       }
                     >
-                      {item}
-                      <Caret size={16} $open={dropdownOpen} />
+                      <span style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        {item}
+                        <Caret size={16} $open={dropdownOpen} />
+                      </span>
 
                       {dropdownOpen && (
                         <Dropdown onClick={(e) => e.stopPropagation()}>
@@ -357,9 +359,8 @@ const Header = () => {
                 <DashboardButton onClick={handleLogout}>
                   Dashboard
                   <img
-                    src={`${
-                      import.meta.env.VITE_APP_IMAGE_ACCESS
-                    }/api/project/resource?fileKey=${userDetails?.photo_url}`}
+                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS
+                      }/api/project/resource?fileKey=${userDetails?.photo_url}`}
                     alt="Profile"
                     className="profile-icon"
                   />

@@ -32,11 +32,11 @@ export const FooterContainer = styled.footer`
     width: 100%;
 
     @media (max-width: 1360px) {
-      margin-left: 5rem;
+      margin-left: 5rem;      
     }
 
     @media (max-width: 768px) {
-      margin-left: 4rem;
+      margin-left: 4rem; 
     }
 
     @media (max-width: 540px) {
@@ -58,14 +58,18 @@ export const LeftContainer = styled.div`
   width: 50%;
   @media (max-width: 768px) {
     width: 100%;
+    flex-direction: column;
     
   }
-
+@media (min-width: 800px) and (max-width: 1080px){
+  flex-direction: column;
+}
   @media (max-width: 480px) {
     // width: 100%;
     // margin-left: 40px;
     // flex-direction: column;
     // text-align: center;
+     flex-direction: column;
   }
   `;
 
@@ -157,14 +161,13 @@ export const ContactInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-
   font-size: 20px;
   font-weight: 300;
   color: ${props => props.theme.colors.lightwhite};
   margin-bottom: 10px;
   width: 100%;
   line-height: 1;          /* keep tight so it doesn’t wrap weirdly */
-
+//  flex-wrap: wrap;   
   .icon {
     flex: 0 0 auto;
     font-size: 1.2em;      /* scale with text */
@@ -173,7 +176,7 @@ export const ContactInfo = styled.div`
   a {
     color: ${props => props.theme.colors.lightwhite};
     text-decoration: none;
-    overflow: hidden;
+    // overflow: hidden;
     text-overflow: ellipsis; /* if email is long */
     white-space: nowrap;     /* keep in one line */
   }
@@ -432,9 +435,10 @@ export const BottomLinks = styled.div`
   span {
     cursor: pointer;
 
-    &:hover {
-      color: white;
-    }
+    // &:hover {
+    //   color: white;
+    // }
+      
   }
 
   @media (max-width: 1360px) {
@@ -456,6 +460,22 @@ export const BottomLinks = styled.div`
     gap: 5px;
     margin-right: 0;
   }
+   
+   .termsandcondition{
+     &:hover {
+      color: #ccc;
+      text-decoration: underline;
+    }}
+       .privacypolicy{
+     &:hover {
+      color: #ccc;
+      text-decoration: underline;
+    }}
+       .refundpolicy{
+     &:hover {
+      color: #ccc;
+      text-decoration: underline;
+    }}
 `;
 
 export const Copyright = styled.div`

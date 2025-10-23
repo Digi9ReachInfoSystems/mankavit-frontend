@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Section, Title, Highlight, CardsWrapper, CourseCard, CardHeader, CardBody,
   CourseTitle, Description, PriceButton, ViewButton, ViewMoreWrapper,
-  ViewMoreButton, Buttons, Image,Underline
+  ViewMoreButton, Buttons, Image, Underline
 } from './WantToLearn.styles';
 import { useNavigate } from 'react-router-dom';
 import { getAllCourses } from '../../../api/courseApi';
@@ -36,20 +36,20 @@ const WantToLearn = () => {
     <Section>
       <Title>
         Our <Highlight>Ongoing</Highlight> Courses
-      
+
       </Title>
-  <Underline />
+      <Underline />
       <CardsWrapper>
         {(courses || []).slice(0, 8).map((course) => {
           const title =
             course.courseDisplayName ||
-          
+
             'Course';
 
           const rating = course.rating ?? course.course_rating ?? 0;
-const description = course.shortDescription || '';
+          const description = course.shortDescription || '';
           const descText = toPlainText(
-            course.shortDescription ||  ''
+            course.shortDescription || ''
           );
 
           const price = Number(course.price) || 0;
@@ -71,7 +71,7 @@ const description = course.shortDescription || '';
                 <Description
                   dangerouslySetInnerHTML={{ __html: descText }}
                 />
-                 {/* <Description
+                {/* <Description
                dangerouslySetInnerHTML={{ __html: (course.description || '').slice(0, 100) + '...' }}
                
                 /> */}
@@ -103,7 +103,10 @@ const description = course.shortDescription || '';
 
       {(courses?.length || 0) > 8 && (
         <ViewMoreWrapper>
-          <ViewMoreButton onClick={() => navigate('/ourcoursedetails')}>
+          <ViewMoreButton onClick={() => {
+            navigate('/ourcoursedetails');
+            window.scrollTo(0, 0);
+          }}>
             View More
           </ViewMoreButton>
         </ViewMoreWrapper>

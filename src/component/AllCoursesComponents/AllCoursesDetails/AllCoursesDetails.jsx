@@ -105,9 +105,10 @@ const AllCoursesDetails = () => {
         }
 
         const transformed = data.map((course) => {
+          // console.log("course", course);
           const mrp = Number(course.price ?? 0);
           const sale =
-            course.discountPrice != null
+            course.discountActive
               ? Number(course.discountPrice)
               : course.offerPrice != null
               ? Number(course.offerPrice)

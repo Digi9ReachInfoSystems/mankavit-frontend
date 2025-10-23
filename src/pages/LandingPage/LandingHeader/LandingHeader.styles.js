@@ -40,8 +40,9 @@ export const TopBar = styled.div`
 
 export const ToolbarContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content:right;
+  // text-align: right;
+  // align-items: end;
   background-color: var(--bg-soft);
   padding: 13px 40px;
   font-size: 18px;
@@ -240,6 +241,7 @@ export const NavLinks = styled.div`
   display: flex;
   gap: 4px;
   align-items: center;
+  z-index: 1;
 
   /* …existing breakpoints… */
 

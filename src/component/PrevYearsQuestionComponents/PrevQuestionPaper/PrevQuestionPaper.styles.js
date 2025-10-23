@@ -29,6 +29,29 @@ export const Container = styled.div`
   @media (max-width: 576px) {
     padding: 1rem 1px;
   }
+
+
+  .icon-link img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .icon-link img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-link img {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 `;
 
 export const TelegramBanner = styled.div`

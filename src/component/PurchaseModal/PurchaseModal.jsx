@@ -26,6 +26,7 @@ import { getUserCoupon, validateCoupon } from "../../api/couponApi";
 import PaymentComponent from "../../module/admin/component/PaymentComponent/PaymentComponent";
 
 export default function PurchaseModal({ onClose, course }) {
+    // console.log("course", course);
     const [selectedCoupon, setSelectedCoupon] = useState("");
     const [discount, setDiscount] = useState(0);
     const [coupons, setCoupons] = useState([]);
@@ -63,7 +64,9 @@ export default function PurchaseModal({ onClose, course }) {
         if (!selectedCoupon) return toast.error("Please Enter Coupon Code");
 
         try {
+            // console.log({ userId, couponCode: selectedCoupon });
             const response = await validateCoupon({ userId, couponCode: selectedCoupon });
+            console.log(response);  
             if (response.success) {
                 const finalPrice = basePrice - response.discount;
                 if (finalPrice < 0) {
@@ -75,7 +78,6 @@ export default function PurchaseModal({ onClose, course }) {
                 toast.success("Coupon applied successfully!");
             }
         } catch (error) {
-            // // console.log(error);
             if (error.response.status === 400) {
                 toast.error("Coupon code is not valid");
             } else if (error.response.status === 404) {
@@ -142,6 +144,8 @@ export default function PurchaseModal({ onClose, course }) {
                     onChange={(e) => setSelectedCoupon(e.target.value.toUpperCase())}
                     placeholder="Enter coupon code"
                     style={{ width: "100%", padding: "10px" }}
+                    max={5}
+                    min={5}
                 />
                 {/* <Select style={{ width: "100%" }} value={selectedCoupon} onChange={(e) => setSelectedCoupon(e)}>
                     <option value="">-- Select a coupon --</option>

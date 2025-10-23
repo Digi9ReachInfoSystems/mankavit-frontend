@@ -182,12 +182,35 @@ export const CreateButton = styled.button`
 
 export const SearchWrapper = styled.div`
   position: relative;
-  width: 100%;
   margin-bottom: 16px;
 
-  @media (max-width: 768px) {
-    margin-bottom: 20px;
-  }
+
+
+  
+  width: 100%;
+ min-width: 2050px;
+ margin-bottom: 20px;
+ display: flex;
+ align-items: left;
+
+ @media (max-width: 1024px) {
+   width: 100%;
+ }
+
+ @media (max-width: 768px) {
+   width: 100%;
+  //  margin: 10px auto;
+ }
+
+ @media(min-width: 800px) and (max-width: 1080px) {
+   width: 100%;
+  //  margin: 10px auto;
+ }
+
+ @media (max-width: 576px) {
+   width: 100%;
+  //  margin: 10px auto;
+ }
 `;
 
 export const SearchIcon = styled.div`

@@ -230,7 +230,7 @@ const Login = () => {
                                             cursor: 'pointer',
                                         }}
                                     >
-                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                        {showPassword ? <FaEye /> : <FaEyeSlash />}
                                     </span>
                                 </div>
                             </>

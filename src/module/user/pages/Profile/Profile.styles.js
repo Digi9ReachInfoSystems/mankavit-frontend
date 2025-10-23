@@ -326,11 +326,11 @@ export const SubmitButton = styled.button`
   }
 
   @media (max-width: 1024px) {
-    width: 35%;
+    width: 100%;
   }
 
   @media (max-width: 990px) {
-    width: 40%;
+    width: 100%;
     margin: 20px auto;
   }
 
