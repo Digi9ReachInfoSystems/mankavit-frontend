@@ -182,7 +182,11 @@ const GotQuestion = () => {
                         aria-expanded={isOpen}
                         aria-controls={`faq-panel-${faq._id}`}
                       >
-                        <QuestionText>{faq.question}</QuestionText>
+                        <QuestionText
+                        dangerouslySetInnerHTML={faq.question ? { __html: faq.question } : { __html: "No question available." } }
+                        >
+                          {/* {faq.question} */}
+                          </QuestionText>
                         <ArrowIcon $open={isOpen}>
                           <IoIosArrowDown />
                         </ArrowIcon>
@@ -190,8 +194,12 @@ const GotQuestion = () => {
 
                       <AnswerWrap id={`faq-panel-${faq._id}`} $open={isOpen}>
                         <AnswerInner>
-                          <Answer>
-                            {faq.answer || "No answer available."}
+                          <Answer
+                          dangerouslySetInnerHTML={
+                           faq.answer ? { __html: faq.answer } : { __html: "No answer available." } 
+                          }
+                          >
+                            {/* {faq.answer || "No answer available."} */}
                           </Answer>
                         </AnswerInner>
                       </AnswerWrap>

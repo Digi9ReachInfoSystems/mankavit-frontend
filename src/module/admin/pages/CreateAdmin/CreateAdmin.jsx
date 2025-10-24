@@ -195,7 +195,7 @@ const CreateAdmin = () => {
                                 color: '#999',
                             }}
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            {showPassword ?  <FaEye />:<FaEyeSlash />}
                         </span>
                     </div>
                     {formErrors.password && <ErrorMessage>{formErrors.password}</ErrorMessage>}

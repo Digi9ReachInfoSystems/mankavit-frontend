@@ -121,6 +121,7 @@ export default function Payment() {
           getAllPayments(),
           getAllCourses(),
         ]);
+        // console.log("All payments", paymentsRes);
 
         // // // console.log("All payments", paymentsRes);
 
@@ -295,12 +296,12 @@ export default function Payment() {
   );
 
   const handleCouponDetailsClick = (item) => {
-    // // console.log(item);
+    // console.log(item);
     setCouponDataToShow({
       couponName: item?.couponRef?.coupon_name,
       discountAmount: item?.couponDiscount,
       actualPrice: item?.amountPaid,
-      coursePrice: item.courseRef.discountActive ? item.courseRef.price : item.courseRef.discountPrice
+      coursePrice: item.courseRef.discountActive ? item.courseRef.discountPrice:item.courseRef.price 
 
     });
     setShowCouponModal(true);

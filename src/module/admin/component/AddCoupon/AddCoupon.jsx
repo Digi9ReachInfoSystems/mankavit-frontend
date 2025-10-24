@@ -299,7 +299,7 @@ const AddCoupon = () => {
                         name="coupon_code"
                         value={couponData.coupon_code}
                         onChange={handleChange}
-                        placeholder="e.g. SUMMR5"
+                        placeholder="e.g. SUMM5"
                         maxLength="5"
                         disabled={isLoading}
                     />
