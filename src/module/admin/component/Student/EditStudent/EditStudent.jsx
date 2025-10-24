@@ -1193,7 +1193,7 @@ const EditStudent = () => {
 
       <FlexRow></FlexRow>
 
-      <FlexRow>
+      {/* <FlexRow>
         <InputGroup>
           <Label>Date of Birth</Label>
           <InputField
@@ -1205,7 +1205,7 @@ const EditStudent = () => {
             disabled={processing}
           />
         </InputGroup>
-      </FlexRow>
+      </FlexRow> */}
 
       <CourseSelection>
         <Label
