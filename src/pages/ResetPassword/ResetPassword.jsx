@@ -97,7 +97,7 @@ const ResetPassword = () => {
                                 cursor: 'pointer',
                             }}
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            {showPassword ? <FaEye /> : <FaEyeSlash />}
                         </span>
                     </div>
                    
@@ -122,7 +122,7 @@ const ResetPassword = () => {
                                 cursor: 'pointer',
                             }}
                         >
-                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
                         </span>
                     </div>
                    
