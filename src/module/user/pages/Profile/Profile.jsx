@@ -694,7 +694,7 @@ const Profile = () => {
                     ))}
                   </select>
 
-                  {howSource === "Other" && (
+                  {/* {howSource === "Other" && (
                     <InputField
                       as="textarea"
                       rows={3}
@@ -704,7 +704,7 @@ const Profile = () => {
                       disabled={isKycReadOnly}
                       style={{ flex: 1 }}
                     />
-                  )}
+                  )} */}
                 </div>
               </InputGroup>
             </FlexRow>
