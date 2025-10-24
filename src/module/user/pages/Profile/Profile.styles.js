@@ -322,7 +322,7 @@ export const SubmitButton = styled.button`
     cursor: not-allowed;
   }
   @media (max-width: 1320px) {
-    width: 40%;
+    width: 100%;
   }
 
   @media (max-width: 1024px) {
@@ -335,7 +335,7 @@ export const SubmitButton = styled.button`
   }
 
   @media (max-width: 768px) {
-  width: 85%;
+  width: 100%;
   margin: 15px auto;
   padding: 10px;
   display: flex;
