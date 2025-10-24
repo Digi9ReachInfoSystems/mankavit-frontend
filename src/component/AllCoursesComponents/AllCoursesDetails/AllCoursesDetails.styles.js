@@ -146,6 +146,7 @@ export const CardGrid = styled.div`
   gap: 1.5rem;
 
   @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
+    @media (min-width: 1000px)and (max-height: 800px)  { grid-template-columns: repeat(4, 1fr); }
   @media (max-width: 900px)  { grid-template-columns: repeat(2, 1fr); }
   @media (max-width: 560px)  { grid-template-columns: 1fr; }
 `;

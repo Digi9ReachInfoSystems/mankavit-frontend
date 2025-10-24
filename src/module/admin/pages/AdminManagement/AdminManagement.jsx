@@ -417,7 +417,7 @@ export default function AdminManagement() {
                   color: "#999",
                 }}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? <FaEye />: <FaEyeSlash />}
               </span>
             </div>
             {/* <ResetPasswordInput

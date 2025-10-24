@@ -278,6 +278,7 @@ export default function StudentManagement() {
         <SearchWrapper>
           <SearchIcon><CiSearch size={18} /></SearchIcon>
           <SearchInput
+          style={{color:"black"}}
             placeholder="Search"
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
