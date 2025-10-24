@@ -56,7 +56,7 @@
 // `;
 // const QuestionSection = styled.div`
 //   flex: 1;
- 
+
 // `;
 // const QuestionText = styled.div`
 //   font-size: 18px;
@@ -449,10 +449,12 @@ import {
   LeftButtonsWrap,
   RightStickyButton,
   PassageContainer,
+  RankBadge,
 } from "./ResultScreen.styles";
 import {
   getMocktestById,
   getMocktestAttempts,
+  viewUserMocktestAttemptResult,
 } from "../../../../api/mocktestApi";
 import { getCookiesData } from "../../../../utils/cookiesService";
 import { RxDoubleArrowRight, RxDoubleArrowLeft } from "react-icons/rx";
@@ -473,7 +475,7 @@ export default function ResultScreen() {
   const [summaryData, setSummaryData] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [passageExpanded, setPassageExpanded] = useState(false);
-
+  const [ranking, setRanking] = useState(null);
   const unwrap = (r) => r?.data?.body?.data ?? r?.data;
 
   // reset passage expand on question change
@@ -488,27 +490,31 @@ export default function ResultScreen() {
         const testData = unwrap(resTest);
         setTest(testData);
 
-        const resAtts = await getMocktestAttempts(userId, testId);
-        const arr = unwrap(resAtts) || [];
-        const latestAttempt =
-          arr.find((a) => a._id === attemptId) || arr[arr.length - 1] || {};
-
+        // const resAtts = await getMocktestAttempts(userId, testId);
+        // console.log("resAtts", resAtts);
+        // const arr = unwrap(resAtts) || [];
+        //  const latestAttempt =
+        //   arr.find((a) => a._id === attemptId) || arr[arr.length - 1] || {};
+        const res = await viewUserMocktestAttemptResult(userId, testId);
+        const { result, ranking } = res;
+        const latestAttempt = result;
+        setRanking(ranking);
         // Normalize to 3 statuses
         const processed = (latestAttempt.answers || []).map((ans) => {
           const details = ans.questionDetails || {};
           const type = details.type || "mcq";
-// console.log("answer",ans);
+          // console.log("answer",ans);
           let status = "not-answered";
           if (type === "mcq") {
             if (ans.answerIndex != null) {
               // status = ans.isCorrect ? "correct" : "incorrect";
-              status = ans.answerIndex==ans.questionDetails.correctAnswer ? "correct" : "incorrect";
+              status = ans.answerIndex == ans.questionDetails.correctAnswer ? "correct" : "incorrect";
             }
           } else {
             const hasText = typeof ans.answer === "string" && ans.answer.trim() !== "";
             if (hasText) {
               if (typeof ans.isCorrect === "boolean") {
-                
+
                 status = ans.isCorrect ? "correct" : "incorrect";
               } else if (typeof ans.marksAwarded === "number") {
                 status = ans.marksAwarded > 0 ? "correct" : "incorrect";
@@ -661,8 +667,9 @@ export default function ResultScreen() {
             <PageTitle title={test?.title || "Mock Test"}>
               {test?.title || "Mock Test"}
             </PageTitle>
+             {ranking?.rank && <RankBadge>Rank #{ranking.rank}</RankBadge>}
           </LeftDiv>
-
+         
           <QuestionType>
             {isPassage ? "Passage" : isMCQ ? "MCQ" : "Subjective"}
           </QuestionType>
