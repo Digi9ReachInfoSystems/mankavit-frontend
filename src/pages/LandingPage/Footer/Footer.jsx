@@ -136,7 +136,7 @@ export default function Footer() {
           <SectionTitle>Download Our App</SectionTitle>
           <div className="store-buttons">
             <a
-              href="https://play.google.com/store/apps/details?id=com.mankavit.app"
+              href="https://play.google.com/store/apps/details?id=com.digi9.mankavitlawacademy"
               target="_blank"
               rel="noopener noreferrer"
             >

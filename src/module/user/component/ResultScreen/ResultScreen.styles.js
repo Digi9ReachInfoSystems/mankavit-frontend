@@ -945,3 +945,11 @@ export const QuestionTitle = styled.p`
     font-size: 13px;
   }
 `;
+export const RankBadge = styled.div`
+  background-color: #e00000;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+`;
