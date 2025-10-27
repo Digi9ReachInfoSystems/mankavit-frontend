@@ -3,7 +3,7 @@ import {
   Container, Title, FilterBar, FilterButton, SearchWrapper, SearchIcon,
   SearchInput, SliderIcon, CardGrid, CourseCard, ImageWrapper, CourseContent,
   CourseMain, CourseHead, CourseTitle, CourseMinititle, CourseDesc, PriceActions,
-  Price, ViewButton, RatingWrapper, EnrolledTag, OldPrice, NewPrice,Underline
+  Price, ViewButton, RatingWrapper, EnrolledTag, OldPrice, NewPrice, Underline
 } from './AllCoursesDetails.styles';
 import { CiSearch } from 'react-icons/ci';
 import { BiSliderAlt } from 'react-icons/bi';
@@ -17,9 +17,12 @@ import {
 import { getCategories } from '../../../api/categoryApi';
 import { useNavigate } from 'react-router-dom';
 import { getCookiesData } from '../../../utils/cookiesService';
+import { getUserByUserId } from '../../../api/authApi';
+import { getCourseByIdWithUSerProgress, startCourse } from '../../../api/userProgressApi';
 
 const AllCoursesDetails = () => {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState({});
 
   const [categories, setCategories] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
@@ -36,6 +39,20 @@ const AllCoursesDetails = () => {
       ? window.matchMedia('(max-width: 768px)').matches
       : false
   );
+
+  useEffect(() => {
+    const apiCaller = async () => {
+      try {
+        const data = getCookiesData();
+        console.log(" data", data);
+        const userDataRes = await getUserByUserId(data.userId);
+        setUserData(userDataRes.user);
+      } catch (err) {
+        // console.log(err);
+      }
+    }
+    apiCaller();
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -58,7 +75,7 @@ const AllCoursesDetails = () => {
         const titles = data.map((cat) => cat.title);
         const uniqueTitles = Array.from(new Set([...titles]));
         setCategories(uniqueTitles);
-      } catch {/* ignore */}
+      } catch {/* ignore */ }
     };
     fetchCategories();
   }, []);
@@ -66,10 +83,10 @@ const AllCoursesDetails = () => {
   const formatINR = (n) =>
     typeof n === 'number'
       ? n.toLocaleString('en-IN', {
-          style: 'currency',
-          currency: 'INR',
-          maximumFractionDigits: 0
-        })
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0
+      })
       : n;
 
   // reset collapsed view when tab/search changes
@@ -111,10 +128,10 @@ const AllCoursesDetails = () => {
             course.discountActive
               ? Number(course.discountPrice)
               : course.offerPrice != null
-              ? Number(course.offerPrice)
-              : mrp;
+                ? Number(course.offerPrice)
+                : mrp;
 
-        const discountPct =
+          const discountPct =
             mrp > 0 && sale >= 0 && sale < mrp
               ? Math.round(((mrp - sale) / mrp) * 100)
               : 0;
@@ -177,6 +194,46 @@ const AllCoursesDetails = () => {
     }
   };
 
+  const handleStartOrContinue = async (Course) => {
+      try {
+     
+        
+        const response = await getCourseByIdWithUSerProgress(userData._id, Course.id);
+        const course = response.data;
+          //  console.log("course", course);
+        
+        // KYC gate
+        if (
+          // userData?.kyc_status === "not-applied" ||
+          userData?.kyc_status === "rejected"
+        ) {
+          navigate(`/user/kycStatus`);
+          return;
+        }
+  
+        // Completed → just navigate
+        if (course.completed ) {
+          navigate(`/continueCourse/${course._id}`);
+          return;
+        }
+  
+        // Call startCourse for BOTH Start and Continue
+        // setSubmitting((s) => ({ ...s, [course._id]: true }));
+        await startCourse(userData._id, course._id);
+  
+        // Navigate after success
+        navigate(`/continueCourse/${course._id}`);
+      } catch (e) {
+        // console.error("Failed to start course", e);
+        // setError(
+        //   e?.response?.data?.message ||
+        //     "Failed to start the course. Please try again."
+        // );
+      } finally {
+        // setSubmitting((s) => ({ ...s, [course._id]: false }));
+      }
+    };
+
   // if (loading) return <div>Loading courses...</div>;
 
   return (
@@ -185,7 +242,7 @@ const AllCoursesDetails = () => {
         <Title>
           Our <span>Courses</span>
         </Title>
-  {/* <Underline /> */}
+        {/* <Underline /> */}
         <FilterBar>
           <FilterButton
             key={'All'}
@@ -222,9 +279,9 @@ const AllCoursesDetails = () => {
         <CardGrid>
           {(isMobile && !showAll
             ? filteredCourses.slice(
-                0,
-                Math.min(INITIAL_COUNT, filteredCourses.length)
-              )
+              0,
+              Math.min(INITIAL_COUNT, filteredCourses.length)
+            )
             : visibleCourses
           ).map((course, idx) => (
             <React.Fragment key={course.id}>
@@ -266,7 +323,10 @@ const AllCoursesDetails = () => {
                     <Price
                       style={{ width: '200%' }}
                       // onClick={() => navigate(`/continueCourse/${course.id}`)}
-                      onClick={() =>navigate('/user')}
+                      // onClick={() => navigate('/user')}
+                      onClick={()=>{
+                        handleStartOrContinue(course)
+                      }}
                     >
                       Continue Learning
                     </Price>
