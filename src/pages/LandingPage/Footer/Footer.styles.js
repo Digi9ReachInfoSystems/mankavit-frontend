@@ -6,8 +6,7 @@ export const FooterContainer = styled.footer`
   display: flex;
   flex-wrap: wrap;
 //   justify-content: space-between;
-  flex-direction: row;
-
+  flex-direction: row;  
   @media (max-width: 1360px) {
     padding: 20px 40px 20px 10px;
   }
@@ -23,6 +22,7 @@ export const FooterContainer = styled.footer`
   @media (max-width: 480px) {
     padding: 5px 15px 5px 5px;
     // width: 100%;
+
   }
 
  
@@ -46,6 +46,7 @@ export const FooterContainer = styled.footer`
     @media (max-width: 480px) {
     display: flex;
     flex-direction: column;
+    gap:10px
     margin-left: 0px;
     // padding: 0 20px;
     // justify-content: center;
@@ -95,7 +96,7 @@ export const FooterSection = styled.div`
   // min-width: 220px;
   padding: 10px;
   line-height: 1.8;
- 
+ max-height:   180px;
 
   @media (max-width: 1360px) {
     margin: 8px;
@@ -401,7 +402,7 @@ export const SubscribeButton = styled.button`
 
 export const BottomBar = styled.div`
   width: 100%;
-  margin-top: 30px;
+  // margin-top: 30px;
   padding-top: 20px;
   display: flex;
   flex-wrap: wrap;
@@ -517,7 +518,7 @@ export const AppDownloadSection = styled.div`
 
   @media (max-width: 480px) {
     .store-buttons {
-      flex-direction: column;
+      flex-direction: row;
       gap: 10px;
     }
 
