@@ -23,7 +23,6 @@ import { getCourseByIdWithUSerProgress, startCourse } from '../../../api/userPro
 const AllCoursesDetails = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({});
-
   const [categories, setCategories] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -184,15 +183,17 @@ const AllCoursesDetails = () => {
     navigate(`/coursedetails/${id}`, { state: { isEnrolled } });
   };
 
-  const handleToggleShowAll = (next) => {
-    setShowAll(next);
-    // if collapsing, scroll to the very top
-    if (!next) {
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 0);
-    }
-  };
+const handleToggleShowAll = (next) => {
+  setShowAll(next);
+  if (!next) {
+    setTimeout(() => {
+      const element = document.getElementById('all-courses-section');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  }
+};
 
   const handleStartOrContinue = async (Course) => {
       try {
@@ -238,7 +239,8 @@ const AllCoursesDetails = () => {
 
   return (
     <>
-      <Container>
+     <Container id="all-courses-section">
+
         <Title>
           Our <span>Courses</span>
         </Title>

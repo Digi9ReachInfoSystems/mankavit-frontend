@@ -41,7 +41,7 @@ export const FilterBar = styled.div`
    display: grid;
     gap: 8px;
     margin: 0 0 1rem 0;
-    grid-template-columns: repeat(3, 1fr);   /* default: 3 per row on small phones */
+    grid-template-columns: repeat(4, 1fr);   /* default: 3 per row on small phones */
   }
 
   @media (min-width: 480px) and (max-width: 768px) {
