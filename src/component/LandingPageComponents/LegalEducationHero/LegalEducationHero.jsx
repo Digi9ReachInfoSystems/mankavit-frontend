@@ -109,9 +109,10 @@ const LegalEducationHero = () => {
               src={heroImage}
               alt="Law Education Illustration"
               style={{
-                width: window.innerWidth < 576 ? "80%" : "100%",
-                maxWidth: "350px",
+                // width: window.innerWidth < 576 ? "80%" : "100%",
+                maxWidth: "400px",
                 height: "auto",
+                marginRight: "-4rem",
               }}
             />
           </div>
