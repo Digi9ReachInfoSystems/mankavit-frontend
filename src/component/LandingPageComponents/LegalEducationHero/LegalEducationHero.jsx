@@ -21,7 +21,7 @@ import {
   LeftContentMobile,
 } from "./LegalEducationHero.styles";
 // import heroImage from "../../../assets/LandingBannerImag.png";
-import heroImage from "../../../assets/heroImageFinal.png";
+import heroImage from "../../../assets/heroImageAnuja.png";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
@@ -102,6 +102,7 @@ const LegalEducationHero = () => {
               flex: 1,
               display: "flex",
               justifyContent: "center",
+              marginLeft: "1rem",
             }}
           >
             <img
