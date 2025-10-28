@@ -18,9 +18,10 @@ import {
   ExploreButton,
   StatTitle,
   StatsDescription,
+  LeftContentMobile,
 } from "./LegalEducationHero.styles";
-import heroImage from "../../../assets/LandingBannerImag.png";
-// import heroImage from "../../../assets/anuja.png";
+// import heroImage from "../../../assets/LandingBannerImag.png";
+import heroImage from "../../../assets/heroImageFinal.png";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
@@ -85,6 +86,55 @@ const LegalEducationHero = () => {
             </Link>
           </ButtonsGroup>
         </LeftContent>
+        <LeftContentMobile>
+          {/* Left side — text */}
+          <div style={{ flex: 1 }}>
+            <Title>India's Trusted Legal Education Platform</Title>
+            <SubTitle>
+              Ace exams like CLAT, AILET, and CUET LL.M etc with expert coaching
+              and comprehensive resources.
+            </SubTitle>
+          </div>
+
+          {/* Right side — image */}
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src={heroImage}
+              alt="Law Education Illustration"
+              style={{
+                width: window.innerWidth < 576 ? "80%" : "100%",
+                maxWidth: "350px",
+                height: "auto",
+              }}
+            />
+          </div>
+
+          {/* Buttons below text+image (only visible for <576px) */}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "1rem",
+              marginTop: "1.5rem",
+            }}
+          >
+            <Link to="/login">
+              <StartButton>Start Now</StartButton>
+            </Link>
+            <Link to="/ourcoursedetails">
+              <ExploreButton>Explore Courses</ExploreButton>
+            </Link>
+          </div>
+
+       </LeftContentMobile>
+
         <Circle />
         <SecCircle />
         <RightImage>

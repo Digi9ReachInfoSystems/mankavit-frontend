@@ -23,6 +23,7 @@ export const HeroSection = styled.section`
     padding: 0rem 2%;
     text-align: center;
     }
+     
 `;
 
 export const Circle = styled.div`
@@ -151,6 +152,7 @@ export const SubTitle = styled.p`
                 font-size: 14px;
       margin-bottom: 3rem;
         }
+
 `;
 
 export const ButtonsGroup = styled.div`
@@ -209,13 +211,28 @@ export const LeftContent = styled.div`
 
   @media (max-width: 576px) {
   max-width: 100%;  
+  display:none;
   }
+`;
+
+export const LeftContentMobile = styled.div`
+
+display: none;
+padding: 1rem;
+@media (max-width: 576px) {
+display: flex;
+allign-items: center;
+justify-content: center;
+gap: 1rem;
+   flex-direction: column;
+}
 `;
 
 export const RightImage = styled.div`
   max-width: 90%;
   min-height: 40px;
-    margin-right: 6rem;
+    margin-right: 4rem;
+    margin-top:-3%;
 
   img {
     width: 100%;
