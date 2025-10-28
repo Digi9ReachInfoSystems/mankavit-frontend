@@ -11,6 +11,7 @@ import {
 import { FiDownload } from "react-icons/fi";
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { getAllCertificates } from '../../../../api/certificateApi';
+import { Document, Page } from 'react-pdf';
 
 const Certificates = () => {
   const [certificates, setCertificates] = useState([]);
@@ -50,20 +51,23 @@ const Certificates = () => {
                 <CertificateDownload
                   onClick={() => window.open(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}`, "_blank")}
                 >
-                   <CertificateTitle>{certificate.title}</CertificateTitle><FiDownload fontSize={18} />
+                  <CertificateTitle>{certificate.title}</CertificateTitle><FiDownload fontSize={18} />
                 </CertificateDownload>
 
                 <iframe
                   src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}#toolbar=0&view=FitH&navpanes=0&scrollbar=0&zoom=page-width`}
                   style={{
                     width: "100%",
-                    height: "270px",
+                    // height: "200px",
                     border: "none",
                     borderRadius: "8px",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   }}
                   title="Certificate Preview"
                 />
+                {/* <Document file={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}#toolbar=0&view=FitH&navpanes=0&scrollbar=0&zoom=page-width`}>
+                  <Page pageNumber={1} width={window.innerWidth - 40} />
+                </Document> */}
               </CertificateCard>
             ))}
           </CertificatesWrapper>

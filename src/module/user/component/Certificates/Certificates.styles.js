@@ -27,6 +27,9 @@ export const CertificatesWrapper = styled.div`
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
+   @media (max-width: 480px) {
+     grid-template-columns: repeat(2, 1fr); 
+   }
 `;
 
 export const CertificateCard = styled.div`
@@ -38,8 +41,24 @@ export const CertificateCard = styled.div`
 
   iframe {
     width: 100%;
-    height: 250px;
+    height: 270px;
     border-radius: 8px;
+  }
+
+  @media (max-width: 1024px) {
+    iframe {
+      height: 240px; /* smaller to fit tablets */
+    }
+  }
+    @media (max-width: 900px)and(min-height: 1200px) {
+      iframe {
+        height: 180px; /* smaller to fit smaller tablets */
+      }
+    }
+   @media (max-width: 480px) {
+    iframe {
+      // height: 120px; /* smaller to fit smaller phones */
+    }
   }
 `;
 
