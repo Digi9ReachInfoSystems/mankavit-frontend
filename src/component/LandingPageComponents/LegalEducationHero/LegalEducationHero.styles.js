@@ -273,8 +273,9 @@ export const StatBox = styled.div`
   width: 300px;
 
       @media (max-width: 576px) {
-      width: 70%;
+      // width: 70%;
       margin: 0 auto;
+      padding: 1rem;
     }
 `;
 
