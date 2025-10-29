@@ -18,11 +18,19 @@ export const Title = styled.h1`
 `;
 
 export const UserInfo = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 40px;
   margin-bottom: 30px;
   font-size: 1.1rem;
   color: #444;
   line-height: 1.6;
+
+  p {
+    margin: 0;
+  }
 `;
+
 
 export const QuestionCard = styled.div`
   background: #fafafa;
@@ -42,10 +50,10 @@ export const Label = styled.div`
   margin-bottom: 4px;
 `;
 
-export const QuestionText = styled.div`
-  font-size: 1rem;
-  color: #333;
-`;
+// export const QuestionText = styled.div`
+//   font-size: 1.2rem;
+//   color: #050505ff;
+// `;
 
 export const AnswerText = styled.div`
   font-size: 1rem;
@@ -100,4 +108,24 @@ export const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+`;
+export const QuestionHeader = styled.div`
+  display: flex;
+  // align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+`;
+
+export const QuestionNumber = styled.h3`
+  font-size: 1.2rem;
+  color: #2a2a72;
+  margin: 0;
+  white-space: nowrap;
+`;
+
+export const QuestionText = styled.div`
+  font-size: 1.2rem;
+  color: #050505ff;
+  flex: 1;
+  margin-top: -3px;
 `;

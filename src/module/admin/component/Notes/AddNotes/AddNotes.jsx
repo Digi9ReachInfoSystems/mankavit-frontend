@@ -28,6 +28,16 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
+  ViewPdfButton,
+  FileActionsWrapper,
+  FileName,
+  PdfModal,
+  PdfModalContent,
+  PdfModalHeader,
+  PdfModalTitle,
+  CloseButton,
+  PdfViewer,
+  ModalOverlay
 } from "../AddNotes/AddNotes.style";
 import { getSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
@@ -37,6 +47,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { rearrangeSubjects } from "../../../../../api/subjectApi";
 import { CiSearch } from "react-icons/ci";
+import { FaEye, FaTimes, FaDownload } from "react-icons/fa";
 
 export default function AddNote() {
   const [noteTitle, setNoteTitle] = useState(null);
@@ -46,31 +57,33 @@ export default function AddNote() {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
   const [searchSubject, setSearchSubject] = useState("");
+  const [uploadedPdfUrl, setUploadedPdfUrl] = useState(null);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   const filteredSubjects = subjectsCheckboxes.filter((subject) =>
     subject.label.toLowerCase().includes(searchSubject.toLowerCase())
   );
-useEffect(() => {
-  localStorage.removeItem("selectedSubjects"); // Reset on load
-  const apiCaller = async () => {
-    try {
-      const response = await getSubjects();
-      const data = response.data.map((item) => ({
-        label: item.subjectName,
-        id: item._id,
-        checked: false, // always fresh
-      }));
-      setSubjectsCheckboxes(data);
-      setSelectedSubjects([]);
-    } catch (error) {
-      toast.error("Failed to fetch data");
-    }
-  };
-  apiCaller();
-}, []);
 
+  useEffect(() => {
+    localStorage.removeItem("selectedSubjects"); // Reset on load
+    const apiCaller = async () => {
+      try {
+        const response = await getSubjects();
+        const data = response.data.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked: false, // always fresh
+        }));
+        setSubjectsCheckboxes(data);
+        setSelectedSubjects([]);
+      } catch (error) {
+        toast.error("Failed to fetch data");
+      }
+    };
+    apiCaller();
+  }, []);
 
   const handleCheckboxChange = (index) => {
     const updatedCheckboxes = subjectsCheckboxes.map((item, i) =>
@@ -168,7 +181,53 @@ useEffect(() => {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setPdfFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setPdfFile(file);
+      
+      // Create object URL for preview
+      const fileUrl = URL.createObjectURL(file);
+      setUploadedPdfUrl(fileUrl);
+    }
+  };
+
+  const handleViewPdf = () => {
+    if (uploadedPdfUrl) {
+      setIsPdfModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsPdfModalOpen(false);
+  };
+
+  const handleDownloadPdf = () => {
+    if (uploadedPdfUrl && pdfFile) {
+      const link = document.createElement('a');
+      link.href = uploadedPdfUrl;
+      link.download = pdfFile.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleRemovePdf = () => {
+    setPdfFile(null);
+    setUploadedPdfUrl(null);
+    
+    // Clear the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    // Revoke the object URL to free memory
+    if (uploadedPdfUrl) {
+      URL.revokeObjectURL(uploadedPdfUrl);
+    }
+
+    // Close modal if open
+    if (isPdfModalOpen) {
+      setIsPdfModalOpen(false);
     }
   };
 
@@ -208,20 +267,8 @@ useEffect(() => {
         });
         return;
       }
-      // if (pdfFile.type != "application/pdf") {
-      //   toast.error("Please select pdf file.", {
-      //     duration: 3000,
-      //     position: "top-right",
-      //     ariaProps: {
-      //       role: "status",
-      //       "aria-live": "polite",
-      //     },
-      //   });
-      //   return;
-      // }
 
       const fileData = await uploadFileToAzureStorage(pdfFile, "notes");
-      // // console.log("fileData", fileData);
       const fileURL = fileData.blobUrl;
       const subjects = selectedSubjects.map((item) => item.id);
 
@@ -249,6 +296,16 @@ useEffect(() => {
           subjectsCheckboxes.map((item) => ({ ...item, checked: false }))
         );
         setSelectedSubjects([]);
+        setPdfFile(null);
+        setUploadedPdfUrl(null);
+        
+        // Revoke object URL
+        if (uploadedPdfUrl) {
+          URL.revokeObjectURL(uploadedPdfUrl);
+        }
+
+        // Close modal if open
+        setIsPdfModalOpen(false);
 
         setTimeout(() => {
           navigate("/admin/notes-management");
@@ -275,6 +332,20 @@ useEffect(() => {
       });
     }
   };
+
+  // Close modal on escape key press
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isPdfModalOpen) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isPdfModalOpen]);
 
   return (
     <Container>
@@ -325,56 +396,38 @@ useEffect(() => {
                   onChange={(e) => setSearchSubject(e.target.value)}
                 />
               </SearchWrapper>
-          <CheckboxList>
-        {filteredSubjects.length > 0 ? (
-          filteredSubjects.map((item, index) => (
-            <CheckboxLabel key={index}>
-              <CheckboxInput
-                type="checkbox"
-                checked={item.checked}
-                onChange={() => handleCheckboxChange(
-                  subjectsCheckboxes.findIndex(subj => subj.id === item.id)
+              <CheckboxList>
+                {filteredSubjects.length > 0 ? (
+                  filteredSubjects.map((item, index) => (
+                    <CheckboxLabel key={index}>
+                      <CheckboxInput
+                        type="checkbox"
+                        checked={item.checked}
+                        onChange={() => handleCheckboxChange(
+                          subjectsCheckboxes.findIndex(subj => subj.id === item.id)
+                        )}
+                      />
+                      {item.label}
+                    </CheckboxLabel>
+                  ))
+                ) : (
+                  <p style={{ padding: '10px', color: '#666' }}>No subjects found matching your search</p>
                 )}
-              />
-              {item.label}
-            </CheckboxLabel>
-          ))
-        ) : (
-          <p style={{ padding: '10px', color: '#666' }}>No subjects found matching your search</p>
-        )}
-      </CheckboxList>
-    </CheckboxSection>
-  </Column>
+              </CheckboxList>
+            </CheckboxSection>
+          </Column>
   
-  {/* Selected Subjects List with Arrows remains the same */}
-  <Column>
-    {selectedSubjects.length > 0 && (
-      <>
-        <SelectedSubjectsTitle>Selected Subjects ({selectedSubjects.length})</SelectedSubjectsTitle>
-        <SelectedSubjectsList>
-          {selectedSubjects.map((subject, index) => (
-            <SelectedSubjectItem key={subject.id}>
-              <SubjectName>{subject.label}</SubjectName>
-              {/* <div>
-                <ArrowButton 
-                  style={{backgroundColor: "green"}}
-                  type="button" 
-                  onClick={() => moveSubjectUp(index)}
-                  disabled={index === 0}
-                >
-                  ↑
-                </ArrowButton>
-                <ArrowButton 
-                  style={{backgroundColor: "red"}}
-                  type="button" 
-                  onClick={() => moveSubjectDown(index)}
-                  disabled={index === selectedSubjects.length - 1}
-                >
-                  ↓
-                </ArrowButton>
-              </div> */}
-            </SelectedSubjectItem>
-          ))}
+          {/* Selected Subjects List with Arrows remains the same */}
+          <Column>
+            {selectedSubjects.length > 0 && (
+              <>
+                <SelectedSubjectsTitle>Selected Subjects ({selectedSubjects.length})</SelectedSubjectsTitle>
+                <SelectedSubjectsList>
+                  {selectedSubjects.map((subject, index) => (
+                    <SelectedSubjectItem key={subject.id}>
+                      <SubjectName>{subject.label}</SubjectName>
+                    </SelectedSubjectItem>
+                  ))}
                 </SelectedSubjectsList>
               </>
             )}
@@ -387,7 +440,23 @@ useEffect(() => {
             <Label>Upload Files PDF</Label>
             <UploadArea onClick={handleUploadAreaClick}>
               {pdfFile ? (
-                <p>{pdfFile.name}</p>
+                <FileActionsWrapper>
+                  <FileName>{pdfFile.name}</FileName>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <ViewPdfButton type="button" onClick={(e) => { e.stopPropagation(); handleViewPdf(); }}>
+                      <FaEye style={{ marginRight: '5px' }} />
+                      View PDF
+                    </ViewPdfButton>
+                    <ViewPdfButton 
+                      type="button" 
+                      onClick={(e) => { e.stopPropagation(); handleRemovePdf(); }}
+                      style={{ background: '#dc3545' }}
+                    >
+                      <FaTimes style={{ marginRight: '5px' }} />
+                      Remove
+                    </ViewPdfButton>
+                  </div>
+                </FileActionsWrapper>
               ) : (
                 <>
                   <UploadPlaceholder>
@@ -435,6 +504,68 @@ useEffect(() => {
           <SubmitButton type="submit">Add Notes</SubmitButton>
         </FormRow>
       </FormWrapper>
+
+
+
+{/* PDF Modal */}
+{isPdfModalOpen && (
+  <ModalOverlay onClick={handleCloseModal}>
+    <PdfModal onClick={(e) => e.stopPropagation()}>
+      <PdfModalHeader>
+        <PdfModalTitle>
+          {pdfFile?.name || "PDF Preview"}
+        </PdfModalTitle>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <ViewPdfButton 
+            type="button" 
+            onClick={handleDownloadPdf}
+            style={{ background: '#28a745' }}
+          >
+            <FaDownload style={{ marginRight: '5px' }} />
+            Download
+          </ViewPdfButton>
+          <CloseButton onClick={handleCloseModal}>
+            <FaTimes />
+          </CloseButton>
+        </div>
+      </PdfModalHeader>
+      <PdfModalContent>
+        <PdfViewer
+          src={uploadedPdfUrl}
+          title="PDF Preview"
+        />
+        {/* Fallback message for browsers that don't support PDF embedding */}
+        <div 
+          style={{ 
+            display: 'none',
+            textAlign: 'center', 
+            padding: '20px',
+            background: '#f8f9fa'
+          }}
+          className="pdf-fallback"
+        >
+          <p>
+            Your browser doesn't support PDF preview. 
+            <br />
+            <button 
+              onClick={handleDownloadPdf}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#007bff', 
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                marginTop: '10px'
+              }}
+            >
+              Download the PDF instead
+            </button>
+          </p>
+        </div>
+      </PdfModalContent>
+    </PdfModal>
+  </ModalOverlay>
+)}
 
       <ToastContainer
         position="top-right"
