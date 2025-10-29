@@ -78,6 +78,7 @@ export const VideoPlayer = styled.video`
   display: block;
   position: relative;
   z-index: 0;
+  aspect-ratio: auto;
 `;
 
 export const ControlsRow = styled.div`
@@ -347,10 +348,10 @@ export const VideoPlayerContainer = styled.div`
   position: relative;
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9; /* keeps good height on mobile */
+  aspect-ratio: auto; /* keeps good height on mobile */
 
   video {
-    width: 100%;
+    width: 90%;
     height: 100%;
     object-fit: contain;
     display: block;

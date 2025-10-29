@@ -75,6 +75,7 @@ const EditCoupon = () => {
         start_date: '',
         end_date: '',
         discount_amount: '',
+        discount_percentage: 0,
         coupon_image: '',
         coupon_type: 'All',
         user_list: [],
@@ -119,6 +120,7 @@ const EditCoupon = () => {
       start_date: formatDateForInput(data.start_date),
       end_date: formatDateForInput(data.end_date),
       discount_amount: data.discount_amount,
+      discount_percentage: data.discount_percentage,
       coupon_image: data.coupon_image,
       coupon_type: data.coupon_type,
       user_list: data.user_list?.map(user => typeof user === 'object' ? user._id : user) || [],
@@ -248,7 +250,7 @@ const EditCoupon = () => {
         const requiredFields = [
             'coupon_name', 'coupon_des', 'start_date',
             'end_date', 'discount_amount', 'coupon_image',
-            'coupon_code'
+            'coupon_code','discount_percentage'
         ];
 
         requiredFields.forEach(field => {
@@ -319,7 +321,8 @@ const EditCoupon = () => {
       start_date: formattedStartDate,
       end_date: formattedEndDate,
       coupon_image: finalCouponImage,
-      discount_amount: Number(couponData.discount_amount)
+      discount_amount: Number(couponData.discount_amount),
+      discount_percentage: Number(couponData.discount_percentage)
     };
 
     await updateCoupon(id, payload);
@@ -412,17 +415,18 @@ const EditCoupon = () => {
             </FlexRow>
 
             <InputGroup>
-                <Label>Discount Amount*</Label>
+                <Label>Discount Percentage*</Label>
                 <InputField
                     type="number"
-                    name="discount_amount"
-                    value={couponData.discount_amount}
+                    name="discount_percentage"
+                    value={couponData.discount_percentage}
                     onChange={handleChange}
-                    placeholder="Enter Discount Amount"
+                    placeholder="Enter Discount Percentage"
                     min="1"
+                    max="100"
                     disabled={isLoading}
                 />
-                {formErrors.discount_amount && <ErrorMessage>{formErrors.discount_amount}</ErrorMessage>}
+                {formErrors.discount_percentage && <ErrorMessage>{formErrors.discount_percentage}</ErrorMessage>}
             </InputGroup>
 
             <TypeSelection>
