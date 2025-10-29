@@ -1,9 +1,8 @@
 import styled from "styled-components";
-import theme from "../../../../../../theme/Theme";
 
 export const Container = styled.div`
-margin-left: 40px;
-margin-top: 20px;
+  margin-left: 40px;
+  margin-top: 20px;
   background-color: ${(props) => props.theme.colors.white};
   border-radius: 10px;
   padding: ${(props) => props.theme.spacing(3)};
@@ -19,22 +18,25 @@ export const Title = styled.h1`
 `;
 
 export const UserInfo = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 40px;
   margin-bottom: 30px;
   font-size: 1.1rem;
   color: #444;
   line-height: 1.6;
+
+  p {
+    margin: 0;
+  }
 `;
 
 export const QuestionCard = styled.div`
-  background: ${theme.colors.platinumlightgray};
+  background: #fafafa;
   border-left: 5px solid #2a2a72;
   padding: 16px;
   margin-bottom: 24px;
   border-radius: 12px;
-`;
-
-export const Section = styled.div`
-  margin-bottom: 12px;
 `;
 
 export const Label = styled.div`
@@ -43,10 +45,24 @@ export const Label = styled.div`
   margin-bottom: 4px;
 `;
 
+export const QuestionHeader = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+`;
+
+export const QuestionNumber = styled.h3`
+  font-size: 1.2rem;
+  color: #2a2a72;
+  margin: 0;
+  white-space: nowrap;
+`;
+
 export const QuestionText = styled.div`
-  font-size: 1rem;
-  color: #333;
-  font-weight:bold;
+  font-size: 1.2rem;
+  color: #050505ff;
+  flex: 1;
+  margin-top: -3px;
 `;
 
 export const AnswerText = styled.div`
@@ -54,6 +70,7 @@ export const AnswerText = styled.div`
   color: #555;
   white-space: pre-wrap;
 `;
+
 export const SubTitle = styled.h2`
   font-size: 1.5rem;
   color: #2a2a72;
@@ -70,7 +87,7 @@ export const MarkInput = styled.input`
 
 export const SubmitButton = styled.button`
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -83,11 +100,10 @@ export const SubmitButton = styled.button`
   }
 `;
 
-
 export const SaveButton = styled.button`
   margin-top: 10px;
   padding: 6px 12px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -105,34 +121,6 @@ export const ButtonContainer = styled.div`
   margin-top: 20px;
 `;
 
-// --- NEW: inline question number + text
-export const QuestionLine = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-`;
-
-export const QIndex = styled.span`
-  font-weight: 700;
-  white-space: nowrap;
-`;
-
-// --- NEW: number-only list (no bullets) for options
-export const OptionsList = styled.ul`
-  list-style: none;
-  padding-left: 0;
-  margin-top: 6px;
-`;
-
-export const OptionItem = styled.li`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-weight: ${(p) => (p.$bold ? 600 : 400)};
-  color: ${(p) => (p.$correct ? "#0a8a0a" : p.$wrong ? "#d32f2f" : "inherit")};
-`;
-
-export const OptionNumber = styled.span`
-  min-width: 20px;
-  font-weight: 600;
+export const Section = styled.div`
+  margin-bottom: 12px;
 `;

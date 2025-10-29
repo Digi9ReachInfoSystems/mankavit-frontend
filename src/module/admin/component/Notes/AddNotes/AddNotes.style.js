@@ -354,3 +354,135 @@ export const SearchInput = styled.input`
   font-size: 14px;
   background: transparent;
 `;
+
+
+// Add these to your existing AddNotes.style.js
+// Add these to your existing AddNotes.style.js
+
+export const ViewPdfButton = styled.button`
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #0056b3;
+  }
+
+  &:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+  }
+`;
+
+export const FileActionsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
+export const FileName = styled.p`
+  margin: 0;
+  font-weight: 500;
+  color: #333;
+  word-break: break-all;
+  text-align: center;
+`;
+
+/* PDF Modal Styles */
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+`;
+
+export const PdfModal = styled.div`
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+`;
+
+export const PdfModalContent = styled.div`
+  flex: 1;
+  padding: 0;
+  overflow: hidden;
+`;
+
+export const PdfModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+`;
+
+export const PdfModalTitle = styled.h3`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+`;
+
+export const CloseButton = styled.button`
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #5a6268;
+  }
+`;
+
+export const PdfViewer = styled.iframe`
+  width: 100%;
+  height: 100%;
+  border: none;
+  
+  /* Hide fallback when iframe loads successfully */
+  &:not([src=""]) + .pdf-fallback {
+    display: none;
+  }
+`;
+
+// Alternative PDF viewer using iframe (uncomment if you prefer iframe)
+// export const PdfViewer = styled.iframe`
+//   width: 100%;
+//   height: 100%;
+//   border: none;
+// `;

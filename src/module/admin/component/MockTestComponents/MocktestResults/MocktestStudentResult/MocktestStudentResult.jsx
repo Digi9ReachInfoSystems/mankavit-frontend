@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -14,12 +14,8 @@ import {
   SubmitButton,
   SaveButton,
   ButtonContainer,
-  // NEW:
-  QuestionLine,
-  QIndex,
-  OptionsList,
-  OptionItem,
-  OptionNumber,
+  QuestionHeader,
+  QuestionNumber,
 } from "./MocktestStudentResult.style";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,8 +24,7 @@ import {
   evaluateMocktest,
   evaluateSingleSubjectiveQuestion,
 } from "../../../../../../api/mocktestApi";
-import { useNavigate, useParams } from "react-router-dom";
-// MocktestStudentResult
+
 const MocktestStudentResult = () => {
   const { attemptId } = useParams();
   const [attemptData, setAttemptData] = useState(null);
@@ -43,15 +38,14 @@ const MocktestStudentResult = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // // console.log("attemptId", attemptId);
         const response = await getAttemptById(attemptId);
-        // // console.log("response", response);
         setUserId(response.data.userId._id);
         setMockTestId(response.data.mockTestId._id);
         setEvaluationStatus(response.data.status);
+
         if (response.success) {
           setAttemptData(response.data);
-          // Initialize evaluations with existing marks or 0
+
           const subjEvals = response.data.answers
             .filter((a) => {
               const question = response.data.mockTestId.questions.find(
@@ -68,12 +62,13 @@ const MocktestStudentResult = () => {
                 )?.marks || 0),
               marks: a.marksAwarded || 0,
             }));
+
           setEvaluations(subjEvals);
         } else {
           throw new Error("Failed to fetch attempt data");
         }
       } catch (error) {
-        // // console.error("Error fetching attempt:", error);
+        toast.error("Error fetching attempt data");
       } finally {
         setLoading(false);
       }
@@ -84,7 +79,7 @@ const MocktestStudentResult = () => {
   const handleMarkChange = (questionId, isCorrect, value) => {
     const updated = evaluations.map((e) =>
       e.questionId === questionId
-        ? { ...e, isCorrect: isCorrect, marks: parseInt(value) || 0 }
+        ? { ...e, isCorrect, marks: parseInt(value) || 0 }
         : e
     );
     setEvaluations(updated);
@@ -109,11 +104,8 @@ const MocktestStudentResult = () => {
 
       const response = await evaluateSingleSubjectiveQuestion(payload);
       if (response.success) {
-        toast.success(
-          "Single subjective question evaluation saved successfully"
-        );
-        // // // console.log("Single question evaluation saved successfully", response);
-        // Update the local state with the saved data
+        toast.success("Saved subjective question evaluation");
+
         const updatedAttemptData = { ...attemptData };
         const answerIndex = updatedAttemptData.answers.findIndex(
           (a) => a.questionId === questionId
@@ -125,8 +117,7 @@ const MocktestStudentResult = () => {
         }
       }
     } catch (error) {
-      toast.error("Failed to save single question evaluation");
-      // // console.error("Failed to save single question evaluation", error);
+      toast.error("Failed to save evaluation");
     }
   };
 
@@ -140,14 +131,14 @@ const MocktestStudentResult = () => {
           marks: e.marks,
         })),
       };
-      // // console.log("payload", payload);
+
       const response = await evaluateMocktest(payload);
       if (response.success) {
-        // // console.log("Evaluation submitted successfully", response);
+        toast.success("Evaluation submitted successfully");
         navigate(`/admin/mock-test/user-attempts/${mockTestId}/${userId}`);
       }
     } catch (error) {
-      // console.error("Failed to submit evaluation", error);
+      toast.error("Failed to submit evaluation");
     }
   };
 
@@ -171,166 +162,180 @@ const MocktestStudentResult = () => {
   return (
     <Container>
       <Title>User Result</Title>
+
       <UserInfo>
         <p>
-          <strong>Username:</strong> {attemptData.userId.displayName}
+          <strong>Student Name:</strong>{" "}
+          {attemptData?.userId?.displayName || "N/A"}
         </p>
         <p>
-          <strong>Total Marks:</strong> {attemptData.totalMarks}
+          <strong>Mock Test Name:</strong>{" "}
+          {attemptData?.mockTestId?.title || "N/A"}
+        </p>
+        <p>
+          <strong>Total Questions:</strong>{" "}
+          {attemptData?.mockTestId?.questions?.length || 0}
+        </p>
+        <p>
+          <strong>Attempted Questions:</strong>{" "}
+          {attemptData?.answers?.filter((a) => a.status !== "not-answered")
+            .length || 0}
+        </p>
+        <p>
+          <strong>Correct Answers:</strong>{" "}
+          {attemptData?.answers?.filter((a) => a.isCorrect).length || 0}
+        </p>
+        <p>
+          <strong>Total Marks:</strong> {attemptData?.totalMarks ?? 0}
+        </p>
+        <p>
+          <strong>Time Spent:</strong>{" "}
+          {Math.floor(parseFloat(attemptData?.timeSpent || 0))} sec
         </p>
       </UserInfo>
 
-     <SubTitle>MCQ Questions</SubTitle>
-{mcqAnswers.map((a, index) => {
-  // Find the full question object (prefer from attemptData.mockTestId, fallback to a.questionDetails)
-  const question =
-    attemptData.mockTestId.questions.find((q) => q._id === a.questionId) ||
-    a.questionDetails;
+      <SubTitle>MCQ Questions</SubTitle>
+      {mcqAnswers.map((a, index) => {
+        const question = attemptData.mockTestId.questions.find(
+          (q) => q._id === a.questionId
+        );
+        const options = question?.options || [];
+        const selected = a.answerIndex;
+        const correct = question?.correctAnswer;
 
-  // Determine indexes
-  const correctIndex =
-    question?.questionDetails?.correctAnswer ?? question?.correctAnswer;
-  const userIndex = a.answerIndex;
+        return (
+          <QuestionCard key={`mcq-${index}`}>
+            <QuestionHeader>
+              <QuestionNumber>Question {index + 1}.</QuestionNumber>
+              <QuestionText
+                dangerouslySetInnerHTML={{ __html: question?.questionText }}
+              />
+            </QuestionHeader>
 
-  // Compute global question number (based on original answers order)
-  const questionNumber =
-    attemptData.answers.findIndex((ans) => ans.questionId === a.questionId) + 1;
+            <div style={{ marginTop: "10px" }}>
+              {options.map((opt, idx) => {
+                let color = "#333";
+                if (idx === correct && idx === selected) color = "#34c759";
+                else if (idx === selected && idx !== correct) color = "#ff3b30";
+                else if (idx === correct && idx !== selected)
+                  color = "#0a84ff";
 
-  const options =
-    question?.questionDetails?.options || question?.options || [];
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      color,
+                      fontSize: "1rem",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    <input type="radio" checked={selected === idx} readOnly />
+                    <span
+                      dangerouslySetInnerHTML={{ __html: opt.text || opt }}
+                    />
+                    {idx === correct && (
+                      <span style={{ marginLeft: 6, color: color }}>
+                        (Correct)
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
-  return (
-    <QuestionCard key={`mcq-${index}`}>
-      {/* Question number and question text on the SAME line */}
-      <QuestionLine>
-        <QIndex>Question {questionNumber}.</QIndex>
-        <span
-          dangerouslySetInnerHTML={{ __html: question?.questionText || "" }}
-        />
-      </QuestionLine>
+            <AnswerText>
+              <strong>Your Answer:</strong>{" "}
+              {a.answer || <em>Not Answered</em>}
+            </AnswerText>
+            <AnswerText>
+              <strong>Correct Answer:</strong>{" "}
+              {options[correct]?.text || options[correct] || "N/A"}
+            </AnswerText>
+            <AnswerText>
+              <strong>Marks:</strong> {a.marksAwarded}
+            </AnswerText>
+          </QuestionCard>
+        );
+      })}
 
-      <AnswerText>
-        <strong>Options:</strong>
-        {/* Numbered options without bullets; custom numbers 1 2 3 ... */}
-        <OptionsList>
-          {options.map((option, optIndex) => {
-            const isCorrectOption = optIndex === correctIndex;
-            const isUserChoice = userIndex === optIndex;
-            const userChoseWrong = isUserChoice && !a.isCorrect;
+      <SubTitle>Subjective Questions</SubTitle>
+      {subjectiveAnswers.map((a, index) => {
+        const question = attemptData.mockTestId.questions.find(
+          (q) => q._id === a.questionId
+        );
+        const evalItem = evaluations.find((e) => e.questionId === a.questionId);
+        const maxMarks = question.marks;
+        const currentMarks = evalItem?.marks || 0;
 
-            return (
-              <OptionItem
-                key={`opt-${index}-${optIndex}`}
-                $bold={isCorrectOption || isUserChoice}
-                $correct={isCorrectOption}
-                $wrong={userChoseWrong}
-              >
-                <OptionNumber>{optIndex + 1}</OptionNumber>
-                <span>
-                  {option.text}
-                  {isCorrectOption ? " (Correct)" : ""}
-                  {isUserChoice ? " (Your choice)" : ""}
-                </span>
-              </OptionItem>
-            );
-          })}
-        </OptionsList>
-      </AnswerText>
+        return (
+          <QuestionCard key={`subj-${index}`}>
+            <QuestionHeader>
+              <QuestionNumber>
+                Question {mcqAnswers.length + index + 1}.
+              </QuestionNumber>
+              <QuestionText
+                dangerouslySetInnerHTML={{ __html: question?.questionText }}
+              />
+            </QuestionHeader>
 
-      <AnswerText>
-        <strong>Your Answer:</strong>{" "}
-        {userIndex === null || userIndex === undefined
-          ? "No answer selected"
-          : options[userIndex]?.text}
-      </AnswerText>
+            <AnswerText>
+              <strong>Your Answer:</strong>{" "}
+              {a.answer || <em>Not Answered</em>}
+            </AnswerText>
 
-      <AnswerText>
-        <strong>Marks:</strong> {a.marksAwarded}
-      </AnswerText>
-    </QuestionCard>
-  );
-})}
+            <Label>Evaluate to:</Label>
+            <input
+              type="radio"
+              name={`subj-${index}`}
+              value="correct"
+              checked={currentMarks === maxMarks}
+              onChange={() => handleMarkChange(a.questionId, true, maxMarks)}
+              disabled={evaluationStatus !== "submitted"}
+            />{" "}
+            Correct
+            <input
+              type="radio"
+              name={`subj-${index}`}
+              value="incorrect"
+              checked={currentMarks !== maxMarks}
+              onChange={() => handleMarkChange(a.questionId, false, 0)}
+              disabled={evaluationStatus !== "submitted"}
+            />{" "}
+            Incorrect
 
-<SubTitle>Subjective Questions</SubTitle>
-{subjectiveAnswers.map((a, index) => {
-  const question = attemptData.mockTestId.questions.find(
-    (q) => q._id === a.questionId
-  );
-  const evalItem = evaluations.find((e) => e.questionId === a.questionId);
-  const maxMarks = question.marks;
-  const currentMarks = evalItem?.marks ?? a.marksAwarded ?? 0;
+            <Label>Max Marks:</Label>
+            <AnswerText>{maxMarks}</AnswerText>
 
-  // Number based on original order
-  const questionNumber =
-    attemptData.answers.findIndex((ans) => ans.questionId === a.questionId) + 1;
+            <Label>Marks:</Label>
+            <MarkInput
+              type="number"
+              min="0"
+              max={maxMarks}
+              value={currentMarks}
+              disabled={evaluationStatus !== "submitted"}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 0;
+                if (value > maxMarks) return;
+                handleMarkChange(a.questionId, value === maxMarks, value);
+              }}
+              placeholder={`0-${maxMarks}`}
+            />
 
-  return (
-    <QuestionCard key={`subj-${index}`}>
-      {/* Question number and question text on the SAME line */}
-      <QuestionLine>
-        <QIndex>Question {questionNumber}.</QIndex>
-        <span
-          dangerouslySetInnerHTML={{ __html: question?.questionText || "" }}
-        />
-      </QuestionLine>
-
-      <AnswerText>
-        <strong>Your Answer:</strong>{" "}
-        {a.answer ? (
-          a.answer
-        ) : (
-          <span style={{ color: "red" }}>No answer provided</span>
-        )}
-      </AnswerText>
-
-      <Label>Evaluate to:</Label>
-      <input
-        type="radio"
-        name={`subj-${index}`}
-        value="correct"
-        checked={currentMarks === maxMarks}
-        onChange={() => handleMarkChange(a.questionId, true, maxMarks)}
-        disabled={evaluationStatus !== "submitted"}
-      />{" "}
-      Correct
-      <input
-        type="radio"
-        name={`subj-${index}`}
-        value="Incorrect"
-        checked={currentMarks !== maxMarks}
-        onChange={() => handleMarkChange(a.questionId, false, 0)}
-        disabled={evaluationStatus !== "submitted"}
-      />{" "}
-      Incorrect
-
-      <Label>Max Marks:</Label>
-      <AnswerText>{maxMarks}</AnswerText>
-
-      <Label>Marks:</Label>
-      <MarkInput
-        type="number"
-        min="0"
-        disabled={evaluationStatus !== "submitted"}
-        max={maxMarks}
-        value={currentMarks}
-        onChange={(e) => {
-          const value = parseInt(e.target.value) || 0;
-          if (value > maxMarks) return;
-          handleMarkChange(a.questionId, value === maxMarks, value);
-        }}
-        placeholder={`0-${maxMarks}`}
-      />
-      {evaluationStatus === "submitted" && (
-        <ButtonContainer>
-          <SaveButton onClick={() => handleSaveSingleQuestion(a.questionId)}>
-            Save Subjective Marks
-          </SaveButton>
-        </ButtonContainer>
-      )}
-    </QuestionCard>
-  );
-})}
-
+            {evaluationStatus === "submitted" && (
+              <ButtonContainer>
+                <SaveButton
+                  onClick={() => handleSaveSingleQuestion(a.questionId)}
+                >
+                  Save Subjective Marks
+                </SaveButton>
+              </ButtonContainer>
+            )}
+          </QuestionCard>
+        );
+      })}
 
       {evaluationStatus === "submitted" && (
         <SubmitButton onClick={handleSubmit}>
