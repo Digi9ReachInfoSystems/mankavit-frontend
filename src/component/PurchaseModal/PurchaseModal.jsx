@@ -64,16 +64,19 @@ export default function PurchaseModal({ onClose, course }) {
         if (!selectedCoupon) return toast.error("Please Enter Coupon Code");
 
         try {
-            // console.log({ userId, couponCode: selectedCoupon });
+            console.log({ userId, couponCode: selectedCoupon });
             const response = await validateCoupon({ userId, couponCode: selectedCoupon });
-            console.log(response);  
+            // console.log("response", response);
+            // console.log(response);  
+            const discountAmount= (basePrice/100)*response.discount_percentage;
+            // console.log("discountAmount", discountAmount);
             if (response.success) {
-                const finalPrice = basePrice - response.discount;
+                const finalPrice = basePrice - discountAmount;
                 if (finalPrice < 0) {
                     toast.error("Discount amount is greater than course price , please select another coupon");
                     return;
                 }
-                setDiscount(response.discount);
+                setDiscount(discountAmount);
                 setSelectedCouponCodeId(response.couponId);
                 toast.success("Coupon applied successfully!");
             }

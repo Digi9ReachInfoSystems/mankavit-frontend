@@ -2101,7 +2101,7 @@ const CoursesLiveclass = () => {
       const fetchSignedUrl = async () => {
         try {
           const res = await getBackendAssets(noteUrl);
-          console.log("Signed URL fetched:", res);
+          // console.log("Signed URL fetched:", res);
           setSignedUrl(res.url);
         } catch (err) {
           // // console.error("Failed to fetch signed URL", err);
@@ -2373,6 +2373,27 @@ const CoursesLiveclass = () => {
   //   else if (el.msRequestFullscreen) el.msRequestFullscreen();
   //   else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
   // };
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
+  useEffect(() => {
+    const checkDevice = () => {
+      const userAgent = navigator.userAgent;
+      console.log("userAgent", userAgent);
+      const isMobile = /webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      const isTablet = /iPad|Tablet/i.test(userAgent);
+      const isAndroidDevice = /Android/i.test(userAgent);
+      setIsAndroid(isAndroidDevice);
+      // const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+console.log("isMobile", isMobile, "isTablet", isTablet, "isTouchDevice",isAndroid);
+      setIsMobileDevice(isMobile || isTablet );
+    };
+
+    checkDevice();
+
+    // Optional: Re-check on resize
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
 
   return (
     <MainContainer>
@@ -2440,67 +2461,144 @@ const CoursesLiveclass = () => {
         
         </StyledVideo>
       </VideoContainer> */}
-      <VideoContainer ref={videoContainerRef}
+      {
+        isMobileDevice ? (
+          <div
+            style={{
+              padding: 16,
+              paddingTop: 36,
+              marginTop: "40px",
+              border: "1px solid #eee",
+              borderRadius: 8,
+              background: "#fff7e6",
+              textAlign: "center",
+               maxHeight:"250px",
+            }}
+          >
+            <h3 style={{ margin: "8px 0" }}>Use our mobile app</h3>
+            <p style={{ margin: 0 }}>
+              Video playback on mobile/tablet is disabled on the web. Please open this lecture in the mobile app.
+            </p>
+             <div 
+    className="store-buttons"
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      gap: "12px",
+      marginTop: "16px",
+      flexWrap: "wrap",
+     
+    }}
+  >
+    <a
+      href="https://play.google.com/store/apps/details?id=com.digi9.mankavitlawacademy"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "inline-block",
+        textDecoration: "none"
+      }}
+    >
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/300/300218.png"
+        alt="Get it on Google Play"
+        className="store-badge"
+        style={{
+          height: "40px",
+          width: "auto",
+          borderRadius: "8px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+        }}
+      />
+    </a>
+    <a
+      href="https://apps.apple.com/in/app/apple-store/id375380948"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "inline-block",
+        textDecoration: "none"
+      }}
+    >
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg"
+        alt="Download on the App Store"
+        className="store-badge"
+        style={{
+          height: "40px",
+          width: "auto",
+          borderRadius: "8px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+        }}
+      />
+    </a>
+  </div>
+            
+          </div>
+        )
+          : (
+            <VideoContainer ref={videoContainerRef}
 
-      >
-        <StyledVideo>
-          {lecture && (
-            <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
-              <VideoPlayer
-                ref={videoRef}
-                onError={handleVideoError}
-                onEnded={handleVideoEnd}
-                controls
-                controlsList="nodownload nofullscreen noremoteplayback"
-                disablePictureInPicture
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                {lecture?.videoUrl && !videoError ? (
-                  <source
-                    src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture.videoUrl}`}
-                  />
-                ) : (
-                  <div className="video-error">
-                    {videoError
-                      ? "Error loading video"
-                      : "Your browser does not support the video tag"}
-                  </div>
+            >
+              <StyledVideo>
+                {lecture && (
+                  <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
+                    <VideoPlayer
+                      ref={videoRef}
+                      onError={handleVideoError}
+                      onEnded={handleVideoEnd}
+                      controls
+                      controlsList="nodownload nofullscreen noremoteplayback"
+                      disablePictureInPicture
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                      // style={{aspectRatio: isAndroid ? '15 / 7!important' : '16/9!important' }}
+                    >
+                      {lecture?.videoUrl && !videoError ? (
+                        <source
+                          src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture.videoUrl}`}
+                        />
+                      ) : (
+                        <div className="video-error">
+                          {videoError
+                            ? "Error loading video"
+                            : "Your browser does not support the video tag"}
+                        </div>
+                      )}
+                    </VideoPlayer>
+
+                    {userId && (
+                      <MovingOverlay
+                        style={{
+                          top: `${overlayPosition.top}%`,
+                          left: `${overlayPosition.left}%`,
+                        }}
+                      >
+                        {userPhoneNumber || userId}
+                      </MovingOverlay>
+                    )}
+                  </VideoPlayerContainer>
                 )}
-              </VideoPlayer>
+                <PlayControls>
+                  {
+                    showControls && (
+                      <ControlsLeft>
+                        <BackwardButton onClick={() => skipTime(-30)}>⏪ 30s</BackwardButton>
+                      </ControlsLeft>
+                    )
+                  }
+                  {
+                    showControls && (
+                      <ControlsLeft1>
+                        <ForwardButton onClick={() => skipTime(30)}>30s ⏩</ForwardButton>
+                      </ControlsLeft1>
+                    )
+                  }
+                </PlayControls>
 
-              {userId && (
-                <MovingOverlay
-                  style={{
-                    top: `${overlayPosition.top}%`,
-                    left: `${overlayPosition.left}%`,
-                  }}
-                >
-                  {userPhoneNumber || userId}
-                </MovingOverlay>
-              )}
-            </VideoPlayerContainer>
-          )}
-          <PlayControls>
-            {
-              showControls && (
-                <ControlsLeft>
-                  <BackwardButton onClick={() => skipTime(-30)}>⏪ 30s</BackwardButton>
-                </ControlsLeft>
-              )
-            }
-            {
-              showControls && (
-                <ControlsLeft1>
-                  <ForwardButton onClick={() => skipTime(30)}>30s ⏩</ForwardButton>
-                </ControlsLeft1>
-              )
-            }
-          </PlayControls>
-
-          {/* Bottom-left controls */}
-          <ControlsRow>
-            {/* {
+                {/* Bottom-left controls */}
+                <ControlsRow>
+                  {/* {
               // showControls && (
                 <ControlsLeft>
                   <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
@@ -2508,25 +2606,29 @@ const CoursesLiveclass = () => {
                 </ControlsLeft>
               // )
             } */}
-            {/* <ControlsLeft>
+                  {/* <ControlsLeft>
         <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
         <ForwardButton onClick={() => skipTime(20)}>20s ⏩</ForwardButton>
       </ControlsLeft> */}
 
-            {/* Bottom-right fullscreen button */}
-            {!isFullscreen && (
-              <ControlsRight>
-                <FullscreenButton onClick={handleFullscreen}>⛶</FullscreenButton>
-              </ControlsRight>
-            )}
-          </ControlsRow>
+                  {/* Bottom-right fullscreen button */}
+                  {/* {!isFullscreen && (
+                    <ControlsRight>
+                      <FullscreenButton onClick={handleFullscreen}>⛶</FullscreenButton>
+                    </ControlsRight>
+                  )} */}
+                </ControlsRow>
 
-          {/* Exit fullscreen button at top-right */}
-          {isFullscreen && (
-            <ExitFullscreenButton onClick={handleFullscreen}>✕</ExitFullscreenButton>
-          )}
-        </StyledVideo>
-      </VideoContainer>
+                {/* Exit fullscreen button at top-right */}
+                {/* {isFullscreen && ( */}
+                  <ExitFullscreenButton onClick={handleFullscreen}>{
+                    !isFullscreen
+                      ? "⛶"
+                      : "X"
+                  }</ExitFullscreenButton>
+                {/* )} */}
+              </StyledVideo>
+            </VideoContainer>)}
 
 
 
