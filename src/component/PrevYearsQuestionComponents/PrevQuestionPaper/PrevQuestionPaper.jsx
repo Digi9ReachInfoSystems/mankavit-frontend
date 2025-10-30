@@ -21,6 +21,7 @@ const PrevQuestionPaper = () => {
     const fetchData = async () => {
       try {
         const resp = await getAllQuestionPapers();
+        console.log("resp", resp);
         const raw = Array.isArray(resp?.data) ? resp.data : resp;
 //  console.log("raw", raw);
         const flat = raw
@@ -45,9 +46,9 @@ const PrevQuestionPaper = () => {
           acc[title].push({ year, url });
           return acc;
         }, {});
-        Object.keys(grouped).forEach(k => {
-          grouped[k].sort((a, b) => String(b.year).localeCompare(String(a.year)));
-        });
+        // Object.keys(grouped).forEach(k => {
+        //   grouped[k].sort((a, b) => String(b.year).localeCompare(String(a.year)));
+        // });
 
         setGroups(grouped);
       } catch (e) {
