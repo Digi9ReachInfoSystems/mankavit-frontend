@@ -368,13 +368,13 @@ export default function EditNotes() {
                   >
                     View PDF
                   </ViewPdfButton>
-                  <ViewPdfButton
+                  {/* <ViewPdfButton
                     type="button"
                     style={{ background: "#f44336" }}
                     onClick={handleRemovePdf}
                   >
                     Remove PDF
-                  </ViewPdfButton>
+                  </ViewPdfButton> */}
                 </FileActionsWrapper>
               ) : existingFileUrl ? (
                 <FileActionsWrapper>
@@ -462,14 +462,17 @@ export default function EditNotes() {
               </PdfModalTitle>
               <CloseButton onClick={closePdfModal}>×</CloseButton>
             </PdfModalHeader>
-            <PdfModalContent>
-              <PdfViewer
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(
-                  uploadedPdfUrl
-                )}&embedded=true`}
-                title="PDF Preview"
-              />
-            </PdfModalContent>
+          <PdfModalContent>
+  {uploadedPdfUrl.startsWith("blob:") ? (
+    <PdfViewer src={uploadedPdfUrl} title="PDF Preview" />
+  ) : (
+    <PdfViewer
+      src={`https://docs.google.com/gview?url=${encodeURIComponent(uploadedPdfUrl)}&embedded=true`}
+      title="PDF Preview"
+    />
+  )}
+</PdfModalContent>
+
           </PdfModal>
         </ModalOverlay>
       )}

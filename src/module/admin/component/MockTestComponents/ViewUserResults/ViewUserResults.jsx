@@ -64,6 +64,18 @@ const ViewUserResults = () => {
     apiCaller();
   }, []);
 
+const formatTime = (timeSpentStr) => {
+  if (!timeSpentStr) return "0 minutes and 0 seconds";
+
+  const [minStr, secStr = "0"] = timeSpentStr.split('.');
+  const minutes = parseInt(minStr, 10) || 0;
+  const seconds = parseInt(secStr, 10) || 0;
+
+  return `${minutes} minute${minutes !== 1 ? "s" : ""} and ${seconds} second${seconds !== 1 ? "s" : ""}`;
+};
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -228,10 +240,11 @@ const ViewUserResults = () => {
         </p>
         {/* <p><strong>MCQ Score:</strong> {attemptData?.mcqScore ?? 0}</p> */}
         {/* <p><strong>Subjective Score:</strong> {attemptData?.subjectiveScore ?? 0}</p> */}
-        <p>
-          <strong>Time Spent:</strong>{" "}
-          {Math.floor(parseFloat(attemptData?.timeSpent || 0))} sec
-        </p>
+      <p>
+  <strong>Time Spent:</strong>{" "}
+  {formatTime(attemptData?.timeSpent)}
+</p>
+
         {/* <p><strong>Status:</strong> {attemptData?.status}</p> */}
       </UserInfo>
 
