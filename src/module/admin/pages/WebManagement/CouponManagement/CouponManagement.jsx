@@ -96,7 +96,7 @@ export default function CouponManagement() {
         setLoading(true);
         try {
             const response = await getAllCoupon();
-            // // console.log("response", response);
+            console.log("response", response);
             const couponsArray = response.coupons || [];
 
             const couponData = couponsArray.map((item) => ({
@@ -108,6 +108,7 @@ export default function CouponManagement() {
                 startDate: item.start_date,
                 endDate: item.end_date,
                 couponType: item.coupon_type,
+                discount_percentage: item.discount_percentage,
                 userList: item.user_list || [],
                 appliedUsers: item.applied_users || [],
                 isActive: item.is_active,
@@ -153,6 +154,7 @@ export default function CouponManagement() {
         setFilteredData(processed);
         setTOTAL_ENTRIES(total);
         setTotalPages(pages);
+        
         setCurrentItems(items);
     }, [data, sortOption, searchText, currentPage]);
 
@@ -325,7 +327,7 @@ export default function CouponManagement() {
                                         )}
                                         <TableHeader>Coupon Name</TableHeader>
                                         <TableHeader>Code</TableHeader>
-                                        <TableHeader>Discount</TableHeader>
+                                        <TableHeader>Discount Percentage</TableHeader>
                                         <TableHeader>Type</TableHeader>
                                         <TableHeader>Eligible Users</TableHeader>
                                         <TableHeader>Used By</TableHeader>
@@ -336,7 +338,8 @@ export default function CouponManagement() {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {currentItems.map((c) => (
+                                    {currentItems.map((c) => {
+                                        return (
                                         <TableRow key={c.id}>
                                             {!readOnlyPermissions && (
                                                 <TableCell>
@@ -359,7 +362,7 @@ export default function CouponManagement() {
 
                                             <TableCell>{c.couponCode}</TableCell>
 
-                                            <TableCell>₹{c.discount}</TableCell>
+                                            <TableCell>{c.discount_percentage}% </TableCell>
 
                                             <TableCell>{c.couponType}</TableCell>
 
@@ -420,7 +423,7 @@ export default function CouponManagement() {
                         </ActionsContainer>
                       </TableCell> */}
                                         </TableRow>
-                                    ))}
+                                    )})}
                                 </TableBody>
                             </StyledTable>
                         </TableWrapper>

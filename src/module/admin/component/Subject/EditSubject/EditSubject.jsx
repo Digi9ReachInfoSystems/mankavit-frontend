@@ -352,6 +352,7 @@ const handleNavigate = (type, id) => {
           mocktestIds: selectedMockTests.map((m) => m.id),
         });
       }
+      // console.log("selected Notes",selectedNotes);
 
       await updateSubjectById(id, {
         subjectName: internalTitle,
