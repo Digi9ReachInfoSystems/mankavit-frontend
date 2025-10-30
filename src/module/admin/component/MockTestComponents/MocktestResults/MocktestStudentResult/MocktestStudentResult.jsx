@@ -75,6 +75,15 @@ const MocktestStudentResult = () => {
     };
     fetchData();
   }, [attemptId]);
+const formatTime = (timeSpentStr) => {
+  if (!timeSpentStr) return "0 minutes and 0 seconds";
+
+  const [minStr, secStr = "0"] = timeSpentStr.split('.');
+  const minutes = parseInt(minStr, 10) || 0;
+  const seconds = parseInt(secStr, 10) || 0;
+
+  return `${minutes} minute${minutes !== 1 ? "s" : ""} and ${seconds} second${seconds !== 1 ? "s" : ""}`;
+};
 
   const handleMarkChange = (questionId, isCorrect, value) => {
     const updated = evaluations.map((e) =>
@@ -188,10 +197,10 @@ const MocktestStudentResult = () => {
         <p>
           <strong>Total Marks:</strong> {attemptData?.totalMarks ?? 0}
         </p>
-        <p>
-          <strong>Time Spent:</strong>{" "}
-          {Math.floor(parseFloat(attemptData?.timeSpent || 0))} sec
-        </p>
+          <p>
+  <strong>Time Spent:</strong>{" "}
+  {formatTime(attemptData?.timeSpent)}
+</p>
       </UserInfo>
 
       <SubTitle>MCQ Questions</SubTitle>
