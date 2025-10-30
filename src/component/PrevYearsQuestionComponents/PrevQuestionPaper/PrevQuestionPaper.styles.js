@@ -223,7 +223,8 @@ export const CustomAntdSelect = styled(AntdSelectBase)`
   .ant-select-selector {
     border-radius: 8px !important;
     border-color: #ccc !important;
-    height: 40px !important;
+    height: 39px !important;
+    margin-Top:2px;
     display: flex;
     align-items: center;
     background: #fff;
