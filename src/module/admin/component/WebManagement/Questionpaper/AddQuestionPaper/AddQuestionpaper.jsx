@@ -132,7 +132,7 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
       // 2) call API depending on mode
       const payload = {
         title: finalTitle,
-        year: Number(year),
+        year: year,
         // description: description.trim(),
         question_url: uploadResponse.blobUrl,
       };
