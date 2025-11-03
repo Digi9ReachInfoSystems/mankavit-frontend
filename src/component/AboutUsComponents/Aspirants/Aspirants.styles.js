@@ -3,8 +3,9 @@ import styled from "styled-components";
 /* Canvas */
 export const Container = styled.section`
   position: relative;
-  padding: 20px 20px 72px;
+  // padding: 20px 20px 72px;
   overflow: hidden;
+  justify-content: center;
 
   width: min(1200px, 92%);
   margin: 0 auto;
@@ -13,15 +14,22 @@ export const Container = styled.section`
 /* Heading */
 /* Heading */
 export const Title = styled.h2`
-  margin: 0;
   font-size: 50px;
   font-weight: 500;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0 0 1.25rem 0;
+
   @media (max-width: 900px) {
     font-size: 36px;
   }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
+  }
 `;
+
 
 /* Title wrapper with responsive left offset */
 export const TitleDiv = styled.div`
@@ -64,6 +72,7 @@ export const SlidesTrack = styled.div`
 
 export const Slide = styled.div`
   flex: 0 0 100%;
+
   padding: clamp(8px, 1.2vw, 14px);
 `;
 
@@ -361,4 +370,8 @@ export const Underline = styled.div`
   background: linear-gradient(90deg, #007bff, #0dcaf0);
   margin: 0 auto 3rem;
   border-radius: 2px;
+`;
+export const Content = styled.div`
+  width: 100%;
+ margin-left: auto;
 `;

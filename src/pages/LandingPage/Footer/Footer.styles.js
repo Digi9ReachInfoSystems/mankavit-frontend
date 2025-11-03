@@ -99,12 +99,12 @@ export const SectionTitle = styled.h3`
   }
 
   @media (max-width: 768px) {
-    font-size: 18px;
+    font-size: 16px;
     margin-bottom: 10px;
   }
 
-  @media (max-width: 480px) {
-    font-size: 16px;
+  @media (max-width: 576px) {
+    font-size: 14px;
   }
 `;
 
@@ -180,6 +180,9 @@ export const LinkList = styled.ul`
 
   @media (max-width: 880px) {
     font-size: 14px;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
   }
 `;
 

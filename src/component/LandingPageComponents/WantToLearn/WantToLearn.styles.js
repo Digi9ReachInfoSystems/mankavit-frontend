@@ -25,7 +25,12 @@ export const Title = styled.h2`
  @media (max-width: 900px) {
     font-size: 36px;
   }
-  @media (max-width: 480px)  { text-align: center; }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
+  }
 `;
 
 export const Highlight = styled.span`
@@ -120,7 +125,17 @@ export const CourseTitle = styled.h3`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-`;
+
+  @media (max-width: 1246px) {
+    font-size: 18px;
+  }
+    @media (max-width: 900px) {
+    font-size: 16px;
+  }
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
+    `;
 
 export const Description = styled.p`
   font-size: 14px;
@@ -133,6 +148,13 @@ export const Description = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 4.5em;
+
+  @media (max-width: 900px) {
+    font-size: 13px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const InfoList = styled.ul`

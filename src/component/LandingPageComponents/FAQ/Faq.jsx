@@ -3,6 +3,7 @@ import Header from "../../../pages/LandingPage/LandingHeader/LandingHeader";
 import Footer from "../../../pages/LandingPage/Footer/Footer";
 import GotQuestion from "../GotQuestions/GotQuestions";
 import { useLocation } from "react-router-dom";
+import SectionWrapper from "../SectionWrapper";
 
 const Faq = () => {
 
@@ -15,7 +16,9 @@ const Faq = () => {
     return <>
    <div className="faqs">
      <Header />
-    <GotQuestion />
+   <SectionWrapper>
+     <GotQuestion />
+     </SectionWrapper>
     <Footer />
    </div>
     </>;

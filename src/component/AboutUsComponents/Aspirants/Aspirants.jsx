@@ -25,7 +25,8 @@ import {
   VideoModal,
   CloseBtn,
   VideoPlayer,
-  Underline
+  Underline,
+  Content
 } from "./Aspirants.styles";
 import { getAlltestimonials } from "../../../api/testimonialApi";
 import placeholder from "../../../assets/aspi1.png";
@@ -187,12 +188,14 @@ const Aspirants = () => {
 
   return (
     <>
-      <TitleDiv>
-        <Title>
-          What Our <Highlight>Aspirants</Highlight> Say
-        </Title>
-        <Underline />
-      </TitleDiv>
+      <Container>
+  <Content>
+    <Title>
+      What Our <Highlight>Aspirants</Highlight> Say
+    </Title>
+    <Underline />
+  </Content>
+</Container>
 
       <Container>
         {/* One scroll container for BOTH desktop & mobile */}
@@ -254,6 +257,7 @@ const Aspirants = () => {
             →
           </ArrowBtn>
         </ControlsBar>
+       
       </Container>
 
       {/* Video Modal */}

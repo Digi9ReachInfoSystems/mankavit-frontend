@@ -79,7 +79,12 @@ const Title = styled.h2`
  @media (max-width: 900px) {
     font-size: 36px;
   }
-  @media (max-width: 480px)  { text-align: center; }
+ @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
+  }
 `;
 
 const Highlight = styled.span`
@@ -127,6 +132,14 @@ const QuestionItem = styled.div`
     box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
     transform: translateY(-2px);
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    font-size: 14px;
+  }
+    @media (max-width: 570px) {
+    font-size: 12px;
+  }
 `;
 
 const QuestionHeader = styled.div`
@@ -152,6 +165,10 @@ const QuestionText = styled.h4`
 
   @media (max-width: 768px) {
     font-size: 16px;
+  }
+
+  @media (max-width: 570px) {
+    font-size: 14px;
   }
 `;
 
@@ -181,6 +198,9 @@ const Answer = styled.div`
 
   @media (max-width: 768px) {
     font-size: 14px;
+  }
+    @media (max-width: 570px) {
+    font-size: 12px;
   }
 `;
 
