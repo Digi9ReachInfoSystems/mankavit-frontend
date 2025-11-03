@@ -202,7 +202,14 @@ export const EnrollButton = styled.button`
   @media (max-width: 768px) {
     border-bottom-left-radius: 0px;
     padding: 16px 24px;
+    font-size: 16px;
     .mrp { font-size: 14px; }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 12px 16px;
+    .mrp { font-size: 12px; }
   }
 `;
 
@@ -284,8 +291,12 @@ font-weight: 400;
 color: #313131;
   margin-left: 0px;
 
-  @media (max-width: 480px) {
+  @media (max-width: 576px) {
     font-size: 12px;
+  }
+
+  @media(max-width:768px){
+   font-size:14px;
   }
 `;
  
@@ -409,7 +420,6 @@ export const CourseDetails = styled.div`
 export const CourseSubject = styled.h2`
   font-size: 35px;
   color: #313131;
-  width: 100px;
   margin: 0;
   margin-bottom: 10px;
   margin-left:30px;
@@ -425,8 +435,8 @@ export const CourseSubject = styled.h2`
     margin-left: 10px;
   }
 
-  @media (max-width: 480px) {
-    font-size: 20px;
+  @media (max-width: 576px) {
+    font-size: 24px;
   }
 `;
 

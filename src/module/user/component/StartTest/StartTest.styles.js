@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const CardContainer = styled.div`
   // min-width: 500px;
-  width: 80%;
+  width: 90%;
   margin: 60px auto;
   text-align: center;
   font-family: 'Segoe UI', sans-serif;
@@ -141,5 +141,6 @@ export const StartButton = styled.button`
   font-size: 16px;
   padding: 10px 15px;
   width:100%;
+  margin-bottom: 100px;
   }
 `;

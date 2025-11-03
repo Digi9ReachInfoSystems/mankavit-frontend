@@ -80,29 +80,30 @@ const PassageContainer = styled.div`
   }
 `;
 
-const PassageContent = styled.div`
-  flex: 1;
-  padding: 15px;
-  font-size: 16px;
-  border-right: ${(props) => (props.hasPassage ? "1px solid #ddd" : "none")};
-`;
+// const PassageContent = styled.div`
+//   flex: 1;
+//   padding: 15px;
+//   font-size: 16px;
+//   border-right: ${(props) => (props.hasPassage ? "1px solid #ddd" : "none")};
+// `;
 
 const QuestionContent = styled.div`
   flex: 1;
   padding: 15px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
 `;
-
 const PassageClamp = styled.div`
   /* Desktop/tablet: no clamp */
   @media (max-width: 900px) {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: ${(p) =>
-      p.$expanded ? "unset" : "6"}; /* ~5–7 lines */
+    -webkit-line-clamp: ${(p) => (p.$expanded ? "unset" : "6")};
+    max-height: ${(p) => (p.$expanded ? "none" : "150px")}; /* Add this */
+    transition: max-height 0.3s ease-in-out; /* Smooth transition */
   }
 `;
+
 const ReadMoreBtn = styled.button`
   @media (max-width: 900px) {
     margin-top: 8px;
@@ -112,9 +113,24 @@ const ReadMoreBtn = styled.button`
     font-weight: 600;
     padding: 4px 0;
     cursor: pointer;
+    z-index: 10; /* Ensure button stays above content */
+    position: relative; /* Add this */
   }
   @media (min-width: 901px) {
     display: none;
+  }
+`;
+
+// Update your PassageContent component to ensure proper spacing
+const PassageContent = styled.div`
+  flex: 1;
+  padding: 15px;
+  font-size: 16px;
+  border-right: ${(props) => (props.hasPassage ? "1px solid #ddd" : "none")};
+  
+  @media (max-width: 900px) {
+    position: relative; /* Add this for better stacking context */
+    padding-bottom: 20px; /* Ensure space for the button */
   }
 `;
 const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
@@ -612,7 +628,7 @@ export default function TextScreen() {
   //   const prevAns = answers[currentIndex];
   //   const newAns = answers[i];
 
-  //   // Ensure leaving question is classified properly
+  // Ensure leaving question is classified properly
   //   if (
   //     prevAns &&
   //     currentIndex !== i &&

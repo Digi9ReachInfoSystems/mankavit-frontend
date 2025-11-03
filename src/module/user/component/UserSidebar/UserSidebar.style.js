@@ -1,11 +1,11 @@
-import styled from 'styled-components';
-import theme from '../../../../theme/Theme';
-import { NavLink as RouterNavLink } from 'react-router-dom';
+import styled from "styled-components";
+import theme from "../../../../theme/Theme";
+import { NavLink as RouterNavLink } from "react-router-dom";
 
 export const ToggleButton = styled.button`
   position: absolute;
   top: 5%;
-  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '300px' : '10px')};
+  left: ${({ isSidebarOpen }) => (isSidebarOpen ? "300px" : "10px")};
   z-index: 990;
   background: ${theme.colors.white};
   color: ${theme.colors.black};
@@ -23,17 +23,20 @@ export const ToggleButton = styled.button`
     display: none; /* Hide toggle button on big screens */
   }
 
+  @media (max-width: 768px) {
+    top: 105px;
+  }
   @media (max-width: 576px) {
-    left: ${({ isSidebarOpen }) => (isSidebarOpen ? '230px' : '10px')};
+    left: ${({ isSidebarOpen }) => (isSidebarOpen ? "230px" : "10px")};
   }
 
   @media (max-width: 480px) {
-    top: 90px;
+    top: 80px;
   }
 `;
 
 export const StyledNavLink = styled(RouterNavLink).attrs({
-  activeClassName: 'active'
+  activeClassName: "active",
 })`
   display: block;
   padding: ${theme.spacing(2)} ${theme.spacing(3)};
@@ -45,7 +48,7 @@ export const StyledNavLink = styled(RouterNavLink).attrs({
     background: ${theme.colors.primary};
     color: ${theme.colors.secondary};
   }
-  
+
   &:hover {
     background: ${theme.colors.backgrounGrey};
     color: ${theme.colors.primary};
@@ -53,20 +56,24 @@ export const StyledNavLink = styled(RouterNavLink).attrs({
 `;
 export const SidebarWrapper = styled.div`
   display: flex;
-  padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? '20px' : theme.spacing(0))};
-  padding-bottom: ${({ isSidebarOpen }) => (isSidebarOpen ? '50px' : theme.spacing(0))};
-  padding-left: ${({ isSidebarOpen }) => (isSidebarOpen ? theme.spacing(3) : theme.spacing(0))};
-  padding-right: ${({ isSidebarOpen }) => (isSidebarOpen ? theme.spacing(3) : theme.spacing(0))};
-    background: ${theme.colors.white};
-  box-shadow: 6px 0 8px rgba(0,0,0,0.5);
+  padding-top: ${({ isSidebarOpen }) =>
+    isSidebarOpen ? "20px" : theme.spacing(0)};
+  padding-bottom: ${({ isSidebarOpen }) =>
+    isSidebarOpen ? "50px" : theme.spacing(0)};
+  padding-left: ${({ isSidebarOpen }) =>
+    isSidebarOpen ? theme.spacing(3) : theme.spacing(0)};
+  padding-right: ${({ isSidebarOpen }) =>
+    isSidebarOpen ? theme.spacing(3) : theme.spacing(0)};
+  background: ${theme.colors.white};
+  box-shadow: 6px 0 8px rgba(0, 0, 0, 0.5);
   position: fixed;
   top: 0;
-  left: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-320px')};
+  left: ${({ isSidebarOpen }) => (isSidebarOpen ? "0" : "-320px")};
   width: 300px;
   transition: left 0.3s ease;
   z-index: 998;
-  bottom:0;
-  padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? '70px' : '0')};
+  bottom: 0;
+  padding-top: ${({ isSidebarOpen }) => (isSidebarOpen ? "70px" : "0")};
 
   @media (min-width: 769px) {
     position: relative;
@@ -79,7 +86,6 @@ export const SidebarWrapper = styled.div`
   @media (max-width: 576px) {
     width: 200px;
   }
-
 `;
 
 export const SidebarContainer = styled.div`
@@ -88,7 +94,6 @@ export const SidebarContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
 `;
 
 export const Logo = styled.div`
@@ -107,10 +112,9 @@ export const MenuList = styled.ul`
   padding: 0;
   margin: 0;
 
-  .arrow-icon{
+  .arrow-icon {
     margin-left: auto;
     font-weight: 900;
-    
   }
 `;
 
@@ -123,9 +127,8 @@ export const MenuItem = styled.li`
 
 // `;
 
-
 export const MenuLink = styled(RouterNavLink).attrs(() => ({
-  activeClassName: 'active'
+  activeClassName: "active",
 }))`
   display: flex;
   align-items: center;
@@ -154,8 +157,8 @@ export const MenuLink = styled(RouterNavLink).attrs(() => ({
   &:hover {
     background: ${theme.colors.lightwhite};
     color: ${theme.colors.primary};
-     svg {
-      color:  ${theme.colors.primary};
+    svg {
+      color: ${theme.colors.primary};
     }
   }
 
@@ -164,8 +167,8 @@ export const MenuLink = styled(RouterNavLink).attrs(() => ({
 
     @media (max-width: 576px) {
       font-size: 20px;
-}
     }
+  }
 
   @media (max-width: 576px) {
     font-size: 12px;
@@ -254,14 +257,17 @@ export const ModalButton = styled.button`
   transition: all 0.2s;
   min-width: 80px;
 
-  ${props => props.$primary ? `
+  ${(props) =>
+    props.$primary
+      ? `
     background-color: #ff4d4f;
     color: white;
 
     &:hover {
       background-color: #ff7875;
     }
-  ` : `
+  `
+      : `
     background-color: #f0f0f0;
     color: #333;
 
@@ -270,8 +276,6 @@ export const ModalButton = styled.button`
     }
   `}
 `;
-
-
 
 // Ensure MenuLink is display:flex so the badge/dot can sit on the right
 
@@ -303,4 +307,3 @@ export const UnreadBadge = styled.span`
   line-height: 1;
   margin-left: auto; /* keep it to the right */
 `;
-

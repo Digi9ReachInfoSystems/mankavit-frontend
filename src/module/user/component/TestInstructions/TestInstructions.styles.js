@@ -104,6 +104,13 @@ export const SectionTitle = styled.h3`
   @media (max-width: 1024px) {
     font-size: 1.2rem;
   }
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+    @media (max-width: 576px) {
+    font-size: 14px;
+  }
 `;
 
 export const List = styled.ol`
@@ -191,6 +198,7 @@ export const StartButton = styled.button`
   @media (max-width: 480px) {
     padding: 0.8rem;
     font-size: 1rem;
+    margin-bottom: 100px;
   }
 `;
 
@@ -282,6 +290,13 @@ export const DetailTitle = styled.h4`
   color: #718096;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
 `;
 
 export const DetailValue = styled.p`
@@ -289,6 +304,12 @@ export const DetailValue = styled.p`
   font-size: 1.2rem;
   font-weight: 600;
   color: #2d3748;
+@media (max-width: 768px) {
+    font-size: 16px;
+  }
+  @media (max-width: 480px) {
+    font-size: 15px;
+  }
 `;
 
 export const TimeIcon = styled(FaClock)`
