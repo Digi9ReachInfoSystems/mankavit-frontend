@@ -19,8 +19,16 @@ export const Title = styled.h2`
   @media (max-width: 900px) {
     font-size: 36px;
   }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
+  }
 `;
-export const Highlight = styled.span` color: #2d79f3; `;
+export const Highlight = styled.span`
+  color: #2d79f3;
+`;
 
 /* carousel */
 export const CarouselViewport = styled.div`
@@ -48,16 +56,25 @@ export const NavButton = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  ${props => props.$left ? 'left: -6px;' : 'right: -6px;'}
-  width: 38px; height: 38px;
-  border: none; border-radius: 50%;
+  ${(props) => (props.$left ? "left: -6px;" : "right: -6px;")}
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
   background: #fff;
-  box-shadow: 0 10px 22px rgba(0,0,0,.15);
-  display: grid; place-items: center;
-  font-size: 22px; cursor: pointer;
-  transition: transform .15s ease, box-shadow .15s ease;
-  &:hover { transform: translateY(-50%) scale(1.05); box-shadow: 0 12px 28px rgba(0,0,0,.18); }
-  @media (max-width: 560px) { display: none; }  /* hide on small screens */
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  &:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  }
+  @media (max-width: 560px) {
+    display: none;
+  } /* hide on small screens */
 `;
 
 /* small avatar card (each slide) */
@@ -65,35 +82,48 @@ export const Card = styled.article`
   border-radius: 14px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 10px 28px rgba(20,20,43,.08);
-  border: 1px solid rgba(45,121,243,.08);
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  &:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(20,20,43,.12); border-color: rgba(45,121,243,.18); }
+  box-shadow: 0 10px 28px rgba(20, 20, 43, 0.08);
+  border: 1px solid rgba(45, 121, 243, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(20, 20, 43, 0.12);
+    border-color: rgba(45, 121, 243, 0.18);
+  }
 `;
 export const Slide = styled(Card)`
   flex: 0 0 auto;
-  width: 280px;                 /* slide width */
+  width: 280px; /* slide width */
   scroll-snap-align: start;
 
-  @media (min-width: 1400px) { width: 320px; }
-  @media (max-width: 768px)  { width: 240px; }
+  @media (min-width: 1400px) {
+    width: 320px;
+  }
+  @media (max-width: 768px) {
+    width: 240px;
+  }
 `;
 
 export const Visual = styled.div`
   background: ${({ $bg }) => $bg || "#eef2ff"};
   height: 140px;
-  display: grid; place-items: center;
+  display: grid;
+  place-items: center;
 `;
 export const AvatarWrap = styled.div`
-  width: 86px; height: 86px;
+  width: 86px;
+  height: 86px;
   border-radius: 50%;
   background: #fff;
   padding: 4px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 `;
 export const Avatar = styled.img`
-  width: 100%; height: 100%;
-  border-radius: 50%; object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 `;
 
 export const CardBody = styled.div`
@@ -126,11 +156,46 @@ export const CardTitle = styled.h3`
   }
 `;
 
-export const MetaRow = styled.div` display: flex; align-items: center; gap: 8px; margin-bottom: 6px; `;
-export const Stars = styled.div` display: inline-flex; gap: 3px; color: #ffb400;
-text-align: center; `;
+export const MetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+`;
+export const Stars = styled.div`
+  display: inline-flex;
+  gap: 3px;
+  color: #ffb400;
+  text-align: center;
+`;
 export const Subtitle = styled.p`
-  font-size: 18px; color: #555; line-height: 1.45; margin: 0;
+  font-size: 18px;
+  color: #555;
+  line-height: 1.45;
+  margin: 0;
   text-align: center;
   // display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+
+  @media (max-width: 900px) {
+    font-size: 14px;
+  }
+    @media (max-width: 560px) {
+    font-size: 12px;
+  }
+`;
+
+export const Underline = styled.div`
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0dcaf0);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+    @media (max-width: 576px) {
+    // width: 60px;
+    margin-bottom: 1rem;
+  }
 `;

@@ -23,6 +23,15 @@ width: 80%;
   margin: 40px auto;
   padding: 0 8px 40px;
   background: #fff;
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 0 6px 30px;
+  }
+    @media (max-width: 576px) {
+    padding: 0 4px 20px;
+    width: 90%;
+  }
 `;
 
 export const AboutTitleWrap = styled.header`
@@ -39,11 +48,18 @@ export const AboutTitleWrap = styled.header`
 export const Title = styled.h2`
   font-size: 50px;
   font-weight: 500;
-  margin-bottom: 1rem;
-  color: #333;
+  text-align: center;
+  margin: 0 0 1.25rem 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     font-size: 36px;
+  }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
+    margin: 0;
   }
 `;
 
@@ -53,8 +69,15 @@ export const Underline = styled.div`
   background: linear-gradient(90deg, #007bff, #0dcaf0);
   margin: 0 auto 3rem;
   border-radius: 2px;
-`;
 
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+    @media (max-width: 576px) {
+    // width: 60px;
+    margin-bottom: 0.5rem;
+  }
+`;
 
 export const Highlight = styled.span` color: #2d79f3; `;
 

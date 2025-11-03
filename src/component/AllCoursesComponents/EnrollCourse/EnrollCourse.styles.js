@@ -25,13 +25,22 @@ export const Title = styled.h2`
   font-size: 50px;
   font-weight: 500;
   text-align: center;
-  margin-bottom: 1rem;
-  color: #2d3748;
-  
+  margin: 0 0 1.25rem 0;
+  white-space: nowrap;      /* 👈 prevent breaking into two lines */
+  overflow: hidden;
+  text-overflow: ellipsis;  /* 👈 optional: add ellipsis if space too small */
+
   @media (max-width: 900px) {
     font-size: 36px;
   }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 480px) {
+    font-size: 28px;        /* 👈 slightly smaller so it fits even on small phones */
+  }
 `;
+
 
 export const Highlight = styled.span`
   color: #007bff;
@@ -105,6 +114,14 @@ export const FeatureTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
   color: #2d3748;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 export const FeatureText = styled.p`
@@ -112,6 +129,13 @@ export const FeatureText = styled.p`
   color: #718096;
   margin-top: 0.75rem;
   line-height: 1.5;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const Description = styled.p`

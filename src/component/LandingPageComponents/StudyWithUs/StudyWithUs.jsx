@@ -15,7 +15,8 @@ import {
   CardTitle,
   MetaRow,
   Stars,
-  Subtitle
+  Subtitle,
+      Underline
 } from "./StudyWithUs.styles";
 import { getAllWhy } from "../../../api/whyApi";
 import { FaStar } from "react-icons/fa";
@@ -90,7 +91,7 @@ const StudyWithUs = () => {
     <Container>
       <Content>
         <Title>Why Study <Highlight>With Us</Highlight></Title>
-
+    <Underline/>
         <CarouselViewport>
           <NavButton $left onClick={() => scrollSlides(-1)} aria-label="Previous">‹</NavButton>
           <CarouselTrack

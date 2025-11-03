@@ -188,7 +188,7 @@ export const NavBarContainer = styled.div`
   .menu-container {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 40px;
 
     @media (max-width: 1024px) {
       gap: 15px;
@@ -206,7 +206,7 @@ export const NavBarContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 10px 20px;
-    width: 80%;
+    // width: 80%;
   }
 `;
 

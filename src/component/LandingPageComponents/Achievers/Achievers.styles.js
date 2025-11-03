@@ -18,7 +18,10 @@ export const Title = styled.h2`
   color: #333;
 
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 32px;
+  }
+    @media (max-width: 576px) {
+    font-size: 28px;
   }
 `;
 export const Underline = styled.div`
@@ -27,6 +30,14 @@ export const Underline = styled.div`
   background: linear-gradient(90deg, #007bff, #0dcaf0);
   margin: 0 auto 3rem;
   border-radius: 2px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+    @media (max-width: 576px) {
+    // width: 60px;
+    margin-bottom: 1rem;
+  }
 `;
 
 export const Highlight = styled.span` color: #2d79f3; `;
@@ -78,6 +89,9 @@ export const Chip = styled.button`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  @media (max-width: 576px) {
+  font-size:14px;
 }
 `;
 
@@ -152,6 +166,14 @@ export const Name = styled.h3`
   font-size: 1.1rem;
   font-weight: 700;
   color: #333;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
 `;
 
 export const Achievement = styled.div`
@@ -166,6 +188,14 @@ export const AchievementText = styled.span`
   padding: 0.35rem 0.75rem;
   border-radius: 1rem;
   display: inline-block;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
+  }
+
 `;
 
 export const LoadingMessage = styled.div`
@@ -195,6 +225,15 @@ export const ViewAllButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
+
+  @media (max-width: 768px) {
+padding: 0.7rem 1.5rem;
+    font-size: 14px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+    padding: 0.7rem 1.5rem;
+  }
 
  
 `;

@@ -31,7 +31,7 @@
     "filepond-plugin-file-encode": "^2.1.14",
     "filepond-plugin-file-validate-type": "^1.2.9",
     "filepond-plugin-pdf-preview": "^1.0.4",
-    "framer-motion": "^12.9.4",
+    "framer-motion": "^12.23.24",
     "hls.js": "^1.6.13",
     "jodit-react": "^5.2.19",
     "jspdf": "^3.0.1",

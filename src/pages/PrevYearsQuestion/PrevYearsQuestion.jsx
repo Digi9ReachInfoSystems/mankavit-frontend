@@ -4,6 +4,7 @@ import Footer from "../LandingPage/Footer/Footer";
 import PrevQuestionPaper from "../../component/PrevYearsQuestionComponents/PrevQuestionPaper/PrevQuestionPaper";
 import ModalForm from "../../component/ModalForm/ModalForm";
 import { getCookiesData } from "../../utils/cookiesService";
+import SectionWrapper from "../../component/LandingPageComponents/SectionWrapper";
 
 
 const PrevYearsQuestion = () => {
@@ -48,7 +49,7 @@ const PrevYearsQuestion = () => {
     <>
       <Header />
       {showModal && <ModalForm onSubmit={handleModalSubmit} />}
-      <PrevQuestionPaper />
+      <SectionWrapper><PrevQuestionPaper /></SectionWrapper>
       <Footer />
     </>
   );

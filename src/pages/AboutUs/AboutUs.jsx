@@ -5,6 +5,7 @@ import Mission from '../../component/AboutUsComponents/Mission/Mission'
 import Aspirants from '../../component/AboutUsComponents/Aspirants/Aspirants'
 import Footer from '../../pages/LandingPage/Footer/Footer'
 import { useLocation } from 'react-router-dom'
+import SectionWrapper from '../../component/LandingPageComponents/SectionWrapper'
 
 const AboutUs = () => {
       const { pathname } = useLocation();
@@ -16,9 +17,15 @@ const AboutUs = () => {
   return (
     <div className='aboutus'>
       <Header />
-      <AboutContainer/>
-      <Mission/>
-      <Aspirants/>
+     <SectionWrapper>
+       <AboutContainer/>
+     </SectionWrapper>
+      <SectionWrapper delay={0.1}>
+        <Mission/>
+      </SectionWrapper>
+    <SectionWrapper delay={0.2}>
+        <Aspirants/>
+    </SectionWrapper>
       <Footer/>
     </div>
   )
