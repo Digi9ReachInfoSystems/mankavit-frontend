@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Container, PaperSection, PaperCard, PaperTitle, 
-  YearButtons, YearButton, CustomAntdSelect,Title, Highlight, Underline
+import {
+  Container, PaperSection, PaperCard, PaperTitle,
+  YearButtons, YearButton, CustomAntdSelect, Title, Highlight, Underline
 } from './PrevQuestionPaper.styles';
 import study1 from "../../../assets/Study1.png";
 import { getAllQuestionPapers } from '../../../api/questionPaperApi';
@@ -23,14 +23,14 @@ const PrevQuestionPaper = () => {
         const resp = await getAllQuestionPapers();
         console.log("resp", resp);
         const raw = Array.isArray(resp?.data) ? resp.data : resp;
-//  console.log("raw", raw);
+        //  console.log("raw", raw);
         const flat = raw
           .flatMap(item => {
             if (Array.isArray(item?.papers)) {
               return item.papers.map(p => ({
                 title: item.title,
                 year: p.year,
-                url:`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${p.question_url}`, // p.question_url,
+                url: `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${p.question_url}`, // p.question_url,
               }));
             }
             return [{
@@ -64,11 +64,11 @@ const PrevQuestionPaper = () => {
 
   return (
     <Container>
-  <Title>
+      <Title>
         Previous <Highlight>Question</Highlight> Paper
-      
+
       </Title>
-  <Underline />
+      <Underline />
       {/* WhatsApp & Telegram icons row (using your direct links) */}
       <div
         style={{
@@ -84,13 +84,13 @@ const PrevQuestionPaper = () => {
           target="_blank"
           rel="noopener noreferrer"
           title="Open WhatsApp"
-           className="icon-link"
+          className="icon-link"
           aria-label="Open WhatsApp"
         >
           <img
             src={Whatsapp}
             alt="WhatsApp"
-            // style={{ width: 52, height: 52, objectFit: "contain", display: "block" }}
+          // style={{ width: 52, height: 52, objectFit: "contain", display: "block" }}
           />
         </a>
         <a
@@ -98,13 +98,13 @@ const PrevQuestionPaper = () => {
           target="_blank"
           rel="noopener noreferrer"
           title="Open Telegram"
-           className="icon-link"
+          className="icon-link"
           aria-label="Open Telegram"
         >
           <img
             src={Telegram}
             alt="Telegram"
-            // style={{ width: 42, height: 42, objectFit: "contain", display: "block" }}
+          // style={{ width: 42, height: 42, objectFit: "contain", display: "block" }}
           />
         </a>
       </div>
@@ -132,8 +132,9 @@ const PrevQuestionPaper = () => {
                     </div>
                   ))}
 
-                  {overflow.length > 0 && (
-                    <CustomAntdSelect
+                  {overflow.length > 0 && (<>
+
+                    {/* <CustomAntdSelect
                       placeholder="Select"
                       size='middle'
                       onChange={(value) => value && openInNewTab(value)}
@@ -143,7 +144,22 @@ const PrevQuestionPaper = () => {
                         key: `${title}-opt-${e.year}-${i}`,
                       }))}
                       style={{ minWidth: 140 }}
-                    />
+                    /> */}
+                    <select
+                      className="yearselect"
+                      onChange={(e) => e.target.value && openInNewTab(e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      {overflow.map((e, i) => (
+                        <option key={`${title}-opt-${e.year}-${i}`} value={e.url}>
+                          {String(e.year)}
+                        </option>
+                      ))}
+                    </select>
+
+                  </>
+
+
                   )}
                 </YearButtons>
               </div>

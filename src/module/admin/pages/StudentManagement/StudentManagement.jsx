@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Container,
   HeaderRow,
@@ -208,7 +208,8 @@ export default function StudentManagement() {
   const handleViewCourses = (subs) => {
     setCoursesList(subs.map(sub => ({
       courseName: sub.course_enrolled?.courseName || coursesMap[sub.course_enrolled?._id] || 'Unknown',
-      enrolledDate: formatDate(sub.created_at)
+      enrolledDate: formatDate(sub.created_at),
+      _id: sub.course_enrolled?._id
     })));
     setCoursesModalOpen(true);
   };
@@ -278,7 +279,7 @@ export default function StudentManagement() {
         <SearchWrapper>
           <SearchIcon><CiSearch size={18} /></SearchIcon>
           <SearchInput
-          style={{color:"black"}}
+            style={{ color: "black" }}
             placeholder="Search"
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
@@ -357,7 +358,20 @@ export default function StudentManagement() {
           <ModalContent>
             <h2 style={{ textAlign: 'center', fontSize: '1.5rem', marginTop: '1rem' }}>Enrolled Courses</h2>
             {coursesList.length === 0 ? <p>No courses enrolled.</p> : (
-              <CourseList>{coursesList.map((c, i) => (<CourseItem key={i}><strong>{c.courseName}</strong><div>Enrolled: {c.enrolledDate}</div></CourseItem>))}</CourseList>
+              <CourseList>{coursesList.map((c, i) => {
+                 return (<CourseItem key={i} >
+                  <Link to={`/admin/course-management/edit/${c._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      textDecoration:"none",
+                    }}
+                  ><strong>{c.courseName}</strong>
+
+                    <div>Enrolled: {c.enrolledDate}</div>
+                  </Link>
+                </CourseItem>)
+              })}</CourseList>
             )}
             <CloseButtonContainer><CloseButton onClick={() => setCoursesModalOpen(false)}>Close</CloseButton></CloseButtonContainer>
           </ModalContent>
