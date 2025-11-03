@@ -11,8 +11,6 @@ export const Container = styled.section`
   margin: 0 auto;
 `;
 
-/* Heading */
-/* Heading */
 export const Title = styled.h2`
   font-size: 50px;
   font-weight: 500;

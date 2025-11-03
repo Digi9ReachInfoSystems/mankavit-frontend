@@ -340,6 +340,14 @@ export const SubmitButton = styled.button`
   padding: 10px;
   display: flex;
   justify-content: center;
+  font-size: 14px;
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+    margin: 10px auto;
+    padding: 8px;
+    font-size: 12px;
   }
 `;
 
@@ -347,11 +355,35 @@ export const FlexRow = styled.div`
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  align-items: flex-start;
 
-  @media (max-width: 768px) {
+  /* Desktop & Tablet (≥768px): side by side layout */
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  /* ✅ Mobile (<768px): stack neatly full width */
+  @media (max-width: 767px) {
     flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    /* Make every child stretch to full width */
+    & > * {
+      width: 100% !important;
+      min-width: 100% !important;
+      box-sizing: border-box;
+    }
+
+    /* Also normalize inner controls like selects and inputs */
+    select, input, textarea, button {
+      width: 100% !important;
+    }
   }
 `;
+
 
 export const FlexUpload = styled.div`
   display: flex;

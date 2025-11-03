@@ -22,13 +22,19 @@ export const CourseWrapper = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 2.25rem; /* 36px */
+    font-size: 50px;
   font-weight: 600;
   margin: 0.25rem 0 0.25rem 0;
   color: ${({ theme }) => theme.colors.jetBlack};
   letter-spacing: -0.02em;
-   @media (max-width: 780px) {
+  @media (max-width: 900px) {
     font-size: 36px;
+  }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
   }
 `;
 
@@ -107,6 +113,13 @@ export const ProgressLabel = styled.div`
   font-size: .95rem;
   font-weight: 600;
   color: #334155; /* slate-700 */
+
+   @media (max-width: 768px) {
+    font-size: 14px;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const ProgressBar = styled.div`
@@ -160,6 +173,13 @@ export const CourseTitle = styled.h3`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   min-height: 2.6em;
+
+   @media (max-width: 768px) {
+    font-size: 18px;
+  }
+    @media (max-width: 576px) {
+    font-size: 16px;
+  }
 `;
 
 export const CourseMinititle = styled.p`
@@ -172,6 +192,13 @@ export const CourseMinititle = styled.p`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   min-height: 2.2em;
+
+   @media (max-width: 768px) {
+    font-size: 16px;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const CourseDesc = styled.p`
@@ -206,6 +233,13 @@ export const DetailItemok = styled.div`
   color: #16a34a; /* green-600 */
   font-size: 1rem;
   line-height: 1.35;
+
+   @media (max-width: 768px) {
+    font-size: 14px;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const PriceActions = styled.div`
@@ -273,6 +307,14 @@ export const FilterButton = styled.button`
   box-shadow: ${({ active }) => (active ? '0 4px 12px rgba(0,123,255,0.25)' : 'none')};
 
   &:hover { background: var(--active); color: #fff; }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
+  }
+    
 `;
 
 export const blink = keyframes`

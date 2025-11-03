@@ -16,6 +16,13 @@ export const SectionTitle = styled.h2`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+    @media (max-width: 576px) {
+    font-size: 16px;
+  }
 `;
 
 export const ListSection = styled.div`

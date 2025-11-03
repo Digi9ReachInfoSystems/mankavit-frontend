@@ -140,7 +140,7 @@ export const LoginTitle = styled.h2`
   }
  
   @media (min-width: 100px) and (max-width: 1200px) and (max-height: 800px) {
-    font-size: 25px;
+    font-size: 24px;
   }
 `;
 export const LoginSubTitle = styled.p`
@@ -203,9 +203,11 @@ box-shadow: 0px 4px 8px 0px rgba(171, 190, 209, 0.40);
          margin:10px!important;
     }
  
-    @media (max-width: 480px) {
+    @media (max-width: 576px) {
          margin:10px!important;
+         font-size: 16px;
     }
+
 `;
  
 export const OTPButton = styled.button`
@@ -261,7 +263,7 @@ export const Input = styled.input`
   width: 50px;
 height: 46px;
   // padding: 10px;
-  margin: 20px 0;
+  // margin: 20px 0;
  border-radius: 8px;
 border: 1px solid  #C5C6C7;
 background: #F1F5FF;
@@ -274,12 +276,14 @@ background: #F1F5FF;
     margin: 30px 5px;
   }
     @media (max-width: 400px) {
-       width: 30px!important;
-       height: 30px!important;
+       width: 35px!important;
+       height: 35px!important;
+       margin: 0px;
     }
        @media (max-width: 480px) {
        width: 35px;
        height: 35px;
+       margin: 0;
     }
 `;
  
