@@ -143,12 +143,12 @@ const Staticpage = () => {
     setError('');
     setSuccess('');
 
-    const payload = { privacy: privacyPolicy, terms, refund };
+    const payload = { privacy: privacyPolicy, terms, refund , courseInfo};
 
     try {
       if (recordId) {
         await updatestaticById(recordId, payload);
-        // // // console.log("Updated successfully.", payload);
+        // console.log("Updated successfully.", payload);
         // setSuccess("Updated successfully.");
         toast.success("Updated successfully.");
         // message.success("Updated successfully.");

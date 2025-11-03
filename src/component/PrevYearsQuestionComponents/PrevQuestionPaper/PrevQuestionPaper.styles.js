@@ -191,6 +191,45 @@ export const YearButtons = styled.div`
   @media (max-width: 768px) {
     gap: 0.5rem;
   }
+    .yearselect {
+  min-width: 120px;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  height: 39px;
+  margin-top: 2px;
+  background: #fff;
+  color: #242526;
+  font-size: 14px;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+
+  /* 🔹 Makes the dropdown width adjust to its content */
+  width: auto;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* ✅ Tablet */
+@media (max-width: 768px) {
+  .yearselect {
+    height: 29px !important;
+    font-size: 13px;
+    padding: 5px 8px;
+  }
+}
+
+/* ✅ Mobile */
+@media (max-width: 480px) {
+  .yearselect {
+    width: 40% !important;
+    font-size: 13px;
+    height: 30px;
+    padding: 5px 8px;
+  }
+}
+
 `;
 
 export const YearButton = styled.button`

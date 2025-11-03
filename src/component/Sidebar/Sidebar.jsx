@@ -126,9 +126,9 @@ const Sidebar = () => {
         if (response.Permissions.studentManagement.access) {
           menuItemsData.push({ path: "/admin/student-management", label: "Student Management" },);
         }
-        if (response.Permissions.mockTestManagement.access) {
-          menuItemsData.push({ path: "/admin/mock-test", label: "Mock Test" },);
-        }
+        // if (response.Permissions.mockTestManagement.access) {
+        //   menuItemsData.push({ path: "/admin/mock-test", label: "Mock Test" },);
+        // }
         if (response.Permissions.staticPageManagement.access) {
           menuItemsData.push({ path: "/admin/static-page", label: "Static Page" },);
         }
