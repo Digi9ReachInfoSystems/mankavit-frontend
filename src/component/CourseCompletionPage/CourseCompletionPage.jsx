@@ -185,6 +185,25 @@ const Subheader = styled.p`
 
 const CertificateContainer = styled.div`
   margin: 2rem 0;
+
+  embed {
+   @media (min-width: 1025px) {
+    display: block !important;
+  }
+
+  /* ✅ Optional: fine-tune for iPad Pro (force visible if large pixel ratio) */
+  @media only screen 
+    and (min-device-width: 1024px)
+    and (max-device-width: 1366px)
+    and (-webkit-min-device-pixel-ratio: 2) {
+      // display: flex !important;
+      // height: 220px; /* adjust height for better fit */
+      display:none
+  }
+  @media (max-width: 900px) {
+    display:none;
+  }
+}
 `;
 
 const CertificateImage = styled.img`
