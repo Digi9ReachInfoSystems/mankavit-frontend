@@ -6,12 +6,16 @@ import {
   CertificateDownload,
   CertificateCard,
   ViewMoreButton,
-  CertificateTitle
+  CertificateTitle,
+  OpenButton,
+  OpenButtonCard,
+  CertificateIcon
 } from './Certificates.styles';
 import { FiDownload } from "react-icons/fi";
 import { getCookiesData } from '../../../../utils/cookiesService';
 import { getAllCertificates } from '../../../../api/certificateApi';
 import { Document, Page } from 'react-pdf';
+import { Link } from 'react-router-dom';
 
 const Certificates = () => {
   const [certificates, setCertificates] = useState([]);
@@ -51,7 +55,7 @@ const Certificates = () => {
                 <CertificateDownload
                   onClick={() => window.open(`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}`, "_blank")}
                 >
-                  <CertificateTitle>{certificate.title}</CertificateTitle><FiDownload fontSize={18} />
+                  <CertificateTitle>{certificate.title}</CertificateTitle><CertificateIcon><FiDownload fontSize={18} /></CertificateIcon>
                 </CertificateDownload>
 
                 <iframe
@@ -65,6 +69,10 @@ const Certificates = () => {
                   }}
                   title="Certificate Preview"
                 />
+                <OpenButtonCard>
+                  <OpenButton ><Link style={{textDecoration:"none",color:"white"}} to={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}`} target="_blank" rel="noopener noreferrer">Open</Link></OpenButton>
+                </OpenButtonCard>
+
                 {/* <Document file={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificate.imgUrl}#toolbar=0&view=FitH&navpanes=0&scrollbar=0&zoom=page-width`}>
                   <Page pageNumber={1} width={window.innerWidth - 40} />
                 </Document> */}

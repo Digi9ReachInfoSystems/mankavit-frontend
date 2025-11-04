@@ -51,23 +51,54 @@ export const CertificateCard = styled.div`
     width: 100%;
     height: 270px;
     border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    @media (min-width: 1025px) {
+    display: block !important;
   }
 
-  @media (max-width: 1024px) {
-    iframe {
-      height: 240px; /* smaller to fit tablets */
-    }
+  /* ✅ Optional: fine-tune for iPad Pro (force visible if large pixel ratio) */
+  @media only screen 
+    and (min-device-width: 1024px)
+    and (max-device-width: 1366px)
+    and (-webkit-min-device-pixel-ratio: 2) {
+      // display: flex !important;
+      height: 220px; /* adjust height for better fit */
+      display:none
   }
-    @media (max-width: 900px)and(min-height: 1200px) {
-      iframe {
-        height: 180px; /* smaller to fit smaller tablets */
-      }
-    }
-   @media (max-width: 480px) {
-    iframe {
-      // height: 120px; /* smaller to fit smaller phones */
-    }
+  @media (max-width: 900px) {
+    display:none;
   }
+}
+  // @media (max-width: 900px)
+  //  {
+  //   iframe {
+  //     display:none;
+  //   }
+  // }
+  // @media(min-width:1024px)and (max-height: 1366px){
+  //   iframe {
+  //     height: 220px; /* smaller to fit smaller screens */
+  //     display:none;
+  //   }
+  // }
+
+  // @media (max-width: 1024px) {
+  //   iframe {
+  //     height: 240px; /* smaller to fit tablets */
+  //   }
+  // }
+  //   @media (max-width: 900px)and(min-height: 1200px) {
+  //     iframe {
+  //       height: 180px; /* smaller to fit smaller tablets */
+  //       display:none;
+  //     }
+  //   }
+  //  @media (max-width: 480px) {
+  //   iframe {
+  //     // height: 120px; /* smaller to fit smaller phones */
+  //     display:none;
+  //   }
+  // }
 `;
 
 export const CertificateDownload = styled.div`
@@ -110,4 +141,61 @@ export const CertificateTitle = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   height: 40px; /* keeps all cards same height */
+`;
+
+export const OpenButtonCard = styled.div`
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+   height:calc((80vw / 3.7) );
+  @media (min-width: 1025px) {
+    display: none !important;
+  }
+
+  /* ✅ Optional: fine-tune for iPad Pro (force visible if large pixel ratio) */
+  @media only screen 
+    and (min-device-width: 1024px)
+    and (max-device-width: 1366px)
+    and (-webkit-min-device-pixel-ratio: 2) {
+      // display: flex !important;
+      height: 220px; /* adjust height for better fit */
+  }
+`;
+
+export const OpenButton = styled.button`
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #0056b3;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+
+ 
+`;
+export const CertificateIcon= styled.div`
+@media (max-width: 900px) {
+    display: none;
+  }
+  @media(min-width:1024px)and (max-height: 1366px){
+    // iframe {
+      height: 220px; /* smaller to fit smaller screens */
+      display:none;
+    // }
+  }
 `;
