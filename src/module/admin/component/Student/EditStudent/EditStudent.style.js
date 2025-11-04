@@ -30,6 +30,14 @@ export const Title = styled.h1`
   @media (max-width: 1024px) {
     font-size: 24px;
   }
+
+  @media (max-width: 820px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
 `;
 export const InputGroup = styled.div`
   margin-bottom: 0px;
@@ -48,6 +56,7 @@ export const Label = styled.label`
   font-size: 16px;
   margin-bottom: 8px;
   font-weight: 400;
+  width: 50%;
 
     small {
     font-size: 14px;
@@ -68,8 +77,13 @@ export const Label = styled.label`
     font-size: 14px;
   }
 
-  @media (max-width: 820px) {
+  @media (max-width: 821px) {
     font-size: 12px;
+    width: 100%;
+  }
+    @media (max-width: 480px) {
+    font-size: 10px;
+    width: 100%;
   }
 
 `;
@@ -153,7 +167,8 @@ export const FlexRow = styled.div`
   flex-wrap: nowrap;          /* ⬅️  keep everything on one line */
 
   @media (max-width: 768px) {  /* mobile: stack vertically */
-    flex-direction: column;
+    flex-direction: row;
+    width: auto;
   }
 `;
 

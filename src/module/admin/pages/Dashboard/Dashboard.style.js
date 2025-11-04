@@ -107,7 +107,7 @@ export const MasterOtpSection = styled.div`
 
 export const OtpInput = styled.input`
   flex: 1;
-  padding: 10px 15px;
+  // padding: 10px 15px;
   border: 1px solid ${props => props.isValid ? '#ccc' : 'red'};
   border-radius: 4px;
   font-size: 16px;

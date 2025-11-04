@@ -24,7 +24,7 @@ import DeleteModal from "../../../component/DeleteModal/DeleteModal";
 import { toast } from "react-toastify";
 import JoditEditor from "jodit-react";
 import { getAuth } from "../../../../../utils/authService";
-
+import { nanoid } from "nanoid";
 // helpers
 const createEmptyOption = () => ({ text: "", marks: -0.25, isCorrect: false });
 const createEmptyQuestion = () => ({
@@ -35,6 +35,7 @@ const createEmptyQuestion = () => ({
   expectedAnswer: "",
   isPassage: false,
   passageText: "",
+    _tempId: nanoid(),
 });
 
 const MockTestQuestionsList = () => {
@@ -139,13 +140,11 @@ const MockTestQuestionsList = () => {
   };
 
   // add
-  const addQuestion = () => {
-    setQuestions((prev) => {
-      const next = [...prev, createEmptyQuestion()];
-      setEditingIndex(next.length - 1);
-      return next;
-    });
-  };
+const addQuestion = () => {
+  const newQuestion = createEmptyQuestion();
+  setQuestions((prev) => [...prev, newQuestion]);
+  setEditingIndex((prevQuestions) => prevQuestions?.length); // But wait—this won't work directly
+};
 
   // move / reorder
   const moveQuestion = async (qi, dir) => {
@@ -325,7 +324,7 @@ const MockTestQuestionsList = () => {
           {questions.map((q, qi) => {
             const isEditing = editingIndex === qi;
             return (
-              <QuestionContainer key={q._id || `temp-${qi}`}>
+              <QuestionContainer key={q._id || q._tempId}>
                 <Question>
                   <QuestionNumber>
                     Q {qi + 1}.{" "}
