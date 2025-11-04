@@ -5,6 +5,7 @@ export const Wrapper = styled.div`
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 3rem;
+  margin-left: 1rem;
 `;
 
 export const SectionTitle = styled.h2`
@@ -13,6 +14,13 @@ export const SectionTitle = styled.h2`
   font-weight: 500;
   color: ${({ theme }) => theme.colors.jetBlack};
   text-align: left;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+    @media (max-width: 576px) {
+    font-size: 20px;
+  }
 `;
 
 export const CertificatesWrapper = styled.div`

@@ -266,16 +266,16 @@ const handleToggleShowAll = (next) => {
 
         <SearchWrapper>
           <SearchIcon>
-            <CiSearch size={24} />
+            <CiSearch size={16} />
           </SearchIcon>
           <SearchInput
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <SliderIcon>
+          {/* <SliderIcon>
             <BiSliderAlt size={24} />
-          </SliderIcon>
+          </SliderIcon> */}
         </SearchWrapper>
 
         <CardGrid>

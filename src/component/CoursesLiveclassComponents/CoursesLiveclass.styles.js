@@ -237,6 +237,11 @@ export const ButtonGroup = styled.div`
     border-bottom: 1px solid #eee;
     overflow-x: auto;
   }
+    @media (max-width: ${bp.sm}) {
+    gap: 6px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
 `;
 
 export const ActionButton = styled.button`

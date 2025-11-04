@@ -141,54 +141,6 @@ export const MobileBottomSpacer = styled.div`
   }
 `;
 
-// export const Content = styled.div`
-//   position: relative;
-//   overflow-x: hidden;
-//   overflow-y: hidden;
-//   box-sizing: border-box;
-//   display: flex;
-//   flex-direction: column;
-//   height: 95vh;
-//   width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
-//   order: 1;
-
-//   @media (max-width: 900px) {
-//     width: 100%;
-//     padding-right: 0;
-//     height: auto;        /* let page scroll, not inner panel */
-//     overflow-y: visible;
-//     // padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
-//   }
-// `;
-
-// export const ToggleSidebarBtn = styled.button`
-//   position: fixed;              /* fixed so it doesn't scroll */
-//   top: 50%;
-//   right: 12px;
-//   // right:15%;
-//   transform: translateY(-50%);
-//   width: 46px;
-//   height: 46px;
-//   border-radius: 999px;
-//   border: 2px solid #135ac4ff;
-//   background: #fff;
-//   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   cursor: pointer;
-//   font-weight: 700;
-//   line-height: 1;
-//   z-index: 110; /* above sidebar */
-
-//   &:hover { background: #f7f7f7; }
-
-//   @media (max-width: 576px) {
-//     width: 42px;
-//     height: 42px;
-//     right: 10px;
-//   }
-// `;
 
 export const Header = styled.div`
   position: sticky;
@@ -341,7 +293,7 @@ export const OptionsList = styled.div`
   flex-direction: column;
   gap: 10px;
   font-size: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 `;
 
 export const OptionLabel = styled.label`
@@ -493,38 +445,7 @@ export const LeftDiv = styled.div`
   align-items: center;
   gap: 6px; /* tighter gap between back & title */
 `;
-// export const SidebarContainer = styled.div`
-// position:relative;
-// overflow:visible;
-//   width: ${(p) => (p.$open ? "20%" : "0")};
-//   background-color: #f3f6fd;
-//   padding: ${(p) => (p.$open ? "1rem" : "0")};
-//   display: ${(p) => (p.$open ? "flex" : "none")};
-//   flex-direction: column;
-//   align-items: center;
-//   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
-//   order: 2;
 
-//   @media (max-width: 1360px) {
-//     width: 25%;
-//   }
-
-//    @media (max-width: 900px) {
-//     position: fixed;         /* slide-in panel */
-//     top: 0;
-//     right: 0;
-//     height: 100svh;
-//     width: 84vw;             /* tweak as you like */
-//     max-width: 360px;
-//     background: #f3f6fd;
-//     padding: 0.75rem;
-//     display: ${p => (p.$open ? "flex" : "none")};
-//     flex-direction: column;
-//     z-index: 200;            /* above page */
-//     overflow: visible;       /* keep btn outside nav from scrolling */
-//     box-shadow: -6px 0 18px rgba(0,0,0,.12);
-//   }
-// `;
 export const Divider = styled.hr`
   width: 100%;
   margin: 0.5rem 0 0.75rem;
@@ -755,34 +676,4 @@ export const ModalButton = styled.button`
   }
 `;
 
-// export const CloseSidebarBtn = styled.button`
-//   position: absolute;          /* anchored to the sidebar itself */
-//   top: 50%;
-//   left: -23px;                 /* sit outside on the left edge */
-//   transform: translateY(-50%);
-//   width: 46px;
-//   height: 46px;
-//   border-radius: 999px;
-//   border: 2px solid #135ac4ff;
-//   background: #fff;
-//   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   cursor: pointer;
-//   font-weight: 700;
-//   line-height: 1;
-//   z-index: 210;
 
-//   &:hover { background: #f7f7f7; }
-
-//   @media (max-width: 900px) {
-//   left: -1px;
-//   }
-
-//   @media (max-width: 576px) {
-//     width: 42px;
-//     height: 42px;
-//     left: -1px;
-//   }
-// `;

@@ -24,9 +24,14 @@ export const Title = styled.h1`
   }
  
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 32px;
     margin: 1rem 0;
   }
+
+  @media (max-width: 576px) {
+    font-size: 28px;
+  }
+
 `;
  
 export const FilterBar = styled.div`
@@ -68,8 +73,11 @@ export const FilterButton = styled.button`
  @media (max-width: 768px) {
    width: 100%;              /* fill its grid cell */
    padding: 8px 10px;        /* tighter */
-   font-size: 12px;          /* smaller text */
+   font-size: 14px;          /* smaller text */
    border-radius: 999px;     /* pill look */
+ }
+   @media (max-width: 576px) {
+   font-size: 12px;
  }
 `;
 
@@ -105,6 +113,11 @@ export const SearchInput = styled.input`
  
   @media (max-width: 768px) {
     font-size: 14px;
+    padding: 12px 5px 8px 35px;
+  }
+    @media (max-width: 576px) {
+    font-size: 12px;
+    padding: 10px 5px 6px 30px;
   }
 `;
  
@@ -241,6 +254,12 @@ export const CourseTitle = styled.h3`
   -webkit-box-orient: vertical;
   line-height: 1.3;
   height: 46px;
+@media (max-width: 768px) {
+    font-size: 16px;
+  }
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
 `;
 
 export const CourseMinititle = styled.p`
@@ -252,6 +271,12 @@ export const CourseMinititle = styled.p`
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const CourseDesc = styled.p`
@@ -311,6 +336,15 @@ export const Price = styled.button`
   &:active { transform: translateY(1px); }
 
   border-bottom-left-radius: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
 `;
 
 export const ViewButton = styled.button`
@@ -323,13 +357,20 @@ export const ViewButton = styled.button`
   font-weight: 800;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
-
+ border-bottom-right-radius: 16px;
   &:hover {
     background: #f3f6ff;
     color: #0849b8;
   }
-
-  border-bottom-right-radius: 16px;
+@media (max-width: 768px) {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+ 
 `;
 
 export const OldPrice = styled.span`

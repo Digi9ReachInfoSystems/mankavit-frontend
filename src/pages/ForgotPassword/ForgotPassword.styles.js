@@ -121,6 +121,10 @@ export const LoginTitle = styled.h2`
     font-size: 1.5rem;
     margin-bottom: 10px;
     font-family: ${theme.fonts.body};
+
+    @media (min-width: 100px) and (max-width: 1200px) and (max-height: 800px) {
+    font-size: 24px;
+  }
   
 `;
 export const LoginSubTitle = styled.p`
@@ -177,6 +181,11 @@ box-shadow: 0px 4px 8px 0px rgba(171, 190, 209, 0.40);
      @media (min-width: 1000px)and (max-width: 1200px)and (max-height: 800px) {
         
          margin:10px;
+    }
+
+    @media ( max-width: 576px) {
+      margin-top: 20px;
+      font-size: 16px;
     }
 `;
 

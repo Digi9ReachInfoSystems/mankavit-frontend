@@ -717,6 +717,7 @@ const Profile = () => {
                 <Label>Passport Photo</Label>
 
                 {isKycReadOnly ? (
+                  
                   // READ-ONLY: show small preview only
                   passportPhoto ? (
                     <div
@@ -912,7 +913,7 @@ const Profile = () => {
             </div>
             {showTerms && (
               <TermsContainer>
-                <input
+                {/* <input
                   type="checkbox"
                   checked={acceptedTerms}
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
@@ -923,7 +924,7 @@ const Profile = () => {
                   <TermsLink onClick={() => navigate("/user/tandc")}>
                     Terms and Conditions
                   </TermsLink>
-                </span>
+                </span> */}
               </TermsContainer>
             )}
 

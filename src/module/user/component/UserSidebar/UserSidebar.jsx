@@ -136,7 +136,7 @@ const UserSidebar = () => {
     <>
       {/* Toggle Button */}
       <ToggleButton onClick={toggleSidebar}>
-        <MdOutlineMenuOpen size={24} />
+        <MdOutlineMenuOpen size={30} />
       </ToggleButton>
 
       {/* Sidebar */}

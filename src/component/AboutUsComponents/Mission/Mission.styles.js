@@ -25,19 +25,30 @@ export const MissionSection = styled.section`
   animation: ${fadeIn} 0.8s ease-out;
 
   @media (max-width: 768px) {
-    width: 95%;
+    width: 90%;
     padding: 2rem 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.5rem 0.5rem;
+    width: 90%;
   }
 `;
 
 export const Title = styled.h2`
   font-size: 50px;
   font-weight: 500;
-  margin-bottom: 1rem;
-  color: #333;
+  text-align: center;
+  margin: 0 0 1.25rem 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     font-size: 36px;
+  }
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+  @media (max-width: 560px) {
+    font-size: 28px;
   }
 `;
 
@@ -54,6 +65,14 @@ export const Underline = styled.div`
   background: linear-gradient(90deg, #007bff, #0dcaf0);
   margin: 0 auto 3rem;
   border-radius: 2px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+    @media (max-width: 576px) {
+    // width: 60px;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 export const CardandDescription = styled.div`
@@ -114,19 +133,46 @@ export const CardImage = styled.img`
 `;
 
 export const CardTitle = styled.h3`
-  font-size: 20px;
-  margin-bottom: 0.75rem;
-  color: #2d3748;
-  font-weight: 600;
+font-size: 20px;
+  font-weight: 700;
+  color: #111;
+  margin: 2px 0 0;
+  line-height: 1.3;
+
+  /* clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  @media (max-width: 1246px) {
+    font-size: 18px;
+  }
+    @media (max-width: 900px) {
+    font-size: 16px;
+  }
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
 `;
 
 export const CardDescription = styled.p`
-  font-size: 18px;
-  color: #5e646dff;
-  line-height: 1.5;
-  
-  @media (max-width: 1024px) {
-    font-size: 18px;
+font-size: 14px;
+  color: #444;
+  line-height: 1.55;
+
+  /* clamp to ~3 lines for even cards */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 4.5em;
+
+  @media (max-width: 900px) {
+    font-size: 13px;
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
   }
 `;
 

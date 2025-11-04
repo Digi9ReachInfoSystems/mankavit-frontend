@@ -202,7 +202,7 @@ const LegalEducationHero = () => {
             aria-modal="true"
             aria-labelledby="contact-title"
           >
-            <h2 id="contact-title">Contact Us</h2>
+            {/* <h2 id="contact-title">Contact us</h2> */}
             <form onSubmit={handleSubmit}>
               <label>Name</label>
               <Input
@@ -253,7 +253,6 @@ const LegalEducationHero = () => {
 
 export default LegalEducationHero;
 
-/* ---- Local styled components for Contact Us ---- */
 const ContactCTA = styled.div`
   display: flex;
   justify-content: center;
@@ -272,7 +271,16 @@ const CTAButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: background-color .3s ease, color .3s ease, box-shadow .3s ease;
-
+@media (max-width: 1246px) {
+    padding: 1rem 2rem;
+  }
+    @media (max-width: 837px) {
+    padding: 0.6rem 1.6rem;
+  }
+    @media (max-width: 576px) {
+    padding: 0.5rem 1.2rem;
+    font-size: 12px;
+  }
   &:hover {
     background-color: #635bff;
     color: #fff;
@@ -391,6 +399,11 @@ const DescriptionText = styled.p`
   @media (max-width: 768px) {
     font-size: 18px;
   }
+
+  @media (max-width: 576px) {
+    font-size: 12px;
+    // padding: 0 1rem;
+  }
 `;
 
 /* ---------- FULL-BLEED, BEAUTIFUL, ANIMATED SECTION ---------- */
@@ -409,6 +422,8 @@ const Contactmodale = styled.section`
 
   color: #ffffff;
 
+
+
   /* Animated multi-stop gradient */
   background:
     radial-gradient(1200px 600px at 10% -10%, rgba(255,255,255,0.06), transparent 60%),
@@ -416,6 +431,18 @@ const Contactmodale = styled.section`
     linear-gradient(120deg, #0ea5e9, #6366f1, #a855f7, #ec4899, #06b6d4);
   background-size: 300% 300%;
   animation: gradientShift 20s ease infinite;
+
+@media (max-width: 1360px) {
+    padding: 48px 0;
+  }
+
+  @media (max-width: 768px) {
+    padding: 32px 0;
+  }
+
+  @media (max-width: 576px) {
+    padding: 24px 0;
+  }
 
   /* Soft grid overlay for texture */
   &::after {

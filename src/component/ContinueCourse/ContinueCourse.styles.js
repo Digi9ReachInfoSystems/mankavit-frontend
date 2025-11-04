@@ -76,7 +76,7 @@ export const MainTitle = styled.h2`
   }
 
   @media (max-width: 576px) {
-    font-size: 24px;
+    font-size: 20px;
   }
 `;
 
@@ -413,8 +413,8 @@ export const VideoItem = styled.div`
       font-size: 20px;
       font-weight: 500;
 
-      @media (max-width: 480px) {
-        font-size: 16px;
+      @media (max-width: 576px) {
+        font-size: 14px;
         width: 150px;
       }
     }

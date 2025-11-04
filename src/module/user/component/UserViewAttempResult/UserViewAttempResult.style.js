@@ -12,7 +12,8 @@ export const Container = styled.div`
   display: flex;
   height: 100vh;
   position: relative;
-  overflow-y:hidden;
+  overflow-x:hidden;
+  overflow-y:auto;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -40,6 +41,9 @@ export const Content = styled.div`
     padding-right: 0;
     height: auto; /* allow whole page to scroll */
   }
+     @media (max-width: 1024px) {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+   }
 `;
 
 /* Fixed toggle on mobile; absolute between panes on desktop */
@@ -180,7 +184,12 @@ export const PassageBox = styled.div`
   background-color: white;
   padding: 15px;
   height: 480px;
-  overflow-y: auto;
+overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break;
+  hyphens: auto;
 
   /* mobile clamp */
   .passage-clamped {
@@ -219,6 +228,11 @@ export const QuestionBox = styled.div`
   padding: 15px;
   height: 480px;
   overflow-y: auto;
+ overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 
   @media (max-width: 990px) {
     height: unset;
@@ -240,13 +254,24 @@ export const OptionsList = styled.div`
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+  }
+    @media (max-width: 480px) {
+    margin-bottom: 60px;
+  }
 `;
 
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 10px;
+  flex-wrap: wrap;
+  max-width: 100%;
+  line-height: 1.4;
+
   color: ${({ status }) => {
     switch (status) {
       case "correct-attempted": return "#34c759";
@@ -256,7 +281,8 @@ export const OptionLabel = styled.label`
     }
   }};
 
-  @media (max-width: 1360px) { font-size: 16px; }
+  @media (max-bffp
+  lkgbfdsp;width: 1360px) { font-size: 16px; }
   @media (max-width: 768px) { font-size: 14px; }
 `;
 
@@ -264,7 +290,7 @@ export const OptionLabel = styled.label`
 export const StickyActionBar = styled.div`
   position: sticky;
   bottom: 0;
-  z-index: 10;
+  z-index: 120;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -277,6 +303,15 @@ export const StickyActionBar = styled.div`
 
   @media (max-width: 768px) {
     padding: 10px 12px;
+  }
+     @media (max-width: 1024px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-top: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.06);
   }
 `;
 
@@ -354,7 +389,7 @@ export const SidebarContainer = styled.div`
     box-shadow: -6px 0 18px rgba(0,0,0,.12);
     transform: translateX(${(p) => (p.$open ? "0%" : "100%")});
     transition: transform 0.25s ease-in-out;
-    z-index: 140;
+    z-index:160;
   }
 `;
 

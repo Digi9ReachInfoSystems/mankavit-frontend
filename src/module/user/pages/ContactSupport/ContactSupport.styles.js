@@ -26,11 +26,11 @@ export const ContactTitle = styled.h2`
   }
 
   @media (max-width: 768px) {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   @media (max-width: 480px) {
-    font-size: 20px;
+    font-size: 18px;
   }
 `;
 
@@ -78,4 +78,11 @@ export const SubmitButton = styled.button`
   &:hover {
     opacity: 0.9;
   }
+
+  @media (max-width: 576px) {
+    width: 100%;
+    font-size: 12px;
+    padding: 10px 0;
+  }
+    
 `;
