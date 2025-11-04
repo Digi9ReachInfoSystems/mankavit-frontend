@@ -24,7 +24,7 @@ border-radius: 12px;
 // }
 
   @media (max-width: 768px) {
-    margin-left: 10px;
+    margin-left: 1px;
     margin-top: 0;
     padding: ${(props) => props.theme.spacing(1)};
     // width: 95%;
@@ -41,7 +41,31 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+    @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 `;
+
+export const ControlsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;   /* single column on mobile */
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: auto auto;  /* two groups on desktop */
+    justify-content: end;
+    align-items: center;
+    column-gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;   /* single column on small mobile */
+  }
+`;
+
 
 // The title on the left (e.g., "See All Course (14/24)")
 export const Title = styled.h3`
@@ -57,12 +81,25 @@ export const Title = styled.h3`
 `;
 
 // Sort section on the right (e.g., "Sort by: Name")
-export const SortByContainer = styled.div`
+ export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
   color: ${(props) => props.theme.colors.test};
   font-size: 12px;
-`;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;   /* label left, select right */
+    flex-wrap: wrap;
+    row-gap: 6px;
+    /* Make antd Select expand on mobile */
+    .ant-select {
+      flex: 1 1 100%;
+    }
+  }
+ `;
+
 
 // The label "Sort by:"
 export const SortLabel = styled.span`
@@ -83,6 +120,12 @@ export const SortSelect = styled.select`
     outline: none;
     border-color: ${(props) => props.theme.colors.primary};
   }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    min-width: 0;
+  }
+  
 `;
 
 // Wrapper that holds the table with possible horizontal overflow
@@ -279,7 +322,8 @@ export const SearchIcon = styled.div`
 `;
 
 export const SearchInput = styled.input`
-  width: 20%;
+  width: 100%;
+  max-width: 520px; 
   padding: 10px 5px 10px 40px; 
   border: none;
   border-radius: 8px;
@@ -289,6 +333,7 @@ export const SearchInput = styled.input`
 
   @media (max-width: 768px) {
     font-size: 14px;
+    max-width: 100%;
   }
 `;
 

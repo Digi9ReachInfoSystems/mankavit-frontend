@@ -8,6 +8,12 @@ margin-top: 20px;
   padding: ${(props) => props.theme.spacing(3)};
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: ${(props) => props.theme.fonts.body};
+
+  @media (max-width: 768px) {
+    margin-left: 10px;
+    margin-top: 0;
+    padding: ${(props) => props.theme.spacing(2)};
+  }
 `;
 
 export const Title = styled.h1`
@@ -29,6 +35,11 @@ export const UserInfo = styled.div`
   p {
     margin: 0;
   }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;  /* stack on mobile */
+    width: 100%;
+  }
 `;
 
 
@@ -38,6 +49,7 @@ export const QuestionCard = styled.div`
   padding: 16px;
   margin-bottom: 24px;
   border-radius: 12px;
+ 
 `;
 
 export const Section = styled.div`
@@ -114,6 +126,11 @@ export const QuestionHeader = styled.div`
   // align-items: center;
   gap: 12px;
   margin-bottom: 10px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 export const QuestionNumber = styled.h3`

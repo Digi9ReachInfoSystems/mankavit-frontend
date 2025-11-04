@@ -40,6 +40,8 @@ width: 100%;
 export const FormGroup = styled.div`
   margin-bottom: ${theme.spacing(3)};
   width: 100%;
+
+
 `;
 
 export const Label = styled.label`
@@ -58,6 +60,10 @@ export const Select = styled.select`
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
   box-sizing: border-box;
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
 `;
 
 export const TextInput = styled.input`
@@ -68,6 +74,10 @@ export const TextInput = styled.input`
   font-family: ${theme.fonts.body};
   background: ${theme.colors.secondary};
   box-sizing: border-box;
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
 `;
 
 export const TextArea = styled.textarea`

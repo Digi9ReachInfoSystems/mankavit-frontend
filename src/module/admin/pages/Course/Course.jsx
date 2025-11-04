@@ -19,6 +19,7 @@ import {
   SearchIcon,
   SearchInput,
   CloseButtonContainer,
+  ControlsRow,
 } from "./Course.style";
 import { CiSearch } from "react-icons/ci";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
@@ -307,45 +308,49 @@ export default function CoursesTable() {
       </ButtonContainer>
 
       <Container>
-        <HeaderRow>
-          <Title>
-            See All Courses{" "}
-            <span>
-              ({currentItems.length}/{TOTAL_ENTRIES})
-            </span>
-          </Title>
-          <SortByContainer>
-            <SortLabel>Filter by:</SortLabel>
-            <Select
-              value={selectedCategory}
-              onChange={(value) => {
-                setSelectedCategory(value);
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: "all", label: "All Categories" },
-                ...categories.map((cat) => ({
-                  value: cat,
-                  label: cat,
-                })),
-              ]}
-              style={{ width: 180, marginRight: "10px" }}
-            />
-            <SortLabel>Sort by:</SortLabel>
-            <Select
-              value={sortOption}
-              onChange={(v) => {
-                setSortOption(v);
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: "Latest", label: "Latest" },
-                { value: "Name", label: "Name" },
-              ]}
-              style={{ width: 120 }}
-            />
-          </SortByContainer>
-        </HeaderRow>
+         <HeaderRow>
+   <Title>
+     See All Courses{" "}
+     <span>
+       ({currentItems.length}/{TOTAL_ENTRIES})
+     </span>
+   </Title>
+
+ <ControlsRow>
+    <SortByContainer>
+      <SortLabel>Filter by:</SortLabel>
+      <Select
+        value={selectedCategory}
+        onChange={(value) => {
+          setSelectedCategory(value);
+          setCurrentPage(1);
+        }}
+        options={[
+          { value: "all", label: "All Categories" },
+          ...categories.map((cat) => ({ value: cat, label: cat })),
+        ]}
+        style={{ width: 180, marginRight: 10 }}
+      />
+    </SortByContainer>
+
+    <SortByContainer>
+      <SortLabel>Sort by:</SortLabel>
+      <Select
+        value={sortOption}
+        onChange={(v) => {
+          setSortOption(v);
+          setCurrentPage(1);
+        }}
+        options={[
+          { value: "Latest", label: "Latest" },
+          { value: "Name", label: "Name" },
+        ]}
+        style={{ width: 120 }}
+      />
+    </SortByContainer>
+  </ControlsRow>
+ </HeaderRow>
+
 
         <ButtonContainer>
           {selectedCourses.length > 0 && (

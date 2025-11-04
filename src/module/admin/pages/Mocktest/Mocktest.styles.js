@@ -30,6 +30,12 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: ${(props) => props.theme.spacing(1)};
+  }
 `;
 
 /* The title text on the top-left (e.g., "See All Notes (14/24)") */
@@ -49,31 +55,57 @@ export const Title = styled.h3`
 /* Container for "Sort by: Name" on the top-right */
 export const SortByContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
+  gap: 0.5rem;
+  min-width: 180px; /* prevents collapse on small screens */
+
+  @media (max-width: 768px) {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    // min-width: auto;
+  }
 `;
 
 /* "Sort by:" label */
 export const SortLabel = styled.span`
-  margin-right: 4px;
+ white-space: nowrap;
+  font-size: 0.9rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
 `;
 
 /* A <select> for the sort options (e.g., Name, etc.) */
-export const SortSelect = styled.select`
-  border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
-  padding: 4px;
-  font-family: ${(props) => props.theme.fonts.body};
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
-  cursor: pointer;
+import { Select } from "antd";
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) => props.theme.colors.primary};
+export const ResponsiveAntSelect = styled(Select)`
+  min-width: 160px;
+
+  @media (max-width: 768px) {
+    width: 100% !important;      /* full width on mobile */
+  }
+
+  .ant-select-selector {
+    border-radius: 4px;
   }
 `;
+
+export const SortSelect = styled.select`
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid ${(p) => p.theme.colors.grey};
+  background-color: ${(p) => p.theme.colors.backgrounGrey};
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  border-radius: 4px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
 
 /* Wrapper for the table area (scroll horizontally on small screens) */
 export const TableWrapper = styled.div`
@@ -261,11 +293,34 @@ export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
 
   @media (max-width: 768px) {
     margin-bottom: 20px;
+    width: 50%;
+  }
+    @media (max-width: 480px) {
+    margin-bottom: 20px;
+      width: 100%;
   }
 `;
+
+export const SearchInput = styled.input`
+  width: 100%;
+  max-width: 520px;                   /* Desktop cap */
+  padding: 10px 12px 10px 40px; 
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.silverGray};
+  background: ${({ theme }) => theme.colors.backgrounGrey};
+
+  @media (max-width: 768px) {
+    max-width: 100%;                  /* Full width on mobile */
+  }
+`;
+
 
 export const SearchIcon = styled.div`
   display: flex;
@@ -279,19 +334,7 @@ export const SearchIcon = styled.div`
 
 `;
 
-export const SearchInput = styled.input`
-  width: 20%;
-  padding: 10px 5px 10px 40px; 
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.silverGray};
-  background: ${({ theme }) => theme.colors.backgrounGrey};
 
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
-`;
 export const ToggleSwitch = styled.label`
   position: relative;
   display: inline-block;
@@ -338,50 +381,18 @@ export const input = styled.input`
   }
 `;
 
-// export const ButtonContainer = styled.div`
-//   display: flex;
-//   justify-content: flex-end;
-//   align-items: center;
-//   margin-bottom: ${(props) => props.theme.spacing(0)};
-//   margin-top: ${(props) => props.theme.spacing(2)};
-// //  margin-right:10px;
-//   //  width: 100%;
+export const ControlsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 
+  @media (max-width: 768px) {
+    // grid-template-columns: 1fr;   /* stack Filter and Sort full-width */
+    width: 100%;
+  }
 
-//  @media (max-width: 768px) {
-// margin: 10px 5px;
-//   }
-
-//   @media (max-width: 480px) {
-// margin: 10px 5px;
-//   `;
-
-// export const CreateButton = styled.button`
-//   padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2)};
-//   background:linear-gradient(to right, #0dcaf0, #007bff);
-//   color: ${(props) => props.theme.colors.white};
-//   border: none;
-//   border-radius: 4px;
-//   font-family: ${(props) => props.theme.fonts.body};
-//   cursor: pointer;
-//   font-size: 1rem;
-//   transition: background-color 0.2s ease;
-//     width: 15%; 
-//     display: flex;
-//   justify-content: center;
-//   align-items: center;
-
-
-
-//   @media (max-width: 768px) {
-//     // padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(1)};
-//     font-size: 12px;
-//     width: 40%;
-//     margin-right: 20px;
-//   }
-
-//   @media (max-width: 480px) {
-//     padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
-//     font-size: 10px;
-//     width: 50%;
-// `;
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;   /* stack Filter and Sort full-width */
+    width: 100%;
+  }
+`;

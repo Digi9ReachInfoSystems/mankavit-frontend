@@ -32,7 +32,12 @@ export const Title = styled.h1`
 
   @media (max-width: 768px) {
     margin-left: 40px;
+    font-size: 20px;
   }
+
+  @media (max-width: 480px) {
+    margin-left: 40px;
+    font-size: 20px;
 `;
 
 export const SearchWrapper = styled.div`
@@ -84,4 +89,8 @@ export const UserEmail = styled.div`
   font-size: 14px;
   color: ${theme.colors.test};
   margin-top: 4px;
+
+  @media (max-width: 480px) {
+  display: none;
+}
 `;

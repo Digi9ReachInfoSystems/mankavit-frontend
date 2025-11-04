@@ -23,7 +23,7 @@ margin-top: 20px;
 // }
 
   @media (max-width: 768px) {
-    margin-left: 10px;
+    margin-left: 1px;
     margin-top: 0;
     padding: ${(props) => props.theme.spacing(1)};
     // width: 95%;
@@ -35,13 +35,86 @@ margin-top: 20px;
   }
 `;
 
-// Header row: left title ("See All Students (14/24)") and right sort-by
+// HeaderRow.js
 export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  @media ( min-width: 769px) and (max-width: 990px) {
+  flex-direction: column;
+  align-items: stretch;
+}
 `;
+
+// SortByContainer.js
+export const SortByContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 180px; /* prevents collapse on small screens */
+
+  @media (max-width: 768px) {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    // min-width: auto;
+  }
+`;
+
+export const SortLabel = styled.span`
+  white-space: nowrap;
+  font-size: 0.9rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+`;
+
+export const SortSelect = styled.select`
+  flex: 1;
+  min-width: 120px;
+  border: 1px solid ${(props) => props.theme.colors.grey};
+  background-color: ${(props) => props.theme.colors.backgrounGrey};
+  padding: 6px 8px;
+  font-family: ${(props) => props.theme.fonts.body};
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.test};
+  border-radius: 4px;
+
+  &:focus {
+    outline: none;
+    border-color: ${(props) => props.theme.colors.primary};
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    padding: 5px;
+  }
+`;
+
+
+// Header row: left title ("See All Students (14/24)") and right sort-by
+// export const HeaderRow = styled.div`
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+// @media (max-width: 768px) {
+//     flex-direction: column;
+//     align-items: stretch;
+//     gap: 1rem;
+//     padding: 0.5rem;
+//   }
+// `;
 
 // Title text on the left
 export const Title = styled.h3`
@@ -51,39 +124,68 @@ export const Title = styled.h3`
   color: ${(props) => props.theme.colors.black};
 
   @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-left: 0;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
   }
 `;
 
 // Container for "Sort by: Name"
-export const SortByContainer = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
-`;
+// export const SortByContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.test};
+//  @media (max-width: 768px) {
+//     flex-direction: row;
+//     align-items: center;
+//     flex-wrap: wrap;
+//     gap: 1rem;
+
+//     /* When it's the filter container */
+//     &:first-of-type {
+//       margin-bottom: 0.5rem;
+//     }
+//   }
+
+// //   @media (max-width: 480px) {
+// //   display: none;
+// // }
+
+  
+
+ 
+// `;
 
 // "Sort by:" label
-export const SortLabel = styled.span`
-  margin-right: 4px;
-`;
+// export const SortLabel = styled.span`
+//   margin-right: 4px;
+//    @media (max-width: 768px) {
+//     font-size: 13px;
+//   }
+// `;
 
 // A <select> for the sort options
-export const SortSelect = styled.select`
-  border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
-  padding: 4px;
-  font-family: ${(props) => props.theme.fonts.body};
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
-  // cursor: pointer;
+// export const SortSelect = styled.select`
+//   border: 1px solid ${(props) => props.theme.colors.grey};
+//   background-color: ${(props) => props.theme.colors.backgrounGrey};
+//   padding: 4px;
+//   font-family: ${(props) => props.theme.fonts.body};
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.test};
+//   // cursor: pointer;
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) => props.theme.colors.primary};
-  }
-`;
+//   &:focus {
+//     outline: none;
+//     border-color: ${(props) => props.theme.colors.primary};
+//   }
+
+//    @media (max-width: 768px) {
+//     font-size: 13px;
+//     padding: 6px 10px;
+//     flex: 1;
+//     max-width: 200px;
+//   }
+// `;
 
 // Wrapper that holds the main table (with possible horizontal scroll on small screens)
 export const TableWrapper = styled.div`
@@ -382,15 +484,15 @@ export const StatusDot = styled.span`
 `;
 
 
-export const SearchWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  margin-bottom: 16px;
+// export const SearchWrapper = styled.div`
+//   position: relative;
+//   width: 100%;
+//   margin-bottom: 16px;
 
-  @media (max-width: 768px) {
-    margin-bottom: 20px;
-  }
-`;
+//   @media (max-width: 768px) {
+//     margin-bottom: 20px;
+//   }
+// `;
 
 export const SearchIcon = styled.div`
   display: flex;
@@ -405,8 +507,9 @@ export const SearchIcon = styled.div`
 `;
 
 export const SearchInput = styled.input`
-  width: 20%;
-  padding: 10px 5px 10px 40px; 
+  width: 100%;
+  max-width: 300px;
+  padding: 10px 10px 10px 40px;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -414,13 +517,20 @@ export const SearchInput = styled.input`
   background: ${({ theme }) => theme.colors.backgrounGrey};
 
   @media (max-width: 768px) {
-    font-size: 14px;
-    width: 40%;
+    max-width: 100%;
   }
+`;
 
-  @media (max-width: 480px) {
-    font-size: 12px;
-    width: 40%;
+// And wrap SearchWrapper to align with HeaderRow
+export const SearchWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+    max-width: 100%;
   }
 `;
 
