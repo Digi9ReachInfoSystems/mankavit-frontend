@@ -24,6 +24,13 @@ margin-top: 20px;
     margin-bottom: ${theme.spacing(3)};
     font-family: ${theme.fonts.heading};
     color: ${theme.colors.black};
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+      @media (max-width: 576px) {
+      font-size: 18px;
+    }
   }
 `;
 

@@ -43,54 +43,9 @@ const PaymentComponent = ({ userId, amount, courseRef, discountActive, actualPri
         image: razorPayKeys.logo, // Optional: Logo image
         order_id: order.orderId,
         handler: async function (response) {
-          // // // console.log(response);
-          //  for testing webhook localhost
-          // try {
-          //   // Step 3: Verify Payment on Backend
-          //   const verificationResponse = await axiosInstance.post('/api/payments/verify-payment-webhook', {
-          //     razorpay_order_id: response.razorpay_order_id,
-          //     razorpay_payment_id: response.razorpay_payment_id,
-          //     razorpay_signature: response.razorpay_signature,
-          //     event :"payment.captured",
-          //     order_id: order.id,
-          //     payload:{
-          //       payment:
-          //       {
-          //         entity:
-          //         {
-          //           order_id:order.id,
-          //           id:response.razorpay_payment_id
-          //         }
-          //       }
-          //     }
-
-          //     // razorpay_signature: generated_signature,
-          //   });
-          //   // // console.log("verificationResponse", verificationResponse);
-
-          //   if (verificationResponse.data.status === 'ok') {
-          //     alert('Payment Successful!');
-          //     // Optionally, redirect or update UI
-          //     navigate('/student/package/paymentSuccess');
-          //   } else {
-          //     alert('Payment Verification Failed!');
-          //   }
-          // } catch (error) {
-          //   // // console.error('Payment Verification Error:', error);
-          //   alert('Payment Verification Failed!');
-          // }
-
-          // ////// // console.log(response);
-          // calling webhook online
+          
           try {
-            // const verificationResponse = await axiosInstance.post('/api/payments/verify-payment', {
-            //   razorpay_order_id: response.razorpay_order_id,
-            //   razorpay_payment_id: response.razorpay_payment_id,
-            //   razorpay_signature: response.razorpay_signature,
-            // });
-
-            // if (verificationResponse.data.message === 'Payment verified successfully') {
-            alert('Payment Successful!');
+             alert('Payment Successful!');
             // Optionally, redirect or update UI
             const cookieData = await getCookiesData();
             // // console.log("cookieData", cookieData);

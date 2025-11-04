@@ -24,6 +24,10 @@ margin-top: 20px;
     margin-bottom: ${theme.spacing(3)};
     font-family: ${theme.fonts.heading};
     color: ${theme.colors.black};
+
+    @media (max-width: 540px) {
+      font-size: 1.3rem;
+    }
   }
 `;
 
@@ -54,7 +58,7 @@ width: 100%;
 
 // read-only display of schedule
 export const ReadOnlyInput = styled.input`
-  width: 100%;
+  width: 50%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
@@ -63,11 +67,19 @@ export const ReadOnlyInput = styled.input`
   font-family: ${theme.fonts.body};
   box-sizing: border-box;
   font-size: 1rem;
+  @media (max-width: 768px) {
+   width: 50%;
+  }
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+
+
 `;
 
 // standard text input
 export const TextInput = styled.input`
-  width: 100%;
+  width: 50%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
@@ -85,10 +97,15 @@ export const TextInput = styled.input`
     border-color: ${theme.colors.primary};
     box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
   }
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+
 `;
 
 export const TextArea = styled.textarea`
-  width: 100%;
+  width: 50%;
   padding: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.grey};
   border-radius: ${theme.spacing(0.5)};
@@ -106,6 +123,10 @@ export const TextArea = styled.textarea`
     outline: none;
     border-color: ${theme.colors.primary};
     box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
   }
 `;
 

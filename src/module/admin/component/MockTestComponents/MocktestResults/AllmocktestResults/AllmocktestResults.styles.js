@@ -29,7 +29,14 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 `;
+
 
 
 export const Title = styled.h3`
@@ -45,17 +52,49 @@ export const Title = styled.h3`
   }
 `;
 
+// export const SortByContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.test};
+// `;
+
+
+// export const SortLabel = styled.span`
+//   margin-right: 4px;
+// `;
+
+export const FilterByContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+    margin-right: 0;
+  }
+`;
+
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
+  gap: 8px;
   font-size: 12px;
   color: ${(props) => props.theme.colors.test};
-`;
 
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+`;
 
 export const SortLabel = styled.span`
   margin-right: 4px;
+  white-space: nowrap;
 `;
+
 
 
 export const SortSelect = styled.select`
@@ -176,15 +215,15 @@ export const ActionsContainer = styled.div`
 `;
 
 
-export const SearchWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  margin-bottom: 16px;
+// export const SearchWrapper = styled.div`
+//   position: relative;
+//   width: 100%;
+//   margin-bottom: 16px;
 
-  @media (max-width: 768px) {
-    margin-bottom: 20px;
-  }
-`;
+//   @media (max-width: 768px) {
+//     margin-bottom: 20px;
+//   }
+// `;
 
 export const SearchIcon = styled.div`
   display: flex;
@@ -198,8 +237,41 @@ export const SearchIcon = styled.div`
 
 `;
 
+// export const SearchInput = styled.input`
+//   width: 20%;
+//   padding: 10px 5px 10px 40px; 
+//   border: none;
+//   border-radius: 8px;
+//   font-size: 14px;
+//   color: ${({ theme }) => theme.colors.silverGray};
+//   background: ${({ theme }) => theme.colors.backgrounGrey};
+
+//   @media (max-width: 768px) {
+//     font-size: 14px;
+//   }
+// `;
+
+export const SearchWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+     width: 50%;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 20px;
+    width: 100%;
+  }
+`;
+
 export const SearchInput = styled.input`
-  width: 20%;
+  width: 100%;
+  max-width: 520px;                /* desktop cap */
   padding: 10px 5px 10px 40px; 
   border: none;
   border-radius: 8px;
@@ -208,17 +280,17 @@ export const SearchInput = styled.input`
   background: ${({ theme }) => theme.colors.backgrounGrey};
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    max-width: 100%;               /* full width on mobile */
   }
 `;
 
 
-export const FilterByContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 20px;
-`;
+// export const FilterByContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+//   margin-right: 20px;
+// `;
 
 export const ButtonContainer = styled.div`
   display: flex;
@@ -298,3 +370,35 @@ export const DownloadButton = styled.button`
     width: 50%;
   }
     `;
+
+
+
+    export const ControlsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    // grid-template-columns: 1fr;  /* stack on mobile */
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;  /* stack on mobile */
+    width: 100%;
+  }
+`;
+
+
+import { Select } from "antd";
+export const ResponsiveAntSelect = styled(Select)`
+  min-width: 160px;
+
+  @media (max-width: 768px) {
+    width: 100% !important;   /* force full width on mobile */
+  }
+
+  .ant-select-selector {
+    border-radius: 4px;
+  }
+`;

@@ -248,6 +248,10 @@ export const CourseSelection = styled.div`
   & li:nth-child(even) {
     background-color: red;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export const CourseList = styled.div`

@@ -135,7 +135,12 @@ export const CheckboxSection = styled.div`
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
   width: 50%;
-  max-height:280px;
+@media (max-width: 768px){
+  width: 100%;}
+  @media (max-width: 576px)
+  {
+  width: 100%;
+  }
 `;
 
 /** Title for each checkbox section (e.g. "Add Notes" and "Add Mock Test") */
@@ -346,6 +351,10 @@ export const SubjectsContainer = styled.div`
   display: flex;
   gap: 2rem;
   width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const SelectedSubjectsContainer = styled.div`

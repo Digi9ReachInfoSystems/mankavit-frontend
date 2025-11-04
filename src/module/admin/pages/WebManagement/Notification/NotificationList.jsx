@@ -38,7 +38,6 @@ const NotificationsList = () => {
   const fetchNotifications = async () => {
     try {
       const resp = await getAllNotifications();
-      // If API returns { data: [...] } or array directly:
       const list = resp?.data ?? resp ?? [];
       setNotifications(Array.isArray(list) ? list : []);
     } catch (err) {
@@ -52,7 +51,7 @@ const NotificationsList = () => {
     fetchNotifications();
   }, []);
 
-  // pagination calculations
+  // pagination
   const totalItems = notifications.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIdx = (currentPage - 1) * itemsPerPage;
@@ -66,22 +65,18 @@ const NotificationsList = () => {
     setSelectAll(allSelected);
   }, [currentNotifications, selectedIds]);
 
-  // toggle single row
   const toggleRow = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  // select all on current page
   const handleSelectAllChange = () => {
     if (selectAll) {
-      // unselect all current page items
       setSelectedIds((prev) =>
         prev.filter((id) => !currentNotifications.some((n) => n._id === id))
       );
     } else {
-      // select all current page items
       setSelectedIds((prev) => {
         const pageIds = currentNotifications.map((n) => n._id);
         const add = pageIds.filter((id) => !prev.includes(id));
@@ -100,7 +95,7 @@ const NotificationsList = () => {
         return;
       }
       setBulkLoading(true);
-      await bulknotificationdeletion(selectedIds); // API expects { ids }
+      await bulknotificationdeletion(selectedIds);
 
       // Remove locally
       setNotifications((prev) => prev.filter((n) => !selectedIds.includes(n._id)));
@@ -121,83 +116,77 @@ const NotificationsList = () => {
 
   return (
     <Container>
-      <Header>
-        <h2>
+      <HeaderRow>
+        <Title>
           All Notifications{" "}
-          <span style={{ color: "#6d6e75", fontSize: 12, fontWeight: 400 }}>
-            ({currentNotifications.length}/{notifications.length})
-          </span>
-        </h2>
+          <small>({currentNotifications.length}/{notifications.length})</small>
+        </Title>
 
-        <div style={{ display: "flex", gap: 12 }}>
-          {/* Bulk Delete CTA when selections present */}
+        <Controls>
           {!readOnlyPermissions && selectedIds.length > 0 && (
-            <CreateButton
-              style={{ background: "red" }}
-              onClick={openBulkDelete}
-            >
+            <PrimaryButton $danger onClick={openBulkDelete}>
               Delete Selected ({selectedIds.length})
-            </CreateButton>
+            </PrimaryButton>
           )}
 
           {!readOnlyPermissions && (
-            <CreateButton
-              onClick={() => navigate("/admin/web-management/notification/create")}
-            >
+            <PrimaryButton onClick={() => navigate("/admin/web-management/notification/create")}>
               + Create Notification
-            </CreateButton>
+            </PrimaryButton>
           )}
-        </div>
-      </Header>
+        </Controls>
+      </HeaderRow>
 
-      <Table>
-        <thead>
-          <tr>
-            {!readOnlyPermissions && (
-              <th style={{ width: 40 }}>
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={handleSelectAllChange}
-                />
-              </th>
-            )}
-            <th>Title</th>
-            <th>Description</th>
-            <th>Scheduled Time</th>
-            <th>Type</th>
-            <th>Created At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentNotifications.length > 0 ? (
-            currentNotifications.map((n, idx) => (
-              <tr key={n._id} className={idx === 0 ? "first-row" : ""}>
-                {!readOnlyPermissions && (
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(n._id)}
-                      onChange={() => toggleRow(n._id)}
-                    />
-                  </td>
-                )}
-                <td>{n.title}</td>
-                <td>{n.description}</td>
-                <td>{n.time ? new Date(n.time).toLocaleString() : "-"}</td>
-                <td>{n.notificationType}</td>
-                <td>{n.createdAt ? new Date(n.createdAt).toLocaleString() : "-"}</td>
-              </tr>
-            ))
-          ) : (
+      <TableWrapper>
+        <Table>
+          <thead>
             <tr>
-              <td colSpan={readOnlyPermissions ? 5 : 6} style={{ textAlign: "center" }}>
-                No notifications found
-              </td>
+              {!readOnlyPermissions && (
+                <th style={{ width: 40 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </th>
+              )}
+              <th>Title</th>
+              <th>Description</th>
+              <th>Scheduled Time</th>
+              <th>Type</th>
+              <th>Created At</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {currentNotifications.length > 0 ? (
+              currentNotifications.map((n, idx) => (
+                <tr key={n._id} className={idx === 0 ? "first-row" : ""}>
+                  {!readOnlyPermissions && (
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(n._id)}
+                        onChange={() => toggleRow(n._id)}
+                      />
+                    </td>
+                  )}
+                  <td className="truncate">{n.title}</td>
+                  <td className="truncate desc">{n.description}</td>
+                  <td>{n.time ? new Date(n.time).toLocaleString() : "-"}</td>
+                  <td>{n.notificationType}</td>
+                  <td>{n.createdAt ? new Date(n.createdAt).toLocaleString() : "-"}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={readOnlyPermissions ? 5 : 6} style={{ textAlign: "center" }}>
+                  No notifications found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </TableWrapper>
 
       <Pagination
         currentPage={currentPage}
@@ -225,52 +214,128 @@ export default NotificationsList;
 /* ---------------------- Styles ---------------------- */
 const Container = styled.div`
   margin: 20px 40px;
-  background: white;
+  background: #fff;
   padding: 24px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-`;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const CreateButton = styled.button`
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 16px;
-  cursor: pointer;
-
-  &:hover {
-    background: #0056b3;
+  @media (max-width: 768px) {
+    margin: 10px;
+    padding: 16px;
   }
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const Title = styled.h2`
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+
+  small {
+    font-weight: 400;
+    color: #6d6e75;
+    font-size: 12px;
+    margin-left: 6px;
+  }
+`;
+
+const Controls = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    & > * {
+      width: 100%;
+    }
+  }
+`;
+
+const PrimaryButton = styled.button`
+  background: ${({ $danger }) => ($danger ? "#ef4444" : "linear-gradient(to right, #0dcaf0, #007bff)")};
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: transform .06s ease, box-shadow .2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+  &:hover { transform: translateY(-1px); }
+  &:active { transform: translateY(0); }
+  
+`;
+
+const TableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;        /* Horizontal scroll on small screens */
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
 `;
 
 const Table = styled.table`
   width: 100%;
+  min-width: 900px;        /* Keep columns readable; wrapper will scroll on phones */
   border-collapse: collapse;
-  margin-top: 16px;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 
-  th,
-  td {
-    padding: 12px;
-    border: 1px solid #ddd;
+  thead th,
+  tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
     text-align: left;
+    vertical-align: middle;
   }
 
-  th {
-    background: black; /* header background black */
-    color: white;      /* header text white */
+  thead th {
+    background: #0f172a;   /* black-ish header */
+    color: #fff;
     font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
-  tr:nth-child(even) {
-    background-color: #fafafa;
+  tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+
+  /* Nice truncation on long text cells */
+  .truncate {
+    max-width: 340px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .desc {
+    max-width: 480px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+
+    .truncate { max-width: 220px; }
+    .desc { max-width: 260px; }
+  }
+
+  @media (max-width: 480px) {
+    .truncate { max-width: 160px; }
+    .desc { max-width: 200px; }
   }
 `;

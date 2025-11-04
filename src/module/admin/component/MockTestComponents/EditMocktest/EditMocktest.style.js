@@ -17,6 +17,7 @@ margin-top: 20px;
   @media (max-width: 768px) {
     margin:0;
 }
+  
 `;
 
 export const Title = styled.h2`
@@ -113,6 +114,13 @@ export const Button = styled.button`
   &:hover {
     background-color: #0056b3;
   }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
 `;
 export const Select = styled.select`
   /* Add your styles here matching your Input component */
@@ -139,6 +147,12 @@ export const CheckboxSectionTitle = styled.h4`
   //done
   background-color: ${(props) => props.theme.colors.backgrounGrey};
   border-radius: 6px;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    padding: ${(props) => props.theme.spacing(0.5)};
+    width: 100%;
+  }
 `;
 
 export const CheckboxList = styled.div`

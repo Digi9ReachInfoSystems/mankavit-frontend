@@ -225,7 +225,7 @@ export const SearchIcon = styled.div`
 `;
 
 export const SearchInput = styled.input`
-  width: 20%;
+  // width: 20%;
   padding: 10px 5px 10px 40px; 
   border: none;
   border-radius: 8px;

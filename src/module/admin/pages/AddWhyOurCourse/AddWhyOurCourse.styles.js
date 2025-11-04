@@ -18,6 +18,14 @@ export const Title = styled.h2`
   font-size: 20px;
   margin-bottom: 1rem;
   font-weight: 600;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 export const Label = styled.label`

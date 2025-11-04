@@ -2,11 +2,25 @@ import styled from 'styled-components';
 
 export const MockTestQuestionsListContainer = styled.div`
   padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+    @media (max-width: 480px) {
+    padding: 1rem;
+  }
 `;
 
 export const Title = styled.h2`
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+    @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
 `;
 
 export const PageContainer = styled.div`

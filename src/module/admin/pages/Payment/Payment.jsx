@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-
 import {
   Container,
   HeaderRow,
@@ -25,10 +24,14 @@ import {
   Backdrop,
   Modal,
   Detail,
-  CloseBtn
+  SearchIcon,
+  CloseBtn,
 } from "../Payment/Payment.style";
 import Pagination from "../../component/Pagination/Pagination";
-import { getAllPayments, getPaymentByCourseId } from "../../../../api/paymentApi";
+import {
+  getAllPayments,
+  getPaymentByCourseId,
+} from "../../../../api/paymentApi";
 import { getAllCourses } from "../../../../api/courseApi";
 import styled from "styled-components";
 import { SearchWrapper } from "../StudentManagement/StudentManagement.style";
@@ -38,50 +41,38 @@ const ITEMS_PER_PAGE = 10;
 
 // Status color mapping
 const STATUS_COLORS = {
-  success: '#4CAF50',
-  created: '#FFC107',
-  failed: '#F44336',
-  pending: '#2196F3',
-  default: '#9E9E9E'
+  success: "#4CAF50",
+  created: "#FFC107",
+  failed: "#F44336",
+  pending: "#2196F3",
+  default: "#9E9E9E",
 };
 
 // Styled search input
 const SearchInput = styled.input`
-  padding: 6px 10px;
+  width: 100%;
+  padding: 10px 12px 10px 36px; /* space for icon */
   border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 400px;
+  border-radius: 8px;
   font-size: 14px;
-   @media (max-width: 1024px) {
-   width: 100%;
- }
 
- @media (max-width: 768px) {
-   width: 80%;
-  //  margin: 10px auto;
- }
-
- @media(min-width: 800px) and (max-width: 1080px) {
-   width: 80%;
-  //  margin: 10px auto;
- }
-
- @media (max-width: 576px) {
-   width: 80%;
-  //  margin: 10px auto;
- }
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 // Styled export button
 const ExportButton = styled.button`
   padding: 6px 12px;
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-left: 16px;
-  &:hover { background: #1976D2; }
+  &:hover {
+    background: #1976d2;
+  }
 `;
 
 export default function Payment() {
@@ -102,9 +93,11 @@ export default function Payment() {
       if (response.isSuperAdmin === true) {
         setReadOnlyPermissions(false);
       } else {
-        setReadOnlyPermissions(response.Permissions["paymentManagement"].readOnly);
+        setReadOnlyPermissions(
+          response.Permissions["paymentManagement"].readOnly
+        );
       }
-    }
+    };
     apiCaller();
   }, []);
   const [showCouponModal, setShowCouponModal] = useState(false);
@@ -129,11 +122,11 @@ export default function Payment() {
         const map = {};
         const paymentCourseIds = new Set();
 
-        (coursesRes.data || []).forEach(c => {
+        (coursesRes.data || []).forEach((c) => {
           map[c._id] = c.courseName;
         });
 
-        (paymentsRes.payments || []).forEach(payment => {
+        (paymentsRes.payments || []).forEach((payment) => {
           const courseId = payment.courseRef?._id || payment.courseRef;
           if (courseId) paymentCourseIds.add(courseId);
         });
@@ -188,18 +181,20 @@ export default function Payment() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       data = data.filter((item) => {
-        const student = (getNestedValue(item, "userRef.displayName", "") || "").toLowerCase();
+        const student = (
+          getNestedValue(item, "userRef.displayName", "") || ""
+        ).toLowerCase();
         const course = (getCourseName(item) || "").toLowerCase();
         return student.includes(q) || course.includes(q);
       });
     }
 
-
     switch (sortBy) {
       case "Student":
         data.sort((a, b) =>
-          getNestedValue(a, 'userRef.displayName')
-            .localeCompare(getNestedValue(b, 'userRef.displayName'))
+          getNestedValue(a, "userRef.displayName").localeCompare(
+            getNestedValue(b, "userRef.displayName")
+          )
         );
         break;
       case "AmountLow":
@@ -227,20 +222,22 @@ export default function Payment() {
 
     // If it's an object, try known fields or map by _id
     if (typeof cr === "object") {
-      return cr.courseName || cr.courseDisplayName || coursesMap[cr._id] || "N/A";
+      return (
+        cr.courseName || cr.courseDisplayName || coursesMap[cr._id] || "N/A"
+      );
     }
 
     return "N/A";
   };
 
   // Helpers
-  const formatDate = iso => {
+  const formatDate = (iso) => {
     const d = new Date(iso);
     return isNaN(d) ? "Invalid Date" : d.toLocaleString("en-GB");
   };
   const getNestedValue = (obj, path, def = "N/A") =>
     path.split(".").reduce((o, k) => (o || {})[k], obj) ?? def;
-  const getStatusColor = status =>
+  const getStatusColor = (status) =>
     STATUS_COLORS[status?.toLowerCase()] || STATUS_COLORS.default;
 
   // PDF export of ALL filteredPayments
@@ -259,11 +256,11 @@ export default function Payment() {
       "Status",
     ];
 
-    const rows = filteredPayments.map(item => [
+    const rows = filteredPayments.map((item) => [
       // getNestedValue(item, 'courseRef.courseName'),
       getCourseName(item),
 
-      getNestedValue(item, 'userRef.displayName'),
+      getNestedValue(item, "userRef.displayName"),
       item.transactionId || item.razorpay_payment_id || "N/A",
       `Rs. ${item.amountPaid ?? "N/A"}`,
       formatDate(item.createdAt),
@@ -283,7 +280,6 @@ export default function Payment() {
     doc.save("payments.pdf");
   };
 
-
   if (loading) return <Container>Loading payments...</Container>;
   if (error) return <Container>Error: {error}</Container>;
   if (!payments.length) return <Container>No payment data available</Container>;
@@ -301,67 +297,67 @@ export default function Payment() {
       couponName: item?.couponRef?.coupon_name,
       discountAmount: item?.couponDiscount,
       actualPrice: item?.amountPaid,
-      coursePrice: item.courseRef.discountActive ? item.courseRef.discountPrice:item.courseRef.price 
-
+      coursePrice: item.courseRef.discountActive
+        ? item.courseRef.discountPrice
+        : item.courseRef.price,
     });
     setShowCouponModal(true);
   };
 
   return (
     <Container>
-      <HeaderRow >
+      <HeaderRow>
         <Title>
           All Payments{" "}
           <span style={{ color: "#6d6e75", fontSize: 12, fontWeight: 400 }}>
             ({currentItems.length}/{TOTAL_ENTRIES})
           </span>
         </Title>
-        <div style={{display:"flex" , justifyContent:"start"}}> 
-          <div style={{ display: "flex", }} className="filter-items">
-            <SortByContainer>
-              <SortLabel>Filter by Course:</SortLabel>
-              <SortSelect
-                value={selectedCourseId}
-                onChange={e => setSelectedCourseId(e.target.value)}
-              >
-                <option value="all">All</option>
-                {Object.entries(coursesMap)
-                  .filter(([id]) => coursesWithPayments.has(id))
-                  .map(([id, name]) => (
-                    <option key={id} value={id}>{name}</option>
-                  ))}
-              </SortSelect>
-            </SortByContainer>
 
-            <SortByContainer style={{ marginLeft: 16 }}>
-              <SortLabel>Sort by:</SortLabel>
-              <SortSelect value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                <option value="Time">Time (Latest)</option>
-                <option value="Student">Student Name</option>
-                <option value="AmountLow">Amount (Low → High)</option>
-                <option value="AmountHigh">Amount (High → Low)</option>
-              </SortSelect>
-            </SortByContainer>
-            {
-              !readOnlyPermissions && (
-                <ExportButton onClick={exportPDF}>
-                  Export PDF
-                </ExportButton>
-              )
-            }
+        <div className="filter-items">
+          <SortByContainer>
+            <SortLabel>Filter by Course:</SortLabel>
+            <SortSelect
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+            >
+              <option value="all">All</option>
+              {Object.entries(coursesMap)
+                .filter(([id]) => coursesWithPayments.has(id))
+                .map(([id, name]) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+            </SortSelect>
+          </SortByContainer>
 
-          </div>
+          <SortByContainer>
+            <SortLabel>Sort by:</SortLabel>
+            <SortSelect
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="Time">Time (Latest)</option>
+              <option value="Student">Student Name</option>
+              <option value="AmountLow">Amount (Low → High)</option>
+              <option value="AmountHigh">Amount (High → Low)</option>
+            </SortSelect>
+          </SortByContainer>
+
+          {!readOnlyPermissions && (
+            <ExportButton onClick={exportPDF}>Export PDF</ExportButton>
+          )}
         </div>
       </HeaderRow>
 
       <SearchWrapper>
-        <CiSearch size={18} style={{ marginRight: 8 }} />
+         <SearchIcon><CiSearch size={18} /></SearchIcon>
         <SearchInput
           type="text"
           placeholder="Search by student or course"
           value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          // style={{ width: "20%" }}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </SearchWrapper>
 
@@ -381,7 +377,7 @@ export default function Payment() {
           </TableHead>
 
           <TableBody>
-            {currentItems.map(item => {
+            {currentItems.map((item) => {
               const color = getStatusColor(item.status);
               // // // console.log("item", item);
               return (
@@ -389,20 +385,41 @@ export default function Payment() {
                   {/* <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell> */}
                   <TableCell>{getCourseName(item)}</TableCell>
 
-                  <TableCell>{getNestedValue(item, 'userRef.displayName')}</TableCell>
-                  <TableCell>{item.transactionId || item.razorpay_payment_id || "N/A"}</TableCell>
+                  <TableCell>
+                    {getNestedValue(item, "userRef.displayName")}
+                  </TableCell>
+                  <TableCell>
+                    {item.transactionId || item.razorpay_payment_id || "N/A"}
+                  </TableCell>
                   <TableCell>₹{item.amountPaid ?? "N/A"}</TableCell>
                   <TableCell>{formatDate(item.createdAt)}</TableCell>
                   <TableCell>{item.paymentType || "N/A"}</TableCell>
                   <StatusCell>
                     <StatusWrapper style={{ color }}>
-                      <PaymentstatusDot status={item.status} style={{ backgroundColor: color }} />
+                      <PaymentstatusDot
+                        status={item.status}
+                        style={{ backgroundColor: color }}
+                      />
                       {item.status}
                     </StatusWrapper>
                   </StatusCell>
-                  <TableCell>{item.couponApplied ? (<button
-                    style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}
-                    onClick={() => handleCouponDetailsClick(item)}>View</button>) : "Not Applied"}</TableCell>
+                  <TableCell>
+                    {item.couponApplied ? (
+                      <button
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "blue",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleCouponDetailsClick(item)}
+                      >
+                        View
+                      </button>
+                    ) : (
+                      "Not Applied"
+                    )}
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -417,25 +434,33 @@ export default function Payment() {
         totalItems={TOTAL_ENTRIES}
         itemsPerPage={ITEMS_PER_PAGE}
       />
-      {
-        showCouponModal && (
-          // <CouponDetailsModal
-          //   couponData={couponDataToShow}
-          //   onClose={() => setShowCouponModal(false)}
-          // />
-          <Backdrop onClick={() => setShowCouponModal(false)}>
-            <Modal onClick={(e) => e.stopPropagation()}>
-              <CloseBtn onClick={() => setShowCouponModal(false)}>×</CloseBtn>
-              <Title>Coupon Details</Title>
-              <Detail><strong>Name:</strong> {couponDataToShow?.couponName || "N/A"}</Detail>
-              <Detail><strong>Course Amount:</strong> ₹{couponDataToShow?.coursePrice || 0}</Detail>
-              <Detail><strong>Discount Amount:</strong> ₹{couponDataToShow?.discountAmount || 0}</Detail>
-              <Detail><strong>Amount Paid:</strong> ₹{couponDataToShow?.actualPrice || "N/A"}</Detail>
-            </Modal>
-          </Backdrop>
-        )
-      }
+      {showCouponModal && (
+        // <CouponDetailsModal
+        //   couponData={couponDataToShow}
+        //   onClose={() => setShowCouponModal(false)}
+        // />
+        <Backdrop onClick={() => setShowCouponModal(false)}>
+          <Modal onClick={(e) => e.stopPropagation()}>
+            <CloseBtn onClick={() => setShowCouponModal(false)}>×</CloseBtn>
+            <Title>Coupon Details</Title>
+            <Detail>
+              <strong>Name:</strong> {couponDataToShow?.couponName || "N/A"}
+            </Detail>
+            <Detail>
+              <strong>Course Amount:</strong> ₹
+              {couponDataToShow?.coursePrice || 0}
+            </Detail>
+            <Detail>
+              <strong>Discount Amount:</strong> ₹
+              {couponDataToShow?.discountAmount || 0}
+            </Detail>
+            <Detail>
+              <strong>Amount Paid:</strong> ₹
+              {couponDataToShow?.actualPrice || "N/A"}
+            </Detail>
+          </Modal>
+        </Backdrop>
+      )}
     </Container>
-
   );
 }

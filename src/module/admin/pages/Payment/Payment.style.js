@@ -29,33 +29,33 @@ margin-top: 20px;
 `;
 
 
-export const HeaderRow = styled.div`
-  display: flex;
-  // align-items: left;
-  justify-content: space-between;
-  flex-direction: column;
-  margin-bottom: ${(props) => props.theme.spacing(2)};
+// export const HeaderRow = styled.div`
+//   display: flex;
+//   // align-items: left;
+//   justify-content: space-between;
+//   flex-direction: column;
+//   margin-bottom: ${(props) => props.theme.spacing(2)};
 
-  // @media (min-width: 768px) and (max-width: 1024px) {
-  //   flex-direction: column;
-  //   margin-bottom: ${(props) => props.theme.spacing(1)};
-  // }
+//   // @media (min-width: 768px) and (max-width: 1024px) {
+//   //   flex-direction: column;
+//   //   margin-bottom: ${(props) => props.theme.spacing(1)};
+//   // }
 
-  .filter-items{
- display: flex;
- width: 100%;
- justify-content: start;
+//   .filter-items{
+//  display: flex;
+//  width: 100%;
+//  justify-content: start;
 
- @media (min-width: 300px) and (max-width: 1024px) {
- width: 30%;
-  flex-direction: column;
+//  @media (min-width: 300px) and (max-width: 1024px) {
+//  width: 30%;
+//   flex-direction: column;
   
-  gap: 20px;
- }
-  }
+//   gap: 20px;
+//  }
+//   }
 
   
-`;
+// `;
 
 export const Title = styled.h3`
   margin: 0;
@@ -69,34 +69,103 @@ export const Title = styled.h3`
   }
 `;
 
+// PaymentTableStyles.js
+// Payment.style.js → HeaderRow
+export const HeaderRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  // gap: 12px;
+  margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .filter-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+    }
+  }
+`;
+
 export const SortByContainer = styled.div`
   display: flex;
-  align-items: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 200px;
+  }
 `;
 
 export const SortLabel = styled.span`
-  margin-right: 4px;
-  width: 200px;
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.test};
+  white-space: nowrap;
+
+  @media (min-width: 768px) {
+    min-width: 120px;
+    text-align: right;
+  }
 `;
 
 export const SortSelect = styled.select`
+  width: 100%;
+  max-width: 260px;
+  padding: 6px 10px;
+  font-size: 12px;
   border: 1px solid ${(props) => props.theme.colors.grey};
   background-color: ${(props) => props.theme.colors.backgrounGrey};
-  padding: 4px;
-  font-family: ${(props) => props.theme.fonts.body};
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
-  cursor: pointer;
   border-radius: 8px;
-  // max-width: 200px;
+  color: ${(props) => props.theme.colors.test};
+  font-family: ${(props) => props.theme.fonts.body};
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) => props.theme.colors.primary};
+  @media (min-width: 768px) {
+    width: auto;
   }
 `;
+
+
+// export const SortByContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.test};
+// `;
+
+// export const SortLabel = styled.span`
+//   margin-right: 4px;
+//   width: 200px;
+// `;
+
+// export const SortSelect = styled.select`
+//   border: 1px solid ${(props) => props.theme.colors.grey};
+//   background-color: ${(props) => props.theme.colors.backgrounGrey};
+//   padding: 4px;
+//   font-family: ${(props) => props.theme.fonts.body};
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.test};
+//   cursor: pointer;
+//   border-radius: 8px;
+//   // max-width: 200px;
+
+//   &:focus {
+//     outline: none;
+//     border-color: ${(props) => props.theme.colors.primary};
+//   }
+// `;
 
 export const TableWrapper = styled.div`
   width: 100%;
@@ -228,45 +297,41 @@ export const PageButton = styled.button`
   }
 `;
 
-export const SearchIcon = styled.div`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
-  color: #888;
-  pointer-events: none;
-
-`;
+// PaymentTableStyles.js
 export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
-  margin-bottom: 16px;
- min-width: 2050px;
- margin-bottom: 20px;
- display: flex;
- align-items: left;
+  max-width: 520px;
+  margin: 12px 0 20px;
+  display: flex;
+  align-items: center;
 
- @media (max-width: 1024px) {
-   width: 100%;
- }
+  svg {
+    position: absolute;
+    left: 12px;
+    color: #888;
+    pointer-events: none;
+  }
 
- @media (max-width: 768px) {
-   width: 100%;
-  //  margin: 10px auto;
- }
-
- @media(min-width: 800px) and (max-width: 1080px) {
-   width: 100%;
-  //  margin: 10px auto;
- }
-
- @media (max-width: 576px) {
-   width: 100%;
-  //  margin: 10px auto;
- }
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
+
+// Remove standalone SearchIcon if you're using SVG inside
+
+// Payment.jsx (your existing SearchInput)
+
+
+// export const SearchIcon = styled.div`
+//   position: absolute;
+//   top: 50%;
+//   left: 12px;
+//   transform: translateY(-50%);
+//   color: #888;
+//   pointer-events: none;
+// `;
+
 
 export const Backdrop = styled.div`
   position: fixed;
@@ -304,4 +369,16 @@ export const CloseBtn = styled.button`
   background: none;
   border: none;
   cursor: pointer;
+`;
+
+export const SearchIcon = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+
 `;

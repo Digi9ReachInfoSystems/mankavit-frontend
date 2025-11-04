@@ -36,33 +36,94 @@ margin-top: 20px;
 `;
 
 // Header row: left title ("See All Students (14/24)") and right sort-by
+// export const HeaderRow = styled.div`
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   margin-bottom: ${(props) => props.theme.spacing(2)};
+// `;
+
+// // Title text on the left
+// export const Title = styled.h3`
+//   margin: 0;
+//   font-size: 1.25rem;
+//   font-weight: 700;
+//   color: ${(props) => props.theme.colors.black};
+
+//   @media (max-width: 768px) {
+//     font-size: 1rem;
+//     margin-left: 0;
+//   }
+// `;
+
+// // Container for "Sort by: Name"
+// export const SortByContainer = styled.div`
+//   display: flex;
+//   align-items: center;
+//   font-size: 12px;
+//   color: ${(props) => props.theme.colors.test};
+// `;
+// Header row: responsive, wraps nicely when space is tight
 export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;          /* space between left/right groups */
+  row-gap: 12px;      /* extra breathing room when wrapped */
+  flex-wrap: wrap;    /* 🔑 allow wrapping */
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 768px) {
+    justify-content: flex-start;   /* keep items left-aligned when stacked */
+  }
 `;
 
-// Title text on the left
+// Title: grows to push filters right; full width when stacked
 export const Title = styled.h3`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.colors.black};
+  flex: 1 1 auto;                  /* 🔑 lets the title occupy remaining space */
 
   @media (max-width: 768px) {
+    width: 100%;                   /* title on its own line */
     font-size: 1rem;
-    margin-left: 0;
   }
 `;
 
-// Container for "Sort by: Name"
+// Right-side container (Sort by ... + Select)
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 1 auto;
   font-size: 12px;
   color: ${(props) => props.theme.colors.test};
+
+  @media (max-width: 1024px) {
+    flex-wrap: wrap;               /* allow the bits to wrap on medium screens */
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;                   /* put below the title on phones */
+    justify-content: flex-start;   /* align left */
+    gap: 8px 12px;
+  }
+
+  /* Make AntD Select behave on small screens without shrinking too much */
+  .ant-select {
+    min-width: 160px;
+  }
+
+  @media (max-width: 480px) {
+    .ant-select {
+      // min-width: 140px;
+    }
+  }
 `;
+
 
 // "Sort by:" label
 export const SortLabel = styled.span`
@@ -394,10 +455,19 @@ export const SearchInput = styled.input`
   color: ${({ theme }) => theme.colors.silverGray};
   background: ${({ theme }) => theme.colors.backgrounGrey};
 
+  @media (max-width: 1024px) {
+    width: 40%;
+  }
   @media (max-width: 768px) {
+    width: 50%;       /* full width on phones */
     font-size: 14px;
   }
+
+  @media (max-width: 480px) {
+   width: 100%;
+  } 
 `;
+
 
 
 export const ImageModalOverlay = styled.div`

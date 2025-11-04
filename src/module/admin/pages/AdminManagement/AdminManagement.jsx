@@ -14,7 +14,7 @@ import {
   TableRow,
   TableCell,
   ActionsContainer,
-  ButtonContainer,
+  ButtonBar,
   SearchWrapper,
   SearchIcon,
   SearchInput,
@@ -30,9 +30,9 @@ import {
   ModalActions,
   ModalTitle,
   ModalBackdrop,
+  ControlsRow, // 👈 NEW
 } from "./AdminManagement.styles";
 
-import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import { ToastContainer, toast } from "react-toastify";
@@ -46,7 +46,6 @@ import { useNavigate } from "react-router-dom";
 import { blockAndUnblockUser, bulkDeleteSubAdmin } from "../../../../api/userApi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import DeleteModal from "../../component/DeleteModal/DeleteModal";
-import { set } from "date-fns";
 import { getCookiesData } from "../../../../utils/cookiesService";
 
 export default function AdminManagement() {
@@ -65,7 +64,7 @@ export default function AdminManagement() {
   const [selectAll, setSelectAll] = useState(false);
   const [BulkDelete, setBulkDelete] = useState(false);
   const [userId, setUserId] = useState(null);
-  // Fetch admin data
+
   useEffect(() => {
     const fetchAdmins = async () => {
       setLoading(true);
@@ -73,11 +72,9 @@ export default function AdminManagement() {
         const response = await getAllAdmins();
         const cookiesData = await getCookiesData();
         setUserId(cookiesData.userId);
-        // console.log("API Response:", response);
         setAdminData(response.admins || []);
         setFilteredAdmins(response.admins || []);
       } catch (error) {
-        console.error("Error fetching admins:", error);
         toast.error("Failed to load admin data");
       } finally {
         setLoading(false);
@@ -87,11 +84,9 @@ export default function AdminManagement() {
     fetchAdmins();
   }, [loadData]);
 
-  // Filter and sort admins
   useEffect(() => {
     let result = [...adminData];
 
-    // Apply search filter
     if (searchText) {
       result = result.filter(
         (admin) =>
@@ -102,12 +97,10 @@ export default function AdminManagement() {
       );
     }
 
-    // Apply sorting
     result.sort((a, b) => {
       const aValue = a[sortKey] || "";
       const bValue = b[sortKey] || "";
-
-      if (sortKey === "createdOn") {
+      if (sortKey === "createdOn" || sortKey === "signedUpAt") {
         return new Date(bValue) - new Date(aValue);
       }
       return aValue.toString().localeCompare(bValue.toString());
@@ -126,54 +119,40 @@ export default function AdminManagement() {
         const response = await deleteSubAdmin(adminId);
         toast.success(response.message);
         setLoadData(!loadData);
-      } catch (error) {
+      } catch {
         toast.error("Failed to delete admin");
       }
     }
   };
 
-  const handleToggleBlock = async (adminId, currentStatus) => {
+  const handleToggleBlock = async (adminId) => {
     try {
       const response = await blockAndUnblockUser({ userId: adminId });
       toast.success(response.message);
       setLoadData(!loadData);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update admin status");
     }
   };
-
-  // const handleResetPassword = async (adminId) => {
-  //     if (window.confirm("Are you sure you want to reset this admin's password?")) {
-  //         try {
-  //             const response = await resetAdminPassword(adminId);
-  //             toast.success(`Password reset successful. New password: ${response.newPassword}`);
-  //         } catch (error) {
-  //             toast.error("Failed to reset password");
-  //         }
-  //     }
-  // };
 
   const handleResetPassword = (adminId) => {
     setSelectedAdminId(adminId);
     setShowResetModal(true);
   };
+
   const submitPasswordReset = async () => {
     if (!newPassword || newPassword.length < 8) {
       toast.error("Password must be at least 8 characters long");
       return;
     }
-
     try {
-      const response = await resetAdminPassword(selectedAdminId, {
-        password: newPassword,
-      });
+      await resetAdminPassword(selectedAdminId, { password: newPassword });
       toast.success(`Password reset successful.`, { autoClose: 3000 });
       setShowResetModal(false);
       setNewPassword("");
       setSelectedAdminId(null);
       setLoadData((prev) => !prev);
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Failed to reset password");
     }
   };
@@ -182,95 +161,86 @@ export default function AdminManagement() {
     if (selectAll) {
       setSelectedAdmins([]);
     } else {
-      let ids =filteredAdmins.map((c) => {
-        if(c.isSuperAdmin === false) return c._id
-        else return null
-      });
+      let ids = filteredAdmins.map((c) => (c.isSuperAdmin === false ? c._id : null));
       ids = ids.filter((id) => id !== null);
-      console.log(" ids", ids);
       setSelectedAdmins(ids);
     }
     setSelectAll(!selectAll);
   };
+
   const handleBulkDelete = async () => {
     try {
       setLoading(true);
       await bulkDeleteSubAdmin(selectedAdmins);
       toast.success("Selected SubAdmin deleted successfully", {
-        autoClose: 3000, // Ensure this matches your toast duration
-        onClose: () => {
-          window.location.reload();
-        },
+        autoClose: 3000,
+        onClose: () => window.location.reload(),
       });
       setSelectedAdmins([]);
       setSelectAll(false);
-      // await fetchCourses();
-      // window.location.reload(); // Reload the page to reflect changes
       setBulkDelete(false);
     } catch (error) {
-      console.error("Bulk delete failed:", error);
-      toast.error("Failed to delete selected courses");
+      toast.error("Failed to delete selected admins");
     } finally {
       setLoading(false);
     }
   };
+
   const handleCheckboxChange = (adminId) => {
     setSelectedAdmins((prev) =>
-      prev.includes(adminId)
-        ? prev.filter((id) => id !== adminId)
-        : [...prev, adminId]
+      prev.includes(adminId) ? prev.filter((id) => id !== adminId) : [...prev, adminId]
     );
   };
-  const handleDeleteClick = () => {
-    setBulkDelete(true);
-  };
+
+  const handleDeleteClick = () => setBulkDelete(true);
+
   return (
     <Container>
       <HeaderRow>
         <Title>
           Admins <small>({filteredAdmins.length})</small>
         </Title>
+
         <SortByContainer>
           <SortLabel>Sort by:</SortLabel>
-          <SortSelect
-            value={sortKey}
-            onChange={(e) => setSortKey(e.target.value)}
-          >
+          <SortSelect value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
             <option value="displayName">Name</option>
-            <option value="createdOn">Created On</option>
+            <option value="signedUpAt">Created On</option>
             <option value="role">Role</option>
           </SortSelect>
         </SortByContainer>
       </HeaderRow>
 
-      <ButtonContainer>
-        <CreateButton
-          onClick={() => {
-            navigate("/admin/subadmins-management/create");
-          }}
-        >
-          Add Admin
-        </CreateButton>
-        {selectedAdmins.length > 0 && (
-          <CreateButton
-            onClick={handleDeleteClick}
-            style={{ backgroundColor: "red", marginLeft: "10px" }}
-          >
-            Delete Selected ({selectedAdmins.length})
-          </CreateButton>
-        )}
-      </ButtonContainer>
+      {/* Controls row: responsive search + buttons */}
+      <ControlsRow>
+        <SearchWrapper>
+          <SearchIcon>
+            <CiSearch size={18} />
+          </SearchIcon>
+          <SearchInput
+            placeholder="Search admin by name or email..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </SearchWrapper>
 
-      <SearchWrapper>
-        <SearchIcon>
-          <CiSearch size={18} />
-        </SearchIcon>
-        <SearchInput
-          placeholder="Search admin by name or email..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-      </SearchWrapper>
+        <ButtonBar>
+          <CreateButton onClick={() => navigate("/admin/subadmins-management/create")}>
+            Add Admin
+          </CreateButton>
+
+          {selectedAdmins.length > 0 && (
+            <CreateButton
+              onClick={handleDeleteClick}
+              style={{ background: "red" }}
+              aria-label="Delete Selected"
+              title="Delete Selected"
+            >
+              Delete Selected ({selectedAdmins.length})
+            </CreateButton>
+          )}
+        </ButtonBar>
+      </ControlsRow>
 
       {loading ? (
         <div>Loading admins...</div>
@@ -280,11 +250,7 @@ export default function AdminManagement() {
             <TableHead>
               <TableRow>
                 <TableHeader>
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAllChange}
-                  />
+                  <input type="checkbox" checked={selectAll} onChange={handleSelectAllChange} />
                 </TableHeader>
                 <TableHeader>Name</TableHeader>
                 <TableHeader>Email</TableHeader>
@@ -295,36 +261,33 @@ export default function AdminManagement() {
                 <TableHeader>Password Reset</TableHeader>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {filteredAdmins.length > 0 ? (
                 filteredAdmins.map((admin) => (
                   <TableRow key={admin._id || admin.id}>
                     <TableCell>
-                      {
-                        admin.isSuperAdmin ? null :
-                          <input
-                            type="checkbox"
-                            checked={selectedAdmins.includes(admin._id)}
-                            onChange={() => {
-                              handleCheckboxChange(admin._id)
-                            }}
-                          />
-                      }
-
+                      {admin.isSuperAdmin ? null : (
+                        <input
+                          type="checkbox"
+                          checked={selectedAdmins.includes(admin._id)}
+                          onChange={() => handleCheckboxChange(admin._id)}
+                        />
+                      )}
                     </TableCell>
+
                     <TableCell>
                       <a
                         style={{ textDecoration: "none" }}
                         href="#"
                         onClick={() =>
-                          navigate(
-                            `/admin/subadmins-management/edit/${admin._id}`
-                          )
+                          navigate(`/admin/subadmins-management/edit/${admin._id}`)
                         }
                       >
                         {admin.displayName || "N/A"}
                       </a>
                     </TableCell>
+
                     <TableCell>{admin.email || "N/A"}</TableCell>
                     <TableCell>{admin.role || "N/A"}</TableCell>
                     <TableCell>
@@ -332,6 +295,7 @@ export default function AdminManagement() {
                         ? new Date(admin.signedUpAt).toLocaleDateString()
                         : "N/A"}
                     </TableCell>
+
                     <TableCell>
                       <ToggleSwitch>
                         <input
@@ -346,43 +310,39 @@ export default function AdminManagement() {
                         </ToggleLabel>
                       </ToggleSwitch>
                     </TableCell>
+
                     <TableCell>
-                      {admin.isSuperAdmin ? null : <ActionsContainer>
-                        {/* <BiEditAlt
-                                                    size={20}
-                                                    title="Edit"
-                                                    onClick={() => handleEdit(admin._id)}
-                                                    style={{ cursor: "pointer" }}
-                                                /> */}
-                        <RiDeleteBin6Line
-                          size={20}
-                          title="Delete"
-                          color="#FB4F4F"
-                          onClick={() => handleDelete(admin._id)}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </ActionsContainer>}
+                      {admin.isSuperAdmin ? null : (
+                        <ActionsContainer>
+                          <RiDeleteBin6Line
+                            size={20}
+                            title="Delete"
+                            color="#FB4F4F"
+                            onClick={() => handleDelete(admin._id)}
+                            style={{ cursor: "pointer" }}
+                          />
+                        </ActionsContainer>
+                      )}
                     </TableCell>
+
                     <TableCell>
-                      {
-                        admin.isSuperAdmin ? admin._id == userId ? <ResetPasswordButton
-                          onClick={() => handleResetPassword(admin._id)}
-                        >
-                          Reset Password
-                        </ResetPasswordButton> : null
-                          : <ResetPasswordButton
-                            onClick={() => handleResetPassword(admin._id)}
-                          >
+                      {admin.isSuperAdmin
+                        ? admin._id === userId && (
+                            <ResetPasswordButton onClick={() => handleResetPassword(admin._id)}>
+                              Reset Password
+                            </ResetPasswordButton>
+                          )
+                        : (
+                          <ResetPasswordButton onClick={() => handleResetPassword(admin._id)}>
                             Reset Password
                           </ResetPasswordButton>
-                      }
-
+                        )}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
                     No admins found
                   </TableCell>
                 </TableRow>
@@ -391,6 +351,7 @@ export default function AdminManagement() {
           </StyledTable>
         </TableWrapper>
       )}
+
       {showResetModal && (
         <ResetPasswordModalOverlay>
           <ModalBackdrop onClick={() => setShowResetModal(false)} />
@@ -410,23 +371,15 @@ export default function AdminManagement() {
                 style={{
                   position: "absolute",
                   right: "10px",
-                  bottom: "-10%",
                   top: "50%",
                   transform: "translateY(-50%)",
                   cursor: "pointer",
                   color: "#999",
                 }}
               >
-                {showPassword ? <FaEye />: <FaEyeSlash />}
+                {showPassword ? <FaEye /> : <FaEyeSlash />}
               </span>
             </div>
-            {/* <ResetPasswordInput
-                            type="password"
-                            id="reset-password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="Enter new password"
-                        /> */}
             <ModalActions>
               <ModalButton
                 $variant="cancel"
@@ -446,7 +399,9 @@ export default function AdminManagement() {
           </ResetPasswordModalContent>
         </ResetPasswordModalOverlay>
       )}
+
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+
       {BulkDelete && (
         <DeleteModal
           isOpen={BulkDelete}

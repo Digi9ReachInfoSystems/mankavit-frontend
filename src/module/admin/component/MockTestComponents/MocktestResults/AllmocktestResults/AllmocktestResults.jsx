@@ -19,6 +19,8 @@ import {
   ButtonContainer,
   FilterByContainer,
   CreateButton,
+  ControlsRow,
+  ResponsiveAntSelect 
 } from "./AllmocktestResults.styles";
 import {
   getAllUserAttempts,
@@ -320,48 +322,46 @@ export default function AllmocktestResults() {
     <>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       <Container>
-        <HeaderRow>
-          <Title>
-            Mock Tests Results&nbsp;
-            <small>
-              ({pageSlice.length}/{totalItems})
-            </small>
-          </Title>
-          <div style={{ display: "flex", gap: "20px" }}>
-            <FilterByContainer>
-              <SortLabel>Filter by:</SortLabel>
-              <Select
-                style={{ width: 200 }}
-                value={filterOption}
-                onChange={setFilterOption}
-                options={filterOptions}
-                showSearch
-                optionFilterProp="label"
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                placeholder="Select a test"
-              />
-            </FilterByContainer>
-            <SortByContainer>
-              <SortLabel>Sort by:</SortLabel>
-              <Select
-                style={{ width: 150 }}
-                value={sortOption}
-                onChange={(value) => {
-                  setSortOption(value);
-                  setCurrentPage(1);
-                }}
-                options={[
-                  { value: "Select", label: "Submission Date" },
-                  { value: "Quiz Name", label: "Quiz Name" },
-                  { value: "Percentage", label: "Percentage" },
-                  { value: "Time Taken", label: "Time Taken" },
-                ]}
-              />
-            </SortByContainer>
-          </div>
-        </HeaderRow>
+      <HeaderRow>
+  <Title>
+    Mock Tests Results <small>({pageSlice.length}/{totalItems})</small>
+  </Title>
+
+  <ControlsRow>
+    <FilterByContainer>
+      <SortLabel>Filter by:</SortLabel>
+      <ResponsiveAntSelect
+        value={filterOption}
+        onChange={setFilterOption}
+        options={filterOptions}
+        showSearch
+        optionFilterProp="label"
+        filterOption={(input, option) =>
+          option.label.toLowerCase().includes(input.toLowerCase())
+        }
+        placeholder="Select a test"
+      />
+    </FilterByContainer>
+
+    <SortByContainer>
+      <SortLabel>Sort by:</SortLabel>
+      <ResponsiveAntSelect
+        value={sortOption}
+        onChange={(value) => {
+          setSortOption(value);
+          setCurrentPage(1);
+        }}
+        options={[
+          { value: "Select", label: "Submission Date" },
+          { value: "Quiz Name", label: "Quiz Name" },
+          { value: "Percentage", label: "Percentage" },
+          { value: "Time Taken", label: "Time Taken" },
+        ]}
+      />
+    </SortByContainer>
+  </ControlsRow>
+</HeaderRow>
+
 
         {/* Add bulk delete button */}
         <ButtonContainer>
