@@ -28,7 +28,14 @@ export const Title = styled.h2`
   margin-bottom: ${(props) => props.theme.spacing(1)};
   margin-top: 0;
   color: ${(props) => props.theme.colors.primary};
-`;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1.2rem;
+  }
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }  
+  `;
 
 /** The overall form element */
 export const FormWrapper = styled.form`

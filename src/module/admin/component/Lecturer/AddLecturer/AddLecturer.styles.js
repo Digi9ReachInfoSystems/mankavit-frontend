@@ -28,6 +28,18 @@ export const Title = styled.h2`
   margin-bottom: ${(props) => props.theme.spacing(1)};
   margin-top: 0;
   color: ${(props) => props.theme.colors.primary};
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.9rem;
+  }
 `;
 
 /** The overall form element */
@@ -135,6 +147,12 @@ export const CheckboxSection = styled.div`
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
   width: 50%;
+@media (max-width: 768px){
+  width: 100%;}
+  @media (max-width: 576px)
+  {
+  width: 100%;
+  }
 `;
 
 /** Title for each checkbox section (e.g. "Add Notes" and "Add Mock Test") */
@@ -147,6 +165,14 @@ export const CheckboxSectionTitle = styled.h4`
      color: ${(props) => props.theme.colors.backgrounGrey};
   background-color: ${(props) => props.theme.colors.dimGray};
   border-radius: 6px;
+
+   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 /** The container that holds multiple checkbox rows */
@@ -346,6 +372,10 @@ export const SubjectsContainer = styled.div`
   display: flex;
   gap: 2rem;
   width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const SelectedSubjectsContainer = styled.div`

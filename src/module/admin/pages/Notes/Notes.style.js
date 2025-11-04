@@ -25,34 +25,71 @@ border-radius: 12px;
   }
 `;
 /* Header row: top-left title and top-right sort */
+/* Header row: top-left title and top-right sort */
 export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;        /* spacing between groups */
+  row-gap: 12px;    /* breathing room when wrapped */
+  flex-wrap: wrap;  /* 🔑 allow wrapping */
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 768px) {
+    justify-content: flex-start; /* keep alignment tidy when stacked */
+  }
 `;
 
+
 /* The title text on the top-left (e.g., "See All Notes (14/24)") */
+/* The title text on the top-left */
 export const Title = styled.h3`
   margin: 0;
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 1.25rem;
-  // font-weight: 700;
   color: ${(props) => props.theme.colors.black};
+  flex: 1 1 auto;          /* 🔑 lets the title grow and push sort controls right */
 
   @media (max-width: 768px) {
+    width: 100%;           /* title on its own line on phones */
     font-size: 1rem;
-    margin-left: 0;
   }
 `;
 
+
 /* Container for "Sort by: Name" on the top-right */
+/* Container for "Sort by: ..." on the top-right */
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 1 auto;
   font-size: 12px;
   color: ${(props) => props.theme.colors.test};
+
+  @media (max-width: 1024px) {
+    flex-wrap: wrap;       /* allow its content to wrap on medium screens */
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;           /* sits below title on phones */
+    justify-content: flex-start;
+    gap: 8px 12px;
+  }
+
+  /* Make AntD Select behave on small screens without shrinking too much */
+  .ant-select {
+    min-width: 160px;
+  }
+
+  @media (max-width: 480px) {
+    .ant-select {
+      // min-width: 140px;
+    }
+  }
 `;
+
 
 /* "Sort by:" label */
 export const SortLabel = styled.span`
@@ -287,8 +324,17 @@ export const SearchInput = styled.input`
   color: ${({ theme }) => theme.colors.silverGray};
   background: ${({ theme }) => theme.colors.backgrounGrey};
 
+  @media (max-width: 1024px) {
+    width: 40%;
+  }
   @media (max-width: 768px) {
+    width: 50%;
+    font-size: 14px;
+  }
+      @media (max-width: 576px) {
+    width: 100%;
     font-size: 14px;
   }
 `;
+
 

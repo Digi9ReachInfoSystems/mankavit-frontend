@@ -84,7 +84,7 @@ const EditCategory = () => {
 
   return (
     <Container>
-      <Title>Add Category</Title>
+      <Title>Edit Category</Title>
       <FormWrapper onSubmit={handleSubmit}>
         <Column>
           <FieldWrapper>

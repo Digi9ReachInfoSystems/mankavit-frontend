@@ -27,6 +27,16 @@ export const Title = styled.h2`
   font-size: 1.5rem;
   margin-bottom: ${(props) => props.theme.spacing(3)};
  color: ${(props) => props.theme.colors.primary};
+
+ @media (max-width: 1024px) {
+    font-size: 1.2rem;
+  }
+    @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
+    @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
 `;
 
 // The form itself
@@ -65,6 +75,18 @@ export const Label = styled.label`
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
   font-size: 1.3rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.8rem;
+  }
 `;
 
 // Input fields
@@ -79,6 +101,18 @@ export const Input = styled.input`
   &:focus {
     outline: none;
     border-color: ${(props) => props.theme.colors.primary};
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.6rem;
   }
 `;
 
@@ -153,6 +187,14 @@ export const CheckboxSectionTitle = styled.h3`
   background-color: ${(props) => props.theme.colors.dimGray};
   padding: ${(props) => props.theme.spacing(1)};
   border-radius: 4px;
+
+   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 // Checkbox list for subjects
