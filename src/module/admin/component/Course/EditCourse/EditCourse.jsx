@@ -43,6 +43,7 @@ import JoditEditor from "jodit-react";
 import { getAuth } from "../../../../../utils/authService";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
+
 export default function EditCourse() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ export default function EditCourse() {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [categoryCheckboxes, setCategoryCheckboxes] = useState([]);
   const [searchSubject, setSearchSubject] = useState("");
-  // const [selectedSubjects, setSelectedSubjects] = useState([]);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -104,12 +105,11 @@ export default function EditCourse() {
           getCategories(),
         ]);
 
-        // Process subjects
         const subjectsArray = Array.isArray(subjectsResponse?.data)
           ? subjectsResponse.data
           : Array.isArray(subjectsResponse)
-            ? subjectsResponse
-            : [];
+          ? subjectsResponse
+          : [];
 
         const subjectsData = subjectsArray.map((item) => ({
           label: item.subjectName,
@@ -120,7 +120,6 @@ export default function EditCourse() {
             ) || false,
         }));
 
-        // Initialize selected subjects in correct order
         const orderedSubjects = [];
         if (Array.isArray(data.subjects)) {
           data.subjects.forEach((subjectId) => {
@@ -129,18 +128,15 @@ export default function EditCourse() {
                 s.id ===
                 (typeof subjectId === "object" ? subjectId._id : subjectId)
             );
-            if (subject) {
-              orderedSubjects.push(subject);
-            }
+            if (subject) orderedSubjects.push(subject);
           });
         }
 
-        // Process categories
         const categoryArray = Array.isArray(categoriesResponse?.data)
           ? categoriesResponse.data
           : Array.isArray(categoriesResponse)
-            ? categoriesResponse
-            : [];
+          ? categoriesResponse
+          : [];
 
         const formattedCategories = categoryArray.map((item) => ({
           label: item.title,
@@ -182,7 +178,6 @@ export default function EditCourse() {
         setSelectedSubjects(orderedSubjects);
         setCategoryCheckboxes(formattedCategories);
       } catch (error) {
-        // // console.error("Error fetching course data:", error);
         toast.error("Failed to load course data");
       }
     };
@@ -194,7 +189,7 @@ export default function EditCourse() {
       readonly: false,
       placeholder: formData.shortDescription,
     }),
-    []
+    [formData.shortDescription]
   );
 
   const configDis = useMemo(
@@ -202,7 +197,7 @@ export default function EditCourse() {
       readonly: false,
       placeholder: formData.description,
     }),
-    []
+    [formData.description]
   );
 
   const handleInputChange = (field, value) => {
@@ -217,17 +212,14 @@ export default function EditCourse() {
     updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
     setSubjectCheckboxes(updatedCheckboxes);
 
-    // Update selected subjects
     const subjectToUpdate = updatedCheckboxes[index];
     let newSelectedSubjects = [...selectedSubjects];
 
     if (subjectToUpdate.checked) {
-      // Add to selected if not already there
       if (!newSelectedSubjects.some((s) => s.id === subjectToUpdate.id)) {
         newSelectedSubjects.push(subjectToUpdate);
       }
     } else {
-      // Remove from selected
       newSelectedSubjects = newSelectedSubjects.filter(
         (s) => s.id !== subjectToUpdate.id
       );
@@ -278,7 +270,6 @@ export default function EditCourse() {
         toast.error("Please select an image file.");
         return;
       }
-      // // console.log("URL ", URL.createObjectURL(file),)
       setFormData((prev) => ({
         ...prev,
         thumbnailFile: file,
@@ -286,15 +277,18 @@ export default function EditCourse() {
       }));
     }
   };
+
   const handleSubjectClick = (id) => {
-    window.open(`/admin/subject-management/edit/${id}`, "_blank", "noopener,noreferrer");
-    // window.open(`/admin/subject-management/edit/${id}`, "_blank");
+    window.open(
+      `/admin/subject-management/edit/${id}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // === Required fields validation ===
     if (!formData.courseTitle?.trim()) {
       toast.error("Please enter course title.");
       return;
@@ -317,14 +311,12 @@ export default function EditCourse() {
       toast.error("Discount price cannot exceed regular price.");
       return;
     }
-    // Image is mandatory: must have either existing previewUrl or new file
     if (!formData.thumbnailFile && !formData.previewUrl) {
       toast.error("Please upload a thumbnail image.");
       return;
     }
 
     try {
-      // === Resolve image URL ===
       let fileURL = formData.previewUrl;
       if (formData.thumbnailFile) {
         const fileData = await uploadFileToAzureStorage(
@@ -334,28 +326,22 @@ export default function EditCourse() {
         fileURL = fileData.blobUrl;
       }
 
-      // === Subjects are OPTIONAL ===
       let subjectIds = [];
       if (selectedSubjects.length > 0) {
         subjectIds = selectedSubjects.map((s) => s.id);
-        await rearrangeSubjects(subjectIds); // only if there are any
+        await rearrangeSubjects(subjectIds);
       }
 
-      // Categories can be empty (optional)
       const categories = categoryCheckboxes
         .filter((item) => item.checked)
         .map((item) => item.id);
 
-      // Build payload: requireds always present; others are optional
       const payload = {
-        // required
         courseName: formData.internalTitle,
         courseDisplayName: formData.courseTitle,
         price: Number(formData.actualPrice || 0),
         discountPrice: Number(formData.discountedPrice || 0),
         image: fileURL,
-
-        // optional (send as you had them; no extra mandatory checks)
         shortDescription: formData.shortDescription,
         description: formData.description,
         category: categories,
@@ -369,36 +355,31 @@ export default function EditCourse() {
           : undefined,
         course_includes: formData.courseIncludes
           ? formData.courseIncludes
-            .split(",")
-            .map((i) => i.trim())
-            .filter((i) => i.length > 0)
+              .split(",")
+              .map((i) => i.trim())
+              .filter((i) => i.length > 0)
           : undefined,
         live_class: formData.liveClass,
         recorded_class: formData.recordedClass,
         isPublished: formData.isPublished,
         status: formData.status,
-        course_order:formData.course_order,
+        course_order: formData.course_order,
         course_rating: formData.ratting ? Number(formData.ratting) : undefined,
         courseExpiry: formData.courseExpiry
           ? new Date(formData.courseExpiry)
           : null,
       };
 
-      // Only include subjects if any selected
-      // === Subjects (always include, even empty) ===
-      // let subjectIds = [];
       if (selectedSubjects.length > 0) {
         subjectIds = selectedSubjects.map((s) => s.id);
-        await rearrangeSubjects(subjectIds); // keep this only if order is important
+        await rearrangeSubjects(subjectIds);
       }
-
-      payload.subjects = subjectIds; // ✅ always included
+      payload.subjects = subjectIds;
 
       await updateCourseById(id, payload);
       toast.success("Course updated successfully");
       // setTimeout(() => navigate("/admin/course-management"), 1000);
     } catch (err) {
-      // console.error(err);
       toast.error("Failed to update course. Please try again.");
     }
   };
@@ -411,11 +392,9 @@ export default function EditCourse() {
   };
 
   const handleRemoveSelectedSubject = (id) => {
-    // Remove from selected subjects
     const newSelectedSubjects = selectedSubjects.filter((s) => s.id !== id);
     setSelectedSubjects(newSelectedSubjects);
 
-    // Uncheck it in available subjects list too
     const updatedCheckboxes = subjectCheckboxes.map((s) =>
       s.id === id ? { ...s, checked: false } : s
     );
@@ -424,18 +403,7 @@ export default function EditCourse() {
 
   return (
     <Container>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+      <ToastContainer position="top-right" autoClose={5000} theme="colored" />
 
       <Title>Edit Course</Title>
       <FormWrapper onSubmit={handleSubmit}>
@@ -473,6 +441,7 @@ export default function EditCourse() {
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -480,11 +449,14 @@ export default function EditCourse() {
               <PriceInput
                 id="courseOrder"
                 value={formData.course_order}
-                onChange={(e) => handleInputChange("course_order", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("course_order", e.target.value)
+                }
               />
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -526,12 +498,11 @@ export default function EditCourse() {
               <PriceInput
                 id="discountedPrice"
                 value={formData.discountedPrice}
-                onChange={(e) => {
+                onChange={(e) =>
                   handleInputChange(
                     "discountedPrice",
                     sanitizeInput(e.target.value, "number")
                   )
-                }
                 }
                 placeholder="Enter Discounted Price in ₹ (eg: 2999)"
               />
@@ -563,7 +534,7 @@ export default function EditCourse() {
                 <CheckboxSectionTitle>
                   Available Subjects ({subjectCheckboxes.length})
                 </CheckboxSectionTitle>
-                {/* Add the search input here */}
+
                 <SearchWrapper style={{ marginBottom: "15px" }}>
                   <SearchIcon>
                     <CiSearch size={18} />
@@ -574,6 +545,7 @@ export default function EditCourse() {
                     onChange={(e) => setSearchSubject(e.target.value)}
                   />
                 </SearchWrapper>
+
                 <CheckboxList>
                   {subjectCheckboxes
                     .filter((subject) =>
@@ -620,7 +592,9 @@ export default function EditCourse() {
                           textDecoration: "none",
                         }}
                         onClick={() => handleSubjectClick(subject.id)}
-                      >{subject.label}</SubjectName>
+                      >
+                        {subject.label}
+                      </SubjectName>
                       <div
                         style={{
                           display: "flex",
@@ -633,10 +607,12 @@ export default function EditCourse() {
                           type="button"
                           onClick={() => {
                             if (readOnlyPermissions) {
-                              toast.error("You don't have permission for this action");
-                              return
+                              toast.error(
+                                "You don't have permission for this action"
+                              );
+                              return;
                             }
-                            moveSubjectUp(index)
+                            moveSubjectUp(index);
                           }}
                           disabled={index === 0}
                         >
@@ -647,27 +623,29 @@ export default function EditCourse() {
                           type="button"
                           onClick={() => {
                             if (readOnlyPermissions) {
-                              toast.error("You don't have permission for this action");
-                              return
+                              toast.error(
+                                "You don't have permission for this action"
+                              );
+                              return;
                             }
-                            moveSubjectDown(index)
+                            moveSubjectDown(index);
                           }}
                           disabled={index === selectedSubjects.length - 1}
                         >
                           <FaArrowDown />
                         </MoveButton>
-                        {/* 🚀 New Delete button */}
                         <MoveButton
                           style={{ backgroundColor: "gray" }}
                           type="button"
                           onClick={() => {
                             if (readOnlyPermissions) {
-                              toast.error("You don't have permission to change Publish status");
-                              return
+                              toast.error(
+                                "You don't have permission to change Publish status"
+                              );
+                              return;
                             }
-                            handleRemoveSelectedSubject(subject.id)
-                          }
-                          }
+                            handleRemoveSelectedSubject(subject.id);
+                          }}
                         >
                           ❌
                         </MoveButton>
@@ -715,102 +693,96 @@ export default function EditCourse() {
               />
             </FieldWrapper>
           </Column>
-          <Column>
-            {/* <FieldWrapper>
-              <Label htmlFor="courseExpiry">Course Expiry Date</Label>
-              <Input
-                id="courseExpiry"
-                type="date"
-                value={formData.courseExpiry}
-                onChange={(e) =>
-                  handleInputChange("courseExpiry", e.target.value)
-                }
-              />
-            </FieldWrapper> */}
-          </Column>
+          <Column>{/* reserved for future fields */}</Column>
         </FormRow>
 
+        {/* Upload & Toggles: responsive grouping */}
         <FormRow>
-          <Column style={{ flex: 1 }}>
-            <Label>Upload Thumbnail</Label>
-            <UploadArea onClick={handleUploadAreaClick}>
-              {formData.previewUrl ? (
-                <>
-                  <img
-                    src={formData.previewUrl.startsWith("blob:http") ? formData.previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${formData.previewUrl}`}
-                    alt="Preview"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  {formData.thumbnailFile && (
-                    <p>{formData.thumbnailFile.name}</p>
-                  )}
-                </>
-              ) : (
-                <>
-                  <UploadPlaceholder>
-                    <img src={uplaod} className="upload-icon" alt="" />
-                  </UploadPlaceholder>
-                  <p>Drag and drop image here</p>
-                  <p>
-                    or <strong>Add Image</strong>
-                  </p>
-                </>
-              )}
-              <FileInput
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </UploadArea>
-          </Column>
+          <Column style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 320px" }}>
+              <Label>Upload Thumbnail</Label>
+              <UploadArea onClick={handleUploadAreaClick}>
+                {formData.previewUrl ? (
+                  <>
+                    <img
+                      src={
+                        formData.previewUrl.startsWith("blob:http")
+                          ? formData.previewUrl
+                          : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${formData.previewUrl}`
+                      }
+                      alt="Preview"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    {formData.thumbnailFile && <p>{formData.thumbnailFile.name}</p>}
+                  </>
+                ) : (
+                  <>
+                    <UploadPlaceholder>
+                      <img src={uplaod} className="upload-icon" alt="" />
+                    </UploadPlaceholder>
+                    <p>Drag and drop image here</p>
+                    <p>
+                      or <strong>Add Image</strong>
+                    </p>
+                  </>
+                )}
+                <FileInput
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </UploadArea>
+            </div>
 
-          <Column className="toggle-column">
-            <FieldWrapper
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <Label style={{ marginBottom: "0px" }}>Is Discount Active?</Label>
-              <ToggleSwitch
-                type="checkbox"
-                checked={formData.isKYCRequired}
-                onChange={() => {
-                  if (readOnlyPermissions) {
-                    toast.error("You don't have permission to change discounted status");
-                    return
-                  }
-                  handleToggleChange("isKYCRequired")
+            <Column className="toggle-column" style={{ flex: "1 1 220px" }}>
+              <FieldWrapper
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: "10px",
                 }}
-              />
-            </FieldWrapper>
+              >
+                <Label style={{ marginBottom: "0px" }}>Is Discount Active?</Label>
+                <ToggleSwitch
+                  type="checkbox"
+                  checked={formData.isKYCRequired}
+                  onChange={() => {
+                    if (readOnlyPermissions) {
+                      toast.error("You don't have permission to change discounted status");
+                      return;
+                    }
+                    handleToggleChange("isKYCRequired");
+                  }}
+                />
+              </FieldWrapper>
 
-            <FieldWrapper
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <Label style={{ marginBottom: "0px" }}>Publish Course?</Label>
-              <ToggleSwitch
-                type="checkbox"
-                checked={formData.isPublished}
-                onChange={() => {
-                  if (readOnlyPermissions) {
-                    toast.error("You don't have permission to change Publish status");
-                    return
-                  } handleToggleChange("isPublished")
+              <FieldWrapper
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: "10px",
                 }}
-              />
-            </FieldWrapper>
+              >
+                <Label style={{ marginBottom: "0px" }}>Publish Course?</Label>
+                <ToggleSwitch
+                  type="checkbox"
+                  checked={formData.isPublished}
+                  onChange={() => {
+                    if (readOnlyPermissions) {
+                      toast.error("You don't have permission to change Publish status");
+                      return;
+                    }
+                    handleToggleChange("isPublished");
+                  }}
+                />
+              </FieldWrapper>
+            </Column>
           </Column>
         </FormRow>
 

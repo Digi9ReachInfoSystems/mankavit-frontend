@@ -21,6 +21,8 @@ margin-top: 20px;
   @media (max-width: 768px) {
     margin:0;
   }
+
+
 `;
 
 /** Title at the top of the form */
@@ -29,6 +31,18 @@ export const Title = styled.h2`
   font-size: 1.5rem;
   margin-bottom: ${(props) => props.theme.spacing(3)};
   color: ${(props) => props.theme.colors.primary};
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 1rem;
+  }
 `;
 
 /** The overall form element */
@@ -48,6 +62,8 @@ export const FormRow = styled.div`
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     flex-direction: column;
   }
+
+
 `;
 
 /** Each column in a row */
@@ -76,6 +92,18 @@ export const Label = styled.label`
   margin-bottom: ${(props) => props.theme.spacing(1)};
   color: ${(props) => props.theme.colors.black};
   font-size: 1.2rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.8rem;
+  }
 `;
 
 /** Standard text input styling */
@@ -90,6 +118,19 @@ export const Input = styled.input`
   &:focus {
     outline: none;
     border-color: ${(props) => props.theme.colors.primary};
+  }
+
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 0.6rem;
   }
 `;
 
@@ -119,6 +160,12 @@ export const CheckboxSection = styled.div`
   flex-direction: column;
   margin-top: ${(props) => props.theme.spacing(1)};
   width: 50%;
+@media (max-width: 768px){
+  width: 100%;}
+  @media (max-width: 576px)
+  {
+  width: 100%;
+  }
 `;
 
 /** Title for each checkbox section (e.g. "Add Notes ( Click Checkbox to Select )") */
@@ -131,6 +178,14 @@ export const CheckboxSectionTitle = styled.h4`
   background-color: ${(props) => props.theme.colors.dimGray};
   padding: ${(props) => props.theme.spacing(1)};
   border-radius: 6px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 /** The container that holds multiple checkbox rows */
@@ -263,6 +318,16 @@ export const SubjectsContainer = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+
+  @media (max-width: 576px)
+  {
+  width: 100%;
+    flex-direction: column;
+  }
+
+  @media (max-width: 768px){
+  flex-direction: column;
+  }
 `;
 
 export const SelectedSubjectsContainer = styled.div`

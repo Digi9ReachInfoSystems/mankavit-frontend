@@ -43,7 +43,6 @@ import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
 
 export default function AddCourse() {
-  // State for form fields
   const [courseTitle, setCourseTitle] = useState("");
   const [internalTitle, setInternalTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
@@ -54,7 +53,6 @@ export default function AddCourse() {
   const [description, setDescription] = useState("");
   const [course_order, setCourseOrder] = useState(1);
 
-  // New state fields
   const [duration, setDuration] = useState(null);
   const [courseExpiry, setCourseExpiry] = useState("");
   const [isPublished, setIsPublished] = useState(false);
@@ -63,12 +61,10 @@ export default function AddCourse() {
 
   const navigate = useNavigate();
 
-  // Checkbox selections
   const [subjectCheckboxes, setSubjectCheckboxes] = useState([]);
   const [categoryCheckboxes, setCategoryCheckboxes] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
 
-  // File upload state
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -97,7 +93,7 @@ export default function AddCourse() {
         }));
         setCategoryCheckboxes(dataCategories);
       } catch (error) {
-        // // console.error("Error fetching data:", error);
+        /* noop */
       }
     };
     apiCaller();
@@ -106,39 +102,34 @@ export default function AddCourse() {
   const config = useMemo(
     () => ({
       readonly: false,
-      placeholder: shortDescription || "Start typings...",
+      placeholder: shortDescription || "Start typing...",
     }),
-    []
+    [shortDescription]
   );
 
   const configDis = useMemo(
     () => ({
       readonly: false,
-      placeholder: description || "Start typings...",
+      placeholder: description || "Start typing...",
     }),
-    []
+    [description]
   );
 
-  // Separate handlers for subjects and categories
   const handleSubjectCheckboxChange = (index) => {
     const updatedCheckboxes = [...subjectCheckboxes];
     updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
     setSubjectCheckboxes(updatedCheckboxes);
 
-    // Update selected subjects
     const selected = updatedCheckboxes.filter((item) => item.checked);
 
-    // Maintain the order of already selected subjects
     const newSelectedSubjects = [...selectedSubjects];
     const subjectToUpdate = updatedCheckboxes[index];
 
     if (subjectToUpdate.checked) {
-      // Add to selected if not already there
       if (!newSelectedSubjects.some((s) => s.id === subjectToUpdate.id)) {
         newSelectedSubjects.push(subjectToUpdate);
       }
     } else {
-      // Remove from selected
       const removeIndex = newSelectedSubjects.findIndex(
         (s) => s.id === subjectToUpdate.id
       );
@@ -158,7 +149,6 @@ export default function AddCourse() {
 
   const moveSubjectUp = (index) => {
     if (index <= 0) return;
-
     const newSelectedSubjects = [...selectedSubjects];
     [newSelectedSubjects[index], newSelectedSubjects[index - 1]] = [
       newSelectedSubjects[index - 1],
@@ -169,7 +159,6 @@ export default function AddCourse() {
 
   const moveSubjectDown = (index) => {
     if (index >= selectedSubjects.length - 1) return;
-
     const newSelectedSubjects = [...selectedSubjects];
     [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = [
       newSelectedSubjects[index + 1],
@@ -182,7 +171,7 @@ export default function AddCourse() {
   const handlePublishedToggle = () => setIsPublished(!isPublished);
 
   const handleUploadAreaClick = () => {
-    if (fileInputRef.current) fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = (e) => {
@@ -198,115 +187,75 @@ export default function AddCourse() {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Basic validations - Only required fields
-    if (!courseTitle) return toast.error("Please enter course title.");
-    if (!internalTitle)
-      return toast.error("Please enter internal course title.");
-    if (!actualPrice || isNaN(actualPrice))
-      return toast.error("Actual price should be a number.");
-    if (!discountedPrice || isNaN(discountedPrice))
-      return toast.error("Discounted price should be a number.");
-    if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (!courseTitle) return toast.error("Please enter course title.");
+      if (!internalTitle) return toast.error("Please enter internal course title.");
+      if (!actualPrice || isNaN(actualPrice))
+        return toast.error("Actual price should be a number.");
+      if (!discountedPrice || isNaN(discountedPrice))
+        return toast.error("Discounted price should be a number.");
+      if (!thumbnailFile) return toast.error("Please upload thumbnail file.");
 
-    // Rearrange subjects if any are selected
-    if (selectedSubjects.length > 0) {
-      const subjectIds = selectedSubjects.map((subject) => subject.id);
-      await rearrangeSubjects(subjectIds);
-    }
+      if (selectedSubjects.length > 0) {
+        const subjectIds = selectedSubjects.map((subject) => subject.id);
+        await rearrangeSubjects(subjectIds);
+      }
 
-    // Upload image
-    const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
-    const fileURL = fileData.blobUrl;
+      const fileData = await uploadFileToAzureStorage(thumbnailFile, "course");
+      const fileURL = fileData.blobUrl;
 
-    // Prepare payload with proper defaults for all fields
-    const payload = {
-      courseName: internalTitle,
-      courseDisplayName: courseTitle,
-      price: Number(actualPrice),
-      discountPrice: Number(discountedPrice),
-      image: fileURL,
-      shortDescription: shortDescription || "",
-      description: description || "",
-      duration: duration || null,
-      discountActive: isKYCRequired,
-      isPublished: isPublished,
-      course_order: course_order,
-      courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
-    };
+      const payload = {
+        courseName: internalTitle,
+        courseDisplayName: courseTitle,
+        price: Number(actualPrice),
+        discountPrice: Number(discountedPrice),
+        image: fileURL,
+        shortDescription: shortDescription || "",
+        description: description || "",
+        duration: duration || null,
+        discountActive: isKYCRequired,
+        isPublished: isPublished,
+        course_order: course_order,
+        courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
+        category: categoryCheckboxes.filter(i => i.checked).map(i => i.id),
+        subjects: selectedSubjects.map(s => s.id),
+      };
 
-    // Add categories and subjects only if they exist
-    const selectedCategories = categoryCheckboxes
-      .filter((i) => i.checked)
-      .map((i) => i.id);
-    if (selectedCategories.length > 0) {
-      payload.category = selectedCategories;
-    } else {
-      payload.category = []; // Ensure it's always an array
-    }
+      const createCourseResponse = await createCourse(payload);
+      if (createCourseResponse) {
+        toast.success("Course created successfully.");
 
-    const subjectIds = selectedSubjects.map((subject) => subject.id);
-    if (subjectIds.length > 0) {
-      payload.subjects = subjectIds;
-    } else {
-      payload.subjects = []; // Ensure it's always an array
-    }
+        setInternalTitle("");
+        setCourseTitle("");
+        setShortDescription("");
+        setDescription("");
+        setDuration(null);
+        setActualPrice("");
+        setDiscountedPrice("");
+        setIsKYCRequired(false);
+        setSelectedSubjects([]);
+        setSubjectCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
+        setCategoryCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
+        setThumbnailFile(null);
+        setPreviewUrl(null);
+        setCourseExpiry("");
 
-    // // console.log("Sending payload:", payload); // For debugging
-
-    const createCourseResponse = await createCourse(payload);
-    if (createCourseResponse) {
-      toast.success("Course created successfully.");
-
-      // Reset form
-      setInternalTitle("");
-      setCourseTitle("");
-      setShortDescription("");
-      setDescription("");
-      setDuration(null);
-      setActualPrice("");
-      setDiscountedPrice("");
-      setIsKYCRequired(false);
-      setSelectedSubjects([]);
-      setSubjectCheckboxes((prev) =>
-        prev.map((i) => ({ ...i, checked: false }))
+        setTimeout(() => navigate("/admin/course-management"), 1000);
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Failed to create course. Please try again."
       );
-      setCategoryCheckboxes((prev) =>
-        prev.map((i) => ({ ...i, checked: false }))
-      );
-      setThumbnailFile(null);
-      setPreviewUrl(null);
-      setCourseExpiry("");
-
-      setTimeout(() => navigate("/admin/course-management"), 1000);
     }
-  } catch (err) {
-    // console.error("Error details:", err);
-    toast.error(
-      err.response?.data?.message ||
-        "Failed to create course. Please try again."
-    );
-  }
-};
+  };
 
   return (
     <Container>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-
+      <ToastContainer position="top-right" autoClose={5000} theme="colored" />
       <Title>Add Course</Title>
+
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
@@ -334,11 +283,12 @@ const handleSubmit = async (e) => {
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
               <Label htmlFor="courseOrder">Course Order</Label>
-             <Input 
+              <Input
                 id="courseOrder"
                 value={course_order}
                 onChange={(e) => setCourseOrder(e.target.value)}
@@ -347,6 +297,7 @@ const handleSubmit = async (e) => {
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -356,16 +307,12 @@ const handleSubmit = async (e) => {
                 value={description}
                 config={configDis}
                 tabIndex={1}
-                onBlur={(newContent) => {
-                  // // console.log("new", newContent);
-                }}
-                onChange={(newContent) => {
-                  setDescription(newContent);
-                }}
+                onChange={(newContent) => setDescription(newContent)}
               />
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -375,16 +322,12 @@ const handleSubmit = async (e) => {
                 value={shortDescription}
                 config={config}
                 tabIndex={1}
-                onBlur={(newContent) => {
-                  // // console.log("new", newContent);
-                }}
-                onChange={(newContent) => {
-                  setShortDescription(newContent);
-                }}
+                onChange={(newContent) => setShortDescription(newContent)}
               />
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -417,13 +360,14 @@ const handleSubmit = async (e) => {
             </FieldWrapper>
           </Column>
         </FormRow>
+
         <FormRow>
           <Column>
             <FieldWrapper>
               <Label htmlFor="duration">Course Duration (Days)</Label>
               <Input
                 id="duration"
-                value={duration}
+                value={duration || ""}
                 type="number"
                 onChange={(e) => setDuration(e.target.value)}
                 placeholder="Enter Duration in days"
@@ -431,15 +375,7 @@ const handleSubmit = async (e) => {
             </FieldWrapper>
           </Column>
           <Column>
-            {/* <FieldWrapper>
-              <Label htmlFor="courseExpiry">Course Expiry Date</Label>
-              <Input
-                id="courseExpiry"
-                type="date"
-                value={courseExpiry}
-                onChange={(e) => setCourseExpiry(e.target.value)}
-              />
-            </FieldWrapper> */}
+            {/* reserved for future fields (expiry etc.) */}
           </Column>
         </FormRow>
 
@@ -447,9 +383,11 @@ const handleSubmit = async (e) => {
           <Column>
             <SubjectsContainer>
               <CheckboxSection>
-                <CheckboxSectionTitle>Available Subjects ({subjectCheckboxes.length})</CheckboxSectionTitle>
-                {/* Add the search input here */}
-                <SearchWrapper style={{ marginBottom: "15px" }}>
+                <CheckboxSectionTitle>
+                  Available Subjects ({subjectCheckboxes.length})
+                </CheckboxSectionTitle>
+
+                <SearchWrapper style={{ marginBottom: "12px" }}>
                   <SearchIcon>
                     <CiSearch size={18} />
                   </SearchIcon>
@@ -459,12 +397,11 @@ const handleSubmit = async (e) => {
                     onChange={(e) => setSearchSubject(e.target.value)}
                   />
                 </SearchWrapper>
+
                 <CheckboxList>
                   {subjectCheckboxes
                     .filter((subject) =>
-                      subject.label
-                        .toLowerCase()
-                        .includes(searchSubject.toLowerCase())
+                      subject.label.toLowerCase().includes(searchSubject.toLowerCase())
                     )
                     .map((item, index) => (
                       <CheckboxLabel key={item.id || index}>
@@ -480,7 +417,10 @@ const handleSubmit = async (e) => {
               </CheckboxSection>
 
               <SelectedSubjectsContainer>
-                <CheckboxSectionTitle>Selected Subjects ({selectedSubjects.length})</CheckboxSectionTitle>
+                <CheckboxSectionTitle>
+                  Selected Subjects ({selectedSubjects.length})
+                </CheckboxSectionTitle>
+
                 {selectedSubjects.length > 0 ? (
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
@@ -491,6 +431,7 @@ const handleSubmit = async (e) => {
                           type="button"
                           onClick={() => moveSubjectUp(index)}
                           disabled={index === 0}
+                          aria-label="Move up"
                         >
                           <FaArrowUp />
                         </MoveButton>
@@ -499,6 +440,7 @@ const handleSubmit = async (e) => {
                           type="button"
                           onClick={() => moveSubjectDown(index)}
                           disabled={index === selectedSubjects.length - 1}
+                          aria-label="Move down"
                         >
                           <FaArrowDown />
                         </MoveButton>
@@ -513,7 +455,6 @@ const handleSubmit = async (e) => {
           </Column>
         </FormRow>
 
-        {/* Categories Section */}
         <FormRow>
           <Column>
             <CheckboxSection>
@@ -535,76 +476,74 @@ const handleSubmit = async (e) => {
         </FormRow>
 
         <FormRow>
-          <Column style={{ flex: 1 }}>
-            <Label>Upload Thumbnail *</Label>
-            <UploadArea onClick={handleUploadAreaClick}>
-              {thumbnailFile ? (
-                previewUrl ? (
-                  <>
-                    <img
-                    // src={previewUrl.startsWith("blob:http") ? previewUrl : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`}
-                      // src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${previewUrl}`}
-                      src={previewUrl}
-                      alt="Preview"
-                      style={{ width: "100%", height: "100%" }}
-                    />
-                    <p>{thumbnailFile.name}</p>
-                  </>
+          <Column style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 320px" }}>
+              <Label>Upload Thumbnail *</Label>
+              <UploadArea onClick={handleUploadAreaClick}>
+                {thumbnailFile ? (
+                  previewUrl ? (
+                    <>
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }}
+                      />
+                      <p>{thumbnailFile.name}</p>
+                    </>
+                  ) : (
+                    <>
+                      <UploadPlaceholder>
+                        <img src={uplaod} alt="Upload" />
+                      </UploadPlaceholder>
+                      <p>Drag and drop image here</p>
+                      <p>
+                        or <strong>Add Image</strong>
+                      </p>
+                    </>
+                  )
                 ) : (
                   <>
                     <UploadPlaceholder>
-                      <img src={uplaod} alt="Upload" />
+                      <img src={uplaod} className="upload-icon" alt="" />
                     </UploadPlaceholder>
                     <p>Drag and drop image here</p>
                     <p>
                       or <strong>Add Image</strong>
                     </p>
                   </>
-                )
-              ) : (
-                <>
-                  <UploadPlaceholder>
-                    <img src={uplaod} className="upload-icon" alt="" />
-                  </UploadPlaceholder>
-                  <p>Drag and drop image here</p>
-                  <p>
-                    or <strong>Add Image</strong>
-                  </p>
-                </>
-              )}
-              <FileInput
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                required
-              />
-            </UploadArea>
-          </Column>
+                )}
+                <FileInput
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  required
+                />
+              </UploadArea>
+            </div>
 
-          <Column className="toggle-column">
-            <FieldWrapper
-              style={{ flexDirection: "row", alignItems: "center" }}
-            >
-              <Label style={{ marginBottom: 0 }}>Is Discount Active?</Label>
-              <ToggleSwitch
-                type="checkbox"
-                checked={isKYCRequired}
-                onChange={handleToggleChange}
-              />
-            </FieldWrapper>
-            <FieldWrapper
-              style={{ flexDirection: "row", alignItems: "center" }}
-            >
-              <Label style={{ marginBottom: 0 }}>Is Published?</Label>
-              <ToggleSwitch
-                type="checkbox"
-                checked={isPublished}
-                onChange={handlePublishedToggle}
-              />
-            </FieldWrapper>
+            <Column className="toggle-column" style={{ flex: "1 1 220px" }}>
+              <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <Label style={{ marginBottom: 0 }}>Is Discount Active?</Label>
+                <ToggleSwitch
+                  type="checkbox"
+                  checked={isKYCRequired}
+                  onChange={handleToggleChange}
+                />
+              </FieldWrapper>
+
+              <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <Label style={{ marginBottom: 0 }}>Is Published?</Label>
+                <ToggleSwitch
+                  type="checkbox"
+                  checked={isPublished}
+                  onChange={handlePublishedToggle}
+                />
+              </FieldWrapper>
+            </Column>
           </Column>
         </FormRow>
+
         <FormRow>
           <SubmitButton type="submit">Add Course</SubmitButton>
         </FormRow>

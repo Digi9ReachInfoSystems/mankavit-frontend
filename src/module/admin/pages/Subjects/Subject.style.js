@@ -34,7 +34,14 @@ export const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;              /* space between Title & filters */
+  row-gap: 12px;          /* extra breathing room when wrapped */
+  flex-wrap: wrap;        /* 🔑 allow wrapping on smaller screens */
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+  @media (max-width: 768px) {
+    justify-content: flex-start;  /* keep things left-aligned when stacked */
+  }
 `;
 
 // The title on the left (e.g., "See All Course (14/24)")
@@ -54,8 +61,19 @@ export const Title = styled.h3`
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
-  color: ${(props) => props.theme.colors.test};
-  font-size: 0.9rem;
+  justify-content: flex-end;
+  gap: 12px;               /* 🔑 consistent spacing between filter groups */
+  flex: 0 1 auto;
+
+  @media (max-width: 1024px) {
+    flex-wrap: wrap;       /* allow filters to wrap on medium screens too */
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;           /* 🔑 put filters below title, full width */
+    justify-content: flex-start;
+    gap: 10px 12px;        /* tighter spacing on small screens */
+  }
 `;
 
 // The label "Sort by:"
@@ -294,16 +312,28 @@ export const SearchInput = styled.input`
   font-size: 14px;
   color: ${({ theme }) => theme.colors.silverGray};
   background: ${({ theme }) => theme.colors.backgrounGrey};
- 
+
+  @media (max-width: 1024px) {
+    width: 40%;
+  }
   @media (max-width: 768px) {
+    width: 100%;           /* full width on phones */
     font-size: 14px;
   }
 `;
-
 export const FilterContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 15px;
+  gap: 8px;                /* label-to-select spacing */
+  margin-right: 0;         /* remove hard right margin to avoid overflow */
+
+  /* Make AntD Select adapt better on small screens */
+  @media (max-width: 768px) {
+    .ant-select {
+      min-width: 160px;    /* keep usable tap targets */
+      width: auto;         /* let it shrink if needed */
+    }
+  }
 `;
 
 export const CloseButtonContainer = styled.div`
