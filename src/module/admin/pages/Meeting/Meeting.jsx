@@ -323,7 +323,7 @@ export default function Meeting() {
       setSelectedMeetings([]);
     } else {
       let courseIds = currentItems.map((c) => {
-        if (c.isEnded === false) return c.id;
+        if (c.isEnded === true) return c.id;
         else return null;
       });
       courseIds = courseIds.filter((id) => id !== null);
@@ -495,13 +495,17 @@ export default function Meeting() {
                       {!readOnlyPermissions && (
                         <TableCell>
                           {item.isEnded ? (
-                            <></>
-                          ) : (
+                            <>
                             <input
                               type="checkbox"
                               checked={selectedMeetings.includes(item.id)}
                               onChange={() => handleCheckboxChange(item.id)}
                             />
+                            </>
+                          ) : (
+                            
+                            <>
+                            </>
                           )}
                         </TableCell>
                       )}

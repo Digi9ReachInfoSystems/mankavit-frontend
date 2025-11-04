@@ -68,6 +68,7 @@ export const CertificateCard = styled.div`
   @media (max-width: 900px) {
     display:none;
   }
+}
   // @media (max-width: 900px)
   //  {
   //   iframe {
