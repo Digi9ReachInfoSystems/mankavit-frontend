@@ -21,11 +21,11 @@ const Certificates = () => {
     const fetchCertificates = async () => {
       const cookieData = await getCookiesData();
       const certificatesData = await getAllCertificates(cookieData.userId);
-
+      console.log("Fetched Certificates:", certificatesData);
       const preparedData = certificatesData.data.map((cert) => ({
         id: cert._id,
         imgUrl: cert.certificate_url,
-        title: cert.course_ref.courseName,
+        title:cert?.courseName|| cert.course_ref?.courseName,
       }));
 
       setCertificates(preparedData);

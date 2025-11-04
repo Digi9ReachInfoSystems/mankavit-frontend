@@ -88,7 +88,7 @@ const CourseCompletionPage = () => {
                             justifyContent: 'center',}}
                             >
                         {/* <embed src={certificatePdfUrl} type="application/pdf" width="100%" height="500px" /> */}
-                        <iframe
+                        <embed
                             src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${certificatePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                             width="600"
                             height="415px"
@@ -169,12 +169,18 @@ const Header = styled.h1`
   font-size: 2.5rem;
   color: #2c3e50;
   margin-bottom: 1rem;
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const Subheader = styled.p`
   font-size: 1.2rem;
   color: #7f8c8d;
   margin-bottom: 2rem;
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const CertificateContainer = styled.div`
@@ -206,6 +212,10 @@ const DownloadButton = styled.button`
     background-color: #3e8e41;
     transform: translateY(-2px);
   }
+    @media (max-width: 480px) {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const Divider = styled.div`
@@ -218,6 +228,9 @@ const SectionTitle = styled.h2`
   font-size: 1.5rem;
   color: #2c3e50;
   margin-bottom: 1.5rem;
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const ButtonGroup = styled.div`
@@ -246,6 +259,10 @@ const PrimaryButton = styled.button`
     background-color: #2980b9;
     transform: translateY(-2px);
   }
+    @media (max-width: 480px) {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.8rem;
+  }
 `;
 
 const SecondaryButton = styled.button`
@@ -266,6 +283,13 @@ const SecondaryButton = styled.button`
     background-color: #f8f9fa;
     transform: translateY(-2px);
   }
+
+  @media (max-width: 480px) {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.8rem;
+  }
+
+
 `;
 
 export default CourseCompletionPage;
