@@ -314,12 +314,39 @@ export const ModalTitle = styled.h3`
 
 export const ResetPasswordInput = styled.input`
   width: 100%;
-  padding: 12px;
+  padding: 12px 42px 12px 12px;   /* ⬅ add right padding for the icon */
   font-size: 16px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 `;
+
+export const PasswordToggle = styled.button`
+  position: absolute;
+  right: 10px;
+  top: 35%;
+  transform: translateY(-50%);
+  display: flex;               /* ⬅ centers the icon perfectly */
+  align-items: center;
+  justify-content: center;
+  width: 32px;                 /* touch-friendly */
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  line-height: 0;              /* ⬅ prevents baseline sag */
+  padding: 0;
+
+  &:hover {
+    color: #666;
+  }
+
+  svg {
+    pointer-events: none;      /* clicks go to the button */
+  }
+`;
+
 
 export const ModalActions = styled.div`
   display: flex;

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { PaginationWrapper, PaginationButton } from "./Pagination.styles";
+import { PaginationWrapper, PaginationButton, ButtonsRow  } from "./Pagination.styles";
 
 /** Build an inclusive number range */
 const range = (start, end) => Array.from({ length: end - start + 1 }, (_, i) => start + i);
@@ -60,14 +60,12 @@ const Pagination = ({
   onPageChange,
   totalItems,
   itemsPerPage,
-  boundaryCount = 1,  // tweakable
-  siblingCount = 1,   // tweakable
+  boundaryCount = 1,
+  siblingCount = 1,
 }) => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
       onPageChange(page);
-      // Optional: scroll table back to top
-      // window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -85,7 +83,8 @@ const Pagination = ({
         Showing {showingFrom}-{showingTo} of {totalItems}
       </span>
 
-      <div>
+      {/* single-line, scrollable button row */}
+      <ButtonsRow>
         <PaginationButton
           disabled={currentPage === 1}
           onClick={() => handlePageChange(currentPage - 1)}
@@ -93,15 +92,12 @@ const Pagination = ({
           ◀
         </PaginationButton>
 
-        {items.map((it, idx) => {
-          if (it === "start-ellipsis" || it === "end-ellipsis") {
-            return (
-              <PaginationButton key={it + idx} disabled>
-                …
-              </PaginationButton>
-            );
-          }
-          return (
+        {items.map((it, idx) =>
+          it === "start-ellipsis" || it === "end-ellipsis" ? (
+            <PaginationButton key={it + idx} disabled>
+              …
+            </PaginationButton>
+          ) : (
             <PaginationButton
               key={it}
               active={currentPage === it}
@@ -109,8 +105,8 @@ const Pagination = ({
             >
               {it}
             </PaginationButton>
-          );
-        })}
+          )
+        )}
 
         <PaginationButton
           disabled={currentPage === totalPages}
@@ -118,7 +114,7 @@ const Pagination = ({
         >
           ▶
         </PaginationButton>
-      </div>
+      </ButtonsRow>
     </PaginationWrapper>
   );
 };

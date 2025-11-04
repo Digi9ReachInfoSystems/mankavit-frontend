@@ -5,6 +5,13 @@ export const Container = styled.div`
   padding: 3rem 0;
   display: flex;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    padding: 2rem 0;
+  }
+  @media (max-width: 560px) {
+    padding: 1rem 0;
+  }
 `;
 export const Content = styled.div`
   width: 90%;
@@ -151,7 +158,7 @@ export const CardTitle = styled.h3`
     line-height: 1.3;
   }
   @media (max-width: 560px) {
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.35;
   }
 `;

@@ -12,6 +12,15 @@ export const Section = styled.section`
     width: 95%;
     padding: 20px 5px;
   }
+
+  @media (max-width: 768px) {
+    padding: 20px 0;
+  }
+
+  @media (max-width: 560px) {
+    width: 100%;
+    padding: 10px 0;
+  }
 `;
 
 export const Title = styled.h2`

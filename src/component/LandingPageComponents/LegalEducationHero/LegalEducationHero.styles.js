@@ -175,6 +175,7 @@ export const ButtonsGroup = styled.div`
 
   @media (max-width: 576px) {
     justify-content: center;
+  
   }
 `;
 
@@ -240,7 +241,7 @@ export const LeftContentMobile = styled.div`
     display: flex;
     allign-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0;
     flex-direction: column;
   }
 `;

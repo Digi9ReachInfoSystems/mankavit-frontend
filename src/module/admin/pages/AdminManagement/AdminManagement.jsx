@@ -6,6 +6,7 @@ import {
   SortByContainer,
   SortLabel,
   SortSelect,
+  PasswordToggle,
   TableWrapper,
   StyledTable,
   TableHead,
@@ -358,28 +359,25 @@ export default function AdminManagement() {
           <ResetPasswordModalContent onClick={(e) => e.stopPropagation()}>
             <ModalTitle>Reset Password</ModalTitle>
             <label htmlFor="reset-password">New Password</label>
-            <div style={{ position: "relative" }}>
-              <ResetPasswordInput
-                type={showPassword ? "text" : "password"}
-                id="reset-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
-              />
-              <span
-                onClick={() => setShowPassword((prev) => !prev)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  color: "#999",
-                }}
-              >
-                {showPassword ? <FaEye /> : <FaEyeSlash />}
-              </span>
-            </div>
+           <div style={{ position: "relative" }}>
+  <ResetPasswordInput
+    type={showPassword ? "text" : "password"}
+    id="reset-password"
+    value={newPassword}
+    onChange={(e) => setNewPassword(e.target.value)}
+    placeholder="Enter new password"
+  />
+
+  <PasswordToggle
+    type="button"
+    onClick={() => setShowPassword((prev) => !prev)}
+    aria-label={showPassword ? "Hide password" : "Show password"}
+    title={showPassword ? "Hide password" : "Show password"}
+  >
+    {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+  </PasswordToggle>
+</div>
+
             <ModalActions>
               <ModalButton
                 $variant="cancel"

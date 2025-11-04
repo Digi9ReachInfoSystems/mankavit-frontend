@@ -445,6 +445,7 @@ export default function Meeting() {
       onChange={setDateRange}
       className="filter-range"
       placeholder={["Start Date", "End Date"]}
+    
     />
 
     <button className="primary-btn" onClick={handleApplyFilters}>

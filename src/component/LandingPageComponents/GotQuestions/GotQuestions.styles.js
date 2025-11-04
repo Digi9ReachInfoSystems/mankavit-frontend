@@ -5,6 +5,13 @@ import styled, { keyframes } from "styled-components";
 export const Container = styled.section`
   padding: 72px 20px;
   background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+
+  @media (max-width: 900px) {
+    padding: 48px 20px;
+  }
+    @media (max-width: 576px) {
+    padding: 32px 20px;
+    }
 `;
 
 export const Content = styled.div`

@@ -9,6 +9,8 @@ export const Container = styled.section`
 
   width: min(1200px, 92%);
   margin: 0 auto;
+
+  
 `;
 
 export const Title = styled.h2`
