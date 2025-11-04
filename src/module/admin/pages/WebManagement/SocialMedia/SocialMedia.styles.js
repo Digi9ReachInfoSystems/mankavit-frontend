@@ -25,6 +25,10 @@ margin-top: 20px;
     margin-bottom: ${theme.spacing(3)};
     font-family: ${theme.fonts.heading};
     color: ${theme.colors.black};
+
+    @media (max-width: 540px) {
+      font-size: 1.3rem;
+    }
   }
 `;
 export const FormGroup = styled.div`

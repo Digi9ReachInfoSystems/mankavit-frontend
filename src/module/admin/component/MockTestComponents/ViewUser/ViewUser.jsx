@@ -17,6 +17,7 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
+  ControlsRow
 } from "./ViewUser.styles";
 import { CiSearch } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
@@ -43,19 +44,14 @@ export default function             ViewUser() {
           mockTestId,
 
         );
-        // // console.log("Fetching user answers for mockTestId:", response);
-        // // console.log("subjectId", subjectId);
-        // // console.log("mockTestId", mockTestId);
-        // // console.log("View user answers response", response);
+        
         if (response.success) {
           setData(response.data);
         } else {
           throw new Error(response.message || "Failed to fetch user answers");
         }
       } catch (error) {
-        // // console.error("Error fetching mock tests:", error);
-        // You might want to set some error state here to show to the user
-      }
+       }
     };
 
     fetchUserAnswers();
@@ -84,18 +80,22 @@ export default function             ViewUser() {
   return (
     <Container>
       <HeaderRow>
-        <Title>
-          List of Students <small>({pageItems.length}/{totalEntries})</small>
-        </Title>
-        <SortByContainer>
-          <SortLabel>Sort by:</SortLabel>
-          <SortSelect value={sortBy} onChange={handleSortChange}>
-            <option value="Name">Name</option>
-            <option value="LastActive">Last Active</option>
-            <option value="Active">Active</option>
-          </SortSelect>
-        </SortByContainer>
-      </HeaderRow>
+   <Title>
+     List of Students <small>({pageItems.length}/{totalEntries})</small>
+   </Title>
+
+  <ControlsRow>
+    <SortByContainer>
+      <SortLabel>Sort by:</SortLabel>
+      <SortSelect value={sortBy} onChange={handleSortChange}>
+        <option value="Name">Name</option>
+        <option value="LastActive">Last Active</option>
+        <option value="Active">Active</option>
+      </SortSelect>
+    </SortByContainer>
+  </ControlsRow>
+ </HeaderRow>
+
 
       <SearchWrapper>
         <SearchIcon><CiSearch size={18} /></SearchIcon>

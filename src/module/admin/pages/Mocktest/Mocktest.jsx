@@ -21,6 +21,8 @@ import {
   ToggleLabel,
   ButtonContainer,
   CreateButton,
+  ControlsRow,
+  ResponsiveAntSelect
 } from "./Mocktest.styles";
 import { BiEditAlt } from "react-icons/bi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -321,46 +323,46 @@ export default function MockTestsTable() {
       </div>
 
       <Container>
-        <HeaderRow>
-          <Title>
-            Mock Tests{" "}
-            <small>
-              ({pageItems.length}/{totalEntries})
-            </small>
-          </Title>
-          <SortByContainer>
-            <SortLabel>Filter by:</SortLabel>
-            <ScrollableDropdown
-              value={selectedSubject}
-              onChange={handleSubjectChange}
-              options={subjects}
-              style={{ width: 180, marginRight: "10px" }}
-              showSearch
-              optionFilterProp="label"
-              filterOption={(input, option) =>
-                option.label.toLowerCase().includes(input.toLowerCase())
-              }
-              dropdownStyle={{ maxHeight: 300, overflowY: "auto" }}
-              dropdownRender={(menu) => (
-                <div style={{ maxHeight: 300, overflowY: "auto" }}>{menu}</div>
-              )}
-            />
-            <SortLabel>Sort by:</SortLabel>
 
-            <Select
-              value={sortOption}
-              onChange={(value) => {
-                setSortOption(value);
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: "Latest", label: "Latest" },
-                { value: "Name", label: "Name" },
-              ]}
-              style={{ width: 120 }}
-            />
-          </SortByContainer>
-        </HeaderRow>
+
+      <HeaderRow>
+  <Title>
+    Mock Tests <small>({pageItems.length}/{totalEntries})</small>
+  </Title>
+
+  <ControlsRow>
+    <SortByContainer>
+      <SortLabel>Filter by:</SortLabel>
+      <ResponsiveAntSelect
+        value={selectedSubject}
+        onChange={handleSubjectChange}
+        options={subjects}
+        showSearch
+        optionFilterProp="label"
+        filterOption={(input, option) =>
+          option.label.toLowerCase().includes(input.toLowerCase())
+        }
+        dropdownStyle={{ maxHeight: 300, overflowY: "auto" }}
+      />
+    </SortByContainer>
+
+    <SortByContainer>
+      <SortLabel>Sort by:</SortLabel>
+      <ResponsiveAntSelect
+        value={sortOption}
+        onChange={(value) => {
+          setSortOption(value);
+          setCurrentPage(1);
+        }}
+        options={[
+          { value: "Latest", label: "Latest" },
+          { value: "Name", label: "Name" },
+        ]}
+      />
+    </SortByContainer>
+  </ControlsRow>
+</HeaderRow>
+
 
         <ButtonContainer>
           {selectedMockTests.length > 0 && (

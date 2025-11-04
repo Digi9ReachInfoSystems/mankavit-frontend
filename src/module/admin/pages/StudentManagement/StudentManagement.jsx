@@ -249,31 +249,31 @@ export default function StudentManagement() {
       </ButtonContainer>
 
       <Container>
-        <HeaderRow>
-          <Title>See all students <span>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
+     <HeaderRow>
+  <Title>See all students <span>({currentItems.length}/{TOTAL_ENTRIES})</span></Title>
 
-          <SortByContainer >
-            <SortByContainer style={{ marginLeft: "1rem" }}>
-              <SortLabel>Filter by Course:</SortLabel>
-              <SortSelect value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)}>
-                <option value="all">All</option>
-                {Object.entries(coursesMap).map(([id, name]) => (
-                  <option key={id} value={id}>{name}</option>
-                ))}
-              </SortSelect>
-            </SortByContainer>
+  {/* Group controls together */}
+  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+    <SortByContainer>
+      <SortLabel>Filter by Course:</SortLabel>
+      <SortSelect value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)}>
+        <option value="all">All</option>
+        {Object.entries(coursesMap).map(([id, name]) => (
+          <option key={id} value={id}>{name}</option>
+        ))}
+      </SortSelect>
+    </SortByContainer>
 
-            <SortLabel>Sort by:</SortLabel>
-            <SortSelect value={sortConfig.key} onChange={e => requestSort(e.target.value)}>
-              <option value="signedUpAt">Latest</option>
-              <option value="displayName">Name</option>
-              <option value="kyc_status">KYC Status</option>
-            </SortSelect>
-          </SortByContainer>
-
-
-
-        </HeaderRow>
+    <SortByContainer>
+      <SortLabel>Sort by:</SortLabel>
+      <SortSelect value={sortConfig.key} onChange={e => requestSort(e.target.value)}>
+        <option value="signedUpAt">Latest</option>
+        <option value="displayName">Name</option>
+        <option value="kyc_status">KYC Status</option>
+      </SortSelect>
+    </SortByContainer>
+  </div>
+</HeaderRow>
 
 
         <SearchWrapper>

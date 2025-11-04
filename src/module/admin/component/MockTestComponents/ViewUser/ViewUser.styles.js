@@ -30,7 +30,25 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+
+ @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 `;
+
+export const ControlsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;     /* one column by default */
+  gap: 12px;
+
+  @media (min-width: 769px) {
+    grid-template-columns: auto;  /* keep as single row area on desktop */
+    justify-content: end;
+  }
+`;
+
 
 /* The title text on the top-left (e.g., "See All Notes (14/24)") */
 export const Title = styled.h3`
@@ -47,12 +65,25 @@ export const Title = styled.h3`
 `;
 
 /* Container for "Sort by: Name" on the top-right */
-export const SortByContainer = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
-`;
+ export const SortByContainer = styled.div`
+   display: flex;
+   align-items: center;
+   font-size: 12px;
+   color: ${(props) => props.theme.colors.test};
+
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 50%;
+    justify-content: space-between; /* label left, select right */
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    justify-content: space-between; /* label left, select right */
+  }
+ `;
+
 
 /* "Sort by:" label */
 export const SortLabel = styled.span`
@@ -60,20 +91,26 @@ export const SortLabel = styled.span`
 `;
 
 /* A <select> for the sort options (e.g., Name, etc.) */
-export const SortSelect = styled.select`
-  border: 1px solid ${(props) => props.theme.colors.grey};
-  background-color: ${(props) => props.theme.colors.backgrounGrey};
-  padding: 4px;
-  font-family: ${(props) => props.theme.fonts.body};
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.test};
-  cursor: pointer;
+ export const SortSelect = styled.select`
+   border: 1px solid ${(props) => props.theme.colors.grey};
+   background-color: ${(props) => props.theme.colors.backgrounGrey};
+   padding: 4px;
+   font-family: ${(props) => props.theme.fonts.body};
+   font-size: 12px;
+   color: ${(props) => props.theme.colors.test};
+   cursor: pointer;
+ 
+   &:focus {
+     outline: none;
+     border-color: ${(props) => props.theme.colors.primary};
+   }
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) => props.theme.colors.primary};
+  @media (max-width: 768px) {
+    flex: 1;
+    min-width: 0;
   }
-`;
+ `;
+
 
 /* Wrapper for the table area (scroll horizontally on small screens) */
 export const TableWrapper = styled.div`
@@ -256,15 +293,21 @@ export const CreateButton = styled.button`
   }
 `;
 
-export const SearchWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  margin-bottom: 16px;
+// export const SearchWrapper = styled.div`
+//   position: relative;
+//   width: 100%;
+//   margin-bottom: 16px;
 
-  @media (max-width: 768px) {
-    margin-bottom: 20px;
-  }
-`;
+//   @media (max-width: 768px) {
+//     margin-bottom: 20px;
+//     width: 50%;
+//   }
+
+//   @media (max-width: 480px) {
+//     margin-bottom: 20px;
+//     width: 100%;
+//   }
+// `;
 
 export const SearchIcon = styled.div`
   display: flex;
@@ -278,19 +321,51 @@ export const SearchIcon = styled.div`
 
 `;
 
-export const SearchInput = styled.input`
-  width: 20%;
-  padding: 10px 5px 10px 40px; 
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.silverGray};
-  background: ${({ theme }) => theme.colors.backgrounGrey};
+// export const SearchInput = styled.input`
+//   width: 20%;
+//   padding: 10px 5px 10px 40px; 
+//   border: none;
+//   border-radius: 8px;
+//   font-size: 14px;
+//   color: ${({ theme }) => theme.colors.silverGray};
+//   background: ${({ theme }) => theme.colors.backgrounGrey};
 
-  @media (max-width: 768px) {
-    font-size: 14px;
+//   @media (max-width: 768px) {
+//     font-size: 14px;
+//   }
+// `;
+
+ export const SearchWrapper = styled.div`
+   position: relative;
+   width: 100%;
+   margin-bottom: 16px;
+ 
+   @media (max-width: 768px) {
+     margin-bottom: 20px;
+     width: 50%;
+   }
+     @media (max-width: 480px) {
+    margin-bottom: 20px;
+    width: 100%;
   }
-`;
+ `;
+ 
+ export const SearchInput = styled.input`
+  width: 100%;
+  max-width: 520px;                /* cap on desktop */
+   padding: 10px 5px 10px 40px; 
+   border: none;
+   border-radius: 8px;
+   font-size: 14px;
+   color: ${({ theme }) => theme.colors.silverGray};
+   background: ${({ theme }) => theme.colors.backgrounGrey};
+ 
+   @media (max-width: 768px) {
+   font-size: 14px;
+   max-width: 100%;               /* full width on mobile */
+   }
+ `;
+
 
 export const ToggleSwitch = styled.label`
   position: relative;

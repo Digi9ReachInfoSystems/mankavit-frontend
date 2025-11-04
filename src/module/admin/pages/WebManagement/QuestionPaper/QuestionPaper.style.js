@@ -177,7 +177,10 @@ export const ButtonContainer = styled.div`
 //  margin-right:10px;
 
  @media (max-width: 768px) {
-//  margin: 10px 5px;
+ margin: 10px 5px;
+display: flex;
+flex-direction: column;
+justify-content: center;
 }
   `;
 
@@ -210,7 +213,8 @@ padding: ${(props) => props.theme.spacing(2)} ${(props) => props.theme.spacing(2
   @media (max-width: 480px) {
     padding: 15px 20px;
     font-size: 14px;
-    width: 75%;
+    width: 50%;
+    margin:auto;
  
   }
   

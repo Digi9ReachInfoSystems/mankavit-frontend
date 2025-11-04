@@ -145,35 +145,34 @@ const UserFeedback = () => {
   const currentPageData = filteredFeedback.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <Container>
+<Container>
       <HeaderRow>
         <Title>
           My Feedback{" "}
-          <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: "400" }}>
+          <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: 400 }}>
             ({currentPageData.length}/{totalItems})
           </span>
         </Title>
+
+        {/* Right-side controls (becomes full-width on small screens) */}
         <SortByContainer>
           <SortLabel>Sort by:</SortLabel>
           <Select
             allowClear
             value={sortOption}
-            style={{ width: 200 }}
             onChange={(value) => {
               setSortOption(value);
-              setCurrentPage(1); // reset to first page on change
+              setCurrentPage(1);
             }}
             placeholder="Select course"
             options={[
-              { label: "All Courses", value: null }, // ⬅️ Default option
-              ...courses.map(course => ({
+              { label: "All Courses", value: null },
+              ...courses.map((course) => ({
                 label: course.courseName,
-                value: course._id
-              }))
+                value: course._id,
+              })),
             ]}
           />
-
-
         </SortByContainer>
       </HeaderRow>
 

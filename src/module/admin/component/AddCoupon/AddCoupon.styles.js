@@ -30,6 +30,13 @@ export const Title = styled.h1`
   @media (max-width: 1024px) {
     font-size: 24px;
   }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+    @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 export const InputGroup = styled.div`

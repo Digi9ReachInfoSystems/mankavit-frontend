@@ -138,6 +138,7 @@ export const HamburgerIcon = styled.div`
     border-radius: 4px;
     cursor: pointer;
   }
+  
 `;
 
 export const Backdrop = styled.div`
