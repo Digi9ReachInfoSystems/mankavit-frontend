@@ -2,6 +2,13 @@ import styled from 'styled-components';
 
 export const Container = styled.section`
   padding: 60px 20px;
+
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+  }
+    @media (max-width: 560px) {
+    padding: 20px 10px;
+  }
 `;
 
 export const Content = styled.div`

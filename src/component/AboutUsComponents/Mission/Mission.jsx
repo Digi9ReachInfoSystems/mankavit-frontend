@@ -39,22 +39,45 @@ const Mission = () => {
   }, []);
 
   // keep buttons enabled/disabled correctly
-  const checkScrollEdges = () => {
-    const el = containerRef.current;
-    if (!el) return;
-    const start = el.scrollLeft <= 0;
-    const end = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
-    setAtStart(start);
-    setAtEnd(end);
-  };
+ // keep buttons enabled/disabled correctly
+const checkScrollEdges = () => {
+  const el = containerRef.current;
+  if (!el) return;
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    checkScrollEdges();
-    el.addEventListener("scroll", checkScrollEdges, { passive: true });
-    return () => el.removeEventListener("scroll", checkScrollEdges);
-  }, [containerRef.current]);
+  // be a bit lenient with rounding
+  const start = el.scrollLeft <= 0;
+  const end =
+    Math.ceil(el.scrollLeft + el.clientWidth) >= Math.floor(el.scrollWidth);
+
+  setAtStart(start);
+  setAtEnd(end);
+};
+
+useEffect(() => {
+  const el = containerRef.current;
+  if (!el) return;
+
+  const onScroll = () => checkScrollEdges();
+  const onResize = () => checkScrollEdges();
+
+  // initial calc after layout
+  requestAnimationFrame(checkScrollEdges);
+
+  el.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onResize);
+
+  // (optional) update when the container’s size/content changes
+  const ro = new ResizeObserver(checkScrollEdges);
+  ro.observe(el);
+
+  return () => {
+    el.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onResize);
+    ro.disconnect();
+  };
+  // Re-evaluate bindings when the item count changes (width/overflow changes)
+}, [missionData.length]);
+
 
   const handleScroll = (direction) => {
     const el = containerRef.current;
