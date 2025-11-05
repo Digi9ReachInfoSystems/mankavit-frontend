@@ -556,9 +556,6 @@
 
 
 // export default MockTestQuestionsList;
-
-
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   MockTestQuestionsListContainer,
@@ -588,7 +585,13 @@ import { getAuth } from "../../../../../utils/authService";
 import { nanoid } from "nanoid";
 
 // helpers
-const createEmptyOption = () => ({ text: "", marks: -0.25, isCorrect: false });
+const createEmptyOption = () => ({ 
+  text: "", 
+  marks: -0.25, 
+  isCorrect: false,
+  _optionId: nanoid() // Add unique ID for each option
+});
+
 const createEmptyQuestion = () => ({
   type: "mcq",
   text: "",
@@ -598,7 +601,6 @@ const createEmptyQuestion = () => ({
   isPassage: false,
   passageText: "",
   _tempId: nanoid(),
-  // Add a stable key that won't change
   _stableKey: nanoid(), // This will remain constant throughout the question's lifecycle
 });
 
@@ -609,7 +611,7 @@ const MockTestQuestionsList = () => {
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    index: null, // question index
+    index: null,
   });
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   
@@ -654,6 +656,7 @@ const MockTestQuestionsList = () => {
               marks: opt.marks ?? (index === q.correctAnswer ? 1 : -0.25),
               isCorrect: index === q.correctAnswer,
               raw: (opt.marks ?? (index === q.correctAnswer ? "1" : "-0.25")).toString(),
+              _optionId: nanoid(), // Add unique ID for each option
             }))
             : [],
           marks: q.marks || 0,
@@ -661,8 +664,7 @@ const MockTestQuestionsList = () => {
           _id: q._id,
           isPassage: q.isPassage || false,
           passageText: q.passageText || "",
-          // Add stable key for existing questions too
-          _stableKey: q._id || nanoid(),
+          _stableKey: q._id || nanoid(), // Use server ID as stable key if available
         }));
 
         setQuestions(transformed);
@@ -715,6 +717,11 @@ const MockTestQuestionsList = () => {
 
   // move / reorder
   const moveQuestion = async (qi, dir) => {
+    if (editingIndex !== null) {
+      toast.warn("Please save or cancel your current edits before reordering questions");
+      return;
+    }
+    
     const newIndex = dir === "up" ? qi - 1 : qi + 1;
     if (newIndex < 0 || newIndex >= questions.length) return;
 
@@ -752,83 +759,118 @@ const MockTestQuestionsList = () => {
     }
   };
 
-  // field updates
+  // field updates - using immutable updates
   const updateQuestionField = (qi, field, value) =>
     setQuestions((prev) => {
-      const next = [...prev];
-      next[qi] = { ...next[qi], [field]: value };
-      if (field === "type" && value === "subjective") {
-        next[qi].options = [];
-      }
+      const next = prev.map((question, index) => {
+        if (index !== qi) return question;
+        
+        const updatedQuestion = { ...question, [field]: value };
+        
+        if (field === "type" && value === "subjective") {
+          updatedQuestion.options = [];
+        }
+        
+        return updatedQuestion;
+      });
       return next;
     });
 
- const updateOptionField = (qi, oi, field, value) =>
-  setQuestions((prev) => {
-    const next = [...prev];
-    const q = { ...next[qi] };
-    const options = [...q.options];
-    
-    if (field === "isCorrect") {
-      // Create new options array with proper marks handling
-      const newOptions = options.map((opt, idx) => {
-        if (idx === oi) {
-          // Current option being updated
-          return {
-            ...opt,
-            isCorrect: value,
-            marks: value ? 1 : -0.25,
-            raw: value ? "1" : "-0.25"
-          };
-        } else {
-          // Other options - if we're setting one as correct, others become incorrect
-          if (value) {
-            return {
-              ...opt,
-              isCorrect: false,
-              marks: opt.marks > 0 ? -0.25 : opt.marks,
-              raw: opt.marks > 0 ? "-0.25" : opt.raw
-            };
-          } else {
-            // If deselecting, don't change other options
-            return opt;
+  const updateOptionField = (qi, oi, field, value) =>
+    setQuestions((prev) => {
+      const next = prev.map((question, qIndex) => {
+        if (qIndex !== qi) return question;
+        
+        const options = question.options.map((opt, optIndex) => {
+          if (optIndex !== oi) return opt;
+          
+          const updatedOption = { ...opt, [field]: value };
+          
+          if (field === "isCorrect") {
+            if (value === true) {
+              updatedOption.marks = 1;
+              updatedOption.raw = "1";
+            } else {
+              updatedOption.marks = -0.25;
+              updatedOption.raw = "-0.25";
+            }
           }
+          
+          return updatedOption;
+        });
+
+        // If marking an option as correct, unmark all others
+        if (field === "isCorrect" && value === true) {
+          return {
+            ...question,
+            options: options.map((opt, idx) => 
+              idx === oi ? opt : { ...opt, isCorrect: false }
+            )
+          };
         }
+        
+        return { ...question, options };
       });
-      
-      next[qi] = { ...q, options: newOptions };
-    } else {
-      // Handle non-isCorrect field updates
-      const opt = { ...options[oi], [field]: value };
-      options[oi] = opt;
-      next[qi] = { ...q, options };
-    }
-    
-    return next;
-  });
+      return next;
+    });
 
   const addOption = (qi) =>
     setQuestions((prev) => {
-      const next = [...prev];
-      const q = { ...next[qi] };
-      q.options = [...q.options, createEmptyOption()];
-      next[qi] = q;
+      const next = prev.map((question, index) => {
+        if (index !== qi) return question;
+        return {
+          ...question,
+          options: [...question.options, createEmptyOption()]
+        };
+      });
       return next;
     });
 
-  const deleteOption = (qi, oi) =>
+  const deleteOption = (qi, oi) => {
+    const q = questions[qi];
+    if (q.options.length <= 1) {
+      toast.warn("Cannot delete the only option");
+      return;
+    }
+    
+    const correctOptionExists = q.options.some((opt, idx) => idx !== oi && opt.isCorrect);
+    if (!correctOptionExists && q.options[oi].isCorrect) {
+      toast.warn("Please select another correct option before deleting this one");
+      return;
+    }
+    
     setQuestions((prev) => {
-      const next = [...prev];
-      const q = { ...next[qi] };
-      q.options = q.options.filter((_, idx) => idx !== oi);
-      next[qi] = q;
+      const next = prev.map((question, index) => {
+        if (index !== qi) return question;
+        return {
+          ...question,
+          options: question.options.filter((_, idx) => idx !== oi)
+        };
+      });
       return next;
     });
+  };
 
-  // save
+  // save - FIXED VERSION
   const saveQuestion = async (qi) => {
     const q = questions[qi];
     const isSubjective = q.type === "subjective";
+    
+    // Validation for MCQ questions
+    if (!isSubjective) {
+      const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
+      if (validOptions.length === 0) {
+        toast.error("Please add at least one valid option");
+        return;
+      }
+      
+      const hasCorrectOption = validOptions.some(opt => opt.isCorrect);
+      if (!hasCorrectOption) {
+        toast.error("Please select a correct option for the MCQ question");
+        return;
+      }
+    }
+    
     const payload = {
       type: q.type,
       questionText: q.text,
@@ -841,10 +883,6 @@ const MockTestQuestionsList = () => {
       payload.marks = Number(q.marks) || 0;
     } else {
       const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
-      if (validOptions.length === 0) {
-        toast.error("Please add at least one valid option");
-        return;
-      }
       payload.options = validOptions.map((opt) => ({
         text: opt.text,
         marks: Number(opt.marks),
@@ -858,27 +896,79 @@ const MockTestQuestionsList = () => {
     try {
       let res;
       if (q._id) {
+        // Update existing question
         res = await updatemocktestquestions(q._id, mockTestId, payload);
+        
+        // Update only the specific question in state, don't replace the entire array
+        if (res?.data?.question) {
+          setQuestions((prev) => {
+            const next = prev.map((question, index) => {
+              if (index !== qi) return question;
+              
+              // Merge the response data with our existing question, preserving stable key
+              return {
+                ...question,
+                ...res.data.question,
+                _stableKey: question._stableKey, // Preserve the stable key
+                _tempId: question._tempId, // Preserve temp ID if exists
+              };
+            });
+            return next;
+          });
+        } else {
+          // If no response data, just update the local state with the payload data
+          setQuestions((prev) => {
+            const next = prev.map((question, index) => {
+              if (index !== qi) return question;
+              return {
+                ...question,
+                ...payload,
+                // Preserve all the IDs and keys
+                _id: question._id,
+                _stableKey: question._stableKey,
+                _tempId: question._tempId,
+              };
+            });
+            return next;
+          });
+        }
       } else {
+        // Create new question
         res = await addmocktestquestions(mockTestId, payload);
-        // try to set the new _id from response
-        const created =
-          res?.mockTest?.questions?.find((x) => !x.__isNew) ||
+        
+        // Extract the created question from response
+        const created = res?.mockTest?.questions?.find((x) => !x.__isNew) ||
           res?.data?.question ||
           res?.question;
+        
         if (created?._id) {
           setQuestions((prev) => {
-            const next = [...prev];
-            next[qi] = { ...next[qi], _id: created._id };
-            // Keep the stable key unchanged
+            const next = prev.map((question, index) => {
+              if (index !== qi) return question;
+              return {
+                ...question,
+                _id: created._id,
+                // Keep the original stable key and temp ID
+                _stableKey: question._stableKey,
+                _tempId: question._tempId,
+              };
+            });
             return next;
           });
         }
       }
+      
       setEditingIndex(null);
+      toast.success("Question saved successfully");
     } catch (err) {
+      console.error("Save question error:", err);
       toast.error("Error saving question. Please try again.");
     }
+  };
+
+  // Cancel editing without saving
+  const cancelEditing = () => {
+    setEditingIndex(null);
   };
 
   if (loading) return <div>Loading questions...</div>;
@@ -889,19 +979,16 @@ const MockTestQuestionsList = () => {
 
       {questions.length === 0 ? (
         <>
-          {
-            !readOnlyPermissions && (
-              <CreateButton onClick={addQuestion}>
-                <FaPlus /> Create New Question
-              </CreateButton>
-            )
-          }
+          {!readOnlyPermissions && (
+            <CreateButton onClick={addQuestion}>
+              <FaPlus /> Create New Question
+            </CreateButton>
+          )}
         </>
       ) : (
         <>
           {questions.map((q, qi) => {
             const isEditing = editingIndex === qi;
-            // Use _stableKey instead of _id or _tempId for the key prop
             return (
               <QuestionContainer key={q._stableKey}>
                 <Question>
@@ -917,31 +1004,29 @@ const MockTestQuestionsList = () => {
                     <IconButton onClick={() => setEditingIndex(qi)} title="Edit">
                       {!readOnlyPermissions ? <FaEdit /> : <FaEye />}
                     </IconButton>
-                    {
-                      !readOnlyPermissions && (
-                        <>
-                          <IconButton onClick={() => handleDeleteQuestion(qi)} title="Delete">
-                            <FaTrash color="red" />
+                    {!readOnlyPermissions && (
+                      <>
+                        <IconButton onClick={() => handleDeleteQuestion(qi)} title="Delete">
+                          <FaTrash color="red" />
+                        </IconButton>
+                        <PageControl>
+                          <IconButton
+                            onClick={() => moveQuestion(qi, "up")}
+                            disabled={qi === 0 || editingIndex !== null}
+                            title={editingIndex !== null ? "Save edits first" : "Move up"}
+                          >
+                            <FaArrowUp color={qi === 0 || editingIndex !== null ? "gray" : "green"} />
                           </IconButton>
-                          <PageControl>
-                            <IconButton
-                              onClick={() => moveQuestion(qi, "up")}
-                              disabled={qi === 0}
-                              title="Move up"
-                            >
-                              <FaArrowUp color={qi === 0 ? "gray" : "green"} />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => moveQuestion(qi, "down")}
-                              disabled={qi === questions.length - 1}
-                              title="Move down"
-                            >
-                              <FaArrowDown color={qi === questions.length - 1 ? "gray" : "red"} />
-                            </IconButton>
-                          </PageControl>
-                        </>
-                      )
-                    }
+                          <IconButton
+                            onClick={() => moveQuestion(qi, "down")}
+                            disabled={qi === questions.length - 1 || editingIndex !== null}
+                            title={editingIndex !== null ? "Save edits first" : "Move down"}
+                          >
+                            <FaArrowDown color={qi === questions.length - 1 || editingIndex !== null ? "gray" : "red"} />
+                          </IconButton>
+                        </PageControl>
+                      </>
+                    )}
                   </QuestionActions>
                 </Question>
 
@@ -1021,7 +1106,7 @@ const MockTestQuestionsList = () => {
                         <h4 style={{ marginBottom: ".5rem" }}>Options</h4>
                         {q.options.map((opt, oi) => (
                           <div
-                            key={oi}
+                            key={opt._optionId || oi}
                             style={{
                               display: "grid",
                               gridTemplateColumns: "1fr 100px 120px 30px",
@@ -1086,36 +1171,25 @@ const MockTestQuestionsList = () => {
                                     updateOptionField(qi, oi, "isCorrect", e.target.checked)
                                   }
                                 }}
-                                style={{
-                                  width: "90%",
-                                  padding: "0.5rem",
-                                  fontSize: "16px",
-                                  border: "1px solid #ccc",
-                                  borderRadius: "4px",
-                                }}
                               />
                               Correct
                             </label>
 
-                            {
-                              !readOnlyPermissions && (
-                                <IconButton
-                                  onClick={() => deleteOption(qi, oi)}
-                                  style={{ color: "red", padding: "0.25rem" }}
-                                >
-                                  <FaTrash size={14} />
-                                </IconButton>
-                              )
-                            }
+                            {!readOnlyPermissions && q.options.length > 1 && (
+                              <IconButton
+                                onClick={() => deleteOption(qi, oi)}
+                                style={{ color: "red", padding: "0.25rem" }}
+                              >
+                                <FaTrash size={14} />
+                              </IconButton>
+                            )}
                           </div>
                         ))}
-                        {
-                          !readOnlyPermissions && (
-                            <CreateButton onClick={() => addOption(qi)}>
-                              <FaPlus /> Add New Option
-                            </CreateButton>
-                          )
-                        }
+                        {!readOnlyPermissions && (
+                          <CreateButton onClick={() => addOption(qi)}>
+                            <FaPlus /> Add New Option
+                          </CreateButton>
+                        )}
                       </div>
                     )}
 
@@ -1159,14 +1233,24 @@ const MockTestQuestionsList = () => {
                       />
                     </div>
 
-                    <div style={{ marginTop: "1.5rem", textAlign: "right" }}>
-                      {
-                        !readOnlyPermissions && (
-                          <CreateButton onClick={() => saveQuestion(qi)}>
-                            Save Question
-                          </CreateButton>
-                        )
-                      }
+                    <div style={{ marginTop: "1.5rem", textAlign: "right", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                      <button 
+                        onClick={cancelEditing}
+                        style={{
+                          padding: "8px 16px",
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                          background: "white",
+                          cursor: "pointer"
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      {!readOnlyPermissions && (
+                        <CreateButton onClick={() => saveQuestion(qi)}>
+                          Save Question
+                        </CreateButton>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1175,13 +1259,11 @@ const MockTestQuestionsList = () => {
           })}
 
           <PageFooter>
-            {
-              !readOnlyPermissions && (
-                <CreateButton onClick={addQuestion}>
-                  <FaPlus /> Create New Question
-                </CreateButton>
-              )
-            }
+            {!readOnlyPermissions && (
+              <CreateButton onClick={addQuestion}>
+                <FaPlus /> Create New Question
+              </CreateButton>
+            )}
           </PageFooter>
         </>
       )}
