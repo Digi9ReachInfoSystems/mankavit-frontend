@@ -763,36 +763,49 @@ const MockTestQuestionsList = () => {
       return next;
     });
 
-  const updateOptionField = (qi, oi, field, value) =>
-    setQuestions((prev) => {
-      const next = [...prev];
-      const q = { ...next[qi] };
-      const options = [...q.options];
-      const opt = { ...options[oi], [field]: value };
-
-      if (field === "isCorrect") {
-        if (value === true) {
-          opt.marks = 1;
-          opt.raw = "1";
-          options.forEach((o, idx) => {
-            if (idx !== oi) {
-              o.isCorrect = false;
-              if (o.marks > 0) {
-                o.marks = -0.25;
-                o.raw = "-0.25";
-              }
-            }
-          });
+ const updateOptionField = (qi, oi, field, value) =>
+  setQuestions((prev) => {
+    const next = [...prev];
+    const q = { ...next[qi] };
+    const options = [...q.options];
+    
+    if (field === "isCorrect") {
+      // Create new options array with proper marks handling
+      const newOptions = options.map((opt, idx) => {
+        if (idx === oi) {
+          // Current option being updated
+          return {
+            ...opt,
+            isCorrect: value,
+            marks: value ? 1 : -0.25,
+            raw: value ? "1" : "-0.25"
+          };
         } else {
-          opt.marks = -0.25;
-          opt.raw = "-0.25";
+          // Other options - if we're setting one as correct, others become incorrect
+          if (value) {
+            return {
+              ...opt,
+              isCorrect: false,
+              marks: opt.marks > 0 ? -0.25 : opt.marks,
+              raw: opt.marks > 0 ? "-0.25" : opt.raw
+            };
+          } else {
+            // If deselecting, don't change other options
+            return opt;
+          }
         }
-      }
-
+      });
+      
+      next[qi] = { ...q, options: newOptions };
+    } else {
+      // Handle non-isCorrect field updates
+      const opt = { ...options[oi], [field]: value };
       options[oi] = opt;
       next[qi] = { ...q, options };
-      return next;
-    });
+    }
+    
+    return next;
+  });
 
   const addOption = (qi) =>
     setQuestions((prev) => {
