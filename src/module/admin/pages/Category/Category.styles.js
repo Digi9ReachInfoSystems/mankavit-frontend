@@ -1,4 +1,4 @@
-// CategaryTableStyles.js
+
 import styled from "styled-components";
 // import theme from "../../../../theme/Theme";
 
@@ -252,7 +252,11 @@ export const SearchInput = styled.input`
   color: ${({ theme }) => theme.colors.silverGray};
   background: ${({ theme }) => theme.colors.backgrounGrey};
 
+ @media (max-width: 1024px) {
+    width: 40%;
+  }
   @media (max-width: 768px) {
+    width: 50%;           /* full width on phones */
     font-size: 14px;
   }
 `;
