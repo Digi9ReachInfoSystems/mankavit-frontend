@@ -641,31 +641,37 @@ const MockTestQuestionsList = () => {
   }
 
   // load questions on mount
-  useEffect(() => {
+ useEffect(() => {
     const loadQuestions = async () => {
       try {
         const response = await getMocktestById(mockTestId);
         const questionsFromServer = response?.data?.questions || [];
 
-        const transformed = questionsFromServer.map((q) => ({
-          text: q.questionText,
-          type: q.type,
-          options: q.options
-            ? q.options.map((opt, index) => ({
-              text: opt.text,
-              marks: opt.marks ?? (index === q.correctAnswer ? 1 : -0.25),
-              isCorrect: index === q.correctAnswer,
-              raw: (opt.marks ?? (index === q.correctAnswer ? "1" : "-0.25")).toString(),
-              _optionId: nanoid(), // Add unique ID for each option
-            }))
-            : [],
-          marks: q.marks || 0,
-          expectedAnswer: q.expectedAnswer || "",
-          _id: q._id,
-          isPassage: q.isPassage || false,
-          passageText: q.passageText || "",
-          _stableKey: q._id || nanoid(), // Use server ID as stable key if available
-        }));
+        const transformed = questionsFromServer.map((q) => {
+          // CRITICAL FIX: Always use a consistent stable key based on _id
+          // Prefix with "server_" to distinguish from temp keys
+          const stableKey = q._id ? `server_${q._id}` : nanoid();
+          
+          return {
+            text: q.questionText,
+            type: q.type,
+            options: q.options
+              ? q.options.map((opt, index) => ({
+                text: opt.text,
+                marks: opt.marks ?? (index === q.correctAnswer ? 1 : -0.25),
+                isCorrect: index === q.correctAnswer,
+                raw: (opt.marks ?? (index === q.correctAnswer ? "1" : "-0.25")).toString(),
+                _optionId: nanoid(),
+              }))
+              : [],
+            marks: q.marks || 0,
+            expectedAnswer: q.expectedAnswer || "",
+            _id: q._id,
+            isPassage: q.isPassage || false,
+            passageText: q.passageText || "",
+            _stableKey: stableKey, // This is now consistent!
+          };
+        });
 
         setQuestions(transformed);
       } catch (error) {
@@ -677,6 +683,7 @@ const MockTestQuestionsList = () => {
 
     loadQuestions();
   }, [mockTestId]);
+
 
   // deletion
   const handleDeleteQuestion = (qi) =>
@@ -852,120 +859,108 @@ const MockTestQuestionsList = () => {
   };
 
   // save - FIXED VERSION
-  const saveQuestion = async (qi) => {
-    const q = questions[qi];
-    const isSubjective = q.type === "subjective";
-    
-    // Validation for MCQ questions
-    if (!isSubjective) {
-      const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
-      if (validOptions.length === 0) {
-        toast.error("Please add at least one valid option");
-        return;
-      }
-      
-      const hasCorrectOption = validOptions.some(opt => opt.isCorrect);
-      if (!hasCorrectOption) {
-        toast.error("Please select a correct option for the MCQ question");
-        return;
-      }
+// save - FIXED VERSION (without mandatory subjective answer)
+const saveQuestion = async (qi) => {
+  const q = questions[qi];
+  const isSubjective = q.type === "subjective";
+  
+  // Validation for MCQ questions - ENHANCED
+  if (!isSubjective) {
+    const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
+    if (validOptions.length === 0) {
+      toast.error("Please add at least one valid option");
+      return;
     }
     
-    const payload = {
-      type: q.type,
-      questionText: q.text,
-      expectedAnswer: q.expectedAnswer || "",
-      isPassage: q.isPassage || false,
-      passageText: q.passageText || "",
-    };
-
-    if (isSubjective) {
-      payload.marks = Number(q.marks) || 0;
-    } else {
-      const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
-      payload.options = validOptions.map((opt) => ({
-        text: opt.text,
-        marks: Number(opt.marks),
-        isCorrect: !!opt.isCorrect,
-      }));
-      const correctIndex = validOptions.findIndex((o) => o.isCorrect);
-      payload.correctAnswer = correctIndex >= 0 ? correctIndex : 0;
-      payload.marks = Number(validOptions[correctIndex]?.marks) || 0;
+    const hasCorrectOption = validOptions.some(opt => opt.isCorrect);
+    if (!hasCorrectOption) {
+      toast.error("Please select exactly one correct option for the MCQ question");
+      return;
     }
-
-    try {
-      let res;
-      if (q._id) {
-        // Update existing question
-        res = await updatemocktestquestions(q._id, mockTestId, payload);
-        
-        // Update only the specific question in state, don't replace the entire array
-        if (res?.data?.question) {
-          setQuestions((prev) => {
-            const next = prev.map((question, index) => {
-              if (index !== qi) return question;
-              
-              // Merge the response data with our existing question, preserving stable key
-              return {
-                ...question,
-                ...res.data.question,
-                _stableKey: question._stableKey, // Preserve the stable key
-                _tempId: question._tempId, // Preserve temp ID if exists
-              };
-            });
-            return next;
-          });
-        } else {
-          // If no response data, just update the local state with the payload data
-          setQuestions((prev) => {
-            const next = prev.map((question, index) => {
-              if (index !== qi) return question;
-              return {
-                ...question,
-                ...payload,
-                // Preserve all the IDs and keys
-                _id: question._id,
-                _stableKey: question._stableKey,
-                _tempId: question._tempId,
-              };
-            });
-            return next;
-          });
-        }
-      } else {
-        // Create new question
-        res = await addmocktestquestions(mockTestId, payload);
-        
-        // Extract the created question from response
-        const created = res?.mockTest?.questions?.find((x) => !x.__isNew) ||
-          res?.data?.question ||
-          res?.question;
-        
-        if (created?._id) {
-          setQuestions((prev) => {
-            const next = prev.map((question, index) => {
-              if (index !== qi) return question;
-              return {
-                ...question,
-                _id: created._id,
-                // Keep the original stable key and temp ID
-                _stableKey: question._stableKey,
-                _tempId: question._tempId,
-              };
-            });
-            return next;
-          });
-        }
-      }
-      
-      setEditingIndex(null);
-      toast.success("Question saved successfully");
-    } catch (err) {
-      console.error("Save question error:", err);
-      toast.error("Error saving question. Please try again.");
+    
+    // Additional validation: ensure only one correct option
+    const correctOptionsCount = validOptions.filter(opt => opt.isCorrect).length;
+    if (correctOptionsCount > 1) {
+      toast.error("MCQ questions can have only one correct option");
+      return;
     }
+  }
+  
+  // For subjective questions, only validate marks (not expectedAnswer)
+  if (isSubjective) {
+    if (!q.marks || q.marks <= 0) {
+      toast.error("Please provide valid marks for the subjective question");
+      return;
+    }
+  }
+
+  const payload = {
+    type: q.type,
+    questionText: q.text,
+    expectedAnswer: q.expectedAnswer || "", // Can be empty string
+    isPassage: q.isPassage || false,
+    passageText: q.passageText || "",
   };
 
+  if (isSubjective) {
+    payload.marks = Number(q.marks) || 0;
+  } else {
+    const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
+    payload.options = validOptions.map((opt) => ({
+      text: opt.text,
+      marks: Number(opt.marks),
+      isCorrect: !!opt.isCorrect,
+    }));
+    const correctIndex = validOptions.findIndex((o) => o.isCorrect);
+    payload.correctAnswer = correctIndex >= 0 ? correctIndex : 0;
+    payload.marks = Number(validOptions[correctIndex]?.marks) || 0;
+  }
+
+  try {
+    let res;
+    if (q._id) {
+      res = await updatemocktestquestions(q._id, mockTestId, payload);
+    } else {
+      res = await addmocktestquestions(mockTestId, payload);
+    }
+
+    // CRITICAL FIX: Update state properly without losing stable keys
+    setQuestions(prev => {
+      const next = [...prev];
+      const existingQuestion = next[qi];
+      
+      if (q._id) {
+        // Update existing question - preserve stable key
+        next[qi] = {
+          ...existingQuestion,
+          ...payload,
+          _id: q._id, // Keep existing ID
+          _stableKey: existingQuestion._stableKey, // Preserve stable key!
+        };
+      } else {
+        // New question - extract ID from response and preserve stable key
+        const created = res?.mockTest?.questions?.find((x) => x.questionText === q.text) ||
+          res?.data?.question ||
+          res?.question;
+          
+        if (created?._id) {
+          next[qi] = {
+            ...existingQuestion,
+            _id: created._id,
+            _stableKey: existingQuestion._stableKey, // Preserve the original stable key!
+          };
+        }
+      }
+      return next;
+    });
+    
+    setEditingIndex(null);
+    toast.success("Question saved successfully");
+  } catch (err) {
+    console.error("Save question error:", err);
+    toast.error("Error saving question. Please try again.");
+  }
+};
   // Cancel editing without saving
   const cancelEditing = () => {
     setEditingIndex(null);
