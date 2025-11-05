@@ -356,7 +356,7 @@ export const VideoPlayerContainer = styled.div`
   aspect-ratio: auto; /* keeps good height on mobile */
 
   video {
-    width: 90%;
+    // width: 90%;
     height: 100%;
     object-fit: contain;
     display: block;
