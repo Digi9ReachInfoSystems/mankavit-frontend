@@ -554,8 +554,6 @@
 // };
 
 
-
-// export default MockTestQuestionsList;
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   MockTestQuestionsListContainer,
@@ -641,7 +639,7 @@ const MockTestQuestionsList = () => {
   }
 
   // load questions on mount
- useEffect(() => {
+  useEffect(() => {
     const loadQuestions = async () => {
       try {
         const response = await getMocktestById(mockTestId);
@@ -684,7 +682,6 @@ const MockTestQuestionsList = () => {
     loadQuestions();
   }, [mockTestId]);
 
-
   // deletion
   const handleDeleteQuestion = (qi) =>
     setDeleteModal({ isOpen: true, index: qi });
@@ -722,7 +719,7 @@ const MockTestQuestionsList = () => {
     });
   };
 
-  // move / reorder
+  // move / reorder - FIXED VERSION
   const moveQuestion = async (qi, dir) => {
     if (editingIndex !== null) {
       toast.warn("Please save or cancel your current edits before reordering questions");
@@ -753,15 +750,56 @@ const MockTestQuestionsList = () => {
           isPassage: q.isPassage || false,
           passageText: q.passageText || "",
           _id: q._id,
+          expectedAnswer: q.expectedAnswer || "", // Make sure to include expectedAnswer
         };
       });
 
       await rearrangeMocktestQuestions(mockTestId, { questions: questionsForApi });
 
-      setQuestions(newQuestions);
-      if (editingIndex === qi) setEditingIndex(newIndex);
-      else if (editingIndex === newIndex) setEditingIndex(qi);
+      // Instead of reloading from API and losing data, use the locally rearranged array
+      // but update the _id fields from API response to ensure consistency
+      const response = await getMocktestById(mockTestId);
+      const questionsFromServer = response?.data?.questions || [];
+
+      // Create a mapping of server questions by their stable key for easy lookup
+      const serverQuestionsMap = {};
+      questionsFromServer.forEach((q) => {
+        const stableKey = q._id ? `server_${q._id}` : nanoid();
+        serverQuestionsMap[stableKey] = q;
+      });
+
+      // Update the rearranged questions with server data while preserving local state
+      const updatedQuestions = newQuestions.map((localQ) => {
+        const serverQ = serverQuestionsMap[localQ._stableKey];
+        if (serverQ) {
+          // Merge server data with local data, preserving expectedAnswer and other fields
+          return {
+            ...localQ,
+            _id: serverQ._id, // Update _id if needed
+            // Preserve all local fields including expectedAnswer
+            text: localQ.text,
+            type: localQ.type,
+            options: localQ.options,
+            marks: localQ.marks,
+            expectedAnswer: localQ.expectedAnswer, // Keep local expectedAnswer
+            isPassage: localQ.isPassage,
+            passageText: localQ.passageText,
+          };
+        }
+        return localQ;
+      });
+
+      setQuestions(updatedQuestions);
+      
+      // Update editing index if needed
+      if (editingIndex !== null) {
+        // Find the new index of the question that was being edited
+        const editedQuestionStableKey = questions[editingIndex]._stableKey;
+        const newEditingIndex = updatedQuestions.findIndex(q => q._stableKey === editedQuestionStableKey);
+        setEditingIndex(newEditingIndex >= 0 ? newEditingIndex : null);
+      }
     } catch (error) {
+      console.error("Failed to rearrange questions:", error);
       toast.error("Failed to rearrange questions. Please try again.");
     }
   };
@@ -783,43 +821,68 @@ const MockTestQuestionsList = () => {
       return next;
     });
 
-  const updateOptionField = (qi, oi, field, value) =>
-    setQuestions((prev) => {
-      const next = prev.map((question, qIndex) => {
-        if (qIndex !== qi) return question;
-        
-        const options = question.options.map((opt, optIndex) => {
-          if (optIndex !== oi) return opt;
-          
-          const updatedOption = { ...opt, [field]: value };
-          
-          if (field === "isCorrect") {
-            if (value === true) {
-              updatedOption.marks = 1;
-              updatedOption.raw = "1";
-            } else {
-              updatedOption.marks = -0.25;
-              updatedOption.raw = "-0.25";
-            }
+const updateOptionField = (qi, oi, field, value) =>
+  setQuestions((prev) => {
+    const next = prev.map((question, qIndex) => {
+      if (qIndex !== qi) return question;
+      
+      if (field === "isCorrect" && value === true) {
+        // When marking an option as correct, update ALL options properly
+        const updatedOptions = question.options.map((opt, optIndex) => {
+          if (optIndex === oi) {
+            // This is the option being marked as correct
+            return {
+              ...opt,
+              isCorrect: true,
+              marks: 1,
+              raw: "1"
+            };
+          } else {
+            // All other options become incorrect with -0.25 marks
+            return {
+              ...opt,
+              isCorrect: false,
+              marks: -0.25,
+              raw: "-0.25"
+            };
           }
-          
-          return updatedOption;
         });
-
-        // If marking an option as correct, unmark all others
-        if (field === "isCorrect" && value === true) {
-          return {
-            ...question,
-            options: options.map((opt, idx) => 
-              idx === oi ? opt : { ...opt, isCorrect: false }
-            )
-          };
-        }
         
-        return { ...question, options };
-      });
-      return next;
+        return {
+          ...question,
+          options: updatedOptions
+        };
+      } else if (field === "isCorrect" && value === false) {
+        // When unmarking an option as correct (shouldn't normally happen in MCQ with single correct)
+        const updatedOption = {
+          ...question.options[oi],
+          isCorrect: false,
+          marks: -0.25,
+          raw: "-0.25"
+        };
+        
+        const updatedOptions = [...question.options];
+        updatedOptions[oi] = updatedOption;
+        
+        return {
+          ...question,
+          options: updatedOptions
+        };
+      } else {
+        // Handle other field updates (text, marks, etc.)
+        const updatedOptions = question.options.map((opt, optIndex) => {
+          if (optIndex !== oi) return opt;
+          return { ...opt, [field]: value };
+        });
+        
+        return {
+          ...question,
+          options: updatedOptions
+        };
+      }
     });
+    return next;
+  });
 
   const addOption = (qi) =>
     setQuestions((prev) => {
@@ -859,108 +922,135 @@ const MockTestQuestionsList = () => {
   };
 
   // save - FIXED VERSION
-// save - FIXED VERSION (without mandatory subjective answer)
-const saveQuestion = async (qi) => {
-  const q = questions[qi];
-  const isSubjective = q.type === "subjective";
-  
-  // Validation for MCQ questions - ENHANCED
-  if (!isSubjective) {
-    const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
-    if (validOptions.length === 0) {
-      toast.error("Please add at least one valid option");
-      return;
-    }
+  const saveQuestion = async (qi) => {
+    const q = questions[qi];
+    const isSubjective = q.type === "subjective";
     
-    const hasCorrectOption = validOptions.some(opt => opt.isCorrect);
-    if (!hasCorrectOption) {
-      toast.error("Please select exactly one correct option for the MCQ question");
-      return;
-    }
-    
-    // Additional validation: ensure only one correct option
-    const correctOptionsCount = validOptions.filter(opt => opt.isCorrect).length;
-    if (correctOptionsCount > 1) {
-      toast.error("MCQ questions can have only one correct option");
-      return;
-    }
-  }
-  
-  // For subjective questions, only validate marks (not expectedAnswer)
-  if (isSubjective) {
-    if (!q.marks || q.marks <= 0) {
-      toast.error("Please provide valid marks for the subjective question");
-      return;
-    }
-  }
-
-  const payload = {
-    type: q.type,
-    questionText: q.text,
-    expectedAnswer: q.expectedAnswer || "", // Can be empty string
-    isPassage: q.isPassage || false,
-    passageText: q.passageText || "",
-  };
-
-  if (isSubjective) {
-    payload.marks = Number(q.marks) || 0;
-  } else {
-    const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
-    payload.options = validOptions.map((opt) => ({
-      text: opt.text,
-      marks: Number(opt.marks),
-      isCorrect: !!opt.isCorrect,
-    }));
-    const correctIndex = validOptions.findIndex((o) => o.isCorrect);
-    payload.correctAnswer = correctIndex >= 0 ? correctIndex : 0;
-    payload.marks = Number(validOptions[correctIndex]?.marks) || 0;
-  }
-
-  try {
-    let res;
-    if (q._id) {
-      res = await updatemocktestquestions(q._id, mockTestId, payload);
-    } else {
-      res = await addmocktestquestions(mockTestId, payload);
-    }
-
-    // CRITICAL FIX: Update state properly without losing stable keys
-    setQuestions(prev => {
-      const next = [...prev];
-      const existingQuestion = next[qi];
+    // Validation for MCQ questions - ENHANCED
+    if (!isSubjective) {
+      const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
+      if (validOptions.length === 0) {
+        toast.error("Please add at least one valid option");
+        return;
+      }
       
+      const hasCorrectOption = validOptions.some(opt => opt.isCorrect);
+      if (!hasCorrectOption) {
+        toast.error("Please select exactly one correct option for the MCQ question");
+        return;
+      }
+      
+      // Additional validation: ensure only one correct option
+      const correctOptionsCount = validOptions.filter(opt => opt.isCorrect).length;
+      if (correctOptionsCount > 1) {
+        toast.error("MCQ questions can have only one correct option");
+        return;
+      }
+    }
+    
+    // For subjective questions, only validate marks (not expectedAnswer)
+    if (isSubjective) {
+      if (!q.marks || q.marks <= 0) {
+        toast.error("Please provide valid marks for the subjective question");
+        return;
+      }
+    }
+
+    const payload = {
+      type: q.type,
+      questionText: q.text,
+      expectedAnswer: q.expectedAnswer || "", // Can be empty string
+      isPassage: q.isPassage || false,
+      passageText: q.passageText || "",
+    };
+
+    if (isSubjective) {
+      payload.marks = Number(q.marks) || 0;
+    } else {
+      const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
+      payload.options = validOptions.map((opt) => ({
+        text: opt.text,
+        marks: Number(opt.marks),
+        isCorrect: !!opt.isCorrect,
+      }));
+      const correctIndex = validOptions.findIndex((o) => o.isCorrect);
+      payload.correctAnswer = correctIndex >= 0 ? correctIndex : 0;
+      payload.marks = Number(validOptions[correctIndex]?.marks) || 0;
+    }
+
+    try {
+      let res;
       if (q._id) {
-        // Update existing question - preserve stable key
-        next[qi] = {
-          ...existingQuestion,
-          ...payload,
-          _id: q._id, // Keep existing ID
-          _stableKey: existingQuestion._stableKey, // Preserve stable key!
-        };
+        res = await updatemocktestquestions(q._id, mockTestId, payload);
       } else {
-        // New question - extract ID from response and preserve stable key
-        const created = res?.mockTest?.questions?.find((x) => x.questionText === q.text) ||
-          res?.data?.question ||
-          res?.question;
+        res = await addmocktestquestions(mockTestId, payload);
+      }
+
+      // CRITICAL FIX: Update state properly without losing any data
+      setQuestions(prev => {
+        const next = [...prev];
+        const existingQuestion = next[qi];
+        
+        if (q._id) {
+          // For existing questions, merge with API response if available, otherwise keep current state
+          const apiResponseQuestion = res?.data?.question || {};
           
-        if (created?._id) {
           next[qi] = {
             ...existingQuestion,
-            _id: created._id,
-            _stableKey: existingQuestion._stableKey, // Preserve the original stable key!
+            // Only update fields that came from API, preserve everything else
+            text: apiResponseQuestion.questionText || existingQuestion.text,
+            type: apiResponseQuestion.type || existingQuestion.type,
+            marks: apiResponseQuestion.marks || existingQuestion.marks,
+            expectedAnswer: apiResponseQuestion.expectedAnswer !== undefined 
+              ? apiResponseQuestion.expectedAnswer 
+              : existingQuestion.expectedAnswer,
+            isPassage: apiResponseQuestion.isPassage !== undefined 
+              ? apiResponseQuestion.isPassage 
+              : existingQuestion.isPassage,
+            passageText: apiResponseQuestion.passageText !== undefined 
+              ? apiResponseQuestion.passageText 
+              : existingQuestion.passageText,
+            options: apiResponseQuestion.options 
+              ? apiResponseQuestion.options.map((opt, index) => ({
+                  text: opt.text,
+                  marks: opt.marks,
+                  isCorrect: index === apiResponseQuestion.correctAnswer,
+                  raw: opt.marks.toString(),
+                  _optionId: existingQuestion.options[index]?._optionId || nanoid(),
+                }))
+              : existingQuestion.options,
+            _id: q._id,
+            _stableKey: existingQuestion._stableKey,
           };
+        } else {
+          // New question - extract ID from response and preserve stable key
+          const created = res?.mockTest?.questions?.find((x) => x.questionText === q.text) ||
+            res?.data?.question ||
+            res?.question;
+            
+          if (created?._id) {
+            next[qi] = {
+              ...existingQuestion,
+              _id: created._id,
+              _stableKey: existingQuestion._stableKey,
+              // Also update expectedAnswer from response if available
+              expectedAnswer: created.expectedAnswer !== undefined 
+                ? created.expectedAnswer 
+                : existingQuestion.expectedAnswer,
+            };
+          }
         }
-      }
-      return next;
-    });
-    
-    setEditingIndex(null);
-    toast.success("Question saved successfully");
-  } catch (err) {
-    console.error("Save question error:", err);
-    toast.error("Error saving question. Please try again.");
-  }
-};
+        return next;
+      });
+      
+      setEditingIndex(null);
+      toast.success("Question saved successfully");
+    } catch (err) {
+      console.error("Save question error:", err);
+      toast.error("Error saving question. Please try again.");
+    }
+  };
+
   // Cancel editing without saving
   const cancelEditing = () => {
     setEditingIndex(null);
