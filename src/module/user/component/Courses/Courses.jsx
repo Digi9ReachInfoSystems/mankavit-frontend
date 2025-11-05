@@ -219,6 +219,8 @@
 // export default Courses;
 
 // Courses.jsx
+
+
 import React, { useState, useEffect } from 'react';
 import {
   CourseWrapper,
