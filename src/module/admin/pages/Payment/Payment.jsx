@@ -161,6 +161,7 @@ export default function Payment() {
           setFilteredPayments(res.payments);
         } else {
           const res = await getAllPayments();
+          // console.log("All payments", res);
           setPayments(res.payments);
           setFilteredPayments(res.payments);
         }
@@ -383,10 +384,10 @@ export default function Payment() {
               return (
                 <TableRow key={item._id}>
                   {/* <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell> */}
-                  <TableCell>{getCourseName(item)}</TableCell>
+                  <TableCell>{item.courseName||getCourseName(item)}</TableCell>
 
                   <TableCell>
-                    {getNestedValue(item, "userRef.displayName")}
+                    {item.studentName||getNestedValue(item, "userRef.displayName")}
                   </TableCell>
                   <TableCell>
                     {item.transactionId || item.razorpay_payment_id || "N/A"}
