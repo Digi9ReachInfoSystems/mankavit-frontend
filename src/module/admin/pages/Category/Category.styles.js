@@ -240,7 +240,6 @@ export const SearchIcon = styled.div`
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
-
 `;
 
 export const SearchInput = styled.input`

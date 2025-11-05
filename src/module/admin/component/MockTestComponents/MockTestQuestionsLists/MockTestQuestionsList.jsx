@@ -11,7 +11,14 @@ import {
   PageFooter,
   PageControl,
 } from "./MockTestQuestionsList.styles";
-import { FaTrash, FaPlus, FaEdit, FaArrowUp, FaArrowDown, FaEye } from "react-icons/fa";
+import {
+  FaTrash,
+  FaPlus,
+  FaEdit,
+  FaArrowUp,
+  FaArrowDown,
+  FaEye,
+} from "react-icons/fa";
 import {
   addmocktestquestions,
   removemocktestquestions,
@@ -25,7 +32,8 @@ import { toast } from "react-toastify";
 import JoditEditor from "jodit-react";
 import { getAuth } from "../../../../../utils/authService";
 import { nanoid } from "nanoid";
-// helpers
+
+// helper creators
 const createEmptyOption = () => ({ text: "", marks: -0.25, isCorrect: false });
 const createEmptyQuestion = () => ({
   type: "mcq",
@@ -35,7 +43,7 @@ const createEmptyQuestion = () => ({
   expectedAnswer: "",
   isPassage: false,
   passageText: "",
-    _tempId: nanoid(),
+  _tempId: nanoid(),
 });
 
 const MockTestQuestionsList = () => {
@@ -43,23 +51,8 @@ const MockTestQuestionsList = () => {
   const [questions, setQuestions] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [deleteModal, setDeleteModal] = useState({
-    isOpen: false,
-    index: null, // question index
-  });
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, index: null });
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
-  useEffect(() => {
-    const apiCaller = async () => {
-      const response = await getAuth();
-      response.Permissions;
-      if (response.isSuperAdmin === true) {
-        setReadOnlyPermissions(false);
-      } else {
-        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
-      }
-    }
-    apiCaller();
-  }, []);
 
   const editor = useRef(null);
   const config = useMemo(
@@ -70,11 +63,25 @@ const MockTestQuestionsList = () => {
     []
   );
 
+  useEffect(() => {
+    const apiCaller = async () => {
+      const response = await getAuth();
+      if (response.isSuperAdmin === true) {
+        setReadOnlyPermissions(false);
+      } else {
+        setReadOnlyPermissions(
+          response.Permissions["courseManagement"].readOnly
+        );
+      }
+    };
+    apiCaller();
+  }, []);
+
   if (!mockTestId) {
     return <div>Error: Mock Test ID not found</div>;
   }
 
-  // load questions on mount
+  // Load questions
   useEffect(() => {
     const loadQuestions = async () => {
       try {
@@ -82,16 +89,15 @@ const MockTestQuestionsList = () => {
         const questionsFromServer = response?.data?.questions || [];
 
         const transformed = questionsFromServer.map((q) => ({
-          text: q.questionText,
-          type: q.type,
-          options: q.options
-            ? q.options.map((opt, index) => ({
+          text: q.questionText || "",
+          type: q.type || "mcq",
+          options:
+            q.options?.map((opt, index) => ({
               text: opt.text,
               marks: opt.marks ?? (index === q.correctAnswer ? 1 : -0.25),
               isCorrect: index === q.correctAnswer,
               raw: (opt.marks ?? (index === q.correctAnswer ? "1" : "-0.25")).toString(),
-            }))
-            : [],
+            })) || [],
           marks: q.marks || 0,
           expectedAnswer: q.expectedAnswer || "",
           _id: q._id,
@@ -101,7 +107,6 @@ const MockTestQuestionsList = () => {
 
         setQuestions(transformed);
       } catch (error) {
-        // // console.error("Failed to load questions", error);
         toast.error("Could not load existing questions");
       } finally {
         setLoading(false);
@@ -111,7 +116,7 @@ const MockTestQuestionsList = () => {
     loadQuestions();
   }, [mockTestId]);
 
-  // deletion
+  // Delete
   const handleDeleteQuestion = (qi) =>
     setDeleteModal({ isOpen: true, index: qi });
 
@@ -121,79 +126,65 @@ const MockTestQuestionsList = () => {
       const id = questions[index]?._id;
       if (id) await removemocktestquestions(id, mockTestId);
 
-      setQuestions((prev) => {
-        const next = [...prev];
-        next.splice(index, 1);
-        return next;
-      });
+      setQuestions((prev) => prev.filter((_, i) => i !== index));
 
       if (editingIndex === index) setEditingIndex(null);
-      if (editingIndex !== null && index < editingIndex) {
+      else if (editingIndex !== null && index < editingIndex)
         setEditingIndex((i) => i - 1);
-      }
     } catch (error) {
-      // // console.error(error);
       toast.error("Failed to remove question");
     } finally {
       setDeleteModal({ isOpen: false, index: null });
     }
   };
 
-  // add
-const addQuestion = () => {
-  const newQuestion = createEmptyQuestion();
-  setQuestions((prev) => [...prev, newQuestion]);
-  setEditingIndex((prevQuestions) => prevQuestions?.length); // But wait—this won't work directly
-};
+  // Add Question
+  const addQuestion = () => {
+    const newQuestion = createEmptyQuestion();
+    setQuestions((prev) => [...prev, newQuestion]);
+    setEditingIndex(questions.length);
+  };
 
-  // move / reorder
+  // Reorder Question
   const moveQuestion = async (qi, dir) => {
     const newIndex = dir === "up" ? qi - 1 : qi + 1;
     if (newIndex < 0 || newIndex >= questions.length) return;
 
-    try {
-      const newQuestions = [...questions];
-      [newQuestions[qi], newQuestions[newIndex]] = [newQuestions[newIndex], newQuestions[qi]];
+    const newQuestions = [...questions];
+    [newQuestions[qi], newQuestions[newIndex]] = [
+      newQuestions[newIndex],
+      newQuestions[qi],
+    ];
+    setQuestions(newQuestions);
 
-      // prepare API payload
-      const questionsForApi = newQuestions.map((q) => {
-        const isMcq = q.type === "mcq";
-        return {
-          type: q.type,
-          questionText: q.text,
-          options: isMcq
-            ? q.options.map((opt) => ({
-              text: opt.text,
-              marks: opt.marks,
-            }))
+    try {
+      const questionsForApi = newQuestions.map((q) => ({
+        type: q.type,
+        questionText: q.text,
+        options:
+          q.type === "mcq"
+            ? q.options.map((opt) => ({ text: opt.text, marks: opt.marks }))
             : [],
-          correctAnswer: isMcq ? q.options.findIndex((o) => o.isCorrect) : null,
-          marks: q.marks,
-          isPassage: q.isPassage || false,
-          passageText: q.passageText || "",
-          _id: q._id,
-        };
-      });
+        correctAnswer:
+          q.type === "mcq" ? q.options.findIndex((o) => o.isCorrect) : null,
+        marks: q.marks,
+        isPassage: q.isPassage || false,
+        passageText: q.passageText || "",
+        _id: q._id,
+      }));
 
       await rearrangeMocktestQuestions(mockTestId, { questions: questionsForApi });
-
-      setQuestions(newQuestions);
-      if (editingIndex === qi) setEditingIndex(newIndex);
-      else if (editingIndex === newIndex) setEditingIndex(qi);
-    } catch (error) {
-      // // console.error("Failed to rearrange questions:", error);
-      toast.error("Failed to rearrange questions. Please try again.");
+    } catch {
+      toast.error("Failed to rearrange questions");
     }
   };
 
-  // field updates
+  // Update Fields
   const updateQuestionField = (qi, field, value) =>
     setQuestions((prev) => {
       const next = [...prev];
       next[qi] = { ...next[qi], [field]: value };
-      if (field === "type" && value === "subjective") {
-        next[qi].options = [];
-      }
+      if (field === "type" && value === "subjective") next[qi].options = [];
       return next;
     });
 
@@ -204,27 +195,17 @@ const addQuestion = () => {
       const options = [...q.options];
       const opt = { ...options[oi], [field]: value };
 
-      if (field === "isCorrect") {
-        if (value === true) {
-          opt.marks = 1;
-          opt.raw = "1";
-          options.forEach((o, idx) => {
-            if (idx !== oi) {
-              o.isCorrect = false;
-              if (o.marks > 0) {
-                o.marks = -0.25;
-                o.raw = "-0.25";
-              }
-            }
-          });
-        } else {
-          opt.marks = -0.25;
-          opt.raw = "-0.25";
-        }
+      if (field === "isCorrect" && value) {
+        options.forEach((o, idx) => {
+          o.isCorrect = idx === oi;
+          o.marks = o.isCorrect ? 1 : -0.25;
+          o.raw = o.marks.toString();
+        });
       }
 
       options[oi] = opt;
-      next[qi] = { ...q, options };
+      q.options = options;
+      next[qi] = q;
       return next;
     });
 
@@ -240,37 +221,36 @@ const addQuestion = () => {
   const deleteOption = (qi, oi) =>
     setQuestions((prev) => {
       const next = [...prev];
-      const q = { ...next[qi] };
-      q.options = q.options.filter((_, idx) => idx !== oi);
-      next[qi] = q;
+      next[qi].options = next[qi].options.filter((_, i) => i !== oi);
       return next;
     });
 
-  // save
+  // Save Question (Safe Update)
   const saveQuestion = async (qi) => {
     const q = questions[qi];
     const isSubjective = q.type === "subjective";
+
     const payload = {
       type: q.type,
       questionText: q.text,
       expectedAnswer: q.expectedAnswer || "",
       isPassage: q.isPassage || false,
       passageText: q.passageText || "",
+      marks: isSubjective ? Number(q.marks) || 0 : 0,
     };
 
-    if (isSubjective) {
-      // payload.expectedAnswer = "";
-      payload.marks = Number(q.marks) || 0;
-    } else {
-      const validOptions = (q.options || []).filter((opt) => opt.text && opt.text.trim() !== "");
+    if (!isSubjective) {
+      const validOptions = q.options.filter(
+        (opt) => opt.text && opt.text.trim() !== ""
+      );
       if (validOptions.length === 0) {
         toast.error("Please add at least one valid option");
         return;
       }
+
       payload.options = validOptions.map((opt) => ({
         text: opt.text,
         marks: Number(opt.marks),
-        isCorrect: !!opt.isCorrect,
       }));
       const correctIndex = validOptions.findIndex((o) => o.isCorrect);
       payload.correctAnswer = correctIndex >= 0 ? correctIndex : 0;
@@ -280,26 +260,27 @@ const addQuestion = () => {
     try {
       let res;
       if (q._id) {
-        res = await updatemocktestquestions(q._id, mockTestId, payload);
+        await updatemocktestquestions(q._id, mockTestId, payload);
       } else {
         res = await addmocktestquestions(mockTestId, payload);
-        // try to set the new _id from response
-        const created =
-          res?.mockTest?.questions?.find((x) => !x.__isNew) ||
-          res?.data?.question ||
-          res?.question;
-        if (created?._id) {
+        const createdId =
+          res?.data?.question?._id ||
+          res?.question?._id ||
+          res?.mockTest?.questions?.slice(-1)[0]?._id;
+
+        if (createdId) {
           setQuestions((prev) => {
             const next = [...prev];
-            next[qi] = { ...next[qi], _id: created._id };
+            next[qi] = { ...next[qi], _id: createdId };
             return next;
           });
         }
       }
+
+      toast.success("Question saved successfully");
       setEditingIndex(null);
     } catch (err) {
-      // // console.error("Save question error:", err);
-      toast.error("Error saving question. Please try again.");
+      toast.error("Error saving question");
     }
   };
 
@@ -310,15 +291,11 @@ const addQuestion = () => {
       <Title>📝 Mock Test Questions</Title>
 
       {questions.length === 0 ? (
-        <>
-          {
-            !readOnlyPermissions && (
-              <CreateButton onClick={addQuestion}>
-                <FaPlus /> Create New Question
-              </CreateButton>
-            )
-          }
-        </>
+        !readOnlyPermissions && (
+          <CreateButton onClick={addQuestion}>
+            <FaPlus /> Create New Question
+          </CreateButton>
+        )
       ) : (
         <>
           {questions.map((q, qi) => {
@@ -335,36 +312,45 @@ const addQuestion = () => {
                   </QuestionNumber>
 
                   <QuestionActions>
-                    <IconButton onClick={() => setEditingIndex(qi)} title="Edit">
+                    <IconButton
+                      onClick={() => setEditingIndex(qi)}
+                      title={!readOnlyPermissions ? "Edit" : "View"}
+                    >
                       {!readOnlyPermissions ? <FaEdit /> : <FaEye />}
                     </IconButton>
-                    {
-                      !readOnlyPermissions && (
-                        <>
-                          <IconButton onClick={() => handleDeleteQuestion(qi)} title="Delete">
-                            <FaTrash color="red" />
+
+                    {!readOnlyPermissions && (
+                      <>
+                        <IconButton
+                          onClick={() => handleDeleteQuestion(qi)}
+                          title="Delete"
+                        >
+                          <FaTrash color="red" />
+                        </IconButton>
+                        <PageControl>
+                          <IconButton
+                            onClick={() => moveQuestion(qi, "up")}
+                            disabled={qi === 0}
+                            title="Move up"
+                          >
+                            <FaArrowUp
+                              color={qi === 0 ? "gray" : "green"}
+                            />
                           </IconButton>
-                          <PageControl>
-                            <IconButton
-                              onClick={() => moveQuestion(qi, "up")}
-                              disabled={qi === 0}
-                              title="Move up"
-                            >
-                              <FaArrowUp color={qi === 0 ? "gray" : "green"} />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => moveQuestion(qi, "down")}
-                              disabled={qi === questions.length - 1}
-                              title="Move down"
-                            >
-                              <FaArrowDown color={qi === questions.length - 1 ? "gray" : "red"} />
-                            </IconButton>
-                          </PageControl>
-                        </>
-                      )
-                    }
-
-
+                          <IconButton
+                            onClick={() => moveQuestion(qi, "down")}
+                            disabled={qi === questions.length - 1}
+                            title="Move down"
+                          >
+                            <FaArrowDown
+                              color={
+                                qi === questions.length - 1 ? "gray" : "red"
+                              }
+                            />
+                          </IconButton>
+                        </PageControl>
+                      </>
+                    )}
                   </QuestionActions>
                 </Question>
 
@@ -378,21 +364,24 @@ const addQuestion = () => {
                       background: "#fafafa",
                     }}
                   >
-                    <label style={{ display: "block", marginBottom: "1rem", fontWeight: 600 }}>
+                    <label>
                       <input
                         type="checkbox"
                         checked={q.isPassage}
-                        onChange={(e) => updateQuestionField(qi, "isPassage", e.target.checked)}
-                        style={{ marginRight: "0.5rem" }}
-                      />
-                      This is a passage-based question
+                        onChange={(e) =>
+                          updateQuestionField(qi, "isPassage", e.target.checked)
+                        }
+                      />{" "}
+                      Passage-based question
                     </label>
 
-                    <label style={{ fontWeight: 600 }}>
-                      Question Type:&nbsp;
+                    <label style={{ marginLeft: "1rem" }}>
+                      Type:&nbsp;
                       <select
                         value={q.type}
-                        onChange={(e) => updateQuestionField(qi, "type", e.target.value)}
+                        onChange={(e) =>
+                          updateQuestionField(qi, "type", e.target.value)
+                        }
                       >
                         <option value="mcq">MCQ</option>
                         <option value="subjective">Subjective</option>
@@ -400,54 +389,39 @@ const addQuestion = () => {
                     </label>
 
                     {q.isPassage && (
-                      <div style={{ marginBottom: "1.5rem" }}>
-                        <label
-                          style={{
-                            fontWeight: 600,
-                            display: "block",
-                            marginBottom: "0.5rem",
-                          }}
-                        >
-                          Passage Text:
-                        </label>
+                      <div style={{ marginTop: "1rem" }}>
+                        <label>Passage Text:</label>
                         <JoditEditor
                           ref={editor}
                           value={q.passageText}
                           config={config}
-                          tabIndex={1}
-                          onChange={(content) => updateQuestionField(qi, "passageText", content)}
+                          onChange={(c) =>
+                            updateQuestionField(qi, "passageText", c)
+                          }
                         />
                       </div>
                     )}
 
                     <div style={{ marginTop: "1rem" }}>
-                      <label
-                        style={{
-                          fontWeight: 600,
-                          display: "block",
-                          marginBottom: "0.5rem",
-                        }}
-                      >
-                        Question Text:
-                      </label>
+                      <label>Question Text:</label>
                       <JoditEditor
                         ref={editor}
                         value={q.text}
                         config={config}
-                        tabIndex={1}
-                        onChange={(content) => updateQuestionField(qi, "text", content)}
+                        onChange={(c) => updateQuestionField(qi, "text", c)}
                       />
                     </div>
 
                     {q.type === "mcq" && (
                       <div style={{ marginTop: "1.5rem" }}>
-                        <h4 style={{ marginBottom: ".5rem" }}>Options</h4>
+                        <h4>Options</h4>
                         {q.options.map((opt, oi) => (
                           <div
                             key={oi}
                             style={{
                               display: "grid",
-                              gridTemplateColumns: "1fr 100px 120px 30px",
+                              gridTemplateColumns:
+                                "1fr 100px 120px 30px",
                               gap: "0.5rem",
                               marginBottom: "0.5rem",
                               alignItems: "center",
@@ -457,162 +431,116 @@ const addQuestion = () => {
                               placeholder={`Option ${oi + 1}`}
                               value={opt.text}
                               onChange={(e) =>
-                                updateOptionField(qi, oi, "text", e.target.value)
+                                updateOptionField(
+                                  qi,
+                                  oi,
+                                  "text",
+                                  e.target.value
+                                )
                               }
-                              style={{
-                                width: "90%",
-                                padding: "0.5rem",
-                                fontSize: "16px",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                              }}
                             />
                             <input
                               type="text"
                               placeholder="Marks"
                               value={opt.raw ?? opt.marks.toString()}
                               onChange={(e) => {
-                                const input = e.target.value;
-                                const valid = /^-?\d*\.?\d*$/.test(input);
+                                const val = e.target.value;
+                                const valid = /^-?\d*\.?\d*$/.test(val);
                                 if (valid) {
-                                  updateOptionField(qi, oi, "raw", input);
-                                  const num = parseFloat(input);
-                                  if (!isNaN(num)) {
+                                  updateOptionField(qi, oi, "raw", val);
+                                  const num = parseFloat(val);
+                                  if (!isNaN(num))
                                     updateOptionField(qi, oi, "marks", num);
-                                  }
                                 }
                               }}
-                              style={{
-                                width: "90%",
-                                padding: "0.5rem",
-                                fontSize: "16px",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                              }}
                             />
-
-                            <label
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.25rem",
-                                fontSize: "16px",
-                              }}
-                            >
+                            <label>
                               <input
                                 type="checkbox"
                                 checked={opt.isCorrect}
-                                onChange={(e) => {
-                                  if (readOnlyPermissions) {
-                                    return;
-                                  } else {
-                                    updateOptionField(qi, oi, "isCorrect", e.target.checked)
-                                  }
-
+                                onChange={(e) =>
+                                  updateOptionField(
+                                    qi,
+                                    oi,
+                                    "isCorrect",
+                                    e.target.checked
+                                  )
                                 }
-                                }
-                                style={{
-                                  width: "90%",
-                                  padding: "0.5rem",
-                                  fontSize: "16px",
-                                  border: "1px solid #ccc",
-                                  borderRadius: "4px",
-                                }}
-                              />
+                              />{" "}
                               Correct
                             </label>
-
-                            {
-                              !readOnlyPermissions && (
-                                <IconButton
-                                  onClick={() => deleteOption(qi, oi)}
-                                  style={{ color: "red", padding: "0.25rem" }}
-                                >
-                                  <FaTrash size={14} />
-                                </IconButton>
-                              )
-                            }
-
-
+                            {!readOnlyPermissions && (
+                              <IconButton
+                                onClick={() => deleteOption(qi, oi)}
+                                style={{ color: "red" }}
+                              >
+                                <FaTrash size={14} />
+                              </IconButton>
+                            )}
                           </div>
                         ))}
-                        {
-                          !readOnlyPermissions && (
-                            <CreateButton onClick={() => addOption(qi)}>
-                              <FaPlus /> Add New Option
-                            </CreateButton>
-                          )
-                        }
-
+                        {!readOnlyPermissions && (
+                          <CreateButton onClick={() => addOption(qi)}>
+                            <FaPlus /> Add New Option
+                          </CreateButton>
+                        )}
                       </div>
                     )}
 
                     {q.type === "subjective" && (
                       <div style={{ marginTop: "1.5rem" }}>
-                        <label>Marks</label>
+                        <label>Marks:</label>
                         <input
                           type="text"
-                          placeholder="Marks"
                           value={q.raw ?? q.marks.toString()}
                           onChange={(e) => {
                             const input = e.target.value;
-                            const valid = /^[-+]?(\d+)?(\.\d*)?$/.test(input);
+                            const valid = /^[-+]?(\d+)?(\.\d*)?$/.test(
+                              input
+                            );
                             if (valid) {
                               updateQuestionField(qi, "raw", input);
                               const parsed = Number(input);
-                              if (!isNaN(parsed)) {
+                              if (!isNaN(parsed))
                                 updateQuestionField(qi, "marks", parsed);
-                              }
                             }
-                          }}
-                          style={{
-                            width: "100%",
-                            padding: "0.5rem",
-                            marginTop: "0.5rem",
-                            border: "1px solid #ccc",
-                            borderRadius: "4px",
                           }}
                         />
                       </div>
                     )}
 
                     <div style={{ marginTop: "1.5rem" }}>
-                      <label>Answer and Explanation</label>
+                      <label>Answer & Explanation:</label>
                       <JoditEditor
                         ref={editor}
                         value={q.expectedAnswer}
                         config={config}
-                        tabIndex={1}
-                        onChange={(content) => updateQuestionField(qi, "expectedAnswer", content)}
+                        onChange={(c) =>
+                          updateQuestionField(qi, "expectedAnswer", c)
+                        }
                       />
                     </div>
 
-                    <div style={{ marginTop: "1.5rem", textAlign: "right" }}>
-                      {
-                        !readOnlyPermissions && (
-                          <CreateButton onClick={() => saveQuestion(qi)}>
-                            Save Question
-                          </CreateButton>
-                        )
-                      }
-
-                    </div>
+                    {!readOnlyPermissions && (
+                      <div style={{ marginTop: "1.5rem", textAlign: "right" }}>
+                        <CreateButton onClick={() => saveQuestion(qi)}>
+                          Save Question
+                        </CreateButton>
+                      </div>
+                    )}
                   </div>
                 )}
               </QuestionContainer>
             );
           })}
 
-          <PageFooter>
-            {
-              !readOnlyPermissions && (
-                <CreateButton onClick={addQuestion}>
-                  <FaPlus /> Create New Question
-                </CreateButton>
-              )
-            }
-
-          </PageFooter>
+          {!readOnlyPermissions && (
+            <PageFooter>
+              <CreateButton onClick={addQuestion}>
+                <FaPlus /> Create New Question
+              </CreateButton>
+            </PageFooter>
+          )}
         </>
       )}
 
