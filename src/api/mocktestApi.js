@@ -19,7 +19,6 @@ export const getAllMocktest = async () => {
     }
 }
 
-
 export const getMocktestById = async (id) => {
     try {
         const response = await api.get(`/mockTest/${id}`);
@@ -77,7 +76,6 @@ export const getMocktestBySubjectId = async (id) => {
     }
 }
 
-
 export const updateMocktestById = async (id, data) => {
     try {
         const response = await api.put(`/mockTest/update/${id}`, data);
@@ -105,7 +103,6 @@ export const startMocktest = async (data) => {
         throw error;
     }
 }
-
 
 export const saveMocktest = async (data) => {
     try {
