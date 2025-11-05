@@ -40,10 +40,22 @@ export const Controls = styled.div`
     cursor: pointer;
   }
 
+  select {
+   &:focus {
+    color: black; /* selected visible option becomes black */
+    background: white;
+  }
+  
+  option:checked {
+    color: black; /* currently selected option */
+    background: white;
+  }
+  }
+
   /* ✅ Progress bar expands dynamically */
   input[type="range"] {
     flex: 1;
-    min-width: 80px;
+    min-width: 20px;
     accent-color: #f33;
   }
 
