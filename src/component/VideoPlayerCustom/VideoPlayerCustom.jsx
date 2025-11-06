@@ -122,7 +122,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
   useEffect(() => {
   const overlay = document.getElementById("floatingOverlay");
   if (!overlay) return;
-  let overlayX = 10, overlayY = 10;
+  let overlayX = 10, overlayY = 60;
   let velX = 0.5, velY = 0.5;
   let rafId;
 
@@ -132,10 +132,12 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
 
     const controlsHeight = 60; // reserve space for controls (px)
     const maxX = video.clientWidth - overlay.offsetWidth;
-    const maxY = video.clientHeight - overlay.offsetHeight - controlsHeight-8;
+    const maxY = video.clientHeight - overlay.offsetHeight - controlsHeight-30;
 
     overlayX += velX;
     overlayY += velY;
+    // console.log(overlayY, maxY);
+    if(overlay<100) overlayY=150;
 
     if (overlayX < 0 || overlayX > maxX) velX = -velX;
     if (overlayY < 0 || overlayY > maxY) velY = -velY;
