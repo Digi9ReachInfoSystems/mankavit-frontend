@@ -61,6 +61,7 @@ import {
 import PdfModal from "./PDFModal";
 import { m } from "framer-motion";
 import api from "../../config/axiosConfig";
+import VideoPlayerCustom from "../VideoPlayerCustom/VideoPlayerCustom";
 
 const CoursesLiveclass = () => {
   const { courseId, subjectid, lectureId } = useParams();
@@ -963,10 +964,10 @@ const CoursesLiveclass = () => {
 
       return (
         <>
-        {subjectNotes.map((note) => {
-  const noteUrl = note.fileUrl;
-  return (
-    <ContentText key={note._id || note.fileUrl}>
+          {subjectNotes.map((note) => {
+            const noteUrl = note.fileUrl;
+            return (
+              <ContentText key={note._id || note.fileUrl}>
                 <div
                   className="note-header"
                   style={{ display: "flex", justifyContent: "space-between" }}
@@ -1170,6 +1171,24 @@ const CoursesLiveclass = () => {
   //   else if (el.msRequestFullscreen) el.msRequestFullscreen();
   //   else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
   // };
+  // useEffect(() => {
+  //   const detectDeviceused = () => {
+  //     const ua = navigator.userAgent;
+  //     console.log("User Agent:", ua);
+  //     if (/Mobi|Android/i.test(ua)) {
+  //       // setIsMobile(true);
+  //     } else {
+  //       // setIsMobile(false);
+  //     }
+  //   };
+  //   detectDeviceused();
+  // })
+  const isIOSDevice = () => {
+    if (typeof navigator === "undefined") return false;
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
+      ||
+      (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+  };
 
   return (
     <MainContainer>
@@ -1237,13 +1256,72 @@ const CoursesLiveclass = () => {
         
         </StyledVideo>
       </VideoContainer> */}
+
+      {/* testing */}
       <VideoContainer ref={videoContainerRef}
 
       >
         <StyledVideo>
           {lecture && (
+
             <VideoPlayerContainer key={`${subjectid}-${lectureId}`}>
-              <VideoPlayer
+              {isIOSDevice() ? (
+                <div style={{ textAlign: "center", padding: 20, color: "#777" }}>
+                  <p style={{ fontSize: "16px", marginBottom: "8px" }}>
+                    Video playback is not available on iOS devices for this view.
+                  </p>
+                  <p style={{ fontSize: "15px", color: "#444", marginBottom: "12px" }}>
+                    Please use our mobile app to play videos.
+                  </p>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: "16px",
+                      marginTop: "10px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {/* Google Play Store */}
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.digi9.mankavitlawacademy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                        alt="Get it on Google Play"
+                        style={{ height: "48px", width: "auto" }}
+                      />
+                    </a>
+
+                    {/* Apple App Store */}
+                    <a
+                      href="https://apps.apple.com/in/app/mankavit-law-academy/id6469572308"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                        alt="Download on the App Store"
+                        style={{ height: "48px", width: "auto" }}
+                      />
+                    </a>
+                  </div>
+                </div>
+
+              ) : (
+                <VideoPlayerCustom
+                  src={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${lecture?.videoUrl}`}
+                  onClick={() => { }}
+                  onEnded={handleVideoEnd}
+                  movingText={userPhoneNumber}
+                />
+              )}
+
+
+              {/* <VideoPlayer
                 ref={videoRef}
                 onError={handleVideoError}
                 onEnded={handleVideoEnd}
@@ -1264,18 +1342,19 @@ const CoursesLiveclass = () => {
                       : "Your browser does not support the video tag"}
                   </div>
                 )}
-              </VideoPlayer>
+              </VideoPlayer> */}
 
-              {userId && (
+              {/* {userId && (
                 <MovingOverlay
                   style={{
+                    zIndex: 10,
                     top: `${overlayPosition.top}%`,
                     left: `${overlayPosition.left}%`,
                   }}
                 >
                   {userPhoneNumber || userId}
                 </MovingOverlay>
-              )}
+              )} */}
             </VideoPlayerContainer>
           )}
           <PlayControls>
@@ -1296,8 +1375,8 @@ const CoursesLiveclass = () => {
           </PlayControls>
 
           {/* Bottom-left controls */}
-          <ControlsRow>
-            {/* {
+          {/* <ControlsRow> */}
+          {/* {
               // showControls && (
                 <ControlsLeft>
                   <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
@@ -1305,25 +1384,27 @@ const CoursesLiveclass = () => {
                 </ControlsLeft>
               // )
             } */}
-            {/* <ControlsLeft>
+          {/* <ControlsLeft>
         <BackwardButton onClick={() => skipTime(-20)}>⏪ 20s</BackwardButton>
         <ForwardButton onClick={() => skipTime(20)}>20s ⏩</ForwardButton>
       </ControlsLeft> */}
 
-            {/* Bottom-right fullscreen button */}
-            {!isFullscreen && (
+          {/* Bottom-right fullscreen button */}
+          {/* {!isFullscreen && (
               <ControlsRight>
                 <FullscreenButton onClick={handleFullscreen}>⛶</FullscreenButton>
               </ControlsRight>
-            )}
-          </ControlsRow>
+            )} */}
+          {/* </ControlsRow> */}
 
           {/* Exit fullscreen button at top-right */}
-          {isFullscreen && (
+          {/* {isFullscreen && (
             <ExitFullscreenButton onClick={handleFullscreen}>✕</ExitFullscreenButton>
-          )}
+          )} */}
         </StyledVideo>
       </VideoContainer>
+
+      { /* testing end */}
 
 
 

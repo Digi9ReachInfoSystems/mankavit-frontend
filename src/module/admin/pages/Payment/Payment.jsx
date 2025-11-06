@@ -259,9 +259,10 @@ export default function Payment() {
 
     const rows = filteredPayments.map((item) => [
       // getNestedValue(item, 'courseRef.courseName'),
-      getCourseName(item),
+      item.courseName || getCourseName(item), 
 
-      getNestedValue(item, "userRef.displayName"),
+      item.studentName || getNestedValue(item, "userRef.displayName"),
+      // getNestedValue(item, "userRef.displayName"),
       item.transactionId || item.razorpay_payment_id || "N/A",
       `Rs. ${item.amountPaid ?? "N/A"}`,
       formatDate(item.createdAt),
@@ -298,9 +299,9 @@ export default function Payment() {
       couponName: item?.couponRef?.coupon_name,
       discountAmount: item?.couponDiscount,
       actualPrice: item?.amountPaid,
-      coursePrice: item.courseRef.discountActive
-        ? item.courseRef.discountPrice
-        : item.courseRef.price,
+      coursePrice: item.courseRef?.discountActive
+        ? item.courseRef.discountPrice || "N/A"
+        : item.courseRef?.price || "N/A",
     });
     setShowCouponModal(true);
   };
@@ -353,7 +354,7 @@ export default function Payment() {
       </HeaderRow>
 
       <SearchWrapper>
-         <SearchIcon><CiSearch size={18} /></SearchIcon>
+        <SearchIcon><CiSearch size={18} /></SearchIcon>
         <SearchInput
           type="text"
           placeholder="Search by student or course"
@@ -384,10 +385,10 @@ export default function Payment() {
               return (
                 <TableRow key={item._id}>
                   {/* <TableCell>{getNestedValue(item, 'courseRef.courseName')}</TableCell> */}
-                  <TableCell>{item.courseName||getCourseName(item)}</TableCell>
+                  <TableCell>{item.courseName || getCourseName(item)}</TableCell>
 
                   <TableCell>
-                    {item.studentName||getNestedValue(item, "userRef.displayName")}
+                    {item.studentName || getNestedValue(item, "userRef.displayName")}
                   </TableCell>
                   <TableCell>
                     {item.transactionId || item.razorpay_payment_id || "N/A"}
