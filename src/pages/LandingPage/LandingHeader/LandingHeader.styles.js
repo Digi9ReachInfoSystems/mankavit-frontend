@@ -84,7 +84,7 @@ export const Headline = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.1em;
 
-   @media (max-width: 768px) {
+   @media (max-width: 1024px) {
     display: none !important;
   }
 
