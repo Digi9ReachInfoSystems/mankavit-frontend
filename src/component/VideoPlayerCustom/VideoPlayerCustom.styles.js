@@ -10,8 +10,7 @@ export const PlayerContainer = styled.div`
 `;
 
 export const Video = styled.video`
-position: relative;
-// z-index: 0;
+  position: relative;
   width: 100%;
   display: block;
 `;
@@ -40,25 +39,27 @@ export const Controls = styled.div`
     border: none;
     color: #fff;
     cursor: pointer;
+    
   }
 
   select {
    &:focus {
-    color: black; /* selected visible option becomes black */
+    color: black;
     background: white;
   }
   
   option:checked {
-    color: black; /* currently selected option */
+    color: black;
     background: white;
   }
   }
 
   /* ✅ Progress bar expands dynamically */
   input[type="range"] {
-    flex: 1;
-    min-width: 20px;
+  flex: 1;
     accent-color: #f33;
+  min-width: 20px;
+
   }
 
   span {
@@ -66,11 +67,10 @@ export const Controls = styled.div`
   }
 
   @media (max-width: 600px) {
-    // flex-direction: column;
     flex-direction: row;
     align-items: stretch;
     input[type="range"] {
-      width: 100%;
+       width: 100%;
     }
   }
 `;
@@ -79,6 +79,22 @@ export const VolumeWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
+
+  input[type="range"] {
+    width: 80px;
+    min-width: 20px;
+    accent-color: #f33;
+    // rotate: 90deg;
+  }
+
+  span {
+    cursor: pointer;
+    user-select: none;
+  }
+    @media (max-width: 950px) {
+    display: none;
+  }
 `;
 
 export const SkipButton = styled.button`
@@ -142,4 +158,3 @@ export const FloatingOverlay = styled.div`
     font-size: 14px;
   }
 `;
-
