@@ -337,16 +337,18 @@ export const CompletedBadge = styled.div`
 export const MovingOverlay = styled.div`
   position: absolute;
   z-index: 10;
-  color: #c90b0bff;
+  color:red;
   padding: 4px 10px;
   border-radius: 4px;
-  font-size: 18px;
+  font-size: 16px;
   pointer-events: none;
   transition: top 1s ease, left 1s ease;
+  z-index: 1000;
 
   @media (max-width: ${bp.sm}) {
     font-size: 12px;
   }
+    
 `;
 
 export const VideoPlayerContainer = styled.div`
