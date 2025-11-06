@@ -71,10 +71,9 @@ export const SidebarContainer = styled.aside`
 
 /* Toggle between panes on desktop; fixed floating on mobile */
 export const ToggleSidebarBtn = styled.button`
-  /* Desktop: sit between Content and Sidebar */
   position: absolute;
   top: 50%;
-  right: ${p => (p.$open ? "calc(var(--sbw) - 14px)" : "-14px")};
+  right: -14px;
   transform: translateY(-50%);
   width: 42px;
   height: 42px;
@@ -88,17 +87,16 @@ export const ToggleSidebarBtn = styled.button`
   cursor: pointer;
   font-weight: 700;
   line-height: 1;
-  z-index: 150;
+  z-index: 50;
 
   &:hover { background: #f7f7f7; }
 
-  /* Mobile: float on the right edge */
-  @media (max-width: 900px) {
+  @media (max-width: 768px) {
     position: fixed;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 220; /* above slide-in sidebar */
+    z-index: 200; /* above slide-in panel */
   }
 `;
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
+
 import {
   Container,
   Content,
@@ -520,11 +521,6 @@ export default function TextScreen() {
       status: newStatus,
     });
   };
-
-  // 1) Mark & Next — compute the status and pass it to goToQuestion.
-  //    We also optimistically update local state so Legend/Grid update instantly.
-  // 1) Mark & Next — compute the status and pass it to goToQuestion.
-  //    We also optimistically update local state so Legend/Grid update instantly.
   const handleMarkAndNext = async () => {
     if (isSaving) return;
     setIsSaving(true);
@@ -624,62 +620,6 @@ export default function TextScreen() {
     }
   };
 
-  // const goToQuestion = async (i) => {
-  //   const prevAns = answers[currentIndex];
-  //   const newAns = answers[i];
-
-  // Ensure leaving question is classified properly
-  //   if (
-  //     prevAns &&
-  //     currentIndex !== i &&
-  //     prevAns.status === STATUS.UNATTEMPTED &&
-  //     isBlank(prevAns, questions[currentIndex].type === "mcq")
-  //   ) {
-  //     const payload = {
-  //       attemptId: prevAns.attemptId,
-  //       user_id: userId,
-  //       questionId: prevAns.questionId,
-  //       status: STATUS.NOT_ANSWERED,
-  //       answer: "",
-  //       userAnswerIndex:
-  //         questions[currentIndex].type === "mcq" ? null : undefined,
-  //     };
-  //     try {
-  //       await saveMocktest(payload);
-  //     } catch (err) {
-  //       // // console.error("Failed to auto-mark not-answered on navigation", err);
-  //     } finally {
-  //       setAnswers((prev) => {
-  //         const copy = [...prev];
-  //         copy[currentIndex] = {
-  //           ...copy[currentIndex],
-  //           answer: "",
-  //           answerIndex: null,
-  //           status: STATUS.NOT_ANSWERED,
-  //         };
-  //         return copy;
-  //       });
-  //     }
-  //   }
-
-  //   // When visiting a question for the first time and it's blank → NOT_ANSWERED.
-  //   if (
-  //     newAns &&
-  //     newAns.status === STATUS.UNATTEMPTED &&
-  //     isBlank(newAns, questions[i].type === "mcq")
-  //   ) {
-  //     setAnswers((prev) => {
-  //       const copy = [...prev];
-  //       copy[i] = { ...copy[i], status: STATUS.NOT_ANSWERED };
-  //       return copy;
-  //     });
-  //   }
-
-  //   setCurrentIndex(i);
-  // };
-
-  // 2) goToQuestion — accept an override so we DON'T read the stale status.
-  //    Only auto-classify if nothing was forced and it was truly UNATTEMPTED.
   const goToQuestion = async (i, opts = {}) => {
     const { forcePrevStatus, prevAnswer, prevAnswerIndex } = opts;
     const prevAns = answers[currentIndex];
@@ -767,44 +707,6 @@ export default function TextScreen() {
       toast.error("Failed to clear answer");
     }
   };
-
-  // const handleSubmit = async () => {
-  //   const ans = answers[currentIndex];
-
-  //   try {
-  //     // Save current answer before submitting
-  //     const payload = {
-  //       attemptId: ans.attemptId,
-  //       user_id: userId,
-  //       questionId: ans.questionId,
-  //       status: ans.status,
-  //     };
-  //     const timeKey = `testTime_${testId}_${urlAttemptId}`;
-  //     if (isMCQ) {
-  //       payload.userAnswerIndex = ans.answerIndex;
-  //       payload.answer = ans.answer;
-  //     } else {
-  //       payload.answer = ans.answer;
-  //     }
-
-  //     // await saveMocktest(payload);
-
-  //     // Then submit the test
-  //     const res = await submitMocktest({
-  //       attemptId: ans.attemptId,
-  //       user_id: userId,
-  //     });
-  //     const data = unwrap(res);
-  //     if (data) {
-  //       localStorage.removeItem(timeKey);
-  //       toast.success("Test submitted successfully");
-  //       navigate(`/test-results/${testId}/${subjectId}/${urlAttemptId}`);
-  //     }
-  //   } catch (err) {
-  //     // // console.error(err);
-  //     toast.error("Failed to submit test");
-  //   }
-  // };
 
   const handleSubmit = async () => {
     const ans = answers[currentIndex];
@@ -974,443 +876,396 @@ export default function TextScreen() {
     }
   };
 
-  //   return (
-  //     <Container>
-  //       <Content $sidebarOpen={sidebarOpen}>
-  //         <ToggleSidebarBtn
-  //           onClick={() => setSidebarOpen((s) => !s)}
-  //           aria-label="Toggle question navigator"
-  //           title={sidebarOpen ? "Hide navigator" : "Show navigator"}
-  //         >
-  //           {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
-  //         </ToggleSidebarBtn>
 
-  //         {/* HEADER — Back + Title tight */}
-  //         <Header>
-  //           <LeftDiv>
-  //             <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
-  //               <FaAngleLeft />
-  //             </LeftIcon>
-  //             <HeaderLeft />
-  //             <PageTitle title={mockTest?.title || "Mock Test"}>
-  //               {mockTest?.title || "Mock Test"}
-  //             </PageTitle>
-  //           </LeftDiv>
 
-  //           <Timer>
-  //             <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
-  //             <Text>Time Left:</Text>
-  //             <TimeSlot>
-  //               {String(timeLeft.m).padStart(2, "0")}:
-  //               {String(timeLeft.s).padStart(2, "0")}
-  //             </TimeSlot>
-  //           </Timer>
-  //         </Header>
+//   return (
+//     <Container>
+//       <Content $sidebarOpen={sidebarOpen}>
+//           {!sidebarOpen && (
+//     <ToggleSidebarBtn
+//       onClick={() => setSidebarOpen(true)}
+//       aria-label="Open question navigator"
+//       title="Open navigator"
+//     >
+//       <RxDoubleArrowLeft />
+//     </ToggleSidebarBtn>
+//   )}
 
-  //         <Complier>
-  //           <QuestionNumber>
-  //             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
-  //           </QuestionNumber>
-  //           <SectionQuestion>
-  //             {hasPassage ? (
-  //               <PassageContainer>
-  //                 <PassageContent hasPassage={hasPassage}>
-  //                   <PassageBox
-  //                     dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
-  //                   />
-  //                 </PassageContent>
-  //                 <QuestionContent style={{
-  //                   fontFamily:"Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important"
-  //                 }}>
-  //                   <QuestionBox>
-  //                     <QuestionText
-  //                       dangerouslySetInnerHTML={{
-  //                         __html: currentQ.questionText,
-  //                       }}
-  //                     />
-  //                     {isMCQ ? (
-  //                       <OptionsList>
-  //                         {currentQ.options.map((opt, idx) => {
-  //                           const label =
-  //                             typeof opt === "object" ? opt.text : opt;
-  //                           return (
-  //                             <OptionLabel key={idx}>
-  //                               <input
-  //                                 type="radio"
-  //                                 checked={currAns.answerIndex === idx}
-  //                                 onClick={() => handleOptionClick(idx)} // ← toggles off if same option
-  //                                 onChange={() => handleOptionSelect(idx)} // ← normal select
-  //                               />
+//         {/* HEADER unchanged */}
+//         <Header>
+//           <LeftDiv>
+//             <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
+//               <FaAngleLeft />
+//             </LeftIcon>
+//             <HeaderLeft />
+//             <PageTitle title={mockTest?.title || "Mock Test"}>
+//               {mockTest?.title || "Mock Test"}
+//             </PageTitle>
+//           </LeftDiv>
 
-  //                               {label}
-  //                             </OptionLabel>
-  //                           );
-  //                         })}
-  //                       </OptionsList>
-  //                     ) : (
-  //                       <textarea
-  //                         ref={answerRef}
-  //                         className="textarea"
-  //                         value={currAns.answer}
-  //                         onChange={handleTextChange}
-  //                         placeholder="Type your answer…"
-  //                         // extra inline guards (belt & suspenders)
-  //                         onCopy={(e) => {
-  //                           e.preventDefault();
-  //                           e.stopPropagation();
-  //                           toast.info(
-  //                             "Copy,Cut,Paste actions are PROHIBITED !.."
-  //                           );
-  //                         }}
-  //                         onCut={(e) => {
-  //                           e.preventDefault();
-  //                           e.stopPropagation();
-  //                           toast.info(
-  //                             "Copy,Cut,Paste actions are PROHIBITED !.."
-  //                           );
-  //                         }}
-  //                         onPaste={(e) => {
-  //                           e.preventDefault();
-  //                           e.stopPropagation();
-  //                           toast.info(
-  //                             "Copy,Cut,Paste actions are PROHIBITED !.."
-  //                           );
-  //                         }}
-  //                         onDrop={(e) => {
-  //                           e.preventDefault();
-  //                           e.stopPropagation();
-  //                         }}
-  //                         onContextMenu={(e) => {
-  //                           e.preventDefault();
-  //                           e.stopPropagation();
-  //                         }}
-  //                         spellCheck={false}
-  //                         autoCorrect="off"
-  //                         autoCapitalize="off"
-  //                         style={{
-  //                           userSelect: "none",
-  //                         }}
-  //                       />
-  //                     )}
-  //                   </QuestionBox>
-  //                 </QuestionContent>
-  //               </PassageContainer>
-  //             ) : (
-  //               <>
-  //                 <PassageBox
-  //                   dangerouslySetInnerHTML={{ __html: currentQ.questionText }}
-  //                 />
-  //                 <HorizontalLine />
-  //                 <QuestionBox>
-  //                   {isMCQ ? (
-  //                     <OptionsList>
-  //                       {currentQ.options.map((opt, idx) => {
-  //                         const label = typeof opt === "object" ? opt.text : opt;
-  //                         return (
-  //                           <OptionLabel key={idx}>
-  //                             <input
-  //                               type="radio"
-  //                               checked={currAns.answerIndex === idx}
-  //                               onClick={() => handleOptionClick(idx)} // ← toggles off if same option
-  //                               onChange={() => handleOptionSelect(idx)} // ← normal select
-  //                             />
+//           <Timer>
+//             <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
+//             <Text>Time Left:</Text>
+//             <TimeSlot>
+//               {String(timeLeft.m).padStart(2, "0")}:
+//               {String(timeLeft.s).padStart(2, "0")}
+//             </TimeSlot>
+//           </Timer>
+//         </Header>
 
-  //                             {label}
-  //                           </OptionLabel>
-  //                         );
-  //                       })}
-  //                     </OptionsList>
-  //                   ) : (
-  //                     <textarea
-  //                       ref={answerRef}
-  //                       className="textarea"
-  //                       value={currAns.answer}
-  //                       onChange={handleTextChange}
-  //                       placeholder="Type your answer…"
-  //                       // extra inline guards (belt & suspenders)
-  //                       onCopy={(e) => {
-  //                         e.preventDefault();
-  //                         e.stopPropagation();
-  //                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
-  //                       }}
-  //                       onCut={(e) => {
-  //                         e.preventDefault();
-  //                         e.stopPropagation();
-  //                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
-  //                       }}
-  //                       onPaste={(e) => {
-  //                         e.preventDefault();
-  //                         e.stopPropagation();
-  //                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
-  //                       }}
-  //                       onDrop={(e) => {
-  //                         e.preventDefault();
-  //                         e.stopPropagation();
-  //                       }}
-  //                       onContextMenu={(e) => {
-  //                         e.preventDefault();
-  //                         e.stopPropagation();
-  //                       }}
-  //                       spellCheck={false}
-  //                       autoCorrect="off"
-  //                       autoCapitalize="off"
-  //                       style={{
-  //                         userSelect: "none",
-  //                       }}
-  //                     />
-  //                   )}
-  //                 </QuestionBox>
-  //               </>
-  //             )}
-  //           </SectionQuestion>
-  //         </Complier>
+//         <Complier>
+//           <QuestionNumber>
+//             <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
+//           </QuestionNumber>
 
-  //         {/* STICKY ACTION BAR — always visible, one line */}
-  //         <StickyActionBar>
-  //           <LeftButtonsWrap>
-  //             <button
-  //               className="review"
-  //               onClick={handleMarkAndNext}
-  //               disabled={isSaving}
-  //             >
-  //               {isSaving ? "Marking..." : "Mark & Next"}
-  //             </button>
-  //             <button className="clear" onClick={handleClear}>
-  //               Clear Response
-  //             </button>
-  //           </LeftButtonsWrap>
+//           <SectionQuestion>
+//             {hasPassage ? (
+//               <PassageContainer>
+//                 <PassageContent hasPassage={hasPassage}>
+//                   {/* READ MORE/LESS (mobile only) */}
+//                   <PassageClamp $expanded={passageExpanded}>
+//                     <PassageBox
+//                       dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
+//                     />
+//                   </PassageClamp>
+//                   <ReadMoreBtn
+//                     type="button"
+//                     onClick={() => setPassageExpanded((v) => !v)}
+//                   >
+//                     {passageExpanded ? "Read less" : "Read more"}
+//                   </ReadMoreBtn>
+//                 </PassageContent>
 
-  //           <LeftButtonsWrap>
-  //             {" "}
-  //             <button className="save" onClick={saveAndNext}>
-  //               Save & Next
-  //             </button>
-  //             <SubmitButton onClick={handleSaveForLaterClick}>
-  //               Save Test
-  //             </SubmitButton>
-  //             <SubmitButton onClick={handleSubmitClick}>Submit Test</SubmitButton>
-  //           </LeftButtonsWrap>
-  //         </StickyActionBar>
-  //       </Content>
+//                 <QuestionContent
+//                   style={{
+//                     fontFamily:
+//                       "Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important",
+//                   }}
+//                 >
+//                   <QuestionBox>
+//                     <QuestionText
+//                       dangerouslySetInnerHTML={{
+//                         __html: currentQ.questionText,
+//                       }}
+//                     />
 
-  //       <SidebarContainer $open={sidebarOpen}>
-  //         <Divider />
+//                     {isMCQ ? (
+//                       <OptionsList>
+//                         {currentQ.options.map((opt, idx) => {
+//                           const label =
+//                             typeof opt === "object" ? opt.text : opt;
+//                           return (
+//                             <OptionLabel key={idx}>
+//                               <input
+//                                 type="radio"
+//                                 checked={currAns.answerIndex === idx}
+//                                 onClick={() => handleOptionClick(idx)}
+//                                 onChange={() => handleOptionSelect(idx)}
+//                               />
+//                               {label}
+//                             </OptionLabel>
+//                           );
+//                         })}
+//                       </OptionsList>
+//                     ) : (
+//                       <textarea
+//                         ref={answerRef}
+//                         className="textarea"
+//                         value={currAns.answer}
+//                         onChange={handleTextChange}
+//                         placeholder="Type your answer…"
+//                         onCopy={(e) => {
+//                           e.preventDefault();
+//                           e.stopPropagation();
+//                           toast.info(
+//                             "Copy,Cut,Paste actions are PROHIBITED !.."
+//                           );
+//                         }}
+//                         onCut={(e) => {
+//                           e.preventDefault();
+//                           e.stopPropagation();
+//                           toast.info(
+//                             "Copy,Cut,Paste actions are PROHIBITED !.."
+//                           );
+//                         }}
+//                         onPaste={(e) => {
+//                           e.preventDefault();
+//                           e.stopPropagation();
+//                           toast.info(
+//                             "Copy,Cut,Paste actions are PROHIBITED !.."
+//                           );
+//                         }}
+//                         onDrop={(e) => {
+//                           e.preventDefault();
+//                           e.stopPropagation();
+//                         }}
+//                         onContextMenu={(e) => {
+//                           e.preventDefault();
+//                           e.stopPropagation();
+//                         }}
+//                         spellCheck={false}
+//                         autoCorrect="off"
+//                         autoCapitalize="off"
+//                         style={{ userSelect: "none" }}
+//                       />
+//                     )}
+//                   </QuestionBox>
+//                 </QuestionContent>
+//               </PassageContainer>
+//             ) : (
+//               <>
+//                 <PassageBox
+//                   dangerouslySetInnerHTML={{ __html: currentQ.questionText }}
+//                 />
+//                 <HorizontalLine />
+//                 <QuestionBox>
+//                   {isMCQ ? (
+//                     <OptionsList>
+//                       {currentQ.options.map((opt, idx) => {
+//                         const label = typeof opt === "object" ? opt.text : opt;
+//                         return (
+//                           <OptionLabel key={idx}>
+//                             <input
+//                               type="radio"
+//                               checked={currAns.answerIndex === idx}
+//                               onClick={() => handleOptionClick(idx)}
+//                               onChange={() => handleOptionSelect(idx)}
+//                             />
+//                             {label}
+//                           </OptionLabel>
+//                         );
+//                       })}
+//                     </OptionsList>
+//                   ) : (
+//                     <textarea
+//                       ref={answerRef}
+//                       className="textarea"
+//                       value={currAns.answer}
+//                       onChange={handleTextChange}
+//                       placeholder="Type your answer…"
+//                       onCopy={(e) => {
+//                         e.preventDefault();
+//                         e.stopPropagation();
+//                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+//                       }}
+//                       onCut={(e) => {
+//                         e.preventDefault();
+//                         e.stopPropagation();
+//                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+//                       }}
+//                       onPaste={(e) => {
+//                         e.preventDefault();
+//                         e.stopPropagation();
+//                         toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+//                       }}
+//                       onDrop={(e) => {
+//                         e.preventDefault();
+//                         e.stopPropagation();
+//                       }}
+//                       onContextMenu={(e) => {
+//                         e.preventDefault();
+//                         e.stopPropagation();
+//                       }}
+//                       spellCheck={false}
+//                       autoCorrect="off"
+//                       autoCapitalize="off"
+//                       style={{ userSelect: "none" }}
+//                     />
+//                   )}
+//                 </QuestionBox>
+//               </>
+//             )}
+//           </SectionQuestion>
+//         </Complier>
 
-  //         <Legend>
-  //           {Object.entries(getStatusCounts()).map(([key, count]) => {
-  //             let className;
-  //             switch (key) {
-  //               case "answered":
-  //                 className = "answered";
-  //                 break;
-  //               case "notAnswered":
-  //                 className = "not-answered";
-  //                 break;
-  //               case "notAnsweredMarked":
-  //                 className = "not-answered-marked";
-  //                 break;
-  //               case "unattempted":
-  //                 className = "unattempted";
-  //                 break;
-  //               case "answeredMarked":
-  //                 className = "answered-marked";
-  //                 break;
-  //               default:
-  //                 return null;
-  //             }
-  //             return (
-  //               <OptionLabelList key={key}>
-  //                 <LegendItem className={className}>{count}</LegendItem>
-  //                 <LegendText>
-  //                   {key === "answeredMarked"
-  //                     ? "Answered & Marked"
-  //                     : key === "notAnsweredMarked"
-  //                     ? "Marked"
-  //                     : key === "notAnswered"
-  //                     ? "Not Answered"
-  //                     : key === "unattempted"
-  //                     ? "Not Visited"
-  //                     : key.charAt(0).toUpperCase() + key.slice(1)}
-  //                 </LegendText>
-  //               </OptionLabelList>
-  //             );
-  //           })}
-  //         </Legend>
+//         {/* STICKY ACTION BAR */}
+//         {/* STICKY ACTION BAR */}
+// <StickyActionBar>
+//   {/* Row 1 on mobile */}
+//   <LeftButtonsWrap>
+//     <button
+//       className="review"
+//       onClick={handleMarkAndNext}
+//       disabled={isSaving}
+//     >
+//       {isSaving ? "Marking..." : "Mark & Next"}
+//     </button>
 
-  //         {/* SCROLLABLE QUESTION MAP */}
-  //         <QuestionNav>
-  //           <Grid>
-  //             {questions.map((_, i) => (
-  //               <GridButton
-  //                 key={i}
-  //                 className={getStatus(i + 1)}
-  //                 onClick={() => goToQuestion(i)}
-  //                 active={currentIndex === i}
-  //               >
-  //                 {i + 1}
-  //               </GridButton>
-  //             ))}
-  //           </Grid>
-  //         </QuestionNav>
-  //       </SidebarContainer>
+//     {/* mobile-only Save & Next (so row 1 = Mark & Next + Save & Next) */}
+//     <button className="save mobileOnly" onClick={saveAndNext}>
+//       Save & Next
+//     </button>
 
-  //       <ConfirmationModal
-  //         isOpen={showConfirmation}
-  //         onClose={handleCancelSubmit}
-  //         message={"Do you want to submit the test?"}
-  //         onConfirm={handleSubmit}
-  //       />
-  //       <ConfirmationModal
-  //         isOpen={showSaveForLater}
-  //         message={"Do you want to save the test for later?"}
-  //         onClose={handleCancelSaveForLater}
-  //         onConfirm={handleSaveForLater}
-  //       />
-  //     </Container>
-  //   );
-  // }
+//     {/* desktop-only Clear Response stays here, desktop layout unchanged */}
+//     <button className="clear desktopOnly" onClick={handleClear}>
+//       Clear Response
+//     </button>
+//   </LeftButtonsWrap>
 
-  return (
-    <Container>
-      <Content $sidebarOpen={sidebarOpen}>
-          {!sidebarOpen && (
+//   {/* Row 2 on mobile */}
+//   <LeftButtonsWrap>
+//     {/* desktop-only Save & Next keeps your desktop layout unchanged */}
+//     <button className="save desktopOnly" onClick={saveAndNext}>
+//       Save & Next
+//     </button>
+
+//     <SubmitButton onClick={handleSaveForLaterClick}>
+//       Save Test
+//     </SubmitButton>
+//     <SubmitButton onClick={handleSubmitClick}>
+//       Submit Test
+//     </SubmitButton>
+//   </LeftButtonsWrap>
+// </StickyActionBar>
+
+//         <MobileBottomSpacer />
+        
+//       </Content>
+
+//       {/* MOBILE SIDEBAR becomes fixed slide-in panel */}
+//       <SidebarContainer $open={sidebarOpen}>
+//         <CloseSidebarBtn
+//           aria-label="Close navigator"
+//           title="Close navigator"
+//           onClick={() => setSidebarOpen(false)}
+//         >
+//           <RxDoubleArrowRight />
+//         </CloseSidebarBtn>
+//         <Divider />
+//         <Legend>
+//           {Object.entries(getStatusCounts()).map(([key, count]) => {
+//             let className;
+//             switch (key) {
+//               case "answered":
+//                 className = "answered";
+//                 break;
+//               case "notAnswered":
+//                 className = "not-answered";
+//                 break;
+//               case "notAnsweredMarked":
+//                 className = "not-answered-marked";
+//                 break;
+//               case "unattempted":
+//                 className = "unattempted";
+//                 break;
+//               case "answeredMarked":
+//                 className = "answered-marked";
+//                 break;
+//               default:
+//                 return null;
+//             }
+//             return (
+//               <OptionLabelList key={key}>
+//                 <LegendItem className={className}>{count}</LegendItem>
+//                 <LegendText>
+//                   {key === "answeredMarked"
+//                     ? "Answered & Marked"
+//                     : key === "notAnsweredMarked"
+//                     ? "Marked"
+//                     : key === "notAnswered"
+//                     ? "Not Answered"
+//                     : key === "unattempted"
+//                     ? "Not Visited"
+//                     : key.charAt(0).toUpperCase() + key.slice(1)}
+//                 </LegendText>
+//               </OptionLabelList>
+//             );
+//           })}
+//         </Legend>
+
+//         <QuestionNav>
+//           <Grid>
+//             {questions.map((_, i) => (
+//               <GridButton
+//                 key={i}
+//                 className={getStatus(i + 1)}
+//                 onClick={() => goToQuestion(i)}
+//                 active={currentIndex === i}
+//               >
+//                 {i + 1}
+//               </GridButton>
+//             ))}
+//           </Grid>
+//         </QuestionNav>
+//       </SidebarContainer>
+
+//       {/* Modals unchanged */}
+//       <ConfirmationModal
+//         isOpen={showConfirmation}
+//         onClose={handleCancelSubmit}
+//         message={"Do you want to submit the test?"}
+//         onConfirm={handleSubmit}
+//       />
+//       <ConfirmationModal
+//         isOpen={showSaveForLater}
+//         message={"Do you want to save the test for later?"}
+//         onClose={handleCancelSaveForLater}
+//         onConfirm={handleSaveForLater}
+//       />
+//     </Container>
+//   );
+// }
+
+return (
+  <Container>
+    {/* Fixed toggle button (between panes on desktop, floating on mobile) */}
     <ToggleSidebarBtn
-      onClick={() => setSidebarOpen(true)}
-      aria-label="Open question navigator"
-      title="Open navigator"
+      onClick={() => setSidebarOpen((s) => !s)}
+      aria-label={sidebarOpen ? "Hide question navigator" : "Show question navigator"}
+      title={sidebarOpen ? "Hide navigator" : "Show navigator"}
     >
-      <RxDoubleArrowLeft />
+      {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
     </ToggleSidebarBtn>
-  )}
 
-        {/* HEADER unchanged */}
-        <Header>
-          <LeftDiv>
-            <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
-              <FaAngleLeft />
-            </LeftIcon>
-            <HeaderLeft />
-            <PageTitle title={mockTest?.title || "Mock Test"}>
-              {mockTest?.title || "Mock Test"}
-            </PageTitle>
-          </LeftDiv>
+    <Content $sidebarOpen={sidebarOpen}>
+      {/* HEADER unchanged */}
+      <Header>
+        <LeftDiv>
+          <LeftIcon onClick={() => navigate(-1)} aria-label="Back">
+            <FaAngleLeft />
+          </LeftIcon>
+          <HeaderLeft />
+          <PageTitle title={mockTest?.title || "Mock Test"}>
+            {mockTest?.title || "Mock Test"}
+          </PageTitle>
+        </LeftDiv>
+        <Timer>
+          <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
+          <Text>Time Left:</Text>
+          <TimeSlot>
+            {String(timeLeft.m).padStart(2, "0")}:
+            {String(timeLeft.s).padStart(2, "0")}
+          </TimeSlot>
+        </Timer>
+      </Header>
 
-          <Timer>
-            <QuestionType>{isMCQ ? "MCQ" : "Subjective"}</QuestionType>
-            <Text>Time Left:</Text>
-            <TimeSlot>
-              {String(timeLeft.m).padStart(2, "0")}:
-              {String(timeLeft.s).padStart(2, "0")}
-            </TimeSlot>
-          </Timer>
-        </Header>
-
-        <Complier>
-          <QuestionNumber>
-            <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
-          </QuestionNumber>
-
-          <SectionQuestion>
-            {hasPassage ? (
-              <PassageContainer>
-                <PassageContent hasPassage={hasPassage}>
-                  {/* READ MORE/LESS (mobile only) */}
-                  <PassageClamp $expanded={passageExpanded}>
-                    <PassageBox
-                      dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
-                    />
-                  </PassageClamp>
-                  <ReadMoreBtn
-                    type="button"
-                    onClick={() => setPassageExpanded((v) => !v)}
-                  >
-                    {passageExpanded ? "Read less" : "Read more"}
-                  </ReadMoreBtn>
-                </PassageContent>
-
-                <QuestionContent
-                  style={{
-                    fontFamily:
-                      "Segoe UI, Tahoma, Geneva, Verdana, sans-serif !important",
-                  }}
+      <Complier>
+        <QuestionNumber>
+          <QuestionTitle>Question {currentIndex + 1}</QuestionTitle>
+        </QuestionNumber>
+        <SectionQuestion>
+          {hasPassage ? (
+            <PassageContainer>
+              <PassageContent hasPassage={hasPassage}>
+                <PassageClamp $expanded={passageExpanded}>
+                  <PassageBox
+                    dangerouslySetInnerHTML={{ __html: currentQ.passageText }}
+                  />
+                </PassageClamp>
+                <ReadMoreBtn
+                  type="button"
+                  onClick={() => setPassageExpanded((v) => !v)}
                 >
-                  <QuestionBox>
-                    <QuestionText
-                      dangerouslySetInnerHTML={{
-                        __html: currentQ.questionText,
-                      }}
-                    />
-
-                    {isMCQ ? (
-                      <OptionsList>
-                        {currentQ.options.map((opt, idx) => {
-                          const label =
-                            typeof opt === "object" ? opt.text : opt;
-                          return (
-                            <OptionLabel key={idx}>
-                              <input
-                                type="radio"
-                                checked={currAns.answerIndex === idx}
-                                onClick={() => handleOptionClick(idx)}
-                                onChange={() => handleOptionSelect(idx)}
-                              />
-                              {label}
-                            </OptionLabel>
-                          );
-                        })}
-                      </OptionsList>
-                    ) : (
-                      <textarea
-                        ref={answerRef}
-                        className="textarea"
-                        value={currAns.answer}
-                        onChange={handleTextChange}
-                        placeholder="Type your answer…"
-                        onCopy={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toast.info(
-                            "Copy,Cut,Paste actions are PROHIBITED !.."
-                          );
-                        }}
-                        onCut={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toast.info(
-                            "Copy,Cut,Paste actions are PROHIBITED !.."
-                          );
-                        }}
-                        onPaste={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toast.info(
-                            "Copy,Cut,Paste actions are PROHIBITED !.."
-                          );
-                        }}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        spellCheck={false}
-                        autoCorrect="off"
-                        autoCapitalize="off"
-                        style={{ userSelect: "none" }}
-                      />
-                    )}
-                  </QuestionBox>
-                </QuestionContent>
-              </PassageContainer>
-            ) : (
-              <>
-                <PassageBox
-                  dangerouslySetInnerHTML={{ __html: currentQ.questionText }}
-                />
-                <HorizontalLine />
+                  {passageExpanded ? "Read less" : "Read more"}
+                </ReadMoreBtn>
+              </PassageContent>
+              <QuestionContent>
                 <QuestionBox>
+                  <QuestionText
+                    dangerouslySetInnerHTML={{
+                      __html: currentQ.questionText,
+                    }}
+                  />
                   {isMCQ ? (
                     <OptionsList>
                       {currentQ.options.map((opt, idx) => {
@@ -1465,135 +1320,173 @@ export default function TextScreen() {
                     />
                   )}
                 </QuestionBox>
-              </>
-            )}
-          </SectionQuestion>
-        </Complier>
+              </QuestionContent>
+            </PassageContainer>
+          ) : (
+            <>
+              <PassageBox
+                dangerouslySetInnerHTML={{ __html: currentQ.questionText }}
+              />
+              <HorizontalLine />
+              <QuestionBox>
+                {isMCQ ? (
+                  <OptionsList>
+                    {currentQ.options.map((opt, idx) => {
+                      const label = typeof opt === "object" ? opt.text : opt;
+                      return (
+                        <OptionLabel key={idx}>
+                          <input
+                            type="radio"
+                            checked={currAns.answerIndex === idx}
+                            onClick={() => handleOptionClick(idx)}
+                            onChange={() => handleOptionSelect(idx)}
+                          />
+                          {label}
+                        </OptionLabel>
+                      );
+                    })}
+                  </OptionsList>
+                ) : (
+                  <textarea
+                    ref={answerRef}
+                    className="textarea"
+                    value={currAns.answer}
+                    onChange={handleTextChange}
+                    placeholder="Type your answer…"
+                    onCopy={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+                    }}
+                    onCut={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toast.info("Copy,Cut,Paste actions are PROHIBITED !..");
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    spellCheck={false}
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    style={{ userSelect: "none" }}
+                  />
+                )}
+              </QuestionBox>
+            </>
+          )}
+        </SectionQuestion>
+      </Complier>
 
-        {/* STICKY ACTION BAR */}
-        {/* STICKY ACTION BAR */}
-<StickyActionBar>
-  {/* Row 1 on mobile */}
-  <LeftButtonsWrap>
-    <button
-      className="review"
-      onClick={handleMarkAndNext}
-      disabled={isSaving}
-    >
-      {isSaving ? "Marking..." : "Mark & Next"}
-    </button>
+      <StickyActionBar>
+        <LeftButtonsWrap>
+          <button
+            className="review"
+            onClick={handleMarkAndNext}
+            disabled={isSaving}
+          >
+            {isSaving ? "Marking..." : "Mark & Next"}
+          </button>
+          <button className="save mobileOnly" onClick={saveAndNext}>
+            Save & Next
+          </button>
+          <button className="clear desktopOnly" onClick={handleClear}>
+            Clear Response
+          </button>
+        </LeftButtonsWrap>
+        <LeftButtonsWrap>
+          <button className="save desktopOnly" onClick={saveAndNext}>
+            Save & Next
+          </button>
+          <SubmitButton onClick={handleSaveForLaterClick}>
+            Save Test
+          </SubmitButton>
+          <SubmitButton onClick={handleSubmitClick}>
+            Submit Test
+          </SubmitButton>
+        </LeftButtonsWrap>
+      </StickyActionBar>
+      <MobileBottomSpacer />
+    </Content>
 
-    {/* mobile-only Save & Next (so row 1 = Mark & Next + Save & Next) */}
-    <button className="save mobileOnly" onClick={saveAndNext}>
-      Save & Next
-    </button>
+    {/* Sidebar */}
+    <SidebarContainer $open={sidebarOpen}>
+      <CloseSidebarBtn
+        aria-label="Close navigator"
+        title="Close navigator"
+        onClick={() => setSidebarOpen(false)}
+      >
+        <RxDoubleArrowRight />
+      </CloseSidebarBtn>
+      <Divider />
+      <Legend>
+        {Object.entries(getStatusCounts()).map(([key, count]) => {
+          let className;
+          switch (key) {
+            case "answered": className = "answered"; break;
+            case "notAnswered": className = "not-answered"; break;
+            case "notAnsweredMarked": className = "not-answered-marked"; break;
+            case "unattempted": className = "unattempted"; break;
+            case "answeredMarked": className = "answered-marked"; break;
+            default: return null;
+          }
+          return (
+            <OptionLabelList key={key}>
+              <LegendItem className={className}>{count}</LegendItem>
+              <LegendText>
+                {key === "answeredMarked"
+                  ? "Answered & Marked"
+                  : key === "notAnsweredMarked"
+                  ? "Marked"
+                  : key === "notAnswered"
+                  ? "Not Answered"
+                  : key === "unattempted"
+                  ? "Not Visited"
+                  : key.charAt(0).toUpperCase() + key.slice(1)}
+              </LegendText>
+            </OptionLabelList>
+          );
+        })}
+      </Legend>
+      <QuestionNav>
+        <Grid>
+          {questions.map((_, i) => (
+            <GridButton
+              key={i}
+              className={getStatus(i + 1)}
+              onClick={() => goToQuestion(i)}
+              active={currentIndex === i}
+            >
+              {i + 1}
+            </GridButton>
+          ))}
+        </Grid>
+      </QuestionNav>
+    </SidebarContainer>
 
-    {/* desktop-only Clear Response stays here, desktop layout unchanged */}
-    <button className="clear desktopOnly" onClick={handleClear}>
-      Clear Response
-    </button>
-  </LeftButtonsWrap>
-
-  {/* Row 2 on mobile */}
-  <LeftButtonsWrap>
-    {/* desktop-only Save & Next keeps your desktop layout unchanged */}
-    <button className="save desktopOnly" onClick={saveAndNext}>
-      Save & Next
-    </button>
-
-    <SubmitButton onClick={handleSaveForLaterClick}>
-      Save Test
-    </SubmitButton>
-    <SubmitButton onClick={handleSubmitClick}>
-      Submit Test
-    </SubmitButton>
-  </LeftButtonsWrap>
-</StickyActionBar>
-
-        <MobileBottomSpacer />
-        
-      </Content>
-
-      {/* MOBILE SIDEBAR becomes fixed slide-in panel */}
-      <SidebarContainer $open={sidebarOpen}>
-        <CloseSidebarBtn
-          aria-label="Close navigator"
-          title="Close navigator"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <RxDoubleArrowRight />
-        </CloseSidebarBtn>
-        <Divider />
-        <Legend>
-          {Object.entries(getStatusCounts()).map(([key, count]) => {
-            let className;
-            switch (key) {
-              case "answered":
-                className = "answered";
-                break;
-              case "notAnswered":
-                className = "not-answered";
-                break;
-              case "notAnsweredMarked":
-                className = "not-answered-marked";
-                break;
-              case "unattempted":
-                className = "unattempted";
-                break;
-              case "answeredMarked":
-                className = "answered-marked";
-                break;
-              default:
-                return null;
-            }
-            return (
-              <OptionLabelList key={key}>
-                <LegendItem className={className}>{count}</LegendItem>
-                <LegendText>
-                  {key === "answeredMarked"
-                    ? "Answered & Marked"
-                    : key === "notAnsweredMarked"
-                    ? "Marked"
-                    : key === "notAnswered"
-                    ? "Not Answered"
-                    : key === "unattempted"
-                    ? "Not Visited"
-                    : key.charAt(0).toUpperCase() + key.slice(1)}
-                </LegendText>
-              </OptionLabelList>
-            );
-          })}
-        </Legend>
-
-        <QuestionNav>
-          <Grid>
-            {questions.map((_, i) => (
-              <GridButton
-                key={i}
-                className={getStatus(i + 1)}
-                onClick={() => goToQuestion(i)}
-                active={currentIndex === i}
-              >
-                {i + 1}
-              </GridButton>
-            ))}
-          </Grid>
-        </QuestionNav>
-      </SidebarContainer>
-
-      {/* Modals unchanged */}
-      <ConfirmationModal
-        isOpen={showConfirmation}
-        onClose={handleCancelSubmit}
-        message={"Do you want to submit the test?"}
-        onConfirm={handleSubmit}
-      />
-      <ConfirmationModal
-        isOpen={showSaveForLater}
-        message={"Do you want to save the test for later?"}
-        onClose={handleCancelSaveForLater}
-        onConfirm={handleSaveForLater}
-      />
-    </Container>
-  );
+    {/* Modals */}
+    <ConfirmationModal
+      isOpen={showConfirmation}
+      onClose={handleCancelSubmit}
+      message={"Do you want to submit the test?"}
+      onConfirm={handleSubmit}
+    />
+    <ConfirmationModal
+      isOpen={showSaveForLater}
+      message={"Do you want to save the test for later?"}
+      onClose={handleCancelSaveForLater}
+      onConfirm={handleSaveForLater}
+    />
+  </Container>
+);
 }
