@@ -120,55 +120,55 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
 
   /* ✅ Floating Overlay Animation + Orientation Handling */
   useEffect(() => {
-    const overlay = document.getElementById("floatingOverlay");
-    if (!overlay) return;
-    let overlayX = 10, overlayY = 10;
-    let velX = 0.5, velY = 0.5;
-    let rafId;
+  const overlay = document.getElementById("floatingOverlay");
+  if (!overlay) return;
+  let overlayX = 10, overlayY = 10;
+  let velX = 0.5, velY = 0.5;
+  let rafId;
 
-    const moveOverlay = () => {
-      const video = videoRef.current;
-      if (!video || !isFullscreen) return;
+  const moveOverlay = () => {
+    const video = videoRef.current;
+    if (!video || !isFullscreen) return;
 
-      const maxX = video.clientWidth - overlay.offsetWidth;
-      const maxY = video.clientHeight - overlay.offsetHeight;
+    const controlsHeight = 60; // reserve space for controls (px)
+    const maxX = video.clientWidth - overlay.offsetWidth;
+    const maxY = video.clientHeight - overlay.offsetHeight - controlsHeight;
 
-      overlayX += velX;
-      overlayY += velY;
+    overlayX += velX;
+    overlayY += velY;
 
-      if (overlayX < 0 || overlayX > maxX) velX = -velX;
-      if (overlayY < 0 || overlayY > maxY) velY = -velY;
+    if (overlayX < 0 || overlayX > maxX) velX = -velX;
+    if (overlayY < 0 || overlayY > maxY) velY = -velY;
 
-      overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
-      rafId = requestAnimationFrame(moveOverlay);
-    };
+    overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
+    rafId = requestAnimationFrame(moveOverlay);
+  };
 
-    const startAnimation = () => {
-      cancelAnimationFrame(rafId);
-      moveOverlay();
-    };
+  const startAnimation = () => {
+    cancelAnimationFrame(rafId);
+    moveOverlay();
+  };
 
-    /* ✅ Reposition Overlay to Center on Rotation */
-    const handleOrientationChange = () => {
-      const video = videoRef.current;
-      if (!video || !overlay || !isFullscreen) return;
+  const handleOrientationChange = () => {
+    const video = videoRef.current;
+    if (!video || !overlay || !isFullscreen) return;
 
-      overlayX = (video.clientWidth - overlay.offsetWidth) / 2;
-      overlayY = (video.clientHeight - overlay.offsetHeight) / 2;
-      overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
-    };
+    overlayX = (video.clientWidth - overlay.offsetWidth) / 2;
+    overlayY = (video.clientHeight - overlay.offsetHeight) / 2;
+    overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
+  };
 
-    window.addEventListener("orientationchange", handleOrientationChange);
-    window.addEventListener("resize", handleOrientationChange);
+  window.addEventListener("orientationchange", handleOrientationChange);
+  window.addEventListener("resize", handleOrientationChange);
 
-    startAnimation();
+  startAnimation();
 
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("orientationchange", handleOrientationChange);
-      window.removeEventListener("resize", handleOrientationChange);
-    };
-  }, [isFullscreen]);
+  return () => {
+    cancelAnimationFrame(rafId);
+    window.removeEventListener("orientationchange", handleOrientationChange);
+    window.removeEventListener("resize", handleOrientationChange);
+  };
+}, [isFullscreen]);
 
   /* ✅ Keyboard Shortcuts */
   useEffect(() => {
