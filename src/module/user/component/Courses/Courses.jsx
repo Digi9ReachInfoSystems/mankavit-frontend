@@ -451,7 +451,7 @@ const Courses = () => {
           })
         ) : (
           <div style={{ textAlign: 'center', padding: '2rem' }}>
-            No courses found.{" "}
+            {/* No courses found.{" "} */}
             <Link to={"/ourcoursedetails"}>
               <NoCourseFoundButton>Explore our courses</NoCourseFoundButton>
             </Link>
