@@ -315,6 +315,9 @@ const Courses = () => {
     }
   }, [userId]);
 
+  // whether any course is currently being started/loaded
+  const anySubmitting = Object.values(submitting).some(Boolean);
+
   const pollLiveStatuses = async (courseIds) => {
     try {
       const res = await getLiveMeetings({ courseIds });
@@ -373,6 +376,17 @@ const Courses = () => {
   //   );
   // }
 
+  if (loading) {
+    return (
+      <CourseWrapper>
+        <Title>My Courses</Title>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading your courses...
+        </div>
+      </CourseWrapper>
+    );
+  }
+
   if (error) {
     return (
       <CourseWrapper>
@@ -389,6 +403,16 @@ const Courses = () => {
   return (
     <CourseWrapper>
       <Title>My Courses</Title>
+      {anySubmitting && (
+        <div style={{
+          textAlign: 'center',
+          padding: '0.6rem 1rem',
+          background: '#0d6efd',
+          color: '#fff',
+          borderRadius: 6,
+          margin: '0.5rem 0'
+        }}>Loading course, please wait...</div>
+      )}
       <CardGrid>
         {displayedCourses.length > 0 ? (
           displayedCourses.map((course, index) => {
@@ -443,7 +467,7 @@ const Courses = () => {
                     disabled={isSubmitting}
                     onClick={() => handleStartOrContinue(course)}
                   >
-                    {isSubmitting ? 'Please wait…' : getCtaText(course)}
+                    {isSubmitting ? 'Loading course, please wait...' : getCtaText(course)}
                   </ViewButton>
                 </PriceActions>
               </CourseCard>
@@ -451,10 +475,12 @@ const Courses = () => {
           })
         ) : (
           <div style={{ textAlign: 'center', padding: '2rem' }}>
-            {/* No courses found.{" "} */}
-            <Link to={"/ourcoursedetails"}>
-              <NoCourseFoundButton>Explore our courses</NoCourseFoundButton>
-            </Link>
+            No course found.
+            <div style={{ marginTop: 12 }}>
+              <Link to={"/ourcoursedetails"}>
+                <NoCourseFoundButton>Explore our courses</NoCourseFoundButton>
+              </Link>
+            </div>
           </div>
         )}
       </CardGrid>
