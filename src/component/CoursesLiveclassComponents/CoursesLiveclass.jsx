@@ -1344,7 +1344,7 @@ const CoursesLiveclass = () => {
                 )}
               </VideoPlayer> */}
 
-              {/* {userId && (
+              {userId && (
                 <MovingOverlay
                   style={{
                     zIndex: 10,
@@ -1354,7 +1354,7 @@ const CoursesLiveclass = () => {
                 >
                   {userPhoneNumber || userId}
                 </MovingOverlay>
-              )} */}
+              )}
             </VideoPlayerContainer>
           )}
           <PlayControls>

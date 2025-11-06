@@ -10,6 +10,8 @@ export const PlayerContainer = styled.div`
 `;
 
 export const Video = styled.video`
+position: relative;
+// z-index: 0;
   width: 100%;
   display: block;
 `;
@@ -121,12 +123,23 @@ export const FloatingOverlay = styled.div`
   position: absolute;
   top: 10px;
   left: 10px;
-  // color: rgba(255, 255, 255, 0.3);
-  color:red;
+  color: red;
   font-size: 16px;
   font-weight: bold;
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
-  z-index: 1;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+  /* ✅ Show overlay only in fullscreen */
+  :fullscreen & {
+    opacity: 1;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
+
