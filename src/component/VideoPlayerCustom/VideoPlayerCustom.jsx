@@ -3,7 +3,6 @@ import {
   PlayerContainer,
   Video,
   Controls,
-  SkipButton,
   FloatingOverlay,
   VolumeWrapper,
 } from "./VideoPlayerCustom.styles";
@@ -20,8 +19,9 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
   const volumeIconRef = useRef(null);
 
   const [playing, setPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  /* Play / Pause */
+  /* ✅ Toggle Play / Pause */
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -34,7 +34,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     }
   };
 
-  /* Update time + progress (with hours support) */
+  /* ✅ Update Time + Progress */
   useEffect(() => {
     const video = videoRef.current;
     const progress = progressRef.current;
@@ -53,7 +53,6 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
         const hours = Math.floor(t / 3600);
         const mins = Math.floor((t % 3600) / 60);
         const secs = Math.floor(t % 60);
-
         return hours > 0
           ? `${hours}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
           : `${mins}:${String(secs).padStart(2, "0")}`;
@@ -71,7 +70,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     };
   }, []);
 
-  /* Volume control */
+  /* ✅ Volume Control */
   const handleVolume = () => {
     const video = videoRef.current;
     const volume = volumeRef.current;
@@ -85,7 +84,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     }
   };
 
-  /* Skip function */
+  /* ✅ Skip */
   const skip = (sec) => {
     const video = videoRef.current;
     video.currentTime = Math.min(
@@ -94,7 +93,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     );
   };
 
-  /* Fullscreen toggle */
+  /* ✅ Fullscreen Toggle */
   const toggleFullscreen = () => {
     const player = playerRef.current;
     if (!document.fullscreenElement) {
@@ -104,31 +103,74 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     }
   };
 
-  /* Overlay Animation */
+  /* ✅ Detect Fullscreen Change */
+  useEffect(() => {
+    const handleFsChange = () => {
+      const fsElement =
+        document.fullscreenElement || document.webkitFullscreenElement;
+      setIsFullscreen(!!fsElement);
+    };
+    document.addEventListener("fullscreenchange", handleFsChange);
+    document.addEventListener("webkitfullscreenchange", handleFsChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFsChange);
+      document.removeEventListener("webkitfullscreenchange", handleFsChange);
+    };
+  }, []);
+
+  /* ✅ Floating Overlay Animation + Orientation Handling */
   useEffect(() => {
     const overlay = document.getElementById("floatingOverlay");
     if (!overlay) return;
-    let overlayX = 10,
-      overlayY = 10;
-    let velX = 0.5,
-      velY = 0.5;
+    let overlayX = 10, overlayY = 10;
+    let velX = 0.5, velY = 0.5;
+    let rafId;
 
     const moveOverlay = () => {
       const video = videoRef.current;
-      if (!video) return;
+      if (!video || !isFullscreen) return;
+
       const maxX = video.clientWidth - overlay.offsetWidth;
       const maxY = video.clientHeight - overlay.offsetHeight;
+
       overlayX += velX;
       overlayY += velY;
+
       if (overlayX < 0 || overlayX > maxX) velX = -velX;
       if (overlayY < 0 || overlayY > maxY) velY = -velY;
-      overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
-      requestAnimationFrame(moveOverlay);
-    };
-    moveOverlay();
-  }, []);
 
-  /* Keyboard shortcuts */
+      overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
+      rafId = requestAnimationFrame(moveOverlay);
+    };
+
+    const startAnimation = () => {
+      cancelAnimationFrame(rafId);
+      moveOverlay();
+    };
+
+    /* ✅ Reposition Overlay to Center on Rotation */
+    const handleOrientationChange = () => {
+      const video = videoRef.current;
+      if (!video || !overlay || !isFullscreen) return;
+
+      overlayX = (video.clientWidth - overlay.offsetWidth) / 2;
+      overlayY = (video.clientHeight - overlay.offsetHeight) / 2;
+      overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
+    };
+
+    window.addEventListener("orientationchange", handleOrientationChange);
+    window.addEventListener("resize", handleOrientationChange);
+
+    startAnimation();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("resize", handleOrientationChange);
+    };
+  }, [isFullscreen]);
+
+  /* ✅ Keyboard Shortcuts */
   useEffect(() => {
     const handleKey = (e) => {
       if (["input", "select"].includes(e.target.tagName.toLowerCase())) return;
@@ -175,17 +217,13 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
         onEnded={onEnded}
       />
 
-      <FloatingOverlay id="floatingOverlay">{movingText}</FloatingOverlay>
+      {/* ✅ Overlay only visible in fullscreen */}
+      {isFullscreen && (
+        <FloatingOverlay id="floatingOverlay">{movingText}</FloatingOverlay>
+      )}
 
       <Controls>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            flex: 1,
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
           <button onClick={() => skip(-30)}>
             <MdOutlineReplay size={23} />
           </button>
@@ -219,12 +257,10 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
             ref={speedRef}
             onChange={(e) => (videoRef.current.playbackRate = e.target.value)}
           >
-            <option value="0.5" style={{color:"black"}}>0.5x</option>
-            <option value="1" selected style={{color:"black"}}>
-              1x
-            </option >
-            <option value="1.5" style={{color:"black"}}>1.5x</option>
-            <option value="2" style={{color:"black"}}>2x</option>
+            <option value="0.5" style={{ color: "black" }}>0.5x</option>
+            <option value="1" selected style={{ color: "black" }}>1x</option>
+            <option value="1.5" style={{ color: "black" }}>1.5x</option>
+            <option value="2" style={{ color: "black" }}>2x</option>
           </select>
           <button onClick={toggleFullscreen}>[ ]</button>
         </div>
