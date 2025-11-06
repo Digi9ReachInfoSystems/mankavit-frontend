@@ -132,7 +132,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
 
     const controlsHeight = 60; // reserve space for controls (px)
     const maxX = video.clientWidth - overlay.offsetWidth;
-    const maxY = video.clientHeight - overlay.offsetHeight - controlsHeight;
+    const maxY = video.clientHeight - overlay.offsetHeight - controlsHeight-8;
 
     overlayX += velX;
     overlayY += velY;
