@@ -1343,18 +1343,25 @@ const CoursesLiveclass = () => {
                   </div>
                 )}
               </VideoPlayer> */}
+              {
+                isIOSDevice() ? (
+                  <></>
+                ) :
+                  <>
+                    {userId && (
+                      <MovingOverlay
+                        style={{
+                          zIndex: 10,
+                          top: `${overlayPosition.top}%`,
+                          left: `${overlayPosition.left}%`,
+                        }}
+                      >
+                        {userPhoneNumber || userId}
+                      </MovingOverlay>
+                    )}
+                  </>
+              }
 
-              {userId && (
-                <MovingOverlay
-                  style={{
-                    zIndex: 10,
-                    top: `${overlayPosition.top}%`,
-                    left: `${overlayPosition.left}%`,
-                  }}
-                >
-                  {userPhoneNumber || userId}
-                </MovingOverlay>
-              )}
             </VideoPlayerContainer>
           )}
           <PlayControls>
