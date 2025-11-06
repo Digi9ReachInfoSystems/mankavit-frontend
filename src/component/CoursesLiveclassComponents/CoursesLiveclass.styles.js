@@ -341,6 +341,7 @@ export const MovingOverlay = styled.div`
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 16px;
+   font-weight: bold;
   pointer-events: none;
   transition: top 1s ease, left 1s ease;
   z-index: 1000;
