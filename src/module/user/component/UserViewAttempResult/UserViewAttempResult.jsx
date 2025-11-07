@@ -39,6 +39,7 @@ import {
   LeftButtonsWrap,
   RightStickyButton,
   PassageContainer,
+  CloseSidebarBtn
 } from "../UserViewAttempResult/UserViewAttempResult.style";
 import { RxDoubleArrowRight, RxDoubleArrowLeft } from "react-icons/rx";
 
@@ -260,14 +261,16 @@ export default function UserViewAttempResult() {
 
   return (
     <Container>
-      {/* Fixed mobile toggle button (right middle) */}
+      {/* Toggle button - visible when sidebar is closed */}
       <ToggleSidebarBtn
-        onClick={() => setSidebarOpen((s) => !s)}
-        aria-label="Toggle question navigator"
-        title={sidebarOpen ? "Hide navigator" : "Show navigator"}
+        $open={sidebarOpen}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Show question navigator"
+        title="Show navigator"
       >
-        {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
+        <RxDoubleArrowLeft />
       </ToggleSidebarBtn>
+
 
       <Content $sidebarOpen={sidebarOpen}>
         {/* Header — Back + Title + Rank */}
@@ -423,6 +426,15 @@ export default function UserViewAttempResult() {
 
       {/* Slide-in Sidebar (Question Map) */}
       <SidebarContainer $open={sidebarOpen}>
+        {sidebarOpen && (
+          <CloseSidebarBtn
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigator"
+            title="Close navigator"
+          >
+            <RxDoubleArrowRight />
+          </CloseSidebarBtn>
+        )}
         <Divider />
         <Legend>
           <OptionLabelList>

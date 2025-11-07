@@ -2,19 +2,25 @@ import styled from "styled-components";
 
 /* Layout */
 export const Container = styled.div`
+  --sbw: 320px; /* sidebar width (desktop) */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   display: flex;
-  height: 100vh;
-  position: relative;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100svh;
+  position: relative; /* for absolute positioning of toggle */
 
-  @media (max-width: 768px) {
+  @media (max-width: 1360px) {
+    --sbw: 280px;
+  } /* narrower sidebar on md+ */
+  @media (max-width: 900px) {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
-    padding: 10px;
-    height: auto;
-    min-height: 100svh;
+    padding: 12px;
+    gap: 12px;
   }
 `;
 
@@ -36,34 +42,33 @@ export const Container = styled.div`
 //   }
 // `;
 
-
-export const Content = styled.div`
+export const Content = styled.main`
   position: relative;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
-  padding-right: 20px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 95vh;
+  width: 100%;
 
-  @media (max-width: 1360px) {
-    width: ${(p) => (p.$sidebarOpen ? "75%" : "100%")};
-  }
-  @media (max-width: 1024px) {
+  @media (max-width: 900px) {
     width: 100%;
-    padding-right: 0;
     height: auto;
-    /* reserve space for fixed bar (approx height 72px) + safe area */
-    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    overflow: visible;
+    padding-bottom: calc(
+      84px + env(safe-area-inset-bottom, 0px)
+    ); /* space for action bar */
   }
 `;
 
-/* Fixed toggle on mobile (right middle), absolute between panes on desktop */
+/* Toggle between panes on desktop; fixed floating on mobile */
 export const ToggleSidebarBtn = styled.button`
-  /* keep toggle fixed to viewport so behavior is identical on all devices */
+  /* Keep the toggle fixed to the viewport so behavior is identical on all devices */
   position: fixed;
   top: 50%;
-  right: 10px;    /* fixed distance from the right edge of the viewport */
-  left: auto;     /* prevent snapping to left */
+  right: 10px; /* fixed distance from the right edge of the viewport */
+  left: auto; /* prevent snapping to left */
   transform: translateY(-50%);
   width: 42px;
   height: 42px;
@@ -71,7 +76,8 @@ export const ToggleSidebarBtn = styled.button`
   border: 2px solid #135ac4;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  display: flex;
+  display: ${(p) =>
+    p.$open ? "none" : "flex"}; /* Hide when sidebar is open */
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -79,7 +85,38 @@ export const ToggleSidebarBtn = styled.button`
   line-height: 1;
   z-index: 300; /* above most UI elements */
 
-  &:hover { background: #f7f7f7; }
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
+
+export const CloseSidebarBtn = styled.button`
+  position: absolute;
+  top: 35%;
+  left: -35px;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #135ac4;
+  background: #fff;
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 210;
+
+  &:hover {
+    background: #f7f7f7;
+  }
+
+  @media (max-width: 900px) {
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.12);
+    top: 50%;
+  }
+
+ 
 `;
 
 export const Header = styled.div`
@@ -266,8 +303,6 @@ export const OptionsList = styled.div`
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
-
- 
 `;
 
 // export const OptionLabel = styled.label`
@@ -316,7 +351,9 @@ export const PassageBox = styled.div`
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .passage-full { overflow: visible; }
+  .passage-full {
+    overflow: visible;
+  }
 
   p {
     font-size: 18px;
@@ -327,7 +364,9 @@ export const PassageBox = styled.div`
   @media (max-width: 990px) {
     height: unset;
     overflow-y: unset;
-    p { font-size: 16px; }
+    p {
+      font-size: 16px;
+    }
   }
 `;
 
@@ -353,7 +392,7 @@ export const QuestionBox = styled.div`
   @media (max-width: 768px) {
     margin-bottom: 40px;
   }
-    @media (max-width: 480px) {
+  @media (max-width: 480px) {
     margin-bottom: 40px;
   }
 `;
@@ -361,25 +400,35 @@ export const QuestionBox = styled.div`
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  align-items: flex-start;      /* top-align radio with multi-line text */
+  align-items: flex-start; /* top-align radio with multi-line text */
   gap: 10px;
-  flex-wrap: wrap;              /* allow long options to wrap to next line */
+  flex-wrap: wrap; /* allow long options to wrap to next line */
   max-width: 100%;
   line-height: 1.4;
 
-  input { margin-top: 2px; }    /* better vertical alignment with text */
+  input {
+    margin-top: 2px;
+  } /* better vertical alignment with text */
 
   color: ${({ status }) => {
     switch (status) {
-      case "correct-attempted": return "#34c759";
-      case "incorrect-attempted": return "#ff3b30";
-      case "correct-unattempted": return "#0a84ff";
-      default: return "#333";
+      case "correct-attempted":
+        return "#34c759";
+      case "incorrect-attempted":
+        return "#ff3b30";
+      case "correct-unattempted":
+        return "#0a84ff";
+      default:
+        return "#333";
     }
   }};
 
-  @media (max-width: 1360px) { font-size: 16px; }
-  @media (max-width: 768px) { font-size: 14px; }
+  @media (max-width: 1360px) {
+    font-size: 16px;
+  }
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 /* Sticky action bar */
@@ -429,7 +478,7 @@ export const StickyActionBar = styled.div`
     bottom: 0;
     margin-top: 0;
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -6px 18px rgba(0,0,0,0.06);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.06);
   }
 `;
 
@@ -482,7 +531,35 @@ export const RightStickyButton = styled.button`
 
 /* Slide-in Sidebar (Question Map) */
 export const SidebarContainer = styled.aside`
-  display: ${p => (p.$open ? "flex" : "none")};
+  display: ${(p) => (p.$open ? "flex" : "none")};
+  flex-direction: column;
+  align-items: center;
+  background-color: #f3f6fd;
+  position: relative; /* Required for absolute positioning of close button */
+
+  flex: 0 0 320px;
+  width: 320px;
+  align-self: stretch;
+  padding: 1rem;
+  order: 2;
+
+  /* Mobile: slide-in panel */
+  @media (max-width: 900px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100svh;
+    width: 84vw;
+    max-width: 360px;
+    padding: 0.75rem;
+    display: flex;
+    box-shadow: -6px 0 18px rgba(0, 0, 0, 0.12);
+    background: #f3f6fd;
+    z-index: 200;
+    transform: translateX(${(p) => (p.$open ? "0%" : "100%")});
+    transition: transform 0.25s ease-in-out;
+  }
+  display: ${(p) => (p.$open ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
   background-color: #f3f6fd;
@@ -503,10 +580,10 @@ export const SidebarContainer = styled.aside`
     max-width: 360px;
     padding: 0.75rem;
     display: flex;
-    box-shadow: -6px 0 18px rgba(0,0,0,.12);
+    box-shadow: -6px 0 18px rgba(0, 0, 0, 0.12);
     background: #f3f6fd;
     z-index: 200;
-    transform: translateX(${p => (p.$open ? "0%" : "100%")});
+    transform: translateX(${(p) => (p.$open ? "0%" : "100%")});
     transition: transform 0.25s ease-in-out;
   }
 `;
