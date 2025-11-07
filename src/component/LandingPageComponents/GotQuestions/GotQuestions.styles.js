@@ -21,9 +21,9 @@ export const Content = styled.div`
   width: min(1180px, 92%);
   margin: 0 auto;
 
-  @media (max-width: 1100px) {
-    grid-template-columns: 420px 1fr;
-  }
+  // @media (max-width: 1100px) {
+  //   grid-template-columns: 420px 1fr;
+  // }
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
     gap: 28px;

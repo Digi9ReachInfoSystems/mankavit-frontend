@@ -96,6 +96,8 @@ const IndividualCourses = () => {
   if (error) return <Container>Error: {error}</Container>;
   if (!course) return <Container>Course not found</Container>;
 
+  const effectivePrice = course?.discountActive ? course.discountPrice : course.price;
+
   return (
     <>
       <Container>
@@ -112,46 +114,52 @@ const IndividualCourses = () => {
                     <EnrollButton onClick={() => navigate("/user")}>
                       Continue Learning
                     </EnrollButton>
-                  ) : course.price > 0 ? (
-                    <EnrollButton onClick={() => setShowModal(true)}>
-                      Enroll Now ₹
-                      {course.discountActive ? course.discountPrice : course.price}/-
-                      {course.discountActive && (
-                        <span
-                          style={{
-                            textDecoration: "line-through",
-                            marginLeft: 8,
-                            color: "#999",
-                          }}
-                        >
-                          ₹{course.price}
-                        </span>
-                      )}
-                    </EnrollButton>
                   ) : (
-                    <EnrollButton
-                      onClick={() => handleEnrollFreeCourse(course._id)}
-                    >
-                      Enroll Now
-                    </EnrollButton>
+                    /* not enrolled */
+                    Number(effectivePrice) === 0 ? (
+                      <EnrollButton onClick={() => handleEnrollFreeCourse(course._id)}>
+                        Enroll Now For Free
+                      </EnrollButton>
+                    ) : (
+                      <EnrollButton onClick={() => setShowModal(true)}>
+                        Enroll Now ₹{effectivePrice}/-
+                        {course.discountActive && (
+                          <span
+                            style={{
+                              textDecoration: "line-through",
+                              marginLeft: 8,
+                              color: "#999",
+                            }}
+                          >
+                            ₹{course.price}
+                          </span>
+                        )}
+                      </EnrollButton>
+                    )
                   )}
                 </>
               ) : (
-                <EnrollButton onClick={() => navigate(`/login`)}>
-                  Enroll Now  ₹
-                  {course.discountActive ? course.discountPrice : course.price}/-
-                  {course.discountActive && (
-                    <span
-                      style={{
-                        textDecoration: "line-through",
-                        marginLeft: 8,
-                        color: "#999",
-                      }}
-                    >
-                      ₹{course.price}
-                    </span>
-                  )}
-                </EnrollButton>
+                /* not logged in: navigate to login but show correct text */
+                Number(effectivePrice) === 0 ? (
+                  <EnrollButton onClick={() => navigate(`/login`)}>
+                    Enroll Now For Free
+                  </EnrollButton>
+                ) : (
+                  <EnrollButton onClick={() => navigate(`/login`)}>
+                    Enroll Now  ₹{effectivePrice}/-
+                    {course.discountActive && (
+                      <span
+                        style={{
+                          textDecoration: "line-through",
+                          marginLeft: 8,
+                          color: "#999",
+                        }}
+                      >
+                        ₹{course.price}
+                      </span>
+                    )}
+                  </EnrollButton>
+                )
               )}
               <ToastContainer
                 position="top-right"

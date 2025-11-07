@@ -2,26 +2,37 @@ import styled from "styled-components";
 import theme from "../../theme/Theme";
 export const PageWrapper = styled.div`
   display: flex;
-  min-height: 100vh;
+  flex-direction: row;
+  height: 100dvh; /* ✅ Use new dynamic viewport height unit */
   width: 100%;
+  overflow: hidden; /* prevent double scroll */
 `;
 
 export const ContentWrapper = styled.main`
   flex: 1;
-  padding: 10px 20px;
-
-  margin-left: 200px; /* This should match your sidebar width */
-  max-width: calc(100% - 200px); /* Adjust based on sidebar width */
+  display: flex;
+  flex-direction: column;
   background-color: ${theme.colors.backgrounGrey};
+  margin-left: 200px;
+  max-width: calc(100% - 200px);
+  overflow: hidden; /* ✅ Contain scroll inside inner divs, not here */
 
   @media (max-width: 990px) {
-  margin-left: 160px;
-  max-width: calc(100% - 160px); /* Adjust based on sidebar width */
+    margin-left: 160px;
+    max-width: calc(100% - 160px);
   }
 
   @media (max-width: 768px) {
-    margin-left: 0; /* Remove margin on smaller screens */
-    max-width: 100%; /* Adjust width for smaller screens */
-    padding: 0px; /* Adjust padding for smaller screens */
+    margin-left: 0;
+    max-width: 100%;
+  }
+
+  /* ✅ create a scrollable inner section safely */
+  & > *:last-child {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    // padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
   }
 `;

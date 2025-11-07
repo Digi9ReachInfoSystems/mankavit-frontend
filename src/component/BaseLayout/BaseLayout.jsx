@@ -1,22 +1,21 @@
-  import React from "react";
-  import { Outlet } from "react-router-dom";
-  import { PageWrapper, ContentWrapper } from "../BaseLayout/BaseLayout.styles";
-  import Sidebar from "../Sidebar/Sidebar";
-  import Header from "../Header/Header";
-  import Footer from "../Footer/Footer";
+import React from "react";
+import { Outlet } from "react-router-dom";
+import { PageWrapper, ContentWrapper } from "../BaseLayout/BaseLayout.styles";
+import Sidebar from "../Sidebar/Sidebar";
+import Header from "../Header/Header";
 
-  const BaseLayout = () => {
-    return (
-      <PageWrapper>
-
-        <Sidebar />
-        <ContentWrapper>
+const BaseLayout = () => {
+  return (
+    <PageWrapper>
+      <Sidebar />
+      <ContentWrapper>
         <Header />
+        <div className="scrollable-content">
           <Outlet />
-          {/* <Footer /> */}
-        </ContentWrapper>
-      </PageWrapper>
-    );
-  };
+        </div>
+      </ContentWrapper>
+    </PageWrapper>
+  );
+};
 
-  export default BaseLayout;
+export default BaseLayout;
