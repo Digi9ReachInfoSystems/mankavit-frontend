@@ -48,34 +48,29 @@ export const Content = styled.div`
 
 /* Fixed toggle on mobile; absolute between panes on desktop */
 export const ToggleSidebarBtn = styled.button`
-  position: absolute;
+  /* keep toggle fixed to viewport so behavior is identical on all devices */
+  position: fixed;
   top: 50%;
-  right: -14px;
+  right: 10px;    /* fixed distance from the right edge of the viewport */
+  left: auto;     /* prevent snapping to left */
   transform: translateY(-50%);
   width: 42px;
   height: 42px;
   border-radius: 999px;
   border: 2px solid #135ac4;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-weight: 700;
   line-height: 1;
-  z-index: 50;
+  z-index: 300; /* above most UI elements */
 
   &:hover { background: #f7f7f7; }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 200; /* above slide-in panel */
-  }
 `;
+
 
 export const Header = styled.div`
   display: flex;
@@ -360,36 +355,33 @@ export const RightStickyButton = styled.button`
 `;
 
 /* Slide-in Sidebar (Question Map) */
-export const SidebarContainer = styled.div`
-  /* desktop */
-  width: ${(p) => (p.$open ? "20%" : "0")};
-  background-color: #f3f6fd;
-  padding: ${(p) => (p.$open ? "1rem" : "0")};
-  display: ${(p) => (p.$open ? "flex" : "none")};
+export const SidebarContainer = styled.aside`
+  display: ${p => (p.$open ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  height: 100%;
-  overflow: hidden;
+  background-color: #f3f6fd;
 
-  @media (max-width: 1360px) {
-    width: ${(p) => (p.$open ? "25%" : "0")};
-  }
+  flex: 0 0 var(--sbw);
+  width: var(--sbw);
+  align-self: stretch;
+  padding: 1rem;
+  order: 2;
 
-  /* mobile: fixed slide-in */
-  @media (max-width: 768px) {
+  /* Mobile: slide-in panel */
+  @media (max-width: 900px) {
     position: fixed;
     top: 0;
     right: 0;
     height: 100svh;
-    width: 80vw;
+    width: 84vw;
     max-width: 360px;
     padding: 0.75rem;
     display: flex;
     box-shadow: -6px 0 18px rgba(0,0,0,.12);
-    transform: translateX(${(p) => (p.$open ? "0%" : "100%")});
+    background: #f3f6fd;
+    z-index: 200;
+    transform: translateX(${p => (p.$open ? "0%" : "100%")});
     transition: transform 0.25s ease-in-out;
-    z-index:160;
   }
 `;
 
