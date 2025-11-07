@@ -167,7 +167,7 @@ export const FlexRow = styled.div`
   flex-wrap: nowrap;          /* ⬅️  keep everything on one line */
 
   @media (max-width: 768px) {  /* mobile: stack vertically */
-    flex-direction: row;
+    flex-direction: column;
     width: auto;
   }
 `;
@@ -444,6 +444,70 @@ export const PaymentModal = styled.div`
   z-index: 1000;
   width: 80%;
   max-width: 500px;
+  max-height: calc(2 * 130px + 80px); /* Height for 2 payment items (130px each) + header/padding */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  /* Style for the content area */
+  & > div:last-child {
+    overflow-y: auto;
+    margin: 0 -20px;  /* Compensate for parent padding */
+    padding: 0 20px;  /* Add padding back to content */
+    scrollbar-width: thin;
+    
+    /* Webkit scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+    }
+  }
+
+  /* Fix header position */
+  h3 {
+    margin-top: 0;
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 10px 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  /* Style individual payment items */
+  .payment-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    /* Style payment details within the item */
+    p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Add some spacing between payment info sections */
+    & > div {
+      margin-bottom: 8px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
 `;
 
 export const CloseButton = styled.button`

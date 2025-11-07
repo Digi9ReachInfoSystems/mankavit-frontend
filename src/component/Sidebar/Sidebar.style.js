@@ -4,21 +4,27 @@ import theme from "../../theme/Theme";
 
 export const SidebarContainer = styled.div`
   width: 250px;
-  height: 100vh;
+  /* Use viewport units that work better on mobile (dvh when supported) and
+     fall back to 100vh. Also respect device safe-area insets. */
+  height: 100dvh;
+  // min-height: 100vh;
   background-color: #f9fafc;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e0e0e0;
   padding: ${theme.spacing(3)};
+  /* make sure content at the very bottom isn't hidden behind home indicator / notch */
+  padding-bottom: calc(${theme.spacing(3)} + env(safe-area-inset-bottom, 0px));
   z-index: 999;
 
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
     left: 0;
+    bottom: 0;
     transform: ${({ isOpen }) => (isOpen ? "translateX(0)" : "translateX(-100%)")};
     transition: transform 0.3s ease-in-out;
-    height: 100vh;
+    /* full height handled by top/bottom to avoid mobile vh issues */
   }
 
   @media (max-width: 990px) {
@@ -45,9 +51,14 @@ export const MenuList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-    overflow-y: auto;
-  scrollbar-width: none;
-  height: 90vh;
+  /* let the menu list grow and scroll inside the sidebar container
+     using flex so it will always show the last items even on devices
+     with non-standard viewport behaviour (iOS 16 Pro etc) */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth native scrolling on iOS */
+  scrollbar-width: none; /* hide thin scrollbar in Firefox if desired */
+  padding-bottom: calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px));
 `;
 
 export const MenuItem = styled.li`

@@ -30,6 +30,44 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spacing(2)};
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @media (max-width: 1024px) {
+    /* Stack title above controls on medium screens */
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  & > div {
+    /* Target the controls container */
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: flex-start;
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      align-items: stretch;
+      
+      /* Make select containers full width on mobile */
+      & > * {
+        width: 100%;
+      }
+
+      /* Style the download button on mobile */
+      button {
+        width: 100%;
+        padding: 8px;
+      }
+    }
+  }
 `;
 
 
@@ -37,12 +75,11 @@ export const Title = styled.h3`
   margin: 0;
   font-family: ${(props) => props.theme.fonts.heading};
   font-size: 1.25rem;
-  // font-weight: 700;
   color: ${(props) => props.theme.colors.black};
 
   @media (max-width: 768px) {
     font-size: 1rem;
-    margin-left: 0;
+    width: 100%;
   }
 `;
 
@@ -51,11 +88,24 @@ export const SortByContainer = styled.div`
   align-items: center;
   font-size: 12px;
   color: ${(props) => props.theme.colors.test};
+
+  @media (max-width: 480px) {
+    width: 100%;
+    
+    /* Make the Select component stretch on mobile */
+    .ant-select {
+      flex: 1;
+    }
+  }
 `;
 
-
 export const SortLabel = styled.span`
-  margin-right: 4px;
+ white-space: nowrap;
+  font-size: 0.9rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
 `;
 
 
@@ -266,5 +316,13 @@ export const FilterByContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-right: 20px;
+
+  @media (max-width: 480px) {
+    width: 100%;
+    
+    /* Make the Select component stretch on mobile */
+    .ant-select {
+      flex: 1;
+    }
+  }
 `;
