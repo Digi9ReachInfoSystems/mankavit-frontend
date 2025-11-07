@@ -883,13 +883,15 @@ export default function TextScreen() {
 return (
   <Container>
     {/* Fixed toggle button (between panes on desktop, floating on mobile) */}
-    <ToggleSidebarBtn
-      onClick={() => setSidebarOpen((s) => !s)}
-      aria-label={sidebarOpen ? "Hide question navigator" : "Show question navigator"}
-      title={sidebarOpen ? "Hide navigator" : "Show navigator"}
-    >
-      {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
-    </ToggleSidebarBtn>
+{!sidebarOpen && (
+  <ToggleSidebarBtn
+    onClick={() => setSidebarOpen(true)}
+    aria-label="Show question navigator"
+    title="Show question navigator"
+  >
+    <RxDoubleArrowLeft />
+  </ToggleSidebarBtn>
+)}
 
     <Content $sidebarOpen={sidebarOpen}>
       {/* HEADER unchanged */}
@@ -1095,13 +1097,15 @@ return (
 
     {/* Sidebar */}
     <SidebarContainer $open={sidebarOpen}>
-      <CloseSidebarBtn
-        aria-label="Close navigator"
-        title="Close navigator"
-        onClick={() => setSidebarOpen(false)}
-      >
-        <RxDoubleArrowRight />
-      </CloseSidebarBtn>
+    {sidebarOpen && (
+  <CloseSidebarBtn
+    aria-label="Close navigator"
+    title="Close navigator"
+    onClick={() => setSidebarOpen(false)}
+  >
+    <RxDoubleArrowRight />
+  </CloseSidebarBtn>
+)}
       <Divider />
       <Legend>
         {Object.entries(getStatusCounts()).map(([key, count]) => {
