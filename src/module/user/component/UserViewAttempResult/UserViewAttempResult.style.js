@@ -7,6 +7,24 @@ export const Complier = styled.div`
 
 /* Layout */
 export const Container = styled.div`
+  --sbw: 320px;                /* sidebar width (desktop) */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100svh;
+  position: relative;          /* for absolute positioning of toggle */
+
+  @media (max-width: 1360px) { --sbw: 280px; }  /* narrower sidebar on md+ */
+  @media (max-width: 900px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    gap: 12px;
+  }
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   display: flex;
@@ -25,7 +43,73 @@ export const Container = styled.div`
   }
 `;
 
-export const Content = styled.div`
+/* Toggle between panes on desktop; fixed floating on mobile */
+export const ToggleSidebarBtn = styled.button`
+  /* Keep the toggle fixed to the viewport so behavior is identical on all devices */
+  position: fixed;
+  top: 50%;
+  right: 10px;    /* fixed distance from the right edge of the viewport */
+  left: auto;     /* prevent snapping to left */
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 2px solid #135ac4;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: ${p => (p.$open ? "none" : "flex")}; /* Hide when sidebar is open */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 300; /* above most UI elements */
+
+  &:hover { background: #f7f7f7; }
+`;
+
+/* Show close button on left edge of sidebar */
+export const CloseSidebarBtn = styled.button`
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: -35px;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #135ac4;
+  background: #fff;
+  box-shadow: -2px 0 6px rgba(0,0,0,0.12);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 210;
+  display: flex;
+
+  &:hover { background: #f7f7f7; }
+
+  @media (max-width: 900px) {
+    box-shadow: -4px 0 12px rgba(0,0,0,0.12);
+  }
+`;
+
+export const Content = styled.main`
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 95vh;
+  width: 100%;
+
+  @media (max-width: 900px) {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); /* space for action bar */
+  }
   position: relative;
   display: flex;
   flex-direction: column;
@@ -47,35 +131,74 @@ export const Content = styled.div`
 `;
 
 /* Fixed toggle on mobile; absolute between panes on desktop */
-export const ToggleSidebarBtn = styled.button`
-  position: absolute;
-  top: 50%;
-  right: -14px;
-  transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  border: 2px solid #135ac4;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: 700;
-  line-height: 1;
-  z-index: 50;
+// export const ToggleSidebarBtn = styled.button`
+//   position: fixed;
+//   top: 50%;
+//   transform: translateY(-50%);
+//   width: 42px;
+//   height: 42px;
+//   border-radius: 50%;
+//   border: 2px solid #135ac4;
+//   background: #fff;
+//   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   font-weight: 700;
+//   line-height: 1;
+//   z-index: 300;
+//   transition: all 0.3s ease;
 
-  &:hover { background: #f7f7f7; }
+//   /* Position logic: right side when closed, left edge when open */
+//   right: ${({ $sidebarOpen }) => ($sidebarOpen ? "auto" : "10px")};
+//   left: ${({ $sidebarOpen }) => ($sidebarOpen ? "calc(16vw - 25px)" : "auto")};
 
-  @media (max-width: 768px) {
-    position: fixed;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 200; /* above slide-in panel */
-  }
-`;
+//   /* Adjust for mobile sidebar width (84vw) */
+//   @media (max-width: 900px) {
+//     left: ${({ $sidebarOpen }) => ($sidebarOpen ? "calc(100vw - 84vw - 25px)" : "auto")};
+//   }
+
+//   &:hover {
+//     background: #f7f7f7;
+//   }
+// `;
+
+// UserViewAttempResult.style.js
+
+// ... (other existing styles)
+
+// Add this new component style
+// export const CloseSidebarBtn = styled.button`
+//   position: absolute;
+//   top: 35%;
+//   left: -25px;
+//   transform: translateY(-50%);
+//   width: 42px;
+//   height: 42px;
+//   border-radius: 50%;
+//   border: 2px solid #135ac4;
+//   background: #fff;
+//   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.12);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   z-index: 210;
+
+//   &:hover {
+//     background: #f7f7f7;
+//   }
+
+//   @media (max-width: 900px) {
+//     box-shadow: -4px 0 12px rgba(0, 0, 0, 0.12);
+//     top: 50%;
+//   }
+
+ 
+// `;
+
+// ... (rest of existing styles)
 
 export const Header = styled.div`
   display: flex;
@@ -360,36 +483,62 @@ export const RightStickyButton = styled.button`
 `;
 
 /* Slide-in Sidebar (Question Map) */
-export const SidebarContainer = styled.div`
-  /* desktop */
-  width: ${(p) => (p.$open ? "20%" : "0")};
-  background-color: #f3f6fd;
-  padding: ${(p) => (p.$open ? "1rem" : "0")};
-  display: ${(p) => (p.$open ? "flex" : "none")};
+export const SidebarContainer = styled.aside`
+  display: ${p => (p.$open ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  height: 100%;
-  overflow: hidden;
+  background-color: #f3f6fd;
+  position: relative; /* Required for absolute positioning of close button */
 
-  @media (max-width: 1360px) {
-    width: ${(p) => (p.$open ? "25%" : "0")};
-  }
+  flex: 0 0 var(--sbw);
+  width: var(--sbw);
+  align-self: stretch;
+  padding: 1rem;
+  order: 2;
 
-  /* mobile: fixed slide-in */
-  @media (max-width: 768px) {
+  /* Mobile: slide-in panel */
+  @media (max-width: 900px) {
     position: fixed;
     top: 0;
     right: 0;
     height: 100svh;
-    width: 80vw;
+    width: 84vw;
     max-width: 360px;
     padding: 0.75rem;
     display: flex;
     box-shadow: -6px 0 18px rgba(0,0,0,.12);
-    transform: translateX(${(p) => (p.$open ? "0%" : "100%")});
+    background: #f3f6fd;
+    z-index: 200;
+    transform: translateX(${p => (p.$open ? "0%" : "100%")});
     transition: transform 0.25s ease-in-out;
-    z-index:160;
+  }
+  display: ${p => (p.$open ? "flex" : "none")};
+  flex-direction: column;
+  align-items: center;
+  background-color: #f3f6fd;
+  
+
+  flex: 0 0 var(--sbw);
+  width: var(--sbw);
+  align-self: stretch;
+  padding: 1rem;
+  order: 2;
+
+  /* Mobile: slide-in panel */
+  @media (max-width: 900px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100svh;
+    width: 84vw;
+    max-width: 360px;
+    padding: 0.75rem;
+    display: flex;
+    box-shadow: -6px 0 18px rgba(0,0,0,.12);
+    background: #f3f6fd;
+    z-index: 200;
+    transform: translateX(${p => (p.$open ? "0%" : "100%")});
+    transition: transform 0.25s ease-in-out;
   }
 `;
 

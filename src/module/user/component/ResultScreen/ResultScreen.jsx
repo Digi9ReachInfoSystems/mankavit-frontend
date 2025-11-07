@@ -38,6 +38,8 @@ import {
   RightStickyButton,
   PassageContainer,
   RankBadge,
+
+  CloseSidebarBtn
 } from "./ResultScreen.styles";
 import {
   getMocktestById,
@@ -236,13 +238,14 @@ export default function ResultScreen() {
 
   return (
     <Container>
-      {/* Fixed mobile toggle button (right middle) */}
+      {/* Toggle button - visible when sidebar is closed */}
       <ToggleSidebarBtn
-        onClick={() => setSidebarOpen((s) => !s)}
-        aria-label="Toggle question navigator"
-        title={sidebarOpen ? "Hide navigator" : "Show navigator"}
+        $open={sidebarOpen}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Show question navigator"
+        title="Show navigator"
       >
-        {sidebarOpen ? <RxDoubleArrowRight /> : <RxDoubleArrowLeft />}
+        <RxDoubleArrowLeft />
       </ToggleSidebarBtn>
 
       <Content $sidebarOpen={sidebarOpen}>
@@ -379,6 +382,15 @@ export default function ResultScreen() {
 
       {/* Slide-in Sidebar (Question Map) */}
       <SidebarContainer $open={sidebarOpen}>
+           {sidebarOpen && ( // Add this condition
+        <CloseSidebarBtn
+          aria-label="Close navigator"
+          title="Close navigator"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <RxDoubleArrowRight /> {/* Show close arrow */}
+        </CloseSidebarBtn>
+      )}
         <Divider />
         <Legend>
           <OptionLabelList>

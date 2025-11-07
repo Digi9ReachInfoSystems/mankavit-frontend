@@ -236,11 +236,11 @@ const Sidebar = () => {
             </React.Fragment>
           ))}
         </MenuList>
-        <LogoutContainer>
+        {/* <LogoutContainer>
           <LogoutButton onClick={handleLogoutClick}>
             <FaPowerOff size={20} /> Log out
           </LogoutButton>
-        </LogoutContainer>
+        </LogoutContainer> */}
       </SidebarContainer>
 
       {showLogoutModal && (

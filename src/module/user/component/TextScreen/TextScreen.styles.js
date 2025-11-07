@@ -44,6 +44,7 @@ export const SidebarContainer = styled.aside`
   flex-direction: column;
   align-items: center;
   background-color: #f3f6fd;
+  position: relative; /* Required for absolute positioning of close button */
 
   flex: 0 0 var(--sbw);
   width: var(--sbw);
@@ -71,59 +72,50 @@ export const SidebarContainer = styled.aside`
 
 /* Toggle between panes on desktop; fixed floating on mobile */
 export const ToggleSidebarBtn = styled.button`
-  position: absolute;
+  position: fixed;
   top: 50%;
-  right: -14px;
+  right: 10px;
   transform: translateY(-50%);
   width: 42px;
   height: 42px;
-  border-radius: 999px;
+  border-radius: 50%;
   border: 2px solid #135ac4;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-weight: 700;
-  line-height: 1;
-  z-index: 50;
+  z-index: 300;
 
-  &:hover { background: #f7f7f7; }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 200; /* above slide-in panel */
+  &:hover {
+    background: #f7f7f7;
   }
 `;
 
-/* Show the close “pill” only on mobile (keep desktop clean) */
 export const CloseSidebarBtn = styled.button`
-  display: none;
+  position: absolute;
+  top: 50%;
+  left: -35px;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #135ac4;
+  background: #fff;
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 210;
+
+  &:hover {
+    background: #f7f7f7;
+  }
 
   @media (max-width: 900px) {
-    position: absolute;
-    display: flex;
-    top: 50%;
-    left: -1px;
-    transform: translateY(-50%);
-    width: 42px;
-    height: 42px;
-    border-radius: 999px;
-    border: 2px solid #135ac4ff;
-    background: #fff;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-weight: 700;
-    line-height: 1;
-    z-index: 210;
-
-    &:hover { background: #f7f7f7; }
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.12);
   }
 `;
 
@@ -386,7 +378,7 @@ export const LeftButtonsWrap = styled.div`
     }
   }
 
-  .review {
+  .review, .save {
     background-color: #0881e4;
     color: #fff;
     padding: 12px 16px;
@@ -394,6 +386,7 @@ export const LeftButtonsWrap = styled.div`
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
+    text-align: center;
   }
   .clear {
     background-color: #a0a0a0;
@@ -403,6 +396,7 @@ export const LeftButtonsWrap = styled.div`
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
+    text-align: center;
   }
   .save {
     background: linear-gradient(to right, #38bdf8, #3b82f6);
