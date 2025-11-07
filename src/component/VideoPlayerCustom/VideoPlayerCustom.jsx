@@ -238,11 +238,11 @@ useEffect(() => {
         break;
       case "arrowright":
       case "l":
-        skip(10);
+        skip(30);
         break;
       case "arrowleft":
       case "j":
-        skip(-10);
+        skip(-30);
         break;
       case "f":
         toggleFullscreen();
