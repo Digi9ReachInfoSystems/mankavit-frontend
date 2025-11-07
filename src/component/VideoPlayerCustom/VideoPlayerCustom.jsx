@@ -84,6 +84,24 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     }
   };
 
+  /* ✅ Toggle Mute */
+  const toggleMute = () => {
+    const video = videoRef.current;
+    const volume = volumeRef.current;
+    video.muted = !video.muted;
+    
+    if (video.muted) {
+      volumeIconRef.current.textContent = "🔇";
+    } else {
+      volumeIconRef.current.textContent = "🔊";
+      // Restore previous volume when unmuting
+      if (video.volume === 0) {
+        video.volume = 0.5;
+        volume.value = 50;
+      }
+    }
+  };
+
   /* ✅ Skip */
   const skip = (sec) => {
     const video = videoRef.current;
@@ -140,7 +158,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     if(overlay<100) overlayY=150;
 
     if (overlayX < 0 || overlayX > maxX) velX = -velX;
-    if (overlayY < 0 || overlayY > maxY) velY = -velY;
+    if (overlayY < 120 || overlayY > maxY) velY = -velY;
 
     overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
     rafId = requestAnimationFrame(moveOverlay);
@@ -191,10 +209,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
           toggleFullscreen();
           break;
         case "m":
-          videoRef.current.muted = !videoRef.current.muted;
-          volumeIconRef.current.textContent = videoRef.current.muted
-            ? "🔇"
-            : "🔊";
+          toggleMute();
           break;
         default:
           break;
@@ -254,7 +269,27 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
           />
         </div>
 
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Volume Control */}
+          {/* <VolumeWrapper>
+            <span 
+              ref={volumeIconRef} 
+              onClick={toggleMute}
+              style={{ cursor: 'pointer' }}
+            >
+              🔊
+            </span>
+            <input
+              type="range"
+              ref={volumeRef}
+              min="0"
+              max="100"
+              defaultValue="100"
+              onInput={handleVolume}
+              style={{ width: '80px' }}
+            />
+          </VolumeWrapper> */}
+
           <select
             ref={speedRef}
             onChange={(e) => (videoRef.current.playbackRate = e.target.value)}
