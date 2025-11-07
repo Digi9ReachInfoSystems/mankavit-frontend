@@ -8,6 +8,7 @@ import {
 } from "./VideoPlayerCustom.styles";
 import { MdOutlineReplay } from "react-icons/md";
 import { FaPlay, FaPause } from "react-icons/fa6";
+import { MdFullscreen } from "react-icons/md";
 
 const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
   const videoRef = useRef(null);
@@ -20,6 +21,40 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
 
   const [playing, setPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+useEffect(() => {
+  const player = playerRef.current;
+  const controls = player?.querySelector('[data-controls]');
+  let hideTimer;
+
+  const showControls = () => {
+    if (!controls) return;
+    controls.style.opacity = 1;
+    controls.style.pointerEvents = "auto";
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+      controls.style.opacity = 0;
+      controls.style.pointerEvents = "none";
+    }, 2500); // Hide after 2.5 seconds
+  };
+
+  player?.addEventListener("mousemove", showControls);
+  player?.addEventListener("click", showControls);
+
+  player?.addEventListener("mouseleave", () => {
+    controls.style.opacity = 0;
+    controls.style.pointerEvents = "none";
+  });
+
+  return () => {
+    player?.removeEventListener("mousemove", showControls);
+    player?.removeEventListener("click", showControls);
+    player?.removeEventListener("mouseleave", () => {});
+    clearTimeout(hideTimer);
+  };
+}, []);
+
+
 
   /* ✅ Toggle Play / Pause */
   const togglePlay = () => {
@@ -89,12 +124,12 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
     const video = videoRef.current;
     const volume = volumeRef.current;
     video.muted = !video.muted;
-    
     if (video.muted) {
       volumeIconRef.current.textContent = "🔇";
+      volume.value = 0;
+      video.volume = 0;
     } else {
       volumeIconRef.current.textContent = "🔊";
-      // Restore previous volume when unmuting
       if (video.volume === 0) {
         video.volume = 0.5;
         volume.value = 50;
@@ -137,87 +172,145 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
   }, []);
 
   /* ✅ Floating Overlay Animation + Orientation Handling */
-  useEffect(() => {
+/* ✅ Floating Overlay - Random Position instead of Continuous Movement */
+useEffect(() => {
   const overlay = document.getElementById("floatingOverlay");
   if (!overlay) return;
-  let overlayX = 10, overlayY = 60;
-  let velX = 0.5, velY = 0.5;
-  let rafId;
+  
+  let intervalId;
 
-  const moveOverlay = () => {
+  const moveOverlayRandomly = () => {
     const video = videoRef.current;
     if (!video || !isFullscreen) return;
 
-    const controlsHeight = 60; // reserve space for controls (px)
-    const maxX = video.clientWidth - overlay.offsetWidth;
-    const maxY = video.clientHeight - overlay.offsetHeight - controlsHeight-30;
+    const videoWidth = video.clientWidth;
+    const videoHeight = video.clientHeight;
 
-    overlayX += velX;
-    overlayY += velY;
-    // console.log(overlayY, maxY);
-    if(overlay<100) overlayY=150;
+    const overlayWidth = overlay.offsetWidth;
+    const overlayHeight = overlay.offsetHeight;
 
-    if (overlayX < 0 || overlayX > maxX) velX = -velX;
-    if (overlayY < 120 || overlayY > maxY) velY = -velY;
+    const topMargin = videoHeight * 0.1; // ✅ Skip top 10%
+    const bottomMargin = 60; // ✅ Space for controls
+    const availableHeight = videoHeight - overlayHeight - bottomMargin - topMargin;
+    const availableWidth = videoWidth - overlayWidth - 20; // small right margin
 
-    overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
-    rafId = requestAnimationFrame(moveOverlay);
+    // Generate random X/Y
+    const randomX = Math.random() * availableWidth;
+    const randomY = topMargin + Math.random() * availableHeight;
+
+    overlay.style.transform = `translate(${randomX}px, ${randomY}px)`;
   };
 
-  const startAnimation = () => {
-    cancelAnimationFrame(rafId);
-    moveOverlay();
+  // Change position every 2.5 seconds
+  if (isFullscreen) {
+    moveOverlayRandomly();
+    intervalId = setInterval(moveOverlayRandomly, 2500);
+  }
+
+  const handleResize = () => {
+    if (isFullscreen) moveOverlayRandomly();
   };
 
-  const handleOrientationChange = () => {
-    const video = videoRef.current;
-    if (!video || !overlay || !isFullscreen) return;
-
-    overlayX = (video.clientWidth - overlay.offsetWidth) / 2;
-    overlayY = (video.clientHeight - overlay.offsetHeight) / 2;
-    overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
-  };
-
-  window.addEventListener("orientationchange", handleOrientationChange);
-  window.addEventListener("resize", handleOrientationChange);
-
-  startAnimation();
+  window.addEventListener("resize", handleResize);
+  window.addEventListener("orientationchange", handleResize);
 
   return () => {
-    cancelAnimationFrame(rafId);
-    window.removeEventListener("orientationchange", handleOrientationChange);
-    window.removeEventListener("resize", handleOrientationChange);
+    clearInterval(intervalId);
+    window.removeEventListener("resize", handleResize);
+    window.removeEventListener("orientationchange", handleResize);
   };
 }, [isFullscreen]);
+/* ✅ Keyboard Shortcuts + Mobile Tap Controls */
+useEffect(() => {
+  const video = videoRef.current;
+  if (!video) return;
 
-  /* ✅ Keyboard Shortcuts */
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (["input", "select"].includes(e.target.tagName.toLowerCase())) return;
-      switch (e.key.toLowerCase()) {
-        case " ":
-          e.preventDefault();
-          togglePlay();
-          break;
-        case "arrowright":
-          skip(30);
-          break;
-        case "arrowleft":
-          skip(-30);
-          break;
-        case "f":
-          toggleFullscreen();
-          break;
-        case "m":
-          toggleMute();
-          break;
-        default:
-          break;
+  // --- ⌨️ Keyboard Controls (Desktop)
+  const handleKey = (e) => {
+    if (["input", "select", "textarea"].includes(e.target.tagName.toLowerCase()))
+      return;
+
+    switch (e.key.toLowerCase()) {
+      case " ":
+      case "k":
+        e.preventDefault();
+        togglePlay();
+        break;
+      case "arrowright":
+      case "l":
+        skip(10);
+        break;
+      case "arrowleft":
+      case "j":
+        skip(-10);
+        break;
+      case "f":
+        toggleFullscreen();
+        break;
+      case "m":
+        toggleMute();
+        break;
+      case "arrowup":
+        video.volume = Math.min(video.volume + 0.1, 1);
+        video.muted = false;
+        volumeRef.current.value = video.volume * 100;
+        handleVolume();
+        break;
+      case "arrowdown":
+        video.volume = Math.max(video.volume - 0.1, 0);
+        if (video.volume === 0) video.muted = true;
+        volumeRef.current.value = video.volume * 100;
+        handleVolume();
+        break;
+      default:
+        break;
+    }
+  };
+
+  document.addEventListener("keydown", handleKey);
+
+  // --- 📱 Tap Controls (Mobile)
+  let lastTap = 0;
+  let singleTapTimer = null;
+
+  const handleTouch = (e) => {
+    const now = Date.now();
+    const tapGap = now - lastTap;
+    const x = e.touches[0].clientX;
+    const width = video.clientWidth;
+
+    if (tapGap < 300 && tapGap > 50) {
+      // ✅ Double-tap → skip
+      clearTimeout(singleTapTimer);      // cancel pending single tap
+      if (x < width / 2) {
+        skip(-30);
+        showTapFeedback("rewind");
+      } else {
+        skip(30);
+        showTapFeedback("forward");
       }
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  });
+    } else {
+      // ✅ Single-tap → play/pause after short delay (to detect double tap)
+      clearTimeout(singleTapTimer);
+      // singleTapTimer = setTimeout(() => {
+      //   togglePlay();
+      // }, 10);
+    }
+
+    lastTap = now;
+  };
+
+  video.addEventListener("touchstart", handleTouch);
+
+  return () => {
+    document.removeEventListener("keydown", handleKey);
+    video.removeEventListener("touchstart", handleTouch);
+    clearTimeout(singleTapTimer);
+  };
+}, []);
+
+
+
 
   return (
     <PlayerContainer ref={playerRef}>
@@ -230,7 +323,8 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
         onClick={() => {
           togglePlay();
           onClick?.();
-        }}
+        }}    
+        // onDoubleClick={toggleFullscreen} 
         onEnded={onEnded}
       />
 
@@ -239,7 +333,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
         <FloatingOverlay id="floatingOverlay">{movingText}</FloatingOverlay>
       )}
 
-      <Controls>
+      <Controls data-controls>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
           <button onClick={() => skip(-30)}>
             <MdOutlineReplay size={23} />
@@ -271,7 +365,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {/* Volume Control */}
-          {/* <VolumeWrapper>
+          <VolumeWrapper>
             <span 
               ref={volumeIconRef} 
               onClick={toggleMute}
@@ -288,7 +382,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
               onInput={handleVolume}
               style={{ width: '80px' }}
             />
-          </VolumeWrapper> */}
+          </VolumeWrapper>
 
           <select
             ref={speedRef}
@@ -299,7 +393,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
             <option value="1.5" style={{ color: "black" }}>1.5x</option>
             <option value="2" style={{ color: "black" }}>2x</option>
           </select>
-          <button onClick={toggleFullscreen}>[ ]</button>
+          <button onClick={toggleFullscreen}><MdFullscreen size={24} /></button>
         </div>
       </Controls>
     </PlayerContainer>

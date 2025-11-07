@@ -356,7 +356,9 @@ export const VideoPlayerContainer = styled.div`
   position: relative;
   width: 100%;
   height: auto;
-  aspect-ratio: auto; /* keeps good height on mobile */
+   aspect-ratio: 16 / 8;
+  // min-height: 400px;  /* Fallback for browsers without aspect-ratio */
+  // aspect-ratio: auto; /* keeps good height on mobile */
 
   video {
     // width: 90%;

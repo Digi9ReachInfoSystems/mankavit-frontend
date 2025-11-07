@@ -30,7 +30,9 @@ export const Controls = styled.div`
   padding: 10px 20px;
   font-size: 13px;
   box-sizing: border-box;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
+  opacity: 0;
+  pointer-events: none;
 
   button,
   select,
@@ -39,41 +41,45 @@ export const Controls = styled.div`
     border: none;
     color: #fff;
     cursor: pointer;
-    
   }
 
   select {
-   &:focus {
-    color: black;
-    background: white;
-  }
-  
-  option:checked {
-    color: black;
-    background: white;
-  }
+    &:focus {
+      color: black;
+      background: white;
+    }
+
+    option:checked {
+      color: black;
+      background: white;
+    }
   }
 
-  /* ✅ Progress bar expands dynamically */
   input[type="range"] {
-  flex: 1;
+    flex: 1;
+    min-width: 20px;
     accent-color: #f33;
-  min-width: 20px;
-
   }
 
   span {
     white-space: nowrap;
   }
 
+  /* ✅ Only show on hover or active interaction */
+  ${PlayerContainer}:hover & {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   @media (max-width: 600px) {
     flex-direction: row;
     align-items: stretch;
     input[type="range"] {
-       width: 100%;
+      width: 100%;
     }
   }
 `;
+
 
 export const VolumeWrapper = styled.div`
   display: flex;
@@ -92,7 +98,7 @@ export const VolumeWrapper = styled.div`
     cursor: pointer;
     user-select: none;
   }
-    @media (max-width: 950px) {
+    @media (max-width: 700px) {
     display: none;
   }
 `;
@@ -140,7 +146,7 @@ export const FloatingOverlay = styled.div`
   top: 10px;
   left: 10px;
   color: red;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   pointer-events: none;
   user-select: none;
