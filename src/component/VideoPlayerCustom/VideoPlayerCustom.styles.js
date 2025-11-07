@@ -23,12 +23,12 @@ export const Controls = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  // flex-wrap: wrap;
   gap: 8px;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
-  padding: 10px 20px;
-  font-size: 13px;
+  padding: 10px 10px;
+  font-size: 14px;
   box-sizing: border-box;
   transition: opacity 0.4s ease;
   opacity: 0;
@@ -70,6 +70,18 @@ export const Controls = styled.div`
     opacity: 1;
     pointer-events: auto;
   }
+ /* Apply this only when NOT in fullscreen mode */
+@media (max-width: 1100px) {
+  ${PlayerContainer}:not(:fullscreen) & {
+    flex-direction: row;
+    align-items: stretch;
+
+    input[type="range"] {
+      max-width: 40px;
+    }
+  }
+}
+
 
   @media (max-width: 600px) {
     flex-direction: row;

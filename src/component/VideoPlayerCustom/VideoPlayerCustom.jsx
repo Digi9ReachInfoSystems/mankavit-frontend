@@ -336,7 +336,7 @@ useEffect(() => {
       <Controls data-controls>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
           <button onClick={() => skip(-30)}>
-            <MdOutlineReplay size={23} />
+            <MdOutlineReplay size={20} />
           </button>
 
           <button onClick={togglePlay}>
@@ -344,7 +344,7 @@ useEffect(() => {
           </button>
 
           <button onClick={() => skip(30)}>
-            <MdOutlineReplay style={{ transform: "scaleX(-1)" }} size={23} />
+            <MdOutlineReplay style={{ transform: "scaleX(-1)" }} size={20} />
           </button>
 
           <span ref={timeRef}>0:00 / 0:00</span>
@@ -359,7 +359,7 @@ useEffect(() => {
               (videoRef.current.currentTime =
                 (e.target.value / 100) * videoRef.current.duration)
             }
-            style={{ flex: 1 }}
+           style={{ flex: 1  }}
           />
         </div>
 
@@ -380,7 +380,7 @@ useEffect(() => {
               max="100"
               defaultValue="100"
               onInput={handleVolume}
-              style={{ width: '80px' }}
+              // style={{ width: '80px' }}
             />
           </VolumeWrapper>
 
@@ -393,7 +393,7 @@ useEffect(() => {
             <option value="1.5" style={{ color: "black" }}>1.5x</option>
             <option value="2" style={{ color: "black" }}>2x</option>
           </select>
-          <button onClick={toggleFullscreen}><MdFullscreen size={24} /></button>
+          <button onClick={toggleFullscreen}><MdFullscreen size={20} /></button>
         </div>
       </Controls>
     </PlayerContainer>
