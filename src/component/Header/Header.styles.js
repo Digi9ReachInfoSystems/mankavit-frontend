@@ -63,34 +63,175 @@ background-color: ${theme.colors.backgrounGrey};
 export const UserInfoWrapper = styled.div`
   display: flex;
   align-items: center;
+  position: relative;
+`;
+
+export const ProfileIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: ${theme.colors.primary};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 12px;
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+  }
 `;
 
 export const UserDetails = styled.div`
-  text-align: left;
-//   margin-right: 8px;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  cursor: pointer;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const UserName = styled.div`
-//   background-color: #2290ac;
   color: ${theme.colors.black};
-  border-radius: 50px;
-  padding: 6px 12px;
   font-weight: 550;
   font-size: 16px;
   white-space: nowrap;
-
 `;
 
 export const UserEmail = styled.div`
   font-size: 14px;
   color: ${theme.colors.test};
   margin-top: 4px;
+`;
 
-  @media (max-width: 480px) {
+export const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  min-width: 200px;
+  z-index: 1000;
+  color: ${theme.colors.vividRed};
+
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  transform: ${({ $isOpen }) => ($isOpen ? "translateY(0)" : "translateY(-10px)")};
+  pointer-events: ${({ $isOpen }) => ($isOpen ? "auto" : "none")};
+  transition: all 0.25s ease;
+
+  @media (max-width: 768px) {
+    right: 0;
+  }
+`;
+
+
+export const DropdownItem = styled.div`
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e00000; /* logout text in red */
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: ${theme.colors.backgrounGrey};
+  }
+
+  &:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top: 1px solid ${theme.colors.grey};
+  }
+`;
+
+export const MobileUserInfo = styled.div`
   display: none;
-}
+  padding: 12px 16px;
+  border-bottom: 1px solid ${theme.colors.grey};
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+
+
+// Modal Styles
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+export const ModalContainer = styled.div`
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+`;
+
+export const ModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+
+  p {
+    font-size: 1.1rem;
+    color: #333;
+    text-align: center;
+    margin: 0;
+  }
+`;
+
+export const ModalButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+`;
+
+export const ModalButton = styled.button`
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  min-width: 80px;
+
+  ${({ $primary }) =>
+    $primary
+      ? `
+        background-color: #ff4d4f;
+        color: white;
+        &:hover { background-color: #ff7875; }
+      `
+      : `
+        background-color: #f0f0f0;
+        color: #333;
+        &:hover { background-color: #d9d9d9; }
+      `}
 `;
