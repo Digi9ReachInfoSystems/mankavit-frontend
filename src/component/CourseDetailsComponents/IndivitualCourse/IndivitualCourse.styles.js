@@ -81,19 +81,27 @@ export const CourseIncludes = styled.h3`
 
 export const CourseImage = styled.img`
   width: 100%;
- height: auto;
- max-width: 520px;
- border-radius: 10px;
- margin: 0 auto 10px;           /* center the image */
- display: block;
+  height: auto;
+  max-width: 520px;
+  border-radius: 10px;
+  margin: 0 auto 10px;
+  display: block;
+  object-fit: contain;
+  max-height: calc(100vh - 160px);
+
+  @media (max-width: 992px) {
+    max-height: 300px;
+    width: 100%;
+    margin: 0 auto 20px;
+  }
 `;
 
-export const RightCol = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;                 /* prevent overflow in grid */
-`;
+// export const RightCol = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+//   min-width: 0;                 /* prevent overflow in grid */
+// `;
 
 export const TitleRatingRow = styled.div`
   display: flex;
@@ -132,17 +140,20 @@ export const Rating = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 20px;
-  font-weight: 600;
-  margin-right: 10px;
+  /* scrollbar should be invisible but content still scrollable */
 
-  @media (max-width: 576px) {
-    font-size: 22px;
+  /* Hide scrollbar for WebKit-based browsers (Chrome, Safari) */
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
-`;
 
-export const BulletList = styled.ul`
-  list-style: disc;
+  /* Hide scrollbar for IE, Edge */
+  -ms-overflow-style: none;
+
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
   padding-left: 20px;
   margin: 10px 0 10px 20px;
 `;
@@ -530,45 +541,128 @@ export const Layout = styled.div`
   }
 `;
 
-export const RightColumn = styled.div`
+export const Hello = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: stretch;
+  height: 100vh; /* full viewport height */
+  overflow: hidden; /* prevent double scroll */
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
 `;
 
-export const Hello = styled.div`
- display: grid;
-  grid-template-columns: minmax(300px, 360px) 1fr;
-  gap: 24px;
-  align-items: stretch;
-  
+export const LeftCol = styled.div`
+  flex: 0 0 360px; /* fixed width left column */
+  background: #d4d7ea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+
   @media (max-width: 992px) {
-    grid-template-columns: 1fr; /* stack on small screens */
+    position: relative;
+    height: auto;
+    padding: 20px 0;
+    flex: none;
+  }
+`;
+
+export const LeftSticky = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 520px;
+
+  @media (max-width: 992px) {
+    position: relative;
+    padding: 0 20px;
+  }
+`;
+
+export const RightCol = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  height: 100vh;
+  padding: 20px;
+  scroll-behavior: smooth;
+
+  /* iOS 16/17 fix: use dynamic viewport height and extra bottom padding for safe area */
+  @media (max-width: 992px) {
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px 20px 80px 20px; /* extra bottom padding for safe area */
+    box-sizing: border-box;
+    /* For iOS Safari, ensure links at the bottom are visible/clickable */
+  }
+
+  /* Hide scrollbar but keep functionality */
+  &::-webkit-scrollbar {
+    width: 8px;
+    display: none;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 8px;
   }
 `;
 
 
+// export const RightColumn = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+// `;
 
-export const LeftCol = styled.div`
-  background: linear-gradient(to right, #D4D7EA, #D4D7EA);         /* full-column red */
-  border-radius: 10px;
-  padding: 12px;
- align-self: stretch;           /* let it grow to match the tallest column */
- display: flex;                 /* center sticky block horizontally */
- align-items: center;
- justify-content: center;
+// export const Hello = styled.div`
+//  display: grid;
+//   grid-template-columns: minmax(300px, 360px) 1fr;
+//   gap: 24px;
+//   align-items: stretch;
+  
+//   @media (max-width: 992px) {
+//     grid-template-columns: 1fr; /* stack on small screens */
+//   }
+// `;
 
-`;
 
-export const LeftSticky = styled.div`
-  position: sticky;
-  top: 16px;               /* keep your sticky behavior */
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: center;           /* center contents */
- justify-content: center;
- width: 100%;
- max-width: 520px;              /* nice max width for image/button */
- text-align: center;
-`;
+
+// export const LeftCol = styled.div`
+//   background: linear-gradient(to right, #D4D7EA, #D4D7EA);         /* full-column red */
+//   border-radius: 10px;
+//   padding: 12px;
+//  align-self: stretch;           /* let it grow to match the tallest column */
+//  display: flex;                 /* center sticky block horizontally */
+//  align-items: center;
+//  justify-content: center;
+
+// `;
+
+// export const LeftSticky = styled.div`
+//   position: sticky;
+//   /* center vertically in the viewport while sticky
+//      - top at 50vh and translateY(-50%) keeps the block centered in the visible window
+//      - when the left column's container reaches its bottom, sticky will stop so the block
+//        doesn't overflow past its parent (natural sticky behavior). */
+//   top: 50vh;
+//   transform: translateY(-50%);
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+//   align-items: center;           /* center contents */
+//   justify-content: center;
+//   width: 100%;
+//   max-width: 520px;              /* nice max width for image/button */
+//   text-align: center;
+//   /* keep some sensible padding so the enroll button remains visible on very small screens */
+//   padding: 8px 0;
+// `;

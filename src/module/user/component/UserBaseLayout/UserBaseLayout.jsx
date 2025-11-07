@@ -7,19 +7,16 @@ import Footer from "../../../../pages/LandingPage/Footer/Footer";
 import UserSidebar from "../UserSidebar/UserSidebar";
 
 const UserBaseLayout = () => {
-    return (
-        <PageWrapper>
-
-
-            <Header />
-            <ContentWrapper>
-                <UserSidebar />
-                <Outlet />
-            </ContentWrapper>
-            <Footer />
-
-        </PageWrapper>
-    );
+  return (
+    <PageWrapper>
+      <Header />
+      <ContentWrapper>
+        <UserSidebar />
+        <Outlet />
+      </ContentWrapper>
+      <Footer />
+    </PageWrapper>
+  );
 };
 
 export default UserBaseLayout;

@@ -460,7 +460,6 @@ const EditStudent = () => {
         </InputGroup>
       </FlexRow>
 
-      <FlexRow></FlexRow>
 
       {/* <FlexRow>
         <InputGroup>
@@ -656,33 +655,32 @@ const EditStudent = () => {
               &times;
             </CloseButton>
             <h3>Payment Details</h3>
-            {student.subscription?.length ? (
-              student.subscription.map((sub, index) => (
-                <div key={sub._id} style={{ marginBottom: "20px" }}>
-                  <p>
-                    <strong>Course:</strong>{" "}
-                    {sub.course_enrolled?.courseName || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Payment Status:</strong>{" "}
-                    {sub.payment_Status || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Payment Date:</strong>{" "}
-                    {new Date(sub.created_at).toLocaleString()}
-                  </p>
-                  <p>
-                    <strong>Subscription Active:</strong>{" "}
-                    {sub.is_subscription_active ? "Yes" : "No"}
-                  </p>
-                  {index < student.subscription.length - 1 && (
-                    <hr style={{ margin: "15px 0" }} />
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>No payment records found</p>
-            )}
+            <div>
+              {student.subscription?.length ? (
+                student.subscription.map((sub) => (
+                  <div key={sub._id} className="payment-item">
+                    <p>
+                      <strong>Course:</strong>{" "}
+                      {sub.course_enrolled?.courseName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Payment Status:</strong>{" "}
+                      {sub.payment_Status || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Payment Date:</strong>{" "}
+                      {new Date(sub.created_at).toLocaleString()}
+                    </p>
+                    <p>
+                      <strong>Subscription Active:</strong>{" "}
+                      {sub.is_subscription_active ? "Yes" : "No"}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p>No payment records found</p>
+              )}
+            </div>
           </PaymentModal>
         </>
       )}
