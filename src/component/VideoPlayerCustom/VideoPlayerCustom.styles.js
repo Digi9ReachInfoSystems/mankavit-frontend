@@ -98,7 +98,7 @@ export const VolumeWrapper = styled.div`
     cursor: pointer;
     user-select: none;
   }
-    @media (max-width: 700px) {
+    @media (max-width: 850px) {
     display: none;
   }
 `;
