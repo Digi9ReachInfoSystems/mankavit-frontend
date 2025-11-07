@@ -26,6 +26,7 @@ import {
 } from "../../../../../api/mocktestApi";
 import { getAuth } from "../../../../../utils/authService";
 import styled from "styled-components";
+
 const ExportButton = styled.button`
   padding: 6px 12px;
   background: #2196f3;
@@ -38,6 +39,19 @@ const ExportButton = styled.button`
     background: #1976d2;
   }
 `;
+
+const PassageText = styled.div`
+  background: #f8f9fa;
+  border-left: 4px solid #2196f3;
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 4px;
+  font-style: italic;
+  color: #555;
+  display:flex;
+  flex-direction:column;
+`;
+
 // MocktestStudentResult
 const ViewUserResults = () => {
   const { attemptId } = useParams();
@@ -49,6 +63,7 @@ const ViewUserResults = () => {
   const [evaluationStatus, setEvaluationStatus] = useState(null);
   const navigate = useNavigate();
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -64,24 +79,21 @@ const ViewUserResults = () => {
     apiCaller();
   }, []);
 
-const formatTime = (timeSpentStr) => {
-  if (!timeSpentStr) return "0 minutes and 0 seconds";
+  const formatTime = (timeSpentStr) => {
+    if (!timeSpentStr) return "0 minutes and 0 seconds";
 
-  const [minStr, secStr = "0"] = timeSpentStr.split('.');
-  const minutes = parseInt(minStr, 10) || 0;
-  const seconds = parseInt(secStr, 10) || 0;
+    const [minStr, secStr = "0"] = timeSpentStr.split('.');
+    const minutes = parseInt(minStr, 10) || 0;
+    const seconds = parseInt(secStr, 10) || 0;
 
-  return `${minutes} minute${minutes !== 1 ? "s" : ""} and ${seconds} second${seconds !== 1 ? "s" : ""}`;
-};
-
-
+    return `${minutes} minute${minutes !== 1 ? "s" : ""} and ${seconds} second${seconds !== 1 ? "s" : ""}`;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // // // // console.log("attemptId", attemptId);
         const response = await getAttemptById(attemptId);
-        console.log("Usewr response", response);
+        console.log("User response", response);
         setUserId(response.data.userId._id);
         setMockTestId(response.data.mockTestId._id);
         setEvaluationStatus(response.data.status);
@@ -109,7 +121,7 @@ const formatTime = (timeSpentStr) => {
           throw new Error("Failed to fetch attempt data");
         }
       } catch (error) {
-        // // // console.error("Error fetching attempt:", error);
+        console.error("Error fetching attempt:", error);
       } finally {
         setLoading(false);
       }
@@ -153,7 +165,6 @@ const formatTime = (timeSpentStr) => {
         toast.success(
           "Single subjective question evaluation saved successfully"
         );
-        // // // // console.log("Single question evaluation saved successfully", response);
         // Update the local state with the saved data
         const updatedAttemptData = { ...attemptData };
         const answerIndex = updatedAttemptData.answers.findIndex(
@@ -167,7 +178,7 @@ const formatTime = (timeSpentStr) => {
       }
     } catch (error) {
       toast.error("Failed to save single question evaluation");
-      // // // console.error("Failed to save single question evaluation", error);
+      console.error("Failed to save single question evaluation", error);
     }
   };
 
@@ -181,14 +192,12 @@ const formatTime = (timeSpentStr) => {
           marks: e.marks,
         })),
       };
-      // // // console.log("payload", payload);
       const response = await evaluateMocktest(payload);
       if (response.success) {
-        // // // console.log("Evaluation submitted successfully", response);
         navigate(`/admin/mock-test/user-attempts/${mockTestId}/${userId}`);
       }
     } catch (error) {
-      // // // console.error("Failed to submit evaluation", error);
+      console.error("Failed to submit evaluation", error);
     }
   };
 
@@ -209,6 +218,24 @@ const formatTime = (timeSpentStr) => {
     return question?.type === "subjective";
   });
 
+  // Helper function to render question content
+  const renderQuestionContent = (question) => {
+    return (
+      <>
+        {question.isPassage && question.passageText && (
+          <PassageText>
+            <strong>Passage:</strong>
+            <div dangerouslySetInnerHTML={{ __html: question.passageText }} />
+          </PassageText>
+        )}
+        
+        <QuestionText
+          dangerouslySetInnerHTML={{ __html: question.questionText }}
+        />
+      </>
+    );
+  };
+
   return (
     <Container>
       <Title>User Result</Title>
@@ -221,7 +248,6 @@ const formatTime = (timeSpentStr) => {
           <strong>Mock Test Name:</strong>{" "}
           {attemptData?.mockTestId?.title || "N/A"}
         </p>
-        {/* <p><strong>Subject:</strong> {attemptData?.subject?.subjectDisplayName || "N/A"}</p> */}
         <p>
           <strong>Total Questions:</strong>{" "}
           {attemptData?.mockTestId?.questions?.length || 0}
@@ -238,14 +264,10 @@ const formatTime = (timeSpentStr) => {
         <p>
           <strong>Total Marks:</strong> {attemptData?.totalMarks ?? 0}
         </p>
-        {/* <p><strong>MCQ Score:</strong> {attemptData?.mcqScore ?? 0}</p> */}
-        {/* <p><strong>Subjective Score:</strong> {attemptData?.subjectiveScore ?? 0}</p> */}
-      <p>
-  <strong>Time Spent:</strong>{" "}
-  {formatTime(attemptData?.timeSpent)}
-</p>
-
-        {/* <p><strong>Status:</strong> {attemptData?.status}</p> */}
+        <p>
+          <strong>Time Spent:</strong>{" "}
+          {formatTime(attemptData?.timeSpent)}
+        </p>
       </UserInfo>
 
       <SubTitle>MCQ Questions</SubTitle>
@@ -259,14 +281,14 @@ const formatTime = (timeSpentStr) => {
 
         return (
           <QuestionCard key={`mcq-${index}`}>
-            <QuestionHeader>
-              <QuestionNumber>Question {index + 1}.</QuestionNumber>
-              <QuestionText
-                dangerouslySetInnerHTML={{ __html: question.questionText }}
-              />
-            </QuestionHeader>
+        <QuestionHeader>
+          <QuestionNumber>Question {index + 1}.</QuestionNumber>
+        </QuestionHeader>
 
-            <div style={{ marginTop: "10px" }}>
+        {/* Render passage and question full-width below the header for cleaner layout */}
+        {renderQuestionContent(question)}
+
+        <div style={{ marginTop: "10px" }}>
               {options.map((opt, idx) => {
                 let color = "#333"; // default
                 if (idx === correct && idx === selected)
@@ -302,10 +324,11 @@ const formatTime = (timeSpentStr) => {
             </div>
 
             <AnswerText>
-              <strong>Your Answer:</strong> {a.answer || <em>Not Answered</em>}
+              <strong>Student answer:</strong> {a.answer || <em>Not Answered</em>}
             </AnswerText>
-            <AnswerText>
-              <strong>Correct Answer:</strong>{" "}
+
+          <AnswerText>
+              <strong>Expected answer:</strong>{" "}
               {options[correct]?.text || options[correct] || "N/A"}
             </AnswerText>
             <AnswerText>
@@ -326,16 +349,28 @@ const formatTime = (timeSpentStr) => {
 
         return (
           <QuestionCard key={`subj-${index}`}>
-           <QuestionHeader>
-            <QuestionNumber>Question {mcqAnswers.length + index + 1}.</QuestionNumber>
-
-              <QuestionText
-                dangerouslySetInnerHTML={{ __html: question.questionText }}
-              />
+            <QuestionHeader>
+              <QuestionNumber>Question {mcqAnswers.length + index + 1}.</QuestionNumber>
             </QuestionHeader>
+
+            {/* Render passage and question full-width below the header for cleaner layout */}
+            {renderQuestionContent(question)}
+
             <AnswerText>
-              <strong>Your Answer:</strong> {a.answer || <em>Not Answered</em>}{" "}
+              <strong>Student answer:</strong> {a.answer || <em>Not Answered</em>}{" "}
             </AnswerText>
+
+              {question?.expectedAnswer && (
+                <AnswerText>
+                  <strong>Expected answer:</strong>{" "}
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: question.expectedAnswer || "",
+                    }}
+                  />
+                </AnswerText>
+              )}
+           
             <Label>Evaluate to:</Label>
             <input
               type="radio"
