@@ -4,18 +4,18 @@ import { PageWrapper, ContentWrapper } from "../BaseLayout/BaseLayout.styles";
 import Sidebar from "../Sidebar/Sidebar";
 import Header from "../Header/Header";
 
-const BaseLayout = () => {
-  return (
-    <PageWrapper>
-      <Sidebar />
-      <ContentWrapper>
-        <Header />
-        <div className="scrollable-content">
-          <Outlet />
-        </div>
-      </ContentWrapper>
-    </PageWrapper>
-  );
-};
+ const BaseLayout = () => {
+    return (
+      <PageWrapper>
 
-export default BaseLayout;
+        <Sidebar />
+        <ContentWrapper>
+          <Header />
+          <Outlet />
+             {/* <Footer /> */}
+        </ContentWrapper>
+      </PageWrapper>
+    );
+  };
+
+  export default BaseLayout
