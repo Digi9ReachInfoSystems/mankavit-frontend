@@ -307,7 +307,7 @@ export default function AddCourse() {
                 value={description}
                 config={configDis}
                 tabIndex={1}
-                onChange={(newContent) => setDescription(newContent)}
+                onBlur={(newContent) => setDescription(newContent)}
               />
             </FieldWrapper>
           </Column>
@@ -322,7 +322,7 @@ export default function AddCourse() {
                 value={shortDescription}
                 config={config}
                 tabIndex={1}
-                onChange={(newContent) => setShortDescription(newContent)}
+                onBlur={(newContent) => setShortDescription(newContent)}
               />
             </FieldWrapper>
           </Column>

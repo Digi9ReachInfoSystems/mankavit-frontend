@@ -466,7 +466,7 @@ export default function EditCourse() {
                 value={formData.description}
                 config={configDis}
                 tabIndex={1}
-                onChange={(newContent) =>
+                onBlur={(newContent) =>
                   handleInputChange("description", newContent)
                 }
               />
@@ -483,7 +483,7 @@ export default function EditCourse() {
                 value={formData.shortDescription}
                 config={config}
                 tabIndex={1}
-                onChange={(newContent) =>
+                onBlur={(newContent) =>
                   handleInputChange("shortDescription", newContent)
                 }
               />

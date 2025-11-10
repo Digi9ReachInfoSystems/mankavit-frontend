@@ -124,9 +124,9 @@ export default function Ticker() {
             value={formData.title}
             config={config}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { // console.log("new", newContent);
-             }} // preferred to use only this option to update the content for performance reasons
-            onChange={newContent => { handleChange(newContent) }}
+            // onBlur={newContent => { // console.log("new", newContent);
+            //  }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { handleChange(newContent) }}
           />
           {/* <Input
             id="title"

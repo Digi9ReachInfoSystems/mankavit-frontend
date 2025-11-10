@@ -279,8 +279,8 @@ export default function AddLecturer() {
                 value={description}
                 config={config}
                 tabIndex={1}
-                onBlur={(newContent) => {}}
-                onChange={(newContent) => {
+                // onBlur={(newContent) => {}}
+                onBlur={(newContent) => {
                   setDescription(newContent);
                 }}
               />

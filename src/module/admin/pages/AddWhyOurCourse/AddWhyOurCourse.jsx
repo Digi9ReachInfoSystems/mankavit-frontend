@@ -198,7 +198,7 @@ const AddWhyOurCourse = () => {
           value={formData.description}
           config={config}
           onBlur={handleEditorChange}
-          onChange={handleEditorChange}
+          // onChange={handleEditorChange}
         />
       </EditorWrapper>
 

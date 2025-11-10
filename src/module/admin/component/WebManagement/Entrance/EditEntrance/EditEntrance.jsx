@@ -163,7 +163,7 @@ const EditEntrance = () => {
               value={description}
               config={config}
               onBlur={handleEditorChange}
-              onChange={handleEditorChange}
+              // onChange={handleEditorChange}
             />
           </EditorWrapper>
           {errors.description && <ErrorText>{errors.description}</ErrorText>}

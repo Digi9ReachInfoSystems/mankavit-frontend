@@ -1162,7 +1162,7 @@ const updateOptionField = (qi, oi, field, value) =>
                           value={q.passageText}
                           config={config}
                           tabIndex={1}
-                          onChange={(content) => updateQuestionField(qi, "passageText", content)}
+                          onBlur={(content) => updateQuestionField(qi, "passageText", content)}
                         />
                       </div>
                     )}
@@ -1182,7 +1182,7 @@ const updateOptionField = (qi, oi, field, value) =>
                         value={q.text}
                         config={config}
                         tabIndex={1}
-                        onChange={(content) => updateQuestionField(qi, "text", content)}
+                        onBlur={(content) => updateQuestionField(qi, "text", content)}
                       />
                     </div>
 
@@ -1314,7 +1314,7 @@ const updateOptionField = (qi, oi, field, value) =>
                         value={q.expectedAnswer}
                         config={config}
                         tabIndex={1}
-                        onChange={(content) => updateQuestionField(qi, "expectedAnswer", content)}
+                        onBlur={(content) => updateQuestionField(qi, "expectedAnswer", content)}
                       />
                     </div>
 

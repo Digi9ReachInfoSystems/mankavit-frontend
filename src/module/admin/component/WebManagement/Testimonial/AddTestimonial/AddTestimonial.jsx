@@ -176,7 +176,7 @@ const AddTestimonial = () => {
           value={formData.testimonialDetails}
           config={config}
           onBlur={handleEditorChange}
-          onChange={handleEditorChange}
+          // onChange={handleEditorChange}
         />
       </EditorWrapper>
 

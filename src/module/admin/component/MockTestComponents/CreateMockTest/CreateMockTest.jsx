@@ -211,9 +211,9 @@ const CreateMockTest = () => {
               value={testDetails.description}
               config={config}
               tabIndex={1} // tabIndex of textarea
-              onBlur={newContent => { // console.log("new", newContent);
-               }} // preferred to use only this option to update the content for performance reasons
-              onChange={newContent => { handleTestDetailChange('description',newContent) }}
+              // onBlur={newContent => { // console.log("new", newContent);
+              //  }} // preferred to use only this option to update the content for performance reasons
+              onBlur={newContent => { handleTestDetailChange('description',newContent) }}
             />
             {/* <TextInput
               as="textarea"
