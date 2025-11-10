@@ -245,8 +245,8 @@ export default function EditLecturer() {
                 value={formData.description}
                 config={configDis}
                 tabIndex={1}
-                onBlur={() => {}}
-                onChange={newContent => { setFormData({ ...formData, description: newContent }) }}
+                // onBlur={() => {}}
+                onBlur={newContent => { setFormData({ ...formData, description: newContent }) }}
               />
             </FieldWrapper>
           </Column>

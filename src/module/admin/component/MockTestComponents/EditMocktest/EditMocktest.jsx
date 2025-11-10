@@ -232,7 +232,7 @@ const EditMockTest = () => {
               value={testDetails.description}
               config={config}
               tabIndex={1}
-              onChange={newContent => { handleTestDetailChange('description', newContent); }}
+              onBlur={newContent => { handleTestDetailChange('description', newContent); }}
             />
             {errors.description && <ErrorText>{errors.description}</ErrorText>}
           </FormGroup>

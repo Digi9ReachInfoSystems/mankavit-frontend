@@ -216,9 +216,10 @@ const AddRecordedClass = ({ onSubmit }) => {
                 value={description}
                 config={config}
                 tabIndex={1}
-                onBlur={newContent => { // console.log("new", newContent);
-                   }}
-                onChange={newContent => { setDescription(newContent); }}
+                // onBlur={newContent => { 
+                //   // console.log("new", newContent);
+                //    }}
+                onBlur={newContent => { setDescription(newContent); }}
               />
            
          

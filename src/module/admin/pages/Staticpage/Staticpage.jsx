@@ -182,9 +182,9 @@ const Staticpage = () => {
             value={privacyPolicy}
             config={config}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { // // console.log("new", newContent); 
-            }} // preferred to use only this option to update the content for performance reasons
-            onChange={newContent => { setPrivacyPolicy(newContent) }}
+            // onBlur={newContent => { // // console.log("new", newContent); 
+            // }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { setPrivacyPolicy(newContent) }}
           />
           {/* <Textarea
             id="privacy"
@@ -202,9 +202,9 @@ const Staticpage = () => {
             value={terms}
             config={configds}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { // // // console.log("new", newContent);
-            }} // preferred to use only this option to update the content for performance reasons
-            onChange={newContent => { setTerms(newContent) }}
+            // onBlur={newContent => { // // // console.log("new", newContent);
+            // }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { setTerms(newContent) }}
           />
 
         </FormGroup>
@@ -217,9 +217,9 @@ const Staticpage = () => {
             value={refund}
             config={configds}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { // // console.log("new", newContent);
-            }} // preferred to use only this option to update the content for performance reasons
-            onChange={newContent => { setRefund(newContent) }}
+            // onBlur={newContent => { // // console.log("new", newContent);
+            // }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { setRefund(newContent) }}
           />
 
         </FormGroup>
@@ -231,9 +231,9 @@ const Staticpage = () => {
             value={courseInfo}
             config={confiCourseInfo}
             tabIndex={1} // tabIndex of textarea
-            onBlur={newContent => { // // console.log("new", newContent);
-            }} // preferred to use only this option to update the content for performance reasons
-            onChange={newContent => { setCourseInfo(newContent) }}
+            // onBlur={newContent => { // // console.log("new", newContent);
+            // }} // preferred to use only this option to update the content for performance reasons
+            onBlur={newContent => { setCourseInfo(newContent) }}
           />
 
         </FormGroup>
