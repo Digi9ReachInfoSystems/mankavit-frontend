@@ -25,35 +25,32 @@ export const TopBar = styled.div`
   align-items: center;
   gap: 16px;
   background-color: var(--bg-soft);
-  // padding: 12px 40px; /* Increased padding to accommodate larger logo */
-  font-size: 14px;
-   padding: 20px 40px; 
+  padding: 20px 40px; 
   color: var(--muted);
 
   @media (max-width: 768px) {
     padding: 12px 20px; /* Adjusted mobile padding */
-    justify-content:  flex-end;
-    gap: 80px;
+    justify-content:  flex-end; /* Adjusted for mobile layout */
+    gap: 80px; /* Adjusted gap */
     font-size: 26px;
   }
 `;
 
 export const ToolbarContainer = styled.div`
   display: flex;
-  justify-content:right;
-  // text-align: right;
-  // align-items: end;
+  align-items: center;
+  justify-content: flex-end; /* Changed to flex-end to align icons right */
   background-color: var(--bg-soft);
-  padding: 13px 40px;
-  font-size: 18px;
+  padding: 10px 20px;
+  font-size: 16px;
   color: var(--muted);
 
-  flex: 1;            /* ✅ fill remaining space between logo and right icons */
-  min-width: 0;       /* ✅ prevents overflow when marquee text is long */
-  margin: 0;  
+  flex: 1;            /* Fill remaining space */
+  min-width: 0;       /* Allow shrinking */
+  margin: 0;          /* Remove margin */
 
   @media (max-width: 1320px) {
-    padding: 5px 30px;
+    padding: 6px 16px;
   }
 
   @media (max-width: 1024px) {
@@ -61,21 +58,20 @@ export const ToolbarContainer = styled.div`
   }
 
   @media (max-width: 576px) {
-    padding: 0px;
+    padding: 4px 8px;
   }
 `;
 
 /* ============ Headline / Marquee ============ */
 
 const marquee = keyframes`
-  0%   { transform: translateX(0); }       /* ✅ visible immediately */
-  100% { transform: translateX(-50%); }    /* scroll one full set width */
-  
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); } /* Scroll one full set width */
 `;
 
 export const Headline = styled.div`
   width: 100%;
-  overflow: hidden;
+  // overflow: hidden; /* Keep this to contain the scrolling content */
   white-space: nowrap;
   color: rgb(22, 78, 233);
   height: 2.5em;
@@ -84,23 +80,34 @@ export const Headline = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.1em;
 
-   @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     display: none !important;
   }
 
   .marquee {
     position: relative;
-    width: 100%;
+    // width: 100%;
+    /* Calculate max-width based on screen size, leaving space for social icons */
+    max-width: calc(100% - 580px); /* Adjust this value based on icon container width */
     overflow: hidden;
+    display: block;
+    top: 30px;
+    margin: 0 auto; /* Center the marquee if desired, or align left */
+
+    @media (max-width: 1024px) {
+      max-width: 100%;
+      top: 30px;
+      max-width: calc(100% - 450px); /* Adjust this value based on icon container width */
+   
+    }
   }
 
   .track {
-    display: inline-flex;
-    align-items: center;
-    gap: 2rem;                /* space between items */
-    min-width: 200%;          /* two sets side-by-side */
+    display: inline-block; /* Changed from inline-flex to inline-block */
     animation: ${marquee} 20s linear infinite;
     will-change: transform;
+    transform-style: preserve-3d;
+    white-space: nowrap; /* Ensure content stays on one line */
   }
 
   .track:hover {
@@ -109,15 +116,19 @@ export const Headline = styled.div`
 
   span {
     display: inline-block;
-    padding: 0 0;            /* we already use gap */
+    padding: 0 1rem; /* Add padding between ticker items */
+    white-space: nowrap; /* Ensure text doesn't wrap */
   }
 
-  @media ( max-width: 780px)
-  {
-  display: none;}
+  @media ( max-width: 780px) {
+    display: none;
+  }
+  
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .track { animation: none; transform: translateX(0); 
+    .track { 
+      animation: none; 
+      transform: translateX(0); 
     }
   }
 `;
@@ -127,21 +138,26 @@ export const Headline = styled.div`
 
 export const SocialIcons = styled.div`
   display: flex;
-  gap: 30px;
+  gap: 26px; /* Reduced gap for more compact layout */
   align-items: center;
+  flex-shrink: 0; /* Prevent icons from shrinking */
 
   @media (max-width: 1320px) {
+    gap: 12px;
+  }
+
+  @media (max-width: 1024px) {
     gap: 20px;
   }
 
   @media (max-width: 576px) {
-    // gap: 8px;
+    gap: 8px;
   }
 `;
 
 export const Image = styled.img`
-  width: 36px;
-  height: 30px;
+  width: 30px; /* Slightly reduced width */
+  height: 30px; /* Slightly reduced height */
   transition: transform 0.25s ease, filter 0.25s ease;
   cursor: pointer;
   filter: saturate(0.9);
@@ -152,18 +168,23 @@ export const Image = styled.img`
   }
 
   @media (max-width: 1636px) {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (max-width: 1320px) {
     width: 20px;
     height: 20px;
   }
 
-  @media (max-width: 1320px) {
-    width: 16px;
-    height: 16px;
+  @media (max-width: 1024px) {
+    width: 18px;
+    height: 18px;
   }
 
   @media (max-width: 576px) {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
   }
 `;
 
@@ -333,25 +354,13 @@ export const NavLinkItem = styled.div`
 
   /* ✅ On mobile, stack label + dropdown vertically and make the item full-width */
   @media (max-width: 768px) {
-    // flex-direction: column;
-    // align-items: stretch;
-    // width: 100%;
-    // gap: 8px;               
-    // padding: 10px 0;   
-    //    position: static;          /* let children (dropdown) flow under it */
-    // display: inline-flex;
-    // align-items: stretch;
-    // gap: 6px;
-    // white-space: nowrap;       /* caret stays adjacent */
-    // flex-wrap: nowrap;
-    // // width: 100%;  
     position: static;          /* parent is not positioned */
-   display: flex;
-   flex-direction: column;    /* label on top, dropdown below */
-   align-items: flex-start;
-   width: 100%;
-   gap: 8px;
-   padding: 10px 0;  
+    display: flex;
+    flex-direction: column;    /* label on top, dropdown below */
+    align-items: flex-start;
+    width: 100%;
+    gap: 8px;
+    padding: 10px 0;  
   
   }
 `;
