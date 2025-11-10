@@ -70,6 +70,7 @@ const marquee = keyframes`
 `;
 
 export const Headline = styled.div`
+display: none !important;  
   width: 100%;
   // overflow: hidden; /* Keep this to contain the scrolling content */
   white-space: nowrap;
@@ -88,16 +89,16 @@ export const Headline = styled.div`
     position: relative;
     // width: 100%;
     /* Calculate max-width based on screen size, leaving space for social icons */
-    max-width: calc(100% - 580px); /* Adjust this value based on icon container width */
+    max-width: calc(100% - 700px); /* Adjust this value based on icon container width */
     overflow: hidden;
     display: block;
     top: 30px;
     margin: 0 auto; /* Center the marquee if desired, or align left */
 
     @media (max-width: 1024px) {
-      max-width: 100%;
+      // max-width: 100%;
       top: 30px;
-      max-width: calc(100% - 450px); /* Adjust this value based on icon container width */
+      max-width: calc(100% - 550px); /* Adjust this value based on icon container width */
    
     }
   }
