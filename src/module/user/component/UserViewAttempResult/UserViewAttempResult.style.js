@@ -389,7 +389,7 @@ export const OptionsList = styled.div`
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  align-items: flex-start;
+  // align-items: flex-start;
   gap: 10px;
   flex-wrap: wrap;
   max-width: 100%;

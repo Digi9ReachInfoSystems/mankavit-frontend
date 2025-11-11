@@ -303,6 +303,13 @@ export const OptionsList = styled.div`
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+  }
+    @media (max-width: 480px) {
+    margin-bottom: 60px;
+  }
 `;
 
 // export const OptionLabel = styled.label`
@@ -400,37 +407,25 @@ export const QuestionBox = styled.div`
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  align-items: flex-start; /* top-align radio with multi-line text */
+  // align-items: flex-start;
   gap: 10px;
-  flex-wrap: wrap; /* allow long options to wrap to next line */
+  flex-wrap: wrap;
   max-width: 100%;
   line-height: 1.4;
 
-  input {
-    margin-top: 2px;
-  } /* better vertical alignment with text */
-
   color: ${({ status }) => {
     switch (status) {
-      case "correct-attempted":
-        return "#34c759";
-      case "incorrect-attempted":
-        return "#ff3b30";
-      case "correct-unattempted":
-        return "#0a84ff";
-      default:
-        return "#333";
+      case "correct-attempted": return "#34c759";
+      case "incorrect-attempted": return "#ff3b30";
+      case "correct-unattempted": return "#0a84ff";
+      default: return "#333";
     }
   }};
 
-  @media (max-width: 1360px) {
-    font-size: 16px;
-  }
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
+  @media (max-bffp
+  lkgbfdsp;width: 1360px) { font-size: 16px; }
+  @media (max-width: 768px) { font-size: 14px; }
 `;
-
 /* Sticky action bar */
 // export const StickyActionBar = styled.div`
 //   position: sticky;
