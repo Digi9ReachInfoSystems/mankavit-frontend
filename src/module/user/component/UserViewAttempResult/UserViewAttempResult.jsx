@@ -256,6 +256,7 @@ export default function UserViewAttempResult() {
           {passageExpanded ? "Read less" : "Read more"}
         </button>
       </div>
+      
     );
   };
 
