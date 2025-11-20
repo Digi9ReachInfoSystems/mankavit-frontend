@@ -172,7 +172,7 @@ export const EnrollButton = styled.button`
   background: linear-gradient(to right, #0dcaf0, #007bff);
   color: white;
   font-size: 24px;
-  padding: 15px 30px;
+  padding: 10px;
   border: none;
   border-bottom-left-radius: 12px;
   cursor: pointer;

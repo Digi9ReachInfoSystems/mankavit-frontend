@@ -287,7 +287,7 @@ export default function StudentManagement() {
         </SearchWrapper>
 
         {loading ? (
-          <div>Loading...</div>
+          <div>Loading students...</div>
         ) : (
           <>
             <TableWrapper>

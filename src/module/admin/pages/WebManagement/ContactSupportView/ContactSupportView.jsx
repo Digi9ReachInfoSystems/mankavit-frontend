@@ -208,7 +208,7 @@ const ContactSupportView = () => {
   };
 
   if (loading) {
-    return <Container>Loading...</Container>;
+    return <Container>Loading support tickets...</Container>;
   }
 
   const handleUpdateStatus = async (newStatus) => {

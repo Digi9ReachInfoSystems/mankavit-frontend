@@ -15,6 +15,6 @@ export const getAuth = async () => {
     } else {
         //   // console.log("response routes", response.data);
         return { isAuthenticated: true, userId, role: response.data.role, isSuperAdmin: response.data.isSuperAdmin,Permissions: response.data.permissions };
-    }
+    } 
 
 };

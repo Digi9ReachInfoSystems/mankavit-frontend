@@ -167,7 +167,7 @@ const AdminMission = () => {
 
         <TableWrapper>
           {loading ? (
-            <p>Loading...</p>
+            <p>Loading missions...</p>
           ) : (
             <Table>
               <TableHead>

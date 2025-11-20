@@ -239,7 +239,7 @@ const AboutUs = () => {
 
       <TableWrapper>
         {loadingList ? (
-          <p>Loading...</p>
+          <p>Loading about us...</p>
         ) : items.length > 0 ? (
           <Table>
             <TableHead>

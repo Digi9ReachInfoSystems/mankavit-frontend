@@ -201,7 +201,7 @@ const ViewUserResults = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading results...</div>;
   if (!attemptData) return <div>Attempt not found</div>;
 
   const mcqAnswers = attemptData.answers.filter((a) => {

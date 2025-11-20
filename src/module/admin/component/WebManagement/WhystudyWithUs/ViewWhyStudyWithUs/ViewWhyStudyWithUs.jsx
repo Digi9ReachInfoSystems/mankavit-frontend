@@ -72,7 +72,7 @@ const ViewWhyStudyWithUs = () => {
     return (
       <Container>
         <Title>View Why Study With Us</Title>
-        <p>Loading…</p>
+        <p>Loading why study with us…</p>
       </Container>
     );
   }

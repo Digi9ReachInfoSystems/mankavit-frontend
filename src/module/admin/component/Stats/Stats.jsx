@@ -61,7 +61,7 @@ const Stats = () => {
             <StatTitle>{stat.title}</StatTitle>
           </div>
           <StatValue>
-            {loading ? <span style={{ fontSize: '12px' }}>Loading...</span> : stat.value}
+            {loading ? <span style={{ fontSize: '12px' }}>Loading stats...</span> : stat.value}
           </StatValue>
         </StatCard>
       ))}

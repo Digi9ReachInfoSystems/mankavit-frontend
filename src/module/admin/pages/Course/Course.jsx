@@ -376,7 +376,7 @@ export default function CoursesTable() {
         </SearchWrapper>
 
         {loading ? (
-          <div>Loading...</div>
+          <div>Loading courses...</div>
         ) : (
           <>
             <TableWrapper>

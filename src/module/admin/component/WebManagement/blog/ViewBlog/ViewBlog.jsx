@@ -43,7 +43,7 @@ const ViewBlog = () => {
     return (
       <Container>
         <Title>View Blog</Title>
-        <p>Loading...</p>
+        <p>Loading blogs...</p>
       </Container>
     );
   }

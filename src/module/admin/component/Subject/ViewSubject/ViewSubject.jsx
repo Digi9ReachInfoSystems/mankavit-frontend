@@ -117,7 +117,7 @@ export default function ViewSubject() {
   }, [id]);
 
   if (loading) {
-    return <Container>Loading...</Container>;
+    return <Container>Loading subject...</Container>;
   }
 
   if (!subject) {

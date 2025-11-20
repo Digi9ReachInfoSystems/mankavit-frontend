@@ -83,7 +83,7 @@ const StudyWithUs = () => {
     }
   };
 
-  if (loading) return <Container><Content>Loading...</Content></Container>;
+  if (loading) return <Container><Content>Loading contents...</Content></Container>;
   if (error)   return <Container><Content>Error: {error}</Content></Container>;
   if (!whys?.length) return <Container><Content>No data available</Content></Container>;
 

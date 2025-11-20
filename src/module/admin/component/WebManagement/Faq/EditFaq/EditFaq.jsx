@@ -117,7 +117,7 @@ const EditFaq = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Loading faq...</p>;
   if (fetchError) return <p style={{ color: 'red' }}>{fetchError}</p>;
 
   return (

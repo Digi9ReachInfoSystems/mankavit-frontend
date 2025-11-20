@@ -34,7 +34,7 @@ export default function ViewCourse() {
   }, [id]);
 
   if (loading) {
-    return <Container>Loading...</Container>;
+    return <Container>Loading course details...</Container>;
   }
 
   if (!courseData) {
