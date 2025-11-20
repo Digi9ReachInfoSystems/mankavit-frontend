@@ -73,7 +73,7 @@ const ViewWhyOurCourse = () => {
     return (
       <Container>
         <Title>View Why Our Course</Title>
-        <p>Loading…</p>
+        <p>Loading why our course…</p>
       </Container>
     );
   }

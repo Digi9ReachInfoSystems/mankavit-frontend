@@ -309,7 +309,7 @@ export default function CouponManagement() {
                 </SearchWrapper>
 
                 {loading ? (
-                    <div>Loading...</div>
+                    <div>Loading coupons...</div>
                 ) : (
                     <>
                         <TableWrapper>

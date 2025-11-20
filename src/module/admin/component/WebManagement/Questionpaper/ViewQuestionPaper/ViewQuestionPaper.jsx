@@ -37,7 +37,7 @@ const ViewQuestionPaper = () => {
   if (loading) {
     return (
       <Container>
-        <p>Loading...</p>
+        <p>Loading question paper...</p>
       </Container>
     );
   }

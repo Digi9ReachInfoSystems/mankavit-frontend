@@ -36,7 +36,7 @@ const Entrances = () => {
     run();
   }, [id]);
 
-  if (loading) return <EntranceMainContainer>Loading…</EntranceMainContainer>;
+  if (loading) return <EntranceMainContainer>Loading entrance details…</EntranceMainContainer>;
   if (err)
     return (
       <EntranceMainContainer style={{ color: "crimson" }}>

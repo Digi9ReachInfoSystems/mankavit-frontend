@@ -228,7 +228,7 @@ const FAQ = () => {
 
         <TableWrapper>
           {loading ? (
-            <p>Loading…</p>
+            <p>Loading Faq…</p>
           ) : (
             <Table>
               <TableHead>

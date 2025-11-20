@@ -131,7 +131,7 @@ const Entrance = () => {
 
         <TableWrapper>
           {loading ? (
-            <p>Loading…</p>
+            <p>Loading entrances…</p>
           ) : (
             <Table>
               <TableHead>

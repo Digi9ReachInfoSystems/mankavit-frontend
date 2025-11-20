@@ -35,7 +35,7 @@ const AllSubjects = () => {
     };
     fetchSubjects();
   }, []);
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading subjects...</div>;
   if (error) return <div>{error}</div>;
 const ITEMS_PER_PAGE = 5;
   return (

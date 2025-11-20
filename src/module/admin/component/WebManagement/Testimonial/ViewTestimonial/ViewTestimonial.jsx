@@ -30,7 +30,7 @@ const ViewTestimonial = () => {
   }, [id]);
 
   if (loading) {
-    return <Container>Loading...</Container>;
+    return <Container>Loading testimonial...</Container>;
   }
 
   if (!testimonial) {

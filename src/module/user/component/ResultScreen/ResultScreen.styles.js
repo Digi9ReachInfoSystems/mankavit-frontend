@@ -665,13 +665,13 @@ export const Grid = styled.div`
     grid-template-columns: repeat(5, 1fr);
   }
   @media (max-width: 1024px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
   @media (max-width: 768px) {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
   @media (max-width: 420px) {
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 `;
 

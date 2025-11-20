@@ -176,7 +176,7 @@ const WhyMankavit = () => {
 
       <TableWrapper>
         {loadingList ? (
-          <p>Loading…</p>
+          <p>Loading data…</p>
         ) : items.length > 0 ? (
           <Table>
             <TableHead>

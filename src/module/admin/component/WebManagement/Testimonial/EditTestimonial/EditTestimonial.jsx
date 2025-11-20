@@ -154,7 +154,7 @@ const EditTestimonial = () => {
   };
 
   if (isLoading) {
-    return <Container>Loading…</Container>;
+    return <Container>Loading testimonial…</Container>;
   }
 
   return (

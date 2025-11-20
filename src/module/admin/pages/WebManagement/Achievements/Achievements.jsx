@@ -528,7 +528,7 @@ const Achievements = () => {
 
         <TableWrapper>
           {loading ? (
-            <p>Loading...</p>
+            <p>Loading achievements...</p>
           ) : (
             <Table>
               <TableHead>

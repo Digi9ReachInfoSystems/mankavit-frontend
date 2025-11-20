@@ -194,7 +194,7 @@ const EditMockTest = () => {
     }
   };
 
-  if (isLoading) return <Container>Loading...</Container>;
+  if (isLoading) return <Container>Loading mocktest...</Container>;
 
   return (
     <Container>

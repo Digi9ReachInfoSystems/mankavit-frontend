@@ -219,6 +219,7 @@ const Profile = () => {
                   : "image/*",
               });
             }
+                setAcceptedTerms(!!k.terms_and_conditions);
 
             // occupation type prefill
             setCurrentOccupationType(
@@ -410,20 +411,21 @@ const Profile = () => {
       }
       const src = howSource === "Other" ? howOther.trim() : howSource;
 
-      const payload = {
-        id_proof: uploadedIDProof.url,
-        passport_photo: passportPhoto.url,
-        userref: userIdForKyc,
-        date_of_birth: new Date(kycData.date_of_birth).toISOString(),
-        fathers_name: kycData.fathers_name.trim(),
-        fathers_occupation: kycData.fathers_occupation.trim(),
-        present_address: kycData.present_address.trim(),
-        current_occupation:
-          currentOccupationType === "LLB"
-            ? "LLB"
-            : (kycData.current_occupation || "").trim(),
-        how_did_you_get_to_know_us: src, // <— HERE
-      };
+    const payload = {
+    id_proof: uploadedIDProof.url,
+    passport_photo: passportPhoto.url,
+    userref: userIdForKyc,
+    date_of_birth: new Date(kycData.date_of_birth).toISOString(),
+    fathers_name: kycData.fathers_name.trim(),
+    fathers_occupation: kycData.fathers_occupation.trim(),
+    present_address: kycData.present_address.trim(),
+    current_occupation: currentOccupationType === "LLB"
+      ? "LLB"
+      : (kycData.current_occupation || "").trim(),
+    how_did_you_get_to_know_us: src,
+    terms_and_conditions: acceptedTerms   // <--- REQUIRED
+};
+
 
       const resp = await createKycApi(payload);
 
@@ -911,22 +913,22 @@ const Profile = () => {
                 </span>
               )}
             </div>
-            {showTerms && (
-              <TermsContainer>
-                {/* <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)}
-                  disabled={isKycReadOnly && kycStatus !== "rejected"}
-                />
-                <span>
-                  I accept the{" "}
-                  <TermsLink onClick={() => navigate("/user/tandc")}>
-                    Terms and Conditions
-                  </TermsLink>
-                </span> */}
-              </TermsContainer>
-            )}
+       <TermsContainer style={{ marginTop: "10px" }}>
+  <input
+    type="checkbox"
+    checked={acceptedTerms}
+    onChange={(e) => setAcceptedTerms(e.target.checked)}
+    disabled={isKycReadOnly && kycStatus !== "rejected"}  
+  />
+
+  <span style={{ marginLeft: 8 }}>
+    I accept the{" "}
+    <TermsLink onClick={() => navigate("/user/tandc")}>
+      Terms and Conditions
+    </TermsLink>
+  </span>
+</TermsContainer>
+
 
 
             {/* CTAs */}

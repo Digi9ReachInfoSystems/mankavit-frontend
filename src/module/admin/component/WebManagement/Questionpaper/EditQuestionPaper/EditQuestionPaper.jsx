@@ -208,7 +208,7 @@ const EditQuestionPaper = () => {
     }
   };
 
-  if (loading) return <Container>Loading...</Container>;
+  if (loading) return <Container>Loading question paper...</Container>;
 
   return (
     <Container>

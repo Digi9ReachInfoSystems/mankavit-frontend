@@ -37,7 +37,7 @@ const AllCourses = () => {
     fetchCourses();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading courses...</div>;
   if (error) return <div>{error}</div>;
   const ITEMS_PER_PAGE = 5;
 

@@ -605,9 +605,9 @@ export const Grid = styled.div`
   gap: 8px;
 
   @media (max-width: 1360px) { grid-template-columns: repeat(5, 1fr); }
-  @media (max-width: 1024px) { grid-template-columns: repeat(4, 1fr); }
-  @media (max-width: 768px)  { grid-template-columns: repeat(6, 1fr); }
-  @media (max-width: 420px)  { grid-template-columns: repeat(6, 1fr); }
+  @media (max-width: 1024px) { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 768px)  { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 420px)  { grid-template-columns: repeat(5, 1fr); }
 `;
 
 export const GridButton = styled.button`
