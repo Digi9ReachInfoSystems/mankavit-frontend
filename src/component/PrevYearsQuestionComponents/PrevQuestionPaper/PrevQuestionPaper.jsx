@@ -3,7 +3,8 @@ import {
   Container, PaperSection, PaperCard, PaperTitle,
   YearButtons, YearButton, CustomAntdSelect, Title, Highlight, Underline
 } from './PrevQuestionPaper.styles';
-import study1 from "../../../assets/Study1.png";
+// import study1 from "../../../assets/Study1.png";
+import study1 from "../../../assets/Study4.jpg";
 import { getAllQuestionPapers } from '../../../api/questionPaperApi';
 import Whatsapp from "../../../assets/whatsapp.svg";
 import Telegram from "../../../assets/telegram.svg";

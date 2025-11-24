@@ -21,6 +21,7 @@ const VideoPlayerCustom = ({ src, onClick, onEnded, movingText }) => {
 
   const [playing, setPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+const [isBuffering, setIsBuffering] = useState(true);
 
 useEffect(() => {
   const player = playerRef.current;
@@ -319,14 +320,30 @@ useEffect(() => {
         src={src}
         playsInline
         webkit-playsinline="true"
-        preload="metadata"
+        preload="auto"
+        onLoadStart={() => setIsBuffering(true)}
+  onWaiting={() => setIsBuffering(true)}
+  onCanPlay={() => setIsBuffering(false)}
+  onCanPlayThrough={() => {
+    setIsBuffering(false);
+    if (!playing) {
+      videoRef.current.play();
+      setPlaying(true);
+    }
+  }}
         onClick={() => {
           togglePlay();
           onClick?.();
-        }}    
+        }}   
         // onDoubleClick={toggleFullscreen} 
         onEnded={onEnded}
       />
+      {isBuffering && (
+  <div className="loader-overlay">
+    <div className="spinner"></div>
+  </div>
+)}
+
 
       {/* ✅ Overlay only visible in fullscreen */}
       {isFullscreen && (

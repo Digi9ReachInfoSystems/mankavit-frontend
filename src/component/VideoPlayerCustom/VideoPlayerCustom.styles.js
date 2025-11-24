@@ -7,6 +7,35 @@ export const PlayerContainer = styled.div`
   background: #000;
   font-family: sans-serif;
   overflow: hidden;
+
+
+
+  .loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
 `;
 
 export const Video = styled.video`
