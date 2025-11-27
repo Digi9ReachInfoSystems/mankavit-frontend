@@ -617,9 +617,10 @@ export default function Meeting() {
                                         userData.user.displayName || "React",
                                       // userEmail: userData.user.email || "",
                                       // userEmail: "mankavit.clatcoaching11@gmail.com",
-                                      userEmail: userData.user.isSuperAdmin
-                                        ? item.host_email
-                                        : item.alternate_host_email || "",
+                                      // userEmail: userData.user.isSuperAdmin
+                                      //   ? item.host_email
+                                      //   : item.alternate_host_email || "",
+                                      userEmail: item?.host_email|| "mankavit.clatcoaching11@gmail.com",
                                       leaveUrl: `/admin/meeting-management`,
                                       superAdmin: userData.user.isSuperAdmin,
                                     },
