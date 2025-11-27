@@ -68,36 +68,77 @@ export default function AddCourse() {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const apiCaller = async () => {
-      try {
-        const responseSubjects = await getSubjects();
-        const subjectsData = responseSubjects.data.map((item) => ({
-          label: item.subjectName,
+ // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+const getDocCreatedAt = (doc) => {
+  if (!doc) return new Date(0);
+
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // ignore and fallback
+    }
+  }
+
+  const idCandidate =
+    typeof doc._id === "string"
+      ? doc._id
+      : doc._id && doc._id.$oid
+      ? doc._id.$oid
+      : null;
+
+  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+    const seconds = parseInt(idCandidate.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
+
+  return new Date(0);
+};
+
+useEffect(() => {
+  const apiCaller = async () => {
+    try {
+      const responseSubjects = await getSubjects();
+      const subjectsArray = Array.isArray(responseSubjects?.data)
+        ? responseSubjects.data
+        : Array.isArray(responseSubjects)
+        ? responseSubjects
+        : [];
+
+      // sort newest-first then map
+      const subjectsData = subjectsArray
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((item) => ({
+          label: item.subjectName || item.title || "",
           id: item._id,
           checked: false,
         }));
-        setSubjectCheckboxes(subjectsData);
+      setSubjectCheckboxes(subjectsData);
 
-        const responseCategories = await getCategories();
-        const categoryArray = Array.isArray(responseCategories?.data)
-          ? responseCategories.data
-          : Array.isArray(responseCategories)
-          ? responseCategories
-          : [];
+      const responseCategories = await getCategories();
+      const categoryArray = Array.isArray(responseCategories?.data)
+        ? responseCategories.data
+        : Array.isArray(responseCategories)
+        ? responseCategories
+        : [];
 
-        const dataCategories = categoryArray.map((item) => ({
-          label: item.title,
+      // sort newest-first then map
+      const dataCategories = categoryArray
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((item) => ({
+          label: item.title || item.categoryName || "",
           id: item._id,
           checked: false,
         }));
-        setCategoryCheckboxes(dataCategories);
-      } catch (error) {
-        /* noop */
-      }
-    };
-    apiCaller();
-  }, []);
+      setCategoryCheckboxes(dataCategories);
+    } catch (error) {
+      /* noop */
+      console.error("Failed to load subjects/categories", error);
+    }
+  };
+  apiCaller();
+}, []);
+
 
   const config = useMemo(
     () => ({

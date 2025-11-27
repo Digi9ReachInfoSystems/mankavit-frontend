@@ -31,3 +31,25 @@ export const approveFeedback  = async (id) => {
     throw error;
   }
 }
+
+// src/api/feedbackApi.js
+// src/api/feedbackApi.js
+// src/api/feedbackApi.js
+export const bulkFeedbackDeletion = async (ids) => {
+  try {
+    console.log("Deleting feedback IDs:", ids);
+    
+    const response = await api.delete('/feedback/bulk/delete', {
+      data: { feedbackIds: ids }, // ✅ Match backend field name
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting feedback:', error);
+    throw error;
+  }
+};

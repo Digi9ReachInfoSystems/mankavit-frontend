@@ -73,33 +73,78 @@ export default function AddLecturer() {
     [subjectCheckboxes, searchSubject]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [subjectsResponse, coursesResponse, foldersResponse] =
-          await Promise.all([
-            getSubjects(),
-            getAllCourses(),
-            getFolders(),
-          ]);
-        console.log("foldersResponse", foldersResponse);
+  // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+const getDocCreatedAt = (doc) => {
+  if (!doc) return new Date(0);
 
-        setSubjects(subjectsResponse.data || []);
-        setCourses(coursesResponse.data || []);
-        setFolders(
-          (foldersResponse || []).map((folder) =>
-            folder.endsWith("/") ? folder.slice(0, -1) : folder
-          )
-        );
-      } catch (error) {
-        toast.error("Failed to fetch data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // fallthrough to fallback
+    }
+  }
+
+  const idCandidate =
+    typeof doc._id === "string"
+      ? doc._id
+      : doc._id && doc._id.$oid
+      ? doc._id.$oid
+      : null;
+
+  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+    const seconds = parseInt(idCandidate.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
+
+  return new Date(0);
+};
+
+
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const [subjectsResponse, coursesResponse, foldersResponse] =
+        await Promise.all([getSubjects(), getAllCourses(), getFolders()]);
+
+      // normalize arrays safely
+      const subjectsRaw = Array.isArray(subjectsResponse?.data)
+        ? subjectsResponse.data
+        : Array.isArray(subjectsResponse)
+        ? subjectsResponse
+        : [];
+
+      const coursesRaw = Array.isArray(coursesResponse?.data)
+        ? coursesResponse.data
+        : Array.isArray(coursesResponse)
+        ? coursesResponse
+        : [];
+
+      // sort newest-first for subjects and courses
+      const sortedSubjects = subjectsRaw.sort(
+        (a, b) => getDocCreatedAt(b) - getDocCreatedAt(a)
+      );
+      const sortedCourses = coursesRaw.sort(
+        (a, b) => getDocCreatedAt(b) - getDocCreatedAt(a)
+      );
+
+      setSubjects(sortedSubjects || []);
+      setCourses(sortedCourses || []);
+      setFolders(
+        (foldersResponse || []).map((folder) =>
+          folder.endsWith("/") ? folder.slice(0, -1) : folder
+        )
+      );
+    } catch (error) {
+      toast.error("Failed to fetch data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  fetchData();
+}, []);
+
 
   useEffect(() => {
     const fetchData = async () => {

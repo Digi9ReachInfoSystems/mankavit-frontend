@@ -9,7 +9,7 @@ export const Complier = styled.div`
 export const Container = styled.div`
   --sbw: 320px;                /* sidebar width (desktop) */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
@@ -201,13 +201,24 @@ export const Content = styled.main`
 // ... (rest of existing styles)
 
 export const Header = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 400;                 /* sit above content and the toggle button */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  gap: 12px;
+  padding: 12px 16px;           /* keep  padding so it doesn't overlap content */
+  background: linear-gradient(180deg, #ffffff, #fbfdff); /* prevents transparency when sticky */
+  border-bottom: 1px solid #e6edf6;
+  box-shadow: 0 2px 8px rgba(16,24,40,0.04);
 
-  @media (max-width: 768px) { margin-bottom: 8px; }
+  /* keep same spacing on small screens */
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+  }
 `;
+
 
 export const HeaderLeft = styled.div`
   display: flex;
@@ -389,12 +400,11 @@ export const OptionsList = styled.div`
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  // align-items: flex-start;
-  gap: 10px;
-  flex-wrap: wrap;
-  max-width: 100%;
-  line-height: 1.4;
-
+  
+  // align-items: baseline;     /* keep radio vertically centered with text */
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
   color: ${({ status }) => {
     switch (status) {
       case "correct-attempted": return "#34c759";
@@ -404,9 +414,31 @@ export const OptionLabel = styled.label`
     }
   }};
 
-  @media (max-bffp
-  lkgbfdsp;width: 1360px) { font-size: 16px; }
-  @media (max-width: 768px) { font-size: 14px; }
+  /* ensure the label doesn't force the radio to wrap to next line */
+  flex-wrap: nowrap;
+
+  /* allow the text portion to take remaining space and wrap if long */
+  .option-text {
+    flex: 1 1 auto;         /* grow/shrink as needed */
+    min-width: 0;           /* important to allow text wrapping inside flex item */
+    white-space: normal;    /* allow wrapping of long text */
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* small adjustment for the native radio alignment (some browsers add vertical offset) */
+  input[type="radio"] {
+    margin: 0; 
+    margin-top:2px;
+             /* remove default vertical margin */
+    flex: 0 0 auto;         /* keep radio at natural width */
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 1360px) { font-size: 16px; }
+  @media (max-width: 768px) { font-size: 14px; gap: 8px; }
 `;
 
 /* Sticky action bar — sticky also on mobile */

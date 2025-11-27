@@ -83,42 +83,92 @@ export default function EditLecturer() {
     apiCaller();
   }, []);
 
-  useEffect(() => {
-    const fetchLecture = async () => {
-      try {
-        const response = await getLectureById(id);
-        const lecture = response.data;
-        setCurrentVideo(lecture.videoUrl);
-        setVideoPreviewUrl(lecture.videoUrl);
-        setFormData({
-          lectureName: lecture.lectureName || "",
-          duration: lecture.duration || "",
-          description: lecture.description || "",
-          folder: lecture.folder || "",
-        });
+ // --- add this helper near the top of the file (once) ---
+const getDocCreatedAt = (doc) => {
+  if (!doc) return new Date(0);
 
-        const responseSubjects = await getSubjects();
-        const subjectsData = responseSubjects.data.map((item) => ({
-          label: item.subjectName,
-          id: item._id,
-          checked: lecture.subjectRef.includes(item._id),
-        }));
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // fallthrough
+    }
+  }
 
-        setSubjectCheckboxes(subjectsData);
+  const idCandidate =
+    typeof doc._id === "string"
+      ? doc._id
+      : doc._id && doc._id.$oid
+      ? doc._id.$oid
+      : null;
 
-        // maintain selected order from lecture.subjectRef
-        const orderedSelectedSubjects = lecture.subjectRef
-          .map(subjectId => subjectsData.find(s => s.id === subjectId) || null)
-          .filter(Boolean);
+  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+    const seconds = parseInt(idCandidate.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
 
-        setSelectedSubjects(orderedSelectedSubjects);
-      } catch (error) {
-        toast.error("Failed to fetch lecture");
-      }
-    };
+  return new Date(0);
+};
 
-    if (id) fetchLecture();
-  }, [id]);
+// --- replace your existing useEffect(...) that fetches lecture & subjects with this ---
+useEffect(() => {
+  const fetchLecture = async () => {
+    try {
+      const response = await getLectureById(id);
+      const lecture = response.data;
+
+      setCurrentVideo(lecture.videoUrl);
+      setVideoPreviewUrl(lecture.videoUrl);
+      setFormData({
+        lectureName: lecture.lectureName || "",
+        duration: lecture.duration || "",
+        description: lecture.description || "",
+        folder: lecture.folder || "",
+      });
+
+      // fetch subjects and sort newest-first (prefer createdAt, fallback to ObjectId timestamp)
+      const responseSubjects = await getSubjects();
+      const rawSubjects = Array.isArray(responseSubjects?.data)
+        ? responseSubjects.data
+        : Array.isArray(responseSubjects)
+        ? responseSubjects
+        : [];
+
+      const sortedSubjects = rawSubjects
+        .slice() // copy to avoid mutating original
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a));
+
+      const subjectsData = sortedSubjects.map((item) => ({
+        label: item.subjectName,
+        id: item._id,
+        // check membership robustly (handles both string ids and object refs)
+        checked:
+          Array.isArray(lecture.subjectRef) &&
+          lecture.subjectRef.some((ref) =>
+            typeof ref === "object" ? ref === item._id || ref._id === item._id : ref === item._id
+          ),
+      }));
+
+      setSubjectCheckboxes(subjectsData);
+
+      // maintain selected order from lecture.subjectRef (use subjectsData, which is sorted for "Available" list)
+      const orderedSelectedSubjects = Array.isArray(lecture.subjectRef)
+        ? lecture.subjectRef
+            .map((subjectId) =>
+              subjectsData.find((s) => s.id === (typeof subjectId === "object" ? subjectId._id : subjectId)) || null
+            )
+            .filter(Boolean)
+        : [];
+
+      setSelectedSubjects(orderedSelectedSubjects);
+    } catch (error) {
+      toast.error("Failed to fetch lecture");
+    }
+  };
+
+  if (id) fetchLecture();
+}, [id]);
+
 
   const handleVideoUploadClick = () => videoInputRef.current.click();
 

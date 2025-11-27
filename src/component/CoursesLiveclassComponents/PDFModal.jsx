@@ -180,19 +180,21 @@ const Badge = styled.span`
 
 const ViewerWrap = styled.div`
   position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   overflow: auto;
   background: #fafafa;
-  padding: 16px; /* keeps the page from hugging edges */
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  padding: 16px;            /* keeps the page from hugging edges */
+
+  /* ❌ remove: display: flex; align-items: flex-start; justify-content: center; */
 `;
 
 const PageWrap = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;    /* let it be as wide as it needs */
+  min-width: fit-content;   /* allow content to be wider than the container */
 `;
+
 
 const ImagePreview = styled.img`
   max-width: 100%;

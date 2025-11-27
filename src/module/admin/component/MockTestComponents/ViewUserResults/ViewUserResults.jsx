@@ -204,12 +204,12 @@ const ViewUserResults = () => {
   if (loading) return <div>Loading results...</div>;
   if (!attemptData) return <div>Attempt not found</div>;
 
-  const mcqAnswers = attemptData.answers.filter((a) => {
-    const question = attemptData.mockTestId.questions.find(
-      (q) => q._id === a.questionId
-    );
-    return question?.type === "mcq";
-  });
+const mcqAnswers = attemptData.answers.filter((a) => {
+  const question = attemptData.mockTestId.questions.find(
+    (q) => q._id === a.questionId
+  );
+  return question?.type === "mcq" && a.status === "answered";
+});
 
   const subjectiveAnswers = attemptData.answers.filter((a) => {
     const question = attemptData.mockTestId.questions.find(
@@ -252,11 +252,10 @@ const ViewUserResults = () => {
           <strong>Total Questions:</strong>{" "}
           {attemptData?.mockTestId?.questions?.length || 0}
         </p>
-        <p>
-          <strong>Attempted Questions:</strong>{" "}
-          {attemptData?.answers?.filter((a) => a.status !== "not-answered")
-            .length || 0}
-        </p>
+     <p>
+  <strong>Attempted Questions:</strong>{" "}
+  {attemptData?.answers?.filter((a) => a.status === "answered").length || 0}
+</p>
         <p>
           <strong>Correct Answers:</strong>{" "}
           {attemptData?.answers?.filter((a) => a.isCorrect).length || 0}
@@ -271,10 +270,13 @@ const ViewUserResults = () => {
       </UserInfo>
 
       <SubTitle>MCQ Questions</SubTitle>
-      {mcqAnswers.map((a, index) => {
-        const question = attemptData.mockTestId.questions.find(
-          (q) => q._id === a.questionId
-        );
+     {mcqAnswers.map((a, index) => {
+  const question = attemptData.mockTestId.questions.find(
+    (q) => q._id === a.questionId
+  );
+  
+  // Skip rendering if question wasn't attempted
+  if (a.status !== "answered") return null;
         const options = question?.options || [];
         const selected = a.answerIndex;
         const correct = question?.correctAnswer;

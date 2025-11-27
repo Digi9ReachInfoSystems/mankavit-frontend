@@ -19,18 +19,19 @@ import {
   HeaderRow,
   SortByContainer,
   SortLabel,
+  AddButton, // You might need to add this to your styles
 } from "./UserFeedback.styles";
 import Pagination from "../../../component/Pagination/Pagination";
 import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { getUserFeedback, approveFeedback } from "../../../../../api/feedbackApi";
+import { getUserFeedback, approveFeedback, bulkFeedbackDeletion } from "../../../../../api/feedbackApi";
 import { getCookiesData } from "../../../../../utils/cookiesService";
 import { getAllCourses } from "../../../../../api/courseApi";
 import { Select } from 'antd';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAuth } from "../../../../../utils/authService";
+import DeleteModal from "../../../component/DeleteModal/DeleteModal"; // Import DeleteModal
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,6 +46,13 @@ const UserFeedback = () => {
   const [courses, setCourses] = useState([]);
   const [sortOption, setSortOption] = useState(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
+
+  // Bulk delete states (same as Achievements component)
+  const [selectedFeedbacks, setSelectedFeedbacks] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
+
   useEffect(() => {
     const apiCaller = async () => {
       const response = await getAuth();
@@ -57,7 +65,6 @@ const UserFeedback = () => {
     }
     apiCaller();
   }, []);
-
 
   useEffect(() => {
     const fetchUserFeedback = async () => {
@@ -84,17 +91,15 @@ const UserFeedback = () => {
     const fetchCourses = async () => {
       try {
         const response = await getAllCourses();
-        setCourses(response.data); // ⬅️ Correctly set the array of courses 
+        setCourses(response.data);
       } catch (err) {
         console.error("Error fetching courses:", err);
         toast.error("Failed to load courses. Please try again.");
       }
     };
 
-
     fetchCourses();
   }, []);
-
 
   const handleViewFeedback = (feedback) => {
     setSelectedFeedback(feedback);
@@ -132,6 +137,97 @@ const UserFeedback = () => {
     }
   };
 
+  // Bulk selection logic (same as Achievements)
+  const handleCheckboxChange = (feedbackId) => {
+    setSelectedFeedbacks((prev) =>
+      prev.includes(feedbackId)
+        ? prev.filter((id) => id !== feedbackId)
+        : [...prev, feedbackId]
+    );
+  };
+
+ const handleSelectAllChange = () => {
+  // compute the current page's items robustly
+  const filtered = sortOption
+    ? feedback.filter(item => item.courseRef?._id === sortOption)
+    : feedback;
+
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
+  const pageIds = pageData.map(a => a._id);
+
+  if (selectAll) {
+    // unselect all from this page
+    setSelectedFeedbacks(prev => prev.filter(id => !pageIds.includes(id)));
+  } else {
+    // select all on this page, merging with existing (avoid duplicates)
+    setSelectedFeedbacks(prev => Array.from(new Set([...prev, ...pageIds])));
+  }
+  setSelectAll(!selectAll);
+};
+
+
+  // If page changes, reset the selectAll checkbox state based on page selection
+  useEffect(() => {
+    const pageIds = currentPageData.map((a) => a._id);
+    const allSelected = pageIds.length > 0 && pageIds.every((id) => selectedFeedbacks.includes(id));
+    setSelectAll(allSelected);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, feedback, selectedFeedbacks.length]);
+
+  const openBulkDeleteModal = () => setBulkDeleteOpen(true);
+
+const handleBulkDelete = async () => {
+  try {
+    setBulkLoading(true);
+
+    // Validate selection
+    if (selectedFeedbacks.length === 0) {
+      toast.error("No feedbacks selected for deletion");
+      setBulkLoading(false);
+      return;
+    }
+
+    console.log("Attempting to delete:", selectedFeedbacks);
+
+    const result = await bulkFeedbackDeletion(selectedFeedbacks);
+
+    // Update UI only after successful deletion
+    setFeedback((prev) => prev.filter((a) => !selectedFeedbacks.includes(a._id)));
+
+    toast.success(
+      result?.message || `Successfully deleted ${selectedFeedbacks.length} feedback(s)`,
+      { autoClose: 3000 }
+    );
+
+    // Reset selection
+    setSelectedFeedbacks([]);
+    setSelectAll(false);
+    setBulkDeleteOpen(false);
+  } catch (error) {
+    console.error("Bulk delete failed:", error, error?.response?.data);
+
+    // Detailed error messages based on response
+    if (error.response?.status === 404) {
+      toast.error("Bulk delete endpoint not found. Please contact administrator.");
+    } else if (error.response?.status === 500) {
+      const serverError = error.response.data?.error ?? JSON.stringify(error.response.data);
+      if (serverError?.includes('ObjectId')) {
+        toast.error("Invalid feedback ID format. Please refresh the page and try again.");
+      } else {
+        toast.error("Server error. Please try again or contact support.");
+      }
+    } else if (error.response?.status === 400) {
+      toast.error(error.response.data?.message || "Invalid request format");
+    } else {
+      toast.error("Failed to delete selected feedbacks. Please try again.");
+    }
+  } finally {
+    setBulkLoading(false);
+  }
+};
+
+
   if (loading) return <div>Loading feedback…</div>;
   if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
 
@@ -145,10 +241,10 @@ const UserFeedback = () => {
   const currentPageData = filteredFeedback.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-<Container>
+    <Container>
       <HeaderRow>
         <Title>
-          My Feedback{" "}
+          User Feedback{" "}
           <span style={{ color: "#6d6e75", fontSize: "12px", fontWeight: 400 }}>
             ({currentPageData.length}/{totalItems})
           </span>
@@ -176,10 +272,35 @@ const UserFeedback = () => {
         </SortByContainer>
       </HeaderRow>
 
+      {/* Bulk Delete button appears when there is at least one selection */}
+      {!readOnlyPermissions && selectedFeedbacks.length > 0 && (
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "flex-end",
+          marginBottom: 12 
+        }}>
+          <AddButton
+            onClick={openBulkDeleteModal}
+            style={{ backgroundColor: "red" }}
+          >
+            Delete Selected ({selectedFeedbacks.length})
+          </AddButton>
+        </div>
+      )}
+
       <TableWrapper>
         <Table>
           <TableHead>
             <tr>
+              {!readOnlyPermissions && (
+                <Th style={{ width: 40 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAllChange}
+                  />
+                </Th>
+              )}
               <Th>Course Name</Th>
               <Th>User</Th>
               <Th>Rating</Th>
@@ -192,6 +313,15 @@ const UserFeedback = () => {
             {currentPageData.length > 0 ? (
               currentPageData.map(item => (
                 <tr key={item._id}>
+                  {!readOnlyPermissions && (
+                    <Td>
+                      <input
+                        type="checkbox"
+                        checked={selectedFeedbacks.includes(item._id)}
+                        onChange={() => handleCheckboxChange(item._id)}
+                      />
+                    </Td>
+                  )}
                   <Td>{item.courseRef?.courseName ?? "–"}</Td>
                   <Td>
                     {item.userRef?.name ?? item.userRef?.email ?? "–"}
@@ -215,7 +345,7 @@ const UserFeedback = () => {
               ))
             ) : (
               <tr>
-                <Td colSpan={6} style={{ textAlign: "center" }}>
+                <Td colSpan={readOnlyPermissions ? 6 : 7} style={{ textAlign: "center" }}>
                   No feedback found for your account.
                 </Td>
               </tr>
@@ -261,6 +391,15 @@ const UserFeedback = () => {
           </ModalContent>
         </ModalOverlay>
       )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      <DeleteModal
+        isOpen={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        onDelete={handleBulkDelete}
+        loading={bulkLoading}
+      />
+
       <ToastContainer
         position="top-right"
         autoClose={5000}
