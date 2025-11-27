@@ -94,115 +94,134 @@ export default function EditSubject() {
   }, []);
 
   // fetch existing subject and checkbox data
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [subRes, notesRes, lectRes, mockRes, courseRes] =
-          await Promise.all([
-            getSubjectById(id),
-            getAllNotes(),
-            getAllLectures(),
-            getAllMocktest(),
-            getAllCourses(),
-          ]);
-        const subject = subRes.data;
+ // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+const getDocCreatedAt = (doc) => {
+  if (!doc) return new Date(0);
 
-        // set form fields
-        setSubjectTitle(subject.subjectDisplayName || "");
-        setInternalTitle(subject.subjectName || "");
-        setVimeoId(subject.vimeoShowcaseID || "");
-        setShortDescription(subject.description || ""); // This sets the short description
-        if (subject.image) setPreviewUrl(subject.image);
-
-        // sort & build notes
-        const sortedNotes = notesRes.data
-          .sort((a, b) =>
-            (a.noteDisplayName || a.title).localeCompare(
-              b.noteDisplayName || b.title
-            )
-          )
-          .map((n) => ({ id: n._id, label: n.noteDisplayName || n.title }));
-        setNotesCheckboxes(sortedNotes);
-
-        // sort & build lectures
-        const sortedLectures = lectRes.data
-          .sort((a, b) =>
-            (a.lectureName || a.title).localeCompare(b.lectureName || b.title)
-          )
-          .map((l) => ({ id: l._id, label: l.lectureName || l.title }));
-        setLecturesCheckboxes(sortedLectures);
-
-        // sort & build mock tests
-        const sortedMocks = mockRes.data
-          .sort((a, b) =>
-            (a.title || a.mockTestName).localeCompare(b.title || b.mockTestName)
-          )
-          .map((m) => ({ id: m._id, label: m.title || m.mockTestName }));
-        setMockTestCheckboxes(sortedMocks);
-
-        // sort & build courses
-        const sortedCourses = courseRes.data
-          .sort((a, b) =>
-            (a.courseName || a.title).localeCompare(b.courseName || b.title)
-          )
-          .map((c) => ({ id: c._id, label: c.courseName || c.title }));
-        setCoursesCheckboxes(sortedCourses);
-
-        // Set selected items
-        setSelectedNotes(
-          subject.notes.map((n) => ({
-            id: n._id || n,
-            label:
-              n.noteDisplayName ||
-              n.title ||
-              notesRes.data.find((note) => note._id === (n._id || n))
-                ?.noteDisplayName ||
-              "",
-          }))
-        );
-
-        setSelectedLectures(
-          subject.lectures.map((l) => ({
-            id: l._id || l,
-            label:
-              l.lectureName ||
-              l.title ||
-              lectRes.data.find((lec) => lec._id === (l._id || l))
-                ?.lectureName ||
-              "",
-          }))
-        );
-
-        setSelectedMockTests(
-          subject.mockTests.map((m) => ({
-            id: m._id || m,
-            label:
-              m.title ||
-              m.mockTestName ||
-              mockRes.data.find((mock) => mock._id === (m._id || m))?.title ||
-              "",
-          }))
-        );
-
-        setSelectedCourses(
-          subject.courses.map((c) => ({
-            id: c._id || c,
-            label:
-              c.courseName ||
-              c.title ||
-              courseRes.data.find((course) => course._id === (c._id || c))
-                ?.courseName ||
-              "",
-          }))
-        );
-      } catch (err) {
-        console.error(err);
-        toast.error("Unable to fetch subject details");
-        navigate("/admin/subject-management");
-      }
+  // prefer explicit createdAt if present
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // ignore and fallback
     }
-    fetchData();
-  }, [id, navigate]);
+  }
+
+  // fallback: parse ObjectId timestamp (handles either string _id or { $oid })
+  const idCandidate =
+    typeof doc._id === "string"
+      ? doc._id
+      : doc._id && doc._id.$oid
+      ? doc._id.$oid
+      : null;
+
+  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+    const seconds = parseInt(idCandidate.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
+
+  // final fallback: epoch 0 (so items without dates go to end)
+  return new Date(0);
+};
+
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const [subRes, notesRes, lectRes, mockRes, courseRes] =
+        await Promise.all([
+          getSubjectById(id),
+          getAllNotes(),
+          getAllLectures(),
+          getAllMocktest(),
+          getAllCourses(),
+        ]);
+      const subject = subRes.data;
+
+      // set form fields
+      setSubjectTitle(subject.subjectDisplayName || "");
+      setInternalTitle(subject.subjectName || "");
+      setVimeoId(subject.vimeoShowcaseID || "");
+      setShortDescription(subject.description || "");
+      if (subject.image) setPreviewUrl(subject.image);
+
+      // sort newest-first using createdAt or ObjectId timestamp, then map
+      const sortedNotes = (notesRes.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((n) => ({ id: n._id, label: n.noteDisplayName || n.title || "" }));
+      setNotesCheckboxes(sortedNotes);
+
+      const sortedLectures = (lectRes.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((l) => ({ id: l._id, label: l.lectureName || l.title || "" }));
+      setLecturesCheckboxes(sortedLectures);
+
+      const sortedMocks = (mockRes.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((m) => ({ id: m._id, label: m.title || m.mockTestName || "" }));
+      setMockTestCheckboxes(sortedMocks);
+
+      const sortedCourses = (courseRes.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((c) => ({ id: c._id, label: c.courseName || c.title || "" }));
+      setCoursesCheckboxes(sortedCourses);
+
+      // preserve selected items (unchanged logic)
+      setSelectedNotes(
+        (subject.notes || []).map((n) => ({
+          id: n._id || n,
+          label:
+            n.noteDisplayName ||
+            n.title ||
+            (notesRes.data || []).find((note) => note._id === (n._id || n))
+              ?.noteDisplayName ||
+            "",
+        }))
+      );
+
+      setSelectedLectures(
+        (subject.lectures || []).map((l) => ({
+          id: l._id || l,
+          label:
+            l.lectureName ||
+            l.title ||
+            (lectRes.data || []).find((lec) => lec._id === (l._id || l))
+              ?.lectureName ||
+            "",
+        }))
+      );
+
+      setSelectedMockTests(
+        (subject.mockTests || []).map((m) => ({
+          id: m._id || m,
+          label:
+            m.title ||
+            m.mockTestName ||
+            (mockRes.data || []).find((mock) => mock._id === (m._id || m))
+              ?.title ||
+            "",
+        }))
+      );
+
+      setSelectedCourses(
+        (subject.courses || []).map((c) => ({
+          id: c._id || c,
+          label:
+            c.courseName ||
+            c.title ||
+            (courseRes.data || []).find((course) => course._id === (c._id || c))
+              ?.courseName ||
+            "",
+        }))
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to fetch subject details");
+      navigate("/admin/subject-management");
+    }
+  }
+  fetchData();
+}, [id, navigate]);
+
 
   // cleanup preview URL
   useEffect(

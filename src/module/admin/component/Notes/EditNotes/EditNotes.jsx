@@ -84,42 +84,80 @@ export default function EditNotes() {
     apiCaller();
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [subjectsResponse, noteResponse] = await Promise.all([
-          getSubjects(),
-          getNotesById(id),
-        ]);
+// helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+const getDocCreatedAt = (doc) => {
+  if (!doc) return new Date(0);
 
-        const noteData = noteResponse.data;
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // fallthrough
+    }
+  }
 
-        setNoteTitle(noteData.noteDisplayName);
-        setInternalTitle(noteData.noteName);
-        setIsDownloadable(noteData.isDownload);
-        setExistingFileUrl(noteData.fileUrl);
+  const idCandidate =
+    typeof doc._id === "string"
+      ? doc._id
+      : doc._id && doc._id.$oid
+      ? doc._id.$oid
+      : null;
 
-        const subjectsData = subjectsResponse.data.map((subject) => ({
+  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+    const seconds = parseInt(idCandidate.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
+
+  return new Date(0);
+};
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const [subjectsResponse, noteResponse] = await Promise.all([
+        getSubjects(),
+        getNotesById(id),
+      ]);
+
+      const noteData = noteResponse.data;
+
+      setNoteTitle(noteData.noteDisplayName);
+      setInternalTitle(noteData.noteName);
+      setIsDownloadable(noteData.isDownload);
+      setExistingFileUrl(noteData.fileUrl);
+
+      // Normalize raw subjects array safely
+      const rawSubjects = Array.isArray(subjectsResponse?.data)
+        ? subjectsResponse.data
+        : Array.isArray(subjectsResponse)
+        ? subjectsResponse
+        : [];
+
+      // sort newest-first using createdAt or ObjectId timestamp, then map
+      const subjectsData = rawSubjects
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((subject) => ({
           label: subject.subjectName,
           id: subject._id,
           checked: noteData.subjects.some(
             (noteSubjectId) =>
-              noteSubjectId === subject._id || noteSubjectId._id === subject._id
+              noteSubjectId === subject._id ||
+              (noteSubjectId && noteSubjectId._id === subject._id)
           ),
         }));
 
-        setSubjectsCheckboxes(subjectsData);
-        const initialSelected = subjectsData.filter((s) => s.checked);
-        setSelectedSubjects(initialSelected);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to load note data");
-        navigate("/admin/notes-management");
-      }
-    };
+      setSubjectsCheckboxes(subjectsData);
+      const initialSelected = subjectsData.filter((s) => s.checked);
+      setSelectedSubjects(initialSelected);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load note data");
+      navigate("/admin/notes-management");
+    }
+  };
 
-    fetchData();
-  }, [id, navigate]);
+  fetchData();
+}, [id, navigate]);
 
   const handleRemovePdf = (e) => {
     e.stopPropagation();

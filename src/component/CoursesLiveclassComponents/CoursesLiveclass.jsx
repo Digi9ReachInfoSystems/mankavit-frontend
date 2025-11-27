@@ -705,6 +705,7 @@ const CoursesLiveclass = () => {
   // Render MockTest tab but ONLY for the selected subject
   const renderMockTestsTab = () => {
     const onlySubject = mockData.filter((s) => s._id === subjectid);
+    if (loading) return <ContentText>Loading mock tests...</ContentText>;
     if (!onlySubject.length) {
       return <ContentText>No mock tests available for this subject.</ContentText>;
     }
@@ -957,6 +958,13 @@ const CoursesLiveclass = () => {
     if (activeTab === "Notes") {
       const subject = (course.subjects || []).find((s) => s._id === subjectid);
       const subjectNotes = Array.isArray(subject?.notes) ? subject.notes : [];
+      // if (!subjectNotes.length)
+      //   return (
+      //     <ContentText>No notes available for this subject.</ContentText>
+      //   );
+
+        ///if thgere is no mocktest for the subm=ject then there ill be the message called no mocktest AND IF IT IS LAODING THEN SHOW LOADING
+      if (loading) return <ContentText>Loading notes...</ContentText>;
       if (!subjectNotes.length)
         return (
           <ContentText>No notes available for this subject.</ContentText>
@@ -1192,6 +1200,7 @@ const CoursesLiveclass = () => {
 
   return (
     <MainContainer>
+
       {/* <VideoContainer>
         <StyledVideo ref={videoContainerRef}>
           {lecture && (

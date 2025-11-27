@@ -38,8 +38,7 @@ import {
   RightStickyButton,
   PassageContainer,
   RankBadge,
-
-  CloseSidebarBtn
+  CloseSidebarBtn,
 } from "./ResultScreen.styles";
 import {
   getMocktestById,
@@ -50,8 +49,12 @@ import { getCookiesData } from "../../../../utils/cookiesService";
 import { RxDoubleArrowRight, RxDoubleArrowLeft } from "react-icons/rx";
 
 // Local helpers for this file only
-const PassageSection = ({ children }) => <div style={{ flex: 1 }}>{children}</div>;
-const QuestionSection = ({ children }) => <div style={{ flex: 1 }}>{children}</div>;
+const PassageSection = ({ children }) => (
+  <div style={{ flex: 1 }}>{children}</div>
+);
+const QuestionSection = ({ children }) => (
+  <div style={{ flex: 1 }}>{children}</div>
+);
 
 export default function ResultScreen() {
   const { testId, subjectId, attemptId } = useParams();
@@ -98,13 +101,16 @@ export default function ResultScreen() {
           if (type === "mcq") {
             if (ans.answerIndex != null) {
               // status = ans.isCorrect ? "correct" : "incorrect";
-              status = ans.answerIndex == ans.questionDetails.correctAnswer ? "correct" : "incorrect";
+              status =
+                ans.answerIndex == ans.questionDetails.correctAnswer
+                  ? "correct"
+                  : "incorrect";
             }
           } else {
-            const hasText = typeof ans.answer === "string" && ans.answer.trim() !== "";
+            const hasText =
+              typeof ans.answer === "string" && ans.answer.trim() !== "";
             if (hasText) {
               if (typeof ans.isCorrect === "boolean") {
-
                 status = ans.isCorrect ? "correct" : "incorrect";
               } else if (typeof ans.marksAwarded === "number") {
                 status = ans.marksAwarded > 0 ? "correct" : "incorrect";
@@ -136,12 +142,15 @@ export default function ResultScreen() {
 
         // Build summary (compact for mobile via styles)
         const totalQuestions = testData?.questions?.length || processed.length;
-        const attempted = processed.filter((q) => q.status !== "not-answered").length;
+        const attempted = processed.filter(
+          (q) => q.status !== "not-answered"
+        ).length;
         const correct = processed.filter((q) => q.status === "correct").length;
 
         const mcqScore = latestAttempt.mcqScore || 0;
         const subjectiveScore = latestAttempt.subjectiveScore || 0;
-        const totalMarks = latestAttempt.totalMarks ?? mcqScore + subjectiveScore;
+        const totalMarks =
+          latestAttempt.totalMarks ?? mcqScore + subjectiveScore;
 
         const hasMCQ = processed.some((q) => q.type === "mcq");
         const hasSubjective = processed.some((q) => q.type !== "mcq");
@@ -208,7 +217,9 @@ export default function ResultScreen() {
     if (!html) return null;
     return (
       <div style={{ marginTop: 16 }}>
-        <p><strong>Explanation:</strong></p>
+        <p>
+          <strong>Explanation:</strong>
+        </p>
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     );
@@ -258,9 +269,9 @@ export default function ResultScreen() {
             <PageTitle title={test?.title || "Mock Test"}>
               {test?.title || "Mock Test"}
             </PageTitle>
-             {ranking?.rank && <RankBadge>Rank #{ranking.rank}</RankBadge>}
+            {ranking?.rank && <RankBadge>Rank #{ranking.rank}</RankBadge>}
           </LeftDiv>
-         
+
           <QuestionType>
             {isPassage ? "Passage" : isMCQ ? "MCQ" : "Subjective"}
           </QuestionType>
@@ -284,15 +295,17 @@ export default function ResultScreen() {
           {current.isPassage ? (
             <PassageContainer>
               <PassageSection>
-                <PassageBox>
-                  {renderPassage(current.passageText)}
-                </PassageBox>
+                <PassageBox>{renderPassage(current.passageText)}</PassageBox>
               </PassageSection>
 
               <QuestionSection>
                 <QuestionBox>
                   <div
-                    style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "bold",
+                      marginBottom: 10,
+                    }}
                     dangerouslySetInnerHTML={{ __html: current.text }}
                   />
                   {isMCQ ? (
@@ -301,16 +314,26 @@ export default function ResultScreen() {
                         const isSel = idx === current.selectedOption;
                         const isCor = idx === current.correctAnswer;
                         let cls = "plain";
-                        if (isSel && current.status === "correct") cls = "correct-attempted";
-                        if (isSel && current.status === "incorrect") cls = "incorrect-attempted";
+                        if (isSel && current.status === "correct")
+                          cls = "correct-attempted";
+                        if (isSel && current.status === "incorrect")
+                          cls = "incorrect-attempted";
                         if (!isSel && isCor) cls = "correct-unattempted";
 
                         return (
                           <OptionLabel key={idx} status={cls}>
                             <input type="radio" checked={isSel} readOnly />
-                            {opt.text || opt}
+                            <span className="option-text">
+                              {opt.text || opt}
+                            </span>
                             {isCor && (
-                              <span style={{ marginLeft: 10, color: "green" }}>
+                              <span
+                                style={{
+                                  marginLeft: 10,
+                                  color: "green",
+                                  flex: "0 0 auto",
+                                }}
+                              >
                                 (Correct)
                               </span>
                             )}
@@ -320,7 +343,9 @@ export default function ResultScreen() {
                     </OptionsList>
                   ) : (
                     <div>
-                      <p><strong>Your Answer:</strong></p>
+                      <p>
+                        <strong>Your Answer:</strong>
+                      </p>
                       <p>{current.answer || <em>Not Answered</em>}</p>
                     </div>
                   )}
@@ -339,8 +364,10 @@ export default function ResultScreen() {
                       const isSel = idx === current.selectedOption;
                       const isCor = idx === current.correctAnswer;
                       let cls = "plain";
-                      if (isSel && current.status === "correct") cls = "correct-attempted";
-                      if (isSel && current.status === "incorrect") cls = "incorrect-attempted";
+                      if (isSel && current.status === "correct")
+                        cls = "correct-attempted";
+                      if (isSel && current.status === "incorrect")
+                        cls = "incorrect-attempted";
                       if (!isSel && isCor) cls = "correct-unattempted";
 
                       return (
@@ -358,8 +385,10 @@ export default function ResultScreen() {
                   </OptionsList>
                 ) : (
                   <div>
-                    <p><strong>Your Answer:</strong></p>
-                    <p>{current.answer || <em>Not Answered</em>}</p>
+                    <p>
+                      <strong>Your Answer:</strong>
+                    </p>
+                    <p>{current.answer || <em>Loading answers ...</em>}</p>
                   </div>
                 )}
                 <ExpectedAnswer html={current.expectedAnswer} />
@@ -370,8 +399,12 @@ export default function ResultScreen() {
 
         <StickyActionBar>
           <LeftButtonsWrap>
-            <button className="prev" onClick={goPrev}>Previous</button>
-            <button className="next" onClick={goNext}>Next</button>
+            <button className="prev" onClick={goPrev}>
+              Previous
+            </button>
+            <button className="next" onClick={goNext}>
+              Next
+            </button>
           </LeftButtonsWrap>
 
           <RightStickyButton onClick={() => navigate("/user")}>
@@ -382,15 +415,15 @@ export default function ResultScreen() {
 
       {/* Slide-in Sidebar (Question Map) */}
       <SidebarContainer $open={sidebarOpen}>
-           {sidebarOpen && ( // Add this condition
-        <CloseSidebarBtn
-          aria-label="Close navigator"
-          title="Close navigator"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <RxDoubleArrowRight /> {/* Show close arrow */}
-        </CloseSidebarBtn>
-      )}
+        {sidebarOpen && ( // Add this condition
+          <CloseSidebarBtn
+            aria-label="Close navigator"
+            title="Close navigator"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <RxDoubleArrowRight /> {/* Show close arrow */}
+          </CloseSidebarBtn>
+        )}
         <Divider />
         <Legend>
           <OptionLabelList>
@@ -399,12 +432,16 @@ export default function ResultScreen() {
           </OptionLabelList>
 
           <OptionLabelList>
-            <LegendItem className="incorrect">{getCount("incorrect")}</LegendItem>
+            <LegendItem className="incorrect">
+              {getCount("incorrect")}
+            </LegendItem>
             <LegendText>Incorrect</LegendText>
           </OptionLabelList>
 
           <OptionLabelList>
-            <LegendItem className="not-answered">{getCount("not-answered")}</LegendItem>
+            <LegendItem className="not-answered">
+              {getCount("not-answered")}
+            </LegendItem>
             <LegendText>Not Answered</LegendText>
           </OptionLabelList>
         </Legend>

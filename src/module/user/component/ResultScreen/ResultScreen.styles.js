@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const Container = styled.div`
   --sbw: 320px; /* sidebar width (desktop) */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
@@ -407,12 +407,11 @@ export const QuestionBox = styled.div`
 export const OptionLabel = styled.label`
   font-size: 18px;
   display: flex;
-  // align-items: flex-start;
-  gap: 10px;
-  flex-wrap: wrap;
-  max-width: 100%;
-  line-height: 1.4;
-
+  
+  // align-items: baseline;     /* keep radio vertically centered with text */
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
   color: ${({ status }) => {
     switch (status) {
       case "correct-attempted": return "#34c759";
@@ -422,10 +421,33 @@ export const OptionLabel = styled.label`
     }
   }};
 
-  @media (max-bffp
-  lkgbfdsp;width: 1360px) { font-size: 16px; }
-  @media (max-width: 768px) { font-size: 14px; }
+  /* ensure the label doesn't force the radio to wrap to next line */
+  flex-wrap: nowrap;
+
+  /* allow the text portion to take remaining space and wrap if long */
+  .option-text {
+    flex: 1 1 auto;         /* grow/shrink as needed */
+    min-width: 0;           /* important to allow text wrapping inside flex item */
+    white-space: normal;    /* allow wrapping of long text */
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* small adjustment for the native radio alignment (some browsers add vertical offset) */
+  input[type="radio"] {
+    margin: 0; 
+    margin-top:2px;
+             /* remove default vertical margin */
+    flex: 0 0 auto;         /* keep radio at natural width */
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 1360px) { font-size: 16px; }
+  @media (max-width: 768px) { font-size: 14px; gap: 8px; }
 `;
+
 /* Sticky action bar */
 // export const StickyActionBar = styled.div`
 //   position: sticky;

@@ -2,7 +2,7 @@ import styled from "styled-components";
 export const Container = styled.div`
   --sbw: 320px;                /* sidebar width (desktop) */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;

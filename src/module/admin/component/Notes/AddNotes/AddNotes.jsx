@@ -66,24 +66,62 @@ export default function AddNote() {
     subject.label.toLowerCase().includes(searchSubject.toLowerCase())
   );
 
-  useEffect(() => {
-    localStorage.removeItem("selectedSubjects"); // Reset on load
-    const apiCaller = async () => {
-      try {
-        const response = await getSubjects();
-        const data = response.data.map((item) => ({
-          label: item.subjectName,
+ // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+const getDocCreatedAt = (doc) => {
+  if (!doc) return new Date(0);
+
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // ignore and fallback
+    }
+  }
+
+  const idCandidate =
+    typeof doc._id === "string"
+      ? doc._id
+      : doc._id && doc._id.$oid
+      ? doc._id.$oid
+      : null;
+
+  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+    const seconds = parseInt(idCandidate.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
+
+  return new Date(0);
+};
+
+useEffect(() => {
+  localStorage.removeItem("selectedSubjects"); // Reset on load
+  const apiCaller = async () => {
+    try {
+      const response = await getSubjects();
+      const raw = Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response)
+        ? response
+        : [];
+
+      // sort newest-first then map
+      const data = raw
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map((item) => ({
+          label: item.subjectName || item.title || "",
           id: item._id,
           checked: false, // always fresh
         }));
-        setSubjectsCheckboxes(data);
-        setSelectedSubjects([]);
-      } catch (error) {
-        toast.error("Failed to fetch data");
-      }
-    };
-    apiCaller();
-  }, []);
+
+      setSubjectsCheckboxes(data);
+      setSelectedSubjects([]);
+    } catch (error) {
+      toast.error("Failed to fetch data");
+    }
+  };
+  apiCaller();
+}, []);
+
 
   const handleCheckboxChange = (index) => {
     const updatedCheckboxes = subjectsCheckboxes.map((item, i) =>

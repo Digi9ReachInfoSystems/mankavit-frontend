@@ -60,43 +60,67 @@ export default function AddSubject() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const editor = useRef(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch notes
-        const notesResp = await getAllNotes();
-        const sortedNotes = notesResp.data
-          .sort((a, b) => a.noteDisplayName.localeCompare(b.noteDisplayName))
-          .map(n => ({ id: n._id, label: n.noteDisplayName }));
-        setNotesCheckboxes(sortedNotes);
+ // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+const getDocCreatedAt = (doc) => {
+  // prefer explicit createdAt if present
+  if (doc.createdAt) {
+    try {
+      return new Date(doc.createdAt);
+    } catch {
+      // continue to fallback
+    }
+  }
 
-        // Fetch lectures
-        const lecturesResp = await getAllLectures();
-        const sortedLectures = lecturesResp.data
-          .sort((a, b) => a.lectureName.localeCompare(b.lectureName))
-          .map(l => ({ id: l._id, label: l.lectureName }));
-        setLecturesCheckboxes(sortedLectures);
+  // fallback: parse ObjectId timestamp (first 8 hex chars => seconds)
+  const idStr = doc._id && (doc._id.$oid || doc._id); // handle both { $oid } and plain string
+  if (typeof idStr === "string" && idStr.length >= 8) {
+    const seconds = parseInt(idStr.substring(0, 8), 16);
+    return new Date(seconds * 1000);
+  }
 
-        // Fetch mock tests
-        const mockResp = await getAllMocktest();
-        const sortedMocks = mockResp.data
-          .sort((a, b) => a.title.localeCompare(b.title))
-          .map(m => ({ id: m._id, label: m.title }));
-        setMockTestCheckboxes(sortedMocks);
+  // final fallback: now
+  return new Date();
+};
 
-        // Fetch courses
-        const coursesResp = await getAllCourses();
-        const sortedCourses = coursesResp.data
-          .sort((a, b) => a.courseName.localeCompare(b.courseName))
-          .map(c => ({ id: c._id, label: c.courseName }));
-        setCoursesCheckboxes(sortedCourses);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load data");
-      }
-    };
-    fetchData();
-  }, []);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // Fetch notes
+      const notesResp = await getAllNotes();
+      // sort newest first using createdAt or ObjectId timestamp
+      const sortedNotes = (notesResp.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map(n => ({ id: n._id, label: n.noteDisplayName }));
+      setNotesCheckboxes(sortedNotes);
+
+      // Fetch lectures
+      const lecturesResp = await getAllLectures();
+      const sortedLectures = (lecturesResp.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map(l => ({ id: l._id, label: l.lectureName }));
+      setLecturesCheckboxes(sortedLectures);
+
+      // Fetch mock tests
+      const mockResp = await getAllMocktest();
+      const sortedMocks = (mockResp.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map(m => ({ id: m._id, label: m.title }));
+      setMockTestCheckboxes(sortedMocks);
+
+      // Fetch courses
+      const coursesResp = await getAllCourses();
+      const sortedCourses = (coursesResp.data || [])
+        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+        .map(c => ({ id: c._id, label: c.courseName }));
+      setCoursesCheckboxes(sortedCourses);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load data");
+    }
+  };
+  fetchData();
+}, []);
+
 
   // Handle checkbox changes
   const handleCheckboxChange = (type, id) => {

@@ -354,7 +354,7 @@ export default function UserViewAttempResult() {
                         <p>
                           <strong>Your Answer:</strong>
                         </p>
-                        <p>{current.selectedAnswer || <em>Not Answered</em>}</p>
+                        <p>{current.selectedAnswer || <em>Loading answer...</em>}</p>
                         <ExpectedAnswer html={current.expectedAnswer} />
                       </div>
                     )}
