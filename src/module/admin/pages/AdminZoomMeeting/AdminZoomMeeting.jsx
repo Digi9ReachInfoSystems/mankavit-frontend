@@ -76,7 +76,7 @@ const AdminZoomMeeting = () => {
             leaveUrl,
             patchJsMedia: true,
             isSupportAV: true,
-            disableInvite:true,
+            // disableInvite:true,
             disableZoomLogo:true,
             success: () => {
                 // ZoomMtg.showInviteFunction({show:false})
@@ -94,7 +94,7 @@ const AdminZoomMeeting = () => {
                         console.log('Meeting joined', res)
                         //  ZoomMtg.showInviteFunction({ show: false });
                         // ZoomMtg.showMeetingHeader({ show: false }); 
-                        ZoomMtg.showRecordFunction({ show: false });
+                        ZoomMtg.showRecordFunction({ show: true });
                     },
                     error: (err) => console.error('Join Error', err),
                 });
