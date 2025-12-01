@@ -1,6 +1,7 @@
 // LandingHeader.styles.js
 import styled, { keyframes, css } from "styled-components";
 import { BsChevronCompactDown } from "react-icons/bs";
+
 /* ============ Shared ============ */
 
 export const Container = styled.div`
@@ -14,7 +15,6 @@ export const Container = styled.div`
   --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.12);
   color: var(--text);
-  /* ✅ No position, no z-index — leave untouched */
 `;
 
 /* ============ Top Bar ============ */
@@ -25,90 +25,69 @@ export const TopBar = styled.div`
   align-items: center;
   gap: 16px;
   background-color: var(--bg-soft);
-  padding: 20px 40px; 
+  padding: 20px 40px;
   color: var(--muted);
 
   @media (max-width: 768px) {
-    padding: 12px 20px; /* Adjusted mobile padding */
-    justify-content:  flex-end; /* Adjusted for mobile layout */
-    gap: 80px; /* Adjusted gap */
-    font-size: 26px;
+    padding: 12px 20px;
+    justify-content: flex-end;
+    gap: 12px;
   }
 `;
 
-export const ToolbarContainer = styled.div`
+/* left: brand */
+export const Brand = styled.div`
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* Changed to flex-end to align icons right */
-  background-color: var(--bg-soft);
-  padding: 10px 20px;
-  font-size: 16px;
-  color: var(--muted);
+  flex: 0 0 auto;
+`;
 
-  flex: 1;            /* Fill remaining space */
-  min-width: 0;       /* Allow shrinking */
-  margin: 0;          /* Remove margin */
-
-  @media (max-width: 1320px) {
-    padding: 6px 16px;
-  }
-
-  @media (max-width: 1024px) {
-   width: auto;
-  }
+/* brand image */
+export const BrandLogo = styled.img`
+  display: block;
+  height: clamp(72px, 5vw, 120px);
+  width: auto;
+  object-fit: contain;
 
   @media (max-width: 576px) {
-    padding: 4px 8px;
+    height: clamp(48px, 4vw, 64px);
   }
 `;
 
 /* ============ Headline / Marquee ============ */
 
-const marquee = keyframes`
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-100%); } /* Scroll one full set width */
+/* marquee keyframes: move -50% (requires duplicated content in JSX) */
+const marqueeKeyframes = keyframes`
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 `;
 
 export const Headline = styled.div`
-display: none !important;  
-  width: 100%;
-  // overflow: hidden; /* Keep this to contain the scrolling content */
-  white-space: nowrap;
+  /* center column: grow & shrink, but allow children to truncate */
+  flex: 1 1 auto;
+  min-width: 0;
   color: rgb(22, 78, 233);
   height: 2.5em;
   font-weight: 700;
-  font-size: 1.2em;
+  font-size: 1.05rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-
-  @media (max-width: 1023px) {
-    display: none !important;
-  }
+  letter-spacing: 0.08em;
+  display: none; /* default hidden; will show on larger screens */
 
   .marquee {
-    position: relative;
-    // width: 100%;
-    /* Calculate max-width based on screen size, leaving space for social icons */
-    max-width: calc(100% - 700px); /* Adjust this value based on icon container width */
+    width: 100%;
     overflow: hidden;
-    display: block;
-    top: 30px;
-    margin: 0 auto; /* Center the marquee if desired, or align left */
-
-    @media (max-width: 1024px) {
-      // max-width: 100%;
-      top: 30px;
-      max-width: calc(100% - 550px); /* Adjust this value based on icon container width */
-   
-    }
+    box-sizing: border-box;
   }
 
+  /* the track must be a single flex row and contain duplicated items in JSX */
   .track {
-    display: inline-block; /* Changed from inline-flex to inline-block */
-    animation: ${marquee} 20s linear infinite;
+    display: flex;
+    gap: 1rem;
+    white-space: nowrap;
     will-change: transform;
-    transform-style: preserve-3d;
-    white-space: nowrap; /* Ensure content stays on one line */
+    align-items: center;
+    animation: ${marqueeKeyframes} 18s linear infinite;
   }
 
   .track:hover {
@@ -117,31 +96,39 @@ display: none !important;
 
   span {
     display: inline-block;
-    padding: 0 1rem; /* Add padding between ticker items */
-    white-space: nowrap; /* Ensure text doesn't wrap */
+    padding: 0 0.5rem;
+    white-space: nowrap;
   }
 
-  @media ( max-width: 780px) {
+  /* show only on laptop and above (matches your previous behavior) */
+  @media (min-width: 1024px) {
+    display: block;
+  }
+
+  @media (max-width: 1023px) {
     display: none;
   }
-  
-  /* Respect reduced motion */
+
   @media (prefers-reduced-motion: reduce) {
-    .track { 
-      animation: none; 
-      transform: translateX(0); 
-    }
+    .track { animation: none; transform: translateX(0); }
   }
 `;
 
-
 /* ============ Social Icons ============ */
+
+export const ToolbarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 12px;
+  flex: 0 0 auto;
+`;
 
 export const SocialIcons = styled.div`
   display: flex;
-  gap: 26px; /* Reduced gap for more compact layout */
+  gap: 26px;
   align-items: center;
-  flex-shrink: 0; /* Prevent icons from shrinking */
+  flex-shrink: 0;
 
   @media (max-width: 1320px) {
     gap: 12px;
@@ -157,8 +144,8 @@ export const SocialIcons = styled.div`
 `;
 
 export const Image = styled.img`
-  width: 30px; /* Slightly reduced width */
-  height: 30px; /* Slightly reduced height */
+  width: 30px;
+  height: 30px;
   transition: transform 0.25s ease, filter 0.25s ease;
   cursor: pointer;
   filter: saturate(0.9);
@@ -228,7 +215,6 @@ export const NavBarContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 10px 20px;
-    // width: 80%;
   }
 `;
 
@@ -265,8 +251,6 @@ export const NavLinks = styled.div`
   align-items: center;
   z-index: 1;
 
-  /* …existing breakpoints… */
-
   @media (max-width: 768px) {
     display: none;
     flex-direction: column;
@@ -283,7 +267,7 @@ export const NavLinks = styled.div`
     align-items: flex-start;
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
-    overflow-y: auto;          /* ✅ scroll panel if content grows */
+    overflow-y: auto;
 
     &.open {
       display: flex;
@@ -292,8 +276,6 @@ export const NavLinks = styled.div`
   }
 `;
 
-
-/* Fancy underline effect reused for hover/active */
 const underline = css`
   &::after {
     content: "";
@@ -307,26 +289,6 @@ const underline = css`
     transition: width 0.28s ease;
   }
 `;
-export const Brand = styled.div`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  // width: 200px;
-`;
-
-export const BrandLogo = styled.img`
-  display: block;
-  height: clamp(72px, 5vw, 120px);  // 💥 Increased min and max height
-  width: auto;
-  object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
-
-  @media (max-width: 576px) {
-    height: clamp(48px, 4vw, 64px); // 💥 Also increased mobile height
-    margin-left: 0;
-  }
-`;
-
 
 export const NavLinkItem = styled.div`
   position: relative;
@@ -353,19 +315,16 @@ export const NavLinkItem = styled.div`
   @media (max-width: 1636px) { font-size: 16px; }
   @media (max-width: 1320px) { font-size: 14px; }
 
-  /* ✅ On mobile, stack label + dropdown vertically and make the item full-width */
   @media (max-width: 768px) {
-    position: static;          /* parent is not positioned */
+    position: static;
     display: flex;
-    flex-direction: column;    /* label on top, dropdown below */
+    flex-direction: column;
     align-items: flex-start;
     width: 100%;
     gap: 8px;
-    padding: 10px 0;  
-  
+    padding: 10px 0;
   }
 `;
-
 
 const dropdownIn = keyframes`
   from { opacity: 0; transform: translateY(-8px) scale(0.98); }
@@ -387,12 +346,10 @@ export const Dropdown = styled.div`
   min-width: 200px;
   padding: 6px 0;
 
-  /* ✅ Only on desktop: give high z-index */
   @media (min-width: 769px) {
-    z-index: 1100; /* High enough to appear over page content */
+    z-index: 1100;
   }
 
-  /* Mobile: render in-flow, no z-index needed */
   @media (max-width: 768px) {
     position: static;
     width: 100%;
@@ -402,10 +359,8 @@ export const Dropdown = styled.div`
     border-radius: 8px;
     max-height: 55vh;
     overflow-y: auto;
-    /* Do NOT set z-index here — it's part of normal flow */
   }
 `;
-
 
 export const DropdownItem = styled.div`
   padding: 12px 18px;
@@ -414,7 +369,6 @@ export const DropdownItem = styled.div`
   white-space: nowrap;
   color: var(--text);
   cursor: pointer;
-  // transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
 
   &:hover {
     color: var(--primary);
@@ -571,7 +525,6 @@ export const DashboardButton = styled.button`
     }
   }
 
-  /* ✅ target child on parent hover without self-referencing the component variable */
   &:hover .profile-icon {
     transform: scale(1.04);
   }
@@ -584,8 +537,6 @@ export const Caret = styled(BsChevronCompactDown)`
   opacity: ${(p) => (p.$open ? 1 : 0.85)};
   flex-shrink: 0;
 `;
-
-
 
 export const Hamburger = styled.div`
   display: none;
