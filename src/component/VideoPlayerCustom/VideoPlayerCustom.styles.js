@@ -8,41 +8,54 @@ export const PlayerContainer = styled.div`
   font-family: sans-serif;
   overflow: hidden;
 
+  /* Keep a stable 16:9 frame so loader can center before video metadata arrives.
+     You can change aspect-ratio to 4/3, 21/9 or remove it and use min-height instead. */
+  aspect-ratio: 16 / 9;
+  /* fallback for older browsers - provides a minimum height */
+  min-height: 320px;
 
-
+  /* Centered loader overlay */
   .loader-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99;
-}
+    position: absolute;
+    inset: 0; /* top:0; right:0; bottom:0; left:0 */
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* above controls */
+    pointer-events: auto;
+  }
 
-.spinner {
-  width: 45px;
-  height: 45px;
-  border: 5px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(255, 255, 255, 0.18);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transform-origin: center;
+  }
 
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 `;
+
+
 
 export const Video = styled.video`
-  position: relative;
+  position: absolute; /* overlay the full container */
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
   width: 100%;
+  height: 100%;
+  object-fit: contain; /* or 'cover' if you want crop-to-fill */
   display: block;
+  background: #000; /* fallback background while loading */
 `;
+
 
 export const Controls = styled.div`
   position: absolute;

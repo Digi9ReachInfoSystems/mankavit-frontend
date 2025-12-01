@@ -29,6 +29,7 @@ import {
   SearchIcon,
   SearchInput,
 } from "./AddLecturer.styles";
+import VideoPlayerCustom from "../../../../../component/VideoPlayerCustom/VideoPlayerCustom";
 import { useNavigate } from "react-router-dom";
 import { createLecture, getFolders } from "../../../../../api/lecturesApi";
 import { getAllCourses } from "../../../../../api/courseApi";
@@ -74,77 +75,89 @@ export default function AddLecturer() {
   );
 
   // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
-const getDocCreatedAt = (doc) => {
-  if (!doc) return new Date(0);
+  const getDocCreatedAt = (doc) => {
+    if (!doc) return new Date(0);
 
-  if (doc.createdAt) {
-    try {
-      return new Date(doc.createdAt);
-    } catch {
-      // fallthrough to fallback
+    if (doc.createdAt) {
+      try {
+        return new Date(doc.createdAt);
+      } catch {
+        // fallthrough to fallback
+      }
     }
-  }
 
-  const idCandidate =
-    typeof doc._id === "string"
-      ? doc._id
-      : doc._id && doc._id.$oid
-      ? doc._id.$oid
-      : null;
+    const idCandidate =
+      typeof doc._id === "string"
+        ? doc._id
+        : doc._id && doc._id.$oid
+        ? doc._id.$oid
+        : null;
 
-  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
-    const seconds = parseInt(idCandidate.substring(0, 8), 16);
-    return new Date(seconds * 1000);
-  }
-
-  return new Date(0);
-};
-
-
- useEffect(() => {
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const [subjectsResponse, coursesResponse, foldersResponse] =
-        await Promise.all([getSubjects(), getAllCourses(), getFolders()]);
-
-      // normalize arrays safely
-      const subjectsRaw = Array.isArray(subjectsResponse?.data)
-        ? subjectsResponse.data
-        : Array.isArray(subjectsResponse)
-        ? subjectsResponse
-        : [];
-
-      const coursesRaw = Array.isArray(coursesResponse?.data)
-        ? coursesResponse.data
-        : Array.isArray(coursesResponse)
-        ? coursesResponse
-        : [];
-
-      // sort newest-first for subjects and courses
-      const sortedSubjects = subjectsRaw.sort(
-        (a, b) => getDocCreatedAt(b) - getDocCreatedAt(a)
-      );
-      const sortedCourses = coursesRaw.sort(
-        (a, b) => getDocCreatedAt(b) - getDocCreatedAt(a)
-      );
-
-      setSubjects(sortedSubjects || []);
-      setCourses(sortedCourses || []);
-      setFolders(
-        (foldersResponse || []).map((folder) =>
-          folder.endsWith("/") ? folder.slice(0, -1) : folder
-        )
-      );
-    } catch (error) {
-      toast.error("Failed to fetch data");
-    } finally {
-      setIsLoading(false);
+    if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+      const seconds = parseInt(idCandidate.substring(0, 8), 16);
+      return new Date(seconds * 1000);
     }
+
+    return new Date(0);
   };
-  fetchData();
-}, []);
 
+  // stable object URL for preview and cleanup
+  const videoPreviewUrl = useMemo(() => {
+    return videoFile ? URL.createObjectURL(videoFile) : null;
+  }, [videoFile]);
+
+  useEffect(() => {
+    // revoke when component unmounts or when preview URL changes
+    return () => {
+      if (videoPreviewUrl) {
+        URL.revokeObjectURL(videoPreviewUrl);
+      }
+    };
+  }, [videoPreviewUrl]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [subjectsResponse, coursesResponse, foldersResponse] =
+          await Promise.all([getSubjects(), getAllCourses(), getFolders()]);
+
+        // normalize arrays safely
+        const subjectsRaw = Array.isArray(subjectsResponse?.data)
+          ? subjectsResponse.data
+          : Array.isArray(subjectsResponse)
+          ? subjectsResponse
+          : [];
+
+        const coursesRaw = Array.isArray(coursesResponse?.data)
+          ? coursesResponse.data
+          : Array.isArray(coursesResponse)
+          ? coursesResponse
+          : [];
+
+        // sort newest-first for subjects and courses
+        const sortedSubjects = subjectsRaw.sort(
+          (a, b) => getDocCreatedAt(b) - getDocCreatedAt(a)
+        );
+        const sortedCourses = coursesRaw.sort(
+          (a, b) => getDocCreatedAt(b) - getDocCreatedAt(a)
+        );
+
+        setSubjects(sortedSubjects || []);
+        setCourses(sortedCourses || []);
+        setFolders(
+          (foldersResponse || []).map((folder) =>
+            folder.endsWith("/") ? folder.slice(0, -1) : folder
+          )
+        );
+      } catch (error) {
+        toast.error("Failed to fetch data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -298,7 +311,7 @@ const getDocCreatedAt = (doc) => {
   return (
     <Container>
       <Title>Add Video</Title>
-      <FormWrapper onSubmit={handleSubmit}>
+      <FormWrapper onSubmit={(e) => e.preventDefault()}>
         <FormRow>
           <Column>
             <FieldWrapper>
@@ -307,7 +320,10 @@ const getDocCreatedAt = (doc) => {
                 id="lectureName"
                 value={lectureName}
                 onChange={(e) => {
-                  const filteredData = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                  const filteredData = e.target.value.replace(
+                    /[^a-zA-Z\s]/g,
+                    ""
+                  );
                   setLectureName(e.target.value);
                 }}
                 placeholder="Enter Video Title"
@@ -432,41 +448,64 @@ const getDocCreatedAt = (doc) => {
           <Column style={{ flex: 1 }}>
             <FieldWrapper>
               <Label>Upload Video *</Label>
-              <UploadArea onClick={() => videoInputRef.current.click()}>
-                {videoFile ? (
-                  <>
-                    <VideoControl controls>
-                      <source
-                        src={URL.createObjectURL(videoFile)}
-                        type="video/mp4"
-                      />
-                    </VideoControl>
-                    <p>{videoFile.name}</p>
-                  </>
-                ) : (
-                  <>
-                    <UploadPlaceholder>
-                      <img src={upload} alt="Upload" />
-                    </UploadPlaceholder>
-                    <p>Drag and drop video here</p>
-                    <p>
-                      or <strong>Upload Video</strong>
-                    </p>
-                  </>
-                )}
-                <FileInput
-                  ref={videoInputRef}
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoFileChange}
-                />
-              </UploadArea>
+             <UploadArea
+  role="button"
+  tabIndex={0}
+  onClick={(e) => {
+    // Only open file picker if user clicked directly on the UploadArea container,
+    // not when clicking any child (like the VideoPlayerCustom controls).
+    if (e.target === e.currentTarget) {
+      videoInputRef.current?.click();
+    }
+  }}
+  onKeyDown={(e) => {
+    // Allow keyboard activation (Enter or Space) when UploadArea is focused
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      videoInputRef.current?.click();
+    }
+  }}
+>
+  {videoFile ? (
+    <>
+      <VideoPlayerCustom
+        src={videoPreviewUrl}
+        movingText={lectureName}
+        // optional callbacks
+        onClick={() => {}}
+        onEnded={() => {}}
+      />
+      <p style={{ marginTop: 8 }}>{videoFile.name}</p>
+    </>
+  ) : (
+    <>
+      <UploadPlaceholder>
+        <img src={upload} alt="Upload" />
+      </UploadPlaceholder>
+      <p>Drag and drop video here</p>
+      <p>
+        or <strong>Upload Video</strong>
+      </p>
+    </>
+  )}
+
+  <FileInput
+    ref={videoInputRef}
+    type="file"
+    accept="video/*"
+    onChange={handleVideoFileChange}
+  />
+</UploadArea>
             </FieldWrapper>
           </Column>
         </FormRow>
 
         <FormRow>
-          <SubmitButton type="submit" disabled={isLoading}>
+          <SubmitButton
+            type="button"
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
             {isLoading ? "Creating..." : "Add Lecture"}
           </SubmitButton>
         </FormRow>

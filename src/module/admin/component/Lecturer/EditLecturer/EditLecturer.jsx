@@ -27,6 +27,8 @@ import {
   SubjectName,
   MoveButton,
 } from "./EditLecturer.styles";
+import VideoPlayerCustom from "../../../../../component/VideoPlayerCustom/VideoPlayerCustom";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { getLectureById, updateLectureById } from "../../../../../api/lecturesApi";
 import { toast, ToastContainer } from "react-toastify";
@@ -57,6 +59,9 @@ export default function EditLecturer() {
   const editor = useRef(null);
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   const [updating, setUpdating] = useState(false);
+
+  // flag to ignore accidental submits coming from clicks inside the video area
+  const ignoreSubmitRef = useRef(false);
 
   // 🔎 New: search term for subjects
   const [searchSubject, setSearchSubject] = useState("");
@@ -220,8 +225,17 @@ useEffect(() => {
     }
   };
 
+  // main submit handler - now checks ignoreSubmitRef to avoid accidental submits from player clicks
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // if the most recent click came from the video area, ignore this submit
+    if (ignoreSubmitRef.current) {
+      // clear the flag and bail out
+      ignoreSubmitRef.current = false;
+      return;
+    }
+
     const { lectureName, description } = formData;
 
     if (!lectureName || !description) {
@@ -244,7 +258,7 @@ useEffect(() => {
         subjectRef: subjectIds,
       };
 
-      if (videoPreviewUrl) {
+      if (videoPreviewUrl && videoFile) {
         payload.videoUrl = videoFile;
       }
 
@@ -269,6 +283,7 @@ useEffect(() => {
   return (
     <Container>
       <Title>Edit Video</Title>
+      {/* keep the same submit handler but now it checks ignoreSubmitRef */}
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
@@ -295,7 +310,6 @@ useEffect(() => {
                 value={formData.description}
                 config={configDis}
                 tabIndex={1}
-                // onBlur={() => {}}
                 onBlur={newContent => { setFormData({ ...formData, description: newContent }) }}
               />
             </FieldWrapper>
@@ -324,7 +338,6 @@ useEffect(() => {
               <CheckboxSection>
                 <CheckboxSectionTitle>Available Subjects</CheckboxSectionTitle>
 
-                {/* 🔎 New: simple search input */}
                 <div style={{ marginBottom: "12px" }}>
                   <input
                     type="text"
@@ -341,7 +354,6 @@ useEffect(() => {
                   />
                 </div>
 
-                {/* 🔎 Use filtered subjects for display, map back to original index on change */}
                 <CheckboxList>
                   {filteredSubjects.length > 0 ? (
                     filteredSubjects.map((item) => (
@@ -370,28 +382,6 @@ useEffect(() => {
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
-                     
-                      {/* <div>
-                        <MoveButton
-                          style={{ backgroundColor: "green" }}
-                          type="button"
-                          onClick={() => moveSubjectUp(index)}
-                          disabled={index === 0}
-                        >
-                          <FaArrowUp />
-                        </MoveButton>
-                        <MoveButton
-                          style={{ backgroundColor: "red" }}
-                          type="button"
-                          onClick={() => moveSubjectDown(index)}
-                          disabled={index === selectedSubjects.length - 1}
-                        >
-                          <FaArrowDown />
-                        </MoveButton>
-                      </div> */}
-
-
-                      
                     </SelectedSubjectItem>
                   ))
                 ) : (
@@ -406,20 +396,49 @@ useEffect(() => {
           <Column>
             <FieldWrapper>
               <Label>Update Video </Label>
-              <UploadArea onClick={handleVideoUploadClick}>
+
+              {/* UploadArea capture click BEFORE form submit */}
+              <UploadArea
+                role="button"
+                tabIndex={0}
+                onClickCapture={(e) => {
+                  // mark that the last click originated inside the upload area (or player)
+                  // this fires BEFORE the browser's form submit, so handleSubmit can check it
+                  ignoreSubmitRef.current = true;
+                  // Clear the flag shortly after (so only the immediate submit is ignored)
+                  setTimeout(() => {
+                    // safety: only clear if still true (in case handleSubmit already reset)
+                    if (ignoreSubmitRef.current) ignoreSubmitRef.current = false;
+                  }, 50);
+                }}
+                onClick={(e) => {
+                  // Only open picker when clicking UploadArea container itself (not child controls)
+                  if (e.target === e.currentTarget) {
+                    handleVideoUploadClick();
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleVideoUploadClick();
+                  }
+                }}
+              >
                 {videoPreviewUrl ? (
                   <VideoContainer>
-                    <VideoPlayer key={videoPreviewUrl} controls>
-                      <source
-                        src={
-                          videoPreviewUrl.startsWith("blob:")
-                            ? videoPreviewUrl
-                            : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`
-                        }
-                        type="video/mp4"
-                      />
-                      Your browser does not support the video tag.
-                    </VideoPlayer>
+                    {/* Use custom player so all controls/shortcuts are available */}
+                    <VideoPlayerCustom
+                      src={
+                        videoPreviewUrl.startsWith("blob:")
+                          ? videoPreviewUrl
+                          : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`
+                      }
+                      movingText={formData.lectureName}
+                      onClick={() => {
+                        /* clicking the player toggles play — does not open file picker */
+                      }}
+                      onEnded={() => {}}
+                    />
                   </VideoContainer>
                 ) : (
                   <UploadPlaceholder>
