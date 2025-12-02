@@ -28,6 +28,7 @@ import {
   SearchWrapper,
   SearchIcon,
   SearchInput,
+  VideoWrapper
 } from "./AddLecturer.styles";
 import VideoPlayerCustom from "../../../../../component/VideoPlayerCustom/VideoPlayerCustom";
 import { useNavigate } from "react-router-dom";
@@ -448,54 +449,58 @@ export default function AddLecturer() {
           <Column style={{ flex: 1 }}>
             <FieldWrapper>
               <Label>Upload Video *</Label>
-             <UploadArea
-  role="button"
-  tabIndex={0}
-  onClick={(e) => {
-    // Only open file picker if user clicked directly on the UploadArea container,
-    // not when clicking any child (like the VideoPlayerCustom controls).
-    if (e.target === e.currentTarget) {
-      videoInputRef.current?.click();
-    }
-  }}
-  onKeyDown={(e) => {
-    // Allow keyboard activation (Enter or Space) when UploadArea is focused
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      videoInputRef.current?.click();
-    }
-  }}
->
-  {videoFile ? (
-    <>
-      <VideoPlayerCustom
-        src={videoPreviewUrl}
-        movingText={lectureName}
-        // optional callbacks
-        onClick={() => {}}
-        onEnded={() => {}}
-      />
-      <p style={{ marginTop: 8 }}>{videoFile.name}</p>
-    </>
-  ) : (
-    <>
-      <UploadPlaceholder>
-        <img src={upload} alt="Upload" />
-      </UploadPlaceholder>
-      <p>Drag and drop video here</p>
-      <p>
-        or <strong>Upload Video</strong>
-      </p>
-    </>
-  )}
+              <UploadArea
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  // Only open file picker if user clicked directly on the UploadArea container,
+                  // not when clicking any child (like the VideoPlayerCustom controls).
+                  if (e.target === e.currentTarget) {
+                    videoInputRef.current?.click();
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // Allow keyboard activation (Enter or Space) when UploadArea is focused
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    videoInputRef.current?.click();
+                  }
+                }}
+              >
+                {videoFile ? (
+                  <>
+                    <VideoWrapper>
+                      <VideoPlayerCustom
+                        src={videoPreviewUrl}
+                        movingText={lectureName}
+                        // optional callbacks
+                        onClick={() => {}}
+                        onEnded={() => {}}
+                      />
+                    </VideoWrapper>
+                    <p style={{ marginTop: 8, wordBreak: "break-word" }}>
+                      {videoFile.name}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <UploadPlaceholder>
+                      <img src={upload} alt="Upload" />
+                    </UploadPlaceholder>
+                    <p>Drag and drop video here</p>
+                    <p>
+                      or <strong>Upload Video</strong>
+                    </p>
+                  </>
+                )}
 
-  <FileInput
-    ref={videoInputRef}
-    type="file"
-    accept="video/*"
-    onChange={handleVideoFileChange}
-  />
-</UploadArea>
+                <FileInput
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoFileChange}
+                />
+              </UploadArea>
             </FieldWrapper>
           </Column>
         </FormRow>

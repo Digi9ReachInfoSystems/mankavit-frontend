@@ -221,13 +221,17 @@ export const CheckboxInput = styled.input`
 export const UploadArea = styled.div`
   border: 2px dashed ${(props) => props.theme.colors.grey};
   border-radius: 8px;
-  padding: ${(props) => props.theme.spacing(8)};
+  padding: ${(props) => props.theme.spacing(4)};
   text-align: center;
   color: ${(props) => props.theme.colors.test};
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
-  // margin-left: 60px;
+  background: transparent;
+  position: relative;
+
+  /* Important: clip any overflowing child like video */
+  overflow: hidden;
 
   p {
     margin: ${(props) => props.theme.spacing(1)} 0 0 0;
@@ -238,13 +242,11 @@ export const UploadArea = styled.div`
   }
 
   @media (max-width: 1024px) {
-    // width: 100%;
-    margin-left: 0;
+    padding: ${(props) => props.theme.spacing(3)};
   }
 
   @media (max-width: 768px) {
-    width: 100%;
-    box-sizing: border-box;
+    padding: ${(props) => props.theme.spacing(2)};
   }
 `;
 
@@ -447,4 +449,37 @@ export const SearchInput = styled.input`
   width: 100%;
   font-size: 14px;
   background: transparent;
+`;
+
+export const VideoWrapper = styled.div`
+  width: 100%;
+  /* limit height to keep inside box; adjust as needed */
+  max-height: 420px;
+  display: block;
+  box-sizing: border-box;
+  border-radius: 6px;
+  overflow: hidden; /* clip internal video if it tries to overflow */
+
+  /* force any inner <video> / iframe / canvas to be responsive and contained */
+  video,
+  iframe,
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 420px !important;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* smaller screens: reduce height so it fits */
+  @media (max-width: 768px) {
+    max-height: 300px;
+
+    video,
+    iframe,
+    canvas {
+    width: 100% !important;
+      max-height: 300px !important;
+    }
+  }
 `;
