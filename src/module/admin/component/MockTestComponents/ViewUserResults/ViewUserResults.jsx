@@ -208,8 +208,11 @@ const mcqAnswers = attemptData.answers.filter((a) => {
   const question = attemptData.mockTestId.questions.find(
     (q) => q._id === a.questionId
   );
-  return question?.type === "mcq" && a.status === "answered";
+  const status = (a.status || "").toString().toLowerCase();
+  const isAnsweredStatus = status.startsWith("answered"); // matches "answered" & "answered-..."
+  return question?.type === "mcq" && isAnsweredStatus;
 });
+
 
   const subjectiveAnswers = attemptData.answers.filter((a) => {
     const question = attemptData.mockTestId.questions.find(
@@ -252,10 +255,11 @@ const mcqAnswers = attemptData.answers.filter((a) => {
           <strong>Total Questions:</strong>{" "}
           {attemptData?.mockTestId?.questions?.length || 0}
         </p>
-     <p>
+   <p>
   <strong>Attempted Questions:</strong>{" "}
-  {attemptData?.answers?.filter((a) => a.status === "answered").length || 0}
+  {attemptData?.answers?.filter(a => typeof a.status === "string" && a.status.toLowerCase().startsWith("answered")).length || 0}
 </p>
+
         <p>
           <strong>Correct Answers:</strong>{" "}
           {attemptData?.answers?.filter((a) => a.isCorrect).length || 0}
