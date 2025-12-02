@@ -204,15 +204,14 @@ const ViewUserResults = () => {
   if (loading) return <div>Loading results...</div>;
   if (!attemptData) return <div>Attempt not found</div>;
 
-const mcqAnswers = attemptData.answers.filter((a) => {
-  const question = attemptData.mockTestId.questions.find(
-    (q) => q._id === a.questionId
+  // --- NEW: build MCQ question list from mockTestId.questions (so we show ALL MCQs) ---
+  const mcqQuestions = (attemptData.mockTestId.questions || []).filter(
+    (q) => q.type === "mcq"
   );
-  const status = (a.status || "").toString().toLowerCase();
-  const isAnsweredStatus = status.startsWith("answered"); // matches "answered" & "answered-..."
-  return question?.type === "mcq" && isAnsweredStatus;
-});
 
+  // Helper to find answer object for a given question id (may be undefined)
+  const findAnswerForQuestion = (questionId) =>
+    (attemptData.answers || []).find((a) => a.questionId === questionId) || {};
 
   const subjectiveAnswers = attemptData.answers.filter((a) => {
     const question = attemptData.mockTestId.questions.find(
@@ -255,10 +254,10 @@ const mcqAnswers = attemptData.answers.filter((a) => {
           <strong>Total Questions:</strong>{" "}
           {attemptData?.mockTestId?.questions?.length || 0}
         </p>
-   <p>
-  <strong>Attempted Questions:</strong>{" "}
-  {attemptData?.answers?.filter(a => typeof a.status === "string" && a.status.toLowerCase().startsWith("answered")).length || 0}
-</p>
+        <p>
+          <strong>Attempted Questions:</strong>{" "}
+          {attemptData?.answers?.filter(a => typeof a.status === "string" && a.status.toLowerCase().startsWith("answered")).length || 0}
+        </p>
 
         <p>
           <strong>Correct Answers:</strong>{" "}
@@ -274,27 +273,27 @@ const mcqAnswers = attemptData.answers.filter((a) => {
       </UserInfo>
 
       <SubTitle>MCQ Questions</SubTitle>
-     {mcqAnswers.map((a, index) => {
-  const question = attemptData.mockTestId.questions.find(
-    (q) => q._id === a.questionId
-  );
-  
-  // Skip rendering if question wasn't attempted
-  if (a.status !== "answered") return null;
+
+      {/* RENDER ALL MCQs (using mcqQuestions). For each question, look up the user's answer object. */}
+      {mcqQuestions.map((question, qIndex) => {
+        const a = findAnswerForQuestion(question._id);
+        // a may be {} if user didn't answer
         const options = question?.options || [];
-        const selected = a.answerIndex;
+        const selected = typeof a.answerIndex === "number" ? a.answerIndex : null;
         const correct = question?.correctAnswer;
+        const status = (a.status || "").toString().toLowerCase();
 
+        // If you previously hid unattempted questions, you no longer do that.
         return (
-          <QuestionCard key={`mcq-${index}`}>
-        <QuestionHeader>
-          <QuestionNumber>Question {index + 1}.</QuestionNumber>
-        </QuestionHeader>
+          <QuestionCard key={`mcq-${question._id}-${qIndex}`}>
+            <QuestionHeader>
+              <QuestionNumber>Question {qIndex + 1}.</QuestionNumber>
+            </QuestionHeader>
 
-        {/* Render passage and question full-width below the header for cleaner layout */}
-        {renderQuestionContent(question)}
+            {/* Render passage and question full-width below the header for cleaner layout */}
+            {renderQuestionContent(question)}
 
-        <div style={{ marginTop: "10px" }}>
+            <div style={{ marginTop: "10px" }}>
               {options.map((opt, idx) => {
                 let color = "#333"; // default
                 if (idx === correct && idx === selected)
@@ -316,9 +315,7 @@ const mcqAnswers = attemptData.answers.filter((a) => {
                     }}
                   >
                     <input type="radio" checked={selected === idx} readOnly />
-                    <span
-                      dangerouslySetInnerHTML={{ __html: opt.text || opt }}
-                    />
+                    <span dangerouslySetInnerHTML={{ __html: opt.text || opt }} />
                     {idx === correct && (
                       <span style={{ marginLeft: 6, color: color }}>
                         (Correct)
@@ -330,15 +327,16 @@ const mcqAnswers = attemptData.answers.filter((a) => {
             </div>
 
             <AnswerText>
-              <strong>Student answer:</strong> {a.answer || <em>Not Answered</em>}
+              <strong>Student answer:</strong>{" "}
+              {a.answer || (status.startsWith("answered") ? <em>Answered (no text)</em> : <em>Not Answered</em>)}
             </AnswerText>
 
-          <AnswerText>
+            <AnswerText>
               <strong>Expected answer:</strong>{" "}
               {options[correct]?.text || options[correct] || "N/A"}
             </AnswerText>
             <AnswerText>
-              <strong>Marks:</strong> {a.marksAwarded}
+              <strong>Marks:</strong> {a.marksAwarded ?? 0}
             </AnswerText>
           </QuestionCard>
         );
@@ -356,7 +354,7 @@ const mcqAnswers = attemptData.answers.filter((a) => {
         return (
           <QuestionCard key={`subj-${index}`}>
             <QuestionHeader>
-              <QuestionNumber>Question {mcqAnswers.length + index + 1}.</QuestionNumber>
+              <QuestionNumber>Question {mcqQuestions.length + index + 1}.</QuestionNumber>
             </QuestionHeader>
 
             {/* Render passage and question full-width below the header for cleaner layout */}
