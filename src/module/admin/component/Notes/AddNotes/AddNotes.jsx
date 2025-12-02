@@ -37,7 +37,7 @@ import {
   PdfModalTitle,
   CloseButton,
   PdfViewer,
-  ModalOverlay
+  ModalOverlay,
 } from "../AddNotes/AddNotes.style";
 import { getSubjects } from "../../../../../api/subjectApi";
 import { uploadFileToAzureStorage } from "../../../../../utils/azureStorageService";
@@ -66,62 +66,61 @@ export default function AddNote() {
     subject.label.toLowerCase().includes(searchSubject.toLowerCase())
   );
 
- // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
-const getDocCreatedAt = (doc) => {
-  if (!doc) return new Date(0);
+  // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+  const getDocCreatedAt = (doc) => {
+    if (!doc) return new Date(0);
 
-  if (doc.createdAt) {
-    try {
-      return new Date(doc.createdAt);
-    } catch {
-      // ignore and fallback
+    if (doc.createdAt) {
+      try {
+        return new Date(doc.createdAt);
+      } catch {
+        // ignore and fallback
+      }
     }
-  }
 
-  const idCandidate =
-    typeof doc._id === "string"
-      ? doc._id
-      : doc._id && doc._id.$oid
-      ? doc._id.$oid
-      : null;
+    const idCandidate =
+      typeof doc._id === "string"
+        ? doc._id
+        : doc._id && doc._id.$oid
+        ? doc._id.$oid
+        : null;
 
-  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
-    const seconds = parseInt(idCandidate.substring(0, 8), 16);
-    return new Date(seconds * 1000);
-  }
-
-  return new Date(0);
-};
-
-useEffect(() => {
-  localStorage.removeItem("selectedSubjects"); // Reset on load
-  const apiCaller = async () => {
-    try {
-      const response = await getSubjects();
-      const raw = Array.isArray(response?.data)
-        ? response.data
-        : Array.isArray(response)
-        ? response
-        : [];
-
-      // sort newest-first then map
-      const data = raw
-        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
-        .map((item) => ({
-          label: item.subjectName || item.title || "",
-          id: item._id,
-          checked: false, // always fresh
-        }));
-
-      setSubjectsCheckboxes(data);
-      setSelectedSubjects([]);
-    } catch (error) {
-      toast.error("Failed to fetch data");
+    if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+      const seconds = parseInt(idCandidate.substring(0, 8), 16);
+      return new Date(seconds * 1000);
     }
+
+    return new Date(0);
   };
-  apiCaller();
-}, []);
 
+  useEffect(() => {
+    localStorage.removeItem("selectedSubjects"); // Reset on load
+    const apiCaller = async () => {
+      try {
+        const response = await getSubjects();
+        const raw = Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response)
+          ? response
+          : [];
+
+        // sort newest-first then map
+        const data = raw
+          .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+          .map((item) => ({
+            label: item.subjectName || item.title || "",
+            id: item._id,
+            checked: false, // always fresh
+          }));
+
+        setSubjectsCheckboxes(data);
+        setSelectedSubjects([]);
+      } catch (error) {
+        toast.error("Failed to fetch data");
+      }
+    };
+    apiCaller();
+  }, []);
 
   const handleCheckboxChange = (index) => {
     const updatedCheckboxes = subjectsCheckboxes.map((item, i) =>
@@ -221,7 +220,7 @@ useEffect(() => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setPdfFile(file);
-      
+
       // Create object URL for preview
       const fileUrl = URL.createObjectURL(file);
       setUploadedPdfUrl(fileUrl);
@@ -240,7 +239,7 @@ useEffect(() => {
 
   const handleDownloadPdf = () => {
     if (uploadedPdfUrl && pdfFile) {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = uploadedPdfUrl;
       link.download = pdfFile.name;
       document.body.appendChild(link);
@@ -252,12 +251,12 @@ useEffect(() => {
   const handleRemovePdf = () => {
     setPdfFile(null);
     setUploadedPdfUrl(null);
-    
+
     // Clear the file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
-    
+
     // Revoke the object URL to free memory
     if (uploadedPdfUrl) {
       URL.revokeObjectURL(uploadedPdfUrl);
@@ -336,7 +335,7 @@ useEffect(() => {
         setSelectedSubjects([]);
         setPdfFile(null);
         setUploadedPdfUrl(null);
-        
+
         // Revoke object URL
         if (uploadedPdfUrl) {
           URL.revokeObjectURL(uploadedPdfUrl);
@@ -374,14 +373,14 @@ useEffect(() => {
   // Close modal on escape key press
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && isPdfModalOpen) {
+      if (e.key === "Escape" && isPdfModalOpen) {
         handleCloseModal();
       }
     };
 
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isPdfModalOpen]);
 
@@ -441,25 +440,33 @@ useEffect(() => {
                       <CheckboxInput
                         type="checkbox"
                         checked={item.checked}
-                        onChange={() => handleCheckboxChange(
-                          subjectsCheckboxes.findIndex(subj => subj.id === item.id)
-                        )}
+                        onChange={() =>
+                          handleCheckboxChange(
+                            subjectsCheckboxes.findIndex(
+                              (subj) => subj.id === item.id
+                            )
+                          )
+                        }
                       />
                       {item.label}
                     </CheckboxLabel>
                   ))
                 ) : (
-                  <p style={{ padding: '10px', color: '#666' }}>No subjects found matching your search</p>
+                  <p style={{ padding: "10px", color: "#666" }}>
+                    No subjects found matching your search
+                  </p>
                 )}
               </CheckboxList>
             </CheckboxSection>
           </Column>
-  
+
           {/* Selected Subjects List with Arrows remains the same */}
           <Column>
             {selectedSubjects.length > 0 && (
               <>
-                <SelectedSubjectsTitle>Selected Subjects ({selectedSubjects.length})</SelectedSubjectsTitle>
+                <SelectedSubjectsTitle>
+                  Selected Subjects ({selectedSubjects.length})
+                </SelectedSubjectsTitle>
                 <SelectedSubjectsList>
                   {selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
@@ -480,17 +487,28 @@ useEffect(() => {
               {pdfFile ? (
                 <FileActionsWrapper>
                   <FileName>{pdfFile.name}</FileName>
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                    <ViewPdfButton type="button" onClick={(e) => { e.stopPropagation(); handleViewPdf(); }}>
-                      <FaEye style={{ marginRight: '5px' }} />
+                  <div
+                    style={{ display: "flex", gap: "10px", marginTop: "10px" }}
+                  >
+                    <ViewPdfButton
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewPdf();
+                      }}
+                    >
+                      <FaEye style={{ marginRight: "5px" }} />
                       View PDF
                     </ViewPdfButton>
-                    <ViewPdfButton 
-                      type="button" 
-                      onClick={(e) => { e.stopPropagation(); handleRemovePdf(); }}
-                      style={{ background: '#dc3545' }}
+                    <ViewPdfButton
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePdf();
+                      }}
+                      style={{ background: "#dc3545" }}
                     >
-                      <FaTimes style={{ marginRight: '5px' }} />
+                      <FaTimes style={{ marginRight: "5px" }} />
                       Remove
                     </ViewPdfButton>
                   </div>
@@ -543,67 +561,60 @@ useEffect(() => {
         </FormRow>
       </FormWrapper>
 
-
-
-{/* PDF Modal */}
-{isPdfModalOpen && (
-  <ModalOverlay onClick={handleCloseModal}>
-    <PdfModal onClick={(e) => e.stopPropagation()}>
-      <PdfModalHeader>
-        <PdfModalTitle>
-          {pdfFile?.name || "PDF Preview"}
-        </PdfModalTitle>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <ViewPdfButton 
-            type="button" 
-            onClick={handleDownloadPdf}
-            style={{ background: '#28a745' }}
-          >
-            <FaDownload style={{ marginRight: '5px' }} />
-            Download
-          </ViewPdfButton>
-          <CloseButton onClick={handleCloseModal}>
-            <FaTimes />
-          </CloseButton>
-        </div>
-      </PdfModalHeader>
-      <PdfModalContent>
-        <PdfViewer
-          src={uploadedPdfUrl}
-          title="PDF Preview"
-        />
-        {/* Fallback message for browsers that don't support PDF embedding */}
-        <div 
-          style={{ 
-            display: 'none',
-            textAlign: 'center', 
-            padding: '20px',
-            background: '#f8f9fa'
-          }}
-          className="pdf-fallback"
-        >
-          <p>
-            Your browser doesn't support PDF preview. 
-            <br />
-            <button 
-              onClick={handleDownloadPdf}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: '#007bff', 
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                marginTop: '10px'
-              }}
-            >
-              Download the PDF instead
-            </button>
-          </p>
-        </div>
-      </PdfModalContent>
-    </PdfModal>
-  </ModalOverlay>
-)}
+      {/* PDF Modal */}
+      {isPdfModalOpen && (
+        <ModalOverlay onClick={handleCloseModal}>
+          <PdfModal onClick={(e) => e.stopPropagation()}>
+            <PdfModalHeader>
+              <PdfModalTitle>{pdfFile?.name || "PDF Preview"}</PdfModalTitle>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <ViewPdfButton
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  style={{ background: "#28a745" }}
+                >
+                  <FaDownload style={{ marginRight: "5px" }} />
+                  Download
+                </ViewPdfButton>
+                <CloseButton onClick={handleCloseModal}>
+                  <FaTimes />
+                </CloseButton>
+              </div>
+            </PdfModalHeader>
+            <PdfModalContent>
+              <PdfViewer src={uploadedPdfUrl} title="PDF Preview" />
+              {/* Fallback message for browsers that don't support PDF embedding */}
+              <div
+                style={{
+                  display: "none",
+                  textAlign: "center",
+                  padding: "20px",
+                  background: "#f8f9fa",
+                }}
+                className="pdf-fallback"
+              >
+                <p>
+                  Your browser doesn't support PDF preview.
+                  <br />
+                  <button
+                    onClick={handleDownloadPdf}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#007bff",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      marginTop: "10px",
+                    }}
+                  >
+                    Download the PDF instead
+                  </button>
+                </p>
+              </div>
+            </PdfModalContent>
+          </PdfModal>
+        </ModalOverlay>
+      )}
 
       <ToastContainer
         position="top-right"

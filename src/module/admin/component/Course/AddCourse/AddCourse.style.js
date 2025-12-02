@@ -52,6 +52,10 @@ export const FormRow = styled.div`
     flex-direction: column;
     gap: ${(p) => p.theme.spacing(2)};
   }
+    // @media (max-width:768px)
+    // {
+    //   padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 60px);
+    //   }
 `;
 
 /** Each column in a row */

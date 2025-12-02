@@ -170,6 +170,7 @@ export const SubmitButton = styled.button`
   cursor: pointer;
   align-self: flex-start;
   width: 20%; 
+  top:20px;
 
     @media (max-width: 1320px) {
     width: 40%;
