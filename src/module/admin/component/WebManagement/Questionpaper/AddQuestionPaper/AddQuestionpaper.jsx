@@ -286,11 +286,12 @@ const AddQuestionPaper = ({ onSubmit = () => {} }) => {
               {!file && <UploadButton>Add Pdf</UploadButton>}
             </UploadContent>
           </UploadBox>
-        </FormGroup>
-
-        <SubmitButton type="submit" disabled={isSubmitting || readOnlyPermissions}>
+           <SubmitButton type="submit" disabled={isSubmitting || readOnlyPermissions}>
           {isSubmitting ? "Uploading..." : (mode === "new" ? "Create Title & Upload" : "Add to Existing Title")}
         </SubmitButton>
+        </FormGroup>
+
+       
       </Form>
     </Container>
   );

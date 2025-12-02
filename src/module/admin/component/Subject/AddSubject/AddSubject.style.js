@@ -63,6 +63,11 @@ export const FormRow = styled.div`
     flex-direction: column;
   }
 
+  @media (max-width:768px)
+    {
+      padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 120px);
+      }
+
 
 `;
 

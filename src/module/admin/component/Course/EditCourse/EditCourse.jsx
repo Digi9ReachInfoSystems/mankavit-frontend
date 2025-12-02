@@ -95,128 +95,129 @@ export default function EditCourse() {
   }, []);
 
   // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
-const getDocCreatedAt = (doc) => {
-  if (!doc) return new Date(0);
+  const getDocCreatedAt = (doc) => {
+    if (!doc) return new Date(0);
 
-  if (doc.createdAt) {
-    try {
-      return new Date(doc.createdAt);
-    } catch {
-      // ignore and fallback
-    }
-  }
-
-  const idCandidate =
-    typeof doc._id === "string"
-      ? doc._id
-      : doc._id && doc._id.$oid
-      ? doc._id.$oid
-      : null;
-
-  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
-    const seconds = parseInt(idCandidate.substring(0, 8), 16);
-    return new Date(seconds * 1000);
-  }
-
-  return new Date(0);
-};
-
-useEffect(() => {
-  const fetchCourse = async () => {
-    try {
-      const response = await getCourseById(id);
-      const data = response.data;
-
-      const [subjectsResponse, categoriesResponse] = await Promise.all([
-        getSubjects(),
-        getCategories(),
-      ]);
-
-      const subjectsArray = Array.isArray(subjectsResponse?.data)
-        ? subjectsResponse.data
-        : Array.isArray(subjectsResponse)
-        ? subjectsResponse
-        : [];
-
-      // sort newest-first then map
-      const subjectsData = subjectsArray
-        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
-        .map((item) => ({
-          label: item.subjectName,
-          id: item._id,
-          checked:
-            data.subjects?.some(
-              (s) => (typeof s === "object" ? s._id : s) === item._id
-            ) || false,
-        }));
-
-      // preserve order of data.subjects for selectedSubjects (if provided)
-      const orderedSubjects = [];
-      if (Array.isArray(data.subjects)) {
-        data.subjects.forEach((subjectId) => {
-          const subject = subjectsData.find(
-            (s) => s.id === (typeof subjectId === "object" ? subjectId._id : subjectId)
-          );
-          if (subject) orderedSubjects.push(subject);
-        });
+    if (doc.createdAt) {
+      try {
+        return new Date(doc.createdAt);
+      } catch {
+        // ignore and fallback
       }
+    }
 
-      const categoryArray = Array.isArray(categoriesResponse?.data)
-        ? categoriesResponse.data
-        : Array.isArray(categoriesResponse)
-        ? categoriesResponse
-        : [];
+    const idCandidate =
+      typeof doc._id === "string"
+        ? doc._id
+        : doc._id && doc._id.$oid
+        ? doc._id.$oid
+        : null;
 
-      // sort newest-first then map
-      const formattedCategories = categoryArray
-        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
-        .map((item) => ({
-          label: item.title,
-          id: item._id,
-          checked:
-            data.category?.some(
-              (s) => (typeof s === "object" ? s._id : s) === item._id
-            ) || false,
+    if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+      const seconds = parseInt(idCandidate.substring(0, 8), 16);
+      return new Date(seconds * 1000);
+    }
+
+    return new Date(0);
+  };
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const response = await getCourseById(id);
+        const data = response.data;
+
+        const [subjectsResponse, categoriesResponse] = await Promise.all([
+          getSubjects(),
+          getCategories(),
+        ]);
+
+        const subjectsArray = Array.isArray(subjectsResponse?.data)
+          ? subjectsResponse.data
+          : Array.isArray(subjectsResponse)
+          ? subjectsResponse
+          : [];
+
+        // sort newest-first then map
+        const subjectsData = subjectsArray
+          .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+          .map((item) => ({
+            label: item.subjectName,
+            id: item._id,
+            checked:
+              data.subjects?.some(
+                (s) => (typeof s === "object" ? s._id : s) === item._id
+              ) || false,
+          }));
+
+        // preserve order of data.subjects for selectedSubjects (if provided)
+        const orderedSubjects = [];
+        if (Array.isArray(data.subjects)) {
+          data.subjects.forEach((subjectId) => {
+            const subject = subjectsData.find(
+              (s) =>
+                s.id ===
+                (typeof subjectId === "object" ? subjectId._id : subjectId)
+            );
+            if (subject) orderedSubjects.push(subject);
+          });
+        }
+
+        const categoryArray = Array.isArray(categoriesResponse?.data)
+          ? categoriesResponse.data
+          : Array.isArray(categoriesResponse)
+          ? categoriesResponse
+          : [];
+
+        // sort newest-first then map
+        const formattedCategories = categoryArray
+          .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+          .map((item) => ({
+            label: item.title,
+            id: item._id,
+            checked:
+              data.category?.some(
+                (s) => (typeof s === "object" ? s._id : s) === item._id
+              ) || false,
+          }));
+
+        setFormData((prev) => ({
+          ...prev,
+          courseTitle: data.courseDisplayName || "",
+          internalTitle: data.courseName || "",
+          shortDescription: data.shortDescription || "",
+          actualPrice: data.price?.toString() || "",
+          discountedPrice: data.discountPrice?.toString() || "",
+          isKYCRequired: data.discountActive || false,
+          duration: data.duration || null,
+          noOfVideos: data.no_of_videos?.toString() || "",
+          successRate: data.successRate?.toString() || "",
+          courseIncludes: Array.isArray(data.course_includes)
+            ? data.course_includes.join(", ")
+            : "",
+          description: data.description || "",
+          liveClass: data.live_class || false,
+          recordedClass: data.recorded_class || false,
+          isPublished: data.isPublished || false,
+          status: data.status || "active",
+          previewUrl: data.image || null,
+          thumbnailFile: null,
+          ratting: data.course_rating || 0,
+          course_order: data.course_order || 0,
+          courseExpiry: data.courseExpiry
+            ? new Date(data.courseExpiry).toISOString().split("T")[0]
+            : null,
         }));
 
-      setFormData((prev) => ({
-        ...prev,
-        courseTitle: data.courseDisplayName || "",
-        internalTitle: data.courseName || "",
-        shortDescription: data.shortDescription || "",
-        actualPrice: data.price?.toString() || "",
-        discountedPrice: data.discountPrice?.toString() || "",
-        isKYCRequired: data.discountActive || false,
-        duration: data.duration || null,
-        noOfVideos: data.no_of_videos?.toString() || "",
-        successRate: data.successRate?.toString() || "",
-        courseIncludes: Array.isArray(data.course_includes)
-          ? data.course_includes.join(", ")
-          : "",
-        description: data.description || "",
-        liveClass: data.live_class || false,
-        recordedClass: data.recorded_class || false,
-        isPublished: data.isPublished || false,
-        status: data.status || "active",
-        previewUrl: data.image || null,
-        thumbnailFile: null,
-        ratting: data.course_rating || 0,
-        course_order: data.course_order || 0,
-        courseExpiry: data.courseExpiry
-          ? new Date(data.courseExpiry).toISOString().split("T")[0]
-          : null,
-      }));
-
-      setSubjectCheckboxes(subjectsData);
-      setSelectedSubjects(orderedSubjects);
-      setCategoryCheckboxes(formattedCategories);
-    } catch (error) {
-      toast.error("Failed to load course data");
-    }
-  };
-  fetchCourse();
-}, [id]);
-
+        setSubjectCheckboxes(subjectsData);
+        setSelectedSubjects(orderedSubjects);
+        setCategoryCheckboxes(formattedCategories);
+      } catch (error) {
+        toast.error("Failed to load course data");
+      }
+    };
+    fetchCourse();
+  }, [id]);
 
   const config = useMemo(
     () => ({
@@ -742,7 +743,11 @@ useEffect(() => {
                       src={
                         formData.previewUrl.startsWith("blob:http")
                           ? formData.previewUrl
-                          : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${formData.previewUrl}`
+                          : `${
+                              import.meta.env.VITE_APP_IMAGE_ACCESS
+                            }/api/project/resource?fileKey=${
+                              formData.previewUrl
+                            }`
                       }
                       alt="Preview"
                       style={{
@@ -752,7 +757,9 @@ useEffect(() => {
                         borderRadius: "8px",
                       }}
                     />
-                    {formData.thumbnailFile && <p>{formData.thumbnailFile.name}</p>}
+                    {formData.thumbnailFile && (
+                      <p>{formData.thumbnailFile.name}</p>
+                    )}
                   </>
                 ) : (
                   <>
@@ -782,13 +789,17 @@ useEffect(() => {
                   gap: "10px",
                 }}
               >
-                <Label style={{ marginBottom: "0px" }}>Is Discount Active?</Label>
+                <Label style={{ marginBottom: "0px" }}>
+                  Is Discount Active?
+                </Label>
                 <ToggleSwitch
                   type="checkbox"
                   checked={formData.isKYCRequired}
                   onChange={() => {
                     if (readOnlyPermissions) {
-                      toast.error("You don't have permission to change discounted status");
+                      toast.error(
+                        "You don't have permission to change discounted status"
+                      );
                       return;
                     }
                     handleToggleChange("isKYCRequired");
@@ -809,21 +820,22 @@ useEffect(() => {
                   checked={formData.isPublished}
                   onChange={() => {
                     if (readOnlyPermissions) {
-                      toast.error("You don't have permission to change Publish status");
+                      toast.error(
+                        "You don't have permission to change Publish status"
+                      );
                       return;
                     }
                     handleToggleChange("isPublished");
                   }}
                 />
               </FieldWrapper>
+              <FormRow>
+                {!readOnlyPermissions && (
+                  <SubmitButton type="submit">Update Course</SubmitButton>
+                )}
+              </FormRow>
             </Column>
           </Column>
-        </FormRow>
-
-        <FormRow>
-          {!readOnlyPermissions && (
-            <SubmitButton type="submit">Update Course</SubmitButton>
-          )}
         </FormRow>
       </FormWrapper>
     </Container>

@@ -280,13 +280,14 @@ const AddFaq = ({ onAdd }) => {
             onChange={() => { /* no-op: we update on blur */ }}
           />
           {errors.answer && <ErrorText>{errors.answer}</ErrorText>}
-        </FormGroup>
-
-        {!readOnlyPermissions && (
+           {!readOnlyPermissions && (
           <SubmitButton type="submit" disabled={loading}>
             {loading ? 'Adding…' : 'Add New FAQ'}
           </SubmitButton>
         )}
+        </FormGroup>
+
+       
       </form>
 
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />

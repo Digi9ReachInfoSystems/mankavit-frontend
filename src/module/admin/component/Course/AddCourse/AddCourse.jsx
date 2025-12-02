@@ -68,77 +68,76 @@ export default function AddCourse() {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const fileInputRef = useRef(null);
 
- // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
-const getDocCreatedAt = (doc) => {
-  if (!doc) return new Date(0);
+  // helper: get created time from doc (prefer createdAt, fallback to ObjectId timestamp)
+  const getDocCreatedAt = (doc) => {
+    if (!doc) return new Date(0);
 
-  if (doc.createdAt) {
-    try {
-      return new Date(doc.createdAt);
-    } catch {
-      // ignore and fallback
+    if (doc.createdAt) {
+      try {
+        return new Date(doc.createdAt);
+      } catch {
+        // ignore and fallback
+      }
     }
-  }
 
-  const idCandidate =
-    typeof doc._id === "string"
-      ? doc._id
-      : doc._id && doc._id.$oid
-      ? doc._id.$oid
-      : null;
+    const idCandidate =
+      typeof doc._id === "string"
+        ? doc._id
+        : doc._id && doc._id.$oid
+        ? doc._id.$oid
+        : null;
 
-  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
-    const seconds = parseInt(idCandidate.substring(0, 8), 16);
-    return new Date(seconds * 1000);
-  }
-
-  return new Date(0);
-};
-
-useEffect(() => {
-  const apiCaller = async () => {
-    try {
-      const responseSubjects = await getSubjects();
-      const subjectsArray = Array.isArray(responseSubjects?.data)
-        ? responseSubjects.data
-        : Array.isArray(responseSubjects)
-        ? responseSubjects
-        : [];
-
-      // sort newest-first then map
-      const subjectsData = subjectsArray
-        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
-        .map((item) => ({
-          label: item.subjectName || item.title || "",
-          id: item._id,
-          checked: false,
-        }));
-      setSubjectCheckboxes(subjectsData);
-
-      const responseCategories = await getCategories();
-      const categoryArray = Array.isArray(responseCategories?.data)
-        ? responseCategories.data
-        : Array.isArray(responseCategories)
-        ? responseCategories
-        : [];
-
-      // sort newest-first then map
-      const dataCategories = categoryArray
-        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
-        .map((item) => ({
-          label: item.title || item.categoryName || "",
-          id: item._id,
-          checked: false,
-        }));
-      setCategoryCheckboxes(dataCategories);
-    } catch (error) {
-      /* noop */
-      console.error("Failed to load subjects/categories", error);
+    if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+      const seconds = parseInt(idCandidate.substring(0, 8), 16);
+      return new Date(seconds * 1000);
     }
+
+    return new Date(0);
   };
-  apiCaller();
-}, []);
 
+  useEffect(() => {
+    const apiCaller = async () => {
+      try {
+        const responseSubjects = await getSubjects();
+        const subjectsArray = Array.isArray(responseSubjects?.data)
+          ? responseSubjects.data
+          : Array.isArray(responseSubjects)
+          ? responseSubjects
+          : [];
+
+        // sort newest-first then map
+        const subjectsData = subjectsArray
+          .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+          .map((item) => ({
+            label: item.subjectName || item.title || "",
+            id: item._id,
+            checked: false,
+          }));
+        setSubjectCheckboxes(subjectsData);
+
+        const responseCategories = await getCategories();
+        const categoryArray = Array.isArray(responseCategories?.data)
+          ? responseCategories.data
+          : Array.isArray(responseCategories)
+          ? responseCategories
+          : [];
+
+        // sort newest-first then map
+        const dataCategories = categoryArray
+          .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a))
+          .map((item) => ({
+            label: item.title || item.categoryName || "",
+            id: item._id,
+            checked: false,
+          }));
+        setCategoryCheckboxes(dataCategories);
+      } catch (error) {
+        /* noop */
+        console.error("Failed to load subjects/categories", error);
+      }
+    };
+    apiCaller();
+  }, []);
 
   const config = useMemo(
     () => ({
@@ -232,7 +231,8 @@ useEffect(() => {
     e.preventDefault();
     try {
       if (!courseTitle) return toast.error("Please enter course title.");
-      if (!internalTitle) return toast.error("Please enter internal course title.");
+      if (!internalTitle)
+        return toast.error("Please enter internal course title.");
       if (!actualPrice || isNaN(actualPrice))
         return toast.error("Actual price should be a number.");
       if (!discountedPrice || isNaN(discountedPrice))
@@ -260,8 +260,8 @@ useEffect(() => {
         isPublished: isPublished,
         course_order: course_order,
         courseExpiry: courseExpiry ? new Date(courseExpiry) : null,
-        category: categoryCheckboxes.filter(i => i.checked).map(i => i.id),
-        subjects: selectedSubjects.map(s => s.id),
+        category: categoryCheckboxes.filter((i) => i.checked).map((i) => i.id),
+        subjects: selectedSubjects.map((s) => s.id),
       };
 
       const createCourseResponse = await createCourse(payload);
@@ -277,8 +277,12 @@ useEffect(() => {
         setDiscountedPrice("");
         setIsKYCRequired(false);
         setSelectedSubjects([]);
-        setSubjectCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
-        setCategoryCheckboxes((prev) => prev.map((i) => ({ ...i, checked: false })));
+        setSubjectCheckboxes((prev) =>
+          prev.map((i) => ({ ...i, checked: false }))
+        );
+        setCategoryCheckboxes((prev) =>
+          prev.map((i) => ({ ...i, checked: false }))
+        );
         setThumbnailFile(null);
         setPreviewUrl(null);
         setCourseExpiry("");
@@ -287,7 +291,8 @@ useEffect(() => {
       }
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Failed to create course. Please try again."
+        err.response?.data?.message ||
+          "Failed to create course. Please try again."
       );
     }
   };
@@ -415,9 +420,7 @@ useEffect(() => {
               />
             </FieldWrapper>
           </Column>
-          <Column>
-            {/* reserved for future fields (expiry etc.) */}
-          </Column>
+          <Column>{/* reserved for future fields (expiry etc.) */}</Column>
         </FormRow>
 
         <FormRow>
@@ -442,7 +445,9 @@ useEffect(() => {
                 <CheckboxList>
                   {subjectCheckboxes
                     .filter((subject) =>
-                      subject.label.toLowerCase().includes(searchSubject.toLowerCase())
+                      subject.label
+                        .toLowerCase()
+                        .includes(searchSubject.toLowerCase())
                     )
                     .map((item, index) => (
                       <CheckboxLabel key={item.id || index}>
@@ -527,7 +532,12 @@ useEffect(() => {
                       <img
                         src={previewUrl}
                         alt="Preview"
-                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: 8,
+                        }}
                       />
                       <p>{thumbnailFile.name}</p>
                     </>
@@ -564,7 +574,9 @@ useEffect(() => {
             </div>
 
             <Column className="toggle-column" style={{ flex: "1 1 220px" }}>
-              <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <FieldWrapper
+                style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
+              >
                 <Label style={{ marginBottom: 0 }}>Is Discount Active?</Label>
                 <ToggleSwitch
                   type="checkbox"
@@ -573,7 +585,9 @@ useEffect(() => {
                 />
               </FieldWrapper>
 
-              <FieldWrapper style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <FieldWrapper
+                style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
+              >
                 <Label style={{ marginBottom: 0 }}>Is Published?</Label>
                 <ToggleSwitch
                   type="checkbox"
@@ -581,12 +595,12 @@ useEffect(() => {
                   onChange={handlePublishedToggle}
                 />
               </FieldWrapper>
+              
+              <FormRow>
+                <SubmitButton type="submit">Add Course</SubmitButton>
+              </FormRow>
             </Column>
           </Column>
-        </FormRow>
-
-        <FormRow>
-          <SubmitButton type="submit">Add Course</SubmitButton>
         </FormRow>
       </FormWrapper>
     </Container>

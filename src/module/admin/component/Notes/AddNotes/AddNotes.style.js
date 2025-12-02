@@ -55,6 +55,10 @@ export const FormRow = styled.div`
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     flex-direction: column;
   }
+
+  @media (max-width: 768px) {
+    padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 60px);
+  }
 `;
 
 // Columns inside the row
@@ -273,7 +277,7 @@ export const ToggleSwitch = styled.input`
 // Submit Button
 export const SubmitButton = styled.button`
   width: 20%;
-  background:linear-gradient(to right, #0dcaf0, #007bff);
+ background:linear-gradient(to right, #0dcaf0, #007bff);
   color: ${(props) => props.theme.colors.secondary};
   padding: ${(props) => props.theme.spacing(1)} ${(props) => props.theme.spacing(2)};
   font-size: 1rem;
@@ -284,18 +288,16 @@ export const SubmitButton = styled.button`
   transition: background-color 0.2s ease;
   margin-top: ${(props) => props.theme.spacing(2)};
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.black};
-  }
-
-   @media (max-width: 1320px) {
+  @media (max-width: 1320px) {
     width: 40%;
   }
 
   @media (max-width: 990px) {
     width: 85%;
-    margin: 0 auto;
+    margin:0  auto ;
   }
+
+
 `;
 
 export const FieldWrapper = styled.div`

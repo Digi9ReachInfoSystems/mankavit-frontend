@@ -68,8 +68,9 @@ export const TextInput = styled.input`
 `;
 
 export const SubmitButton = styled.button`
-  margin-top: ${theme.spacing(2)};
+  // margin-top: ${theme.spacing(2)};
   padding: ${theme.spacing(2)} ${theme.spacing(4)};
+  margin-bottom: ${theme.spacing(2)};
   background: ${theme.colors.primary};
   color: ${theme.colors.secondary};
   border: none;
