@@ -203,10 +203,11 @@ const UserSidebar = () => {
             <ModalContent>
               <p>Are you sure you want to logout?</p>
               <ModalButtons>
+                
+                <ModalButton onClick={handleCancelLogout}>No</ModalButton>
                 <ModalButton $primary onClick={handleConfirmLogout}>
                   Yes
                 </ModalButton>
-                <ModalButton onClick={handleCancelLogout}>No</ModalButton>
               </ModalButtons>
             </ModalContent>
           </ModalContainer>

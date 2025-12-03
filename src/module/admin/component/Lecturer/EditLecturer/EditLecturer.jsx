@@ -33,7 +33,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
 import JoditEditor from "jodit-react";
 import { getAuth } from "../../../../../utils/authService";
-import { uploadVideoToAzureStorage } from "../../../../../utils/azureStorageService";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -112,7 +111,7 @@ export default function EditLecturer() {
     const fetchLecture = async () => {
       try {
         const response = await getLectureById(id);
-        const lecture = response.data;
+        const lecture = response.data || {};
 
         setCurrentVideo(lecture.videoUrl || "");
         setVideoPreviewUrl(lecture.videoUrl || "");
@@ -444,6 +443,7 @@ export default function EditLecturer() {
                   }, 100);
                 }}
                 onClick={(e) => {
+                  // Only open file picker if user clicked the UploadArea itself (not an inner control)
                   if (e.target === e.currentTarget) {
                     handleVideoUploadClick();
                   }
@@ -472,6 +472,29 @@ export default function EditLecturer() {
                       <strong>or Browse Files</strong>
                     </p>
                   </UploadPlaceholder>
+                )}
+
+                {/* Download button for previewed video */}
+                {videoPreviewUrl && (
+                  <a
+                    href={resolveVideoSrc()}
+                    download={
+                      // For blob urls we can't determine original filename reliably; use lectureName fallback
+                      videoFile?.name || `${formData.lectureName || "video"}.mp4`
+                    }
+                    style={{
+                      marginTop: "12px",
+                      padding: "8px 12px",
+                      background: "#fcfdffff",
+                      color: "white",
+                      borderRadius: 6,
+                      textDecoration: "none",
+                      fontSize: 14,
+                      display: "inline-block",
+                    }}
+                  >
+                    {/* Download Video */}
+                  </a>
                 )}
 
                 <FileInput
