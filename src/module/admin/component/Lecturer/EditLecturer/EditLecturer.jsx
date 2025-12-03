@@ -9,13 +9,10 @@ import {
   FieldWrapper,
   Label,
   Input,
-  TextArea,
   UploadArea,
   FileInput,
   UploadPlaceholder,
   SubmitButton,
-  VideoContainer,
-  VideoPlayer,
   CheckboxSection,
   CheckboxSectionTitle,
   CheckboxList,
@@ -26,7 +23,6 @@ import {
   SelectedSubjectItem,
   SubjectName,
   VideoWrapper,
-  MoveButton,
 } from "./EditLecturer.styles";
 import VideoPlayerCustom from "../../../../../component/VideoPlayerCustom/VideoPlayerCustom";
 
@@ -35,11 +31,9 @@ import { getLectureById, updateLectureById } from "../../../../../api/lecturesAp
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getSubjects, rearrangeSubjects } from "../../../../../api/subjectApi";
-import JoditEditor from 'jodit-react';
+import JoditEditor from "jodit-react";
 import { getAuth } from "../../../../../utils/authService";
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { uploadVideoToAzureStorage } from "../../../../../utils/azureStorageService";
-import AdminVideoPlayerCustom from "../../AdminVideoPlayer/AdminVideoPlayerCustom";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -62,13 +56,9 @@ export default function EditLecturer() {
   const [readOnlyPermissions, setReadOnlyPermissions] = useState(false);
   const [updating, setUpdating] = useState(false);
 
-  // flag to ignore accidental submits coming from clicks inside the video area
   const ignoreSubmitRef = useRef(false);
-
-  // 🔎 New: search term for subjects
   const [searchSubject, setSearchSubject] = useState("");
 
-  // 🔎 New: filter the visible subjects but keep source of truth in subjectCheckboxes
   const filteredSubjects = useMemo(
     () =>
       subjectCheckboxes.filter((s) =>
@@ -77,127 +67,153 @@ export default function EditLecturer() {
     [subjectCheckboxes, searchSubject]
   );
 
+  // Helper to get createdAt fallback from objectId
+  const getDocCreatedAt = (doc) => {
+    if (!doc) return new Date(0);
+    if (doc.createdAt) {
+      try {
+        return new Date(doc.createdAt);
+      } catch {}
+    }
+    const idCandidate =
+      typeof doc._id === "string"
+        ? doc._id
+        : doc._id && doc._id.$oid
+        ? doc._id.$oid
+        : null;
+
+    if (typeof idCandidate === "string" && idCandidate.length >= 8) {
+      const seconds = parseInt(idCandidate.substring(0, 8), 16);
+      return new Date(seconds * 1000);
+    }
+    return new Date(0);
+  };
+
   useEffect(() => {
     const apiCaller = async () => {
-      const response = await getAuth();
-      response.Permissions;
-      if (response.isSuperAdmin === true) {
-        setReadOnlyPermissions(false);
-      } else {
-        setReadOnlyPermissions(response.Permissions["courseManagement"].readOnly);
+      try {
+        const response = await getAuth();
+        if (response?.isSuperAdmin === true) {
+          setReadOnlyPermissions(false);
+        } else {
+          setReadOnlyPermissions(
+            !!response?.Permissions?.["courseManagement"]?.readOnly
+          );
+        }
+      } catch (err) {
+        // ignore permission fetch failure (keep default false)
       }
-    }
+    };
     apiCaller();
   }, []);
 
- // --- add this helper near the top of the file (once) ---
-const getDocCreatedAt = (doc) => {
-  if (!doc) return new Date(0);
+  useEffect(() => {
+    // fetch lecture and subjects
+    const fetchLecture = async () => {
+      try {
+        const response = await getLectureById(id);
+        const lecture = response.data;
 
-  if (doc.createdAt) {
-    try {
-      return new Date(doc.createdAt);
-    } catch {
-      // fallthrough
+        setCurrentVideo(lecture.videoUrl || "");
+        setVideoPreviewUrl(lecture.videoUrl || "");
+        setFormData({
+          lectureName: lecture.lectureName || "",
+          duration: lecture.duration || "",
+          description: lecture.description || "",
+          folder: lecture.folder || "",
+        });
+
+        const responseSubjects = await getSubjects();
+        const rawSubjects = Array.isArray(responseSubjects?.data)
+          ? responseSubjects.data
+          : Array.isArray(responseSubjects)
+          ? responseSubjects
+          : [];
+
+        const sortedSubjects = rawSubjects
+          .slice()
+          .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a));
+
+        const subjectsData = sortedSubjects.map((item) => ({
+          label: item.subjectName,
+          id: item._id,
+          checked:
+            Array.isArray(lecture.subjectRef) &&
+            lecture.subjectRef.some((ref) =>
+              typeof ref === "object" ? ref === item._id || ref._id === item._id : ref === item._id
+            ),
+        }));
+
+        setSubjectCheckboxes(subjectsData);
+
+        const orderedSelectedSubjects = Array.isArray(lecture.subjectRef)
+          ? lecture.subjectRef
+              .map((subjectId) =>
+                subjectsData.find((s) =>
+                  s.id === (typeof subjectId === "object" ? subjectId._id : subjectId)
+                ) || null
+              )
+              .filter(Boolean)
+          : [];
+
+        setSelectedSubjects(orderedSelectedSubjects);
+      } catch (error) {
+        toast.error("Failed to fetch lecture");
+      }
+    };
+
+    if (id) fetchLecture();
+  }, [id]);
+
+  // When user selects a local file create object URL and revoke old one
+  useEffect(() => {
+    let prevBlob = null;
+    if (videoFile) {
+      const blobUrl = URL.createObjectURL(videoFile);
+      setVideoPreviewUrl(blobUrl);
+      prevBlob = blobUrl;
     }
-  }
 
-  const idCandidate =
-    typeof doc._id === "string"
-      ? doc._id
-      : doc._id && doc._id.$oid
-      ? doc._id.$oid
-      : null;
+    return () => {
+      if (prevBlob) {
+        try {
+          URL.revokeObjectURL(prevBlob);
+        } catch {}
+      }
+    };
+  }, [videoFile]);
 
-  if (typeof idCandidate === "string" && idCandidate.length >= 8) {
-    const seconds = parseInt(idCandidate.substring(0, 8), 16);
-    return new Date(seconds * 1000);
-  }
+  // Clean up if component unmounts and preview is a blob
+  useEffect(() => {
+    return () => {
+      if (videoPreviewUrl && videoPreviewUrl.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(videoPreviewUrl);
+        } catch {}
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  return new Date(0);
-};
-
-
-// --- replace your existing useEffect(...) that fetches lecture & subjects with this ---
-useEffect(() => {
-  const fetchLecture = async () => {
-    try {
-      const response = await getLectureById(id);
-      const lecture = response.data;
-
-      setCurrentVideo(lecture.videoUrl);
-      setVideoPreviewUrl(lecture.videoUrl);
-      setFormData({
-        lectureName: lecture.lectureName || "",
-        duration: lecture.duration || "",
-        description: lecture.description || "",
-        folder: lecture.folder || "",
-      });
-
-      // fetch subjects and sort newest-first (prefer createdAt, fallback to ObjectId timestamp)
-      const responseSubjects = await getSubjects();
-      const rawSubjects = Array.isArray(responseSubjects?.data)
-        ? responseSubjects.data
-        : Array.isArray(responseSubjects)
-        ? responseSubjects
-        : [];
-
-      const sortedSubjects = rawSubjects
-        .slice() // copy to avoid mutating original
-        .sort((a, b) => getDocCreatedAt(b) - getDocCreatedAt(a));
-
-      const subjectsData = sortedSubjects.map((item) => ({
-        label: item.subjectName,
-        id: item._id,
-        // check membership robustly (handles both string ids and object refs)
-        checked:
-          Array.isArray(lecture.subjectRef) &&
-          lecture.subjectRef.some((ref) =>
-            typeof ref === "object" ? ref === item._id || ref._id === item._id : ref === item._id
-          ),
-      }));
-
-      setSubjectCheckboxes(subjectsData);
-
-      // maintain selected order from lecture.subjectRef (use subjectsData, which is sorted for "Available" list)
-      const orderedSelectedSubjects = Array.isArray(lecture.subjectRef)
-        ? lecture.subjectRef
-            .map((subjectId) =>
-              subjectsData.find((s) => s.id === (typeof subjectId === "object" ? subjectId._id : subjectId)) || null
-            )
-            .filter(Boolean)
-        : [];
-
-      setSelectedSubjects(orderedSelectedSubjects);
-    } catch (error) {
-      toast.error("Failed to fetch lecture");
-    }
-  };
-
-  if (id) fetchLecture();
-}, [id]);
-
-
-  const handleVideoUploadClick = () => videoInputRef.current.click();
+  const handleVideoUploadClick = () => videoInputRef.current?.click();
 
   const handleCheckboxChange = (originalIndex) => {
     const updatedCheckboxes = [...subjectCheckboxes];
+    if (originalIndex < 0 || originalIndex >= updatedCheckboxes.length) return;
     updatedCheckboxes[originalIndex].checked = !updatedCheckboxes[originalIndex].checked;
     setSubjectCheckboxes(updatedCheckboxes);
 
-    // Update selected subjects from updatedCheckboxes
-    const selected = updatedCheckboxes.filter(item => item.checked);
-
-    // Keep existing order where possible
     const subjectToUpdate = updatedCheckboxes[originalIndex];
     const newSelectedSubjects = [...selectedSubjects];
 
     if (subjectToUpdate.checked) {
-      if (!newSelectedSubjects.some(s => s.id === subjectToUpdate.id)) {
+      if (!newSelectedSubjects.some((s) => s.id === subjectToUpdate.id)) {
         newSelectedSubjects.push(subjectToUpdate);
       }
     } else {
-      const removeIndex = newSelectedSubjects.findIndex(s => s.id === subjectToUpdate.id);
+      const removeIndex = newSelectedSubjects.findIndex(
+        (s) => s.id === subjectToUpdate.id
+      );
       if (removeIndex !== -1) newSelectedSubjects.splice(removeIndex, 1);
     }
 
@@ -207,40 +223,57 @@ useEffect(() => {
   const moveSubjectUp = (index) => {
     if (index <= 0) return;
     const newSelectedSubjects = [...selectedSubjects];
-    [newSelectedSubjects[index], newSelectedSubjects[index - 1]] =
-      [newSelectedSubjects[index - 1], newSelectedSubjects[index]];
+    [newSelectedSubjects[index - 1], newSelectedSubjects[index]] = [
+      newSelectedSubjects[index],
+      newSelectedSubjects[index - 1],
+    ];
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const moveSubjectDown = (index) => {
     if (index >= selectedSubjects.length - 1) return;
     const newSelectedSubjects = [...selectedSubjects];
-    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] =
-      [newSelectedSubjects[index + 1], newSelectedSubjects[index]];
+    [newSelectedSubjects[index], newSelectedSubjects[index + 1]] = [
+      newSelectedSubjects[index + 1],
+      newSelectedSubjects[index],
+    ];
     setSelectedSubjects(newSelectedSubjects);
   };
 
   const handleVideoChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target?.files?.[0];
     if (file) {
+      // revoke previous blob if it was a blob URL created earlier
+      if (videoPreviewUrl && videoPreviewUrl.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(videoPreviewUrl);
+        } catch {}
+      }
       setVideoFile(file);
-      setVideoPreviewUrl(URL.createObjectURL(file));
+      // setVideoPreviewUrl will be handled by effect above
     }
   };
 
-  // main submit handler - now checks ignoreSubmitRef to avoid accidental submits from player clicks
+  const resolveVideoSrc = () => {
+    if (!videoPreviewUrl) return "";
+    // blob URLs
+    if (videoPreviewUrl.startsWith("blob:")) return videoPreviewUrl;
+    // absolute URLs
+    if (/^https?:\/\//.test(videoPreviewUrl)) return videoPreviewUrl;
+    // fallback to VITE endpoint if available (fileKey style)
+    const base = (import.meta && import.meta.env && import.meta.env.VITE_APP_IMAGE_ACCESS) || "";
+    return base ? `${base}/api/project/resource?fileKey=${videoPreviewUrl}` : videoPreviewUrl;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if the most recent click came from the video area, ignore this submit
     if (ignoreSubmitRef.current) {
-      // clear the flag and bail out
       ignoreSubmitRef.current = false;
       return;
     }
 
     const { lectureName, description } = formData;
-
     if (!lectureName || !description) {
       toast.error("Please fill all required fields!");
       return;
@@ -248,28 +281,29 @@ useEffect(() => {
     setUpdating(true);
 
     try {
-      // Rearrange subjects before submission
       let subjectIds = [];
       if (selectedSubjects.length > 0) {
-        subjectIds = selectedSubjects.map(subject => subject.id);
+        subjectIds = selectedSubjects.map((s) => s.id);
+        // optionally rearrange on server
         await rearrangeSubjects(subjectIds);
       }
 
-      let payload = {
+      const payload = {
         lectureName,
         description,
         subjectRef: subjectIds,
       };
 
-      if (videoPreviewUrl && videoFile) {
+      // If user selected a new local video file, send it as payload.videoUrl (your API expects file)
+      if (videoFile) {
         payload.videoUrl = videoFile;
       }
 
       const response = await updateLectureById(id, payload);
-      if (response.success) {
+      if (response?.success) {
         toast.success("Lecture updated successfully!");
       } else {
-        throw new Error(response.message || "Failed to update lecture");
+        throw new Error(response?.message || "Failed to update lecture");
       }
     } catch (error) {
       toast.error("Failed to update lecture");
@@ -278,15 +312,18 @@ useEffect(() => {
     }
   };
 
-  const configDis = useMemo(() => ({
-    readonly: false,
-    placeholder: formData.description,
-  }), []);
+  const configDis = useMemo(
+    () => ({
+      readonly: false,
+      placeholder: formData.description,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   return (
     <Container>
       <Title>Edit Video</Title>
-      {/* keep the same submit handler but now it checks ignoreSubmitRef */}
       <FormWrapper onSubmit={handleSubmit}>
         <FormRow>
           <Column>
@@ -313,24 +350,8 @@ useEffect(() => {
                 value={formData.description}
                 config={configDis}
                 tabIndex={1}
-                onBlur={newContent => { setFormData({ ...formData, description: newContent }) }}
+                onBlur={(newContent) => setFormData({ ...formData, description: newContent })}
               />
-            </FieldWrapper>
-          </Column>
-        </FormRow>
-
-        <FormRow>
-          <Column>
-            <FieldWrapper>
-              <Label>Folder</Label>
-              <p style={{
-                padding: "8px 12px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                background: "#f9f9f9"
-              }}>
-                {formData?.folder || "No folder assigned"}
-              </p>
             </FieldWrapper>
           </Column>
         </FormRow>
@@ -365,9 +386,7 @@ useEffect(() => {
                           type="checkbox"
                           checked={item.checked}
                           onChange={() =>
-                            handleCheckboxChange(
-                              subjectCheckboxes.findIndex((s) => s.id === item.id)
-                            )
+                            handleCheckboxChange(subjectCheckboxes.findIndex((s) => s.id === item.id))
                           }
                         />
                         {item.label}
@@ -380,11 +399,24 @@ useEffect(() => {
               </CheckboxSection>
 
               <SelectedSubjectsContainer>
-                <CheckboxSectionTitle>Selected Subjects (Drag to reorder)</CheckboxSectionTitle>
+                <CheckboxSectionTitle>Selected Subjects</CheckboxSectionTitle>
                 {selectedSubjects.length > 0 ? (
                   selectedSubjects.map((subject, index) => (
                     <SelectedSubjectItem key={subject.id}>
                       <SubjectName>{subject.label}</SubjectName>
+                      {/* optional move buttons */}
+                      <div>
+                        <button type="button" onClick={() => moveSubjectUp(index)} disabled={index === 0}>
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveSubjectDown(index)}
+                          disabled={index === selectedSubjects.length - 1}
+                        >
+                          ↓
+                        </button>
+                      </div>
                     </SelectedSubjectItem>
                   ))
                 ) : (
@@ -400,22 +432,18 @@ useEffect(() => {
             <FieldWrapper>
               <Label>Update Video </Label>
 
-              {/* UploadArea capture click BEFORE form submit */}
               <UploadArea
                 role="button"
                 tabIndex={0}
-                onClickCapture={(e) => {
-                  // mark that the last click originated inside the upload area (or player)
-                  // this fires BEFORE the browser's form submit, so handleSubmit can check it
+                onClickCapture={() => {
+                  // mark that the last click originated inside the upload area (used to avoid accidental submit)
                   ignoreSubmitRef.current = true;
-                  // Clear the flag shortly after (so only the immediate submit is ignored)
+                  // clear shortly after
                   setTimeout(() => {
-                    // safety: only clear if still true (in case handleSubmit already reset)
                     if (ignoreSubmitRef.current) ignoreSubmitRef.current = false;
-                  }, 50);
+                  }, 100);
                 }}
                 onClick={(e) => {
-                  // Only open picker when clicking UploadArea container itself (not child controls)
                   if (e.target === e.currentTarget) {
                     handleVideoUploadClick();
                   }
@@ -427,26 +455,24 @@ useEffect(() => {
                   }
                 }}
               >
-               {videoPreviewUrl ? (
-  <VideoWrapper>
-    <AdminVideoPlayerCustom
-      src={
-        videoPreviewUrl.startsWith("blob:")
-          ? videoPreviewUrl
-          : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`
-      }
-      movingText={formData.lectureName}
-      onClick={() => {}}
-      onEnded={() => {}}
-    />
-  </VideoWrapper>
-) : (
-  <UploadPlaceholder>
-    <img src={upload} alt="Upload" />
-    <p>Click to upload new video</p>
-    <p><strong>or Browse Files</strong></p>
-  </UploadPlaceholder>
-)}
+                {videoPreviewUrl ? (
+                  <VideoWrapper>
+                    <VideoPlayerCustom
+                      src={resolveVideoSrc()}
+                      movingText={formData.lectureName}
+                      onClick={() => {}}
+                      onEnded={() => {}}
+                    />
+                  </VideoWrapper>
+                ) : (
+                  <UploadPlaceholder>
+                    <img src={upload} alt="Upload" />
+                    <p>Click to upload new video</p>
+                    <p>
+                      <strong>or Browse Files</strong>
+                    </p>
+                  </UploadPlaceholder>
+                )}
 
                 <FileInput
                   ref={videoInputRef}
@@ -463,7 +489,7 @@ useEffect(() => {
           <FormRow>
             <Column>
               <SubmitButton type="submit" disabled={updating}>
-                {updating ? "Updating... " : "Update Lecture"}
+                {updating ? "Updating..." : "Update Lecture"}
               </SubmitButton>
             </Column>
           </FormRow>
