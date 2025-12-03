@@ -25,6 +25,7 @@ import {
   SelectedSubjectsContainer,
   SelectedSubjectItem,
   SubjectName,
+  VideoWrapper,
   MoveButton,
 } from "./EditLecturer.styles";
 import VideoPlayerCustom from "../../../../../component/VideoPlayerCustom/VideoPlayerCustom";
@@ -424,29 +425,27 @@ useEffect(() => {
                   }
                 }}
               >
-                {videoPreviewUrl ? (
-                  <VideoContainer>
-                    {/* Use custom player so all controls/shortcuts are available */}
-                    <VideoPlayerCustom
-                      src={
-                        videoPreviewUrl.startsWith("blob:")
-                          ? videoPreviewUrl
-                          : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`
-                      }
-                      movingText={formData.lectureName}
-                      onClick={() => {
-                        /* clicking the player toggles play — does not open file picker */
-                      }}
-                      onEnded={() => {}}
-                    />
-                  </VideoContainer>
-                ) : (
-                  <UploadPlaceholder>
-                    <img src={upload} alt="Upload" />
-                    <p>Click to upload new video</p>
-                    <p><strong>or Browse Files</strong></p>
-                  </UploadPlaceholder>
-                )}
+               {videoPreviewUrl ? (
+  <VideoWrapper>
+    <VideoPlayerCustom
+      src={
+        videoPreviewUrl.startsWith("blob:")
+          ? videoPreviewUrl
+          : `${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${videoPreviewUrl}`
+      }
+      movingText={formData.lectureName}
+      onClick={() => {}}
+      onEnded={() => {}}
+    />
+  </VideoWrapper>
+) : (
+  <UploadPlaceholder>
+    <img src={upload} alt="Upload" />
+    <p>Click to upload new video</p>
+    <p><strong>or Browse Files</strong></p>
+  </UploadPlaceholder>
+)}
+
                 <FileInput
                   ref={videoInputRef}
                   type="file"

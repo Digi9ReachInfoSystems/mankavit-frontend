@@ -218,37 +218,37 @@ export const CheckboxInput = styled.input`
 `;
 
 /** The upload area for the thumbnail, styled as a drop zone */
-export const UploadArea = styled.div`
-  border: 2px dashed ${(props) => props.theme.colors.grey};
-  border-radius: 8px;
-  padding: ${(props) => props.theme.spacing(4)};
-  text-align: center;
-  color: ${(props) => props.theme.colors.test};
-  cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
-  background: transparent;
-  position: relative;
+// export const UploadArea = styled.div`
+//   border: 2px dashed ${(props) => props.theme.colors.grey};
+//   border-radius: 8px;
+//   padding: ${(props) => props.theme.spacing(4)};
+//   text-align: center;
+//   color: ${(props) => props.theme.colors.test};
+//   cursor: pointer;
+//   width: 100%;
+//   box-sizing: border-box;
+//   background: transparent;
+//   position: relative;
 
-  /* Important: clip any overflowing child like video */
-  overflow: hidden;
+//   /* Important: clip any overflowing child like video */
+//   overflow: hidden;
 
-  p {
-    margin: ${(props) => props.theme.spacing(1)} 0 0 0;
-  }
+//   p {
+//     margin: ${(props) => props.theme.spacing(1)} 0 0 0;
+//   }
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.backgrounGrey};
-  }
+//   &:hover {
+//     background-color: ${(props) => props.theme.colors.backgrounGrey};
+//   }
 
-  @media (max-width: 1024px) {
-    padding: ${(props) => props.theme.spacing(3)};
-  }
+//   @media (max-width: 1024px) {
+//     padding: ${(props) => props.theme.spacing(3)};
+//   }
 
-  @media (max-width: 768px) {
-    padding: ${(props) => props.theme.spacing(2)};
-  }
-`;
+//   @media (max-width: 768px) {
+//     padding: ${(props) => props.theme.spacing(2)};
+//   }
+// `;
 
 /** Hidden file input to trigger on area click */
 export const FileInput = styled.input`
@@ -332,10 +332,10 @@ export const VideoContainer = styled.div`
   margin-top: 20px;
 `;
 
-export const VideoPlayer = styled.video`
-  max-width: 100%;
-  height: auto;
-`;
+// export const VideoPlayer = styled.video`
+//   max-width: 100%;
+//   height: auto;
+// `;
 
 export const ThumbnailContainer = styled.div`
   width: 100%;
@@ -368,10 +368,10 @@ export const ThumbnailPreview = styled.div`
   }
 `;
 
-export const VideoControl = styled.video`
-  width: 100%;
-  height: 500px;
-`;
+// export const VideoControl = styled.video`
+//   width: 100%;
+//   height: 500px;
+// `;
 
 export const SubjectsContainer = styled.div`
   display: flex;
@@ -451,35 +451,133 @@ export const SearchInput = styled.input`
   background: transparent;
 `;
 
+// export const VideoWrapper = styled.div`
+//   width: 100%;
+//   /* limit height to keep inside box; adjust as needed */
+//   max-height: 420px;
+//   display: block;
+//   box-sizing: border-box;
+//   border-radius: 6px;
+//   overflow: hidden; /* clip internal video if it tries to overflow */
+
+//   /* force any inner <video> / iframe / canvas to be responsive and contained */
+//   video,
+//   iframe,
+//   canvas {
+//     width: 100% !important;
+//     height: auto !important;
+//     max-height: 420px !important;
+//     object-fit: cover;
+//     display: block;
+//   }
+
+//   /* smaller screens: reduce height so it fits */
+//   @media (max-width: 768px) {
+//     max-height: 300px;
+
+//     video,
+//     iframe,
+//     canvas {
+//     width: 100% !important;
+//       max-height: 300px !important;
+//     }
+//   }
+// `;
+
+
+/* UploadArea: flex container that constrains children and clips overflow */
+export const UploadArea = styled.div`
+  border: 2px dashed ${(props) => props.theme.colors.grey};
+  border-radius: 8px;
+  padding: ${(props) => props.theme.spacing(4)};
+  text-align: center;
+  color: ${(props) => props.theme.colors.test};
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  position: relative;
+
+  /* Important: clip any overflowing child like video */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px; /* gives an initial visible area on mobile */
+
+  p { margin: ${(props) => props.theme.spacing(1)} 0 0 0; }
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  @media (max-width: 1024px) {
+    padding: ${(props) => props.theme.spacing(3)};
+  }
+
+  @media (max-width: 768px) {
+    padding: ${(props) => props.theme.spacing(2)};
+    min-height: 140px;
+  }
+`;
+
+/* VideoWrapper: bounding box. video/iframe/canvas inside are forced to fit */
 export const VideoWrapper = styled.div`
   width: 100%;
-  /* limit height to keep inside box; adjust as needed */
   max-height: 420px;
   display: block;
   box-sizing: border-box;
   border-radius: 6px;
-  overflow: hidden; /* clip internal video if it tries to overflow */
+  overflow: hidden; /* ensure children are clipped */
+  position: relative;
 
-  /* force any inner <video> / iframe / canvas to be responsive and contained */
+  /* make the inner media fill this wrapper while respecting aspect */
   video,
   iframe,
   canvas {
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
     max-height: 420px !important;
-    object-fit: cover;
+    object-fit: cover; /* cover keeps it filling the area; use 'contain' if you prefer letterboxing */
     display: block;
   }
 
-  /* smaller screens: reduce height so it fits */
+  /* mobile: reduce height so it fits in the upload area */
   @media (max-width: 768px) {
-    max-height: 300px;
-
+    max-height: 40vh;     /* responsive to viewport height on mobile */
     video,
     iframe,
     canvas {
-    width: 100% !important;
-      max-height: 300px !important;
+      max-height: 40vh !important;
     }
   }
+
+  /* very small screens */
+  @media (max-width: 420px) {
+    max-height: 32vh;
+    video,
+    iframe,
+    canvas {
+      max-height: 32vh !important;
+    }
+  }
+`;
+
+/* If you use a plain <video> element anywhere else */
+export const VideoPlayer = styled.video`
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+`;
+
+/* If you still have VideoControl (remove if unused) */
+export const VideoControl = styled.video`
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
 `;
