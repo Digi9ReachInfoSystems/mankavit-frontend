@@ -111,29 +111,47 @@ const QuestionPaper = () => {
     return titles;
   }, [data]);
 
-  // Apply filter by title
+  // Apply filter by title (still row-based)
   const filteredData = useMemo(() => {
     if (titleFilter === "ALL") return data;
     return data.filter((d) => d.title === titleFilter);
   }, [data, titleFilter]);
 
-  // Pagination based on filtered data
-  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-  const currentItems = filteredData.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // Build flat list of paper identifiers for the current page
-  const pagePaperKeys = useMemo(() => {
-    const keys = [];
-    currentItems.forEach((row) => {
+  // ===== Flatten papers into an array of individual paper entries =====
+  // each flat item: { title, year, question_url, rowId, originalRow }
+  const flatPapers = useMemo(() => {
+    const arr = [];
+    (filteredData || []).forEach((row) => {
       (row.papers || []).forEach((p) => {
-        keys.push(keyOf(row.title, p.year));
+        arr.push({
+          title: row.title,
+          year: p.year,
+          question_url: p.question_url,
+          rowId: row._id,
+          originalRow: row,
+        });
       });
     });
-    return keys;
-  }, [currentItems]);
+    return arr;
+  }, [filteredData]);
+
+  // Pagination based on flatPapers
+  const totalPapers = flatPapers.length;
+  const totalPages = Math.max(1, Math.ceil(totalPapers / ITEMS_PER_PAGE));
+  // ensure currentPage is within bounds when data changes
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [totalPages, currentPage]);
+
+  const currentPagePapers = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return flatPapers.slice(start, start + ITEMS_PER_PAGE);
+  }, [flatPapers, currentPage]);
+
+  // keys for the current page's papers (used by select-all and selection logic)
+  const pagePaperKeys = useMemo(() => {
+    return currentPagePapers.map((p) => keyOf(p.title, p.year));
+  }, [currentPagePapers]);
 
   const isSelected = (title, year) =>
     selectedPapers.some((s) => s.title === title && String(s.year) === String(year));
@@ -156,25 +174,18 @@ const QuestionPaper = () => {
     setSelectedPapers((prev) => {
       if (selectAll) {
         // unselect all papers on this page
-        return prev.filter(
-          (s) => !pagePaperKeys.includes(keyOf(s.title, s.year))
-        );
+        return prev.filter((s) => !pagePaperKeys.includes(keyOf(s.title, s.year)));
       }
       // select all papers on this page (merge unique)
       const toAdd = [];
-      currentItems.forEach((row) => {
-        (row.papers || []).forEach((p) => {
-          const k = keyOf(row.title, p.year);
-          if (!pagePaperKeys.includes(k)) return; // sanity
-          const already = prev.some(
-            (s) => keyOf(s.title, s.year) === k
-          );
-          if (!already) toAdd.push({ title: row.title, year: p.year });
-        });
+      currentPagePapers.forEach((p) => {
+        const k = keyOf(p.title, p.year);
+        const already = prev.some((s) => keyOf(s.title, s.year) === k);
+        if (!already) toAdd.push({ title: p.title, year: p.year });
       });
       return [...prev, ...toAdd];
     });
-    setSelectAll(!selectAll);
+    setSelectAll((prev) => !prev);
   };
 
   // keep page selectAll in sync when page/data/selection changes
@@ -197,6 +208,7 @@ const QuestionPaper = () => {
     try {
       setLoading(true);
       await deleteQuestionPaper(deleteTitle, deleteYear);
+      // update data: remove that paper from the corresponding row and drop empty rows
       setData((prev) =>
         prev
           .map((item) => {
@@ -232,54 +244,57 @@ const QuestionPaper = () => {
 
   const openBulkDelete = () => setBulkModal(true);
 
-const handleBulkDelete = async () => {
-  try {
-    setBulkLoading(true);
+  const handleBulkDelete = async () => {
+    try {
+      setBulkLoading(true);
 
-    // Group selectedPapers -> [{ title, years: [...] }]
-    const grouped = selectedPapers.reduce((acc, { title, year }) => {
-      const key = title.trim();
-      if (!acc[key]) acc[key] = new Set();
-      acc[key].add(String(year));            // keep as string; backend can match string/number
-      return acc;
-    }, {});
+      // Group selectedPapers -> [{ title, years: [...] }]
+      const grouped = selectedPapers.reduce((acc, { title, year }) => {
+        const key = title.trim();
+        if (!acc[key]) acc[key] = new Set();
+        acc[key].add(String(year)); // keep as string; backend can match string/number
+        return acc;
+      }, {});
 
-    const papperInfo = Object.entries(grouped).map(([title, yearsSet]) => ({
-      title,
-      years: Array.from(yearsSet),
-    }));
+      const papperInfo = Object.entries(grouped).map(([title, yearsSet]) => ({
+        title,
+        years: Array.from(yearsSet),
+      }));
 
-    await bulkquestionpaperdeletion(papperInfo); // 👈 send grouped payload
+      await bulkquestionpaperdeletion(papperInfo); // 👈 send grouped payload
 
-    // Update UI: remove all selected rows locally
-    setData(prev =>
-      prev
-        .map(item => {
-          const removeForTitle = new Set(
-            (papperInfo.find(p => p.title === item.title)?.years || []).map(String)
-          );
-          const remaining = (item.papers || []).filter(p => !removeForTitle.has(String(p.year)));
-          return { ...item, papers: remaining };
-        })
-        .filter(item => (item.papers || []).length > 0)
-        .sort((a, b) => ts(b) - ts(a))
-    );
+      // Update UI: remove all selected rows locally
+      setData((prev) =>
+        prev
+          .map((item) => {
+            const removeForTitle = new Set(
+              (papperInfo.find((p) => p.title === item.title)?.years || []).map(String)
+            );
+            const remaining = (item.papers || []).filter(
+              (p) => !removeForTitle.has(String(p.year))
+            );
+            return { ...item, papers: remaining };
+          })
+          .filter((item) => (item.papers || []).length > 0)
+          .sort((a, b) => ts(b) - ts(a))
+      );
 
-    toast.success("Selected question papers deleted successfully");
-    setSelectedPapers([]);
-    setSelectAll(false);
-    setBulkModal(false);
-  } catch (error) {
-    console.error("Bulk delete failed:", error);
-    toast.error(error.response?.data?.error || "Failed to delete selected question papers");
-  } finally {
-    setBulkLoading(false);
-  }
-};
+      toast.success("Selected question papers deleted successfully");
+      setSelectedPapers([]);
+      setSelectAll(false);
+      setBulkModal(false);
+      // reset to first page if current page is beyond last after deletion
+      setCurrentPage(1);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error(error.response?.data?.error || "Failed to delete selected question papers");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
 
-
-  const handleViewClick = (row) => {
-    navigate(`/admin/web-management/question-paper/view/${row._id}`);
+  const handleViewClick = (rowId) => {
+    navigate(`/admin/web-management/question-paper/view/${rowId}`);
   };
 
   return (
@@ -337,16 +352,14 @@ const handleBulkDelete = async () => {
           <Title>
             All Question Papers{" "}
             <span style={{ color: "#6d6e75", fontSize: 12, fontWeight: 400 }}>
-              ({currentItems.length}/{filteredData.length})
+              ({currentPagePapers.length}/{totalPapers})
             </span>
           </Title>
 
           {/* Bulk Delete CTA when there are selections */}
           {!readOnlyPermissions && selectedPapers.length > 0 && (
-            <div >
-              <CreateButton
-                onClick={openBulkDelete}
-              >
+            <div>
+              <CreateButton onClick={openBulkDelete}>
                 Delete Selected ({selectedPapers.length})
               </CreateButton>
             </div>
@@ -369,71 +382,48 @@ const handleBulkDelete = async () => {
                 <TableHeader>Exam name</TableHeader>
                 <TableHeader>Year</TableHeader>
                 <TableHeader>View PDF</TableHeader>
-                {/* <TableHeader>Actions</TableHeader> */}
               </tr>
             </TableHead>
             <TableBody>
-              {currentItems.map((row) =>
-                (row.papers || []).map((paper) => {
-                  const selected = isSelected(row.title, paper.year);
-                  return (
-                    <TableRow key={`${row._id}-${paper.year}`}>
-                      {!readOnlyPermissions && (
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={!!selected}
-                            onChange={() => togglePaper(row.title, paper.year)}
-                          />
-                        </TableCell>
-                      )}
+              {currentPagePapers.map((paper) => {
+                const selected = isSelected(paper.title, paper.year);
+                return (
+                  <TableRow key={`${paper.title}-${paper.year}`}>
+                    {!readOnlyPermissions && (
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={!!selected}
+                          onChange={() => togglePaper(paper.title, paper.year)}
+                        />
+                      </TableCell>
+                    )}
 
-                      <TableCell
-                        // style={{ cursor: "pointer", color: "#1677ff" }}
-                        // onClick={() => handleViewClick(row)}
-                        title="View details"
+                    <TableCell title="View details">{paper.title}</TableCell>
+
+                    <TableCell>{paper.year}</TableCell>
+
+                    <TableCell>
+                      <PdfLink
+                        href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${paper.question_url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        {row.title}
-                      </TableCell>
-
-                      <TableCell>{paper.year}</TableCell>
-
-                      <TableCell>
-                        <PdfLink
-                          href={`${import.meta.env.VITE_APP_IMAGE_ACCESS}/api/project/resource?fileKey=${paper.question_url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          View
-                        </PdfLink>
-                      </TableCell>
-{/* 
-                      <TableCell>
-                        <ActionsWrapper>
-                          {!readOnlyPermissions && (
-                            <RiDeleteBin6Line
-                              title="Delete Paper"
-                              size={20}
-                              color="#FB4F4F"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleDelete(row.title, paper.year)}
-                            />
-                          )}
-                        </ActionsWrapper>
-                      </TableCell> */}
-                    </TableRow>
-                  );
-                })
-              )}
+                        View
+                      </PdfLink>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </StyledTable>
         </TableWrapper>
 
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={totalPapers === 0 ? 1 : Math.ceil(totalPapers / ITEMS_PER_PAGE)}
           onPageChange={setCurrentPage}
-          totalItems={filteredData.length}
+          totalItems={totalPapers}
           itemsPerPage={ITEMS_PER_PAGE}
         />
       </Container>

@@ -186,41 +186,41 @@ export const CheckboxInput = styled.input`
 `;
 
 /** The upload area for the thumbnail, styled as a drop zone */
-export const UploadArea = styled.div`
-  border: 2px dashed ${(props) => props.theme.colors.grey};
-  border-radius: 8px;
-  padding: ${(props) => props.theme.spacing(8)};
-  text-align: center;
-  color: ${(props) => props.theme.colors.test};
-  cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
-  // margin-left: 60px;
+// export const UploadArea = styled.div`
+//   border: 2px dashed ${(props) => props.theme.colors.grey};
+//   border-radius: 8px;
+//   padding: ${(props) => props.theme.spacing(8)};
+//   text-align: center;
+//   color: ${(props) => props.theme.colors.test};
+//   cursor: pointer;
+//   width: 100%;
+//   box-sizing: border-box;
+//   // margin-left: 60px;
 
-  p {
-    margin: ${(props) => props.theme.spacing(1)} 0 0 0;
-  }
+//   p {
+//     margin: ${(props) => props.theme.spacing(1)} 0 0 0;
+//   }
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.backgrounGrey};
-  }
+//   &:hover {
+//     background-color: ${(props) => props.theme.colors.backgrounGrey};
+//   }
 
-  @media (max-width: 1024px) {
-    width: 70%;
-    margin-left: 0;
-  }
+//   @media (max-width: 1024px) {
+//     width: 70%;
+//     margin-left: 0;
+//   }
 
-  @media (max-width: 768px) {
-    width: 100%;
-    box-sizing: border-box;
-  }
+//   @media (max-width: 768px) {
+//     width: 100%;
+//     box-sizing: border-box;
+//   }
 
-  .preview{
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-  }
-`;
+//   .preview{
+//     width: 100%;
+//     height: 500px;
+//     object-fit: cover;
+//   }
+// `;
 
 /** Hidden file input to trigger on area click */
 export const FileInput = styled.input`
@@ -304,13 +304,13 @@ export const VideoContainer = styled.div`
   margin-top: 8px;
 `;
 
-export const VideoPlayer = styled.video`
-  max-width: 100%;
-  height: 500px;
-//   border: 1px solid #ddd;
-  border-radius: 4px;
-  overflow: hidden;
-`;
+// export const VideoPlayer = styled.video`
+//   max-width: 100%;
+//   height: 500px;
+// //   border: 1px solid #ddd;
+//   border-radius: 4px;
+//   overflow: hidden;
+// `;
 
 export const ThumbnailContainer = styled.div`
   width: 100%;
@@ -343,10 +343,10 @@ export const ThumbnailPreview = styled.div`
   }
 `;
 
-export const VideoControl = styled.video`
-  width: 100%;
-  height: 500px;
-`;
+// export const VideoControl = styled.video`
+//   width: 100%;
+//   height: 500px;
+// `;
 
 
 
@@ -401,4 +401,101 @@ export const MoveButton = styled.button`
     cursor: not-allowed;
     opacity: 0.6;
   }
+`;
+
+/* UploadArea: flex container that constrains children and clips overflow */
+export const UploadArea = styled.div`
+  border: 2px dashed ${(props) => props.theme.colors.grey};
+  border-radius: 8px;
+  padding: ${(props) => props.theme.spacing(4)};
+  text-align: center;
+  color: ${(props) => props.theme.colors.test};
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  position: relative;
+
+  /* Important: clip any overflowing child like video */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px; /* gives an initial visible area on mobile */
+
+  p { margin: ${(props) => props.theme.spacing(1)} 0 0 0; }
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.backgrounGrey};
+  }
+
+  @media (max-width: 1024px) {
+    padding: ${(props) => props.theme.spacing(3)};
+  }
+
+  @media (max-width: 768px) {
+    padding: ${(props) => props.theme.spacing(2)};
+    min-height: 140px;
+  }
+`;
+
+/* VideoWrapper: bounding box. video/iframe/canvas inside are forced to fit */
+export const VideoWrapper = styled.div`
+  width: 100%;
+  max-height: 420px;
+  display: block;
+  box-sizing: border-box;
+  border-radius: 6px;
+  overflow: hidden; /* ensure children are clipped */
+  position: relative;
+
+  /* make the inner media fill this wrapper while respecting aspect */
+  video,
+  iframe,
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 420px !important;
+    object-fit: cover; /* cover keeps it filling the area; use 'contain' if you prefer letterboxing */
+    display: block;
+  }
+
+  /* mobile: reduce height so it fits in the upload area */
+  @media (max-width: 768px) {
+    max-height: 40vh;     /* responsive to viewport height on mobile */
+    video,
+    iframe,
+    canvas {
+      max-height: 40vh !important;
+    }
+  }
+
+  /* very small screens */
+  @media (max-width: 420px) {
+    max-height: 32vh;
+    video,
+    iframe,
+    canvas {
+      max-height: 32vh !important;
+    }
+  }
+`;
+
+/* If you use a plain <video> element anywhere else */
+export const VideoPlayer = styled.video`
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+`;
+
+/* If you still have VideoControl (remove if unused) */
+export const VideoControl = styled.video`
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
 `;
