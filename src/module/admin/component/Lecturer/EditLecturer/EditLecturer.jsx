@@ -39,6 +39,7 @@ import JoditEditor from 'jodit-react';
 import { getAuth } from "../../../../../utils/authService";
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { uploadVideoToAzureStorage } from "../../../../../utils/azureStorageService";
+import AdminVideoPlayerCustom from "../../AdminVideoPlayer/AdminVideoPlayerCustom";
 
 export default function EditLecturer() {
   const { id } = useParams();
@@ -115,6 +116,7 @@ const getDocCreatedAt = (doc) => {
 
   return new Date(0);
 };
+
 
 // --- replace your existing useEffect(...) that fetches lecture & subjects with this ---
 useEffect(() => {
@@ -427,7 +429,7 @@ useEffect(() => {
               >
                {videoPreviewUrl ? (
   <VideoWrapper>
-    <VideoPlayerCustom
+    <AdminVideoPlayerCustom
       src={
         videoPreviewUrl.startsWith("blob:")
           ? videoPreviewUrl

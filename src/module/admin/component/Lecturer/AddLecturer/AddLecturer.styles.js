@@ -529,7 +529,7 @@ export const VideoWrapper = styled.div`
   display: block;
   box-sizing: border-box;
   border-radius: 6px;
-  overflow: hidden; /* ensure children are clipped */
+  // overflow: hidden; /* ensure children are clipped */
   position: relative;
 
   /* make the inner media fill this wrapper while respecting aspect */
@@ -538,13 +538,14 @@ export const VideoWrapper = styled.div`
   canvas {
     width: 100% !important;
     height: 100% !important;
-    max-height: 420px !important;
+    // max-height: 420px !important;
     object-fit: cover; /* cover keeps it filling the area; use 'contain' if you prefer letterboxing */
     display: block;
   }
 
   /* mobile: reduce height so it fits in the upload area */
   @media (max-width: 768px) {
+  overflow: hidden;
     max-height: 40vh;     /* responsive to viewport height on mobile */
     video,
     iframe,

@@ -467,22 +467,41 @@ export default function AddLecturer() {
                   }
                 }}
               >
-                {videoFile ? (
-                  <>
-                    <VideoWrapper>
-                      <VideoPlayerCustom
-                        src={videoPreviewUrl}
-                        movingText={lectureName}
-                        // optional callbacks
-                        onClick={() => {}}
-                        onEnded={() => {}}
-                      />
-                    </VideoWrapper>
-                    <p style={{ marginTop: 8, wordBreak: "break-word" }}>
-                      {videoFile.name}
-                    </p>
-                  </>
-                ) : (
+               {videoFile ? (
+  <>
+    <VideoWrapper>
+      <VideoPlayerCustom
+        src={videoPreviewUrl}
+        movingText={lectureName}
+        onClick={() => {}}
+        onEnded={() => {}}
+      />
+    </VideoWrapper>
+
+    <p style={{ marginTop: 8, wordBreak: "break-word" }}>
+      {videoFile.name}
+    </p>
+
+    {/* ✅ Download Button */}
+    <a
+      href={videoPreviewUrl}
+      download={videoFile.name}
+      style={{
+        marginTop: "30px",
+        padding: "8px 16px",
+        background: "#007bff",
+        color: "white",
+        borderRadius: "6px",
+        textDecoration: "none",
+        fontSize: "14px",
+        display: "inline-block"
+      }}
+    >
+      Download Video
+    </a>
+  </>
+) : (
+
                   <>
                     <UploadPlaceholder>
                       <img src={upload} alt="Upload" />
