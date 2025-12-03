@@ -44,8 +44,8 @@ const DeleteModal = ({ isOpen, onClose, onDelete }) => {
         <ModalContent>
           <ModalText>Are you sure you want to delete this item?</ModalText>
           <ButtonGroup>
-            <CancelButton onClick={onClose}>Cancel</CancelButton>
-            <DeleteButton onClick={onDelete}>Delete</DeleteButton>
+            <CancelButton onClick={onClose}>No</CancelButton>
+            <DeleteButton onClick={onDelete}>Yes</DeleteButton>
           </ButtonGroup>
         </ModalContent>
       </ModalWrapper>
