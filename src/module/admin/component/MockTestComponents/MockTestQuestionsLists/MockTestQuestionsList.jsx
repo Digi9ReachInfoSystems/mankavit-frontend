@@ -734,25 +734,39 @@ const MockTestQuestionsList = () => {
       [newQuestions[qi], newQuestions[newIndex]] = [newQuestions[newIndex], newQuestions[qi]];
 
       // prepare API payload
-      const questionsForApi = newQuestions.map((q) => {
-        const isMcq = q.type === "mcq";
-        return {
-          type: q.type,
-          questionText: q.text,
-          options: isMcq
-            ? q.options.map((opt) => ({
-              text: opt.text,
-              marks: opt.marks,
-            }))
-            : [],
-          correctAnswer: isMcq ? q.options.findIndex((o) => o.isCorrect) : null,
-          marks: q.marks,
-          isPassage: q.isPassage || false,
-          passageText: q.passageText || "",
-          _id: q._id,
-          expectedAnswer: q.expectedAnswer || "", // Make sure to include expectedAnswer
-        };
-      });
+    const questionsForApi = newQuestions.map((q) => {
+  const isMcq = q.type === "mcq";
+
+  let correctIndex = null;
+  if (isMcq) {
+    correctIndex = q.options.findIndex((o) => o.isCorrect);
+  }
+
+  const fullMarksForQuestion =
+    isMcq
+      ? (correctIndex >= 0
+          ? Number(q.options[correctIndex]?.marks ?? 1)
+          : Number(q.marks ?? 0))
+      : Number(q.marks ?? 0);
+
+  return {
+    type: q.type,
+    questionText: q.text,
+    options: isMcq
+      ? q.options.map((opt) => ({
+          text: opt.text,
+          marks: Number(opt.marks ?? -0.25),
+        }))
+      : [],
+    correctAnswer: isMcq ? correctIndex : null,
+    marks: fullMarksForQuestion,
+    isPassage: q.isPassage || false,
+    passageText: q.passageText || "",
+    _id: q._id,
+    expectedAnswer: q.expectedAnswer || "",
+  };
+});
+
 
       await rearrangeMocktestQuestions(mockTestId, { questions: questionsForApi });
 
@@ -825,64 +839,82 @@ const updateOptionField = (qi, oi, field, value) =>
   setQuestions((prev) => {
     const next = prev.map((question, qIndex) => {
       if (qIndex !== qi) return question;
-      
+
+      // 1) When marking an option as CORRECT
       if (field === "isCorrect" && value === true) {
-        // When marking an option as correct, update ALL options properly
         const updatedOptions = question.options.map((opt, optIndex) => {
           if (optIndex === oi) {
-            // This is the option being marked as correct
+            // Selected as correct → marks = 1
             return {
               ...opt,
               isCorrect: true,
               marks: 1,
-              raw: "1"
+              raw: "1",
             };
           } else {
-            // All other options become incorrect with -0.25 marks
+            // Others → negative marks = -0.25
             return {
               ...opt,
               isCorrect: false,
               marks: -0.25,
-              raw: "-0.25"
+              raw: "-0.25",
             };
           }
         });
-        
+
         return {
           ...question,
-          options: updatedOptions
-        };
-      } else if (field === "isCorrect" && value === false) {
-        // When unmarking an option as correct (shouldn't normally happen in MCQ with single correct)
-        const updatedOption = {
-          ...question.options[oi],
-          isCorrect: false,
-          marks: -0.25,
-          raw: "-0.25"
-        };
-        
-        const updatedOptions = [...question.options];
-        updatedOptions[oi] = updatedOption;
-        
-        return {
-          ...question,
-          options: updatedOptions
-        };
-      } else {
-        // Handle other field updates (text, marks, etc.)
-        const updatedOptions = question.options.map((opt, optIndex) => {
-          if (optIndex !== oi) return opt;
-          return { ...opt, [field]: value };
-        });
-        
-        return {
-          ...question,
-          options: updatedOptions
+          options: updatedOptions,
+          // keep question-level marks in sync with correct option
+          marks: 1,
         };
       }
+
+      // 2) When unchecking "Correct" (rare, but handled)
+      if (field === "isCorrect" && value === false) {
+        const updatedOptions = question.options.map((opt, optIndex) => {
+          if (optIndex !== oi) return opt;
+          return {
+            ...opt,
+            isCorrect: false,
+            marks: -0.25,
+            raw: "-0.25",
+          };
+        });
+
+        return {
+          ...question,
+          options: updatedOptions,
+        };
+      }
+
+      // 3) For other fields (text, marks, raw, etc.)
+      const updatedOptions = question.options.map((opt, optIndex) => {
+        if (optIndex !== oi) return opt;
+        return { ...opt, [field]: value };
+      });
+
+      let updatedQuestion = {
+        ...question,
+        options: updatedOptions,
+      };
+
+      // If user manually edits marks of the CURRENT correct option,
+      // also sync question.marks with it (optional but nice)
+      if (field === "marks" && question.options[oi].isCorrect) {
+        const numeric = Number(value);
+        if (!isNaN(numeric)) {
+          updatedQuestion.marks = numeric;
+        }
+      }
+
+      return updatedQuestion;
     });
+
     return next;
   });
+
+
 
   const addOption = (qi) =>
     setQuestions((prev) => {

@@ -485,12 +485,13 @@ export default function EditLecturer() {
                     style={{
                       marginTop: "12px",
                       padding: "8px 12px",
-                      background: "#fcfdffff",
+                      background: "#fdfdfd",
+                      display: "none",
                       color: "white",
                       borderRadius: 6,
                       textDecoration: "none",
                       fontSize: 14,
-                      display: "inline-block",
+                      // display: "inline-block",
                     }}
                   >
                     {/* Download Video */}
