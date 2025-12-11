@@ -174,7 +174,7 @@ const AllCoursesDetails = () => {
   });
 
   // initial counts: 15 on mobile, 4 on desktop
-  const INITIAL_COUNT = isMobile ? 15 : 4;
+  const INITIAL_COUNT = isMobile ? 12 : 12;
   const visibleCourses = showAll
     ? filteredCourses
     : filteredCourses.slice(0, INITIAL_COUNT);

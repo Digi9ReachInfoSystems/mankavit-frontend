@@ -52,6 +52,13 @@ export const Content = styled.main`
   height: 95vh;
   width: 100%;
 
+  @media (max-width: 780px) {
+    padding-top: calc(56px + 68px); /* header + summary heights */
+    height: auto;
+    min-height: calc(100svh - (56px + 68px));
+    overflow: auto;
+  }
+
   @media (max-width: 900px) {
     width: 100%;
     height: auto;
@@ -125,10 +132,24 @@ export const Header = styled.div`
   align-items: center;
   margin-bottom: 12px;
 
+  @media (max-width: 780px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    margin-bottom: 0;
+    padding: 8px 12px;
+    z-index: 260;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
   @media (max-width: 768px) {
     margin-bottom: 8px;
   }
 `;
+
 
 export const HeaderLeft = styled.div`
   display: flex;
@@ -183,6 +204,18 @@ export const SummaryContainer = styled.div`
   border-radius: 8px;
   margin-bottom: 10px;
 
+  @media (max-width: 780px) {
+    position: fixed;
+    top: 56px; /* immediately below header */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 8px;
+    height: 68px;
+    border-radius: 0;
+    z-index: 250;
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
@@ -190,6 +223,7 @@ export const SummaryContainer = styled.div`
     border-radius: 6px;
   }
 `;
+
 export const SummaryItem = styled.div`
   display: flex;
   justify-content: space-between;
@@ -342,7 +376,7 @@ export const PassageBox = styled.div`
   flex: 1;
   background-color: white;
   padding: 15px;
-  height: 480px;
+  height: 550px;
   overflow-y: auto;
 
   /* prevent horizontal overflow */
@@ -360,6 +394,10 @@ export const PassageBox = styled.div`
   }
   .passage-full {
     overflow: visible;
+  }
+      @media (max-width: 780px) {
+    max-height: calc(100vh - (56px + 68px + 84px));
+    overflow: auto;
   }
 
   p {
@@ -396,8 +434,9 @@ export const QuestionBox = styled.div`
     overflow-y: unset;
   }
 
-  @media (max-width: 768px) {
-    margin-bottom: 40px;
+   @media (max-width: 768px) {
+    max-height: calc(100vh - (56px + 68px + 84px));
+    overflow: auto;
   }
   @media (max-width: 480px) {
     margin-bottom: 40px;

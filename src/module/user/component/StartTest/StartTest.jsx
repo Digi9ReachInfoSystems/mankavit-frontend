@@ -159,21 +159,13 @@ const StartTest = () => {
           <strong>Subject :</strong> {test.subject?.subjectName || "General"}
         </Subject> */}
         <DetailsList>
-          {/* <DetailItem>
-            <strong>Duration :</strong> {test.duration} minutes
-          </DetailItem>
-          <DetailItem>
-            {" "}
-            <strong>Total Questions : </strong> {test.number_of_questions}
-          </DetailItem> */}
-          <DetailItem>
-            {/* <strong>Description:</strong> */}
-            <span
-              className="desc"
-              dangerouslySetInnerHTML={{ __html: test.description }}
-            />
-          </DetailItem>
-        </DetailsList>
+      <DetailItem>
+        <span
+          className="desc"
+          dangerouslySetInnerHTML={{ __html: test.description }}
+        />
+      </DetailItem>
+    </DetailsList>
       </Card>
       <StartButton
         onClick={() => navigate(`/test-instructions/${testId}/${subjectId}`,{replace: true})}

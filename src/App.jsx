@@ -192,6 +192,73 @@ function App() {
 
 
 
+
+
+
+  useEffect(() => {
+  const isEditable = (el) =>
+    !!el &&
+    (el.closest('input, textarea, [contenteditable="true"], .allow-select, [data-allow-select="true"]'));
+
+  const prevent = (e) => {
+    if (isEditable(e.target)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  };
+
+  const onKeyDown = (e) => {
+    if (isEditable(e.target)) return;
+    const key = (e.key || '').toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (
+      (ctrl && ['c', 'x', 's', 'p', 'a', 'u'].includes(key)) ||
+      key === 'f12' ||
+      (ctrl && e.shiftKey && key === 'i') ||
+      (ctrl && key === 'j') // Chrome DevTools shortcut
+    ) {
+      prevent(e);
+    }
+  };
+
+  // Add event listeners in CAPTURE phase (runs before extensions)
+  document.addEventListener('contextmenu', prevent, true);
+  document.addEventListener('selectstart', prevent, true);
+  document.addEventListener('dragstart', prevent, true);
+  document.addEventListener('copy', prevent, true);
+  document.addEventListener('cut', prevent, true);
+  document.addEventListener('paste', prevent, true);
+  document.addEventListener('keydown', onKeyDown, true);
+  document.addEventListener('mousedown', (e) => {
+    if (e.button === 2 && !isEditable(e.target)) prevent(e);
+  }, true);
+
+  // Optional: Re-apply every few seconds (to counter extensions that remove listeners)
+  const interval = setInterval(() => {
+    document.addEventListener('contextmenu', prevent, true);
+    document.addEventListener('selectstart', prevent, true);
+    // Add others if needed
+  }, 2000);
+
+  return () => {
+    clearInterval(interval);
+    document.removeEventListener('contextmenu', prevent, true);
+    document.removeEventListener('selectstart', prevent, true);
+    document.removeEventListener('dragstart', prevent, true);
+    document.removeEventListener('copy', prevent, true);
+    document.removeEventListener('cut', prevent, true);
+    document.removeEventListener('paste', prevent, true);
+    document.removeEventListener('keydown', onKeyDown, true);
+    document.removeEventListener('mousedown', prevent, true);
+  };
+}, []);
+
+
+
+
+
+
+
   // useEffect(() => {
   //    const isEditable = (el) =>
   //     !!el &&

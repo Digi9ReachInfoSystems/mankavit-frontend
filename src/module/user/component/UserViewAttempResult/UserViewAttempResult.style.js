@@ -3,7 +3,9 @@ import styled from "styled-components";
 export const Complier = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 0; /* allow inner scrolling in flex children */
 `;
+
 
 /* Layout */
 export const Container = styled.div`
@@ -93,7 +95,6 @@ export const CloseSidebarBtn = styled.button`
     box-shadow: -4px 0 12px rgba(0,0,0,0.12);
   }
 `;
-
 export const Content = styled.main`
   position: relative;
   box-sizing: border-box;
@@ -104,118 +105,61 @@ export const Content = styled.main`
   height: 95vh;
   width: 100%;
 
+  /* Desktop/tablet existing behaviour */
   @media (max-width: 900px) {
     width: 100%;
     height: auto;
     overflow: visible;
     padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); /* space for action bar */
   }
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: ${(p) => (p.$sidebarOpen ? "80%" : "100%")};
-  padding-right: 20px;
 
-  @media (max-width: 1360px) {
-    width: ${(p) => (p.$sidebarOpen ? "75%" : "100%")};
+  /* Mobile: reserve space for fixed header and summary so content isn't hidden */
+  @media (max-width: 780px) {
+    /* tune these values if your header or summary are taller */
+    --rs-header-h: 56px;
+    --rs-summary-h: 68px;
+    padding-top: calc(var(--rs-header-h) + var(--rs-summary-h));
+    height: auto;
+    min-height: calc(100svh - (var(--rs-header-h) + var(--rs-summary-h)));
+    overflow: auto; /* main scrollable area under fixed bars */
+    -webkit-overflow-scrolling: touch;
   }
-  @media (max-width: 768px) {
-    width: 100%;
-    padding-right: 0;
-    height: auto; /* allow whole page to scroll */
-  }
-     @media (max-width: 1024px) {
+
+  /* keep previous mobile bottom padding for action bar */
+  @media (max-width: 1024px) {
     padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-   }
+  }
 `;
-
-/* Fixed toggle on mobile; absolute between panes on desktop */
-// export const ToggleSidebarBtn = styled.button`
-//   position: fixed;
-//   top: 50%;
-//   transform: translateY(-50%);
-//   width: 42px;
-//   height: 42px;
-//   border-radius: 50%;
-//   border: 2px solid #135ac4;
-//   background: #fff;
-//   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   cursor: pointer;
-//   font-weight: 700;
-//   line-height: 1;
-//   z-index: 300;
-//   transition: all 0.3s ease;
-
-//   /* Position logic: right side when closed, left edge when open */
-//   right: ${({ $sidebarOpen }) => ($sidebarOpen ? "auto" : "10px")};
-//   left: ${({ $sidebarOpen }) => ($sidebarOpen ? "calc(16vw - 25px)" : "auto")};
-
-//   /* Adjust for mobile sidebar width (84vw) */
-//   @media (max-width: 900px) {
-//     left: ${({ $sidebarOpen }) => ($sidebarOpen ? "calc(100vw - 84vw - 25px)" : "auto")};
-//   }
-
-//   &:hover {
-//     background: #f7f7f7;
-//   }
-// `;
-
-// UserViewAttempResult.style.js
-
-// ... (other existing styles)
-
-// Add this new component style
-// export const CloseSidebarBtn = styled.button`
-//   position: absolute;
-//   top: 35%;
-//   left: -25px;
-//   transform: translateY(-50%);
-//   width: 42px;
-//   height: 42px;
-//   border-radius: 50%;
-//   border: 2px solid #135ac4;
-//   background: #fff;
-//   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.12);
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   cursor: pointer;
-//   z-index: 210;
-
-//   &:hover {
-//     background: #f7f7f7;
-//   }
-
-//   @media (max-width: 900px) {
-//     box-shadow: -4px 0 12px rgba(0, 0, 0, 0.12);
-//     top: 50%;
-//   }
-
- 
-// `;
-
-// ... (rest of existing styles)
 
 export const Header = styled.div`
   position: sticky;
   top: 0;
-  z-index: 400;                 /* sit above content and the toggle button */
+  z-index: 400; /* sits above content and toggle button */
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;           /* keep  padding so it doesn't overlap content */
-  background: linear-gradient(180deg, #ffffff, #fbfdff); /* prevents transparency when sticky */
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
   border-bottom: 1px solid #e6edf6;
   box-shadow: 0 2px 8px rgba(16,24,40,0.04);
 
   /* keep same spacing on small screens */
   @media (max-width: 768px) {
     padding: 10px 12px;
+  }
+
+  /* On very small screens make it fixed so the summary can sit below it */
+  @media (max-width: 780px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: var(--rs-header-h, 56px);
+    padding: 10px 12px;
+    z-index: 460;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 `;
 
@@ -275,6 +219,22 @@ export const SummaryContainer = styled.div`
     padding: 8px;
     border-radius: 6px;
   }
+
+  /* make fixed on small screens and full width */
+  @media (max-width: 780px) {
+    position: fixed;
+    top: var(--rs-header-h, 56px);
+    left: 0;
+    right: 0;
+    z-index: 440;
+    height: var(--rs-summary-h, 68px);
+    margin: 0;
+    padding: 8px;
+    border-radius: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    align-items: center;
+    background: #f8f9fa;
+  }
 `;
 export const SummaryItem = styled.div`
   display: flex;
@@ -299,6 +259,7 @@ export const SummaryValue = styled.span`
 /* Question & passage panes */
 export const Section = styled.div`
   display: flex;
+  min-height: 0; /* important for inner scroll to work in flex */
   @media (max-width: 768px) { flex-direction: column; }
 `;
 
@@ -306,6 +267,7 @@ export const PassageContainer = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+  min-height: 0; /* allow children to set own heights and scroll */
 
   @media (max-width: 990px) {
     flex-direction: column;
@@ -318,59 +280,56 @@ export const PassageBox = styled.div`
   background-color: white;
   padding: 15px;
   height: 480px;
-overflow-y: auto;
+  overflow-y: auto;
   overflow-x: hidden;
   word-wrap: break-word;
   overflow-wrap: anywhere;
   word-break: break;
   hyphens: auto;
 
-  /* mobile clamp */
   .passage-clamped {
     display: -webkit-box;
-    -webkit-line-clamp: 6; /* ~5–7 lines */
+    -webkit-line-clamp: 6;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   .passage-full { overflow: visible; }
-  .read-toggle {
-    margin-top: 8px;
-    border: none;
-    background: transparent;
-    color: #135ac4;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-  }
 
-  p {
-    font-size: 18px;
-    line-height: 1.6;
-    margin: 0;
-  }
+  p { font-size: 18px; line-height: 1.6; margin: 0; }
 
   @media (max-width: 990px) {
     height: unset;
     overflow-y: unset;
     p { font-size: 16px; }
   }
-`;
 
+  /* mobile: limit height so the fixed header+summary+action bar stay visible */
+  @media (max-width: 780px) {
+    max-height: calc(100vh - (var(--rs-header-h, 56px) + var(--rs-summary-h, 68px) + 84px));
+    overflow: auto;
+  }
+`;
 export const QuestionBox = styled.div`
   flex: 1;
   background-color: white;
   padding: 15px;
   height: 480px;
   overflow-y: auto;
- overflow-x: hidden;
+  overflow-x: hidden;
   word-wrap: break-word;
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: auto;
+  min-height: 0;
 
   @media (max-width: 990px) {
     height: unset;
     overflow-y: unset;
+  }
+
+  @media (max-width: 780px) {
+    max-height: calc(100vh - (var(--rs-header-h, 56px) + var(--rs-summary-h, 68px) + 84px));
+    overflow: auto;
   }
 `;
 
