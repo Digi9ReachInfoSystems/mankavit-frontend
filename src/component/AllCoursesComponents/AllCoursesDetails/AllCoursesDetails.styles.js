@@ -1,28 +1,28 @@
-import styled from 'styled-components';
- 
+import styled from "styled-components";
+
 export const Container = styled.div`
   padding: 2rem;
   width: 80%;
   display: flex;
   flex-direction: column;
   margin: 0 auto;
- scroll-margin-top: 80px;
+  scroll-margin-top: 80px;
   @media (max-width: 1360px) {
     width: 90%;
   }
- 
+
   @media (max-width: 768px) {
     padding: 1rem;
   }
 `;
- 
+
 export const Title = styled.h1`
   font-size: 50px;
   font-weight: 500;
   span {
     color: #007bff;
   }
- 
+
   @media (max-width: 768px) {
     font-size: 32px;
     margin: 1rem 0;
@@ -31,9 +31,8 @@ export const Title = styled.h1`
   @media (max-width: 576px) {
     font-size: 28px;
   }
-
 `;
- 
+
 export const FilterBar = styled.div`
   display: flex;
   align-items: center;
@@ -42,11 +41,13 @@ export const FilterBar = styled.div`
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
-
-   display: grid;
+    display: grid;
     gap: 8px;
     margin: 0 0 1rem 0;
-    grid-template-columns: repeat(4, 1fr);   /* default: 3 per row on small phones */
+    grid-template-columns: repeat(
+      4,
+      1fr
+    ); /* default: 3 per row on small phones */
   }
 
   @media (min-width: 480px) and (max-width: 768px) {
@@ -54,43 +55,40 @@ export const FilterBar = styled.div`
   }
 `;
 
- 
 export const FilterButton = styled.button`
   background: ${({ active }) =>
-    active
-      ? 'linear-gradient(to right, #0DCAF0, #007BFF)'
-      : '#D3D3D3'};
+    active ? "linear-gradient(to right, #0DCAF0, #007BFF)" : "#D3D3D3"};
   color: ${({ theme }) => theme.colors.blueishblack};
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
- white-space: nowrap;
- overflow: hidden;
- text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
- @media (max-width: 768px) {
-   width: 100%;              /* fill its grid cell */
-   padding: 8px 10px;        /* tighter */
-   font-size: 14px;          /* smaller text */
-   border-radius: 999px;     /* pill look */
- }
-   @media (max-width: 576px) {
-   font-size: 12px;
- }
+  @media (max-width: 768px) {
+    width: 100%; /* fill its grid cell */
+    padding: 8px 10px; /* tighter */
+    font-size: 14px; /* smaller text */
+    border-radius: 999px; /* pill look */
+  }
+  @media (max-width: 576px) {
+    font-size: 12px;
+  }
 `;
 
 export const SearchWrapper = styled.div`
   position: relative;
   width: 100%;
   margin-bottom: 30px;
- 
+
   @media (max-width: 768px) {
     margin-bottom: 20px;
   }
 `;
- 
+
 export const SearchIcon = styled.div`
   display: flex;
   align-items: center;
@@ -101,7 +99,7 @@ export const SearchIcon = styled.div`
   color: #888;
   pointer-events: none;
 `;
- 
+
 export const SearchInput = styled.input`
   width: 100%;
   padding: 15px 5px 10px 40px;
@@ -109,18 +107,18 @@ export const SearchInput = styled.input`
   border-radius: 12px;
   font-size: 1rem;
   box-sizing: border-box;
-  background: #F1F4FF;
- 
+  background: #f1f4ff;
+
   @media (max-width: 768px) {
     font-size: 14px;
     padding: 12px 5px 8px 35px;
   }
-    @media (max-width: 576px) {
+  @media (max-width: 576px) {
     font-size: 12px;
     padding: 10px 5px 6px 30px;
   }
 `;
- 
+
 export const SliderIcon = styled.div`
   display: flex;
   align-items: center;
@@ -132,10 +130,10 @@ export const SliderIcon = styled.div`
   pointer-events: none;
   padding: 5px;
   color: ${({ theme }) => theme.colors.white};
-  background: linear-gradient(to right, #0DCAF0, #007BFF);
+  background: linear-gradient(to right, #0dcaf0, #007bff);
   border-radius: 8px;
 `;
- 
+
 export const Ribbon = styled.div`
   width: 120px;
   background: ${({ className }) =>
@@ -158,10 +156,18 @@ export const CardGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 
-  @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
-    @media (min-width: 1000px)and (max-height: 800px)  { grid-template-columns: repeat(4, 1fr); }
-  @media (max-width: 900px)  { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 560px)  { grid-template-columns: 1fr; }
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (min-width: 1000px) and (max-height: 800px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const CourseCard = styled.div`
@@ -173,12 +179,14 @@ export const CourseCard = styled.div`
   border: 1px solid #eef2f7;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 1px 1px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.08);
+  box-shadow: 0 1px 1px rgba(16, 24, 40, 0.04),
+    0 8px 24px rgba(16, 24, 40, 0.08);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 2px 6px rgba(16,24,40,0.06), 0 16px 36px rgba(16,24,40,0.12);
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06),
+      0 16px 36px rgba(16, 24, 40, 0.12);
   }
 `;
 
@@ -199,7 +207,7 @@ export const ImageWrapper = styled.div`
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0));
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0));
     pointer-events: none;
   }
 `;
@@ -254,7 +262,7 @@ export const CourseTitle = styled.h3`
   -webkit-box-orient: vertical;
   line-height: 1.3;
   height: 46px;
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 16px;
   }
   @media (max-width: 576px) {
@@ -326,14 +334,18 @@ export const Price = styled.button`
   justify-content: center;
   gap: 8px;
   color: #fff;
-  background: linear-gradient(90deg, #0DCAF0 0%, #007BFF 100%);
+  background: linear-gradient(90deg, #0dcaf0 0%, #007bff 100%);
   font-size: 15px;
   font-weight: 800;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.05s ease;
 
-  &:hover { filter: brightness(0.98); }
-  &:active { transform: translateY(1px); }
+  &:hover {
+    filter: brightness(0.98);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
 
   border-bottom-left-radius: 16px;
 
@@ -357,12 +369,12 @@ export const ViewButton = styled.button`
   font-weight: 800;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
- border-bottom-right-radius: 16px;
+  border-bottom-right-radius: 16px;
   &:hover {
     background: #f3f6ff;
     color: #0849b8;
   }
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 14px;
     padding: 10px 12px;
   }
@@ -370,7 +382,6 @@ export const ViewButton = styled.button`
     font-size: 12px;
     padding: 8px 10px;
   }
- 
 `;
 
 export const OldPrice = styled.span`

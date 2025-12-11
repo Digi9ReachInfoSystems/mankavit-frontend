@@ -172,36 +172,37 @@ const formatTime = (timeSpentStr) => {
     <Container>
       <Title>User Result</Title>
 
-      <UserInfo>
-        <p>
-          <strong>Student Name:</strong>{" "}
-          {attemptData?.userId?.displayName || "N/A"}
-        </p>
-        <p>
-          <strong>Mock Test Name:</strong>{" "}
-          {attemptData?.mockTestId?.title || "N/A"}
-        </p>
-        <p>
-          <strong>Total Questions:</strong>{" "}
-          {attemptData?.mockTestId?.questions?.length || 0}
-        </p>
-        <p>
-          <strong>Attempted Questions:</strong>{" "}
-          {attemptData?.answers?.filter((a) => a.status !== "not-answered")
-            .length || 0}
-        </p>
-        <p>
-          <strong>Correct Answers:</strong>{" "}
-          {attemptData?.answers?.filter((a) => a.isCorrect).length || 0}
-        </p>
-        <p>
-          <strong>Total Marks:</strong> {attemptData?.totalMarks ?? 0}
-        </p>
-          <p>
-  <strong>Time Spent:</strong>{" "}
-  {formatTime(attemptData?.timeSpent)}
-</p>
-      </UserInfo>
+     <UserInfo>
+  <p>
+    <strong>Student Name:</strong>{" "}
+    {attemptData?.userId?.displayName || "N/A"}
+  </p>
+  <p>
+    <strong>Mock Test Name:</strong>{" "}
+    {attemptData?.mockTestId?.title || "N/A"}
+  </p>
+  <p>
+    <strong>Total Questions:</strong>{" "}
+    {attemptData?.mockTestId?.questions?.length || 0}
+  </p>
+  <p>
+    <strong>Attempted Questions:</strong>{" "}
+    {attemptData?.answers?.filter(a => 
+      typeof a.status === "string" && a.status.toLowerCase().startsWith("answered")
+    ).length || 0}
+  </p>
+  <p>
+    <strong>Correct Answers:</strong>{" "}
+    {attemptData?.answers?.filter((a) => a.isCorrect).length || 0}
+  </p>
+  <p>
+    <strong>Total Marks:</strong> {attemptData?.totalMarks ?? 0}
+  </p>
+  <p>
+    <strong>Time Spent:</strong>{" "}
+    {formatTime(attemptData?.timeSpent)}
+  </p>
+</UserInfo>
 
       <SubTitle>MCQ Questions</SubTitle>
       {mcqAnswers.map((a, index) => {

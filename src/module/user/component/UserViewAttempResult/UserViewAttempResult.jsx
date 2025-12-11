@@ -338,8 +338,11 @@ export default function UserViewAttempResult() {
                               <input type="radio" checked={sel} readOnly />
                               {opt.text || opt}
                               {cor && (
-                                <span
-                                  style={{ marginLeft: 10, color: "green" }}
+                                <span style={{
+                                  marginLeft: 10,
+                                  color: "green",
+                                  flex: "0 0 auto",
+                                }}
                                 >
                                   (Correct)
                                 </span>

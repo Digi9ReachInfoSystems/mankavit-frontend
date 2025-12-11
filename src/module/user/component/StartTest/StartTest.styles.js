@@ -21,7 +21,7 @@ export const Title = styled.h2`
 background: linear-gradient(to right, #00c6ff, #0072ff);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
-  padding: 20px;
+  // padding: 20px;
   margin-top: 0px;
   margin-bottom: 20px;
   text-align: center;
@@ -51,7 +51,7 @@ export const Card = styled.div`
 
 export const ExamImage = styled.img`
   width: 100%;
-  height: 400px;
+  height: 500px;
   object-fit: cover;
   margin-bottom: 15px;
   border: none;
@@ -91,30 +91,31 @@ export const DetailsList = styled.ul`
 `;
 
 export const DetailItem = styled.div`
-  display: flex;
-  align-items: baseline;      /* keeps the first text line aligned */
-  gap: 8px; 
-  text-align: left;                  /* space between label and content */
+  /* For long HTML content prefer column layout */
+  display: block;
+  text-align: left;
   font-size: 18px;
   font-weight: 400;
   color: #000;
-  margin-bottom: 8px;
-  margin-top:20px;
+  margin-bottom: 16px;
+  margin-top: 20px;
 
-  /* Make sure injected HTML stays inline and doesn’t force a new line */
   .desc {
-    display: inline;          /* keep it inline with the label */
-    /* allow wrapping across lines without breaking layout */
-    white-space: normal;
+    display: block;         /* paragraphs remain block-level */
+    white-space: normal;    /* allow wrapping */
+    line-height: 1.6;       /* readable spacing */
   }
 
-  /* If the HTML contains block tags, flatten them so they don’t break the row */
+  /* Allow common block tags inside description to keep default spacing */
   .desc p,
-  .desc div,
-  .desc h1, .desc h2, .desc h3, .desc h4, .desc h5, .desc h6 {
-    display: inline;
-    margin: 0;
+  .desc div {
+    display: block;
+    margin: 8px 0;
     padding: 0;
+  }
+
+  .desc strong, .desc b {
+    font-weight: 700;
   }
 `;
 
